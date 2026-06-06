@@ -29,8 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Build
-        env:
-          DOCKER_BUILDKIT: "1"
         run: |
           IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}/platform:${GITHUB_SHA}"
           docker build -f apps/platform/Dockerfile -t "$IMAGE" .
