@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+**/node_modules
+dist
+**/dist
+build
+**/build
+.react-router
+**/.react-router
+coverage
+playwright-report
+test-results
+.env
+.env.local
+.env.*.local

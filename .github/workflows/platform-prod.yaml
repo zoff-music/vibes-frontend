@@ -1,0 +1,47 @@
+name: platform-prod
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "apps/platform/**"
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "biome.json"
+      - "tsconfig.json"
+      - ".github/workflows/platform-prod.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: platform-prod-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment: production
+    runs-on: [self-hosted, k3s, deployer, zoff-music-vibes-frontend]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build
+        env:
+          DOCKER_BUILDKIT: "1"
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}/platform:${GITHUB_SHA}"
+          docker build -f apps/platform/Dockerfile -t "$IMAGE" .
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+      - name: Push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker push "$IMAGE"
+      - name: Deploy
+        env:
+          NAMESPACE: vibes
+        run: apps/platform/.build/scripts/deploy.sh

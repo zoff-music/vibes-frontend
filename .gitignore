@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+.react-router
+.env
+.env.local
+.env.*.local
+coverage
+playwright-report
+test-results
+.DS_Store

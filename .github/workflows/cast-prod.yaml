@@ -1,0 +1,47 @@
+name: cast-prod
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "apps/cast/**"
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "biome.json"
+      - "tsconfig.json"
+      - ".github/workflows/cast-prod.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: cast-prod-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment: production
+    runs-on: [self-hosted, k3s, deployer, zoff-music-vibes-frontend]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build
+        env:
+          DOCKER_BUILDKIT: "1"
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}/cast:${GITHUB_SHA}"
+          docker build -f apps/cast/Dockerfile -t "$IMAGE" .
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+      - name: Push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker push "$IMAGE"
+      - name: Deploy
+        env:
+          NAMESPACE: vibes
+        run: apps/cast/.build/scripts/deploy.sh
