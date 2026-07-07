@@ -7,7 +7,7 @@ import {
   createMetricsMiddleware,
   createTracingMiddleware,
 } from './middleware.ts';
-import { initTracing, instrumentFetch } from './tracing.ts';
+import { initTracing } from './tracing.ts';
 
 export type ServerRequest = Request;
 
@@ -101,7 +101,6 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
 
 export async function startServer(config: ServerConfig) {
   const sdk = initTracing(config.serviceName);
-  instrumentFetch(config.serviceName);
 
   const app = express();
   app.use(compression());

@@ -1,7 +1,10 @@
 import { createApiClientWithBaseUrl } from '@vibez/api';
+import { createTracedWiretypedFetchProvider } from '@vibez/serve';
 import { safeWrap } from '@vibez/shared';
 
 const FALLBACK_API_BASE_URL = 'http://localhost:8080';
+const serviceName =
+  process?.env?.OTEL_SERVICE_NAME ?? 'vibes-frontend-platform';
 
 function resolveServerApiBaseUrl(request?: Request) {
   const internalApiUrl =
@@ -43,5 +46,9 @@ export function getServerApi(request?: Request) {
     apiUrl: process?.env?.VITE_API_URL,
     apiUrlInternal: process?.env?.VITE_API_URL_INTERNAL,
   });
-  return createApiClientWithBaseUrl(baseUrl);
+  return createApiClientWithBaseUrl(
+    baseUrl,
+    {},
+    createTracedWiretypedFetchProvider(serviceName),
+  );
 }

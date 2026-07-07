@@ -42,8 +42,10 @@ export * as yup from 'yup';
 import {
   getHttpError,
   RequestClient,
+  type RequestClientProps,
   type RequestDefinitions,
 } from 'wiretyped';
+
 export { getHttpError };
 
 const API_BASE_PATH = '/api/v1';
@@ -257,6 +259,10 @@ const endpoints = {
   },
 } as const satisfies RequestDefinitions;
 
+type ApiClientFetchProvider = RequestClientProps<
+  typeof endpoints
+>['fetchProvider'];
+
 function resolveApiBaseUrl(baseUrl: string) {
   const normalized = baseUrl.endsWith(API_BASE_PATH)
     ? baseUrl
@@ -267,9 +273,11 @@ function resolveApiBaseUrl(baseUrl: string) {
 export function createApiClientWithBaseUrl(
   baseUrl: string,
   customHeaders: Record<string, string> = {},
+  fetchProvider?: ApiClientFetchProvider,
 ) {
   const resolvedBaseUrl = resolveApiBaseUrl(baseUrl);
   return new RequestClient({
+    ...(fetchProvider && { fetchProvider }),
     hostname: resolvedBaseUrl,
     baseUrl: resolvedBaseUrl,
     endpoints,
