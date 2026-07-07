@@ -31,7 +31,7 @@ jobs:
       - name: Build
         run: |
           IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}/platform:${GITHUB_SHA}"
-          docker build -f apps/platform/Dockerfile -t "$IMAGE" .
+          docker build --no-cache -f apps/platform/Dockerfile -t "$IMAGE" .
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
       - name: Push
         env:
