@@ -2,14 +2,21 @@ import {
   context,
   propagation,
   SpanStatusCode,
+  type TextMapSetter,
   trace,
 } from '@opentelemetry/api';
+import { W3CTraceContextPropagator } from '@opentelemetry/core';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { backendRequestDuration, backendRequestStatusCode } from './metrics.ts';
 
 const notRecord = 0;
 const recordAndSample = 2;
+const headersSetter: TextMapSetter<Headers> = {
+  set(carrier, key, value) {
+    carrier.set(key, value);
+  },
+};
 
 function normalizeOtelEndpoint(endpoint: string | undefined) {
   if (!endpoint) {
@@ -33,6 +40,8 @@ function parseRatio(raw: string | undefined) {
 }
 
 export function initTracing(serviceName: string) {
+  propagation.setGlobalPropagator(new W3CTraceContextPropagator());
+
   const traceExporter = new OTLPTraceExporter({
     url: normalizeOtelEndpoint(process.env.OTEL_ENDPOINT),
   });
@@ -78,7 +87,7 @@ export function instrumentFetch(serviceName: string) {
 
     return tracer.startActiveSpan(operationName, async (span) => {
       const headers = new Headers(request.headers);
-      propagation.inject(context.active(), headers);
+      propagation.inject(context.active(), headers, headersSetter);
 
       return originalFetch(new Request(request, { headers }))
         .then((response) => {

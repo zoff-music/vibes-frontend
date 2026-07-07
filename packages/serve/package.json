@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/core": "^2.9.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.220.0",
     "@opentelemetry/sdk-node": "^0.220.0",
     "compression": "^1.8.1",
