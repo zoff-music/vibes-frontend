@@ -6,16 +6,19 @@
   "scripts": {
     "dev": "react-router dev --host 0.0.0.0 --port 3001",
     "build": "react-router build",
-    "start": "react-router-serve ./dist/server/index.js",
+    "start": "node server/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",
     "test:e2e": "playwright test",
     "test": "vitest",
-    "preview": "react-router-serve ./dist/server/index.js"
+    "preview": "node server/index.ts"
   },
   "dependencies": {
+    "@react-router/express": "^7.17.0",
+    "@react-router/serve": "^7.13.0",
     "@vibez/api": "workspace:*",
     "@vibez/models": "workspace:*",
+    "@vibez/serve": "workspace:*",
     "@vibez/shared": "workspace:*",
     "@vibez/ui": "workspace:*",
     "framer-motion": "^12.29.2",
@@ -24,7 +27,6 @@
     "react-dom": "19.2.4",
     "react-player": "^3.4.0",
     "react-router": "^7.13.0",
-    "@react-router/serve": "^7.13.0",
     "react-spotify-web-playback": "^0.14.7",
     "react-youtube": "^10.1.0",
     "wiretyped": "^0.3.4",

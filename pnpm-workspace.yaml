@@ -4,6 +4,7 @@ packages:
 allowBuilds:
   core-js: true
   esbuild: true
+  protobufjs: true
 minimumReleaseAgeExclude:
   - '@radix-ui/primitive@1.1.4'
   - '@radix-ui/react-collection@1.1.9'

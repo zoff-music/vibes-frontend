@@ -29,6 +29,7 @@ COPY --from=builder /src/package.json ./package.json
 COPY --from=builder /src/node_modules ./node_modules
 COPY --from=builder /src/packages ./packages
 COPY --from=builder /src/apps/platform/package.json ./apps/platform/package.json
+COPY --from=builder /src/apps/platform/server ./apps/platform/server
 COPY --from=builder /src/apps/platform/node_modules ./apps/platform/node_modules
 COPY --from=builder /src/apps/platform/dist ./apps/platform/dist
 
@@ -36,7 +37,8 @@ ENV NODE_ENV=production
 ENV VITE_API_URL_INTERNAL=http://vibes-backend.vibes.svc.cluster.local
 
 EXPOSE 3000
+EXPOSE 3002
 
 WORKDIR /app/apps/platform
 
-CMD ["./node_modules/.bin/react-router-serve", "./dist/server/index.js"]
+CMD ["node", "server/index.ts"]
