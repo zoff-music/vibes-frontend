@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3003",
     "build": "vite build",
-    "preview": "echo 'Use Caddy to preview the static build'",
+    "start": "NODE_ENV=production node server/index.ts",
+    "preview": "NODE_ENV=production node server/index.ts",
     "lint": "biome check .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@vibez/api": "workspace:*",
     "@vibez/models": "workspace:*",
+    "@vibez/serve": "workspace:*",
     "@vibez/shared": "workspace:*",
     "@vibez/ui": "workspace:*",
     "qrcode.react": "^4.2.0",

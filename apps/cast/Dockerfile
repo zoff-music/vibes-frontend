@@ -21,9 +21,23 @@ COPY apps/cast ./apps/cast
 
 RUN pnpm --filter @vibez/cast build
 
-FROM nginx:1.29-alpine AS prod
+FROM node:${NODE_VERSION}-bookworm-slim AS prod
 
-COPY apps/cast/.build/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /src/apps/cast/dist /usr/share/nginx/html/casting/receiver
+WORKDIR /app
+
+COPY --from=builder /src/package.json ./package.json
+COPY --from=builder /src/node_modules ./node_modules
+COPY --from=builder /src/packages ./packages
+COPY --from=builder /src/apps/cast/package.json ./apps/cast/package.json
+COPY --from=builder /src/apps/cast/server ./apps/cast/server
+COPY --from=builder /src/apps/cast/node_modules ./apps/cast/node_modules
+COPY --from=builder /src/apps/cast/dist ./apps/cast/dist
+
+ENV NODE_ENV=production
 
 EXPOSE 3001
+EXPOSE 3004
+
+WORKDIR /app/apps/cast
+
+CMD ["node", "server/index.ts"]

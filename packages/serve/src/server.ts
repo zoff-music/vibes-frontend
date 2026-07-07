@@ -18,7 +18,7 @@ type ServerMode =
     }
   | {
       type: 'spa';
-      fallbackPath: string;
+      basePath: string;
       fallbackFile: string;
     };
 
@@ -58,16 +58,16 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     return;
   }
 
-  app.use(
-    config.assets.path,
-    express.static(config.assets.staticDir, {
-      immutable: true,
-      maxAge: '1y',
-    }),
-  );
-  app.use(express.static(config.staticDir, { maxAge: '1h', index: false }));
-
   if (config.mode.type === 'ssr') {
+    app.use(
+      config.assets.path,
+      express.static(config.assets.staticDir, {
+        immutable: true,
+        maxAge: '1y',
+      }),
+    );
+    app.use(express.static(config.staticDir, { maxAge: '1h', index: false }));
+
     const { createRequestHandler } = await import('@react-router/express');
     const { loadBuild } = config.mode;
     app.use(
@@ -78,8 +78,23 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     return;
   }
 
-  const { fallbackPath, fallbackFile } = config.mode;
-  app.get(fallbackPath, (_req, res) => {
+  const { basePath, fallbackFile } = config.mode;
+  app.use((req, res, next) => {
+    if (req.path !== basePath) {
+      return next();
+    }
+
+    return res.redirect(308, `${basePath}/`);
+  });
+  app.use(
+    config.assets.path,
+    express.static(config.assets.staticDir, {
+      immutable: true,
+      maxAge: '1y',
+    }),
+  );
+  app.use(basePath, express.static(config.staticDir, { maxAge: '1h' }));
+  app.get(`${basePath}/*`, (_req, res) => {
     res.sendFile(path.resolve(config.staticDir, fallbackFile));
   });
 }

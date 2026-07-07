@@ -48,6 +48,9 @@ importers:
       '@vibez/models':
         specifier: workspace:*
         version: link:../../packages/models
+      '@vibez/serve':
+        specifier: workspace:*
+        version: link:../../packages/serve
       '@vibez/shared':
         specifier: workspace:*
         version: link:../../packages/shared
