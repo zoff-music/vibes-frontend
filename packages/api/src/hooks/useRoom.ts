@@ -1,7 +1,6 @@
 import {
   type RoomSettings,
   type RoomUpdate,
-  safeWrapAsync,
   useRoomStore,
 } from '@vibes/shared';
 import { useCallback, useState } from 'react';
@@ -40,17 +39,10 @@ export const useRoom = (roomId: string, callbacks?: USE_SSE_CALLBACKS) => {
       IN_FLIGHT_REQUESTS.set(key, promise);
     }
 
-    const [wrapErr, result] = await safeWrapAsync(promise);
+    const [err, data] = await promise;
     IN_FLIGHT_REQUESTS.delete(key);
     setIsLoading(false);
 
-    if (wrapErr) {
-      console.error('Unexpected error fetching room', wrapErr);
-      setError(wrapErr);
-      return;
-    }
-
-    const [err, data] = result as [Error | null, any];
     if (err) {
       setError(err);
       return;
@@ -79,17 +71,8 @@ export const useRoom = (roomId: string, callbacks?: USE_SSE_CALLBACKS) => {
         promise = cachedPromise;
       }
 
-      const [wrapErr, result] = await safeWrapAsync(promise);
+      const [err, data] = await promise;
       IN_FLIGHT_REQUESTS.delete(key);
-
-      if (wrapErr) {
-        console.error('Unexpected error joining room', wrapErr);
-        setIsLoading(false);
-        setError(wrapErr);
-        return null;
-      }
-
-      const [err, data] = result as [Error | null, any];
       setIsLoading(false);
 
       if (err) {

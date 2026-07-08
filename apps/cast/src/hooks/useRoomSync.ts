@@ -1,6 +1,6 @@
 import { createApiClient } from '@vibes/api';
 import type { Song } from '@vibes/shared';
-import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
+import { usePlaybackStore } from '@vibes/shared';
 import { useEffect } from 'react';
 import type { QueueItem, RoomInfo } from '../types';
 import { normalizeSong } from '../utils/songUtils';
@@ -55,27 +55,17 @@ export function useRoomSync({
       if (!roomId) return;
 
       // Fetch initial state
-      const [initialStateErr, initialState] = await safeWrapAsync(
-        Promise.all([
-          api.get(
-            '/rooms/{id}/songs',
-            { id: roomId },
-            { headers: authHeaders },
-          ),
-          api.get(
-            '/rooms/{id}/states',
-            { id: roomId },
-            {
-              headers: authHeaders,
-            },
-          ),
-        ]),
-      );
+      const initialState = await Promise.all([
+        api.get('/rooms/{id}/songs', { id: roomId }, { headers: authHeaders }),
+        api.get(
+          '/rooms/{id}/states',
+          { id: roomId },
+          {
+            headers: authHeaders,
+          },
+        ),
+      ]);
       if (!isMounted) return;
-      if (initialStateErr || !initialState) {
-        setError(`Fetch Error: ${initialStateErr?.message ?? 'unknown error'}`);
-        return;
-      }
 
       const [queueRes, playbackRes] = initialState;
       const [songsErr, songs] = queueRes;

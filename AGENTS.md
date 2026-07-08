@@ -73,7 +73,7 @@ if (error) {
 // use result
 
 // Async - CRITICAL: destructure as [error, data]
-const [error, data] = await safeWrapAsync(api.get('/rooms/{id}', { id: roomId }));
+const [error, data] = await safeWrapAsync(loadSomething());
 if (error) {
   // handle error
   return;
@@ -82,6 +82,7 @@ if (error) {
 ```
 
 **Important**: `safeWrapAsync` returns `[Error | null, T | null]` - always destructure as `[error, data]`, not `[data, error]`.
+**Important**: `@vibes/api` methods already return `[error, data]`; do not wrap `api.get()`, `api.post()`, `api.put()`, or similar API calls in `safeWrapAsync`.
 
 ## API Calls
 
@@ -91,23 +92,23 @@ Always use `@vibes/api`:
 import { api } from '@vibes/api';
 
 // GET request
-const [error, room] = await safeWrapAsync(api.get('/rooms/{id}', { id: roomId }));
+const [error, room] = await api.get('/rooms/{id}', { id: roomId });
 
 // POST request
-const [error, song] = await safeWrapAsync(api.post('/rooms/{id}/songs', { id: roomId }, {
+const [error, song] = await api.post('/rooms/{id}/songs', { id: roomId }, {
   sourceType: 'youtube',
   sourceId: 'dQw4w9WgXcQ',
   title: 'Never Gonna Give You Up',
   artist: 'Rick Astley',
   thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
   duration: 213
-}));
+});
 
 // PUT request
-const [error, playbackState] = await safeWrapAsync(api.put('/rooms/{id}/states', { id: roomId }, {
+const [error, playbackState] = await api.put('/rooms/{id}/states', { id: roomId }, {
   action: 'play',
   positionMs: 45000
-}));
+});
 ```
 
 ## Server-Side Rendering (SSR)
@@ -261,9 +262,9 @@ type SourceType = 'youtube' | 'spotify' | 'soundcloud';
 const { getToken, isAuthenticated } = useProviderToken('spotify');
 
 // Search across providers
-const [error, results] = await safeWrapAsync(api.get('/youtube/search', {}, { q: 'never gonna give you up' }));
-const [error, results] = await safeWrapAsync(api.get('/spotify/search', {}, { q: 'never gonna give you up' }));
-const [error, results] = await safeWrapAsync(api.get('/soundcloud/search', {}, { q: 'never gonna give you up' }));
+const [error, results] = await api.get('/youtube/search', {}, { q: 'never gonna give you up' });
+const [error, results] = await api.get('/spotify/search', {}, { q: 'never gonna give you up' });
+const [error, results] = await api.get('/soundcloud/search', {}, { q: 'never gonna give you up' });
 ```
 
 ## Styling

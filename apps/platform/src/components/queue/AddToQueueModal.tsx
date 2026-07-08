@@ -3,7 +3,6 @@ import {
   formatDuration,
   parseISODuration,
   type SourceType,
-  safeWrapAsync,
   usePlaybackStore,
   useQueueStore,
 } from '@vibes/shared';
@@ -42,14 +41,6 @@ interface SearchApiResult {
   duration?: string;
   url?: string;
   source?: string;
-}
-
-interface VideoApiResult {
-  id: string;
-  title: string;
-  channelTitle: string;
-  thumbnailUrl: string;
-  duration?: string;
 }
 
 const vinylPlaceholder =
@@ -210,16 +201,10 @@ export const AddToQueueModal: React.FC<Props> = ({
       setShowResults(false);
       setIsSearching(true);
       const loadVideoPreview = async () => {
-        const [wrapErr, result] = await safeWrapAsync(
-          api.get('/youtube/videos/{id}', { id: videoId }),
-        );
+        const [err, video] = await api.get('/youtube/videos/{id}', {
+          id: videoId,
+        });
         setIsSearching(false);
-        if (wrapErr || !result) {
-          setError('Could not find that video');
-          return;
-        }
-
-        const [err, video] = result as [Error | null, VideoApiResult | null];
         if (err || !video) {
           setError('Could not find that video');
           return;
