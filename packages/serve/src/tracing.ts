@@ -2,6 +2,7 @@ import {
   context,
   propagation,
   type Span,
+  SpanKind,
   SpanStatusCode,
   type TextMapSetter,
   trace,
@@ -83,10 +84,11 @@ export function createTracedApiFetchLifecycle(serviceName: string) {
 
   return {
     beforeRequest(request: Request) {
+      const state = startRequestTrace(tracer, request);
+      const spanContext = trace.setSpan(context.active(), state.span);
       const headers = new Headers(request.headers);
-      propagation.inject(context.active(), headers, headersSetter);
+      propagation.inject(spanContext, headers, headersSetter);
       const tracedRequest = new Request(request, { headers });
-      const state = startRequestTrace(tracer, tracedRequest);
       requestState.set(tracedRequest, state);
       return tracedRequest;
     },
@@ -146,6 +148,6 @@ function startRequestTrace(
   return {
     endTimer,
     operationName,
-    span: tracer.startSpan(operationName),
+    span: tracer.startSpan(operationName, { kind: SpanKind.CLIENT }),
   };
 }

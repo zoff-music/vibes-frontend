@@ -1,15 +1,13 @@
 import { usePageVisibility } from '@vibes/shared';
 import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useFetcher, useNavigate, useNavigationType } from 'react-router';
+import { Link, useNavigate, useNavigationType } from 'react-router';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
-import type { HomeActionData } from './action';
-import { action } from './action';
 import { loader } from './loader';
 
-export { action, loader };
+export { loader };
 
 const ANIMATED_WORDS = [
   'electro',
@@ -51,13 +49,11 @@ const ANIMATED_WORDS = [
 
 export default function Home() {
   const [roomCode, setRoomCode] = useState('');
-  const [isValidating, setIsValidating] = useState(false);
   const [placeholderText, setPlaceholderText] = useState('');
   const [wordIndex, setWordIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
-  const fetcher = useFetcher<HomeActionData>();
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -116,23 +112,12 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isPaused, isTabVisible]);
 
-  const handleJoinRoom = async () => {
-    if (!roomCode.trim() || isValidating) return;
+  const handleJoinRoom = () => {
+    if (!roomCode.trim()) return;
 
     const slug = roomCode.trim().toLowerCase().replace(/\s+/g, '-');
-    setIsValidating(true);
-    fetcher.submit({ roomCode: slug }, { method: 'post' });
+    navigate(`/rooms/${slug}`);
   };
-
-  useEffect(() => {
-    if (!fetcher.data) return;
-    setIsValidating(false);
-    if (fetcher.data.roomExists) {
-      navigate(`/rooms/${fetcher.data.roomCode}`);
-      return;
-    }
-    navigate(`/rooms/create?name=${encodeURIComponent(roomCode.trim())}`);
-  }, [fetcher.data, navigate, roomCode]);
 
   return (
     <div
@@ -185,7 +170,6 @@ export default function Home() {
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value.toLowerCase())}
                 onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
-                disabled={isValidating}
                 className="w-full rounded-2xl border border-theme bg-theme-surface px-4 py-4 font-mono text-base text-theme tracking-widest placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30 disabled:cursor-not-allowed disabled:opacity-60"
                 maxLength={20}
               />
@@ -203,17 +187,10 @@ export default function Home() {
               </Link>
               <Button
                 onClick={handleJoinRoom}
-                disabled={!roomCode.trim() || isValidating}
+                disabled={!roomCode.trim()}
                 variant="home-join"
               >
-                {isValidating ? (
-                  <span className="flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                    Checking...
-                  </span>
-                ) : (
-                  'Join Room'
-                )}
+                Join Room
               </Button>
             </div>
           </div>
