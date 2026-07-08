@@ -1,5 +1,5 @@
 import { createApiClient } from '@vibes/api';
-import type { Song } from '@vibes/shared';
+import type { PlaybackState, Room, Song } from '@vibes/models';
 import { usePlaybackStore } from '@vibes/shared';
 import { useEffect } from 'react';
 import type { QueueItem, RoomInfo } from '../types';
@@ -19,10 +19,10 @@ interface UseRoomSyncProps {
 }
 
 type SSEMessage =
-  | { type: 'connected'; data: any }
-  | { type: 'playback_update'; data: any }
+  | { type: 'connected'; data: Room }
+  | { type: 'playback_update'; data: PlaybackState }
   | { type: 'songs_update'; data: Song[] }
-  | { type: 'settings_update'; data: any }
+  | { type: 'settings_update'; data: Room }
   | { type: 'users_update'; data: number };
 
 export function useRoomSync({

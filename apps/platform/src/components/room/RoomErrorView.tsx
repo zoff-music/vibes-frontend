@@ -4,7 +4,7 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 
 interface RoomErrorViewProps {
-  error: any;
+  error: Error;
   roomId: string;
   onRetry: () => void;
 }

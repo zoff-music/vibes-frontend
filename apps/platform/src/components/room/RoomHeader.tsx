@@ -11,6 +11,7 @@ import {
 } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { type RefObject } from 'react';
+import type { Theme } from '../../stores/themeStore';
 
 import { RoomSettingsMenu } from './RoomSettingsMenu';
 import { RoomSharePanel } from './RoomSharePanel';
@@ -25,7 +26,7 @@ interface RoomHeaderProps {
   shareUrl: string;
   onCopyShareLink: () => void;
   themeId: string;
-  currentTheme: any;
+  currentTheme: Theme;
   onToggleDarkMode: () => void;
   showSettings: boolean;
   onToggleSettings: () => void;

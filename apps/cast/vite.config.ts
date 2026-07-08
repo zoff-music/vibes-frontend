@@ -1,16 +1,19 @@
 import path from 'node:path';
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
+import type { PluginOption } from 'vite';
 import { defineConfig } from 'vite';
 
+const plugins: PluginOption[] = [
+  react(),
+  legacy({
+    targets: ['chrome >= 80'],
+    additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+  }),
+];
+
 export default defineConfig({
-  plugins: [
-    react(),
-    legacy({
-      targets: ['chrome >= 80'],
-      additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
-    }),
-  ] as any,
+  plugins,
   root: '.',
   publicDir: 'public',
   base: '/casting/receiver/',

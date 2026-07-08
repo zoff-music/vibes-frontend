@@ -182,7 +182,6 @@ export const useCastReceiver = ({
       const senderConnectedEvent =
         frameworkEvents.CastReceiverContextEventType?.SENDER_CONNECTED;
       if (senderConnectedEvent) {
-        // Cast to any to work around Cast SDK type limitations
         (
           contextWithSenders as unknown as {
             addEventListener: (type: unknown, handler: () => void) => void;

@@ -6,6 +6,8 @@ import type {
   CastSessionState,
   CastManager as ICastManager,
   MediaInfo,
+  PlaybackState,
+  Song,
 } from '@vibes/models';
 import { safeWrap, safeWrapAsync, useRoomStore } from '@vibes/shared';
 
@@ -709,7 +711,10 @@ class GoogleCastManager implements ICastManager {
     });
   }
 
-  private sendMediaToReceiver(mediaInfo: MediaInfo, session: any): void {
+  private sendMediaToReceiver(
+    mediaInfo: MediaInfo,
+    session: chrome.cast.Session,
+  ): void {
     const [err] = safeWrap(() => {
       const message = {
         action: 'updatePlayback',
@@ -746,7 +751,7 @@ class GoogleCastManager implements ICastManager {
         CUSTOM_NAMESPACE,
         message,
         () => console.log('✅ Playback state sent to receiver'),
-        (error: any) =>
+        (error: chrome.cast.Error) =>
           console.error('❌ Failed to send playback state:', error),
       );
     });
@@ -796,7 +801,7 @@ class GoogleCastManager implements ICastManager {
 
   private loadStandardMedia(
     mediaInfo: MediaInfo,
-    session: any,
+    session: chrome.cast.Session,
     resolve: () => void,
     reject: (error: Error) => void,
   ): void {
@@ -843,7 +848,7 @@ class GoogleCastManager implements ICastManager {
 
       session.loadMedia(
         request,
-        (media: any) => {
+        (media: chrome.cast.media.Media) => {
           console.log('✅ Standard media loaded successfully:', media);
           if (this.currentSession) {
             this.currentSession.mediaSessionId = media.sessionId;
@@ -853,9 +858,8 @@ class GoogleCastManager implements ICastManager {
           }
           resolve();
         },
-        (error: any) => {
-          const errorMessage =
-            error?.description || error?.message || 'Unknown error';
+        (error: chrome.cast.Error) => {
+          const errorMessage = error?.description || 'Unknown error';
           console.error('❌ Failed to load standard media:', error);
 
           this.notifyError({
@@ -875,7 +879,7 @@ class GoogleCastManager implements ICastManager {
     }
   }
 
-  async updateQueue(queue: any[]): Promise<void> {
+  async updateQueue(queue: Song[]): Promise<void> {
     if (this.currentSession?.state !== 'connected') {
       return;
     }
@@ -911,7 +915,8 @@ class GoogleCastManager implements ICastManager {
         CUSTOM_NAMESPACE,
         queueMessage,
         () => console.log('✅ Queue update sent to receiver'),
-        (error: any) => console.error('❌ Failed to update queue:', error),
+        (error: chrome.cast.Error) =>
+          console.error('❌ Failed to update queue:', error),
       );
     });
 
@@ -953,7 +958,8 @@ class GoogleCastManager implements ICastManager {
         CUSTOM_NAMESPACE,
         message,
         () => console.log('✅ Room info sent to receiver'),
-        (error: any) => console.error('❌ Failed to update room info:', error),
+        (error: chrome.cast.Error) =>
+          console.error('❌ Failed to update room info:', error),
       );
     });
 
@@ -967,7 +973,7 @@ class GoogleCastManager implements ICastManager {
     }
   }
 
-  async syncPlaybackState(state: any): Promise<void> {
+  async syncPlaybackState(state: PlaybackState): Promise<void> {
     if (this.currentSession?.state !== 'connected') {
       return;
     }
@@ -999,7 +1005,8 @@ class GoogleCastManager implements ICastManager {
         CUSTOM_NAMESPACE,
         message,
         () => console.log('✅ Playback sync sent to receiver'),
-        (error: any) => console.error('❌ Failed to sync playback:', error),
+        (error: chrome.cast.Error) =>
+          console.error('❌ Failed to sync playback:', error),
       );
     });
 

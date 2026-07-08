@@ -1,7 +1,5 @@
+import type { PlaybackState, Room, Song } from '@vibes/models';
 import {
-  type PlaybackState,
-  type Room,
-  type Song,
   safeWrap,
   usePlaybackStore,
   useQueueStore,
@@ -15,7 +13,9 @@ const ACTIVE_CONNECTIONS = new Map<
   { count: number; unsubscribe: () => void }
 >();
 
-const IN_FLIGHT_CONNECTIONS = new Map<string, Promise<any>>();
+type UnsubscribeResult = Promise<[Error | null, (() => void) | null]>;
+
+const IN_FLIGHT_CONNECTIONS = new Map<string, UnsubscribeResult>();
 const PENDING_CLEANUPS = new Map<string, ReturnType<typeof setTimeout>>();
 
 export interface USE_SSE_CALLBACKS {
@@ -134,9 +134,7 @@ export const useSSE = (
         }
 
         if (!inFlight) return;
-        const [err, unsubscribe] = await (inFlight as Promise<
-          [Error | null, any]
-        >);
+        const [err, unsubscribe] = await inFlight;
 
         if (IN_FLIGHT_CONNECTIONS.get(roomId) === inFlight) {
           IN_FLIGHT_CONNECTIONS.delete(roomId);

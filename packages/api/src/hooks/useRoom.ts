@@ -1,14 +1,22 @@
-import {
-  type RoomSettings,
-  type RoomUpdate,
-  useRoomStore,
-} from '@vibes/shared';
+import type {
+  Room,
+  RoomSettings,
+  RoomUpdate,
+  SessionResponse,
+} from '@vibes/models';
+import { useRoomStore } from '@vibes/shared';
 import { useCallback, useState } from 'react';
 import { api } from '../index';
 import { USE_SSE_CALLBACKS, useSSE } from './useSSE';
 
 // Simple request deduplication map to handle strict mode double-invocations
-const IN_FLIGHT_REQUESTS = new Map<string, Promise<any>>();
+type ApiResult<T> = Promise<[Error | null, T | null]>;
+
+type RoomFetchResult = ApiResult<Room>;
+
+type JoinRoomResult = ApiResult<SessionResponse>;
+
+const IN_FLIGHT_REQUESTS = new Map<string, RoomFetchResult | JoinRoomResult>();
 
 export const useRoom = (roomId: string, callbacks?: USE_SSE_CALLBACKS) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,9 +37,9 @@ export const useRoom = (roomId: string, callbacks?: USE_SSE_CALLBACKS) => {
     const key = `fetchRoom:${roomId}`;
 
     const cachedPromise = IN_FLIGHT_REQUESTS.get(key) as
-      | Promise<[Error | null, any]>
+      | RoomFetchResult
       | undefined;
-    let promise: Promise<[Error | null, any]>;
+    let promise: RoomFetchResult;
     if (cachedPromise) {
       promise = cachedPromise;
     } else {
@@ -57,9 +65,9 @@ export const useRoom = (roomId: string, callbacks?: USE_SSE_CALLBACKS) => {
       const key = `joinRoom:${roomId}`;
 
       const cachedPromise = IN_FLIGHT_REQUESTS.get(key) as
-        | Promise<[Error | null, any]>
+        | JoinRoomResult
         | undefined;
-      let promise: Promise<[Error | null, any]>;
+      let promise: JoinRoomResult;
       if (!cachedPromise) {
         promise = api.post(
           '/rooms/{id}/sessions',

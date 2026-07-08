@@ -2,10 +2,13 @@
 
 import * as path from 'node:path';
 import react from '@vitejs/plugin-react';
+import type { PluginOption } from 'vite';
 import { defineConfig } from 'vite';
 
+const plugins: PluginOption[] = [react()];
+
 export default defineConfig({
-  plugins: [react() as any],
+  plugins,
   test: {
     globals: true,
     environment: 'happy-dom',

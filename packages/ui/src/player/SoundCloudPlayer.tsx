@@ -4,8 +4,28 @@ import { memo, useEffect, useRef, useState } from 'react';
 // Declare SC global on window
 declare global {
   interface Window {
-    SC: any;
+    SC?: SoundCloudApi;
   }
+}
+
+interface SoundCloudWidget {
+  bind: (event: string, callback: (event?: unknown) => void) => void;
+  getPosition: (callback: (currentTimeMs: number) => void) => void;
+  pause: () => void;
+  play: () => void;
+  seekTo: (milliseconds: number) => void;
+}
+
+interface SoundCloudApi {
+  Widget: {
+    (iframe: HTMLIFrameElement): SoundCloudWidget;
+    Events: {
+      ERROR: string;
+      FINISH: string;
+      READY: string;
+      SEEK: string;
+    };
+  };
 }
 
 interface Props {
@@ -22,7 +42,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const widgetRef = useRef<any>(null);
+  const widgetRef = useRef<SoundCloudWidget | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   // Load SoundCloud Widget API script
@@ -44,11 +64,11 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   }, []);
 
   const initializeWidget = () => {
-    if (!iframeRef.current || !window.SC) return;
+    const iframe = iframeRef.current;
+    const soundCloud = window.SC;
+    if (!iframe || !soundCloud) return;
 
-    const [widgetErr, widget] = safeWrap(() =>
-      window.SC.Widget(iframeRef.current),
-    );
+    const [widgetErr, widget] = safeWrap(() => soundCloud.Widget(iframe));
     if (widgetErr || !widget) {
       console.error('[SoundCloud Widget] Initialization error:', widgetErr);
       return;
@@ -56,7 +76,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
     widgetRef.current = widget;
 
-    widget.bind(window.SC.Widget.Events.READY, () => {
+    widget.bind(soundCloud.Widget.Events.READY, () => {
       setIsReady(true);
       // Sync initial state
       if (isPlaying) {
@@ -64,11 +84,11 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       }
     });
 
-    widget.bind(window.SC.Widget.Events.FINISH, () => {
+    widget.bind(soundCloud.Widget.Events.FINISH, () => {
       onEnded?.();
     });
 
-    widget.bind(window.SC.Widget.Events.SEEK, () => {
+    widget.bind(soundCloud.Widget.Events.SEEK, () => {
       const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
       console.log(
         '[SoundCloud Widget] User sought, enforcing position:',
@@ -77,7 +97,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       widget.seekTo(actualPositionMs);
     });
 
-    widget.bind(window.SC.Widget.Events.ERROR, (e: any) => {
+    widget.bind(soundCloud.Widget.Events.ERROR, (e?: unknown) => {
       console.error('[SoundCloud Widget] Error:', e);
     });
   };
@@ -102,7 +122,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
   // Drift Correction Interval
   useEffect(() => {
-    if (!isReady || !widgetRef.current || !isPlaying) return;
+    const widget = widgetRef.current;
+    if (!isReady || !widget || !isPlaying) return;
 
     const interval = setInterval(() => {
       if (
@@ -112,7 +133,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         return;
       }
 
-      widgetRef.current.getPosition((currentTimeMs: number) => {
+      widget.getPosition((currentTimeMs: number) => {
         const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
         // Allow 2 seconds of drift
         if (Math.abs(currentTimeMs - actualPositionMs) > 2000) {
@@ -120,7 +141,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
             '[SoundCloud Widget] Drift detected, seeking to:',
             actualPositionMs,
           );
-          widgetRef.current.seekTo(actualPositionMs);
+          widget.seekTo(actualPositionMs);
         }
       });
     }, 1000);

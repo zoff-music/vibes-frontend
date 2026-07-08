@@ -4,7 +4,7 @@ import {
   useProviderToken,
   useQueue,
 } from '@vibes/api';
-import { type PlaybackState, type Room } from '@vibes/models';
+import { type PlaybackState, type Room, type Song } from '@vibes/models';
 import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
 import { PlayerControls } from '@vibes/ui';
 import React, {
@@ -47,7 +47,7 @@ const AutoSkipHandler = ({
   skip,
   mode,
 }: {
-  currentSong: any;
+  currentSong: Song | null;
   isPlaying: boolean;
   skip: () => void;
   mode: string | undefined;
