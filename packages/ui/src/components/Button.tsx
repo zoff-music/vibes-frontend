@@ -195,11 +195,11 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       'settings-source-disabled':
         'group relative flex cursor-pointer items-center justify-center rounded-xl border border-theme bg-theme-surface py-3 text-theme-muted opacity-40 transition-all hover:border-theme-strong hover:opacity-60 disabled:cursor-not-allowed disabled:grayscale',
       'settings-room-mode-server-active':
-        'w-full cursor-pointer rounded-xl border border-secondary/60 bg-secondary/10 p-3 text-left text-theme shadow-[0_0_14px_rgba(0,217,255,0.3)] transition-all disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale',
+        'flex min-h-22 w-full cursor-pointer flex-col items-start justify-center gap-1 rounded-xl border border-secondary/60 bg-secondary/10 px-4 py-3 text-left text-theme shadow-[0_0_14px_rgba(0,217,255,0.3)] transition-all disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale',
       'settings-room-mode-host-active':
-        'w-full cursor-pointer rounded-xl border border-primary/60 bg-primary/10 p-3 text-left text-theme shadow-[0_0_14px_rgba(255,46,151,0.3)] transition-all disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale',
+        'flex min-h-22 w-full cursor-pointer flex-col items-start justify-center gap-1 rounded-xl border border-primary/60 bg-primary/10 px-4 py-3 text-left text-theme shadow-[0_0_14px_rgba(255,46,151,0.3)] transition-all disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale',
       'settings-room-mode-inactive':
-        'w-full cursor-pointer rounded-xl border border-theme bg-theme-surface p-3 text-left text-theme-muted transition-all hover:border-theme-strong disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale',
+        'flex min-h-22 w-full cursor-pointer flex-col items-start justify-center gap-1 rounded-xl border border-theme bg-theme-surface px-4 py-3 text-left text-theme-muted transition-all hover:border-theme-strong disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale',
       'settings-admin-go':
         'cursor-pointer rounded-xl bg-primary/80 px-4 py-2 text-white text-xs transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50',
       'error-retry':

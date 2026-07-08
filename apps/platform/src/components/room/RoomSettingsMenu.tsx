@@ -371,10 +371,10 @@ export const RoomSettingsMenu = ({
                         : 'settings-room-mode-inactive'
                     }
                   >
-                    <div className="mb-1 font-pixel text-sm text-theme">
+                    <div className="w-full text-left font-pixel text-sm text-theme leading-snug">
                       Server Mode
                     </div>
-                    <div className="text-[10px] text-theme-muted">
+                    <div className="w-full text-left text-[11px] text-theme-muted leading-relaxed">
                       Auto-play music 24/7. Perfect for radio stations.
                     </div>
                   </Button>
@@ -388,10 +388,10 @@ export const RoomSettingsMenu = ({
                         : 'settings-room-mode-inactive'
                     }
                   >
-                    <div className="mb-1 font-pixel text-sm text-theme">
+                    <div className="w-full text-left font-pixel text-sm text-theme leading-snug">
                       Host Mode
                     </div>
-                    <div className="text-[10px] text-theme-muted">
+                    <div className="w-full text-left text-[11px] text-theme-muted leading-relaxed">
                       Host controls playback. Great for parties.
                     </div>
                   </Button>
