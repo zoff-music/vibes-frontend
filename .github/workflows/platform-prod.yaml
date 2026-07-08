@@ -30,12 +30,17 @@ jobs:
       - uses: actions/checkout@v5
       - name: Build
         run: |
-          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}/platform:${GITHUB_SHA}"
-          docker build --no-cache -f apps/platform/Dockerfile -t "$IMAGE" .
+          IMAGE_REPOSITORY="ghcr.io/${GITHUB_REPOSITORY,,}/platform"
+          IMAGE_VERSION="main-$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA}"
+          IMAGE="${IMAGE_REPOSITORY}:${GITHUB_SHA}"
+          VERSIONED_IMAGE="${IMAGE_REPOSITORY}:${IMAGE_VERSION}"
+          docker build --no-cache -f apps/platform/Dockerfile -t "$IMAGE" -t "$VERSIONED_IMAGE" .
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          echo "VERSIONED_IMAGE=$VERSIONED_IMAGE" >> "$GITHUB_ENV"
       - name: Push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
           docker push "$IMAGE"
+          docker push "$VERSIONED_IMAGE"
