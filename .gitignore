@@ -1,11 +1,64 @@
-node_modules
-dist
-build
-.react-router
+# Local environment
 .env
 .env.local
 .env.*.local
-coverage
-playwright-report
-test-results
+!.env.example
+
+# Dependencies and package-manager state
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.react-router/
+web-build/
+**/dist/
+**/build/
+**/.react-router/
+**/web-build/
+*.tsbuildinfo
+
+# Mobile generated output
+.expo/
+**/.expo/
+.expo-shared/
+**/.expo-shared/
+expo-env.d.ts
+**/expo-env.d.ts
+.kotlin/
+**/.kotlin/
+ios/
+android/
+**/ios/
+**/android/
+*.jks
+*.pem
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+.metro-health-check*
+
+# Test and coverage output
+coverage/
+playwright-report/
+test-results/
+**/coverage/
+**/playwright-report/
+**/test-results/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local tooling
 .DS_Store
+.idea/
+.vscode/
+.cache/
