@@ -1,19 +1,19 @@
-# Vibez Platform
+# Vibes Platform
 
-The primary web application for the Vibez ecosystem. It serves as the main interface for users to create rooms, manage queues, and control synchronized playback across devices with full server-side rendering support.
+The primary web application for the Vibes ecosystem. It serves as the main interface for users to create rooms, manage queues, and control synchronized playback across devices with full server-side rendering support.
 
 ## 🚀 Getting Started
 
 ### Local Development
-The platform app runs on port 3000 with SSR support. For the full experience including HTTPS and proxying, use the root-level `make local-dev`.
+The platform app runs on port 3001 with SSR support.
 
 ```bash
-cd client/frontend/render/apps/platform
+cd apps/platform
 pnpm install
 pnpm dev
 ```
 
-**App URL**: `https://localhost` (via Caddy) or `http://localhost:3000` (direct)
+**App URL**: `http://localhost:3001`
 
 ### Development Scripts
 
@@ -32,7 +32,6 @@ pnpm lint
 
 # Testing
 pnpm test
-pnpm test:e2e
 ```
 
 ## 🛠 Features

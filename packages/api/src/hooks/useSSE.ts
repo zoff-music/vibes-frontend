@@ -1,4 +1,4 @@
-import type { PlaybackState, Room, Song } from '@vibes/models';
+import type { PlaybackState, Room, SkipVoteUpdate, Song } from '@vibes/models';
 import {
   safeWrap,
   usePlaybackStore,
@@ -56,6 +56,7 @@ export const useSSE = (
           | { type: 'playback_update'; data: PlaybackState }
           | { type: 'users_update'; data: number }
           | { type: 'song_added'; data: Song }
+          | { type: 'skip_vote'; data: SkipVoteUpdate }
           | { type: 'settings_update'; data: Room };
 
         // ...
@@ -127,6 +128,8 @@ export const useSSE = (
                     console.error('Failed to parse users_update', error);
                   break;
                 }
+                case 'skip_vote':
+                  break;
               }
             },
           );

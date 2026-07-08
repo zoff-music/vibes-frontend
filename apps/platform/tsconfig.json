@@ -17,7 +17,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["vitest/globals", "@testing-library/jest-dom", "node"],
+    "types": ["node"],
     /* Path aliases */
     "baseUrl": ".",
     "paths": {

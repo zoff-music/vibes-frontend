@@ -1,6 +1,6 @@
-# Vibez Mobile App 📱
+# Vibes Mobile App
 
-A cross-platform mobile application built with React Native and Expo for the Vibez ecosystem.
+A cross-platform mobile application built with React Native and Expo for the Vibes ecosystem.
 
 ## ✨ Features
 

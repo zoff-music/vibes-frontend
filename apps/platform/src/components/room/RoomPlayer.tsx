@@ -49,7 +49,7 @@ const AutoSkipHandler = ({
 }: {
   currentSong: Song | null;
   isPlaying: boolean;
-  skip: () => void;
+  skip: (shouldShowToast?: boolean) => void;
   mode: string | undefined;
 }) => {
   const actualPositionMs = usePlaybackPosition();
@@ -68,7 +68,7 @@ const AutoSkipHandler = ({
 
     if (shouldAutoSkip && autoSkipRef.current !== currentSong.id) {
       autoSkipRef.current = currentSong.id;
-      skip();
+      skip(false);
     }
   }, [
     actualPositionMs,
@@ -344,7 +344,9 @@ export const RoomPlayer = React.memo(
           {VideoPlayerComponent && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               <VideoPlayerComponent
-                onEnded={displayRoom?.mode === 'host' ? skip : undefined}
+                onEnded={
+                  displayRoom?.mode === 'host' ? () => skip(false) : undefined
+                }
                 isVisible={!isConnected && isVideoTrack}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 appContext="platform"
@@ -381,14 +383,18 @@ export const RoomPlayer = React.memo(
             ) : isSpotifyTrack ? (
               SpotifyPlayerComponent ? (
                 <SpotifyPlayerComponent
-                  onEnded={displayRoom?.mode === 'host' ? skip : undefined}
+                  onEnded={
+                    displayRoom?.mode === 'host' ? () => skip(false) : undefined
+                  }
                   isVisible={!isConnected}
                 />
               ) : null
             ) : isSoundCloudTrack ? (
               SoundCloudPlayerComponent ? (
                 <SoundCloudPlayerComponent
-                  onEnded={displayRoom?.mode === 'host' ? skip : undefined}
+                  onEnded={
+                    displayRoom?.mode === 'host' ? () => skip(false) : undefined
+                  }
                   isVisible={!isConnected}
                 />
               ) : null

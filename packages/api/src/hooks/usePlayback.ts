@@ -1,5 +1,6 @@
 import {
   type PlaybackState,
+  type SkipActionResponse,
   usePlaybackStore,
   useRoomStore,
 } from '@vibes/shared';
@@ -21,10 +22,36 @@ export function usePlayback(roomId: string, callbacks?: USE_SSE_CALLBACKS) {
   );
   const roomMode = useRoomStore((state) => state.room?.mode);
 
+  const showToast = useCallback(
+    (message: string, type: 'success' | 'error' | 'info') => {
+      if (callbacks?.onToast) {
+        callbacks.onToast(message, type);
+        return;
+      }
+
+      if (
+        typeof window !== 'undefined' &&
+        window.dispatchEvent &&
+        typeof CustomEvent !== 'undefined'
+      ) {
+        window.dispatchEvent(
+          new CustomEvent('show-toast', {
+            detail: { message, type },
+          }),
+        );
+        return;
+      }
+
+      console.error('[usePlayback] Toast unavailable:', message);
+    },
+    [callbacks],
+  );
+
   const performAction = useCallback(
     async (
       action: 'play' | 'pause' | 'skip' | 'vote' | 'seek',
       positionMs?: number,
+      shouldShowToast = true,
     ) => {
       let data;
       let error;
@@ -80,36 +107,38 @@ export function usePlayback(roomId: string, callbacks?: USE_SSE_CALLBACKS) {
           message = `Failed to ${action}: ${error.message || 'Unknown error'}`;
         }
 
-        if (message) {
-          if (callbacks?.onToast) {
-            callbacks.onToast(message, 'error');
-          } else if (
-            typeof window !== 'undefined' &&
-            window.dispatchEvent &&
-            typeof CustomEvent !== 'undefined'
-          ) {
-            // Web fallback
-            window.dispatchEvent(
-              new CustomEvent('show-toast', {
-                detail: { message, type: 'error' },
-              }),
-            );
-          } else {
-            // Mobile/Environment without CustomEvent fallback?
-            // Ideally the callback handles it.
-            console.error('[usePlayback] Error:', message);
-          }
+        if (message && shouldShowToast) {
+          showToast(message, 'error');
         }
       }
 
       if (data) {
-        // Handle wrapped responses (SkipActionResponse/VoteActionResponse)
-        const state = ((data as { playback?: PlaybackState }).playback ||
+        const skipResult =
+          action === 'skip' ? (data as SkipActionResponse) : null;
+        const state = ((data as { playback?: PlaybackState }).playback ??
           data) as PlaybackState;
         setPlaybackState(state, roomMode);
+
+        if (skipResult && shouldShowToast) {
+          if (skipResult.skipped) {
+            showToast('Skipped song', 'success');
+          } else if (skipResult.alreadyVoted) {
+            showToast(
+              `Skip vote already counted (${skipResult.currentVotes}/${skipResult.requiredVotes})`,
+              'info',
+            );
+          } else if (skipResult.voted) {
+            showToast(
+              `Skip vote added (${skipResult.currentVotes}/${skipResult.requiredVotes})`,
+              'info',
+            );
+          } else {
+            showToast('Nothing is playing', 'info');
+          }
+        }
       }
     },
-    [roomId, setPlaybackState, setLocalPlayingState, roomMode, callbacks],
+    [roomId, setPlaybackState, setLocalPlayingState, roomMode, showToast],
   );
 
   const play = useCallback(() => performAction('play'), [performAction]);
@@ -118,7 +147,11 @@ export function usePlayback(roomId: string, callbacks?: USE_SSE_CALLBACKS) {
     (positionMs: number) => performAction('seek', positionMs),
     [performAction],
   );
-  const skip = useCallback(() => performAction('skip'), [performAction]);
+  const skip = useCallback(
+    (shouldShowToast = true) =>
+      performAction('skip', undefined, shouldShowToast),
+    [performAction],
+  );
   const vote = useCallback(() => performAction('vote'), [performAction]);
 
   const fetchPlayback = useCallback(async () => {

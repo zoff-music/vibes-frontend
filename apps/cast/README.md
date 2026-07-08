@@ -1,19 +1,19 @@
-# Vibez Cast Receiver
+# Vibes Cast Receiver
 
-The standalone Chromecast Receiver application for the Vibez ecosystem. It handles synchronized playback of multiple music providers on Google Cast devices with server-side rendering for optimal performance.
+The standalone Chromecast Receiver application for the Vibes ecosystem. It handles synchronized playback of multiple music providers on Google Cast devices with server-side rendering for optimal performance.
 
 ## 🚀 Getting Started
 
 ### Local Development
-The receiver runs on port 3001 with SSR and is served via HTTPS through the root Caddy proxy.
+The receiver runs on port 3003.
 
 ```bash
-cd client/frontend/render/apps/cast
+cd apps/cast
 pnpm install
 pnpm dev
 ```
 
-**Receiver URL**: `https://localhost/casting/receiver/`
+**Receiver URL**: `http://localhost:3003`
 
 ### Build System
 The cast app uses Vite for local development and production builds.
@@ -74,7 +74,6 @@ The receiver communicates with sender applications (web/mobile) using standard G
 
 ## 🏗 Architecture
 
-### Build Pipeline
 ### Build Pipeline
 1. **CSS Processing**: Tailwind CSS v3 compilation (downgraded from v4 for better legacy browser support)
 2. **Legacy Transpilation**: Uses `@vitejs/plugin-legacy` to generate `nomodule` scripts for older Chromecast devices

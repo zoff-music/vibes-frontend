@@ -1,5 +1,5 @@
 {
-  "name": "vibez",
+  "name": "vibes-frontend",
   "private": true,
   "packageManager": "pnpm@11.5.2",
   "workspaces": [
@@ -15,17 +15,12 @@
     "build": "pnpm --filter @vibes/platform build && pnpm --filter @vibes/cast build",
     "typecheck": "pnpm --recursive typecheck",
     "lint": "pnpm --recursive lint",
-    "test": "pnpm --recursive test",
     "fix": "biome check --write --unsafe ."
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.16",
     "@types/react": "19.2.16",
-    "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "6.0.2",
-    "dotenv": "17.4.2",
-    "typescript": "6.0.3",
-    "vite": "8.1.3"
+    "@types/react-dom": "19.2.3"
   },
   "resolutions": {
     "@types/react": "19.2.16",

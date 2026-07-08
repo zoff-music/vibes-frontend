@@ -27,6 +27,8 @@ import {
   searchQuerySchema,
   searchResponseSchema,
   sessionResponseSchema,
+  skipActionResponseSchema,
+  skipVoteUpdateSchema,
   songSchema,
   songsListSchema,
   spotifyTokenSchema,
@@ -155,7 +157,7 @@ const endpoints = {
   },
   '/rooms/{id}/skips': {
     post: {
-      response: playbackStateSchema,
+      response: skipActionResponseSchema,
     },
   },
 
@@ -211,6 +213,7 @@ const endpoints = {
         playback_update: playbackStateSchema,
         songs_update: songsListSchema,
         song_added: songSchema,
+        skip_vote: skipVoteUpdateSchema,
         settings_update: roomSchema,
         users_update: usersUpdateSchema,
       },

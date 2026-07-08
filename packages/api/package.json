@@ -23,6 +23,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@types/react": "19.2.16",
     "typescript": "5.9.3",
     "@types/node": "25.0.10",
     "vite": "8.1.3"

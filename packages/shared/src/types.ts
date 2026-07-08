@@ -61,6 +61,10 @@ export interface SeekActionResponse {
 export interface SkipActionResponse {
   action: 'skip';
   skipped: boolean;
+  voted: boolean;
+  alreadyVoted: boolean;
+  currentVotes: number;
+  requiredVotes: number;
   nextSong: Song | null;
   playback: PlaybackState;
 }
@@ -72,7 +76,7 @@ export interface VoteActionResponse {
   requiredVotes: number;
   skipped: boolean;
   nextSong: Song | null;
-  playback?: PlaybackState;
+  playback: PlaybackState;
 }
 
 export type RoomActionResponse =

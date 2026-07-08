@@ -1,6 +1,6 @@
-# Vibez Frontend
+# Vibes Frontend
 
-A React + Vite + TypeScript monorepo using pnpm workspaces.
+A React Router + Vite + TypeScript monorepo using pnpm workspaces.
 
 ## Applications
 
@@ -21,14 +21,11 @@ A React + Vite + TypeScript monorepo using pnpm workspaces.
 # Install dependencies
 pnpm install
 
-# Run the main platform app (Port 3000, SSR-enabled)
+# Run the main platform app (port 3001, SSR-enabled)
 pnpm dev
 
 # Run all apps (Platform + Cast, both with SSR)
 pnpm --recursive dev
-
-# Run with HTTPS via Caddy (Recommended)
-make local-dev  # From project root
 ```
 
 ## Server-Side Rendering (SSR)
@@ -44,7 +41,7 @@ Both applications now support SSR for improved performance and SEO:
 
 - **Linting & Formatting**: [Biome](https://biomejs.dev/) (`pnpm lint`, `pnpm fix`)
 - **Type Checking**: TypeScript (`pnpm typecheck`)
-- **Testing**: Vitest & Playwright
+- **Testing**: Vitest
 - **Error Handling**: `safeWrap`/`safeWrapAsync` utilities (no try/catch)
 - **Styling**: Tailwind CSS v4 with dark mode support
 
