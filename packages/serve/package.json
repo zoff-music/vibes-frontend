@@ -12,6 +12,7 @@
     "@opentelemetry/core": "2.9.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "0.220.0",
     "@opentelemetry/sdk-node": "0.220.0",
+    "@opentelemetry/sdk-trace-base": "2.9.0",
     "@vibes/shared": "workspace:*",
     "compression": "1.8.1",
     "express": "4.22.2",

@@ -10,6 +10,10 @@ import {
 import { W3CTraceContextPropagator } from '@opentelemetry/core';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { NodeSDK } from '@opentelemetry/sdk-node';
+import {
+  ParentBasedSampler,
+  TraceIdRatioBasedSampler,
+} from '@opentelemetry/sdk-trace-base';
 import { backendRequestDuration, backendRequestStatusCode } from './metrics.ts';
 
 interface TracedApiFetchState {
@@ -18,8 +22,6 @@ interface TracedApiFetchState {
   span: Span;
 }
 
-const notRecord = 0;
-const recordAndSample = 2;
 const requestState = new WeakMap<Request, TracedApiFetchState>();
 const headersSetter: TextMapSetter<Headers> = {
   set(carrier, key, value) {
@@ -58,20 +60,11 @@ export function initTracing(serviceName: string) {
   const sdk = new NodeSDK({
     serviceName,
     traceExporter,
-    sampler: {
-      shouldSample() {
-        return {
-          decision:
-            Math.random() < parseRatio(process.env.OTEL_SAMPLER_PARAM)
-              ? recordAndSample
-              : notRecord,
-          attributes: {},
-        };
-      },
-      toString() {
-        return 'RatioSampler';
-      },
-    },
+    sampler: new ParentBasedSampler({
+      root: new TraceIdRatioBasedSampler(
+        parseRatio(process.env.OTEL_SAMPLER_PARAM),
+      ),
+    }),
     metricReaders: [],
   });
 
