@@ -266,7 +266,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       {/* Backdrop button */}
       <Button
         type="button"
-        className="fixed inset-0 h-full w-full cursor-pointer"
+        variant="modal-backdrop"
         onClick={onClose}
         aria-label="Close modal"
       />
@@ -282,10 +282,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                 Search or paste a link
               </p>
             </div>
-            <Button
-              onClick={onClose}
-              className="cursor-pointer rounded-xl border border-transparent p-2 transition-colors hover:border-theme-strong hover:bg-theme-surface"
-            >
+            <Button onClick={onClose} variant="modal-close">
               <CloseIcon className="h-5 w-5 text-theme-muted" />
             </Button>
           </div>
@@ -301,11 +298,11 @@ export const AddToQueueModal: React.FC<Props> = ({
                   setSearchQuery('');
                   setPreviewVideo(null);
                 }}
-                className={`cursor-pointer rounded-full px-4 py-1.5 font-medium text-xs transition-all ${
+                variant={
                   selectedProvider === p
-                    ? 'border border-theme-subtle bg-theme-surface text-theme shadow-[0_0_12px_rgba(255,255,255,0.25)]'
-                    : 'border border-transparent bg-theme-bg/10 text-theme-muted hover:bg-theme-surface/50 hover:text-theme'
-                }`}
+                    ? 'provider-tab-active'
+                    : 'provider-tab'
+                }
               >
                 {p.charAt(0).toUpperCase() + p.slice(1)}
               </Button>
@@ -373,7 +370,7 @@ export const AddToQueueModal: React.FC<Props> = ({
             {searchQuery && (
               <Button
                 onClick={() => handleSearchChange('')}
-                className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-theme-surface"
+                variant="search-clear"
               >
                 <CloseIcon
                   className="h-5 w-5 text-theme-subtle"
@@ -400,9 +397,9 @@ export const AddToQueueModal: React.FC<Props> = ({
                   <Button
                     key={result.id}
                     onClick={() => handleSelectResult(result)}
-                    className={`flex w-full cursor-pointer gap-3 p-4 text-left transition-all hover:bg-theme ${
-                      index > 0 ? 'border-theme border-t' : ''
-                    }`}
+                    variant={
+                      index > 0 ? 'search-result-divided' : 'search-result'
+                    }
                   >
                     <div className="relative shrink-0">
                       <img
@@ -483,16 +480,13 @@ export const AddToQueueModal: React.FC<Props> = ({
         {/* Action Buttons */}
         {previewVideo && !justAdded && (
           <div className="flex gap-3">
-            <Button
-              onClick={onClose}
-              className="flex-1 cursor-pointer rounded-xl border border-theme bg-theme-surface py-3 text-theme-muted text-xs transition-all hover:border-theme-strong active:scale-[0.98]"
-            >
+            <Button onClick={onClose} variant="dialog-cancel">
               Cancel
             </Button>
             <Button
               onClick={handleAdd}
               disabled={isLoading}
-              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary py-3 text-white text-xs shadow-[0_0_18px_rgba(255,46,151,0.4)] transition-all hover:bg-primary-muted active:scale-[0.98] disabled:bg-theme-surface disabled:text-theme-subtle"
+              variant="dialog-primary"
             >
               {isLoading ? (
                 <>

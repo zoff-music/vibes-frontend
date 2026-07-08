@@ -1,6 +1,7 @@
 import React from 'react';
 
-interface Props extends React.HTMLAttributes<HTMLElement> {
+interface Props
+  extends Omit<React.HTMLAttributes<HTMLElement>, 'className' | 'style'> {
   variant?: 'body' | 'heading' | 'caption' | 'mono';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
   color?: 'primary' | 'secondary' | 'muted' | 'error' | 'white';
@@ -14,7 +15,6 @@ export const Text: React.FC<Props> = ({
   color = 'white',
   bold = false,
   as,
-  className = '',
   children,
   ...props
 }) => {
@@ -44,7 +44,7 @@ export const Text: React.FC<Props> = ({
     mono: 'font-mono',
   };
 
-  const classes = `${sizeClasses[size]} ${colorClasses[color]} ${variantClasses[variant]} ${bold ? 'font-bold' : ''} ${className}`;
+  const classes = `${sizeClasses[size]} ${colorClasses[color]} ${variantClasses[variant]} ${bold ? 'font-bold' : ''}`;
 
   return (
     <Component className={classes} {...props}>

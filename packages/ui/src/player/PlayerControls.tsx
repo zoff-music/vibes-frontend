@@ -38,16 +38,13 @@ const PlayerControlsComponent: React.FC<Props> = ({
   showSpotifyConnect,
   onConnectSpotify,
 }) => {
-  const btnClass =
-    'panel-surface cursor-pointer rounded-2xl hover:shadow-[0_0_18px_rgba(255,46,151,0.25)] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed group border border-theme flex items-center justify-center h-12';
-
   return (
     <div className="w-full">
       <div className="flex items-center justify-start gap-4">
         <Button
           onClick={isPlaying ? onPause : onPlay}
           disabled={!canPlay}
-          className="group flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl border border-primary/60 bg-primary text-white shadow-[0_0_24px_rgba(255,46,151,0.45)] transition-all hover:shadow-[0_0_30px_rgba(255,46,151,0.6)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+          variant="player-primary"
         >
           {isPlaying ? (
             <PauseIcon className="h-6 w-6 fill-current" />
@@ -59,7 +56,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
         <Button
           onClick={onSkip}
           disabled={!canSkip}
-          className={`${btnClass} w-12`}
+          variant="player-control"
           title="Skip"
         >
           <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
@@ -67,7 +64,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
 
         <Button
           onClick={onOpenCast}
-          className={`${btnClass} w-12 ${isCasting ? 'border-primary/40 bg-primary/10' : ''}`}
+          variant={isCasting ? 'player-control-active' : 'player-control'}
           title={
             isCasting && castDeviceName
               ? `Casting to ${castDeviceName}`
@@ -83,7 +80,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
         {showSpotifyConnect && onConnectSpotify && (
           <Button
             onClick={onConnectSpotify}
-            className={`${btnClass} ml-auto gap-2 px-4 text-[#1DB954] hover:border-[#1DB954]/30 hover:bg-[#1DB954]/10`}
+            variant="player-spotify"
             title="Connect Spotify"
           >
             <SpotifyIcon className="h-6 w-6" />
@@ -93,11 +90,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Button>
         )}
 
-        <Button
-          onClick={onAddSong}
-          className={`${btnClass} ${!showSpotifyConnect ? 'ml-auto' : ''} gap-2 px-6 text-primary hover:border-primary/30`}
-          title="Add Song"
-        >
+        <Button onClick={onAddSong} variant="player-add-song" title="Add Song">
           <PlusIcon className="h-5 w-5 shrink-0" />
           <span className="whitespace-nowrap font-display text-theme text-xs tracking-[0.2em]">
             Add Song

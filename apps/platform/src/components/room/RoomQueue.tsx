@@ -114,7 +114,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <div className="group/card panel-surface no-box relative flex items-center gap-4 overflow-hidden rounded-2xl p-4">
+                  <div className="group/card panel-surface no-box relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl p-4">
                     <div className="vhs-scanlines pointer-events-none absolute inset-0" />
 
                     {/* Thumbnail */}
@@ -127,12 +127,12 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     </div>
 
                     {/* Song info */}
-                    <div className="relative z-10 min-w-0 flex-1">
-                      <h3 className="mb-1 truncate font-display text-theme text-xs">
+                    <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
+                      <h3 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
                         {currentSongData.title}
                       </h3>
-                      <div className="flex items-center gap-2 text-theme-muted text-xs">
-                        <span className="truncate">
+                      <div className="flex min-w-0 items-center gap-2 overflow-hidden text-theme-muted text-xs">
+                        <span className="min-w-0 truncate">
                           {currentSongData.artist || 'Unknown Artist'}
                         </span>
                         <span className="text-theme-subtle">•</span>

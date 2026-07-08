@@ -142,7 +142,7 @@ export default function Admin() {
               <Button
                 onClick={handleLogin}
                 disabled={!password.trim() || isLoading}
-                className="w-full rounded-xl bg-primary py-3 font-bold text-white transition-all hover:bg-primary/90 hover:shadow-retro-pink active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-ink/10 disabled:text-ink/30 dark:disabled:bg-gray-700 dark:disabled:text-gray-500"
+                variant="admin-primary"
               >
                 {isLoading ? 'Checking...' : 'Enter Dashboard'}
               </Button>
@@ -166,16 +166,10 @@ export default function Admin() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              onClick={fetchRooms}
-              className="rounded-xl border border-ink/15 px-4 py-2 font-semibold text-sm transition-all hover:border-primary hover:text-primary dark:border-gray-700 dark:hover:border-primary-light dark:hover:text-primary-light"
-            >
+            <Button onClick={fetchRooms} variant="admin-outline">
               Refresh
             </Button>
-            <Button
-              onClick={handleLogout}
-              className="rounded-xl bg-ink/10 px-4 py-2 font-semibold text-sm transition-all hover:bg-ink/20 dark:bg-gray-800 dark:hover:bg-gray-700"
-            >
+            <Button onClick={handleLogout} variant="admin-neutral">
               Sign Out
             </Button>
           </div>

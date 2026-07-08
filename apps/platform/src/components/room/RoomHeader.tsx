@@ -69,10 +69,7 @@ export const RoomHeader = React.memo(
         className="panel-surface sticky top-0 z-20 border-theme border-b px-4 py-4"
       >
         <div className="relative mx-auto flex max-w-7xl items-center justify-between">
-          <Button
-            onClick={onLeave}
-            className="group inline-flex cursor-pointer items-center gap-2 text-theme-muted transition-colors hover:text-theme"
-          >
+          <Button onClick={onLeave} variant="header-leave">
             <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             <span className="text-[10px] tracking-[0.3em]">Leave</span>
           </Button>
@@ -89,11 +86,9 @@ export const RoomHeader = React.memo(
             <div className="hidden sm:block">
               <Button
                 onClick={onToggleDarkMode}
-                className={`cursor-pointer rounded-xl border p-2.5 transition-all ${
-                  themeId !== 'light'
-                    ? 'border-secondary/60 bg-secondary/20 text-white shadow-[0_0_18px_rgba(0,217,255,0.35)]'
-                    : 'border-theme text-theme-muted hover:border-theme-strong hover:text-theme'
-                }`}
+                variant={
+                  themeId !== 'light' ? 'theme-toggle-active' : 'icon-toggle'
+                }
                 title={`Theme: ${currentTheme.name}`}
               >
                 {themeId === 'light' && <SunIcon className="h-5 w-5" />}
@@ -105,11 +100,7 @@ export const RoomHeader = React.memo(
             <div className="relative hidden sm:block">
               <Button
                 onClick={onToggleShare}
-                className={`cursor-pointer rounded-xl border p-2.5 transition-all ${
-                  showShare
-                    ? 'border-theme-strong bg-theme-surface text-theme'
-                    : 'border-theme text-theme-muted hover:border-theme-strong hover:text-theme'
-                }`}
+                variant={showShare ? 'icon-toggle-active' : 'icon-toggle'}
                 title="Share Room"
               >
                 <ShareIcon className="h-5 w-5" />
@@ -137,11 +128,7 @@ export const RoomHeader = React.memo(
               <Button
                 ref={settingsButtonRef}
                 onClick={onToggleSettings}
-                className={`cursor-pointer rounded-xl border p-2.5 transition-all ${
-                  showSettings
-                    ? 'border-theme-strong bg-theme-surface text-theme'
-                    : 'border-theme text-theme-muted hover:border-theme-strong hover:text-theme'
-                }`}
+                variant={showSettings ? 'icon-toggle-active' : 'icon-toggle'}
                 title="Room Settings"
               >
                 <SettingsIcon className="h-5 w-5" />

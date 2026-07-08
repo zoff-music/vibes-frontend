@@ -6,7 +6,7 @@ interface ToggleProps {
   label?: React.ReactNode;
   description?: React.ReactNode;
   disabled?: boolean;
-  className?: string;
+  variant?: 'card' | 'plain-full' | 'inline';
   id?: string;
   name?: string;
 }
@@ -17,7 +17,7 @@ export const Toggle: React.FC<ToggleProps> = ({
   label,
   description,
   disabled = false,
-  className = '',
+  variant = 'card',
   id,
   name,
 }) => {
@@ -57,15 +57,19 @@ export const Toggle: React.FC<ToggleProps> = ({
   // If we have a label or description, wrap in the card style used in the app
   // Otherwise just return the toggle itself if it's used standalone
   if (label || description) {
+    const labelClass =
+      variant === 'plain-full'
+        ? 'group flex w-full items-center justify-between border-0 bg-transparent p-0 transition-all'
+        : 'group flex items-center justify-between rounded-2xl border border-theme bg-theme-surface p-5 transition-all';
+
     return (
       <label
         htmlFor={inputId}
-        className={`group flex items-center justify-between rounded-2xl border border-theme bg-theme-surface p-5 transition-all ${
+        className={`${labelClass} ${
           !disabled
             ? 'cursor-pointer hover:border-theme-strong'
             : 'cursor-not-allowed opacity-60'
-        } 
-        ${className}`}
+        }`}
       >
         {content}
       </label>
@@ -77,7 +81,7 @@ export const Toggle: React.FC<ToggleProps> = ({
       htmlFor={inputId}
       className={`relative inline-flex cursor-pointer items-center ${
         disabled ? 'cursor-not-allowed opacity-50' : ''
-      } ${className}`}
+      } ${variant === 'plain-full' ? 'w-full' : ''}`}
     >
       <input
         id={inputId}

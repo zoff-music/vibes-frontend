@@ -39,8 +39,15 @@ export const QueueItem: React.FC<Props> = ({
     return `${min}:${sec.toString().padStart(2, '0')}`;
   };
 
+  const handleVote = () => {
+    onVote?.(song.id);
+  };
+
+  const cardClass =
+    'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-shadow hover:shadow-[0_0_20px_rgba(255,46,151,0.2)] focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent';
+
   const content = (
-    <div className="flex items-center gap-4">
+    <div className="flex min-w-0 items-center gap-4">
       {/* Position number */}
       <div className="w-8 shrink-0 text-center">
         <span className="text-theme-subtle text-xs">{position}</span>
@@ -57,12 +64,14 @@ export const QueueItem: React.FC<Props> = ({
       </div>
 
       {/* Song info */}
-      <div className="min-w-0 flex-1">
-        <h4 className="mb-1 truncate text-left text-theme text-xs">
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <h4 className="mb-1 block max-w-full truncate text-left text-theme text-xs">
           {song.title}
         </h4>
-        <div className="flex items-center gap-2 text-theme-muted text-xs">
-          <span className="truncate">{song.artist || 'Unknown Artist'}</span>
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden text-theme-muted text-xs">
+          <span className="min-w-0 truncate">
+            {song.artist || 'Unknown Artist'}
+          </span>
           <span className="text-theme-subtle">•</span>
           <span className="shrink-0 text-theme-subtle text-xs">
             {formatDuration(song.duration)}
@@ -92,33 +101,38 @@ export const QueueItem: React.FC<Props> = ({
           )}
         </div>
 
-        {isAdmin && (
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove?.(song.id);
-            }}
-            className="cursor-pointer rounded-lg border border-transparent p-2.5 text-theme-subtle transition-all hover:border-error/40 hover:bg-error/10 hover:text-error"
-            title="Remove from queue"
-          >
-            <TrashIcon className="h-5 w-5" />
-          </Button>
-        )}
+        {isAdmin && <div className="h-10 w-10 shrink-0" aria-hidden="true" />}
       </div>
     </div>
   );
 
+  const removeButton = isAdmin ? (
+    <Button
+      onClick={(event) => {
+        event.stopPropagation();
+        onRemove?.(song.id);
+      }}
+      variant="queue-remove"
+      title="Remove from queue"
+    >
+      <TrashIcon className="h-5 w-5" />
+    </Button>
+  ) : null;
+
   if (isSSR) {
     // SSR: Render without motion.div
     return (
-      <Button
-        type="button"
-        onClick={() => onVote?.(song.id)}
-        className="group w-full cursor-pointer rounded-2xl border border-theme bg-theme-surface p-4 transition-shadow hover:shadow-[0_0_20px_rgba(255,46,151,0.2)] focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent"
-        aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}`}
-      >
-        {content}
-      </Button>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={handleVote}
+          className={cardClass}
+          aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}`}
+        >
+          {content}
+        </button>
+        {removeButton}
+      </div>
     );
   }
 
@@ -137,14 +151,17 @@ export const QueueItem: React.FC<Props> = ({
       }}
       style={{ overflow: 'hidden' }}
     >
-      <Button
-        type="button"
-        onClick={() => onVote?.(song.id)}
-        className="group w-full cursor-pointer rounded-2xl border border-theme bg-theme-surface p-4 transition-shadow hover:shadow-[0_0_20px_rgba(255,46,151,0.2)] focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent"
-        aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}`}
-      >
-        {content}
-      </Button>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={handleVote}
+          className={cardClass}
+          aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}`}
+        >
+          {content}
+        </button>
+        {removeButton}
+      </div>
     </motion.div>
   );
 };

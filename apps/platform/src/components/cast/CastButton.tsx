@@ -6,13 +6,9 @@ import { CastIcon } from '../icons/CastIcon';
 
 interface CastButtonProps {
   onDeviceSelect?: () => void;
-  className?: string;
 }
 
-export const CastButton: React.FC<CastButtonProps> = ({
-  onDeviceSelect,
-  className = '',
-}) => {
+export const CastButton: React.FC<CastButtonProps> = ({ onDeviceSelect }) => {
   const {
     isInitialized,
     availableDevices,
@@ -97,21 +93,7 @@ export const CastButton: React.FC<CastButtonProps> = ({
       <Button
         onClick={handleCastClick}
         disabled={isDisabled}
-        className={`group flex items-center space-x-2 rounded-lg px-4 py-2 transition-all duration-200 ease-in-out ${
-          isConnected
-            ? 'bg-primary text-white shadow-lg hover:bg-primary-dark dark:bg-primary-light dark:hover:bg-primary'
-            : 'bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'
-        }
-          ${
-            isDisabled
-              ? 'cursor-not-allowed opacity-50'
-              : 'cursor-pointer hover:scale-105 active:scale-95'
-          }border-2 border-transparent ${
-            isConnected
-              ? 'hover:border-primary-dark/20 dark:hover:border-primary/30'
-              : 'hover:border-primary/20 dark:hover:border-primary-light/30'
-          }focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${className}
-        `}
+        variant={isConnected ? 'cast-button-connected' : 'cast-button'}
         aria-label={
           isConnected
             ? `Connected to ${currentSession?.deviceName}`

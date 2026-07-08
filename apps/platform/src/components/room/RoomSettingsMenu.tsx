@@ -104,7 +104,7 @@ export const RoomSettingsMenu = ({
         <div className="fixed top-[var(--room-header-height)] right-0 bottom-0 left-0 z-40">
           <Button
             type="button"
-            className="absolute inset-0 h-full w-full cursor-pointer bg-transparent"
+            variant="settings-backdrop"
             onClick={onClose}
             aria-label="Close settings"
           />
@@ -120,11 +120,7 @@ export const RoomSettingsMenu = ({
                 <div className="flex items-center gap-3">
                   <Button
                     onClick={onToggleShare}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-xl border p-3 font-pixel text-xs transition-all ${
-                      showShare
-                        ? 'border-theme-strong bg-theme-surface text-theme'
-                        : 'border-theme text-theme-muted hover:border-theme-strong hover:text-theme'
-                    }`}
+                    variant={showShare ? 'menu-toggle-active' : 'menu-toggle'}
                     title="Share Room"
                   >
                     <ShareIcon className="h-4 w-4" />
@@ -133,11 +129,9 @@ export const RoomSettingsMenu = ({
 
                   <Button
                     onClick={onToggleDarkMode}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-xl border p-3 font-pixel text-xs transition-all ${
-                      themeId !== 'light'
-                        ? 'border-secondary/60 bg-secondary/20 text-white shadow-[0_0_12px_rgba(0,217,255,0.35)]'
-                        : 'border-theme text-theme-muted hover:border-theme-strong hover:text-theme'
-                    }`}
+                    variant={
+                      themeId !== 'light' ? 'menu-theme-active' : 'menu-toggle'
+                    }
                     title={`Theme: ${currentTheme.name}`}
                   >
                     <div className="flex h-4 w-4 items-center justify-center">
@@ -200,7 +194,7 @@ export const RoomSettingsMenu = ({
                       skipAllowed: checked,
                     })
                   }
-                  className="!border-0 !bg-transparent !p-0 w-full"
+                  variant="plain-full"
                 />
               </div>
 
@@ -223,7 +217,7 @@ export const RoomSettingsMenu = ({
                       democraticSkip: checked,
                     })
                   }
-                  className="!border-0 !bg-transparent !p-0 w-full"
+                  variant="plain-full"
                 />
               </div>
 
@@ -240,7 +234,7 @@ export const RoomSettingsMenu = ({
                       loopQueue: checked,
                     })
                   }
-                  className="!border-0 !bg-transparent !p-0 w-full"
+                  variant="plain-full"
                 />
               </div>
 
@@ -257,7 +251,7 @@ export const RoomSettingsMenu = ({
                       allowDuplicates: checked,
                     })
                   }
-                  className="!border-0 !bg-transparent !p-0 w-full"
+                  variant="plain-full"
                 />
               </div>
 
@@ -274,7 +268,7 @@ export const RoomSettingsMenu = ({
                       removeOnPlay: checked,
                     })
                   }
-                  className="!border-0 !bg-transparent !p-0 w-full"
+                  variant="plain-full"
                 />
               </div>
 
@@ -305,7 +299,7 @@ export const RoomSettingsMenu = ({
                         onlyAdminAddSongs: checked,
                       });
                   }}
-                  className="!border-0 !bg-transparent !p-0 w-full"
+                  variant="plain-full"
                 />
               </div>
 
@@ -318,22 +312,19 @@ export const RoomSettingsMenu = ({
                     {
                       id: 'youtube',
                       Icon: YouTubeIcon,
-                      color:
-                        'bg-red-500/20 border-red-500/40 text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]',
+                      variant: 'settings-source-youtube-active' as const,
                     },
                     {
                       id: 'spotify',
                       Icon: SpotifyIcon,
-                      color:
-                        'bg-green-500/20 border-green-500/40 text-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]',
+                      variant: 'settings-source-spotify-active' as const,
                     },
                     {
                       id: 'soundcloud',
                       Icon: SoundCloudIcon,
-                      color:
-                        'bg-orange-500/20 border-orange-500/40 text-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.2)]',
+                      variant: 'settings-source-soundcloud-active' as const,
                     },
-                  ].map(({ id, Icon, color }) => {
+                  ].map(({ id, Icon, variant }) => {
                     const isEnabled =
                       room?.settings.enabledSources.includes(id) ?? true;
                     return (
@@ -352,11 +343,9 @@ export const RoomSettingsMenu = ({
                             enabledSources: newSources,
                           });
                         }}
-                        className={`group relative flex cursor-pointer items-center justify-center rounded-xl border py-3 transition-all ${
-                          isEnabled
-                            ? color
-                            : 'border-theme bg-theme-surface text-theme-muted opacity-40 hover:border-theme-strong hover:opacity-60'
-                        } ${room?.hasPassword && !isAdmin ? 'cursor-not-allowed grayscale' : ''}`}
+                        variant={
+                          isEnabled ? variant : 'settings-source-disabled'
+                        }
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
                         <Icon className="h-6 w-6" />
@@ -375,11 +364,11 @@ export const RoomSettingsMenu = ({
                   <Button
                     disabled={room?.hasPassword && !isAdmin}
                     onClick={() => room && updateRoom({ mode: 'server' })}
-                    className={`w-full cursor-pointer rounded-xl border p-3 text-left transition-all ${
+                    variant={
                       room?.mode === 'server'
-                        ? 'border-secondary/60 bg-secondary/10 text-theme shadow-[0_0_14px_rgba(0,217,255,0.3)]'
-                        : 'border-theme bg-theme-surface text-theme-muted hover:border-theme-strong'
-                    } ${room?.hasPassword && !isAdmin ? 'cursor-not-allowed opacity-30 grayscale' : ''}`}
+                        ? 'settings-room-mode-server-active'
+                        : 'settings-room-mode-inactive'
+                    }
                   >
                     <div className="mb-1 font-pixel text-sm text-theme">
                       Server Mode
@@ -392,11 +381,11 @@ export const RoomSettingsMenu = ({
                   <Button
                     disabled={room?.hasPassword && !isAdmin}
                     onClick={() => room && updateRoom({ mode: 'host' })}
-                    className={`w-full cursor-pointer rounded-xl border p-3 text-left transition-all ${
+                    variant={
                       room?.mode === 'host'
-                        ? 'border-primary/60 bg-primary/10 text-theme shadow-[0_0_14px_rgba(255,46,151,0.3)]'
-                        : 'border-theme bg-theme-surface text-theme-muted hover:border-theme-strong'
-                    } ${room?.hasPassword && !isAdmin ? 'cursor-not-allowed opacity-30 grayscale' : ''}`}
+                        ? 'settings-room-mode-host-active'
+                        : 'settings-room-mode-inactive'
+                    }
                   >
                     <div className="mb-1 font-pixel text-sm text-theme">
                       Host Mode
@@ -436,7 +425,7 @@ export const RoomSettingsMenu = ({
                     <Button
                       onClick={onJoinAdmin}
                       disabled={isAuthenticating || !adminPassword}
-                      className="cursor-pointer rounded-xl bg-primary/80 px-4 py-2 text-white text-xs transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
+                      variant="settings-admin-go"
                     >
                       {isAuthenticating ? '...' : 'Go'}
                     </Button>

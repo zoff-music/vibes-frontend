@@ -143,11 +143,9 @@ export default function Home() {
           <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
             <Button
               onClick={handleToggleDarkMode}
-              className={`cursor-pointer rounded-xl border p-2.5 transition-all ${
-                themeId !== 'light'
-                  ? 'border-secondary/60 bg-secondary/20 text-white shadow-[0_0_18px_rgba(0,217,255,0.35)]'
-                  : 'border-theme text-theme-muted hover:border-theme-strong hover:text-theme'
-              }`}
+              variant={
+                themeId !== 'light' ? 'theme-toggle-active' : 'icon-toggle'
+              }
               title={`Theme: ${currentTheme.name}`}
             >
               {themeId === 'light' && <SunIcon className="h-5 w-5" />}
@@ -206,7 +204,7 @@ export default function Home() {
               <Button
                 onClick={handleJoinRoom}
                 disabled={!roomCode.trim() || isValidating}
-                className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-secondary/50 bg-secondary/85 px-6 py-4 font-pixel text-sm text-white shadow-[0_0_26px_rgba(0,217,255,0.4)] transition-all hover:-translate-y-0.5 hover:bg-secondary disabled:cursor-not-allowed disabled:bg-theme-surface disabled:text-theme-subtle"
+                variant="home-join"
               >
                 {isValidating ? (
                   <span className="flex items-center gap-2">

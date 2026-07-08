@@ -254,26 +254,29 @@ const CreateRoom: React.FC = () => {
                     {
                       id: 'youtube',
                       Icon: YouTubeIcon,
-                      color: 'text-red-500 hover:bg-red-500/10',
-                      activeColor:
-                        'bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.4)]',
                     },
                     {
                       id: 'spotify',
                       Icon: SpotifyIcon,
-                      color: 'text-green-500 hover:bg-green-500/10',
-                      activeColor:
-                        'bg-green-500 text-black shadow-[0_0_12px_rgba(34,197,94,0.4)]',
                     },
                     {
                       id: 'soundcloud',
                       Icon: SoundCloudIcon,
-                      color: 'text-orange-500 hover:bg-orange-500/10',
-                      activeColor:
-                        'bg-orange-500 text-white shadow-[0_0_12px_rgba(249,115,22,0.4)]',
                     },
-                  ].map(({ id, Icon, color, activeColor }) => {
+                  ].map(({ id, Icon }) => {
                     const isEnabled = settings.enabledSources.includes(id);
+                    const activeVariant =
+                      id === 'youtube'
+                        ? 'source-youtube-active'
+                        : id === 'spotify'
+                          ? 'source-spotify-active'
+                          : 'source-soundcloud-active';
+                    const inactiveVariant =
+                      id === 'youtube'
+                        ? 'source-youtube-disabled'
+                        : id === 'spotify'
+                          ? 'source-spotify-disabled'
+                          : 'source-soundcloud-disabled';
                     return (
                       <Button
                         key={id}
@@ -283,11 +286,7 @@ const CreateRoom: React.FC = () => {
                             : [...settings.enabledSources, id];
                           updateSetting('enabledSources', newSources);
                         }}
-                        className={`group relative flex h-10 w-full flex-1 items-center justify-center rounded-xl transition-all ${
-                          isEnabled
-                            ? activeColor
-                            : `bg-theme-surface-strong/50 ${color}`
-                        }`}
+                        variant={isEnabled ? activeVariant : inactiveVariant}
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
                         <Icon className="h-5 w-5" />
@@ -306,11 +305,11 @@ const CreateRoom: React.FC = () => {
                   <Button
                     type="button"
                     onClick={() => setMode('server')}
-                    className={`cursor-pointer rounded-2xl border px-4 py-4 text-left transition-all ${
+                    variant={
                       mode === 'server'
-                        ? 'border-secondary/60 bg-secondary/10 text-theme shadow-[0_0_18px_rgba(0,217,255,0.35)]'
-                        : 'border-theme bg-theme-surface text-theme-muted hover:border-theme-strong'
-                    }`}
+                        ? 'room-mode-server-active'
+                        : 'room-mode-inactive'
+                    }
                   >
                     <div className="mb-2 font-pixel text-xs tracking-[0.2em]">
                       SERVER MODE
@@ -322,11 +321,11 @@ const CreateRoom: React.FC = () => {
                   <Button
                     type="button"
                     onClick={() => setMode('host')}
-                    className={`cursor-pointer rounded-2xl border px-4 py-4 text-left transition-all ${
+                    variant={
                       mode === 'host'
-                        ? 'border-primary/60 bg-primary/10 text-theme shadow-[0_0_18px_rgba(255,46,151,0.35)]'
-                        : 'border-theme bg-theme-surface text-theme-muted hover:border-theme-strong'
-                    }`}
+                        ? 'room-mode-host-active'
+                        : 'room-mode-inactive'
+                    }
                   >
                     <div className="mb-2 font-pixel text-xs tracking-[0.2em]">
                       HOST MODE
@@ -427,7 +426,7 @@ const CreateRoom: React.FC = () => {
           <Button
             onClick={handleCreate}
             disabled={!name.trim() || isLoading}
-            className="mt-8 flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-primary px-6 py-4 font-pixel text-sm text-white shadow-[0_0_24px_rgba(255,46,151,0.45)] transition-all hover:-translate-y-0.5 hover:bg-primary-muted disabled:cursor-not-allowed disabled:bg-theme-surface disabled:text-theme-subtle"
+            variant="form-primary"
           >
             {isLoading ? (
               <>

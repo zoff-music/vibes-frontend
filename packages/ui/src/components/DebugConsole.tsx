@@ -135,16 +135,7 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
         }}
       >
         <strong>Debug Console</strong>
-        <Button
-          onClick={() => setLogs([])}
-          style={{
-            background: 'transparent',
-            border: '1px solid #666',
-            color: '#fff',
-            cursor: 'pointer',
-            padding: '2px 8px',
-          }}
-        >
+        <Button onClick={() => setLogs([])} variant="debug-clear">
           Clear
         </Button>
       </div>

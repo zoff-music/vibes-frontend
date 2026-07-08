@@ -135,7 +135,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
       <Button
         type="button"
         aria-label="Close cast device selector"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-colors duration-200 dark:bg-black/70"
+        variant="cast-backdrop"
         onClick={onClose}
       />
       <div className="relative mx-4 w-80 max-w-sm rounded-lg border-2 border-gray-200 bg-white p-6 shadow-xl transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800">
@@ -143,10 +143,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
           <h3 className="font-semibold text-gray-900 text-lg dark:text-white">
             Cast to Device
           </h3>
-          <Button
-            onClick={onClose}
-            className="cursor-pointer text-gray-400 transition-colors duration-200 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-          >
+          <Button onClick={onClose} variant="cast-close">
             <CloseIcon className="h-6 w-6" />
           </Button>
         </div>
@@ -163,10 +160,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                   {currentSession.deviceName}
                 </div>
               </div>
-              <Button
-                onClick={handleDisconnect}
-                className="cursor-pointer rounded bg-primary px-3 py-1 text-sm text-white transition-colors duration-200 hover:bg-primary/90 dark:bg-primary-light dark:hover:bg-primary"
-              >
+              <Button onClick={handleDisconnect} variant="cast-primary-small">
                 Disconnect
               </Button>
             </div>
@@ -177,7 +171,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 <Button
                   onClick={() => handleCastCurrentSong()}
                   disabled={isCasting}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-light dark:hover:bg-primary"
+                  variant="cast-primary-full"
                 >
                   {isCasting ? (
                     <>
@@ -238,7 +232,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                     };
                     handleCastCurrentSong(testMedia);
                   }}
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-white text-xs transition-colors duration-200 hover:bg-gray-700"
+                  variant="cast-demo"
                 >
                   <PlayIcon className="h-3 w-3" />
                   <span>Test Cast (Demo Video)</span>
@@ -255,10 +249,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
               <h4 className="font-medium text-gray-900 dark:text-white">
                 Available Devices
               </h4>
-              <Button
-                onClick={handleRefresh}
-                className="cursor-pointer text-primary text-sm transition-colors duration-200 hover:text-primary/80 dark:text-primary-light dark:hover:text-primary"
-              >
+              <Button onClick={handleRefresh} variant="cast-refresh">
                 Refresh
               </Button>
             </div>
@@ -285,16 +276,15 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                   <Button
                     key={device.id}
                     onClick={() => handleDeviceSelect(device)}
+                    variant={
+                      isConnected && currentSession?.deviceId === device.id
+                        ? 'cast-device-active'
+                        : 'cast-device'
+                    }
                     disabled={
                       isConnecting === device.id ||
                       (isConnected && currentSession?.deviceId === device.id)
                     }
-                    className={`w-full rounded-lg border p-3 text-left transition-colors duration-200 ${
-                      isConnected && currentSession?.deviceId === device.id
-                        ? 'cursor-default border-primary/20 bg-primary/10 dark:border-primary/30 dark:bg-primary/20'
-                        : 'cursor-pointer border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600'
-                    }
-                      ${isConnecting === device.id ? 'opacity-50' : ''}focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
                   >
                     <div className="flex items-center space-x-3">
                       <div className="shrink-0">

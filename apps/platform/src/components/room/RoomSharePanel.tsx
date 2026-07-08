@@ -39,10 +39,7 @@ export const RoomSharePanel = ({
             <code className="flex-1 text-left font-mono text-theme text-xs">
               {roomId}
             </code>
-            <Button
-              onClick={handleCopyRoomId}
-              className="cursor-pointer rounded-lg bg-theme-surface px-3 py-1.5 text-[10px] text-theme transition-all hover:bg-theme active:scale-95"
-            >
+            <Button onClick={handleCopyRoomId} variant="copy-small">
               Copy
             </Button>
           </div>
@@ -56,10 +53,7 @@ export const RoomSharePanel = ({
             <p className="flex-1 truncate text-left font-mono text-[10px] text-theme-muted">
               {url}
             </p>
-            <Button
-              onClick={onCopy}
-              className="cursor-pointer rounded-lg bg-theme-surface px-3 py-1.5 text-[10px] text-theme transition-all hover:bg-theme active:scale-95"
-            >
+            <Button onClick={onCopy} variant="copy-small">
               Copy
             </Button>
           </div>

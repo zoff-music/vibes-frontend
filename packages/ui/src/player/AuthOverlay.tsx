@@ -36,10 +36,7 @@ export function AuthOverlay({
             </>
           )}
         </p>
-        <Button
-          onClick={onAuthorize}
-          className="w-full rounded-2xl bg-primary px-8 py-4 font-black text-lg text-white shadow-[0_4px_0_0_#9d124b] transition-all hover:-translate-y-1 hover:brightness-110 active:translate-y-0 active:shadow-none"
-        >
+        <Button onClick={onAuthorize} variant="auth-primary">
           {errorMessage
             ? 'RETRY CONNECTION'
             : `CONNECT ${provider.toUpperCase()}`}
