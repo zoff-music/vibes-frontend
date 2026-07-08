@@ -58,7 +58,7 @@ pnpm lint
 
 - **Multi-Provider Playback**: Support for YouTube (IFrame), Spotify (Web Playback SDK), and SoundCloud (Widget)
 - **Authentication Bridge**: Receives Spotify and SoundCloud tokens from the sender app via `LOAD` interceptors
-- **Global State**: Synchronizes with the backend via a shared Zustand store (`@vibez/shared`)
+- **Global State**: Synchronizes with the backend via a shared Zustand store (`@vibes/shared`)
 - **Premium UI**: Dark-mode primary interface with glassmorphism and smooth animations
 - **Server-Side Rendering**: Fast initial page loads with streaming HTML
 - **Hot Module Replacement**: Instant development feedback
@@ -108,8 +108,8 @@ This app is built with:
 - **pnpm**: Workspace package manager
 - **Tailwind CSS v3**: Theme-driven styling with legacy browser support
 - **Legacy Transpilers**: Ensures compatibility with all Chromecast generations
-- **@vibez/shared**: Shared hooks, stores, and utilities
-- **@vibez/models**: Type-safe API schemas and validation
+- **@vibes/shared**: Shared hooks, stores, and utilities
+- **@vibes/models**: Type-safe API schemas and validation
 
 ## 🔧 Troubleshooting
 

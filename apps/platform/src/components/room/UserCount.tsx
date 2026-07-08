@@ -1,4 +1,4 @@
-import { useRoomStore } from '@vibez/shared';
+import { useRoomStore } from '@vibes/shared';
 
 export const UserCount = () => {
   const usersCount = useRoomStore((state) => state.usersCount);

@@ -1,4 +1,4 @@
-import type { CastingTokenResponse } from '@vibez/models';
+import type { CastingTokenResponse } from '@vibes/models';
 import { api } from './index';
 
 export async function createCastingToken(

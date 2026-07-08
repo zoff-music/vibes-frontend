@@ -50,10 +50,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@vibez/ui': path.resolve(__dirname, '../../packages/ui/src'),
-      '@vibez/shared': path.resolve(__dirname, '../../packages/shared/src'),
-      '@vibez/models': path.resolve(__dirname, '../../packages/models/src'),
-      '@vibez/api': path.resolve(__dirname, '../../packages/api/src'),
+      '@vibes/ui': path.resolve(__dirname, '../../packages/ui/src'),
+      '@vibes/shared': path.resolve(__dirname, '../../packages/shared/src'),
+      '@vibes/models': path.resolve(__dirname, '../../packages/models/src'),
+      '@vibes/api': path.resolve(__dirname, '../../packages/api/src'),
     },
   },
 });

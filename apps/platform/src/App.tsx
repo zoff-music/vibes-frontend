@@ -1,4 +1,4 @@
-import { isTruthyFlag, safeWrapAsync } from '@vibez/shared';
+import { isTruthyFlag, safeWrapAsync } from '@vibes/shared';
 import { type ComponentType, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 
@@ -19,7 +19,7 @@ function DebugConsoleLoader() {
     let isMounted = true;
 
     const loadDebugConsole = async () => {
-      const [loadErr, module] = await safeWrapAsync(import('@vibez/ui'));
+      const [loadErr, module] = await safeWrapAsync(import('@vibes/ui'));
       if (!isMounted || loadErr || !module?.DebugConsole) {
         if (loadErr) {
           console.error('[DebugConsole] Failed to load', loadErr);

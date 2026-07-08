@@ -1,4 +1,4 @@
-import { Song } from '@vibez/shared';
+import { Song } from '@vibes/shared';
 import { AnimatePresence } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { QueueEmptyIcon } from '../../icons';

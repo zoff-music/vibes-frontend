@@ -1,5 +1,5 @@
-import type { Room as RoomModel, Song } from '@vibez/models';
-import type { PlaybackState } from '@vibez/shared';
+import type { Room as RoomModel, Song } from '@vibes/models';
+import type { PlaybackState } from '@vibes/shared';
 import type { LoaderFunctionArgs } from 'react-router';
 import { redirect } from 'react-router';
 import { getServerApi } from '../../http.server';

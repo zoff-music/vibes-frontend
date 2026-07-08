@@ -6,4 +6,3 @@ window.plausible =
     window.plausible.q = window.plausible.q || [];
     window.plausible.q.push(args);
   });
-

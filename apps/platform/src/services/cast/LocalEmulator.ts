@@ -1,5 +1,5 @@
-import type { CastDevice, CastSession } from '@vibez/models';
-import { safeWrap, useRoomStore } from '@vibez/shared';
+import type { CastDevice, CastSession } from '@vibes/models';
+import { safeWrap, useRoomStore } from '@vibes/shared';
 
 import { CUSTOM_RECEIVER_URL, LOCAL_EMULATOR_DEVICE_ID } from './constants';
 import type { LocalCastMessage } from './types';

@@ -5,7 +5,7 @@ import {
   RoomUpdate,
   Song,
   SourceType,
-} from '@vibez/models';
+} from '@vibes/models';
 
 export type { Room, RoomSettings, Song, SourceType, PlaybackState, RoomUpdate };
 

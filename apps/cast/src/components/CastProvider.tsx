@@ -1,6 +1,6 @@
-import { API_BASE_URL } from '@vibez/api';
-import type { Song } from '@vibez/shared';
-import { safeWrap, usePlaybackStore } from '@vibez/shared';
+import { API_BASE_URL } from '@vibes/api';
+import type { Song } from '@vibes/shared';
+import { safeWrap, usePlaybackStore } from '@vibes/shared';
 import React, {
   createContext,
   useCallback,

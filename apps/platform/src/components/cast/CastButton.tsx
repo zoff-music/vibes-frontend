@@ -1,4 +1,4 @@
-import { safeWrapAsync } from '@vibez/shared';
+import { safeWrapAsync } from '@vibes/shared';
 import React, { useEffect } from 'react';
 import { useCastStore } from '../../stores/castStore';
 import { CastIcon } from '../icons/CastIcon';

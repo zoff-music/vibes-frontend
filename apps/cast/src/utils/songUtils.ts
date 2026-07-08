@@ -1,4 +1,4 @@
-import type { Song } from '@vibez/shared';
+import type { Song } from '@vibes/shared';
 
 export const normalizeSong = (song: Song): Song => {
   return {

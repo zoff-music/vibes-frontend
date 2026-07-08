@@ -1,5 +1,5 @@
-import { useRoom } from '@vibez/api';
-import type { Room } from '@vibez/models';
+import { useRoom } from '@vibes/api';
+import type { Room } from '@vibes/models';
 import {
   ArrowLeftIcon,
   CircleHalfIcon,
@@ -7,7 +7,7 @@ import {
   SettingsIcon,
   ShareIcon,
   SunIcon,
-} from '@vibez/ui';
+} from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { type RefObject } from 'react';
 

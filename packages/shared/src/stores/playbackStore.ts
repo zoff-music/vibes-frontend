@@ -1,4 +1,4 @@
-import { type PlaybackState } from '@vibez/models';
+import { type PlaybackState } from '@vibes/models';
 import { create } from 'zustand';
 
 interface PlaybackStoreState extends PlaybackState {

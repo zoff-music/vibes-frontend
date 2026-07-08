@@ -1,5 +1,5 @@
 {
-  "name": "@vibez/shared",
+  "name": "@vibes/shared",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",
@@ -12,7 +12,7 @@
     "react-dom": "^19.2.4"
   },
   "dependencies": {
-    "@vibez/models": "workspace:*",
+    "@vibes/models": "workspace:*",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

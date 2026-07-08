@@ -1,6 +1,6 @@
-import { createApiClientWithBaseUrl } from '@vibez/api';
-import { createTracedWiretypedFetchProvider } from '@vibez/serve';
-import { safeWrap } from '@vibez/shared';
+import { createApiClientWithBaseUrl } from '@vibes/api';
+import { createTracedApiFetchLifecycle } from '@vibes/serve';
+import { safeWrap } from '@vibes/shared';
 
 const FALLBACK_API_BASE_URL = 'http://localhost:8080';
 const serviceName =
@@ -46,9 +46,7 @@ export function getServerApi(request?: Request) {
     apiUrl: process?.env?.VITE_API_URL,
     apiUrlInternal: process?.env?.VITE_API_URL_INTERNAL,
   });
-  return createApiClientWithBaseUrl(
-    baseUrl,
-    {},
-    createTracedWiretypedFetchProvider(serviceName),
-  );
+  return createApiClientWithBaseUrl(baseUrl, {
+    fetchLifecycle: createTracedApiFetchLifecycle(serviceName),
+  });
 }

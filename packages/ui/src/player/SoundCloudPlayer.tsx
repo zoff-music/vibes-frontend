@@ -1,4 +1,4 @@
-import { safeWrap, usePlaybackStore } from '@vibez/shared';
+import { safeWrap, usePlaybackStore } from '@vibes/shared';
 import { memo, useEffect, useRef, useState } from 'react';
 
 // Declare SC global on window

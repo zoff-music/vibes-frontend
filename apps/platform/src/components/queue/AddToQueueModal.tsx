@@ -1,11 +1,12 @@
-import { api, useQueue, useRoom } from '@vibez/api';
+import { api, useQueue, useRoom } from '@vibes/api';
 import {
   formatDuration,
   parseISODuration,
   type SourceType,
+  safeWrapAsync,
   usePlaybackStore,
   useQueueStore,
-} from '@vibez/shared';
+} from '@vibes/shared';
 import {
   AlertCircleIcon,
   CheckIcon,
@@ -13,7 +14,7 @@ import {
   InfoIcon,
   PlusIcon,
   SearchIcon,
-} from '@vibez/ui';
+} from '@vibes/ui';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuthCache } from '../../hooks/useAuthCache';
 
@@ -208,24 +209,31 @@ export const AddToQueueModal: React.FC<Props> = ({
     if (videoId && selectedProvider === 'youtube') {
       setShowResults(false);
       setIsSearching(true);
-      api
-        .get('/youtube/videos/{id}', { id: videoId })
-        .then((result: [Error | null, VideoApiResult | null]) => {
-          const [err, video] = result;
-          setIsSearching(false);
-          if (err || !video) {
-            setError('Could not find that video');
-            return;
-          }
-          // Map YouTube video to generic result
-          setPreviewVideo({
-            id: video.id,
-            title: video.title,
-            artist: video.channelTitle,
-            thumbnailUrl: video.thumbnailUrl,
-            duration: video.duration,
-          });
+      const loadVideoPreview = async () => {
+        const [wrapErr, result] = await safeWrapAsync(
+          api.get('/youtube/videos/{id}', { id: videoId }),
+        );
+        setIsSearching(false);
+        if (wrapErr || !result) {
+          setError('Could not find that video');
+          return;
+        }
+
+        const [err, video] = result as [Error | null, VideoApiResult | null];
+        if (err || !video) {
+          setError('Could not find that video');
+          return;
+        }
+
+        setPreviewVideo({
+          id: video.id,
+          title: video.title,
+          artist: video.channelTitle,
+          thumbnailUrl: video.thumbnailUrl,
+          duration: video.duration,
         });
+      };
+      void loadVideoPreview();
       return;
     }
 

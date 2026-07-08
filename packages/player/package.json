@@ -1,5 +1,5 @@
 {
-  "name": "@vibez/player",
+  "name": "@vibes/player",
   "version": "0.0.1",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -17,8 +17,8 @@
     "react-spotify-web-playback": "^0.14.0"
   },
   "dependencies": {
-    "@vibez/shared": "workspace:*",
-    "@vibez/ui": "workspace:*",
+    "@vibes/shared": "workspace:*",
+    "@vibes/ui": "workspace:*",
     "lucide-react": "^0.468.0",
     "clsx": "^2.0.0",
     "react-youtube": "^10.1.0",

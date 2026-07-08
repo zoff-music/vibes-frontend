@@ -1,11 +1,11 @@
-import { api } from '@vibez/api';
+import { api } from '@vibes/api';
 import {
   AlertCircleIcon,
   SoundCloudIcon,
   SpotifyIcon,
   Toggle,
   YouTubeIcon,
-} from '@vibez/ui';
+} from '@vibes/ui';
 import React, { useEffect, useState } from 'react';
 import {
   Link,

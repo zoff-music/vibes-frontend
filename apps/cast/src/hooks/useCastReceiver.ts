@@ -1,5 +1,5 @@
-import type { Song } from '@vibez/shared';
-import { safeWrap, usePlaybackStore } from '@vibez/shared';
+import type { Song } from '@vibes/shared';
+import { safeWrap, usePlaybackStore } from '@vibes/shared';
 import type { framework } from 'chromecast-caf-receiver';
 import { useEffect, useRef } from 'react';
 import type { LocalCastMessage } from '../types';
@@ -72,7 +72,7 @@ export const useCastReceiver = ({
         return;
       }
 
-      if (!window.cast || !window.cast.framework) return;
+      if (!window.cast?.framework) return;
 
       const context = cast.framework.CastReceiverContext.getInstance();
 

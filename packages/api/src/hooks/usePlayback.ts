@@ -2,7 +2,7 @@ import {
   type PlaybackState,
   usePlaybackStore,
   useRoomStore,
-} from '@vibez/shared';
+} from '@vibes/shared';
 
 import { useCallback } from 'react';
 import { api, getHttpError } from '../index';

@@ -1,4 +1,4 @@
-import type { AdminRoomSummary } from '@vibez/models';
+import type { AdminRoomSummary } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 

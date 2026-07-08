@@ -1,11 +1,11 @@
-import { getHttpError, usePlayback, useQueue, useRoom } from '@vibez/api';
+import { getHttpError, usePlayback, useQueue, useRoom } from '@vibes/api';
 import {
   type Song,
   usePlaybackStore,
   useQueueStore,
   useRoomStore,
-} from '@vibez/shared';
-import { Toast } from '@vibez/ui';
+} from '@vibes/shared';
+import { Toast } from '@vibes/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLoaderData, useNavigate, useParams } from 'react-router';
 import { DeviceSelector } from '../../components/cast/DeviceSelector';

@@ -1,4 +1,4 @@
-import { Song } from '@vibez/shared';
+import { Song } from '@vibes/shared';
 import { motion } from 'framer-motion';
 import React from 'react';
 import {

@@ -4,8 +4,8 @@ import type {
   CastSession,
   PlaybackState,
   Song,
-} from '@vibez/models';
-import { safeWrap, safeWrapAsync } from '@vibez/shared';
+} from '@vibes/models';
+import { safeWrap, safeWrapAsync } from '@vibes/shared';
 import { create } from 'zustand';
 import { castManager } from '../services/cast';
 

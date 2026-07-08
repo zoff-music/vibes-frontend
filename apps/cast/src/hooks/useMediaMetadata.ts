@@ -1,5 +1,5 @@
-import type { Song } from '@vibez/shared';
-import { safeWrap } from '@vibez/shared';
+import type { Song } from '@vibes/shared';
+import { safeWrap } from '@vibes/shared';
 import type { framework } from 'chromecast-caf-receiver';
 import { useCallback } from 'react';
 
@@ -9,7 +9,7 @@ interface ExtendedPlayerManager extends framework.PlayerManager {
 
 export function useMediaMetadata() {
   const updateMediaMetadata = useCallback((song: Song) => {
-    if (!window.cast || !window.cast.framework) return;
+    if (!window.cast?.framework) return;
 
     const context = window.cast.framework.CastReceiverContext.getInstance();
     const playerManager = context.getPlayerManager();

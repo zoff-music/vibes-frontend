@@ -19,7 +19,7 @@ FROM deps AS builder
 
 COPY apps/cast ./apps/cast
 
-RUN pnpm --filter @vibez/cast build
+RUN pnpm --filter @vibes/cast build
 
 FROM node:${NODE_VERSION}-bookworm-slim AS prod
 

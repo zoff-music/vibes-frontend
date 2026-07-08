@@ -10,7 +10,7 @@ A React + Vite + TypeScript monorepo using pnpm workspaces.
 
 ## Shared Packages
 
-- **`packages/api`**: Type-safe API client generated with wiretyped
+- **`packages/api`**: Type-safe API client
 - **`packages/models`**: Shared domain types, interfaces, and validation schemas
 - **`packages/shared`**: Shared React hooks, utilities, and Zustand stores (includes safeWrap error handling)
 - **`packages/player`**: Shared video player components for YouTube, Spotify, and SoundCloud
@@ -52,7 +52,7 @@ Both applications now support SSR for improved performance and SEO:
 
 - **Dark Mode**: System preference detection with manual toggle
 - **Error Handling**: Safe error handling with `safeWrap` utilities
-- **Type Safety**: Full TypeScript with wiretyped API client
+- **Type Safety**: Full TypeScript with `@vibes/api`
 - **Real-time**: SSE integration for live updates
 - **Responsive**: Mobile-first design with Tailwind CSS v4
 

@@ -1,4 +1,4 @@
-import type { Song } from '@vibez/shared';
+import type { Song } from '@vibes/shared';
 
 export interface RoomInfo {
   name: string;

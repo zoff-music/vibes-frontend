@@ -1,4 +1,4 @@
-import type { Room, RoomSettings, RoomUpdate } from '@vibez/models';
+import type { Room, RoomSettings, RoomUpdate } from '@vibes/models';
 import {
   CircleHalfIcon,
   MoonIcon,
@@ -8,7 +8,7 @@ import {
   SunIcon,
   Toggle,
   YouTubeIcon,
-} from '@vibez/ui';
+} from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { type RefObject, useEffect, useRef, useState } from 'react';
 import { RoomSharePanel } from './RoomSharePanel';

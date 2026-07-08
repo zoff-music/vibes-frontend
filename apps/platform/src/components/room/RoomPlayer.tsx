@@ -1,7 +1,7 @@
-import { usePlayback, usePlaybackPosition, useQueue } from '@vibez/api';
-import { type PlaybackState, type Room } from '@vibez/models';
-import { safeWrapAsync, usePlaybackStore } from '@vibez/shared';
-import { PlayerControls } from '@vibez/ui';
+import { usePlayback, usePlaybackPosition, useQueue } from '@vibes/api';
+import { type PlaybackState, type Room } from '@vibes/models';
+import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
+import { PlayerControls } from '@vibes/ui';
 import React, {
   type ComponentType,
   useCallback,
@@ -206,7 +206,7 @@ export const RoomPlayer = React.memo(
 
       let isMounted = true;
       const loadSpotifyPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(import('@vibez/ui'));
+        const [loadErr, module] = await safeWrapAsync(import('@vibes/ui'));
         const resolvedComponent = module?.SpotifyPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
           if (loadErr) {
@@ -238,7 +238,7 @@ export const RoomPlayer = React.memo(
 
       let isMounted = true;
       const loadSoundCloudPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(import('@vibez/ui'));
+        const [loadErr, module] = await safeWrapAsync(import('@vibes/ui'));
         const resolvedComponent = module?.SoundCloudPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
           if (loadErr) {
@@ -273,7 +273,7 @@ export const RoomPlayer = React.memo(
 
       let isMounted = true;
       const loadVideoPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(import('@vibez/ui'));
+        const [loadErr, module] = await safeWrapAsync(import('@vibes/ui'));
         const resolvedComponent = module?.VideoPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
           if (loadErr) {

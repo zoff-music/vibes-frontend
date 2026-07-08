@@ -19,7 +19,7 @@ FROM deps AS builder
 
 COPY apps/platform ./apps/platform
 
-RUN pnpm --filter @vibez/platform build
+RUN pnpm --filter @vibes/platform build
 
 FROM node:${NODE_VERSION}-bookworm-slim AS prod
 

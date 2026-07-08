@@ -1,5 +1,5 @@
 {
-  "name": "@vibez/mobile",
+  "name": "@vibes/mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -17,10 +17,10 @@
     "@expo-google-fonts/space-mono": "^0.4.2",
     "@expo/vector-icons": "^15.0.3",
     "@react-navigation/native": "^7.1.8",
-    "@vibez/api": "workspace:*",
-    "@vibez/models": "workspace:*",
-    "@vibez/shared": "workspace:*",
-    "@vibez/ui": "workspace:*",
+    "@vibes/api": "workspace:*",
+    "@vibes/models": "workspace:*",
+    "@vibes/shared": "workspace:*",
+    "@vibes/ui": "workspace:*",
     "expo": "~54.0.32",
     "expo-auth-session": "^7.0.10",
     "expo-constants": "~18.0.13",

@@ -1,6 +1,6 @@
-import { api, getHttpError } from '@vibez/api';
-import { ProviderToken } from '@vibez/models';
-import { safeWrapAsync } from '@vibez/shared';
+import { api, getHttpError } from '@vibes/api';
+import { ProviderToken } from '@vibes/models';
+import { safeWrapAsync } from '@vibes/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const tokenCache: Record<string, { token: string; expiresAt: string }> = {};

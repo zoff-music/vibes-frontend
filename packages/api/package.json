@@ -1,5 +1,5 @@
 {
-  "name": "@vibez/api",
+  "name": "@vibes/api",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",
@@ -13,8 +13,8 @@
     "lint": "biome check src"
   },
   "dependencies": {
-    "@vibez/models": "workspace:*",
-    "@vibez/shared": "workspace:*",
+    "@vibes/models": "workspace:*",
+    "@vibes/shared": "workspace:*",
     "wiretyped": "^0.3.4",
     "yup": "^1.7.1"
   },

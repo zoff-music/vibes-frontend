@@ -73,7 +73,7 @@ The platform app includes comprehensive SSR support via `server.tsx`:
 - **Runtime**: Node.js for production serving
 - **State Management**: Zustand for high-performance, selective store subscriptions (playback, UI, auth)
 - **Styling**: Tailwind CSS v4 with custom "retro-futuristic" design system and enhanced dark mode
-- **API Engine**: wiretyped + Yup for type-safe, validated request/response handling
+- **API Engine**: `@vibes/api` for type-safe, validated request/response handling
 - **Real-time**: EventSource (SSE) for low-latency state updates from the backend
 - **Build Tool**: Vite with React 19 optimizations and SSR support
 

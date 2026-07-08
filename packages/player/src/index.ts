@@ -1,1 +1,1 @@
-export * from '@vibez/ui';
+export * from '@vibes/ui';

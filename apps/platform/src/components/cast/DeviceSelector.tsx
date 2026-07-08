@@ -1,5 +1,5 @@
-import type { CastDevice, Song } from '@vibez/models';
-import { safeWrapAsync, usePlaybackStore } from '@vibez/shared';
+import type { CastDevice, Song } from '@vibes/models';
+import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
 import React, { useEffect, useState } from 'react';
 import { castManager } from '../../services/cast';
 import { useCastStore } from '../../stores/castStore';

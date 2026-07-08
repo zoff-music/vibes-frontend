@@ -1,4 +1,4 @@
-import { createApiClient } from '@vibez/api';
+import { createApiClient } from '@vibes/api';
 
 function getCastHeaders() {
   if (typeof window === 'undefined') return {};

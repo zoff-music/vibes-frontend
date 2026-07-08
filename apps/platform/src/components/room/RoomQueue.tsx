@@ -1,7 +1,7 @@
-import { useQueue } from '@vibez/api';
-import { type PlaybackState, type Song } from '@vibez/models';
-import { usePlaybackStore } from '@vibez/shared';
-import { QueueList, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibez/ui';
+import { useQueue } from '@vibes/api';
+import { type PlaybackState, type Song } from '@vibes/models';
+import { usePlaybackStore } from '@vibes/shared';
+import { QueueList, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React from 'react';
 import { PlaybackProgress } from './PlaybackProgress';

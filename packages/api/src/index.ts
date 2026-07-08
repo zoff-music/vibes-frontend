@@ -35,38 +35,68 @@ import {
   youTubeSearchQuerySchema,
   youTubeSearchResponseSchema,
   youTubeVideoSchema,
-} from '@vibez/models';
+} from '@vibes/models';
 
 export * as yup from 'yup';
 
 import {
   getHttpError,
   RequestClient,
-  type RequestClientProps,
   type RequestDefinitions,
 } from 'wiretyped';
+
+import {
+  type ApiFetchLifecycle,
+  createApiFetchProvider,
+} from './fetchProvider';
 
 export { getHttpError };
 
 const API_BASE_PATH = '/api/v1';
+const defaultRestTimeoutMs = 10_000;
+
+function readEnvValue(name: string) {
+  const runtimeValue =
+    typeof process !== 'undefined' ? process.env?.[name] : undefined;
+  if (runtimeValue) {
+    return runtimeValue;
+  }
+
+  if (import.meta?.env?.[name]) {
+    return import.meta.env[name];
+  }
+
+  return undefined;
+}
+
+function getRestTimeoutMs() {
+  const rawTimeout =
+    readEnvValue('VITE_API_REST_TIMEOUT_MS') ??
+    readEnvValue('API_REST_TIMEOUT_MS');
+  if (rawTimeout === 'false') {
+    return false;
+  }
+
+  const parsed = Number.parseInt(rawTimeout ?? '', 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+
+  return defaultRestTimeoutMs;
+}
 
 function getApiUrl() {
   // If explicitly set via runtime env var (e.g. in SSR), use it first
-  const runtimeApiUrl =
-    typeof process !== 'undefined' ? process.env?.VITE_API_URL : undefined;
+  const runtimeApiUrl = readEnvValue('VITE_API_URL');
   if (runtimeApiUrl) {
     return runtimeApiUrl;
   }
 
-  // If set via build-time env var, use it
-  if (import.meta?.env?.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-
   // React Native detection
   if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-    if (process?.env?.EXPO_PUBLIC_API_URL) {
-      return process.env.EXPO_PUBLIC_API_URL;
+    const expoApiUrl = readEnvValue('EXPO_PUBLIC_API_URL');
+    if (expoApiUrl) {
+      return expoApiUrl;
     }
     return 'https://zoff.me';
   }
@@ -259,9 +289,10 @@ const endpoints = {
   },
 } as const satisfies RequestDefinitions;
 
-type ApiClientFetchProvider = RequestClientProps<
-  typeof endpoints
->['fetchProvider'];
+export interface ApiClientOptions {
+  customHeaders?: Record<string, string>;
+  fetchLifecycle?: ApiFetchLifecycle;
+}
 
 function resolveApiBaseUrl(baseUrl: string) {
   const normalized = baseUrl.endsWith(API_BASE_PATH)
@@ -272,17 +303,20 @@ function resolveApiBaseUrl(baseUrl: string) {
 
 export function createApiClientWithBaseUrl(
   baseUrl: string,
-  customHeaders: Record<string, string> = {},
-  fetchProvider?: ApiClientFetchProvider,
+  options: ApiClientOptions = {},
 ) {
+  const { customHeaders = {}, fetchLifecycle } = options;
   const resolvedBaseUrl = resolveApiBaseUrl(baseUrl);
   return new RequestClient({
-    ...(fetchProvider && { fetchProvider }),
+    ...(fetchLifecycle && {
+      fetchProvider: createApiFetchProvider(fetchLifecycle),
+    }),
     hostname: resolvedBaseUrl,
     baseUrl: resolvedBaseUrl,
     endpoints,
     validation: true,
     fetchOpts: {
+      timeout: getRestTimeoutMs(),
       credentials: 'include',
       headers: { ...customHeaders },
     },
@@ -290,7 +324,7 @@ export function createApiClientWithBaseUrl(
 }
 
 export function createApiClient(customHeaders: Record<string, string> = {}) {
-  return createApiClientWithBaseUrl(API_URL, customHeaders);
+  return createApiClientWithBaseUrl(API_URL, { customHeaders });
 }
 
 export const api = createApiClient();

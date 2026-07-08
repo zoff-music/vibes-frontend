@@ -1,4 +1,4 @@
-import { safeWrap } from '@vibez/shared';
+import { safeWrap } from '@vibes/shared';
 import { create } from 'zustand';
 
 // Theme definitions - easy to add new themes by adding to this object

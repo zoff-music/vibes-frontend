@@ -3,4 +3,4 @@ export {
   type ServerRequest,
   startServer,
 } from './server.ts';
-export { createTracedWiretypedFetchProvider } from './tracing.ts';
+export { createTracedApiFetchLifecycle } from './tracing.ts';

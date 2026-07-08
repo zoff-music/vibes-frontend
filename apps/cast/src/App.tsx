@@ -1,4 +1,4 @@
-import { DebugConsole } from '@vibez/ui';
+import { DebugConsole } from '@vibes/ui';
 import { ActiveView } from './components/ActiveView';
 import { CastProvider, useCast } from './components/CastProvider';
 import { IdleView } from './components/IdleView';

@@ -1,4 +1,4 @@
-import { createCastingToken } from '@vibez/api';
+import { createCastingToken } from '@vibes/api';
 import type {
   CastDevice,
   CastError,
@@ -6,8 +6,8 @@ import type {
   CastSessionState,
   CastManager as ICastManager,
   MediaInfo,
-} from '@vibez/models';
-import { safeWrap, safeWrapAsync, useRoomStore } from '@vibez/shared';
+} from '@vibes/models';
+import { safeWrap, safeWrapAsync, useRoomStore } from '@vibes/shared';
 
 import {
   CAST_APPLICATION_ID,
@@ -24,7 +24,7 @@ const MEDIA_NAMESPACE = 'urn:x-cast:com.google.cast.media';
 
 /**
  * Google Cast SDK Manager - orchestrates all casting functionality.
- * Implements the CastManager interface from @vibez/models.
+ * Implements the CastManager interface from @vibes/models.
  */
 class GoogleCastManager implements ICastManager {
   private devices: CastDevice[] = [];
@@ -83,7 +83,14 @@ class GoogleCastManager implements ICastManager {
               'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
             script.onload = () => {
               console.log('[Cast] sender SDK script loaded');
-              this.waitForCastAPI().then(resolve).catch(reject);
+              void (async () => {
+                const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
+                if (waitErr) {
+                  reject(waitErr);
+                  return;
+                }
+                resolve();
+              })();
             };
             script.onerror = () => {
               const error = new Error('Failed to load Google Cast SDK');
@@ -97,7 +104,14 @@ class GoogleCastManager implements ICastManager {
             };
             document.head.appendChild(script);
           } else {
-            this.waitForCastAPI().then(resolve).catch(reject);
+            void (async () => {
+              const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
+              if (waitErr) {
+                reject(waitErr);
+                return;
+              }
+              resolve();
+            })();
           }
         }),
       );
@@ -151,7 +165,7 @@ class GoogleCastManager implements ICastManager {
   }
 
   private setupCastAPI(): void {
-    const [_, err] = safeWrap(() => {
+    const [err] = safeWrap(() => {
       console.log('Setting up Google Cast API...');
       console.log('[Cast] setup config', {
         appId: CAST_APPLICATION_ID,
@@ -232,7 +246,7 @@ class GoogleCastManager implements ICastManager {
       mediaCount: session?.media?.length || 0,
     });
 
-    const [_, err] = safeWrap(() => {
+    const [err] = safeWrap(() => {
       const castSession: CastSession = {
         id: session.sessionId,
         deviceId: session.receiver?.friendlyName || 'unknown-device',
@@ -282,7 +296,7 @@ class GoogleCastManager implements ICastManager {
   }
 
   private handleExistingMediaSession(media: chrome.cast.media.Media): void {
-    const [_, err] = safeWrap(() => {
+    const [err] = safeWrap(() => {
       console.log('[Cast] existing media session detected', {
         sessionId: media?.sessionId,
         mediaStatus: media?.playerState,
@@ -323,7 +337,7 @@ class GoogleCastManager implements ICastManager {
   private onReceiverListener(availability: string): void {
     console.log('Cast receiver availability changed:', availability);
 
-    const [_, err] = safeWrap(() => {
+    const [err] = safeWrap(() => {
       const isAvailable =
         availability === 'available' ||
         availability === window.chrome?.cast?.ReceiverAvailability?.AVAILABLE;
@@ -862,7 +876,7 @@ class GoogleCastManager implements ICastManager {
   }
 
   async updateQueue(queue: any[]): Promise<void> {
-    if (!this.currentSession || this.currentSession.state !== 'connected') {
+    if (this.currentSession?.state !== 'connected') {
       return;
     }
 
@@ -915,7 +929,7 @@ class GoogleCastManager implements ICastManager {
     name: string;
     participantCount: number;
   }): Promise<void> {
-    if (!this.currentSession || this.currentSession.state !== 'connected') {
+    if (this.currentSession?.state !== 'connected') {
       return;
     }
 
@@ -954,7 +968,7 @@ class GoogleCastManager implements ICastManager {
   }
 
   async syncPlaybackState(state: any): Promise<void> {
-    if (!this.currentSession || this.currentSession.state !== 'connected') {
+    if (this.currentSession?.state !== 'connected') {
       return;
     }
 

@@ -1,4 +1,4 @@
-import { applyConsoleLogGuard, isTruthyFlag, safeWrap } from '@vibez/shared';
+import { applyConsoleLogGuard, isTruthyFlag, safeWrap } from '@vibes/shared';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './src/styles/index.css';

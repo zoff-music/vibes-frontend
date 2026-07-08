@@ -1,4 +1,4 @@
-import { QueueList, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibez/ui';
+import { QueueList, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import { useCast } from './CastProvider';

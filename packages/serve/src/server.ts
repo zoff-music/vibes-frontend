@@ -1,15 +1,19 @@
 import path from 'node:path';
+import { safeWrapAsync } from '@vibes/shared';
 import compression from 'compression';
 import express, { type Request } from 'express';
 import type { ServerBuild } from 'react-router';
 import { metricsApp } from './metrics.ts';
 import {
+  createBodySizeLimitMiddleware,
   createMetricsMiddleware,
   createTracingMiddleware,
 } from './middleware.ts';
 import { initTracing } from './tracing.ts';
 
 export type ServerRequest = Request;
+
+const defaultBodySizeLimitBytes = 1024 * 1024;
 
 type ServerMode =
   | {
@@ -33,9 +37,23 @@ export interface ServerConfig {
     staticDir: string;
   };
   metricsSkipPaths?: string[];
+  bodySizeLimitBytes?: number;
   operationName: (req: Request) => string;
   serviceName: string;
   mode: ServerMode;
+}
+
+function resolveBodySizeLimitBytes(config: ServerConfig) {
+  if (config.bodySizeLimitBytes) {
+    return config.bodySizeLimitBytes;
+  }
+
+  const parsed = Number.parseInt(process.env.BODY_SIZE_LIMIT_BYTES ?? '', 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+
+  return defaultBodySizeLimitBytes;
 }
 
 async function setupRoutes(app: express.Express, config: ServerConfig) {
@@ -103,6 +121,11 @@ export async function startServer(config: ServerConfig) {
   const sdk = initTracing(config.serviceName);
 
   const app = express();
+  app.use(
+    createBodySizeLimitMiddleware({
+      maxBytes: resolveBodySizeLimitBytes(config),
+    }),
+  );
   app.use(compression());
   app.disable('x-powered-by');
   app.use(
@@ -145,14 +168,13 @@ export async function startServer(config: ServerConfig) {
       }
     });
 
-    sdk
-      .shutdown()
-      .catch((err: unknown) => {
+    void (async () => {
+      const [err] = await safeWrapAsync(sdk.shutdown());
+      if (err) {
         console.error(err);
-      })
-      .finally(() => {
-        process.exit(0);
-      });
+      }
+      process.exit(0);
+    })();
   }
 
   process.once('SIGTERM', shutdown);

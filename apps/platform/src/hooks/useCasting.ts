@@ -1,9 +1,10 @@
 import {
   isTruthyFlag,
+  safeWrapAsync,
   usePlaybackStore,
   useQueueStore,
   useRoomStore,
-} from '@vibez/shared';
+} from '@vibes/shared';
 import { useCallback, useEffect } from 'react';
 import { useCastStore } from '../stores/castStore';
 
@@ -73,9 +74,12 @@ export const useCasting = (_roomId: string) => {
     // Only auto-cast if we're already connected and have a session
     if (isConnected && currentSong && currentSession) {
       console.log('🎵 Auto-casting current song:', currentSong.title);
-      stableCastCurrentSong(currentSong).catch((error) => {
-        console.error('Failed to cast current song:', error);
-      });
+      void (async () => {
+        const [error] = await safeWrapAsync(stableCastCurrentSong(currentSong));
+        if (error) {
+          console.error('Failed to cast current song:', error);
+        }
+      })();
     }
   }, [isConnected, currentSong, currentSession, stableCastCurrentSong]);
 
@@ -92,9 +96,12 @@ export const useCasting = (_roomId: string) => {
     if (isConnected && currentSession && _roomId) {
       console.log('[Cast] Sending joinRoom handshake for room:', _roomId);
       const { joinRoom } = useCastStore.getState();
-      joinRoom(_roomId).catch((err) => {
-        console.error('Failed to send joinRoom handshake:', err);
-      });
+      void (async () => {
+        const [err] = await safeWrapAsync(joinRoom(_roomId));
+        if (err) {
+          console.error('Failed to send joinRoom handshake:', err);
+        }
+      })();
     }
   }, [isConnected, currentSession, _roomId]);
 
@@ -114,15 +121,20 @@ export const useCasting = (_roomId: string) => {
         positionMs: actualPositionMs,
         mediaSessionId: currentSession.mediaSessionId,
       });
-      stableSyncPlaybackState({
-        isPlaying,
-        positionMs: actualPositionMs,
-        currentSong,
-        updatedAt: new Date().toISOString(),
-        serverTimeMs: Date.now(),
-      }).catch((error) => {
-        console.error('Failed to sync playback state:', error);
-      });
+      void (async () => {
+        const [error] = await safeWrapAsync(
+          stableSyncPlaybackState({
+            isPlaying,
+            positionMs: actualPositionMs,
+            currentSong,
+            updatedAt: new Date().toISOString(),
+            serverTimeMs: Date.now(),
+          }),
+        );
+        if (error) {
+          console.error('Failed to sync playback state:', error);
+        }
+      })();
     }
   }, [
     isConnected,
@@ -137,20 +149,28 @@ export const useCasting = (_roomId: string) => {
     if (currentSession?.deviceId !== 'local-cast-emulator') return;
     if (!room) return;
 
-    stableUpdateRoomInfo({
-      name: room.name,
-      participantCount: usersCount,
-    }).catch((error) => {
-      console.error('Failed to update local room info:', error);
-    });
+    void (async () => {
+      const [error] = await safeWrapAsync(
+        stableUpdateRoomInfo({
+          name: room.name,
+          participantCount: usersCount,
+        }),
+      );
+      if (error) {
+        console.error('Failed to update local room info:', error);
+      }
+    })();
   }, [currentSession?.deviceId, room, usersCount, stableUpdateRoomInfo]);
 
   useEffect(() => {
     if (currentSession?.deviceId !== 'local-cast-emulator') return;
 
-    stableUpdateQueue(queueSongs).catch((error) => {
-      console.error('Failed to update local queue:', error);
-    });
+    void (async () => {
+      const [error] = await safeWrapAsync(stableUpdateQueue(queueSongs));
+      if (error) {
+        console.error('Failed to update local queue:', error);
+      }
+    })();
   }, [currentSession?.deviceId, queueSongs, stableUpdateQueue]);
 
   return {

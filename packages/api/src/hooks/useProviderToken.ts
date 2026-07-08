@@ -1,5 +1,5 @@
-import { type ProviderToken } from '@vibez/models';
-import { safeWrapAsync } from '@vibez/shared';
+import { type ProviderToken } from '@vibes/models';
+import { safeWrapAsync } from '@vibes/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../index';
 

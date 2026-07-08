@@ -1,6 +1,6 @@
-import { api } from '@vibez/api';
-import { usePageVisibility } from '@vibez/shared';
-import { CircleHalfIcon, MoonIcon, SunIcon } from '@vibez/ui';
+import { api } from '@vibes/api';
+import { usePageVisibility } from '@vibes/shared';
+import { CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useNavigationType } from 'react-router';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';

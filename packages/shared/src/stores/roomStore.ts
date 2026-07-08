@@ -1,4 +1,4 @@
-import { Room } from '@vibez/models';
+import { Room } from '@vibes/models';
 import { create } from 'zustand';
 import { RoomUser } from '../types';
 

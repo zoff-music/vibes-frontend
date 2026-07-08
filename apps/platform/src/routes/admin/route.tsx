@@ -1,6 +1,6 @@
-import { api } from '@vibez/api';
-import type { AdminRoomSummary } from '@vibez/models';
-import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibez/ui';
+import { api } from '@vibes/api';
+import type { AdminRoomSummary } from '@vibes/models';
+import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 import { JSX, useEffect, useMemo, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router';
 import type { AdminLoaderData } from './loader';

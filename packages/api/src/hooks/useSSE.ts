@@ -6,7 +6,7 @@ import {
   usePlaybackStore,
   useQueueStore,
   useRoomStore,
-} from '@vibez/shared';
+} from '@vibes/shared';
 import { useEffect, useRef } from 'react';
 import { api } from '../index';
 
@@ -79,7 +79,7 @@ export const useSSE = (
                   console.log('[SSE] connected:', message.data);
                   break;
                 case 'songs_update': {
-                  const [_, error] = safeWrap(() => {
+                  const [error] = safeWrap(() => {
                     setSongs(message.data);
                   });
                   if (error)
@@ -87,7 +87,7 @@ export const useSSE = (
                   break;
                 }
                 case 'playback_update': {
-                  const [_, error] = safeWrap(() => {
+                  const [error] = safeWrap(() => {
                     setPlaybackState(message.data, room?.mode);
                   });
                   if (error)
@@ -95,7 +95,7 @@ export const useSSE = (
                   break;
                 }
                 case 'song_added': {
-                  const [_, error] = safeWrap(() => {
+                  const [error] = safeWrap(() => {
                     const song = message.data;
                     console.log('[SSE] song_added received:', song);
                     if (callbacks?.onSongAdded) {
@@ -114,13 +114,13 @@ export const useSSE = (
                   break;
                 }
                 case 'settings_update': {
-                  const [_, error] = safeWrap(() => setRoom(message.data));
+                  const [error] = safeWrap(() => setRoom(message.data));
                   if (error)
                     console.error('Failed to parse settings_update', error);
                   break;
                 }
                 case 'users_update': {
-                  const [_, error] = safeWrap(() => {
+                  const [error] = safeWrap(() => {
                     setUsersCount(message.data);
                   });
                   if (error)

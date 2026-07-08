@@ -1,4 +1,4 @@
-import { safeWrap } from '@vibez/shared';
+import { safeWrap } from '@vibes/shared';
 
 export function getThemeFromCookies(
   cookieHeader: string | null,

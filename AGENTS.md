@@ -7,12 +7,12 @@ Non-negotiable conventions. Follow strictly.
 - **No `any` type** - use explicit types, compose when needed
 - **Limit Return Values** - NEVER return more than 2 values. 3 or more is strictly illegal.
 - **No `@ts-ignore` or `@ts-nocheck`** - fix the type
-- **No `try/catch`** - use `safeWrap`/`safeWrapAsync` from `@vibez/shared`
+- **No `try/catch`** - use `safeWrap`/`safeWrapAsync` from `@vibes/shared`
 - **Use Biome** for ALL linting and formatting. No ESLint.
 - **Run `pnpm lint`** to check both format and lint rules before committing.
 - **Run `pnpm typecheck`** to verify TypeScript compilation before committing.
-- **Use wiretyped + yup** for ALL API calls / SSE.
-- **NEVER use `fetch()` or `new EventSource()`**. Only `wiretyped` clients.
+- **Use `@vibes/api`** for ALL API calls / SSE.
+- **NEVER use `fetch()` or `new EventSource()`**. Only `@vibes/api` clients.
 - **Unified Build System** - Apps build through the pnpm workspace
 - **Content Hashing** - All assets use content-based hashing for cache busting
 
@@ -21,8 +21,8 @@ Non-negotiable conventions. Follow strictly.
 ```
 apps/platform/src/
 ├── components/
-│   ├── ui/                # Deprecated; shared UI now lives in @vibez/ui
-│   ├── player/            # Deprecated; shared player UI now lives in @vibez/ui
+│   ├── ui/                # Deprecated; shared UI now lives in @vibes/ui
+│   ├── player/            # Deprecated; shared player UI now lives in @vibes/ui
 │   ├── queue/             # QueueItem, QueueList, AddToQueueModal
 │   ├── cast/              # CastButton, DeviceSelector
 │   └── room/              # UserCount, room components
@@ -40,7 +40,7 @@ apps/cast/src/
 └── client.tsx             # Client hydration
 
 packages/
-├── api/                   # wiretyped API client
+├── api/                   # API client
 ├── models/                # Shared types and Yup schemas
 ├── shared/                # Utilities, hooks, stores
 │   ├── src/utils/wrap.ts  # safeWrap utilities
@@ -52,17 +52,17 @@ packages/
 
 ## Packages
 
-- `@vibez/api`: API client (`import { api } from '@vibez/api'`)
-- `@vibez/models`: Shared types and schemas (`import { Room, Song, PlaybackState } from '@vibez/models'`)
-- `@vibez/shared`: Shared utilities (`import { safeWrap, usePlaybackStore, SourceType } from '@vibez/shared'`)
-- `@vibez/ui`: Shared UI + player components (`import { SpotifyPlayer, VideoPlayer, Toast } from '@vibez/ui'`)
+- `@vibes/api`: API client (`import { api } from '@vibes/api'`)
+- `@vibes/models`: Shared types and schemas (`import { Room, Song, PlaybackState } from '@vibes/models'`)
+- `@vibes/shared`: Shared utilities (`import { safeWrap, usePlaybackStore, SourceType } from '@vibes/shared'`)
+- `@vibes/ui`: Shared UI + player components (`import { SpotifyPlayer, VideoPlayer, Toast } from '@vibes/ui'`)
 
 ## Error Handling
 
-Never use try/catch. Use the wrap utilities from `@vibez/shared`:
+Never use try/catch. Use the wrap utilities from `@vibes/shared`:
 
 ```typescript
-import { safeWrap, safeWrapAsync } from '@vibez/shared';
+import { safeWrap, safeWrapAsync } from '@vibes/shared';
 
 // Sync
 const [error, result] = safeWrap(() => JSON.parse(data));
@@ -85,10 +85,10 @@ if (error) {
 
 ## API Calls
 
-Always use wiretyped with yup validation:
+Always use `@vibes/api`:
 
 ```typescript
-import { api } from '@vibez/api';
+import { api } from '@vibes/api';
 
 // GET request
 const [error, room] = await safeWrapAsync(api.get('/rooms/{id}', { id: roomId }));
@@ -366,7 +366,7 @@ const handleCast = async (deviceId: string) => {
 
 1. **Type Safety**: Run `pnpm typecheck` before committing
 2. **Code Quality**: Run `pnpm lint` for formatting and linting
-3. **API Integration**: Use wiretyped + yup for all API calls
+3. **API Integration**: Use `@vibes/api` for all API calls
 4. **Error Handling**: Use `safeWrap`/`safeWrapAsync` utilities
 5. **State Management**: Use Zustand stores for global state
 6. **Styling**: Use Tailwind CSS v4 with dark mode support

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { type ServerRequest, startServer } from '@vibez/serve';
+import { type ServerRequest, startServer } from '@vibes/serve';
 
 const staticDir = path.resolve('dist');
 const dev = process.env.NODE_ENV !== 'production';

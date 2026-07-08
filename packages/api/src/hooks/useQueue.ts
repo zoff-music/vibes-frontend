@@ -2,7 +2,7 @@ import {
   type SourceType,
   usePlaybackStore,
   useQueueStore,
-} from '@vibez/shared';
+} from '@vibes/shared';
 import { useCallback, useRef } from 'react';
 import { api } from '../index';
 

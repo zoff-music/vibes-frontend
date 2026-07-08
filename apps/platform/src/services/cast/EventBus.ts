@@ -1,4 +1,4 @@
-import type { CastDevice, CastError, CastSession } from '@vibez/models';
+import type { CastDevice, CastError, CastSession } from '@vibes/models';
 
 type DeviceCallback = (device: CastDevice) => void;
 type SessionCallback = (session: CastSession) => void;

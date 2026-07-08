@@ -1,5 +1,5 @@
-import { useProviderToken } from '@vibez/api';
-import { safeWrapAsync, usePlaybackStore } from '@vibez/shared';
+import { useProviderToken } from '@vibes/api';
+import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import SpotifyWebPlayer, {
   type CallbackState,
@@ -39,9 +39,10 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
 
     if (currentSong?.sourceType === 'spotify') {
       setIsFetchingToken(true);
-      void fetchToken('spotify').finally(() => {
+      void (async () => {
+        await safeWrapAsync(fetchToken('spotify'));
         if (isActive) setIsFetchingToken(false);
-      });
+      })();
     } else {
       setIsFetchingToken(false);
     }

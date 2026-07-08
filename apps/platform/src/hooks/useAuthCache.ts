@@ -1,4 +1,4 @@
-import { api } from '@vibez/api';
+import { api } from '@vibes/api';
 import { create } from 'zustand';
 
 interface AuthCacheState {

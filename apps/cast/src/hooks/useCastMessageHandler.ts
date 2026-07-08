@@ -1,5 +1,5 @@
-import type { Song } from '@vibez/shared';
-import { usePlaybackStore } from '@vibez/shared';
+import type { Song } from '@vibes/shared';
+import { usePlaybackStore } from '@vibes/shared';
 import { useCallback } from 'react';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
 import { normalizeSong } from '../utils/songUtils';
@@ -30,7 +30,7 @@ export const useCastMessageHandler = ({
 
   const handleCastMessage = useCallback(
     (message: LocalCastMessage) => {
-      if (!message || !message.action) return;
+      if (!message?.action) return;
 
       const action = message.action;
       const currentState = usePlaybackStore.getState();

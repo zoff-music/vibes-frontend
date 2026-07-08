@@ -1,5 +1,5 @@
 {
-  "name": "@vibez/platform",
+  "name": "@vibes/platform",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -16,11 +16,11 @@
   "dependencies": {
     "@react-router/express": "^7.17.0",
     "@react-router/serve": "^7.13.0",
-    "@vibez/api": "workspace:*",
-    "@vibez/models": "workspace:*",
-    "@vibez/serve": "workspace:*",
-    "@vibez/shared": "workspace:*",
-    "@vibez/ui": "workspace:*",
+    "@vibes/api": "workspace:*",
+    "@vibes/models": "workspace:*",
+    "@vibes/serve": "workspace:*",
+    "@vibes/shared": "workspace:*",
+    "@vibes/ui": "workspace:*",
     "framer-motion": "^12.29.2",
     "qrcode.react": "^4.2.0",
     "react": "19.2.4",
@@ -29,7 +29,6 @@
     "react-router": "^7.13.0",
     "react-spotify-web-playback": "^0.14.7",
     "react-youtube": "^10.1.0",
-    "wiretyped": "^0.3.4",
     "yup": "^1.7.1",
     "zustand": "^5.0.10"
   },

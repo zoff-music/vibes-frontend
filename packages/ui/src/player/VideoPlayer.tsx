@@ -1,5 +1,10 @@
-import { useProviderToken } from '@vibez/api';
-import { isTruthyFlag, safeWrap, usePlaybackStore } from '@vibez/shared';
+import { useProviderToken } from '@vibes/api';
+import {
+  isTruthyFlag,
+  safeWrap,
+  safeWrapAsync,
+  usePlaybackStore,
+} from '@vibes/shared';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import YouTube, { type YouTubeProps } from 'react-youtube';
 import { AuthOverlay } from './AuthOverlay';
@@ -122,14 +127,17 @@ const VideoPlayerComponent = ({
       setIsVerifying(true);
       setError(null);
 
-      fetchToken('youtube', true).then((newToken: string | null) => {
+      void (async () => {
+        const [tokenErr, newToken] = await safeWrapAsync(
+          fetchToken('youtube', true),
+        );
         setIsVerifying(false);
-        if (!newToken) {
+        if (tokenErr || !newToken) {
           setError('Failed to refresh token after authorization.');
         }
         if (playerRef.current) {
         }
-      });
+      })();
     };
 
     const handleMessage = (event: MessageEvent) => {

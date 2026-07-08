@@ -3,7 +3,7 @@ import {
   type RoomUpdate,
   safeWrapAsync,
   useRoomStore,
-} from '@vibez/shared';
+} from '@vibes/shared';
 import { useCallback, useState } from 'react';
 import { api } from '../index';
 import { USE_SSE_CALLBACKS, useSSE } from './useSSE';

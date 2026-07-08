@@ -1,4 +1,4 @@
-import { isTruthyFlag } from '@vibez/shared';
+import { isTruthyFlag } from '@vibes/shared';
 import React, { useEffect, useRef, useState } from 'react';
 
 type LogLevel = 'log' | 'error' | 'warn' | 'info' | 'debug';

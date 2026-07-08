@@ -13,6 +13,37 @@ interface MiddlewareOptions {
   skipPaths?: string[];
 }
 
+export interface BodySizeLimitOptions {
+  maxBytes: number;
+}
+
+export function createBodySizeLimitMiddleware(options: BodySizeLimitOptions) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const rawContentLength = req.headers['content-length'];
+    if (!rawContentLength) {
+      return next();
+    }
+
+    if (Array.isArray(rawContentLength)) {
+      res.status(400).send('Invalid Content-Length');
+      return undefined;
+    }
+
+    const contentLength = Number.parseInt(rawContentLength, 10);
+    if (!Number.isFinite(contentLength) || contentLength < 0) {
+      res.status(400).send('Invalid Content-Length');
+      return undefined;
+    }
+
+    if (contentLength > options.maxBytes) {
+      res.status(413).send('Request body too large');
+      return undefined;
+    }
+
+    return next();
+  };
+}
+
 export function createMetricsMiddleware(options: MiddlewareOptions) {
   const { operationName, skipPaths = [] } = options;
 

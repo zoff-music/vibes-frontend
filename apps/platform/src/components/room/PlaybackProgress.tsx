@@ -1,4 +1,4 @@
-import { usePlaybackPosition } from '@vibez/api';
+import { usePlaybackPosition } from '@vibes/api';
 import React from 'react';
 
 interface PlaybackProgressProps {

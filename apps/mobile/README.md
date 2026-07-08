@@ -51,8 +51,8 @@ pnpm web
 - **Styling**: [NativeWind](https://www.nativewind.dev/) (Tailwind CSS v4)
 - **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/)
 - **Casting**: `react-native-google-cast`
-- **Component Library**: Shared components from `@vibez/ui`
-- **State Management**: Shared Zustand stores from `@vibez/shared`
+- **Component Library**: Shared components from `@vibes/ui`
+- **State Management**: Shared Zustand stores from `@vibes/shared`
 
 ## 📚 Rules
 
