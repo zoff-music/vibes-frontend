@@ -1,5 +1,6 @@
 import type { Room, RoomSettings, RoomUpdate } from '@vibes/models';
 import {
+  Button,
   CircleHalfIcon,
   MoonIcon,
   ShareIcon,
@@ -101,7 +102,7 @@ export const RoomSettingsMenu = ({
     <AnimatePresence>
       {showSettings && (
         <div className="fixed top-[var(--room-header-height)] right-0 bottom-0 left-0 z-40">
-          <button
+          <Button
             type="button"
             className="absolute inset-0 h-full w-full cursor-pointer bg-transparent"
             onClick={onClose}
@@ -117,7 +118,7 @@ export const RoomSettingsMenu = ({
             <div className="space-y-4">
               <div className="space-y-3 sm:hidden">
                 <div className="flex items-center gap-3">
-                  <button
+                  <Button
                     onClick={onToggleShare}
                     className={`flex flex-1 items-center justify-center gap-2 rounded-xl border p-3 font-pixel text-xs transition-all ${
                       showShare
@@ -128,9 +129,9 @@ export const RoomSettingsMenu = ({
                   >
                     <ShareIcon className="h-4 w-4" />
                     Share
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     onClick={onToggleDarkMode}
                     className={`flex flex-1 items-center justify-center gap-2 rounded-xl border p-3 font-pixel text-xs transition-all ${
                       themeId !== 'light'
@@ -147,7 +148,7 @@ export const RoomSettingsMenu = ({
                       )}
                     </div>
                     {currentTheme.name}
-                  </button>
+                  </Button>
                 </div>
 
                 {showShare && (
@@ -336,7 +337,7 @@ export const RoomSettingsMenu = ({
                     const isEnabled =
                       room?.settings.enabledSources.includes(id) ?? true;
                     return (
-                      <button
+                      <Button
                         key={id}
                         disabled={room?.hasPassword && !isAdmin}
                         onClick={() => {
@@ -359,7 +360,7 @@ export const RoomSettingsMenu = ({
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
                         <Icon className="h-6 w-6" />
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -371,7 +372,7 @@ export const RoomSettingsMenu = ({
                 </h5>
 
                 <div className="space-y-2">
-                  <button
+                  <Button
                     disabled={room?.hasPassword && !isAdmin}
                     onClick={() => room && updateRoom({ mode: 'server' })}
                     className={`w-full cursor-pointer rounded-xl border p-3 text-left transition-all ${
@@ -386,9 +387,9 @@ export const RoomSettingsMenu = ({
                     <div className="text-[10px] text-theme-muted">
                       Auto-play music 24/7. Perfect for radio stations.
                     </div>
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     disabled={room?.hasPassword && !isAdmin}
                     onClick={() => room && updateRoom({ mode: 'host' })}
                     className={`w-full cursor-pointer rounded-xl border p-3 text-left transition-all ${
@@ -403,7 +404,7 @@ export const RoomSettingsMenu = ({
                     <div className="text-[10px] text-theme-muted">
                       Host controls playback. Great for parties.
                     </div>
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -432,13 +433,13 @@ export const RoomSettingsMenu = ({
                         if (e.key === 'Enter') onJoinAdmin();
                       }}
                     />
-                    <button
+                    <Button
                       onClick={onJoinAdmin}
                       disabled={isAuthenticating || !adminPassword}
                       className="cursor-pointer rounded-xl bg-primary/80 px-4 py-2 text-white text-xs transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {isAuthenticating ? '...' : 'Go'}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}

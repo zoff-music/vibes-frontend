@@ -21,9 +21,8 @@ export default function Root({ children }: { children: React.ReactNode }) {
         */}
         <ScrollViewStyleReset />
 
-        {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: This is an escape hatch for preventing flash of unstyled content */}
-        <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
+        {/* Keep the background color stable before the app hydrates. */}
+        <style>{responsiveBackground}</style>
         {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
       <body>{children}</body>

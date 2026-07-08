@@ -7,7 +7,7 @@ import {
   SourceType,
 } from '@vibes/models';
 
-export type { Room, RoomSettings, Song, SourceType, PlaybackState, RoomUpdate };
+export type { PlaybackState, Room, RoomSettings, RoomUpdate, Song, SourceType };
 
 export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   skipAllowed: true,

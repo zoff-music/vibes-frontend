@@ -1,5 +1,6 @@
 import { isTruthyFlag } from '@vibes/shared';
 import React, { useEffect, useRef, useState } from 'react';
+import { Button } from './Button';
 
 type LogLevel = 'log' | 'error' | 'warn' | 'info' | 'debug';
 
@@ -134,7 +135,7 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
         }}
       >
         <strong>Debug Console</strong>
-        <button
+        <Button
           onClick={() => setLogs([])}
           style={{
             background: 'transparent',
@@ -145,7 +146,7 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
           }}
         >
           Clear
-        </button>
+        </Button>
       </div>
       <div
         ref={scrollRef}

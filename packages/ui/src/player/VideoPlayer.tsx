@@ -7,6 +7,7 @@ import {
 } from '@vibes/shared';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import YouTube, { type YouTubeProps } from 'react-youtube';
+import { Button } from '../components/Button';
 import { AuthOverlay } from './AuthOverlay';
 
 interface Props {
@@ -625,7 +626,7 @@ const VideoPlayerComponent = ({
       )}
 
       {showClickToPlay && (
-        <button
+        <Button
           type="button"
           className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 backdrop-blur-sm"
           onClick={() => {
@@ -656,7 +657,7 @@ const VideoPlayerComponent = ({
               Click to play
             </p>
           </div>
-        </button>
+        </Button>
       )}
 
       {/* Auth/Error Overlay - Top Layer */}

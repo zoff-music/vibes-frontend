@@ -1,6 +1,6 @@
-import { api } from '@vibes/api';
 import {
   AlertCircleIcon,
+  Button,
   SoundCloudIcon,
   SpotifyIcon,
   Toggle,
@@ -9,6 +9,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import {
   Link,
+  useFetcher,
   useLoaderData,
   useNavigate,
   useSearchParams,
@@ -16,9 +17,12 @@ import {
 import { ArrowLeftIcon } from '../../components/icons/ArrowLeftIcon';
 import { ArrowRightIcon } from '../../components/icons/ArrowRightIcon';
 import { useThemeStore } from '../../stores/themeStore';
+import type { RoomsCreateActionData } from './action';
+import { action } from './action';
 import type { RoomsCreateLoaderData } from './loader';
 
 export { loader } from './loader';
+export { action };
 
 const DEFAULT_SETTINGS = {
   skipAllowed: true,
@@ -32,6 +36,7 @@ const DEFAULT_SETTINGS = {
 
 const CreateRoom: React.FC = () => {
   const loaderData = useLoaderData() as RoomsCreateLoaderData;
+  const fetcher = useFetcher<RoomsCreateActionData>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { setIsWarping } = useThemeStore();
@@ -58,7 +63,6 @@ const CreateRoom: React.FC = () => {
   const [mode, setMode] = useState<'server' | 'host'>('server');
   const [password, setPassword] = useState('');
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
   const [wobblePassword, setWobblePassword] = useState(false);
@@ -117,44 +121,47 @@ const CreateRoom: React.FC = () => {
     }
   }, [searchParams, isHydrated, loaderData.createRoomName, name]);
 
-  const handleCreate = async () => {
+  const isLoading = fetcher.state !== 'idle';
+
+  const handleCreate = () => {
     if (!name.trim() || isLoading) return;
 
-    setIsLoading(true);
     setIsWarping(true);
     setError(null);
 
-    const [err, room] = await api.post('/rooms', null, {
-      name: name.trim(),
-      password: password || undefined,
-      mode,
-      settings: {
-        ...settings,
-        // Ensure enabledSources is passed correctly, though backend schema handles it
-        enabledSources: settings.enabledSources,
-      },
+    const formData = new FormData();
+    formData.set('name', name.trim());
+    formData.set('password', password);
+    formData.set('mode', mode);
+    formData.set('skipAllowed', String(settings.skipAllowed));
+    formData.set('democraticSkip', String(settings.democraticSkip));
+    formData.set('loopQueue', String(settings.loopQueue));
+    formData.set('removeOnPlay', String(settings.removeOnPlay));
+    formData.set('allowDuplicates', String(settings.allowDuplicates));
+    formData.set('onlyAdminAddSongs', String(settings.onlyAdminAddSongs));
+    settings.enabledSources.forEach((source) => {
+      formData.append('enabledSources', source);
     });
+    fetcher.submit(formData, { method: 'post' });
+  };
 
-    if (err) {
-      console.error('Failed to create room:', err);
-      setError(err.message || 'Failed to create room');
-      setIsLoading(false);
+  useEffect(() => {
+    if (!fetcher.data) return;
+    if (fetcher.data.error) {
+      setError(fetcher.data.error);
       setIsWarping(false);
       return;
     }
+    if (!fetcher.data.room) return;
 
-    if (room) {
-      const createdAt = new Date(room.createdAt);
-      const now = new Date();
-      const isExisting = now.getTime() - createdAt.getTime() > 10000;
-
-      if (isExisting) {
-        alert('Welcome! That room already exists, welcome!');
-      }
-
-      navigate(`/rooms/${room.id}`, { replace: true });
+    const createdAt = new Date(fetcher.data.room.createdAt);
+    const now = new Date();
+    const isExisting = now.getTime() - createdAt.getTime() > 10000;
+    if (isExisting) {
+      alert('Welcome! That room already exists, welcome!');
     }
-  };
+    navigate(`/rooms/${fetcher.data.room.id}`, { replace: true });
+  }, [fetcher.data, navigate, setIsWarping]);
 
   const updateSetting = <K extends keyof typeof settings>(
     key: K,
@@ -268,7 +275,7 @@ const CreateRoom: React.FC = () => {
                   ].map(({ id, Icon, color, activeColor }) => {
                     const isEnabled = settings.enabledSources.includes(id);
                     return (
-                      <button
+                      <Button
                         key={id}
                         onClick={() => {
                           const newSources = isEnabled
@@ -284,7 +291,7 @@ const CreateRoom: React.FC = () => {
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
                         <Icon className="h-5 w-5" />
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -296,7 +303,7 @@ const CreateRoom: React.FC = () => {
                   ROOM MODE
                 </label>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setMode('server')}
                     className={`cursor-pointer rounded-2xl border px-4 py-4 text-left transition-all ${
@@ -311,8 +318,8 @@ const CreateRoom: React.FC = () => {
                     <div className="text-theme-muted text-xs">
                       Auto-play music 24/7 for radio rooms.
                     </div>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setMode('host')}
                     className={`cursor-pointer rounded-2xl border px-4 py-4 text-left transition-all ${
@@ -327,7 +334,7 @@ const CreateRoom: React.FC = () => {
                     <div className="text-theme-muted text-xs">
                       Host controls playback for parties.
                     </div>
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -417,7 +424,7 @@ const CreateRoom: React.FC = () => {
           )}
 
           {/* Create button */}
-          <button
+          <Button
             onClick={handleCreate}
             disabled={!name.trim() || isLoading}
             className="mt-8 flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-primary px-6 py-4 font-pixel text-sm text-white shadow-[0_0_24px_rgba(255,46,151,0.45)] transition-all hover:-translate-y-0.5 hover:bg-primary-muted disabled:cursor-not-allowed disabled:bg-theme-surface disabled:text-theme-subtle"
@@ -433,7 +440,7 @@ const CreateRoom: React.FC = () => {
                 <ArrowRightIcon className="h-5 w-5" />
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

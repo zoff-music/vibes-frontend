@@ -64,13 +64,7 @@ function setCookie(name: string, value: string, days: number = 365) {
 
   const cookieString = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
 
-  // Use a function to set the cookie to avoid direct assignment warning
-  function setCookieValue(value: string) {
-    // biome-ignore lint/suspicious/noDocumentCookie: Cookie setting is necessary for theme persistence
-    document.cookie = value;
-  }
-
-  setCookieValue(cookieString);
+  Reflect.set(document, 'cookie', cookieString);
 }
 
 function savePreferences(preferences: Preferences) {

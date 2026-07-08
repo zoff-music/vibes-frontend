@@ -1,14 +1,15 @@
-import { api } from '@vibes/api';
 import { usePageVisibility } from '@vibes/shared';
-import { CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
+import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate, useNavigationType } from 'react-router';
+import { Link, useFetcher, useNavigate, useNavigationType } from 'react-router';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
+import type { HomeActionData } from './action';
+import { action } from './action';
 import { loader } from './loader';
 
-export { loader };
+export { action, loader };
 
 const ANIMATED_WORDS = [
   'electro',
@@ -56,6 +57,7 @@ export default function Home() {
   const [charIndex, setCharIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
+  const fetcher = useFetcher<HomeActionData>();
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -119,19 +121,18 @@ export default function Home() {
 
     const slug = roomCode.trim().toLowerCase().replace(/\s+/g, '-');
     setIsValidating(true);
-
-    // Check if room exists before navigating
-    const [err] = await api.get('/rooms/{id}', { id: slug });
-
-    if (err) {
-      setIsValidating(false);
-      // Room doesn't exist, redirect to create room page with the name pre-filled
-      navigate(`/rooms/create?name=${encodeURIComponent(roomCode.trim())}`);
-    } else {
-      // Room exists, navigate to it
-      navigate(`/rooms/${slug}`);
-    }
+    fetcher.submit({ roomCode: slug }, { method: 'post' });
   };
+
+  useEffect(() => {
+    if (!fetcher.data) return;
+    setIsValidating(false);
+    if (fetcher.data.roomExists) {
+      navigate(`/rooms/${fetcher.data.roomCode}`);
+      return;
+    }
+    navigate(`/rooms/create?name=${encodeURIComponent(roomCode.trim())}`);
+  }, [fetcher.data, navigate, roomCode]);
 
   return (
     <div
@@ -140,7 +141,7 @@ export default function Home() {
       <div className="relative z-10 mx-auto mt-0 flex w-full max-w-5xl flex-col items-center px-6 sm:mt-[min(35vh_,_285px)]">
         <div className="crt-frame relative w-full max-w-3xl rounded-[36px] p-6 sm:p-10">
           <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
-            <button
+            <Button
               onClick={handleToggleDarkMode}
               className={`cursor-pointer rounded-xl border p-2.5 transition-all ${
                 themeId !== 'light'
@@ -152,7 +153,7 @@ export default function Home() {
               {themeId === 'light' && <SunIcon className="h-5 w-5" />}
               {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
               {themeId === 'auto' && <CircleHalfIcon className="h-5 w-5" />}
-            </button>
+            </Button>
           </div>
           <div className="text-center">
             <h1
@@ -202,7 +203,7 @@ export default function Home() {
                   +
                 </span>
               </Link>
-              <button
+              <Button
                 onClick={handleJoinRoom}
                 disabled={!roomCode.trim() || isValidating}
                 className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-secondary/50 bg-secondary/85 px-6 py-4 font-pixel text-sm text-white shadow-[0_0_26px_rgba(0,217,255,0.4)] transition-all hover:-translate-y-0.5 hover:bg-secondary disabled:cursor-not-allowed disabled:bg-theme-surface disabled:text-theme-subtle"
@@ -215,7 +216,7 @@ export default function Home() {
                 ) : (
                   'Join Room'
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

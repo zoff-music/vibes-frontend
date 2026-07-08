@@ -15,16 +15,16 @@
   "dependencies": {
     "@vibes/models": "workspace:*",
     "@vibes/shared": "workspace:*",
-    "wiretyped": "^0.3.4",
-    "yup": "^1.7.1"
+    "wiretyped": "0.3.4",
+    "yup": "1.7.1"
   },
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "@types/node": "^25.0.10",
-    "vite": "^7.3.1"
+    "typescript": "5.9.3",
+    "@types/node": "25.0.10",
+    "vite": "8.1.3"
   }
 }

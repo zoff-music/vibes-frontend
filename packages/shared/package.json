@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "@vibes/models": "workspace:*",
-    "zustand": "^5.0.10"
+    "zustand": "5.0.10"
   },
   "devDependencies": {
-    "@types/react": "^19.2.9",
-    "typescript": "^5.9.3"
+    "@types/react": "19.2.16",
+    "typescript": "5.9.3"
   }
 }

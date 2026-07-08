@@ -1,4 +1,10 @@
-import { api, useQueue, useRoom } from '@vibes/api';
+import {
+  type SearchApiResult,
+  useAuthCache,
+  useMusicSearch,
+  useQueue,
+  useRoom,
+} from '@vibes/api';
 import {
   formatDuration,
   parseISODuration,
@@ -8,6 +14,7 @@ import {
 } from '@vibes/shared';
 import {
   AlertCircleIcon,
+  Button,
   CheckIcon,
   CloseIcon,
   InfoIcon,
@@ -15,7 +22,6 @@ import {
   SearchIcon,
 } from '@vibes/ui';
 import React, { useEffect, useRef, useState } from 'react';
-import { useAuthCache } from '../../hooks/useAuthCache';
 
 interface Props {
   roomId: string;
@@ -27,16 +33,6 @@ interface SearchResult {
   id: string;
   title: string;
   artist: string;
-  thumbnailUrl: string;
-  duration?: string;
-  url?: string;
-  source?: string;
-}
-
-interface SearchApiResult {
-  id: string;
-  title: string;
-  channelTitle?: string;
   thumbnailUrl: string;
   duration?: string;
   url?: string;
@@ -71,6 +67,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     currentSong?.sourceType === 'spotify';
 
   const { providers, fetchProviders } = useAuthCache();
+  const { searchProvider, getYouTubeVideo } = useMusicSearch();
   const { room } = useRoom(roomId);
   const enabledSources = room?.settings.enabledSources ?? [
     'youtube',
@@ -105,7 +102,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       // but 'youtube' as default is good enough if available.
     };
     loadData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchProviders]);
 
   useEffect(() => {
     if (!isVisible) {
@@ -140,28 +137,12 @@ export const AddToQueueModal: React.FC<Props> = ({
     let err: Error | null = null;
     let results: SearchApiResult[] | null = null;
 
-    if (selectedProvider === 'youtube') {
-      const [providerErr, providerResults] = await api.get('/youtube/search', {
-        $search: { q: query },
-      });
-      err = providerErr;
-      results = providerResults as SearchApiResult[] | null;
-    } else if (selectedProvider === 'spotify') {
-      const [providerErr, providerResults] = await api.get('/spotify/search', {
-        $search: { q: query },
-      });
-      err = providerErr;
-      results = providerResults as SearchApiResult[] | null;
-    } else if (selectedProvider === 'soundcloud') {
-      const [providerErr, providerResults] = await api.get(
-        '/soundcloud/search',
-        {
-          $search: { q: query },
-        },
-      );
-      err = providerErr;
-      results = providerResults as SearchApiResult[] | null;
-    }
+    const [providerErr, providerResults] = await searchProvider(
+      selectedProvider,
+      query,
+    );
+    err = providerErr;
+    results = providerResults;
 
     setIsSearching(false);
 
@@ -201,9 +182,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       setShowResults(false);
       setIsSearching(true);
       const loadVideoPreview = async () => {
-        const [err, video] = await api.get('/youtube/videos/{id}', {
-          id: videoId,
-        });
+        const [err, video] = await getYouTubeVideo(videoId);
         setIsSearching(false);
         if (err || !video) {
           setError('Could not find that video');
@@ -285,7 +264,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       aria-modal="true"
     >
       {/* Backdrop button */}
-      <button
+      <Button
         type="button"
         className="fixed inset-0 h-full w-full cursor-pointer"
         onClick={onClose}
@@ -303,18 +282,18 @@ export const AddToQueueModal: React.FC<Props> = ({
                 Search or paste a link
               </p>
             </div>
-            <button
+            <Button
               onClick={onClose}
               className="cursor-pointer rounded-xl border border-transparent p-2 transition-colors hover:border-theme-strong hover:bg-theme-surface"
             >
               <CloseIcon className="h-5 w-5 text-theme-muted" />
-            </button>
+            </Button>
           </div>
 
           {/* Provider Tabs */}
           <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
             {providerList.map((p) => (
-              <button
+              <Button
                 key={p}
                 onClick={() => {
                   setSelectedProvider(p);
@@ -329,7 +308,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                 }`}
               >
                 {p.charAt(0).toUpperCase() + p.slice(1)}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -392,7 +371,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               autoFocus
             />
             {searchQuery && (
-              <button
+              <Button
                 onClick={() => handleSearchChange('')}
                 className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-theme-surface"
               >
@@ -400,7 +379,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   className="h-5 w-5 text-theme-subtle"
                   strokeWidth={2}
                 />
-              </button>
+              </Button>
             )}
           </div>
 
@@ -418,7 +397,7 @@ export const AddToQueueModal: React.FC<Props> = ({
             !justAdded && (
               <div className="mt-2 max-h-96 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-[0_0_24px_rgba(255,46,151,0.25)]">
                 {searchResults.map((result, index) => (
-                  <button
+                  <Button
                     key={result.id}
                     onClick={() => handleSelectResult(result)}
                     className={`flex w-full cursor-pointer gap-3 p-4 text-left transition-all hover:bg-theme ${
@@ -445,7 +424,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                         {result.artist}
                       </p>
                     </div>
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
@@ -504,13 +483,13 @@ export const AddToQueueModal: React.FC<Props> = ({
         {/* Action Buttons */}
         {previewVideo && !justAdded && (
           <div className="flex gap-3">
-            <button
+            <Button
               onClick={onClose}
               className="flex-1 cursor-pointer rounded-xl border border-theme bg-theme-surface py-3 text-theme-muted text-xs transition-all hover:border-theme-strong active:scale-[0.98]"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleAdd}
               disabled={isLoading}
               className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary py-3 text-white text-xs shadow-[0_0_18px_rgba(255,46,151,0.4)] transition-all hover:bg-primary-muted active:scale-[0.98] disabled:bg-theme-surface disabled:text-theme-subtle"
@@ -526,7 +505,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   <span>Add to Queue</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         )}
       </div>

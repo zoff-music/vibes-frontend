@@ -1,4 +1,5 @@
 import { safeWrapAsync } from '@vibes/shared';
+import { Button } from '@vibes/ui';
 import React, { useEffect } from 'react';
 import { useCastStore } from '../../stores/castStore';
 import { CastIcon } from '../icons/CastIcon';
@@ -93,7 +94,7 @@ export const CastButton: React.FC<CastButtonProps> = ({
 
   return (
     <div className="flex flex-col items-center">
-      <button
+      <Button
         onClick={handleCastClick}
         disabled={isDisabled}
         className={`group flex items-center space-x-2 rounded-lg px-4 py-2 transition-all duration-200 ease-in-out ${
@@ -121,7 +122,7 @@ export const CastButton: React.FC<CastButtonProps> = ({
         <span className="font-medium text-sm transition-colors duration-200">
           {getButtonText()}
         </span>
-      </button>
+      </Button>
 
       {/* Error Display */}
       {lastError && (

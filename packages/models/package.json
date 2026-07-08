@@ -13,9 +13,9 @@
     "lint": "biome check src"
   },
   "dependencies": {
-    "yup": "^1.7.1"
+    "yup": "1.7.1"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "5.9.3"
   }
 }

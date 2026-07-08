@@ -2,6 +2,7 @@ import { useRoom } from '@vibes/api';
 import type { Room } from '@vibes/models';
 import {
   ArrowLeftIcon,
+  Button,
   CircleHalfIcon,
   MoonIcon,
   SettingsIcon,
@@ -68,13 +69,13 @@ export const RoomHeader = React.memo(
         className="panel-surface sticky top-0 z-20 border-theme border-b px-4 py-4"
       >
         <div className="relative mx-auto flex max-w-7xl items-center justify-between">
-          <button
+          <Button
             onClick={onLeave}
             className="group inline-flex cursor-pointer items-center gap-2 text-theme-muted transition-colors hover:text-theme"
           >
             <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             <span className="text-[10px] tracking-[0.3em]">Leave</span>
-          </button>
+          </Button>
 
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <h1 className="truncate whitespace-nowrap text-theme text-xs sm:text-sm">
@@ -86,7 +87,7 @@ export const RoomHeader = React.memo(
             <UserCount />
 
             <div className="hidden sm:block">
-              <button
+              <Button
                 onClick={onToggleDarkMode}
                 className={`cursor-pointer rounded-xl border p-2.5 transition-all ${
                   themeId !== 'light'
@@ -98,11 +99,11 @@ export const RoomHeader = React.memo(
                 {themeId === 'light' && <SunIcon className="h-5 w-5" />}
                 {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
                 {themeId === 'auto' && <CircleHalfIcon className="h-5 w-5" />}
-              </button>
+              </Button>
             </div>
 
             <div className="relative hidden sm:block">
-              <button
+              <Button
                 onClick={onToggleShare}
                 className={`cursor-pointer rounded-xl border p-2.5 transition-all ${
                   showShare
@@ -112,7 +113,7 @@ export const RoomHeader = React.memo(
                 title="Share Room"
               >
                 <ShareIcon className="h-5 w-5" />
-              </button>
+              </Button>
 
               <AnimatePresence>
                 {showShare && (
@@ -133,7 +134,7 @@ export const RoomHeader = React.memo(
             </div>
 
             <div className="relative ml-1">
-              <button
+              <Button
                 ref={settingsButtonRef}
                 onClick={onToggleSettings}
                 className={`cursor-pointer rounded-xl border p-2.5 transition-all ${
@@ -144,7 +145,7 @@ export const RoomHeader = React.memo(
                 title="Room Settings"
               >
                 <SettingsIcon className="h-5 w-5" />
-              </button>
+              </Button>
 
               <RoomSettingsMenu
                 showSettings={showSettings}

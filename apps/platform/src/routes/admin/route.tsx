@@ -1,12 +1,14 @@
-import { api } from '@vibes/api';
+import { useAdminEvents } from '@vibes/api';
 import type { AdminRoomSummary } from '@vibes/models';
-import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
-import { JSX, useEffect, useMemo, useRef, useState } from 'react';
-import { useLoaderData } from 'react-router';
+import { Button, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
+import { JSX, useEffect, useMemo, useState } from 'react';
+import { useFetcher, useLoaderData } from 'react-router';
+import type { AdminActionData } from './action';
+import { action } from './action';
 import type { AdminLoaderData } from './loader';
 import { loader } from './loader';
 
-export { loader };
+export { action, loader };
 
 const sourceIcons: Record<string, JSX.Element> = {
   youtube: <YouTubeIcon className="h-4 w-4 text-red-500" />,
@@ -14,13 +16,9 @@ const sourceIcons: Record<string, JSX.Element> = {
   soundcloud: <SoundCloudIcon className="h-4 w-4 text-orange-500" />,
 };
 
-type AdminSSEMessage = {
-  type: string;
-  data: unknown;
-};
-
 export default function Admin() {
   const loaderData = useLoaderData() as AdminLoaderData;
+  const fetcher = useFetcher<AdminActionData>();
   const [rooms, setRooms] = useState<AdminRoomSummary[]>(
     loaderData.adminRooms ?? [],
   );
@@ -32,8 +30,7 @@ export default function Admin() {
   );
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const unsubscribeRef = useRef<null | (() => void)>(null);
+  const isLoading = fetcher.state !== 'idle';
 
   const hasRooms = rooms.length > 0;
 
@@ -42,129 +39,63 @@ export default function Admin() {
     [rooms],
   );
 
-  const fetchRooms = async () => {
-    const [err, data] = await api.get('/admin/rooms', null);
-    if (err || !data) {
-      return;
-    }
-    setRooms(data);
+  const fetchRooms = () => {
+    fetcher.submit({ intent: 'refresh' }, { method: 'post' });
   };
 
-  const connectSSE = async () => {
-    const [err, unsubscribe] = await api.sse(
-      '/admin/events',
-      null,
-      (result: [Error | null, AdminSSEMessage | null]) => {
-        const [eventError, message] = result;
-        if (eventError || !message) {
-          return;
-        }
-        if (message.type === 'admin_rooms_update') {
-          if (Array.isArray(message.data)) {
-            setRooms(message.data as AdminRoomSummary[]);
-          }
-        }
-      },
-    );
-
-    if (!err && unsubscribe) {
-      unsubscribeRef.current = unsubscribe;
-    }
-  };
+  useAdminEvents({ enabled: isAuthorized, onRoomsUpdate: setRooms });
 
   useEffect(() => {
-    let isMounted = true;
-
-    if (!isAuthorized) {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-      return;
-    }
-
-    const setup = async () => {
-      await fetchRooms();
-      if (!isMounted) return;
-      await connectSSE();
-    };
-
-    setup();
-
-    return () => {
-      isMounted = false;
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-    };
+    if (!isAuthorized) return;
+    fetchRooms();
   }, [isAuthorized]);
 
   useEffect(() => {
-    let isMounted = true;
-
     if (loaderData.adminAuthorized) {
       setIsCheckingAuth(false);
       return;
     }
 
-    const checkAuth = async () => {
-      const [err, data] = await api.get('/admin/rooms', null);
-      if (!isMounted) {
-        return;
-      }
-      if (!err && data) {
-        setRooms(data);
-        setIsAuthorized(true);
-      }
-      setIsCheckingAuth(false);
-    };
-
-    checkAuth();
-
-    return () => {
-      isMounted = false;
-    };
+    fetcher.submit({ intent: 'refresh' }, { method: 'post' });
   }, [loaderData.adminAuthorized]);
 
-  const handleLogin = async () => {
+  useEffect(() => {
+    if (!fetcher.data) return;
+    if (fetcher.data.rooms) {
+      setRooms(fetcher.data.rooms);
+    }
+    if (typeof fetcher.data.authorized === 'boolean') {
+      setIsAuthorized(fetcher.data.authorized);
+    }
+    if (fetcher.data.error) {
+      setErrorMessage(fetcher.data.error);
+    } else {
+      setErrorMessage(null);
+    }
+    setIsCheckingAuth(false);
+    if (fetcher.data.authorized) {
+      setPassword('');
+    }
+  }, [fetcher.data]);
+
+  const handleLogin = () => {
     if (!password.trim() || isLoading) {
       return;
     }
 
-    setIsLoading(true);
     setErrorMessage(null);
-
-    const [loginError, response] = await api.post('/admin/sessions', null, {
-      password: password.trim(),
-    });
-
-    setIsLoading(false);
-
-    if (loginError || !response?.authorized) {
-      setErrorMessage('Invalid admin password.');
-      return;
-    }
-
-    setIsAuthorized(true);
-    setPassword('');
+    fetcher.submit(
+      {
+        intent: 'login',
+        password: password.trim(),
+      },
+      { method: 'post' },
+    );
   };
 
-  const handleLogout = async () => {
-    setIsLoading(true);
+  const handleLogout = () => {
     setErrorMessage(null);
-
-    const [logoutError] = await api.delete('/admin/sessions', null);
-
-    setIsLoading(false);
-
-    if (logoutError) {
-      setErrorMessage('Failed to sign out.');
-      return;
-    }
-
-    setIsAuthorized(false);
-    setRooms([]);
+    fetcher.submit({ intent: 'logout' }, { method: 'post' });
   };
 
   if (isCheckingAuth) {
@@ -208,13 +139,13 @@ export default function Admin() {
               {errorMessage && (
                 <p className="text-red-500 text-sm">{errorMessage}</p>
               )}
-              <button
+              <Button
                 onClick={handleLogin}
                 disabled={!password.trim() || isLoading}
                 className="w-full rounded-xl bg-primary py-3 font-bold text-white transition-all hover:bg-primary/90 hover:shadow-retro-pink active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-ink/10 disabled:text-ink/30 dark:disabled:bg-gray-700 dark:disabled:text-gray-500"
               >
                 {isLoading ? 'Checking...' : 'Enter Dashboard'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -235,18 +166,18 @@ export default function Admin() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button
+            <Button
               onClick={fetchRooms}
               className="rounded-xl border border-ink/15 px-4 py-2 font-semibold text-sm transition-all hover:border-primary hover:text-primary dark:border-gray-700 dark:hover:border-primary-light dark:hover:text-primary-light"
             >
               Refresh
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleLogout}
               className="rounded-xl bg-ink/10 px-4 py-2 font-semibold text-sm transition-all hover:bg-ink/20 dark:bg-gray-800 dark:hover:bg-gray-700"
             >
               Sign Out
-            </button>
+            </Button>
           </div>
         </header>
 

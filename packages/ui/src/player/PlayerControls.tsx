@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../components/Button';
 import {
   CastIcon,
   PauseIcon,
@@ -43,7 +44,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
   return (
     <div className="w-full">
       <div className="flex items-center justify-start gap-4">
-        <button
+        <Button
           onClick={isPlaying ? onPause : onPlay}
           disabled={!canPlay}
           className="group flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl border border-primary/60 bg-primary text-white shadow-[0_0_24px_rgba(255,46,151,0.45)] transition-all hover:shadow-[0_0_30px_rgba(255,46,151,0.6)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
@@ -53,18 +54,18 @@ const PlayerControlsComponent: React.FC<Props> = ({
           ) : (
             <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />
           )}
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={onSkip}
           disabled={!canSkip}
           className={`${btnClass} w-12`}
           title="Skip"
         >
           <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={onOpenCast}
           className={`${btnClass} w-12 ${isCasting ? 'border-primary/40 bg-primary/10' : ''}`}
           title={
@@ -77,10 +78,10 @@ const PlayerControlsComponent: React.FC<Props> = ({
             className={`h-5 w-5 transition-colors ${isCasting ? 'text-primary' : 'text-theme-muted group-hover:text-primary'}`}
             showDot={isCasting}
           />
-        </button>
+        </Button>
 
         {showSpotifyConnect && onConnectSpotify && (
-          <button
+          <Button
             onClick={onConnectSpotify}
             className={`${btnClass} ml-auto gap-2 px-4 text-[#1DB954] hover:border-[#1DB954]/30 hover:bg-[#1DB954]/10`}
             title="Connect Spotify"
@@ -89,10 +90,10 @@ const PlayerControlsComponent: React.FC<Props> = ({
             <span className="whitespace-nowrap font-display text-xs tracking-[0.2em]">
               Connect Spotify
             </span>
-          </button>
+          </Button>
         )}
 
-        <button
+        <Button
           onClick={onAddSong}
           className={`${btnClass} ${!showSpotifyConnect ? 'ml-auto' : ''} gap-2 px-6 text-primary hover:border-primary/30`}
           title="Add Song"
@@ -101,7 +102,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
           <span className="whitespace-nowrap font-display text-theme text-xs tracking-[0.2em]">
             Add Song
           </span>
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import type { CastDevice, Song } from '@vibes/models';
 import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
+import { Button } from '@vibes/ui';
 import React, { useEffect, useState } from 'react';
 import { castManager } from '../../services/cast';
 import { useCastStore } from '../../stores/castStore';
@@ -131,7 +132,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <button
+      <Button
         type="button"
         aria-label="Close cast device selector"
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-colors duration-200 dark:bg-black/70"
@@ -142,12 +143,12 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
           <h3 className="font-semibold text-gray-900 text-lg dark:text-white">
             Cast to Device
           </h3>
-          <button
+          <Button
             onClick={onClose}
             className="cursor-pointer text-gray-400 transition-colors duration-200 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           >
             <CloseIcon className="h-6 w-6" />
-          </button>
+          </Button>
         </div>
 
         {/* Current connection */}
@@ -162,18 +163,18 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                   {currentSession.deviceName}
                 </div>
               </div>
-              <button
+              <Button
                 onClick={handleDisconnect}
                 className="cursor-pointer rounded bg-primary px-3 py-1 text-sm text-white transition-colors duration-200 hover:bg-primary/90 dark:bg-primary-light dark:hover:bg-primary"
               >
                 Disconnect
-              </button>
+              </Button>
             </div>
 
             {/* Cast Current Song Button */}
             {isDev && currentSong && (
               <div className="border-primary/20 border-t pt-3 dark:border-primary/30">
-                <button
+                <Button
                   onClick={() => handleCastCurrentSong()}
                   disabled={isCasting}
                   className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-light dark:hover:bg-primary"
@@ -189,7 +190,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                       <span>Cast Current Song</span>
                     </>
                   )}
-                </button>
+                </Button>
                 <div className="mt-1 text-center text-primary/70 text-xs dark:text-primary-light/70">
                   {currentSong.title}
                 </div>
@@ -221,7 +222,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 )}
 
                 {/* Test Cast Button for Demo */}
-                <button
+                <Button
                   onClick={() => {
                     const testMedia: Song = {
                       id: 'test-song',
@@ -241,7 +242,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 >
                   <PlayIcon className="h-3 w-3" />
                   <span>Test Cast (Demo Video)</span>
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -254,12 +255,12 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
               <h4 className="font-medium text-gray-900 dark:text-white">
                 Available Devices
               </h4>
-              <button
+              <Button
                 onClick={handleRefresh}
                 className="cursor-pointer text-primary text-sm transition-colors duration-200 hover:text-primary/80 dark:text-primary-light dark:hover:text-primary"
               >
                 Refresh
-              </button>
+              </Button>
             </div>
 
             {availableDevices.length === 0 ? (
@@ -281,7 +282,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
             ) : (
               <div className="space-y-2">
                 {availableDevices.map((device) => (
-                  <button
+                  <Button
                     key={device.id}
                     onClick={() => handleDeviceSelect(device)}
                     disabled={
@@ -323,7 +324,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                           </div>
                         )}
                     </div>
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}

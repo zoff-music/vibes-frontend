@@ -1,4 +1,9 @@
-import { usePlayback, usePlaybackPosition, useQueue } from '@vibes/api';
+import {
+  usePlayback,
+  usePlaybackPosition,
+  useProviderToken,
+  useQueue,
+} from '@vibes/api';
 import { type PlaybackState, type Room } from '@vibes/models';
 import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
 import { PlayerControls } from '@vibes/ui';
@@ -11,7 +16,6 @@ import React, {
   useState,
 } from 'react';
 import { useCasting } from '../../hooks/useCasting';
-import { useProviderToken } from '../../hooks/useProviderToken';
 
 interface RoomPlayerProps {
   roomId: string;

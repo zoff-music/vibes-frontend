@@ -1,3 +1,4 @@
+import { Button } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface RoomSharePanelProps {
@@ -38,12 +39,12 @@ export const RoomSharePanel = ({
             <code className="flex-1 text-left font-mono text-theme text-xs">
               {roomId}
             </code>
-            <button
+            <Button
               onClick={handleCopyRoomId}
               className="cursor-pointer rounded-lg bg-theme-surface px-3 py-1.5 text-[10px] text-theme transition-all hover:bg-theme active:scale-95"
             >
               Copy
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -55,12 +56,12 @@ export const RoomSharePanel = ({
             <p className="flex-1 truncate text-left font-mono text-[10px] text-theme-muted">
               {url}
             </p>
-            <button
+            <Button
               onClick={onCopy}
               className="cursor-pointer rounded-lg bg-theme-surface px-3 py-1.5 text-[10px] text-theme transition-all hover:bg-theme active:scale-95"
             >
               Copy
-            </button>
+            </Button>
           </div>
         </div>
       </div>

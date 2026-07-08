@@ -331,6 +331,9 @@ export const api = createApiClient();
 
 // Endpoint helpers (mirrors backend handler filenames)
 export * from './casting';
+export * from './hooks/useAdminEvents';
+export * from './hooks/useAuthCache';
+export * from './hooks/useMusicSearch';
 // Hooks
 export * from './hooks/usePlayback';
 export * from './hooks/useProviderToken';

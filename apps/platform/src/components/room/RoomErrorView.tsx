@@ -1,5 +1,5 @@
 import { getHttpError } from '@vibes/api';
-import { AlertCircleIcon } from '@vibes/ui';
+import { AlertCircleIcon, Button } from '@vibes/ui';
 import React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -35,21 +35,21 @@ export const RoomErrorView: React.FC<RoomErrorViewProps> = ({
         </h2>
         <p className="mb-6 text-sm text-theme-muted">{error.message}</p>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <button
+          <Button
             onClick={onRetry}
             className="cursor-pointer rounded-xl border border-theme bg-theme-surface px-6 py-3 text-theme text-xs transition-all hover:border-theme-strong"
           >
             Try Again
-          </button>
+          </Button>
           {isRoomNotFound && (
-            <button
+            <Button
               onClick={() =>
                 navigate(`/rooms/create?name=${encodeURIComponent(roomId)}`)
               }
               className="cursor-pointer rounded-xl border border-primary/60 bg-primary/80 px-6 py-3 text-white text-xs shadow-[0_0_18px_rgba(255,46,151,0.4)] transition-all hover:bg-primary"
             >
               Create Room
-            </button>
+            </Button>
           )}
         </div>
       </div>

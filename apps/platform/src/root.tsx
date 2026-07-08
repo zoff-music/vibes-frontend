@@ -69,12 +69,9 @@ export function Layout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <div id="root">{children}</div>
-        <script
-          id="ssr-data"
-          type="application/json"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: SSR hydration data
-          dangerouslySetInnerHTML={{ __html: initialDataJson }}
-        />
+        <script id="ssr-data" type="application/json">
+          {initialDataJson}
+        </script>
         <ScrollRestoration nonce={cspNonce} />
         <Scripts nonce={cspNonce} />
       </body>

@@ -6,7 +6,7 @@ import { QueueItem } from './QueueItem';
 
 interface Props {
   songs: Song[];
-  roomId?: string; // eslint-disable-line @typescript-eslint/no-unused-vars
+  roomId?: string;
   onRemove?: (id: string) => void;
   onVote?: (id: string) => void;
   isAdmin?: boolean;
@@ -14,6 +14,7 @@ interface Props {
 
 const QueueListComponent: React.FC<Props> = ({
   songs,
+  roomId: _roomId,
   onRemove,
   onVote,
   isAdmin,
