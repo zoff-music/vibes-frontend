@@ -19,7 +19,6 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["node"],
     /* Path aliases */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
