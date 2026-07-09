@@ -11,6 +11,7 @@ on:
       - "pnpm-workspace.yaml"
       - "biome.json"
       - "tsconfig.json"
+      - "tailwind.vibes.mjs"
       - ".github/workflows/platform-prod.yaml"
   workflow_dispatch:
 
