@@ -109,6 +109,78 @@ export async function action({ request }: ActionFunctionArgs) {
     requestHeaders = createRequestHeaders(cookieHeader, adminSessionSetCookie);
   }
 
+  if (intent === 'renameRoom') {
+    const roomId = String(formData.get('roomId') ?? '').trim();
+    const name = String(formData.get('name') ?? '').trim();
+    const [renameError, rooms] = await serverApi.patch(
+      '/admin/rooms/{id}',
+      { id: roomId },
+      { name },
+      { headers: requestHeaders },
+    );
+    if (renameError || !rooms) {
+      return createActionDataResponse(
+        {
+          authorized: true,
+          error: renameError?.message ?? 'Failed to rename room.',
+        },
+        adminSessionSetCookie,
+      );
+    }
+
+    return createActionDataResponse(
+      { authorized: true, rooms },
+      adminSessionSetCookie,
+    );
+  }
+
+  if (intent === 'clearPassword') {
+    const roomId = String(formData.get('roomId') ?? '').trim();
+    const [clearError, rooms] = await serverApi.patch(
+      '/admin/rooms/{id}',
+      { id: roomId },
+      { clearAdminPassword: true },
+      { headers: requestHeaders },
+    );
+    if (clearError || !rooms) {
+      return createActionDataResponse(
+        {
+          authorized: true,
+          error: clearError?.message ?? 'Failed to clear room password.',
+        },
+        adminSessionSetCookie,
+      );
+    }
+
+    return createActionDataResponse(
+      { authorized: true, rooms },
+      adminSessionSetCookie,
+    );
+  }
+
+  if (intent === 'deleteRoom') {
+    const roomId = String(formData.get('roomId') ?? '').trim();
+    const [deleteError, rooms] = await serverApi.delete(
+      '/admin/rooms/{id}',
+      { id: roomId },
+      { headers: requestHeaders },
+    );
+    if (deleteError || !rooms) {
+      return createActionDataResponse(
+        {
+          authorized: true,
+          error: deleteError?.message ?? 'Failed to delete room.',
+        },
+        adminSessionSetCookie,
+      );
+    }
+
+    return createActionDataResponse(
+      { authorized: true, rooms },
+      adminSessionSetCookie,
+    );
+  }
+
   const [roomsError, rooms] = await serverApi.get('/admin/rooms', null, {
     headers: requestHeaders,
   });

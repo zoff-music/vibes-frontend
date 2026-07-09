@@ -11,6 +11,7 @@ import {
   adminLoginRequestSchema,
   adminRoomsSchema,
   adminSessionResponseSchema,
+  adminUpdateRoomRequestSchema,
   castingTokenResponseSchema,
   connectedSchema,
   createCastingTokenRequestSchema,
@@ -52,8 +53,8 @@ import {
   createApiFetchProvider,
 } from './fetchProvider';
 
-export { getHttpError };
 export type { ApiFetchLifecycle };
+export { getHttpError };
 
 const API_BASE_PATH = '/api/v1';
 const defaultRestTimeoutMs = 10_000;
@@ -259,6 +260,15 @@ const endpoints = {
   },
   '/admin/rooms': {
     get: {
+      response: adminRoomsSchema,
+    },
+  },
+  '/admin/rooms/{id}': {
+    patch: {
+      request: adminUpdateRoomRequestSchema,
+      response: adminRoomsSchema,
+    },
+    delete: {
       response: adminRoomsSchema,
     },
   },
