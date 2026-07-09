@@ -53,6 +53,7 @@ import {
 } from './fetchProvider';
 
 export { getHttpError };
+export type { ApiFetchLifecycle };
 
 const API_BASE_PATH = '/api/v1';
 const defaultRestTimeoutMs = 10_000;

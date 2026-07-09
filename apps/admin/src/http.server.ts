@@ -1,9 +1,37 @@
-import { createApiClientWithBaseUrl } from '@vibes/api';
+import { type ApiFetchLifecycle, createApiClientWithBaseUrl } from '@vibes/api';
 import { createTracedApiFetchLifecycle } from '@vibes/serve';
 import { safeWrap } from '@vibes/shared';
 
 const FALLBACK_API_BASE_URL = 'http://localhost:8080';
 const serviceName = process?.env?.OTEL_SERVICE_NAME ?? 'vibes-frontend-admin';
+
+export interface ServerApiOptions {
+  fetchLifecycle?: ApiFetchLifecycle;
+}
+
+function composeFetchLifecycle(
+  primary: ApiFetchLifecycle,
+  secondary?: ApiFetchLifecycle,
+): ApiFetchLifecycle {
+  return {
+    beforeRequest(request) {
+      const nextRequest = primary.beforeRequest?.(request) ?? request;
+      return secondary?.beforeRequest?.(nextRequest) ?? nextRequest;
+    },
+    afterResponse(request, response) {
+      primary.afterResponse?.(request, response);
+      secondary?.afterResponse?.(request, response);
+    },
+    afterError(request, error) {
+      primary.afterError?.(request, error);
+      secondary?.afterError?.(request, error);
+    },
+    afterRequest(request) {
+      primary.afterRequest?.(request);
+      secondary?.afterRequest?.(request);
+    },
+  };
+}
 
 function resolveServerApiBaseUrl(request?: Request) {
   const internalApiUrl =
@@ -37,7 +65,10 @@ function resolveServerApiBaseUrl(request?: Request) {
   return FALLBACK_API_BASE_URL;
 }
 
-export function getServerApi(request?: Request) {
+export function getServerApi(
+  request?: Request,
+  options: ServerApiOptions = {},
+) {
   const baseUrl = resolveServerApiBaseUrl(request);
   console.log('[serverApi] resolved baseUrl', {
     baseUrl,
@@ -45,7 +76,11 @@ export function getServerApi(request?: Request) {
     apiUrl: process?.env?.VITE_API_URL,
     apiUrlInternal: process?.env?.VITE_API_URL_INTERNAL,
   });
+  const fetchLifecycle = composeFetchLifecycle(
+    createTracedApiFetchLifecycle(serviceName),
+    options.fetchLifecycle,
+  );
   return createApiClientWithBaseUrl(baseUrl, {
-    fetchLifecycle: createTracedApiFetchLifecycle(serviceName),
+    fetchLifecycle,
   });
 }

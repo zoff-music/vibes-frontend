@@ -2,7 +2,12 @@ import { useAdminEvents } from '@vibes/api';
 import type { AdminRoomSummary } from '@vibes/models';
 import { Button, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 import { JSX, useEffect, useMemo, useState } from 'react';
-import { useFetcher, useLoaderData } from 'react-router';
+import {
+  isRouteErrorResponse,
+  useFetcher,
+  useLoaderData,
+  useRouteError,
+} from 'react-router';
 import type { AdminActionData } from './action';
 import { action } from './action';
 import type { AdminLoaderData } from './loader';
@@ -219,6 +224,36 @@ export default function Admin() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const message = isRouteErrorResponse(error)
+    ? error.statusText
+    : error instanceof Error
+      ? error.message
+      : 'Could not load the admin dashboard.';
+
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-12">
+      <div className="relative z-10 w-full max-w-md">
+        <div className="glass rounded-3xl border-2 border-ink/10 p-8 text-center dark:border-gray-700">
+          <h1 className="mb-2 font-black text-3xl text-ink tracking-tight dark:text-white">
+            Admin Error
+          </h1>
+          <p className="mb-6 text-ink/60 text-sm dark:text-gray-400">
+            {message}
+          </p>
+          <Button
+            onClick={() => window.location.reload()}
+            variant="admin-primary"
+          >
+            Reload
+          </Button>
         </div>
       </div>
     </div>

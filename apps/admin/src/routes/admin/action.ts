@@ -1,5 +1,5 @@
 import type { AdminRoomSummary } from '@vibes/models';
-import type { ActionFunctionArgs } from 'react-router';
+import { type ActionFunctionArgs, data } from 'react-router';
 import { getServerApi } from '../../http.server';
 
 export interface AdminActionData {
@@ -8,14 +8,79 @@ export interface AdminActionData {
   rooms?: AdminRoomSummary[];
 }
 
-export async function action({
-  request,
-}: ActionFunctionArgs): Promise<AdminActionData> {
+function getCookiePair(setCookieHeader: string) {
+  return setCookieHeader.split(';', 1)[0]?.trim() ?? '';
+}
+
+function getCookieName(cookiePair: string) {
+  return cookiePair.split('=', 1)[0]?.trim() ?? '';
+}
+
+function createRequestHeaders(
+  cookieHeader: string | undefined,
+  setCookieHeader: string | undefined,
+) {
+  if (!cookieHeader && !setCookieHeader) {
+    return undefined;
+  }
+
+  const setCookiePair = setCookieHeader ? getCookiePair(setCookieHeader) : '';
+  const setCookieName = setCookiePair ? getCookieName(setCookiePair) : '';
+  const incomingCookies = (cookieHeader ?? '')
+    .split(';')
+    .map((cookie) => cookie.trim())
+    .filter((cookie) => cookie)
+    .filter((cookie) => {
+      if (!setCookieName) {
+        return true;
+      }
+      return getCookieName(cookie) !== setCookieName;
+    });
+
+  if (setCookiePair) {
+    incomingCookies.push(setCookiePair);
+  }
+
+  const cookie = incomingCookies.join('; ');
+  if (!cookie) {
+    return undefined;
+  }
+
+  return { Cookie: cookie };
+}
+
+function createActionDataResponse(
+  payload: AdminActionData,
+  setCookieHeader: string | undefined,
+) {
+  if (!setCookieHeader) {
+    return payload;
+  }
+
+  return data(payload, {
+    headers: {
+      'Set-Cookie': setCookieHeader,
+    },
+  });
+}
+
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = String(formData.get('intent') ?? '');
-  const serverApi = getServerApi(request);
+  let adminSessionSetCookie: string | undefined;
+  const serverApi = getServerApi(request, {
+    fetchLifecycle: {
+      afterResponse(apiRequest, response) {
+        if (!apiRequest.url.includes('/admin/sessions')) {
+          return;
+        }
+
+        adminSessionSetCookie = response.headers.get('set-cookie') ?? undefined;
+      },
+    },
+  });
   const cookieHeader = request.headers.get('cookie') ?? undefined;
-  const requestHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
+  let requestHeaders = createRequestHeaders(cookieHeader, undefined);
 
   if (intent === 'logout') {
     const [logoutError] = await serverApi.delete('/admin/sessions', null, {
@@ -24,7 +89,10 @@ export async function action({
     if (logoutError) {
       return { error: 'Failed to sign out.' };
     }
-    return { authorized: false, rooms: [] };
+    return createActionDataResponse(
+      { authorized: false, rooms: [] },
+      adminSessionSetCookie,
+    );
   }
 
   if (intent === 'login') {
@@ -38,20 +106,30 @@ export async function action({
     if (loginError || !response?.authorized) {
       return { authorized: false, error: 'Invalid admin password.' };
     }
+    requestHeaders = createRequestHeaders(cookieHeader, adminSessionSetCookie);
   }
 
   const [roomsError, rooms] = await serverApi.get('/admin/rooms', null, {
     headers: requestHeaders,
   });
   if (roomsError || !rooms) {
-    return {
-      authorized: intent === 'login' ? true : undefined,
-      error: roomsError?.message ?? 'Failed to refresh rooms.',
-    };
+    const isAuthCheck = intent === 'refresh';
+    return createActionDataResponse(
+      {
+        authorized: intent === 'login',
+        error: isAuthCheck
+          ? undefined
+          : (roomsError?.message ?? 'Failed to refresh rooms.'),
+      },
+      adminSessionSetCookie,
+    );
   }
 
-  return {
-    authorized: true,
-    rooms,
-  };
+  return createActionDataResponse(
+    {
+      authorized: true,
+      rooms,
+    },
+    adminSessionSetCookie,
+  );
 }
