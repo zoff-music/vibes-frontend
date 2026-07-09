@@ -5,15 +5,16 @@ A React Router + Vite + TypeScript monorepo using pnpm workspaces.
 ## Applications
 
 - **`apps/platform`**: The main web application for room management, queueing, and social interaction (SSR-enabled)
+- **`apps/admin`**: Admin application served separately while preserving the admin route surface
 - **`apps/cast`**: A standalone Chromecast Receiver application for synchronized playback on Google Cast devices (SSR-enabled)
-- **`apps/mobile`**: Cross-platform mobile application built with Expo/React Native
 
 ## Shared Packages
 
 - **`packages/api`**: Type-safe API client
 - **`packages/models`**: Shared domain types, interfaces, and validation schemas
 - **`packages/shared`**: Shared React hooks, utilities, and Zustand stores (includes safeWrap error handling)
-- **`packages/player`**: Shared video player components for YouTube, Spotify, and SoundCloud
+- **`packages/player`**: Re-export package for shared player UI where needed
+- **`packages/serve`**: Shared TypeScript server, metrics, and tracing utilities
 
 ## Development
 
@@ -24,15 +25,16 @@ pnpm install
 # Run the main platform app (port 3001, SSR-enabled)
 pnpm dev
 
-# Run all apps (Platform + Cast, both with SSR)
+# Run all apps
 pnpm --recursive dev
 ```
 
 ## Server-Side Rendering (SSR)
 
-Both applications now support SSR for improved performance and SEO:
+The web applications support SSR for improved performance and SEO:
 
 - **Platform App**: SSR with room data prefetching
+- **Admin App**: SSR for admin views
 - **Cast App**: SSR for faster Chromecast loading
 - **Development**: Hot module replacement with SSR
 - **Production**: Optimized SSR builds

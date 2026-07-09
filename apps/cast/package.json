@@ -19,8 +19,8 @@
     "@vibes/ui": "workspace:*",
     "qrcode.react": "4.2.0",
     "framer-motion": "12.29.2",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "react-player": "3.4.0",
     "react-router": "8.1.0",
     "react-spotify-web-playback": "0.14.7"

@@ -11,8 +11,8 @@
   },
   "peerDependencies": {
     "framer-motion": "^11.0.0 || ^12.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-player": "^2.16.0",
     "react-spotify-web-playback": "^0.14.0"
   },

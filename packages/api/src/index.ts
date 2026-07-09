@@ -94,15 +94,6 @@ function getApiUrl() {
     return runtimeApiUrl;
   }
 
-  // React Native detection
-  if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-    const expoApiUrl = readEnvValue('EXPO_PUBLIC_API_URL');
-    if (expoApiUrl) {
-      return expoApiUrl;
-    }
-    return 'https://zoff.me';
-  }
-
   // If in a browser environment
   if (typeof window !== 'undefined') {
     const { protocol, hostname, origin } = window.location;

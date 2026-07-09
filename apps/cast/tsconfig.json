@@ -19,8 +19,8 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["node"],
     /* Path mapping */
-    "baseUrl": ".",
     "paths": {
+      "*": ["./*"],
       "@/*": ["./src/*"]
     }
   },

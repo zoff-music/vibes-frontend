@@ -8,11 +8,7 @@
   ],
   "scripts": {
     "dev": "pnpm --filter @vibes/platform dev",
-    "mobile": "pnpm --filter @vibes/mobile start",
-    "mobile:ios": "pnpm --filter @vibes/mobile ios",
-    "mobile:android": "pnpm --filter @vibes/mobile android",
-    "mobile:tunnel": "pnpm --filter @vibes/mobile start --tunnel",
-    "build": "pnpm --filter @vibes/platform build && pnpm --filter @vibes/cast build",
+    "build": "pnpm --filter @vibes/platform build && pnpm --filter @vibes/admin build && pnpm --filter @vibes/cast build",
     "typecheck": "pnpm --recursive typecheck",
     "lint": "pnpm --recursive lint",
     "fix": "biome check --write --unsafe ."

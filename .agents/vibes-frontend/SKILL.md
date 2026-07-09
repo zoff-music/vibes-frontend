@@ -17,13 +17,14 @@ Use these rules for frontend work in this repository.
 
 - Keep root `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `node_modules`, generated route types, and build output inside this repository.
 - `apps/platform` is the React Router/Vite platform app.
+- `apps/admin` is the React Router/Vite admin app.
 - `apps/cast` is the cast receiver app.
-- `apps/mobile` is the mobile app.
 - `packages/api` owns backend API/SSE wiring and exported API hooks.
 - `packages/models` owns shared types and Yup schemas.
 - `packages/shared` owns utilities, hooks, stores, and constants such as `safeWrap`, `safeWrapAsync`, and playback state.
 - `packages/ui` owns shared UI and player components.
 - `packages/player` re-exports player UI where needed.
+- `packages/serve` owns shared TypeScript server, metrics, and tracing utilities.
 - Dependencies used across multiple workspaces should be workspace dependencies where appropriate.
 
 ## API Package
