@@ -147,9 +147,9 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       'admin-neutral':
         'rounded-xl bg-ink/10 px-4 py-2 font-semibold text-sm transition-all hover:bg-ink/20 dark:bg-gray-800 dark:hover:bg-gray-700',
       'cast-button':
-        'group flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent bg-gray-200 px-4 py-2 text-gray-900 transition-all duration-200 ease-in-out hover:scale-105 hover:border-primary/20 hover:bg-gray-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-white dark:hover:border-primary-light/30 dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800',
+        'group flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent bg-gray-200 px-4 py-2 text-gray-900 transition-all duration-200 ease-in-out hover:scale-105 hover:border-primary/20 hover:bg-gray-300 active:scale-95 focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-white dark:hover:border-primary-light/30 dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800',
       'cast-button-connected':
-        'group flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent bg-primary px-4 py-2 text-white shadow-lg transition-all duration-200 ease-in-out hover:scale-105 hover:border-primary-dark/20 hover:bg-primary-dark active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-light dark:hover:border-primary/30 dark:hover:bg-primary dark:focus:ring-offset-gray-800',
+        'group flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent bg-primary px-4 py-2 text-white shadow-lg transition-all duration-200 ease-in-out hover:scale-105 hover:border-primary-dark/20 hover:bg-primary-dark active:scale-95 focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-light dark:hover:border-primary/30 dark:hover:bg-primary dark:focus:ring-offset-gray-800',
       'cast-backdrop':
         'absolute inset-0 bg-black/50 backdrop-blur-sm transition-colors duration-200 dark:bg-black/70',
       'cast-close':
@@ -163,9 +163,9 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       'cast-refresh':
         'cursor-pointer bg-transparent text-primary text-sm transition-colors duration-200 hover:text-primary/80 dark:text-primary-light dark:hover:text-primary',
       'cast-device':
-        'w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-3 text-left transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800',
+        'w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-3 text-left transition-colors duration-200 hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800',
       'cast-device-active':
-        'w-full cursor-default rounded-lg border border-primary/20 bg-primary/10 p-3 text-left transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 dark:border-primary/30 dark:bg-primary/20 dark:focus:ring-offset-gray-800',
+        'w-full cursor-default rounded-lg border border-primary/20 bg-primary/10 p-3 text-left transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 dark:border-primary/30 dark:bg-primary/20 dark:focus:ring-offset-gray-800',
       'source-youtube-active':
         'group relative flex h-10 w-full flex-1 items-center justify-center rounded-xl bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.4)] transition-all',
       'source-youtube-disabled':

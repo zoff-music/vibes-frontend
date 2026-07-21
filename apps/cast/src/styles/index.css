@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@config "../../tailwind.config.js";
+@source "../../../../packages";
+@source inline("hidden inline sm:hidden sm:inline md:hidden md:inline lg:hidden lg:inline xl:hidden xl:inline space-y-3");
 
 @layer base {
   :root {

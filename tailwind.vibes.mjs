@@ -19,6 +19,17 @@ export function addVibesUtilities({ addBase, addUtilities }) {
       from: { backgroundPosition: '0 0, 0 0' },
       to: { backgroundPosition: '0 80px, 0 80px' },
     },
+    '@media (prefers-reduced-motion: reduce)': {
+      '*, *::before, *::after': {
+        animationDuration: '0.01ms',
+        animationIterationCount: '1',
+        transitionDuration: '0.01ms',
+      },
+      '.vhs-tear::before, .vhs-tear::after, .vhs-tear-strong::before, .vhs-tear-strong::after, .vhs-scanlines, .synth-sky, .retro-grid, .float-slow, .float-fast, .scanlines, .glow-pulse, .gradient-shift':
+        {
+          animation: 'none',
+        },
+    },
   });
 
   addUtilities({
@@ -297,17 +308,6 @@ export function addVibesUtilities({ addBase, addUtilities }) {
     },
     '.bg-theme': {
       backgroundColor: 'var(--theme-bg)',
-    },
-    '@media (prefers-reduced-motion: reduce)': {
-      '*, *::before, *::after': {
-        animationDuration: '0.01ms',
-        animationIterationCount: '1',
-        transitionDuration: '0.01ms',
-      },
-      '.vhs-tear::before, .vhs-tear::after, .vhs-tear-strong::before, .vhs-tear-strong::after, .vhs-scanlines, .synth-sky, .retro-grid, .float-slow, .float-fast, .scanlines, .glow-pulse, .gradient-shift':
-        {
-          animation: 'none',
-        },
     },
   });
 }

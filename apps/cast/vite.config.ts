@@ -1,10 +1,12 @@
 import path from 'node:path';
+import tailwindcss from '@tailwindcss/vite';
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import type { PluginOption } from 'vite';
 import { defineConfig } from 'vite';
 
 const plugins: PluginOption[] = [
+  tailwindcss(),
   react(),
   legacy({
     targets: ['chrome >= 80'],

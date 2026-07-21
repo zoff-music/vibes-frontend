@@ -418,7 +418,7 @@ export const RoomSettingsMenu = ({
                           ? 'Login as admin'
                           : 'Add password'
                       }
-                      className={`flex-1 rounded-xl border bg-theme-surface px-3 py-2 text-sm text-theme outline-none transition-all focus:border-secondary/60 ${wobblePassword ? 'border-red-500 ring-2 ring-red-500/50' : 'border-theme'}`}
+                      className={`flex-1 rounded-xl border bg-theme-surface px-3 py-2 text-sm text-theme outline-hidden transition-all focus:border-secondary/60 ${wobblePassword ? 'border-red-500 ring-2 ring-red-500/50' : 'border-theme'}`}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') onJoinAdmin();
                       }}

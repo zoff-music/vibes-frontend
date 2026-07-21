@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ command, mode }) => {
@@ -13,7 +14,7 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: isBuild ? './' : '/',
-    plugins: [reactRouter()],
+    plugins: [tailwindcss(), reactRouter()],
     root: '.',
     server: {
       port: 3006,
