@@ -16,11 +16,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
 
   const embedScript = useMemo(() => {
     const [err, embedUrl] = safeWrap(
-      () =>
-        new URL(
-          `${embedBasePath}/${encodeURIComponent(roomId)}`,
-          url || 'https://zoff.me',
-        ),
+      () => new URL(`${embedBasePath}/${encodeURIComponent(roomId)}`, url),
     );
     if (err || !embedUrl) return '';
 
