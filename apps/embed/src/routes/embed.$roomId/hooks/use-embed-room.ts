@@ -1,20 +1,30 @@
 import {
+  type USE_SSE_CALLBACKS,
   usePlayback,
   usePlaybackPosition,
   useQueue,
   useRoom,
 } from '@vibes/api';
 import { usePlaybackStore, useQueueStore, useRoomStore } from '@vibes/shared';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { EmbedLoaderData } from '../loader';
+
+type ToastHandler = NonNullable<USE_SSE_CALLBACKS['onToast']>;
 
 export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const { roomId } = loaderData;
   const fetchStartedRef = useRef(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const handlePlaybackToast = useCallback<ToastHandler>((toastMessage) => {
+    setMessage(toastMessage);
+  }, []);
+  const playbackCallbacks = useMemo(
+    () => ({ onToast: handlePlaybackToast }),
+    [handlePlaybackToast],
+  );
   const { fetchRoom } = useRoom(roomId);
   const { fetchQueue, voteSong } = useQueue(roomId);
-  const { fetchPlayback } = usePlayback(roomId);
-  const [message, setMessage] = useState<string | null>(null);
+  const { fetchPlayback, skip } = usePlayback(roomId, playbackCallbacks);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
@@ -67,6 +77,7 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
 
   return {
     currentSong,
+    handleSkip: skip,
     handleVote,
     isPlaying,
     message,

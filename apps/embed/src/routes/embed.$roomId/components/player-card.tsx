@@ -1,19 +1,26 @@
 import type { Song } from '@vibes/models';
+import { Button, SkipIcon } from '@vibes/ui';
 import { EmbedPlayerSource } from './player-source';
 import { EmbedSourceIcon } from './source-icon';
 
 interface Props {
   autoplay: boolean;
+  canSkip: boolean;
   currentSong: Song | null;
   durationMs: number;
+  onSkip: () => void;
   positionMs: number;
+  showSkip: boolean;
 }
 
 export function EmbedPlayerCard({
   autoplay,
+  canSkip,
   currentSong,
   durationMs,
+  onSkip,
   positionMs,
+  showSkip,
 }: Props) {
   return (
     <div className="min-w-0">
@@ -50,6 +57,18 @@ export function EmbedPlayerCard({
           max={durationMs || 1}
           value={Math.min(positionMs, durationMs)}
         />
+        {showSkip && (
+          <div className="mt-3 flex justify-end">
+            <Button
+              disabled={!canSkip}
+              onClick={onSkip}
+              title={canSkip ? 'Skip' : 'Skipping is unavailable'}
+              variant="player-control"
+            >
+              <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

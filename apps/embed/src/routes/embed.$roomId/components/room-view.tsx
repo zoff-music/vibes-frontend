@@ -12,6 +12,7 @@ export function EmbedRoomView({ loaderData }: Props) {
   const { roomId, options } = loaderData;
   const {
     currentSong,
+    handleSkip,
     handleVote,
     isPlaying,
     message,
@@ -26,7 +27,14 @@ export function EmbedRoomView({ loaderData }: Props) {
       autoplay={options.autoplay}
       currentSong={currentSong}
       durationMs={durationMs}
+      canSkip={
+        Boolean(currentSong) &&
+        room.mode !== 'host' &&
+        room.settings.skipAllowed
+      }
+      onSkip={handleSkip}
       positionMs={positionMs}
+      showSkip={options.skip}
     />
   );
 

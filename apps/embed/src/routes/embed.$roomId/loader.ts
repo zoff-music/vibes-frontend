@@ -5,6 +5,7 @@ import { getServerApi } from '../../http.server';
 export interface EmbedOptions {
   autoplay: boolean;
   playlist: boolean;
+  skip: boolean;
   vote: boolean;
 }
 
@@ -60,6 +61,7 @@ export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
     options: {
       autoplay: requestUrl.searchParams.get('autoplay') === 'true',
       playlist: requestUrl.searchParams.get('playlist') !== 'false',
+      skip: requestUrl.searchParams.get('skip') !== 'false',
       vote: requestUrl.searchParams.get('vote') !== 'false',
     },
   };

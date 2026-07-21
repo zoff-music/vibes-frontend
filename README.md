@@ -35,7 +35,7 @@ pnpm --filter @vibes/embed dev
 
 Set `EMBED_BASE_PATH` in both `apps/platform/.env` and `apps/embed/.env` to
 change the local embed mount path. Embed URLs accept the optional boolean query
-parameters `autoplay`, `playlist`, and `vote`.
+parameters `autoplay`, `playlist`, `skip`, and `vote`.
 
 ## Server-Side Rendering (SSR)
 
