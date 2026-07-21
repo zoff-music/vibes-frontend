@@ -41,7 +41,7 @@ export function EmbedQueueSong({
 
   if (!votingEnabled) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-theme bg-theme-surface p-3">
+      <div className="flex items-center gap-3 bg-transparent p-4">
         {content}
       </div>
     );
@@ -49,7 +49,7 @@ export function EmbedQueueSong({
 
   return (
     <Button
-      variant="embed-queue"
+      variant="search-result"
       onClick={() => onVote(song.id)}
       title={`Vote for ${song.title}`}
     >

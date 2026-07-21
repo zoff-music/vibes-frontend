@@ -66,8 +66,7 @@ export type ButtonVariant =
   | 'video-overlay'
   | 'auth-primary'
   | 'debug-clear'
-  | 'queue-remove'
-  | 'embed-queue';
+  | 'queue-remove';
 
 interface Props
   extends Omit<
@@ -225,8 +224,6 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         'border border-[#666] bg-transparent px-2 py-0.5 text-white',
       'queue-remove':
         'absolute top-1/2 right-6 -translate-y-1/2 cursor-pointer rounded-lg border border-transparent bg-transparent p-2.5 text-theme-subtle transition-all hover:border-error/40 hover:bg-error/10 hover:text-error',
-      'embed-queue':
-        'flex w-full items-center gap-3 rounded-xl border border-theme bg-theme-surface p-3 text-left transition-all hover:border-theme-strong',
     };
 
     const classes = `${baseClasses} ${variantClasses[variant]}`;

@@ -19,7 +19,6 @@ export function Layout({ children }: LayoutProps) {
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="dark" />
-        <title>Zoff embedded room</title>
         <Meta />
         <Links />
       </head>

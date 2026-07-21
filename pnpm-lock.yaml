@@ -227,14 +227,14 @@ importers:
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.16)
       autoprefixer:
-        specifier: '10'
-        version: 10.4.23(postcss@8.5.16)
+        specifier: 10.5.0
+        version: 10.5.0(postcss@8.5.16)
       postcss:
         specifier: 8.5.16
         version: 8.5.16
       tailwindcss:
-        specifier: '3'
-        version: 3.4.17
+        specifier: 3.4.19
+        version: 3.4.19(yaml@2.9.0)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
