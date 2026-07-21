@@ -1,4 +1,3 @@
-import type { PlaybackState, Room, Song } from '@vibes/models';
 import { safeWrap } from '@vibes/shared';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
@@ -9,17 +8,7 @@ export interface EmbedOptions {
   vote: boolean;
 }
 
-export interface EmbedLoaderData {
-  room: Room;
-  roomId: string;
-  songs: Song[];
-  playback?: PlaybackState;
-  options: EmbedOptions;
-}
-
-export async function loader({
-  request,
-}: LoaderFunctionArgs): Promise<EmbedLoaderData> {
+export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url);
   const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
   const pathPrefix = `${embedBasePath}/`;
@@ -75,3 +64,5 @@ export async function loader({
     },
   };
 }
+
+export type EmbedLoaderData = Awaited<ReturnType<typeof embedRoomLoader>>;
