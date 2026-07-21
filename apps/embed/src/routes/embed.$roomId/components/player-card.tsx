@@ -1,30 +1,29 @@
 import type { Song } from '@vibes/models';
-import { Button, SkipIcon } from '@vibes/ui';
 import { EmbedPlayerSource } from './player-source';
 import { EmbedSourceIcon } from './source-icon';
 
 interface Props {
-  autoplay: boolean;
-  canSkip: boolean;
   currentSong: Song | null;
   durationMs: number;
-  onSkip: () => void;
   positionMs: number;
-  showSkip: boolean;
 }
 
 export function EmbedPlayerCard({
-  autoplay,
-  canSkip,
   currentSong,
   durationMs,
-  onSkip,
   positionMs,
-  showSkip,
 }: Props) {
+  const progress = durationMs > 0 ? positionMs / durationMs : 0;
+  const formatTime = (milliseconds: number) => {
+    const seconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainder = seconds % 60;
+    return `${minutes}:${remainder.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <div className="min-w-0">
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-black">
+    <div className="flex min-h-0 min-w-0 flex-col">
+      <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-black">
         {currentSong ? (
           <img
             src={currentSong.thumbnailUrl}
@@ -36,10 +35,10 @@ export function EmbedPlayerCard({
             Nothing playing
           </div>
         )}
-        <EmbedPlayerSource autoplay={autoplay} currentSong={currentSong} />
+        <EmbedPlayerSource currentSong={currentSong} />
       </div>
 
-      <div className="mt-3 min-w-0">
+      <div className="mt-3 min-w-0 shrink-0">
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
             <h1 className="truncate font-pixel text-sm text-theme">
@@ -53,23 +52,14 @@ export function EmbedPlayerCard({
         </div>
         <progress
           aria-label="Playback progress"
-          className="mt-3 h-1.5 w-full cursor-default accent-primary"
-          max={durationMs || 1}
-          value={Math.min(positionMs, durationMs)}
+          className="progress-bar mt-3 h-1 w-full"
+          max={1}
+          value={Math.min(progress, 1)}
         />
-        {showSkip && (
-          <div className="mt-3 flex justify-end">
-            <Button
-              disabled={!canSkip}
-              onClick={onSkip}
-              title={canSkip ? 'Skip' : 'Skipping is unavailable'}
-              variant="tertiary"
-              size="icon"
-            >
-              <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
-            </Button>
-          </div>
-        )}
+        <div className="mt-1 flex justify-between font-mono text-[10px] text-theme-subtle">
+          <span>{formatTime(positionMs)}</span>
+          <span>{formatTime(durationMs)}</span>
+        </div>
       </div>
     </div>
   );

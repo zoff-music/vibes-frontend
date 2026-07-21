@@ -2,12 +2,11 @@ import type { Song } from '@vibes/models';
 import { SoundCloudPlayer, SpotifyPlayer, VideoPlayer } from '@vibes/ui';
 
 interface Props {
-  autoplay: boolean;
   currentSong: Song | null;
 }
 
-export function EmbedPlayerSource({ autoplay, currentSong }: Props) {
-  if (!autoplay || !currentSong) return null;
+export function EmbedPlayerSource({ currentSong }: Props) {
+  if (!currentSong) return null;
 
   return (
     <div className="absolute inset-0">

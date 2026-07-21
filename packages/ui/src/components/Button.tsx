@@ -33,7 +33,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
     ref,
   ) => {
     const baseClasses =
-      'inline-flex cursor-pointer items-center justify-center font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50';
+      'inline-flex cursor-pointer items-center justify-center font-normal transition-all disabled:cursor-not-allowed disabled:opacity-50';
 
     const variantClasses: Record<ButtonVariant, string> = {
       primary:

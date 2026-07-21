@@ -22,17 +22,23 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     () => ({ onToast: handlePlaybackToast }),
     [handlePlaybackToast],
   );
-  const { fetchRoom } = useRoom(roomId);
-  const { fetchQueue, voteSong } = useQueue(roomId);
-  const { fetchPlayback, skip } = usePlayback(roomId, playbackCallbacks);
+  const { fetchRoom, room: apiRoom } = useRoom(roomId);
+  const { fetchQueue, songs, voteSong } = useQueue(roomId);
+  const { currentSong, fetchPlayback, skip } = usePlayback(
+    roomId,
+    playbackCallbacks,
+  );
   const setRoom = useRoomStore((state) => state.setRoom);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
-  const room = useRoomStore((state) => state.room) ?? loaderData.room;
-  const songs = useQueueStore((state) => state.songs);
-  const currentSong = usePlaybackStore((state) => state.currentSong);
-  const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const setLocalPlayingState = usePlaybackStore(
+    (state) => state.setLocalPlayingState,
+  );
+  const room = apiRoom ?? loaderData.room;
+  const currentSongId = currentSong?.id;
   const positionMs = usePlaybackPosition();
+
+  const dismissMessage = useCallback(() => setMessage(null), []);
 
   useEffect(() => {
     setRoom(loaderData.room);
@@ -52,6 +58,16 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     };
     void refresh();
   }, [fetchPlayback, fetchQueue, fetchRoom]);
+
+  useEffect(() => {
+    if (loaderData.options.autoplay || !currentSongId) return;
+    setLocalPlayingState(false, room.mode);
+  }, [
+    currentSongId,
+    loaderData.options.autoplay,
+    room.mode,
+    setLocalPlayingState,
+  ]);
 
   const handleVote = useCallback(
     async (songId: string) => {
@@ -77,9 +93,9 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
 
   return {
     currentSong,
+    dismissMessage,
     handleSkip: skip,
     handleVote,
-    isPlaying,
     message,
     positionMs,
     room,

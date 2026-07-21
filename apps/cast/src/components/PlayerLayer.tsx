@@ -1,4 +1,4 @@
-import { SoundCloudPlayer, SpotifyPlayer, VideoPlayer } from '@vibes/ui';
+import { SoundCloudPlayer, SpotifyPlayer, VideoPlayer } from '@vibes/player';
 import React from 'react';
 import { useCast } from './CastProvider';
 

@@ -1,1 +1,5 @@
-export * from '@vibes/ui';
+export {
+  SoundCloudPlayer,
+  SpotifyPlayer,
+  VideoPlayer,
+} from '@vibes/ui';
