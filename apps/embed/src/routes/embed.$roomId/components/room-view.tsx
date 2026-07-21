@@ -4,11 +4,11 @@ import { EmbedPlayerCard } from './player-card';
 import { EmbedPlaylist } from './playlist';
 import { EmbedRoomHeader } from './room-header';
 
-interface EmbedRoomViewProps {
+interface Props {
   loaderData: EmbedLoaderData;
 }
 
-export function EmbedRoomView({ loaderData }: EmbedRoomViewProps) {
+export function EmbedRoomView({ loaderData }: Props) {
   const { roomId, options } = loaderData;
   const {
     currentSong,

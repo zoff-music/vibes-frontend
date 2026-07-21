@@ -1,16 +1,12 @@
 import type { Room } from '@vibes/models';
 
-interface EmbedRoomHeaderProps {
+interface Props {
   room: Room;
   roomId: string;
   isPlaying: boolean;
 }
 
-export function EmbedRoomHeader({
-  room,
-  roomId,
-  isPlaying,
-}: EmbedRoomHeaderProps) {
+export function EmbedRoomHeader({ room, roomId, isPlaying }: Props) {
   return (
     <header className="flex items-center justify-between border-theme border-b px-4 py-3">
       <div className="min-w-0">

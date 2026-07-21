@@ -29,11 +29,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
 export type RootLoaderData = Awaited<ReturnType<typeof loader>>;
 
-interface LayoutProps {
+interface Props {
   children: ReactNode;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children }: Props) {
   const loaderData = useLoaderData<typeof loader>() as
     | RootLoaderData
     | undefined;

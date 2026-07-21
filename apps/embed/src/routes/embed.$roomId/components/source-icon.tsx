@@ -1,11 +1,11 @@
 import type { Song } from '@vibes/models';
 import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 
-interface EmbedSourceIconProps {
+interface Props {
   currentSong: Song | null;
 }
 
-export function EmbedSourceIcon({ currentSong }: EmbedSourceIconProps) {
+export function EmbedSourceIcon({ currentSong }: Props) {
   if (currentSong?.sourceType === 'spotify') {
     return <SpotifyIcon className="h-5 w-5 shrink-0" />;
   }

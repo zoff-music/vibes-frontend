@@ -2,7 +2,7 @@ import type { Song } from '@vibes/models';
 import { EmbedPlayerSource } from './player-source';
 import { EmbedSourceIcon } from './source-icon';
 
-interface EmbedPlayerCardProps {
+interface Props {
   autoplay: boolean;
   currentSong: Song | null;
   durationMs: number;
@@ -14,7 +14,7 @@ export function EmbedPlayerCard({
   currentSong,
   durationMs,
   positionMs,
-}: EmbedPlayerCardProps) {
+}: Props) {
   return (
     <div className="min-w-0">
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-black">

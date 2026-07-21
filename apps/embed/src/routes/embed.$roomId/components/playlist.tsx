@@ -1,17 +1,13 @@
 import type { Song } from '@vibes/models';
 import { EmbedQueueSong } from './queue-song';
 
-interface EmbedPlaylistProps {
+interface Props {
   songs: Song[];
   votingEnabled: boolean;
   onVote: (songId: string) => void;
 }
 
-export function EmbedPlaylist({
-  songs,
-  votingEnabled,
-  onVote,
-}: EmbedPlaylistProps) {
+export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
   return (
     <div className="min-h-0 min-w-0 sm:max-h-96 sm:overflow-y-auto sm:pr-1">
       <div className="mb-3 flex items-center justify-between">

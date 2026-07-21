@@ -8,11 +8,11 @@ export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesUrl },
 ];
 
-interface LayoutProps {
+interface Props {
   children: ReactNode;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children }: Props) {
   return (
     <html lang="en" className="dark">
       <head>

@@ -2,17 +2,13 @@ import { safeWrap, safeWrapAsync } from '@vibes/shared';
 import { Button, Toggle } from '@vibes/ui';
 import { useMemo, useState } from 'react';
 
-interface EmbedSharePanelProps {
+interface Props {
   url: string;
   roomId: string;
   embedBasePath: string;
 }
 
-export function EmbedSharePanel({
-  url,
-  roomId,
-  embedBasePath,
-}: EmbedSharePanelProps) {
+export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
   const [autoplay, setAutoplay] = useState(false);
   const [playlist, setPlaylist] = useState(true);
   const [vote, setVote] = useState(true);

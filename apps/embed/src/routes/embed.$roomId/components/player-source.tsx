@@ -1,15 +1,12 @@
 import type { Song } from '@vibes/models';
 import { SoundCloudPlayer, SpotifyPlayer, VideoPlayer } from '@vibes/ui';
 
-interface EmbedPlayerSourceProps {
+interface Props {
   autoplay: boolean;
   currentSong: Song | null;
 }
 
-export function EmbedPlayerSource({
-  autoplay,
-  currentSong,
-}: EmbedPlayerSourceProps) {
+export function EmbedPlayerSource({ autoplay, currentSong }: Props) {
   if (!autoplay || !currentSong) return null;
 
   return (

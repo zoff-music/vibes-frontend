@@ -1,7 +1,7 @@
 import type { Song } from '@vibes/models';
 import { Button, VoteIcon } from '@vibes/ui';
 
-interface EmbedQueueSongProps {
+interface Props {
   song: Song;
   votingEnabled: boolean;
   onVote: (songId: string) => void;
@@ -13,11 +13,7 @@ function formatDuration(seconds: number) {
   return `${minutes}:${remainder.toString().padStart(2, '0')}`;
 }
 
-export function EmbedQueueSong({
-  song,
-  votingEnabled,
-  onVote,
-}: EmbedQueueSongProps) {
+export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
   const content = (
     <>
       <img
