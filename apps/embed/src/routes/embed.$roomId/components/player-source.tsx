@@ -1,5 +1,5 @@
 import type { Song } from '@vibes/models';
-import { SoundCloudPlayer, SpotifyPlayer, VideoPlayer } from '@vibes/ui';
+import { SoundCloudPlayer, SpotifyPlayer, VideoPlayer } from '@vibes/player';
 
 interface Props {
   currentSong: Song | null;
