@@ -11,12 +11,17 @@ import type { EmbedLoaderData } from '../loader';
 
 type ToastHandler = NonNullable<USE_SSE_CALLBACKS['onToast']>;
 
+interface EmbedToast {
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
 export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const { roomId } = loaderData;
   const fetchStartedRef = useRef(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const handlePlaybackToast = useCallback<ToastHandler>((toastMessage) => {
-    setMessage(toastMessage);
+  const [toast, setToast] = useState<EmbedToast | null>(null);
+  const handlePlaybackToast = useCallback<ToastHandler>((message, type) => {
+    setToast({ message, type });
   }, []);
   const playbackCallbacks = useMemo(
     () => ({ onToast: handlePlaybackToast }),
@@ -38,7 +43,7 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const currentSongId = currentSong?.id;
   const positionMs = usePlaybackPosition();
 
-  const dismissMessage = useCallback(() => setMessage(null), []);
+  const dismissToast = useCallback(() => setToast(null), []);
 
   useEffect(() => {
     setRoom(loaderData.room);
@@ -73,32 +78,32 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     async (songId: string) => {
       const result = await voteSong(songId);
       if (result === 'success') {
-        setMessage('Vote added');
+        setToast({ message: 'Vote added', type: 'success' });
         return;
       }
       if (result === 'already_voted') {
-        setMessage('Vote already counted');
+        setToast({ message: 'Vote already counted', type: 'info' });
         return;
       }
-      setMessage('Could not add vote');
+      setToast({ message: 'Could not add vote', type: 'error' });
     },
     [voteSong],
   );
 
   useEffect(() => {
-    if (!message) return;
-    const timeout = window.setTimeout(() => setMessage(null), 2500);
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(null), 2500);
     return () => window.clearTimeout(timeout);
-  }, [message]);
+  }, [toast]);
 
   return {
     currentSong,
-    dismissMessage,
+    dismissToast,
     handleSkip: skip,
     handleVote,
-    message,
     positionMs,
     room,
     songs,
+    toast,
   };
 }

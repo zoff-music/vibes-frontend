@@ -13,13 +13,13 @@ export function EmbedRoomView({ loaderData }: Props) {
   const { roomId, options } = loaderData;
   const {
     currentSong,
-    dismissMessage,
+    dismissToast,
     handleSkip,
     handleVote,
-    message,
     positionMs,
     room,
     songs,
+    toast,
   } = useEmbedRoom(loaderData);
   const durationMs = (currentSong?.duration ?? 0) * 1000;
   const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
@@ -57,8 +57,12 @@ export function EmbedRoomView({ loaderData }: Props) {
           <div className="min-h-0 flex-1 p-4">{player}</div>
         )}
       </section>
-      {message && (
-        <Toast message={message} onClose={dismissMessage} type="info" />
+      {toast && (
+        <Toast
+          message={toast.message}
+          onClose={dismissToast}
+          type={toast.type}
+        />
       )}
     </main>
   );

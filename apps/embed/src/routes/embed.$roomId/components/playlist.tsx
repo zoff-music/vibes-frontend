@@ -1,4 +1,5 @@
 import type { Song } from '@vibes/models';
+import { AnimatePresence, motion } from 'framer-motion';
 import { EmbedQueueSong } from './queue-song';
 
 interface Props {
@@ -19,14 +20,34 @@ export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
         )}
       </div>
       <div className="space-y-2">
-        {songs.map((song) => (
-          <EmbedQueueSong
-            key={song.id}
-            song={song}
-            votingEnabled={votingEnabled}
-            onVote={onVote}
-          />
-        ))}
+        <AnimatePresence initial={false} mode="popLayout">
+          {songs.map((song) => (
+            <motion.div
+              key={song.id}
+              layout="position"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{
+                opacity: 0,
+                scale: 0.95,
+                y: -20,
+                transition: { duration: 0.15 },
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 400,
+                damping: 30,
+                opacity: { duration: 0.1 },
+              }}
+            >
+              <EmbedQueueSong
+                song={song}
+                votingEnabled={votingEnabled}
+                onVote={onVote}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
         {songs.length === 0 && (
           <div className="rounded-xl border border-theme bg-theme-surface p-6 text-center text-theme-muted text-xs">
             The queue is empty
