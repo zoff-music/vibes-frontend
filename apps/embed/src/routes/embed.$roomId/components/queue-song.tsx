@@ -28,11 +28,11 @@ export function EmbedQueueSong({
       />
       <span className="min-w-0 flex-1 text-left">
         <span className="block truncate text-theme text-xs">{song.title}</span>
-        <span className="mt-0.5 block truncate text-[10px] text-theme-muted">
+        <span className="mt-0.5 block truncate text-theme-muted text-xs">
           {song.artist || 'Unknown artist'} · {formatDuration(song.duration)}
         </span>
       </span>
-      <span className="flex shrink-0 items-center gap-1 text-[10px] text-secondary">
+      <span className="flex shrink-0 items-center gap-1 text-secondary text-xs">
         <VoteIcon className="h-3.5 w-3.5" />
         {song.voteCount ?? 0}
       </span>

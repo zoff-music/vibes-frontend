@@ -15,13 +15,11 @@ export function EmbedPlaylist({
   return (
     <div className="min-h-0 min-w-0 sm:max-h-96 sm:overflow-y-auto sm:pr-1">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-pixel text-[10px] text-theme-muted tracking-[0.2em]">
+        <h2 className="font-pixel text-theme-muted text-xs tracking-widest">
           Up next
         </h2>
         {votingEnabled && (
-          <span className="text-[10px] text-theme-subtle">
-            Tap a track to vote
-          </span>
+          <span className="text-theme-subtle text-xs">Tap a track to vote</span>
         )}
       </div>
       <div className="space-y-2">

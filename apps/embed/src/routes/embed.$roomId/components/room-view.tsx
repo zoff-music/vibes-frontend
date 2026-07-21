@@ -31,12 +31,12 @@ export function EmbedRoomView({ loaderData }: EmbedRoomViewProps) {
   );
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,46,151,0.18),_transparent_45%),var(--theme-bg)] p-3 text-theme sm:p-5">
+    <main className="min-h-screen bg-theme p-3 text-theme sm:p-5">
       <section className="panel-strong mx-auto max-w-3xl overflow-hidden rounded-2xl border border-theme shadow-2xl">
         <EmbedRoomHeader room={room} roomId={roomId} isPlaying={isPlaying} />
 
         {options.playlist ? (
-          <div className="grid gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+          <div className="grid gap-4 p-4 sm:grid-cols-2">
             {player}
             <EmbedPlaylist
               songs={queuedSongs}
@@ -49,7 +49,7 @@ export function EmbedRoomView({ loaderData }: EmbedRoomViewProps) {
         )}
 
         {message && (
-          <div className="border-theme border-t px-4 py-2 text-center text-[10px] text-secondary">
+          <div className="border-theme border-t px-4 py-2 text-center text-secondary text-xs">
             {message}
           </div>
         )}

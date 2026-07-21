@@ -33,7 +33,6 @@ interface RoomSettingsMenuProps {
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
   shareUrl: string;
-  embedBasePath: string;
   onCopyShareLink: () => void;
   roomId?: string;
   settingsMenuRef?: RefObject<HTMLDivElement | null>;
@@ -57,7 +56,6 @@ export const RoomSettingsMenu = ({
   onJoinAdmin,
   isAuthenticating,
   shareUrl,
-  embedBasePath,
   onCopyShareLink,
   roomId,
   settingsMenuRef,
@@ -153,7 +151,6 @@ export const RoomSettingsMenu = ({
                     <RoomSharePanel
                       url={shareUrl}
                       roomId={roomId || ''}
-                      embedBasePath={embedBasePath}
                       onCopy={onCopyShareLink}
                     />
                   </div>

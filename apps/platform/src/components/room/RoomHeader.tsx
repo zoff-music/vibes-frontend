@@ -24,7 +24,6 @@ interface RoomHeaderProps {
   showShare: boolean;
   onToggleShare: () => void;
   shareUrl: string;
-  embedBasePath: string;
   onCopyShareLink: () => void;
   themeId: string;
   currentTheme: Theme;
@@ -49,7 +48,6 @@ export const RoomHeader = React.memo(
     showShare,
     onToggleShare,
     shareUrl,
-    embedBasePath,
     onCopyShareLink,
     themeId,
     currentTheme,
@@ -120,7 +118,6 @@ export const RoomHeader = React.memo(
                     <RoomSharePanel
                       url={shareUrl}
                       roomId={roomId || ''}
-                      embedBasePath={embedBasePath}
                       onCopy={onCopyShareLink}
                     />
                   </motion.div>
@@ -156,7 +153,6 @@ export const RoomHeader = React.memo(
                 onJoinAdmin={onJoinAdmin}
                 isAuthenticating={isAuthenticating}
                 shareUrl={shareUrl}
-                embedBasePath={embedBasePath}
                 onCopyShareLink={onCopyShareLink}
                 roomId={roomId}
                 settingsMenuRef={settingsMenuRef}

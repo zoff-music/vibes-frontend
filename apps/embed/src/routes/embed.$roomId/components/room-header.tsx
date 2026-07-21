@@ -22,11 +22,11 @@ export function EmbedRoomHeader({
         >
           {room.name}
         </a>
-        <p className="mt-0.5 text-[10px] text-theme-muted">
+        <p className="mt-0.5 text-theme-muted text-xs">
           {isPlaying ? 'Now playing' : 'Paused'} on Zoff
         </p>
       </div>
-      <span className="font-pixel text-[10px] text-primary tracking-[0.2em]">
+      <span className="font-pixel text-primary text-xs tracking-widest">
         ZOFF
       </span>
     </header>

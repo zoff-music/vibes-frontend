@@ -7,12 +7,7 @@ import {
 } from '@vibes/shared';
 import { Toast } from '@vibes/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  useLoaderData,
-  useNavigate,
-  useParams,
-  useRouteLoaderData,
-} from 'react-router';
+import { useLoaderData, useNavigate, useParams } from 'react-router';
 import { DeviceSelector } from '../../components/cast/DeviceSelector';
 import { AddToQueueModal } from '../../components/queue/AddToQueueModal';
 import { RoomErrorView } from '../../components/room/RoomErrorView';
@@ -20,7 +15,6 @@ import { RoomHeader } from '../../components/room/RoomHeader';
 import { RoomPlayer } from '../../components/room/RoomPlayer';
 import { RoomQueue } from '../../components/room/RoomQueue';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
-import type { RootLoaderData } from '../../root';
 import { useThemeStore } from '../../stores/themeStore';
 import type { RoomLoaderData } from './loader';
 import { loader } from './loader';
@@ -34,9 +28,6 @@ interface ToastEventDetail {
 
 export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
-  const rootLoaderData = useRouteLoaderData('root') as
-    | RootLoaderData
-    | undefined;
   /* 1. Refs */
   const headerRef = useRef<HTMLDivElement | null>(null);
   const fetchAttemptedRef = useRef<string | null>(null);
@@ -368,7 +359,6 @@ export default function Room() {
           showShare={showShare}
           onToggleShare={() => setShowShare(!showShare)}
           shareUrl={shareUrl}
-          embedBasePath={rootLoaderData?.embedBasePath ?? '/embed'}
           onCopyShareLink={handleCopyShareLink}
           themeId={themeId}
           currentTheme={currentTheme}
