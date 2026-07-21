@@ -28,11 +28,16 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const setRoom = useRoomStore((state) => state.setRoom);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
+  const setLocalPlayingState = usePlaybackStore(
+    (state) => state.setLocalPlayingState,
+  );
   const room = useRoomStore((state) => state.room) ?? loaderData.room;
   const songs = useQueueStore((state) => state.songs);
   const currentSong = usePlaybackStore((state) => state.currentSong);
-  const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const currentSongId = currentSong?.id;
   const positionMs = usePlaybackPosition();
+
+  const dismissMessage = useCallback(() => setMessage(null), []);
 
   useEffect(() => {
     setRoom(loaderData.room);
@@ -52,6 +57,16 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     };
     void refresh();
   }, [fetchPlayback, fetchQueue, fetchRoom]);
+
+  useEffect(() => {
+    if (loaderData.options.autoplay || !currentSongId) return;
+    setLocalPlayingState(false, room.mode);
+  }, [
+    currentSongId,
+    loaderData.options.autoplay,
+    room.mode,
+    setLocalPlayingState,
+  ]);
 
   const handleVote = useCallback(
     async (songId: string) => {
@@ -77,9 +92,9 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
 
   return {
     currentSong,
+    dismissMessage,
     handleSkip: skip,
     handleVote,
-    isPlaying,
     message,
     positionMs,
     room,

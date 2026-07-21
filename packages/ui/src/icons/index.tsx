@@ -253,6 +253,22 @@ export const SkipIcon = (props: IconProps) => (
   </svg>
 );
 
+export const ExternalLinkIcon = (props: IconProps) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    {...props}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M14 5h5v5m0-5-9 9M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"
+    />
+  </svg>
+);
+
 interface CastIconProps extends IconProps {
   showDot?: boolean;
 }

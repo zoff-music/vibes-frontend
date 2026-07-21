@@ -9,7 +9,7 @@ interface Props {
 
 export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
   return (
-    <div className="min-h-0 min-w-0 sm:max-h-96 sm:overflow-y-auto sm:pr-1">
+    <div className="min-h-0 min-w-0 overflow-y-auto pr-1">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-pixel text-theme-muted text-xs tracking-widest">
           Up next

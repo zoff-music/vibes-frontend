@@ -1,3 +1,4 @@
+import { Toast } from '@vibes/ui';
 import { useEmbedRoom } from '../hooks/use-embed-room';
 import type { EmbedLoaderData } from '../loader';
 import { EmbedPlayerCard } from './player-card';
@@ -12,9 +13,9 @@ export function EmbedRoomView({ loaderData }: Props) {
   const { roomId, options } = loaderData;
   const {
     currentSong,
+    dismissMessage,
     handleSkip,
     handleVote,
-    isPlaying,
     message,
     positionMs,
     room,
@@ -24,27 +25,27 @@ export function EmbedRoomView({ loaderData }: Props) {
   const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
   const player = (
     <EmbedPlayerCard
-      autoplay={options.autoplay}
       currentSong={currentSong}
       durationMs={durationMs}
-      canSkip={
-        Boolean(currentSong) &&
-        room.mode !== 'host' &&
-        room.settings.skipAllowed
-      }
-      onSkip={handleSkip}
       positionMs={positionMs}
-      showSkip={options.skip}
     />
   );
+  const canSkip =
+    Boolean(currentSong) && room.mode !== 'host' && room.settings.skipAllowed;
 
   return (
-    <main className="min-h-screen bg-theme p-3 text-theme sm:p-5">
-      <section className="panel-strong mx-auto max-w-3xl overflow-hidden rounded-2xl border border-theme shadow-2xl">
-        <EmbedRoomHeader room={room} roomId={roomId} isPlaying={isPlaying} />
+    <main className="h-dvh overflow-hidden bg-theme text-theme">
+      <section className="panel-strong flex h-full w-full flex-col overflow-hidden">
+        <EmbedRoomHeader
+          canSkip={canSkip}
+          onSkip={handleSkip}
+          room={room}
+          roomId={roomId}
+          showSkip={options.skip}
+        />
 
         {options.playlist ? (
-          <div className="grid gap-4 p-4 sm:grid-cols-2">
+          <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.2fr)_minmax(0,0.8fr)] gap-4 p-4 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] md:grid-rows-1">
             {player}
             <EmbedPlaylist
               songs={queuedSongs}
@@ -53,15 +54,12 @@ export function EmbedRoomView({ loaderData }: Props) {
             />
           </div>
         ) : (
-          <div className="mx-auto max-w-md p-4">{player}</div>
-        )}
-
-        {message && (
-          <div className="border-theme border-t px-4 py-2 text-center text-secondary text-xs">
-            {message}
-          </div>
+          <div className="min-h-0 flex-1 p-4">{player}</div>
         )}
       </section>
+      {message && (
+        <Toast message={message} onClose={dismissMessage} type="info" />
+      )}
     </main>
   );
 }

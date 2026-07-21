@@ -28,10 +28,12 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
           {song.artist || 'Unknown artist'} · {formatDuration(song.duration)}
         </span>
       </span>
-      <span className="flex shrink-0 items-center gap-1 text-secondary text-xs">
-        <VoteIcon className="h-3.5 w-3.5" />
-        {song.voteCount ?? 0}
-      </span>
+      {(song.voteCount ?? 0) > 0 && (
+        <span className="flex shrink-0 items-center gap-1 text-secondary text-xs">
+          <VoteIcon className="h-3.5 w-3.5" />
+          {song.voteCount}
+        </span>
+      )}
     </>
   );
 
@@ -47,7 +49,7 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
     <Button
       variant="ghost"
       size="none"
-      className="w-full justify-start gap-3 p-4 text-left hover:bg-theme"
+      className="w-full justify-start gap-3 rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-shadow hover:shadow-[0_0_20px_rgba(255,46,151,0.2)]"
       onClick={() => onVote(song.id)}
       title={`Vote for ${song.title}`}
     >
