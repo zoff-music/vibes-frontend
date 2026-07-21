@@ -23,6 +23,8 @@ interface RoomHeaderProps {
   roomId: string;
   showShare: boolean;
   onToggleShare: () => void;
+  shareButtonRef: RefObject<HTMLButtonElement | null>;
+  sharePanelRef: RefObject<HTMLDivElement | null>;
   shareUrl: string;
   onCopyShareLink: () => void;
   themeId: string;
@@ -47,6 +49,8 @@ export const RoomHeader = React.memo(
     roomId,
     showShare,
     onToggleShare,
+    shareButtonRef,
+    sharePanelRef,
     shareUrl,
     onCopyShareLink,
     themeId,
@@ -99,6 +103,7 @@ export const RoomHeader = React.memo(
 
             <div className="relative hidden sm:block">
               <Button
+                ref={shareButtonRef}
                 onClick={onToggleShare}
                 variant={showShare ? 'secondary' : 'tertiary'}
                 size="icon"
@@ -110,6 +115,7 @@ export const RoomHeader = React.memo(
               <AnimatePresence>
                 {showShare && (
                   <motion.div
+                    ref={sharePanelRef}
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
