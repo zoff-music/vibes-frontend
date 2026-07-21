@@ -16,7 +16,6 @@
     "@react-router/serve": "8.1.0",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
-    "@vibes/player": "workspace:*",
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
