@@ -19,6 +19,7 @@ import {
   CheckIcon,
   CloseIcon,
   InfoIcon,
+  Modal,
   PlusIcon,
   SearchIcon,
 } from '@vibes/ui';
@@ -265,262 +266,250 @@ export const AddToQueueModal: React.FC<Props> = ({
   if (!isVisible) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex animate-fade-in items-start justify-center overflow-y-auto bg-black/70 pt-4 pb-safe backdrop-blur-md"
-      role="dialog"
-      aria-modal="true"
-    >
-      {/* Backdrop button */}
-      <Button
-        type="button"
-        variant="ghost"
-        size="none"
-        className="fixed inset-0 h-full w-full"
-        onClick={onClose}
-        aria-label="Close modal"
-      />
-
-      {/* Modal content */}
-      <div className="panel-strong relative mx-4 w-full max-w-lg animate-scale-in rounded-[32px] p-7 shadow-[0_0_28px_rgba(255,46,151,0.25)]">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-base text-theme">Add a Song</h2>
-              <p className="mt-1 text-sm text-theme-muted">
-                Search or paste a link
-              </p>
-            </div>
-            <Button onClick={onClose} variant="tertiary" size="icon">
-              <CloseIcon className="h-5 w-5 text-theme-muted" />
-            </Button>
+    <Modal ariaLabelledBy="add-song-title" isOpen={isVisible} onClose={onClose}>
+      {/* Header */}
+      <div className="mb-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 id="add-song-title" className="text-base text-theme">
+              Add a Song
+            </h2>
+            <p className="mt-1 text-sm text-theme-muted">
+              Search or paste a link
+            </p>
           </div>
-
-          {/* Provider Tabs */}
-          <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
-            {providerList.map((p) => (
-              <Button
-                key={p}
-                onClick={() => {
-                  setSelectedProvider(p);
-                  setSearchResults([]);
-                  setSearchQuery('');
-                  setPreviewVideo(null);
-                }}
-                variant={selectedProvider === p ? 'tertiary' : 'ghost'}
-              >
-                {p.charAt(0).toUpperCase() + p.slice(1)}
-              </Button>
-            ))}
-          </div>
+          <Button
+            onClick={onClose}
+            variant="tertiary"
+            size="icon"
+            aria-label="Close add-song search"
+          >
+            <CloseIcon className="h-5 w-5 text-theme-muted" />
+          </Button>
         </div>
 
-        {/* Spotify Disclaimer */}
-        {selectedProvider === 'spotify' && !hasSpotifySongs && (
-          <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
-            <div className="flex gap-3">
-              <div className="mt-0.5 text-orange-400">
-                <InfoIcon className="h-5 w-5" />
-              </div>
-              <p className="text-sm text-theme-muted leading-relaxed">
-                <span className="text-[10px] text-orange-400">Note:</span> By
-                adding Spotify, viewers are required to have{' '}
-                <span className="font-semibold text-theme">
-                  Spotify Premium
-                </span>{' '}
-                to view content.
-              </p>
+        {/* Provider Tabs */}
+        <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
+          {providerList.map((p) => (
+            <Button
+              key={p}
+              onClick={() => {
+                setSelectedProvider(p);
+                setSearchResults([]);
+                setSearchQuery('');
+                setPreviewVideo(null);
+              }}
+              variant={selectedProvider === p ? 'tertiary' : 'ghost'}
+            >
+              {p.charAt(0).toUpperCase() + p.slice(1)}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Spotify Disclaimer */}
+      {selectedProvider === 'spotify' && !hasSpotifySongs && (
+        <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
+          <div className="flex gap-3">
+            <div className="mt-0.5 text-orange-400">
+              <InfoIcon className="h-5 w-5" />
             </div>
+            <p className="text-sm text-theme-muted leading-relaxed">
+              <span className="text-[10px] text-orange-400">Note:</span> By
+              adding Spotify, viewers are required to have{' '}
+              <span className="font-semibold text-theme">Spotify Premium</span>{' '}
+              to view content.
+            </p>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* SoundCloud Disclaimer */}
-        {selectedProvider === 'soundcloud' && (
-          <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
-            <div className="flex gap-3">
-              <div className="mt-0.5 text-orange-400">
-                <InfoIcon className="h-5 w-5" />
-              </div>
-              <p className="text-sm text-theme-muted leading-relaxed">
-                <span className="text-[10px] text-orange-400">Note:</span> Some
-                SoundCloud searches may return empty results due to rights or
-                copyright restrictions on certain tracks.
-              </p>
+      {/* SoundCloud Disclaimer */}
+      {selectedProvider === 'soundcloud' && (
+        <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
+          <div className="flex gap-3">
+            <div className="mt-0.5 text-orange-400">
+              <InfoIcon className="h-5 w-5" />
             </div>
+            <p className="text-sm text-theme-muted leading-relaxed">
+              <span className="text-[10px] text-orange-400">Note:</span> Some
+              SoundCloud searches may return empty results due to rights or
+              copyright restrictions on certain tracks.
+            </p>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Search Input */}
-        <div className="relative mb-6">
-          <div className="relative">
-            {/* Auth Check Logic Removed: searching allowed without prior active source check */}
+      {/* Search Input */}
+      <div className="relative mb-6">
+        <div className="relative">
+          {/* Auth Check Logic Removed: searching allowed without prior active source check */}
 
-            <div className="absolute top-1/2 left-4 -translate-y-1/2 text-theme-muted">
-              {isSearching ? (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              ) : (
-                <SearchIcon className="h-5 w-5" />
-              )}
-            </div>
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder={`Search ${selectedProvider}...`}
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
-              autoFocus
-            />
-            {searchQuery && (
-              <Button
-                onClick={() => handleSearchChange('')}
-                variant="ghost"
-                size="none"
-                className="absolute top-1/2 right-3 -translate-y-1/2 p-1.5"
-              >
-                <CloseIcon
-                  className="h-5 w-5 text-theme-subtle"
-                  strokeWidth={2}
-                />
-              </Button>
+          <div className="absolute top-1/2 left-4 -translate-y-1/2 text-theme-muted">
+            {isSearching ? (
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            ) : (
+              <SearchIcon className="h-5 w-5" />
             )}
           </div>
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={`Search ${selectedProvider}...`}
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
+            autoFocus
+          />
+          {searchQuery && (
+            <Button
+              onClick={() => handleSearchChange('')}
+              variant="ghost"
+              size="none"
+              className="absolute top-1/2 right-3 -translate-y-1/2 p-1.5"
+            >
+              <CloseIcon
+                className="h-5 w-5 text-theme-subtle"
+                strokeWidth={2}
+              />
+            </Button>
+          )}
+        </div>
 
-          {error && (
-            <div className="mt-3 flex animate-slide-down items-start gap-2 text-error text-sm">
-              <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
+        {error && (
+          <div className="mt-3 flex animate-slide-down items-start gap-2 text-error text-sm">
+            <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Search Results Dropdown */}
+        {showResults &&
+          searchResults.length > 0 &&
+          !isLoading &&
+          !justAdded && (
+            <div className="mt-2 max-h-96 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-[0_0_24px_rgba(255,46,151,0.25)]">
+              {searchResults.map((result) => (
+                <Button
+                  key={result.id}
+                  onClick={() => handleSelectResult(result)}
+                  variant="ghost"
+                  size="none"
+                  className="w-full justify-start gap-3 border-theme border-t p-4 text-left first:border-t-0 hover:bg-theme"
+                >
+                  <div className="relative shrink-0">
+                    <img
+                      src={resolveThumbnail(result.thumbnailUrl)}
+                      alt={result.title}
+                      className="h-20 w-28 rounded-xl border border-theme bg-theme-surface object-cover"
+                    />
+                    {result.duration && (
+                      <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-[10px] text-theme backdrop-blur-sm">
+                        {formatDuration(parseISODuration(result.duration))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col justify-center">
+                    <h4 className="mb-1.5 line-clamp-2 text-sm text-theme leading-snug">
+                      {result.title}
+                    </h4>
+                    <p className="line-clamp-1 text-theme-muted text-xs">
+                      {result.artist}
+                    </p>
+                  </div>
+                </Button>
+              ))}
             </div>
           )}
-
-          {/* Search Results Dropdown */}
-          {showResults &&
-            searchResults.length > 0 &&
-            !isLoading &&
-            !justAdded && (
-              <div className="mt-2 max-h-96 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-[0_0_24px_rgba(255,46,151,0.25)]">
-                {searchResults.map((result) => (
-                  <Button
-                    key={result.id}
-                    onClick={() => handleSelectResult(result)}
-                    variant="ghost"
-                    size="none"
-                    className="w-full justify-start gap-3 border-theme border-t p-4 text-left first:border-t-0 hover:bg-theme"
-                  >
-                    <div className="relative shrink-0">
-                      <img
-                        src={resolveThumbnail(result.thumbnailUrl)}
-                        alt={result.title}
-                        className="h-20 w-28 rounded-xl border border-theme bg-theme-surface object-cover"
-                      />
-                      {result.duration && (
-                        <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-[10px] text-theme backdrop-blur-sm">
-                          {formatDuration(parseISODuration(result.duration))}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex min-w-0 flex-1 flex-col justify-center">
-                      <h4 className="mb-1.5 line-clamp-2 text-sm text-theme leading-snug">
-                        {result.title}
-                      </h4>
-                      <p className="line-clamp-1 text-theme-muted text-xs">
-                        {result.artist}
-                      </p>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            )}
-        </div>
-
-        {/* Loading State */}
-        {isSearching && !previewVideo && extractYoutubeId(searchQuery) && (
-          <div className="animate-scale-in rounded-2xl border border-theme bg-theme-surface p-8 text-center">
-            <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-theme bg-theme">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-            </div>
-            <p className="text-sm text-theme-muted">Loading preview...</p>
-          </div>
-        )}
-
-        {/* Video Preview */}
-        {previewVideo && !justAdded && (
-          <div className="mb-6 animate-scale-in rounded-2xl border border-theme bg-theme-surface p-4">
-            <div className="flex gap-4">
-              <div className="relative shrink-0">
-                <img
-                  src={resolveThumbnail(previewVideo.thumbnailUrl)}
-                  alt={previewVideo.title}
-                  className="h-24 w-32 rounded-xl border border-theme bg-theme-surface object-cover"
-                />
-                <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-[10px] text-theme backdrop-blur-sm">
-                  {formatDuration(parseISODuration(previewVideo.duration))}
-                </div>
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="mb-2 line-clamp-2 text-sm text-theme">
-                  {previewVideo.title}
-                </h3>
-                <p className="line-clamp-1 text-theme-muted text-xs">
-                  {previewVideo.artist}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Success State */}
-        {justAdded && (
-          <div className="animate-scale-in rounded-2xl border border-secondary/40 bg-secondary/10 p-10 text-center">
-            <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-secondary/40 bg-secondary/20">
-              <CheckIcon className="h-10 w-10 text-secondary" />
-            </div>
-            <h3 className="mb-2 text-base text-theme">
-              {addOutcome === 'duplicate_voted'
-                ? 'song already exists, voted on song'
-                : addOutcome === 'duplicate_already_voted'
-                  ? 'song already exists, vote already counted'
-                  : 'Added to Queue!'}
-            </h3>
-            <p className="mb-1 text-sm text-theme-muted">
-              {addOutcome === 'duplicate_voted'
-                ? 'Your vote moved it up the queue'
-                : addOutcome === 'duplicate_already_voted'
-                  ? 'Your existing vote is still counted'
-                  : 'Everyone will hear it soon'}
-            </p>
-            <p className="jp-art text-theme-subtle text-xs">追加されました</p>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        {previewVideo && !justAdded && (
-          <div className="flex gap-3">
-            <Button onClick={onClose} variant="tertiary" className="flex-1">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAdd}
-              disabled={isLoading}
-              variant="primary"
-              className="flex-1 gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  <span>Adding...</span>
-                </>
-              ) : (
-                <>
-                  <PlusIcon className="h-5 w-5" />
-                  <span>Add to Queue</span>
-                </>
-              )}
-            </Button>
-          </div>
-        )}
       </div>
-    </div>
+
+      {/* Loading State */}
+      {isSearching && !previewVideo && extractYoutubeId(searchQuery) && (
+        <div className="animate-scale-in rounded-2xl border border-theme bg-theme-surface p-8 text-center">
+          <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-theme bg-theme">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          </div>
+          <p className="text-sm text-theme-muted">Loading preview...</p>
+        </div>
+      )}
+
+      {/* Video Preview */}
+      {previewVideo && !justAdded && (
+        <div className="mb-6 animate-scale-in rounded-2xl border border-theme bg-theme-surface p-4">
+          <div className="flex gap-4">
+            <div className="relative shrink-0">
+              <img
+                src={resolveThumbnail(previewVideo.thumbnailUrl)}
+                alt={previewVideo.title}
+                className="h-24 w-32 rounded-xl border border-theme bg-theme-surface object-cover"
+              />
+              <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-[10px] text-theme backdrop-blur-sm">
+                {formatDuration(parseISODuration(previewVideo.duration))}
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="mb-2 line-clamp-2 text-sm text-theme">
+                {previewVideo.title}
+              </h3>
+              <p className="line-clamp-1 text-theme-muted text-xs">
+                {previewVideo.artist}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success State */}
+      {justAdded && (
+        <div className="animate-scale-in rounded-2xl border border-secondary/40 bg-secondary/10 p-10 text-center">
+          <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-secondary/40 bg-secondary/20">
+            <CheckIcon className="h-10 w-10 text-secondary" />
+          </div>
+          <h3 className="mb-2 text-base text-theme">
+            {addOutcome === 'duplicate_voted'
+              ? 'song already exists, voted on song'
+              : addOutcome === 'duplicate_already_voted'
+                ? 'song already exists, vote already counted'
+                : 'Added to Queue!'}
+          </h3>
+          <p className="mb-1 text-sm text-theme-muted">
+            {addOutcome === 'duplicate_voted'
+              ? 'Your vote moved it up the queue'
+              : addOutcome === 'duplicate_already_voted'
+                ? 'Your existing vote is still counted'
+                : 'Everyone will hear it soon'}
+          </p>
+          <p className="jp-art text-theme-subtle text-xs">追加されました</p>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      {previewVideo && !justAdded && (
+        <div className="flex gap-3">
+          <Button onClick={onClose} variant="tertiary" className="flex-1">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAdd}
+            disabled={isLoading}
+            variant="primary"
+            className="flex-1 gap-2"
+          >
+            {isLoading ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                <span>Adding...</span>
+              </>
+            ) : (
+              <>
+                <PlusIcon className="h-5 w-5" />
+                <span>Add to Queue</span>
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+    </Modal>
   );
 };
