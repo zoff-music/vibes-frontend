@@ -1,5 +1,9 @@
+import { safeWrapAsync } from '@vibes/shared';
 import { Button } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
+import { useRouteLoaderData } from 'react-router';
+import type { RootLoaderData } from '../../../root';
+import { EmbedSharePanel } from './EmbedSharePanel';
 
 interface RoomSharePanelProps {
   url: string;
@@ -12,10 +16,15 @@ export const RoomSharePanel = ({
   roomId,
   onCopy,
 }: RoomSharePanelProps) => {
-  const handleCopyRoomId = () => {
-    navigator.clipboard.writeText(roomId);
-    // We could trigger a toast here if we had access to the toast system,
-    // but for now we follow the existing pattern.
+  const rootLoaderData = useRouteLoaderData('root') as
+    | RootLoaderData
+    | undefined;
+
+  const handleCopyRoomId = async () => {
+    const [err] = await safeWrapAsync(navigator.clipboard.writeText(roomId));
+    if (err) {
+      console.error('Failed to copy room ID', err);
+    }
   };
 
   return (
@@ -58,6 +67,12 @@ export const RoomSharePanel = ({
             </Button>
           </div>
         </div>
+
+        <EmbedSharePanel
+          url={url}
+          roomId={roomId}
+          embedBasePath={rootLoaderData?.embedBasePath ?? '/embed'}
+        />
       </div>
     </div>
   );

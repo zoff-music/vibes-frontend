@@ -12,7 +12,7 @@ import {
 } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { type RefObject, useEffect, useRef, useState } from 'react';
-import type { Theme } from '../../stores/themeStore';
+import type { Theme } from '../../../stores/themeStore';
 import { RoomSharePanel } from './RoomSharePanel';
 
 interface RoomSettingsMenuProps {

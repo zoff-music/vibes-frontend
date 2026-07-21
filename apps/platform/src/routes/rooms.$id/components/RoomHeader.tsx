@@ -11,7 +11,7 @@ import {
 } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { type RefObject } from 'react';
-import type { Theme } from '../../stores/themeStore';
+import type { Theme } from '../../../stores/themeStore';
 
 import { RoomSettingsMenu } from './RoomSettingsMenu';
 import { RoomSharePanel } from './RoomSharePanel';
@@ -113,7 +113,7 @@ export const RoomHeader = React.memo(
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="panel-strong absolute right-0 z-50 mt-3 w-72 rounded-3xl p-4 shadow-2xl"
+                    className="panel-strong absolute right-0 z-50 mt-3 w-96 rounded-3xl p-4 shadow-2xl"
                   >
                     <RoomSharePanel
                       url={shareUrl}
