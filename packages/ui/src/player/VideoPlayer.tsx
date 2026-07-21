@@ -628,7 +628,9 @@ const VideoPlayerComponent = ({
       {showClickToPlay && (
         <Button
           type="button"
-          variant="video-overlay"
+          variant="ghost"
+          size="none"
+          className="absolute inset-0 z-20 bg-black/70 backdrop-blur-sm"
           onClick={() => {
             const player = playerRef.current;
             if (!player) return;

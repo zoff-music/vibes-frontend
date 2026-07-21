@@ -6,6 +6,7 @@ import {
   useRoom,
 } from '@vibes/api';
 import {
+  type AddSongOutcome,
   formatDuration,
   parseISODuration,
   type SourceType,
@@ -58,6 +59,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [error, setError] = useState<string | null>(null);
   const [previewVideo, setPreviewVideo] = useState<SearchResult | null>(null);
   const [justAdded, setJustAdded] = useState(false);
+  const [addOutcome, setAddOutcome] = useState<AddSongOutcome | null>(null);
   const { addToQueue } = useQueue(roomId);
   const { songs } = useQueueStore();
   const { currentSong } = usePlaybackStore();
@@ -113,6 +115,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         setPreviewVideo(null);
         setError(null);
         setJustAdded(false);
+        setAddOutcome(null);
       }, 300);
     }
   }, [isVisible]);
@@ -216,27 +219,31 @@ export const AddToQueueModal: React.FC<Props> = ({
     }, 300);
   };
 
-  const handleSelectResult = async (result: SearchResult) => {
+  const handleSelectResult = async (song: SearchResult) => {
     setIsLoading(true);
-    const durationSec = parseISODuration(result.duration);
+    const durationSec = parseISODuration(song.duration);
 
     // Determine sourceType from selectedProvider (which is 'youtube', 'spotify', etc.)
     // Assuming selectedProvider matches sourceType strings.
-    const success = await addToQueue(
+    const result = await addToQueue(
       selectedProvider,
-      result.id,
-      result.title,
-      result.thumbnailUrl,
+      song.id,
+      song.title,
+      song.thumbnailUrl,
       durationSec,
-      result.artist,
+      song.artist,
     );
 
     setIsLoading(false);
-    if (success) {
+    if (result) {
+      setAddOutcome(result.outcome);
       setJustAdded(true);
-      setTimeout(() => {
-        onClose();
-      }, 800);
+      setTimeout(
+        () => {
+          onClose();
+        },
+        result.outcome === 'added' ? 800 : 1600,
+      );
     } else {
       setError('Failed to add song to queue');
     }
@@ -266,7 +273,9 @@ export const AddToQueueModal: React.FC<Props> = ({
       {/* Backdrop button */}
       <Button
         type="button"
-        variant="modal-backdrop"
+        variant="ghost"
+        size="none"
+        className="fixed inset-0 h-full w-full"
         onClick={onClose}
         aria-label="Close modal"
       />
@@ -282,7 +291,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                 Search or paste a link
               </p>
             </div>
-            <Button onClick={onClose} variant="modal-close">
+            <Button onClick={onClose} variant="tertiary" size="icon">
               <CloseIcon className="h-5 w-5 text-theme-muted" />
             </Button>
           </div>
@@ -298,11 +307,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   setSearchQuery('');
                   setPreviewVideo(null);
                 }}
-                variant={
-                  selectedProvider === p
-                    ? 'provider-tab-active'
-                    : 'provider-tab'
-                }
+                variant={selectedProvider === p ? 'tertiary' : 'ghost'}
               >
                 {p.charAt(0).toUpperCase() + p.slice(1)}
               </Button>
@@ -370,7 +375,9 @@ export const AddToQueueModal: React.FC<Props> = ({
             {searchQuery && (
               <Button
                 onClick={() => handleSearchChange('')}
-                variant="search-clear"
+                variant="ghost"
+                size="none"
+                className="absolute top-1/2 right-3 -translate-y-1/2 p-1.5"
               >
                 <CloseIcon
                   className="h-5 w-5 text-theme-subtle"
@@ -393,13 +400,13 @@ export const AddToQueueModal: React.FC<Props> = ({
             !isLoading &&
             !justAdded && (
               <div className="mt-2 max-h-96 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-[0_0_24px_rgba(255,46,151,0.25)]">
-                {searchResults.map((result, index) => (
+                {searchResults.map((result) => (
                   <Button
                     key={result.id}
                     onClick={() => handleSelectResult(result)}
-                    variant={
-                      index > 0 ? 'search-result-divided' : 'search-result'
-                    }
+                    variant="ghost"
+                    size="none"
+                    className="w-full justify-start gap-3 border-theme border-t p-4 text-left first:border-t-0 hover:bg-theme"
                   >
                     <div className="relative shrink-0">
                       <img
@@ -469,9 +476,19 @@ export const AddToQueueModal: React.FC<Props> = ({
             <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-secondary/40 bg-secondary/20">
               <CheckIcon className="h-10 w-10 text-secondary" />
             </div>
-            <h3 className="mb-2 text-base text-theme">Added to Queue!</h3>
+            <h3 className="mb-2 text-base text-theme">
+              {addOutcome === 'duplicate_voted'
+                ? 'song already exists, voted on song'
+                : addOutcome === 'duplicate_already_voted'
+                  ? 'song already exists, vote already counted'
+                  : 'Added to Queue!'}
+            </h3>
             <p className="mb-1 text-sm text-theme-muted">
-              Everyone will hear it soon
+              {addOutcome === 'duplicate_voted'
+                ? 'Your vote moved it up the queue'
+                : addOutcome === 'duplicate_already_voted'
+                  ? 'Your existing vote is still counted'
+                  : 'Everyone will hear it soon'}
             </p>
             <p className="jp-art text-theme-subtle text-xs">追加されました</p>
           </div>
@@ -480,13 +497,14 @@ export const AddToQueueModal: React.FC<Props> = ({
         {/* Action Buttons */}
         {previewVideo && !justAdded && (
           <div className="flex gap-3">
-            <Button onClick={onClose} variant="dialog-cancel">
+            <Button onClick={onClose} variant="tertiary" className="flex-1">
               Cancel
             </Button>
             <Button
               onClick={handleAdd}
               disabled={isLoading}
-              variant="dialog-primary"
+              variant="primary"
+              className="flex-1 gap-2"
             >
               {isLoading ? (
                 <>

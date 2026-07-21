@@ -44,7 +44,7 @@ export const QueueItem: React.FC<Props> = ({
   };
 
   const cardClass =
-    'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-shadow hover:shadow-[0_0_20px_rgba(255,46,151,0.2)] focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent';
+    'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-shadow hover:shadow-[0_0_20px_rgba(255,46,151,0.2)] focus:outline-hidden focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent';
 
   const content = (
     <div className="flex min-w-0 items-center gap-4">
@@ -112,7 +112,8 @@ export const QueueItem: React.FC<Props> = ({
         event.stopPropagation();
         onRemove?.(song.id);
       }}
-      variant="queue-remove"
+      variant="destructive"
+      className="absolute top-1/2 right-6 -translate-y-1/2 p-2.5"
       title="Remove from queue"
     >
       <TrashIcon className="h-5 w-5" />

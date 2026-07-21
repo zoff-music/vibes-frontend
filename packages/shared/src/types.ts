@@ -1,4 +1,6 @@
 import {
+  AddSongOutcome,
+  AddSongResponse,
   PlaybackState,
   Room,
   RoomSettings,
@@ -7,7 +9,16 @@ import {
   SourceType,
 } from '@vibes/models';
 
-export type { PlaybackState, Room, RoomSettings, RoomUpdate, Song, SourceType };
+export type {
+  AddSongOutcome,
+  AddSongResponse,
+  PlaybackState,
+  Room,
+  RoomSettings,
+  RoomUpdate,
+  Song,
+  SourceType,
+};
 
 export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   skipAllowed: true,

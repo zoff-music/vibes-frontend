@@ -1,11 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    './src/**/*.{js,ts,jsx,tsx}',
-    './client.tsx',
-    './index.html',
-    '../../packages/*/src/**/*.{js,ts,jsx,tsx}',
-  ],
   theme: {
     extend: {
       colors: {
@@ -105,19 +99,6 @@ export default {
       },
     },
   },
-  safelist: [
-    'hidden',
-    'inline',
-    'sm:hidden',
-    'sm:inline',
-    'md:hidden',
-    'md:inline',
-    'lg:hidden',
-    'lg:inline',
-    'xl:hidden',
-    'xl:inline',
-    'space-y-3',
-  ],
   plugins: [
     ({ addUtilities }) => {
       addUtilities({

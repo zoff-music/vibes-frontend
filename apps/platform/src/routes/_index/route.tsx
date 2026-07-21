@@ -128,9 +128,8 @@ export default function Home() {
           <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
             <Button
               onClick={handleToggleDarkMode}
-              variant={
-                themeId !== 'light' ? 'theme-toggle-active' : 'icon-toggle'
-              }
+              variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
+              size="icon"
               title={`Theme: ${currentTheme.name}`}
             >
               {themeId === 'light' && <SunIcon className="h-5 w-5" />}
@@ -188,7 +187,9 @@ export default function Home() {
               <Button
                 onClick={handleJoinRoom}
                 disabled={!roomCode.trim()}
-                variant="home-join"
+                variant="secondary"
+                size="large"
+                className="gap-3 font-pixel"
               >
                 Join Room
               </Button>

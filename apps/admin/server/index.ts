@@ -25,10 +25,10 @@ startServer({
   metricsPort: process.env.INTERNAL_PORT || process.env.METRICS_PORT || 3006,
   staticDir,
   assets: {
-    path: '/assets/admin/assets',
+    path: '/admin/assets',
     staticDir: path.join(staticDir, 'assets'),
   },
-  metricsSkipPaths: ['/assets/'],
+  metricsSkipPaths: ['/admin/assets/'],
   operationName,
   serviceName,
   mode: {

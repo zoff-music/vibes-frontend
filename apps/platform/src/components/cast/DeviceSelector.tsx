@@ -135,7 +135,9 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
       <Button
         type="button"
         aria-label="Close cast device selector"
-        variant="cast-backdrop"
+        variant="ghost"
+        size="none"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm dark:bg-black/70"
         onClick={onClose}
       />
       <div className="relative mx-4 w-80 max-w-sm rounded-lg border-2 border-gray-200 bg-white p-6 shadow-xl transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800">
@@ -143,7 +145,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
           <h3 className="font-semibold text-gray-900 text-lg dark:text-white">
             Cast to Device
           </h3>
-          <Button onClick={onClose} variant="cast-close">
+          <Button onClick={onClose} variant="ghost">
             <CloseIcon className="h-6 w-6" />
           </Button>
         </div>
@@ -160,7 +162,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                   {currentSession.deviceName}
                 </div>
               </div>
-              <Button onClick={handleDisconnect} variant="cast-primary-small">
+              <Button onClick={handleDisconnect} variant="primary">
                 Disconnect
               </Button>
             </div>
@@ -171,7 +173,8 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 <Button
                   onClick={() => handleCastCurrentSong()}
                   disabled={isCasting}
-                  variant="cast-primary-full"
+                  variant="primary"
+                  className="w-full gap-2"
                 >
                   {isCasting ? (
                     <>
@@ -232,7 +235,8 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                     };
                     handleCastCurrentSong(testMedia);
                   }}
-                  variant="cast-demo"
+                  variant="secondary"
+                  className="mt-2 w-full gap-2 text-xs"
                 >
                   <PlayIcon className="h-3 w-3" />
                   <span>Test Cast (Demo Video)</span>
@@ -249,7 +253,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
               <h4 className="font-medium text-gray-900 dark:text-white">
                 Available Devices
               </h4>
-              <Button onClick={handleRefresh} variant="cast-refresh">
+              <Button onClick={handleRefresh} variant="ghost">
                 Refresh
               </Button>
             </div>
@@ -276,11 +280,9 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                   <Button
                     key={device.id}
                     onClick={() => handleDeviceSelect(device)}
-                    variant={
-                      isConnected && currentSession?.deviceId === device.id
-                        ? 'cast-device-active'
-                        : 'cast-device'
-                    }
+                    variant="tertiary"
+                    size="none"
+                    className="w-full justify-start p-3 text-left"
                     disabled={
                       isConnecting === device.id ||
                       (isConnected && currentSession?.deviceId === device.id)

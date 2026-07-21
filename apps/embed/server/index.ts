@@ -13,7 +13,7 @@ function operationName(req: ServerRequest) {
   if (req.path === embedBasePath || req.path.startsWith(`${embedBasePath}/`)) {
     return 'EmbedRoomPage';
   }
-  if (req.path.startsWith('/assets/embed/')) {
+  if (req.path.startsWith(`${embedBasePath}/assets/`)) {
     return 'StaticAsset';
   }
   return 'EmbedRoute';
@@ -26,10 +26,10 @@ startServer({
   metricsPort: process.env.INTERNAL_PORT || process.env.METRICS_PORT || 3002,
   staticDir,
   assets: {
-    path: '/assets',
+    path: `${embedBasePath}/assets`,
     staticDir: path.join(staticDir, 'assets'),
   },
-  metricsSkipPaths: ['/assets/'],
+  metricsSkipPaths: [`${embedBasePath}/assets/`],
   operationName,
   serviceName,
   frameAllowedPath: embedBasePath,

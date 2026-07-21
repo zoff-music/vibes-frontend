@@ -135,7 +135,11 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
         }}
       >
         <strong>Debug Console</strong>
-        <Button onClick={() => setLogs([])} variant="debug-clear">
+        <Button
+          onClick={() => setLogs([])}
+          variant="destructive"
+          className="px-2 py-0.5"
+        >
           Clear
         </Button>
       </div>

@@ -63,7 +63,8 @@ export function EmbedPlayerCard({
               disabled={!canSkip}
               onClick={onSkip}
               title={canSkip ? 'Skip' : 'Skipping is unavailable'}
-              variant="player-control"
+              variant="tertiary"
+              size="icon"
             >
               <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
             </Button>

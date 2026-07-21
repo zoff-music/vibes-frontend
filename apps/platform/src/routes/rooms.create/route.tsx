@@ -265,18 +265,6 @@ const CreateRoom: React.FC = () => {
                     },
                   ].map(({ id, Icon }) => {
                     const isEnabled = settings.enabledSources.includes(id);
-                    const activeVariant =
-                      id === 'youtube'
-                        ? 'source-youtube-active'
-                        : id === 'spotify'
-                          ? 'source-spotify-active'
-                          : 'source-soundcloud-active';
-                    const inactiveVariant =
-                      id === 'youtube'
-                        ? 'source-youtube-disabled'
-                        : id === 'spotify'
-                          ? 'source-spotify-disabled'
-                          : 'source-soundcloud-disabled';
                     return (
                       <Button
                         key={id}
@@ -286,7 +274,8 @@ const CreateRoom: React.FC = () => {
                             : [...settings.enabledSources, id];
                           updateSetting('enabledSources', newSources);
                         }}
-                        variant={isEnabled ? activeVariant : inactiveVariant}
+                        variant={isEnabled ? 'primary' : 'tertiary'}
+                        className="h-10 w-full flex-1"
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
                         <Icon className="h-5 w-5" />
@@ -305,11 +294,8 @@ const CreateRoom: React.FC = () => {
                   <Button
                     type="button"
                     onClick={() => setMode('server')}
-                    variant={
-                      mode === 'server'
-                        ? 'room-mode-server-active'
-                        : 'room-mode-inactive'
-                    }
+                    className="w-full flex-col items-start px-4 py-4 text-left"
+                    variant={mode === 'server' ? 'secondary' : 'tertiary'}
                   >
                     <div className="mb-2 font-pixel text-xs tracking-[0.2em]">
                       SERVER MODE
@@ -321,11 +307,8 @@ const CreateRoom: React.FC = () => {
                   <Button
                     type="button"
                     onClick={() => setMode('host')}
-                    variant={
-                      mode === 'host'
-                        ? 'room-mode-host-active'
-                        : 'room-mode-inactive'
-                    }
+                    className="w-full flex-col items-start px-4 py-4 text-left"
+                    variant={mode === 'host' ? 'primary' : 'tertiary'}
                   >
                     <div className="mb-2 font-pixel text-xs tracking-[0.2em]">
                       HOST MODE
@@ -426,7 +409,8 @@ const CreateRoom: React.FC = () => {
           <Button
             onClick={handleCreate}
             disabled={!name.trim() || isLoading}
-            variant="form-primary"
+            variant="primary"
+            className="mt-8 w-full gap-3 px-6 py-4 font-pixel text-sm"
           >
             {isLoading ? (
               <>

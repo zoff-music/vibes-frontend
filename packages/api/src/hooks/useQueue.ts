@@ -54,9 +54,14 @@ export const useQueue = (roomId: string) => {
       );
 
       if (data) {
+        if (data.outcome !== 'added') {
+          await fetchQueue();
+          return data;
+        }
+
         const shouldAutoPlay =
           songs.length === 0 && !usePlaybackStore.getState().currentSong;
-        addSong(data);
+        addSong(data.song);
 
         if (shouldAutoPlay) {
           const [playErr, playback] = await api.post(
@@ -79,7 +84,7 @@ export const useQueue = (roomId: string) => {
 
       return null;
     },
-    [roomId, addSong, songs.length, setPlaybackState],
+    [roomId, addSong, fetchQueue, songs.length, setPlaybackState],
   );
 
   const removeFromQueue = useCallback(

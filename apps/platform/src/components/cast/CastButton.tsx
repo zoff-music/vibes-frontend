@@ -93,7 +93,7 @@ export const CastButton: React.FC<CastButtonProps> = ({ onDeviceSelect }) => {
       <Button
         onClick={handleCastClick}
         disabled={isDisabled}
-        variant={isConnected ? 'cast-button-connected' : 'cast-button'}
+        variant={isConnected ? 'primary' : 'tertiary'}
         aria-label={
           isConnected
             ? `Connected to ${currentSession?.deviceName}`

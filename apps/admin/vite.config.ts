@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig(({ command }) => {
@@ -8,8 +9,8 @@ export default defineConfig(({ command }) => {
     process.env.NODE_ENV || (isBuild ? 'production' : 'development');
 
   return {
-    base: isBuild ? '/assets/admin/' : '/',
-    plugins: [reactRouter()],
+    base: isBuild ? '/admin/' : '/',
+    plugins: [tailwindcss(), reactRouter()],
     root: '.',
     publicDir: 'public',
     server: {
