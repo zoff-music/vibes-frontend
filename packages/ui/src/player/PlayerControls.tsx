@@ -44,7 +44,9 @@ const PlayerControlsComponent: React.FC<Props> = ({
         <Button
           onClick={isPlaying ? onPause : onPlay}
           disabled={!canPlay}
-          variant="player-primary"
+          variant="primary"
+          size="none"
+          className="group h-12 w-12 p-0"
         >
           {isPlaying ? (
             <PauseIcon className="h-6 w-6 fill-current" />
@@ -56,7 +58,8 @@ const PlayerControlsComponent: React.FC<Props> = ({
         <Button
           onClick={onSkip}
           disabled={!canSkip}
-          variant="player-control"
+          variant="tertiary"
+          size="icon"
           title="Skip"
         >
           <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
@@ -64,7 +67,8 @@ const PlayerControlsComponent: React.FC<Props> = ({
 
         <Button
           onClick={onOpenCast}
-          variant={isCasting ? 'player-control-active' : 'player-control'}
+          variant={isCasting ? 'secondary' : 'tertiary'}
+          size="icon"
           title={
             isCasting && castDeviceName
               ? `Casting to ${castDeviceName}`
@@ -80,7 +84,8 @@ const PlayerControlsComponent: React.FC<Props> = ({
         {showSpotifyConnect && onConnectSpotify && (
           <Button
             onClick={onConnectSpotify}
-            variant="player-spotify"
+            variant="tertiary"
+            className="ml-auto h-12 gap-2 px-4"
             title="Connect Spotify"
           >
             <SpotifyIcon className="h-6 w-6" />
@@ -90,7 +95,12 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Button>
         )}
 
-        <Button onClick={onAddSong} variant="player-add-song" title="Add Song">
+        <Button
+          onClick={onAddSong}
+          variant="tertiary"
+          className="ml-auto h-12 gap-2 px-6"
+          title="Add Song"
+        >
           <PlusIcon className="h-5 w-5 shrink-0" />
           <span className="whitespace-nowrap font-display text-theme text-xs tracking-[0.2em]">
             Add Song

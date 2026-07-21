@@ -112,7 +112,8 @@ export const QueueItem: React.FC<Props> = ({
         event.stopPropagation();
         onRemove?.(song.id);
       }}
-      variant="queue-remove"
+      variant="destructive"
+      className="absolute top-1/2 right-6 -translate-y-1/2 p-2.5"
       title="Remove from queue"
     >
       <TrashIcon className="h-5 w-5" />

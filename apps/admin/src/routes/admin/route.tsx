@@ -213,7 +213,8 @@ export default function Admin() {
               <Button
                 onClick={handleLogin}
                 disabled={!password.trim() || isLoading}
-                variant="admin-primary"
+                variant="primary"
+                className="w-full"
               >
                 {isLoading ? 'Checking...' : 'Enter Dashboard'}
               </Button>
@@ -237,10 +238,10 @@ export default function Admin() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={fetchRooms} variant="admin-outline">
+            <Button onClick={fetchRooms} variant="tertiary">
               Refresh
             </Button>
-            <Button onClick={handleLogout} variant="admin-neutral">
+            <Button onClick={handleLogout} variant="secondary">
               Sign Out
             </Button>
           </div>
@@ -314,14 +315,14 @@ export default function Admin() {
                     <Button
                       onClick={saveRename}
                       disabled={!editingName.trim() || isLoading}
-                      variant="admin-outline"
+                      variant="tertiary"
                     >
                       Save
                     </Button>
                     <Button
                       onClick={cancelRename}
                       disabled={isLoading}
-                      variant="admin-neutral"
+                      variant="secondary"
                     >
                       Cancel
                     </Button>
@@ -339,21 +340,21 @@ export default function Admin() {
                 <Button
                   onClick={() => startRename(room)}
                   disabled={isLoading || editingRoomId === room.id}
-                  variant="admin-outline"
+                  variant="tertiary"
                 >
                   Rename
                 </Button>
                 <Button
                   onClick={() => clearPassword(room)}
                   disabled={!room.hasAdminPassword || isLoading}
-                  variant="admin-neutral"
+                  variant="secondary"
                 >
                   Clear Password
                 </Button>
                 <Button
                   onClick={() => deleteRoom(room)}
                   disabled={isLoading}
-                  variant="admin-neutral"
+                  variant="secondary"
                 >
                   Delete
                 </Button>
@@ -386,7 +387,8 @@ export function ErrorBoundary() {
           </p>
           <Button
             onClick={() => window.location.reload()}
-            variant="admin-primary"
+            variant="primary"
+            className="w-full"
           >
             Reload
           </Button>

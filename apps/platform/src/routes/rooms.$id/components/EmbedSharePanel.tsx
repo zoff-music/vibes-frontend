@@ -58,7 +58,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
 
   return (
     <>
-      <Button onClick={handleOpen} variant="dialog-primary">
+      <Button onClick={handleOpen} variant="primary">
         Embed player
       </Button>
 
@@ -71,7 +71,9 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
         >
           <Button
             type="button"
-            variant="modal-backdrop"
+            variant="ghost"
+            size="none"
+            className="fixed inset-0 h-full w-full"
             onClick={() => setIsOpen(false)}
             aria-label="Close embed settings"
           />
@@ -88,7 +90,8 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
               </div>
               <Button
                 onClick={() => setIsOpen(false)}
-                variant="modal-close"
+                variant="tertiary"
+                size="icon"
                 aria-label="Close embed settings"
               >
                 <CloseIcon className="h-5 w-5 text-theme-muted" />

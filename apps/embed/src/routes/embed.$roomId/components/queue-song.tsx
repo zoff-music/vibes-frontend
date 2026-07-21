@@ -45,7 +45,9 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
 
   return (
     <Button
-      variant="search-result"
+      variant="ghost"
+      size="none"
+      className="w-full justify-start gap-3 p-4 text-left hover:bg-theme"
       onClick={() => onVote(song.id)}
       title={`Vote for ${song.title}`}
     >

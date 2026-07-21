@@ -44,7 +44,11 @@ export const RoomSharePanel = ({ url, roomId, onCopy }: Props) => {
             <code className="flex-1 text-left font-mono text-theme text-xs">
               {roomId}
             </code>
-            <Button onClick={handleCopyRoomId} variant="copy-small">
+            <Button
+              onClick={handleCopyRoomId}
+              variant="tertiary"
+              className="px-3 py-1.5 text-[10px]"
+            >
               Copy
             </Button>
           </div>
@@ -58,7 +62,11 @@ export const RoomSharePanel = ({ url, roomId, onCopy }: Props) => {
             <p className="flex-1 truncate text-left font-mono text-[10px] text-theme-muted">
               {url}
             </p>
-            <Button onClick={onCopy} variant="copy-small">
+            <Button
+              onClick={onCopy}
+              variant="tertiary"
+              className="px-3 py-1.5 text-[10px]"
+            >
               Copy
             </Button>
           </div>

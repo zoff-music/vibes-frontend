@@ -35,7 +35,7 @@ export const RoomErrorView: React.FC<RoomErrorViewProps> = ({
         </h2>
         <p className="mb-6 text-sm text-theme-muted">{error.message}</p>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button onClick={onRetry} variant="error-retry">
+          <Button onClick={onRetry} variant="tertiary">
             Try Again
           </Button>
           {isRoomNotFound && (
@@ -43,7 +43,7 @@ export const RoomErrorView: React.FC<RoomErrorViewProps> = ({
               onClick={() =>
                 navigate(`/rooms/create?name=${encodeURIComponent(roomId)}`)
               }
-              variant="error-create"
+              variant="primary"
             >
               Create Room
             </Button>

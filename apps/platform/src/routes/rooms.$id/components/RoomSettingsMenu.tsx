@@ -105,7 +105,9 @@ export const RoomSettingsMenu = ({
         <div className="fixed top-[var(--room-header-height)] right-0 bottom-0 left-0 z-40">
           <Button
             type="button"
-            variant="settings-backdrop"
+            variant="ghost"
+            size="none"
+            className="absolute inset-0 h-full w-full"
             onClick={onClose}
             aria-label="Close settings"
           />
@@ -121,7 +123,8 @@ export const RoomSettingsMenu = ({
                 <div className="flex items-center gap-3">
                   <Button
                     onClick={onToggleShare}
-                    variant={showShare ? 'menu-toggle-active' : 'menu-toggle'}
+                    variant={showShare ? 'primary' : 'tertiary'}
+                    className="flex-1 gap-2 font-pixel text-xs"
                     title="Share Room"
                   >
                     <ShareIcon className="h-4 w-4" />
@@ -130,9 +133,8 @@ export const RoomSettingsMenu = ({
 
                   <Button
                     onClick={onToggleDarkMode}
-                    variant={
-                      themeId !== 'light' ? 'menu-theme-active' : 'menu-toggle'
-                    }
+                    variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
+                    className="flex-1 gap-2 font-pixel text-xs"
                     title={`Theme: ${currentTheme.name}`}
                   >
                     <div className="flex h-4 w-4 items-center justify-center">
@@ -313,19 +315,16 @@ export const RoomSettingsMenu = ({
                     {
                       id: 'youtube',
                       Icon: YouTubeIcon,
-                      variant: 'settings-source-youtube-active' as const,
                     },
                     {
                       id: 'spotify',
                       Icon: SpotifyIcon,
-                      variant: 'settings-source-spotify-active' as const,
                     },
                     {
                       id: 'soundcloud',
                       Icon: SoundCloudIcon,
-                      variant: 'settings-source-soundcloud-active' as const,
                     },
-                  ].map(({ id, Icon, variant }) => {
+                  ].map(({ id, Icon }) => {
                     const isEnabled =
                       room?.settings.enabledSources.includes(id) ?? true;
                     return (
@@ -344,9 +343,8 @@ export const RoomSettingsMenu = ({
                             enabledSources: newSources,
                           });
                         }}
-                        variant={
-                          isEnabled ? variant : 'settings-source-disabled'
-                        }
+                        variant={isEnabled ? 'primary' : 'tertiary'}
+                        className="w-full py-3"
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
                         <Icon className="h-6 w-6" />
@@ -365,11 +363,8 @@ export const RoomSettingsMenu = ({
                   <Button
                     disabled={room?.hasPassword && !isAdmin}
                     onClick={() => room && updateRoom({ mode: 'server' })}
-                    variant={
-                      room?.mode === 'server'
-                        ? 'settings-room-mode-server-active'
-                        : 'settings-room-mode-inactive'
-                    }
+                    className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
+                    variant={room?.mode === 'server' ? 'secondary' : 'tertiary'}
                   >
                     <div className="w-full text-left font-pixel text-sm text-theme leading-snug">
                       Server Mode
@@ -382,11 +377,8 @@ export const RoomSettingsMenu = ({
                   <Button
                     disabled={room?.hasPassword && !isAdmin}
                     onClick={() => room && updateRoom({ mode: 'host' })}
-                    variant={
-                      room?.mode === 'host'
-                        ? 'settings-room-mode-host-active'
-                        : 'settings-room-mode-inactive'
-                    }
+                    className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
+                    variant={room?.mode === 'host' ? 'primary' : 'tertiary'}
                   >
                     <div className="w-full text-left font-pixel text-sm text-theme leading-snug">
                       Host Mode
@@ -426,7 +418,7 @@ export const RoomSettingsMenu = ({
                     <Button
                       onClick={onJoinAdmin}
                       disabled={isAuthenticating || !adminPassword}
-                      variant="settings-admin-go"
+                      variant="primary"
                     >
                       {isAuthenticating ? '...' : 'Go'}
                     </Button>

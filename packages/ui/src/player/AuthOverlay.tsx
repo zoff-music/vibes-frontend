@@ -36,7 +36,7 @@ export function AuthOverlay({
             </>
           )}
         </p>
-        <Button onClick={onAuthorize} variant="auth-primary">
+        <Button onClick={onAuthorize} variant="primary" className="w-full">
           {errorMessage
             ? 'RETRY CONNECTION'
             : `CONNECT ${provider.toUpperCase()}`}
