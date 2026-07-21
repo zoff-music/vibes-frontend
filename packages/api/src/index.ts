@@ -244,7 +244,7 @@ const endpoints = {
       response: providersSchema,
     },
   },
-  '/casting/tokens': {
+  '/tokens/casting': {
     post: {
       request: createCastingTokenRequestSchema,
       response: castingTokenResponseSchema,
