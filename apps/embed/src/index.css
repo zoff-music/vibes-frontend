@@ -1,0 +1,47 @@
+@import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --theme-bg: #120b1e;
+    --theme-bg-paper: #1a102a;
+    --theme-bg-surface: #1e1330;
+    --theme-bg-elevated: #251838;
+    --theme-bg-hover: #2a1b40;
+    --theme-text: #e8dff5;
+    --theme-text-muted: #bfa8d6;
+    --theme-text-subtle: #8c74a8;
+    --theme-primary: #ff2e97;
+    --theme-primary-muted: #d61c78;
+    --theme-primary-light: #ff74be;
+    --theme-border: rgba(112, 72, 140, 0.25);
+    --theme-border-strong: rgba(112, 72, 140, 0.4);
+    --theme-shadow: rgba(0, 0, 0, 0.4);
+    --theme-shadow-accent: rgba(255, 46, 151, 0.25);
+    --theme-glass-bg: rgba(30, 19, 48, 0.7);
+    --theme-glass-border: rgba(112, 72, 140, 0.25);
+    --theme-panel-bg: rgba(24, 14, 40, 0.8);
+    --theme-panel-strong-bg: rgba(30, 19, 48, 0.9);
+    --theme-panel-border: rgba(112, 72, 140, 0.3);
+    --theme-panel-border-strong: rgba(112, 72, 140, 0.45);
+  }
+
+  html,
+  body {
+    min-height: 100%;
+    background: var(--theme-bg);
+    color: var(--theme-text);
+    font-family: theme("fontFamily.body");
+  }
+
+  body {
+    margin: 0;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}

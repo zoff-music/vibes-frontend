@@ -6,6 +6,7 @@ import type { ServerBuild } from 'react-router';
 import { metricsApp } from './metrics.ts';
 import {
   createBodySizeLimitMiddleware,
+  createFrameProtectionMiddleware,
   createMetricsMiddleware,
   createTracingMiddleware,
 } from './middleware.ts';
@@ -38,6 +39,7 @@ export interface ServerConfig {
   };
   metricsSkipPaths?: string[];
   bodySizeLimitBytes?: number;
+  frameAllowedPath?: string;
   operationName: (req: Request) => string;
   serviceName: string;
   mode: ServerMode;
@@ -128,6 +130,11 @@ export async function startServer(config: ServerConfig) {
   );
   app.use(compression());
   app.disable('x-powered-by');
+  app.use(
+    createFrameProtectionMiddleware({
+      allowedPath: config.frameAllowedPath,
+    }),
+  );
   app.use(
     createMetricsMiddleware({
       operationName: config.operationName,

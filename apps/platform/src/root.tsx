@@ -17,14 +17,16 @@ export const links: LinksFunction = () => [
 
 export interface RootLoaderData {
   theme: 'light' | 'dark' | 'auto';
+  embedBasePath: string;
   cspNonce?: string;
 }
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get('cookie') ?? null;
   const theme = getThemeFromCookies(cookieHeader);
+  const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
   const cspNonce = (context as { cspNonce?: string } | undefined)?.cspNonce;
-  return { theme, cspNonce } satisfies RootLoaderData;
+  return { theme, embedBasePath, cspNonce } satisfies RootLoaderData;
 }
 
 export function Layout({ children }: { children: ReactNode }) {

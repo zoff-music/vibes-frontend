@@ -17,6 +17,29 @@ export interface BodySizeLimitOptions {
   maxBytes: number;
 }
 
+export interface FrameProtectionOptions {
+  allowedPath?: string;
+}
+
+export function createFrameProtectionMiddleware(
+  options: FrameProtectionOptions,
+) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const allowedPath = options.allowedPath?.replace(/\/$/, '');
+    const framingAllowed =
+      allowedPath &&
+      (req.path === allowedPath || req.path.startsWith(`${allowedPath}/`));
+    if (framingAllowed) {
+      res.setHeader('Content-Security-Policy', 'frame-ancestors *');
+      return next();
+    }
+
+    res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
+    res.setHeader('X-Frame-Options', 'DENY');
+    return next();
+  };
+}
+
 export function createBodySizeLimitMiddleware(options: BodySizeLimitOptions) {
   return (req: Request, res: Response, next: NextFunction) => {
     const rawContentLength = req.headers['content-length'];
