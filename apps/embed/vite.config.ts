@@ -12,6 +12,7 @@ export default defineConfig(({ command, mode }) => {
     process.env.NODE_ENV || (isBuild ? 'production' : 'development');
 
   return {
+    base: isBuild ? './' : '/',
     plugins: [reactRouter()],
     root: '.',
     server: {

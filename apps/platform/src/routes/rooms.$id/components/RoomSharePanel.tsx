@@ -5,17 +5,13 @@ import { useRouteLoaderData } from 'react-router';
 import type { RootLoaderData } from '../../../root';
 import { EmbedSharePanel } from './EmbedSharePanel';
 
-interface RoomSharePanelProps {
+interface Props {
   url: string;
   roomId: string;
   onCopy: () => void;
 }
 
-export const RoomSharePanel = ({
-  url,
-  roomId,
-  onCopy,
-}: RoomSharePanelProps) => {
+export const RoomSharePanel = ({ url, roomId, onCopy }: Props) => {
   const rootLoaderData = useRouteLoaderData('root') as
     | RootLoaderData
     | undefined;

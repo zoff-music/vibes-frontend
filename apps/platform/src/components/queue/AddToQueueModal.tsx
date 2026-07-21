@@ -6,6 +6,7 @@ import {
   useRoom,
 } from '@vibes/api';
 import {
+  type AddSongOutcome,
   formatDuration,
   parseISODuration,
   type SourceType,
@@ -58,6 +59,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [error, setError] = useState<string | null>(null);
   const [previewVideo, setPreviewVideo] = useState<SearchResult | null>(null);
   const [justAdded, setJustAdded] = useState(false);
+  const [addOutcome, setAddOutcome] = useState<AddSongOutcome | null>(null);
   const { addToQueue } = useQueue(roomId);
   const { songs } = useQueueStore();
   const { currentSong } = usePlaybackStore();
@@ -113,6 +115,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         setPreviewVideo(null);
         setError(null);
         setJustAdded(false);
+        setAddOutcome(null);
       }, 300);
     }
   }, [isVisible]);
@@ -216,27 +219,31 @@ export const AddToQueueModal: React.FC<Props> = ({
     }, 300);
   };
 
-  const handleSelectResult = async (result: SearchResult) => {
+  const handleSelectResult = async (song: SearchResult) => {
     setIsLoading(true);
-    const durationSec = parseISODuration(result.duration);
+    const durationSec = parseISODuration(song.duration);
 
     // Determine sourceType from selectedProvider (which is 'youtube', 'spotify', etc.)
     // Assuming selectedProvider matches sourceType strings.
-    const success = await addToQueue(
+    const result = await addToQueue(
       selectedProvider,
-      result.id,
-      result.title,
-      result.thumbnailUrl,
+      song.id,
+      song.title,
+      song.thumbnailUrl,
       durationSec,
-      result.artist,
+      song.artist,
     );
 
     setIsLoading(false);
-    if (success) {
+    if (result) {
+      setAddOutcome(result.outcome);
       setJustAdded(true);
-      setTimeout(() => {
-        onClose();
-      }, 800);
+      setTimeout(
+        () => {
+          onClose();
+        },
+        result.outcome === 'added' ? 800 : 1600,
+      );
     } else {
       setError('Failed to add song to queue');
     }
@@ -469,9 +476,19 @@ export const AddToQueueModal: React.FC<Props> = ({
             <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-secondary/40 bg-secondary/20">
               <CheckIcon className="h-10 w-10 text-secondary" />
             </div>
-            <h3 className="mb-2 text-base text-theme">Added to Queue!</h3>
+            <h3 className="mb-2 text-base text-theme">
+              {addOutcome === 'duplicate_voted'
+                ? 'song already exists, voted on song'
+                : addOutcome === 'duplicate_already_voted'
+                  ? 'song already exists, vote already counted'
+                  : 'Added to Queue!'}
+            </h3>
             <p className="mb-1 text-sm text-theme-muted">
-              Everyone will hear it soon
+              {addOutcome === 'duplicate_voted'
+                ? 'Your vote moved it up the queue'
+                : addOutcome === 'duplicate_already_voted'
+                  ? 'Your existing vote is still counted'
+                  : 'Everyone will hear it soon'}
             </p>
             <p className="jp-art text-theme-subtle text-xs">追加されました</p>
           </div>

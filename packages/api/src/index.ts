@@ -8,6 +8,7 @@ declare const process:
 
 import {
   addSongRequestSchema,
+  addSongResponseSchema,
   adminLoginRequestSchema,
   adminRoomsSchema,
   adminSessionResponseSchema,
@@ -175,7 +176,7 @@ const endpoints = {
     },
     post: {
       request: addSongRequestSchema,
-      response: songSchema,
+      response: addSongResponseSchema,
     },
   },
   '/rooms/{id}/songs/{songId}': {

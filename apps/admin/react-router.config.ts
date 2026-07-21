@@ -1,5 +1,5 @@
 export default {
-  appDirectory: "src",
-  buildDirectory: "dist",
-  publicPath: "/assets/admin/",
+  appDirectory: 'src',
+  buildDirectory: 'dist',
+  publicPath: '/admin/',
 };

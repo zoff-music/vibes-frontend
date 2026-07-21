@@ -1,6 +1,6 @@
 import { safeWrap, safeWrapAsync } from '@vibes/shared';
-import { Button, Toggle } from '@vibes/ui';
-import { useMemo, useState } from 'react';
+import { Button, CheckIcon, CloseIcon, CopyIcon, Toggle } from '@vibes/ui';
+import { useMemo, useRef, useState } from 'react';
 
 interface Props {
   url: string;
@@ -9,10 +9,13 @@ interface Props {
 }
 
 export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
   const [autoplay, setAutoplay] = useState(false);
   const [playlist, setPlaylist] = useState(true);
   const [skip, setSkip] = useState(true);
   const [vote, setVote] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const codeRef = useRef<HTMLElement>(null);
 
   const embedScript = useMemo(() => {
     const [err, embedUrl] = safeWrap(
@@ -29,53 +32,135 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
   }, [autoplay, embedBasePath, playlist, roomId, skip, url, vote]);
 
   const handleCopyEmbedScript = async () => {
+    const selection = window.getSelection();
+    if (selection && codeRef.current) {
+      const range = document.createRange();
+      range.selectNodeContents(codeRef.current);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
     const [err] = await safeWrapAsync(
       navigator.clipboard.writeText(embedScript),
     );
     if (err) {
       console.error('Failed to copy embed script', err);
+      return;
     }
+
+    setCopied(true);
+  };
+
+  const handleOpen = () => {
+    setCopied(false);
+    setIsOpen(true);
   };
 
   return (
-    <div className="border-theme border-t pt-4 text-left">
-      <p className="mb-3 font-display text-theme-muted text-xs tracking-widest">
-        Embed Player
-      </p>
-      <div className="mb-3 grid grid-cols-2 gap-2">
-        <Toggle
-          checked={autoplay}
-          onChange={setAutoplay}
-          label="Auto"
-          variant="plain-full"
-        />
-        <Toggle
-          checked={playlist}
-          onChange={setPlaylist}
-          label="List"
-          variant="plain-full"
-        />
-        <Toggle
-          checked={vote}
-          onChange={setVote}
-          label="Vote"
-          variant="plain-full"
-        />
-        <Toggle
-          checked={skip}
-          onChange={setSkip}
-          label="Skip"
-          variant="plain-full"
-        />
-      </div>
-      <div className="flex items-center gap-2 rounded-xl border border-theme bg-theme-surface p-2">
-        <code className="max-h-20 flex-1 overflow-auto whitespace-pre-wrap break-all font-mono text-theme-muted text-xs">
-          {embedScript}
-        </code>
-        <Button onClick={handleCopyEmbedScript} variant="copy-small">
-          Copy
-        </Button>
-      </div>
-    </div>
+    <>
+      <Button onClick={handleOpen} variant="dialog-primary">
+        Embed player
+      </Button>
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-60 flex items-start justify-center overflow-y-auto bg-black/70 px-4 pt-8 pb-safe backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="embed-player-title"
+        >
+          <Button
+            type="button"
+            variant="modal-backdrop"
+            onClick={() => setIsOpen(false)}
+            aria-label="Close embed settings"
+          />
+
+          <div className="panel-strong relative w-full max-w-lg rounded-[32px] p-7 text-left shadow-[0_0_28px_rgba(255,46,151,0.25)]">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 id="embed-player-title" className="text-base text-theme">
+                  Embed player
+                </h2>
+                <p className="mt-1 text-sm text-theme-muted">
+                  Choose what visitors can do in the embedded room.
+                </p>
+              </div>
+              <Button
+                onClick={() => setIsOpen(false)}
+                variant="modal-close"
+                aria-label="Close embed settings"
+              >
+                <CloseIcon className="h-5 w-5 text-theme-muted" />
+              </Button>
+            </div>
+
+            <div className="mb-6 grid grid-cols-2 gap-2">
+              <Toggle
+                checked={autoplay}
+                onChange={(enabled) => {
+                  setAutoplay(enabled);
+                  setCopied(false);
+                }}
+                label="Autoplay"
+                variant="plain-full"
+              />
+              <Toggle
+                checked={playlist}
+                onChange={(enabled) => {
+                  setPlaylist(enabled);
+                  setCopied(false);
+                }}
+                label="Playlist"
+                variant="plain-full"
+              />
+              <Toggle
+                checked={vote}
+                onChange={(enabled) => {
+                  setVote(enabled);
+                  setCopied(false);
+                }}
+                label="Voting"
+                variant="plain-full"
+              />
+              <Toggle
+                checked={skip}
+                onChange={(enabled) => {
+                  setSkip(enabled);
+                  setCopied(false);
+                }}
+                label="Skipping"
+                variant="plain-full"
+              />
+            </div>
+
+            <p className="mb-2 font-display text-[10px] text-theme-muted tracking-[0.2em]">
+              Embed code
+            </p>
+            <button
+              type="button"
+              onClick={handleCopyEmbedScript}
+              className="group w-full cursor-copy rounded-xl border border-theme bg-theme-surface p-4 text-left transition-colors hover:border-theme-strong"
+              aria-label="Select and copy embed code"
+            >
+              <code
+                ref={codeRef}
+                className="block max-h-32 overflow-auto whitespace-pre-wrap break-all font-mono text-theme-muted text-xs selection:bg-primary/40"
+              >
+                {embedScript}
+              </code>
+              <span className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-theme-muted group-hover:text-theme">
+                {copied ? (
+                  <CheckIcon className="h-3.5 w-3.5" />
+                ) : (
+                  <CopyIcon className="h-3.5 w-3.5" />
+                )}
+                {copied ? 'Copied' : 'Click to select and copy'}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

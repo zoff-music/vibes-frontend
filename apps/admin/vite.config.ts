@@ -8,7 +8,7 @@ export default defineConfig(({ command }) => {
     process.env.NODE_ENV || (isBuild ? 'production' : 'development');
 
   return {
-    base: isBuild ? '/assets/admin/' : '/',
+    base: isBuild ? '/admin/' : '/',
     plugins: [reactRouter()],
     root: '.',
     publicDir: 'public',

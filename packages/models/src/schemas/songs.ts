@@ -31,5 +31,17 @@ export const addSongRequestSchema = yup.object({
 });
 export type AddSongRequest = yup.InferType<typeof addSongRequestSchema>;
 
+export const addSongOutcomeSchema = yup
+  .string()
+  .oneOf(['added', 'duplicate_voted', 'duplicate_already_voted'])
+  .required();
+export type AddSongOutcome = yup.InferType<typeof addSongOutcomeSchema>;
+
+export const addSongResponseSchema = yup.object({
+  song: songSchema.required(),
+  outcome: addSongOutcomeSchema,
+});
+export type AddSongResponse = yup.InferType<typeof addSongResponseSchema>;
+
 export const songsListSchema = yup.array(songSchema).required();
 export type SongsList = yup.InferType<typeof songsListSchema>;
