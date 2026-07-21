@@ -20,6 +20,7 @@ export function EmbedRoomView({ loaderData }: Props) {
     room,
     songs,
     toast,
+    usersCount,
   } = useEmbedRoom(loaderData);
   const durationMs = (currentSong?.duration ?? 0) * 1000;
   const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
@@ -42,6 +43,7 @@ export function EmbedRoomView({ loaderData }: Props) {
           room={room}
           roomId={roomId}
           showSkip={options.skip}
+          usersCount={usersCount}
         />
 
         {options.playlist ? (
