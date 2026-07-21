@@ -192,9 +192,6 @@ importers:
       '@vibes/models':
         specifier: workspace:*
         version: link:../../packages/models
-      '@vibes/player':
-        specifier: workspace:*
-        version: link:../../packages/player
       '@vibes/serve':
         specifier: workspace:*
         version: link:../../packages/serve
