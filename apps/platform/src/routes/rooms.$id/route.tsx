@@ -311,7 +311,7 @@ export default function Room() {
   useEffect(() => {
     if (!showShare) return;
 
-    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+    const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
       if (target instanceof Element && target.closest('[role="dialog"]')) {
@@ -323,12 +323,10 @@ export default function Room() {
       setShowShare(false);
     };
 
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('touchstart', handlePointerDown);
+    document.addEventListener('click', handleOutsideClick);
 
     return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('touchstart', handlePointerDown);
+      document.removeEventListener('click', handleOutsideClick);
     };
   }, [showShare]);
 
@@ -336,7 +334,7 @@ export default function Room() {
   useEffect(() => {
     if (!showSettings) return;
 
-    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+    const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
       if (target instanceof Element && target.closest('[role="dialog"]')) {
@@ -348,12 +346,10 @@ export default function Room() {
       setShowShare(false);
     };
 
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('touchstart', handlePointerDown);
+    document.addEventListener('click', handleOutsideClick);
 
     return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('touchstart', handlePointerDown);
+      document.removeEventListener('click', handleOutsideClick);
     };
   }, [showSettings]);
 
