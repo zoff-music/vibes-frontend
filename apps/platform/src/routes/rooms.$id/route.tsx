@@ -34,6 +34,8 @@ export default function Room() {
   const joinAttemptedRef = useRef<string | null>(null);
   const primeAttemptedRef = useRef<string | null>(null);
   const playbackAttemptedRef = useRef<string | null>(null);
+  const shareButtonRef = useRef<HTMLButtonElement | null>(null);
+  const sharePanelRef = useRef<HTMLDivElement | null>(null);
   const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
   const settingsMenuRef = useRef<HTMLDivElement | null>(null);
   const originalTitleRef = useRef<string | null>(null);
@@ -305,6 +307,31 @@ export default function Room() {
     };
   }, []);
 
+  // Share panel outside click
+  useEffect(() => {
+    if (!showShare) return;
+
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (target instanceof Element && target.closest('[role="dialog"]')) {
+        return;
+      }
+      if (sharePanelRef.current?.contains(target)) return;
+      if (shareButtonRef.current?.contains(target)) return;
+      if (settingsMenuRef.current?.contains(target)) return;
+      setShowShare(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+    };
+  }, [showShare]);
+
   // Settings menu outside click
   useEffect(() => {
     if (!showSettings) return;
@@ -312,9 +339,13 @@ export default function Room() {
     const handlePointerDown = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
+      if (target instanceof Element && target.closest('[role="dialog"]')) {
+        return;
+      }
       if (settingsMenuRef.current?.contains(target)) return;
       if (settingsButtonRef.current?.contains(target)) return;
       setShowSettings(false);
+      setShowShare(false);
     };
 
     document.addEventListener('mousedown', handlePointerDown);
@@ -358,6 +389,8 @@ export default function Room() {
           roomId={id || ''}
           showShare={showShare}
           onToggleShare={() => setShowShare(!showShare)}
+          shareButtonRef={shareButtonRef}
+          sharePanelRef={sharePanelRef}
           shareUrl={shareUrl}
           onCopyShareLink={handleCopyShareLink}
           themeId={themeId}
