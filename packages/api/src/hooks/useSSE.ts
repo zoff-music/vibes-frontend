@@ -29,9 +29,9 @@ export const useSSE = (
 ) => {
   const setRoom = useRoomStore((state) => state.setRoom);
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
+  const addSong = useQueueStore((state) => state.addSong);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
-  const room = useRoomStore((state) => state.room);
 
   const isSubscribedRef = useRef(false);
 
@@ -89,7 +89,8 @@ export const useSSE = (
                 }
                 case 'playback_update': {
                   const [error] = safeWrap(() => {
-                    setPlaybackState(message.data, room?.mode);
+                    const roomMode = useRoomStore.getState().room?.mode;
+                    setPlaybackState(message.data, roomMode);
                   });
                   if (error)
                     console.error('Failed to parse playback_update', error);
@@ -99,6 +100,7 @@ export const useSSE = (
                   const [error] = safeWrap(() => {
                     const song = message.data;
                     console.log('[SSE] song_added received:', song);
+                    addSong(song);
                     if (callbacks?.onSongAdded) {
                       callbacks.onSongAdded(song);
                     } else if (
@@ -194,5 +196,13 @@ export const useSSE = (
         isSubscribedRef.current = false;
       }
     };
-  }, [roomId, setRoom, setUsersCount, setSongs, setPlaybackState, callbacks]);
+  }, [
+    roomId,
+    addSong,
+    setRoom,
+    setUsersCount,
+    setSongs,
+    setPlaybackState,
+    callbacks,
+  ]);
 };
