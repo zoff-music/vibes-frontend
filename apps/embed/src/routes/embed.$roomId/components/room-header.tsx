@@ -1,5 +1,5 @@
 import type { Room } from '@vibes/models';
-import { Button, ExternalLinkIcon, SkipIcon } from '@vibes/ui';
+import { Button, ExternalLinkIcon, ListenerCount, SkipIcon } from '@vibes/ui';
 
 interface Props {
   canSkip: boolean;
@@ -7,6 +7,7 @@ interface Props {
   room: Room;
   roomId: string;
   showSkip: boolean;
+  usersCount: number;
 }
 
 export function EmbedRoomHeader({
@@ -15,6 +16,7 @@ export function EmbedRoomHeader({
   room,
   roomId,
   showSkip,
+  usersCount,
 }: Props) {
   const roomUrl = `/rooms/${encodeURIComponent(roomId)}`;
 
@@ -24,6 +26,7 @@ export function EmbedRoomHeader({
         {room.name}
       </h1>
       <div className="ml-3 flex shrink-0 items-center gap-2">
+        <ListenerCount count={usersCount} />
         {showSkip && (
           <Button
             disabled={!canSkip}

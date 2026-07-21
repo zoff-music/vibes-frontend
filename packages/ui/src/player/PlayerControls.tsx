@@ -46,7 +46,8 @@ const PlayerControlsComponent: React.FC<Props> = ({
           disabled={!canPlay}
           variant="primary"
           size="none"
-          className="group h-12 w-12 p-0"
+          aria-label={isPlaying ? 'Pause' : 'Play'}
+          className="group h-12 w-12 shrink-0 rounded-2xl border border-primary/60 p-0 text-white shadow-[0_0_24px_rgba(255,46,151,0.45)] hover:shadow-[0_0_30px_rgba(255,46,151,0.6)] active:scale-95"
         >
           {isPlaying ? (
             <PauseIcon className="h-6 w-6 fill-current" />

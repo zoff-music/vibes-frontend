@@ -34,6 +34,7 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     playbackCallbacks,
   );
   const setRoom = useRoomStore((state) => state.setRoom);
+  const usersCount = useRoomStore((state) => state.usersCount);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const setLocalPlayingState = usePlaybackStore(
@@ -105,5 +106,6 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     room,
     songs,
     toast,
+    usersCount,
   };
 }
