@@ -11,7 +11,7 @@ import {
 } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { type RefObject } from 'react';
-import type { Theme } from '../../stores/themeStore';
+import type { Theme } from '../../../stores/themeStore';
 
 import { RoomSettingsMenu } from './RoomSettingsMenu';
 import { RoomSharePanel } from './RoomSharePanel';

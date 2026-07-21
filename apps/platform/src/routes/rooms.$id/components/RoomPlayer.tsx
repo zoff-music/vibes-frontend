@@ -15,7 +15,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useCasting } from '../../hooks/useCasting';
+import { useCasting } from '../../../hooks/useCasting';
 
 interface RoomPlayerProps {
   roomId: string;

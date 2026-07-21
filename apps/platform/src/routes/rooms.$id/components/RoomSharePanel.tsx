@@ -2,7 +2,7 @@ import { safeWrapAsync } from '@vibes/shared';
 import { Button } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
 import { useRouteLoaderData } from 'react-router';
-import type { RootLoaderData } from '../../root';
+import type { RootLoaderData } from '../../../root';
 import { EmbedSharePanel } from './EmbedSharePanel';
 
 interface RoomSharePanelProps {

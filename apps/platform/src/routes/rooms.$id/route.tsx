@@ -10,12 +10,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLoaderData, useNavigate, useParams } from 'react-router';
 import { DeviceSelector } from '../../components/cast/DeviceSelector';
 import { AddToQueueModal } from '../../components/queue/AddToQueueModal';
-import { RoomErrorView } from '../../components/room/RoomErrorView';
-import { RoomHeader } from '../../components/room/RoomHeader';
-import { RoomPlayer } from '../../components/room/RoomPlayer';
-import { RoomQueue } from '../../components/room/RoomQueue';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
+import { RoomErrorView } from './components/RoomErrorView';
+import { RoomHeader } from './components/RoomHeader';
+import { RoomPlayer } from './components/RoomPlayer';
+import { RoomQueue } from './components/RoomQueue';
 import type { RoomLoaderData } from './loader';
 import { loader } from './loader';
 
