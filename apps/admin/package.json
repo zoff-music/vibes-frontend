@@ -29,6 +29,7 @@
     "@types/node": "25.0.10",
     "@types/react": "19.2.16",
     "@types/react-dom": "19.2.3",
+    "@vibes/tailwind": "workspace:*",
     "tailwindcss": "catalog:",
     "typescript": "7.0.2",
     "vite": "8.1.3"

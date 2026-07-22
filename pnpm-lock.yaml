@@ -89,6 +89,9 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.16)
+      '@vibes/tailwind':
+        specifier: workspace:*
+        version: link:../../packages/tailwind
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3
@@ -159,6 +162,9 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.16)
+      '@vibes/tailwind':
+        specifier: workspace:*
+        version: link:../../packages/tailwind
       '@vitejs/plugin-legacy':
         specifier: 7.2.1
         version: 7.2.1(terser@5.46.0)(vite@8.1.3(@types/node@25.0.10)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.46.0)(yaml@2.9.0))
@@ -235,6 +241,9 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.16)
+      '@vibes/tailwind':
+        specifier: workspace:*
+        version: link:../../packages/tailwind
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3
@@ -305,6 +314,9 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.16)
+      '@vibes/tailwind':
+        specifier: workspace:*
+        version: link:../../packages/tailwind
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3

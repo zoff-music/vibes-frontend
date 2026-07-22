@@ -5,6 +5,8 @@
   "exports": {
     "./config": "./config.js",
     "./cast-config": "./cast.config.js",
-    "./plugin": "./vibes-plugin.mjs"
+    "./plugin": "./vibes-plugin.mjs",
+    "./styles.css": "./styles.css",
+    "./cast.css": "./cast.css"
   }
 }

@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@config "./cast.config.js";
+@source "../";
+@source inline("hidden inline sm:hidden sm:inline md:hidden md:inline lg:hidden lg:inline xl:hidden xl:inline space-y-3");
+
+@layer base {
+  :root {
+    @apply font-body;
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    @apply bg-dark-background text-dark-text;
+  }
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    @apply border-border;
+  }
+}
+
+@layer utilities {
+  cast-media-player {
+    display: none;
+  }
+}
