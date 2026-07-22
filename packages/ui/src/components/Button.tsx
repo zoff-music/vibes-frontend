@@ -53,14 +53,14 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       ghost: 'bg-transparent text-theme-muted hover:text-theme',
       destructive:
         'border border-error/40 bg-transparent text-error hover:bg-error/10',
-      red: 'border border-red-500/40 bg-red-500/20 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.2)] hover:bg-red-500/30',
+      red: 'border border-red-400 bg-[#ff0000] text-white shadow-[0_0_16px_rgba(255,0,0,0.35)] hover:bg-red-500',
       green:
-        'border border-green-500/40 bg-green-500/20 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.2)] hover:bg-green-500/30',
+        'border border-green-300 bg-[#1ed760] text-[#07150b] shadow-[0_0_16px_rgba(30,215,96,0.3)] hover:bg-green-400',
       orange:
-        'border border-orange-500/40 bg-orange-500/20 text-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.2)] hover:bg-orange-500/30',
-      cyan: 'border border-secondary/60 bg-secondary/10 text-theme shadow-[0_0_14px_rgba(0,217,255,0.3)] hover:bg-secondary/20',
+        'border border-orange-300 bg-[#ff5500] text-[#1c0900] shadow-[0_0_16px_rgba(255,85,0,0.3)] hover:bg-orange-400',
+      cyan: 'border border-cyan-200 bg-[#00d9ff] text-[#04151a] shadow-[0_0_16px_rgba(0,217,255,0.3)] hover:bg-cyan-300',
       magenta:
-        'border border-primary/60 bg-primary/10 text-theme shadow-[0_0_14px_rgba(255,46,151,0.3)] hover:bg-primary/20',
+        'border border-pink-300 bg-[#ff2e97] text-[#1d0714] shadow-[0_0_16px_rgba(255,46,151,0.3)] hover:bg-pink-400',
     };
 
     const sizeClasses: Record<ButtonSize, string> = {
