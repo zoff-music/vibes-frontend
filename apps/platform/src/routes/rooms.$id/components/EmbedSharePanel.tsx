@@ -67,15 +67,18 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
 
   return (
     <>
-      <Button onClick={handleOpen} variant="primary">
-        Embed player
-      </Button>
+      <div className="hidden sm:block">
+        <Button onClick={handleOpen} variant="primary">
+          Embed player
+        </Button>
+      </div>
 
       <Modal
+        alignment="center"
         ariaLabelledBy="embed-player-title"
-        className="sm:max-w-2xl"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        size="md"
       >
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>

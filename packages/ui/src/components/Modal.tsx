@@ -1,22 +1,27 @@
+import { classNames } from '@vibes/shared';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
 
 interface Props {
+  alignment?: 'center' | 'top';
   ariaLabelledBy: string;
   children: ReactNode;
   className?: string;
   isOpen: boolean;
   onClose: () => void;
+  size?: 'lg' | 'md';
 }
 
 export function Modal({
+  alignment = 'center',
   ariaLabelledBy,
   children,
   className = '',
   isOpen,
   onClose,
+  size = 'md',
 }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +80,11 @@ export function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex animate-fade-in items-start justify-center overflow-y-auto bg-black/70 px-4 pt-4 pb-safe backdrop-blur-md"
+      className={classNames(
+        'fixed inset-0 z-50 flex animate-fade-in items-start justify-center overflow-y-auto bg-black/70 px-4 backdrop-blur-md',
+        alignment === 'center' && 'py-4',
+        alignment === 'top' && 'items-start pt-4 pb-safe',
+      )}
       role="dialog"
       aria-modal="true"
       aria-labelledby={ariaLabelledBy}
@@ -92,7 +101,13 @@ export function Modal({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className={`panel-strong relative w-full max-w-lg animate-scale-in rounded-[32px] p-7 shadow-[0_0_28px_rgba(255,46,151,0.25)] ${className}`}
+        className={classNames(
+          'panel-strong relative w-full animate-scale-in rounded-[32px] p-7 shadow-[0_0_28px_rgba(255,46,151,0.25)]',
+          alignment === 'center' && 'my-auto',
+          size === 'md' && 'max-w-2xl',
+          size === 'lg' && 'max-w-4xl',
+          className,
+        )}
       >
         {children}
       </div>
