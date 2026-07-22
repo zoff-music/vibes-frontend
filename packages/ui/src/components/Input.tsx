@@ -9,21 +9,35 @@ interface Props
   error?: string;
 }
 
-export const Input: React.FC<Props> = ({ label, error, ...props }) => {
+export const Input: React.FC<Props> = ({ label, error, id, ...props }) => {
+  const generatedId = React.useId();
+  const inputId = id || generatedId;
+  const errorId = `${inputId}-error`;
+
   return (
     <div className="mb-4 w-full">
       {label && (
-        <label className="mb-2 ml-1 block font-medium text-sm text-text-muted">
+        <label
+          htmlFor={inputId}
+          className="mb-2 ml-1 block font-medium text-sm text-text-muted"
+        >
           {label}
         </label>
       )}
       <input
+        id={inputId}
+        aria-describedby={error ? errorId : undefined}
+        aria-invalid={error ? true : undefined}
         className={`w-full rounded-lg border bg-surface px-4 py-3 text-base text-text placeholder:text-zinc-500 focus:outline-hidden focus:ring-2 focus:ring-primary ${
           error ? 'border-error' : 'border-surfaceElevated'
         }`}
         {...props}
       />
-      {error && <p className="mt-1 ml-1 text-error text-xs">{error}</p>}
+      {error && (
+        <p id={errorId} className="mt-1 ml-1 text-error text-xs">
+          {error}
+        </p>
+      )}
     </div>
   );
 };
