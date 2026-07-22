@@ -1,4 +1,5 @@
 import { isTruthyFlag, safeWrapAsync } from '@vibes/shared';
+import { ToastViewport } from '@vibes/ui';
 import { type ComponentType, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 
@@ -51,6 +52,7 @@ export function App() {
   return (
     <>
       <DebugConsoleLoader />
+      <ToastViewport />
       <Background />
       <Outlet />
     </>

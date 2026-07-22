@@ -1,4 +1,4 @@
-import { DebugConsole } from '@vibes/ui';
+import { DebugConsole, ToastViewport } from '@vibes/ui';
 import { ActiveView } from './components/ActiveView';
 import { CastProvider, useCast } from './components/CastProvider';
 import { IdleView } from './components/IdleView';
@@ -24,6 +24,7 @@ const CastAppContent = () => {
 export const App = () => {
   return (
     <CastProvider>
+      <ToastViewport />
       <CastAppContent />
     </CastProvider>
   );

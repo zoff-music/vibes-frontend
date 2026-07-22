@@ -1,9 +1,11 @@
+import { getRateLimitMessage } from '@vibes/api';
 import type { Room } from '@vibes/models';
 import type { ActionFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 
 export interface RoomsCreateActionData {
   error?: string;
+  rateLimitMessage?: string;
   room?: Room;
 }
 
@@ -55,8 +57,10 @@ export async function action({
     { headers: requestHeaders },
   );
   if (err || !room) {
+    const rateLimitMessage = err ? getRateLimitMessage(err) : null;
     return {
-      error: err?.message ?? 'Failed to create room',
+      error: rateLimitMessage ?? err?.message ?? 'Failed to create room',
+      ...(rateLimitMessage && { rateLimitMessage }),
     };
   }
 

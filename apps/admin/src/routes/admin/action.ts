@@ -1,3 +1,4 @@
+import { getRateLimitMessage } from '@vibes/api';
 import type { AdminRoomSummary } from '@vibes/models';
 import { type ActionFunctionArgs, data } from 'react-router';
 import { getServerApi } from '../../http.server';
@@ -5,7 +6,16 @@ import { getServerApi } from '../../http.server';
 export interface AdminActionData {
   authorized?: boolean;
   error?: string;
+  rateLimitMessage?: string;
   rooms?: AdminRoomSummary[];
+}
+
+function getAdminActionError(error: Error | null, fallback: string) {
+  const rateLimitMessage = error ? getRateLimitMessage(error) : null;
+  return {
+    error: rateLimitMessage ?? fallback,
+    ...(rateLimitMessage && { rateLimitMessage }),
+  };
 }
 
 function getCookiePair(setCookieHeader: string) {
@@ -87,7 +97,7 @@ export async function action({ request }: ActionFunctionArgs) {
       headers: requestHeaders,
     });
     if (logoutError) {
-      return { error: 'Failed to sign out.' };
+      return getAdminActionError(logoutError, 'Failed to sign out.');
     }
     return createActionDataResponse(
       { authorized: false, rooms: [] },
@@ -104,7 +114,10 @@ export async function action({ request }: ActionFunctionArgs) {
       { headers: requestHeaders },
     );
     if (loginError || !response?.authorized) {
-      return { authorized: false, error: 'Invalid admin password.' };
+      return {
+        authorized: false,
+        ...getAdminActionError(loginError, 'Invalid admin password.'),
+      };
     }
     requestHeaders = createRequestHeaders(cookieHeader, adminSessionSetCookie);
   }
@@ -122,7 +135,10 @@ export async function action({ request }: ActionFunctionArgs) {
       return createActionDataResponse(
         {
           authorized: true,
-          error: renameError?.message ?? 'Failed to rename room.',
+          ...getAdminActionError(
+            renameError,
+            renameError?.message ?? 'Failed to rename room.',
+          ),
         },
         adminSessionSetCookie,
       );
@@ -146,7 +162,10 @@ export async function action({ request }: ActionFunctionArgs) {
       return createActionDataResponse(
         {
           authorized: true,
-          error: clearError?.message ?? 'Failed to clear room password.',
+          ...getAdminActionError(
+            clearError,
+            clearError?.message ?? 'Failed to clear room password.',
+          ),
         },
         adminSessionSetCookie,
       );
@@ -169,7 +188,10 @@ export async function action({ request }: ActionFunctionArgs) {
       return createActionDataResponse(
         {
           authorized: true,
-          error: deleteError?.message ?? 'Failed to delete room.',
+          ...getAdminActionError(
+            deleteError,
+            deleteError?.message ?? 'Failed to delete room.',
+          ),
         },
         adminSessionSetCookie,
       );
@@ -186,12 +208,18 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (roomsError || !rooms) {
     const isAuthCheck = intent === 'refresh';
+    const actionError = getAdminActionError(
+      roomsError,
+      roomsError?.message ?? 'Failed to refresh rooms.',
+    );
     return createActionDataResponse(
       {
         authorized: intent === 'login',
-        error: isAuthCheck
-          ? undefined
-          : (roomsError?.message ?? 'Failed to refresh rooms.'),
+        ...(!isAuthCheck && { error: actionError.error }),
+        ...(actionError.rateLimitMessage && {
+          error: actionError.error,
+          rateLimitMessage: actionError.rateLimitMessage,
+        }),
       },
       adminSessionSetCookie,
     );

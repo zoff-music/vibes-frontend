@@ -1,3 +1,4 @@
+import { showToast } from '@vibes/shared';
 import {
   AlertCircleIcon,
   Button,
@@ -147,6 +148,12 @@ const CreateRoom: React.FC = () => {
 
   useEffect(() => {
     if (!fetcher.data) return;
+    if (fetcher.data.rateLimitMessage) {
+      showToast(fetcher.data.rateLimitMessage, 'warning', 6000);
+      setError(null);
+      setIsWarping(false);
+      return;
+    }
     if (fetcher.data.error) {
       setError(fetcher.data.error);
       setIsWarping(false);

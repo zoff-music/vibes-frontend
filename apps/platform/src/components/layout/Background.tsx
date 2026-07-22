@@ -1,13 +1,14 @@
+import { classNames } from '@vibes/shared';
 import { useLocation } from 'react-router';
 import { useThemeStore } from '../../stores/themeStore';
 
 export function Background() {
   const location = useLocation();
   const isWarping = useThemeStore((state) => state.isWarping);
+  const isHome = location.pathname === '/';
 
   // Only show the sun on Home and CreateRoom pages
-  const showSun =
-    location.pathname === '/' || location.pathname === '/rooms/create';
+  const showSun = isHome || location.pathname === '/rooms/create';
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
@@ -16,7 +17,13 @@ export function Background() {
       <div className="vhs-scanlines absolute inset-0" />
 
       {showSun && (
-        <div className="absolute top-[clamp(2rem,6vh,4rem)] left-1/2 h-[clamp(14rem,30vw,18rem)] w-[clamp(14rem,30vw,18rem)] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_50%_35%,rgba(255,208,120,0.95),rgba(255,148,188,0.85)_50%,rgba(255,80,200,0.3)_75%,transparent_85%)] [filter:drop-shadow(0_0_50px_rgba(255,120,160,0.7))] [mask-image:linear-gradient(to_bottom,black_65%,transparent_100%)] after:absolute after:inset-[58%_0%_auto_0%] after:h-[28%] after:bg-[linear-gradient(rgba(15,5,30,0.9),rgba(15,5,30,0.9)),linear-gradient(rgba(15,5,30,0.8),rgba(15,5,30,0.8)),linear-gradient(rgba(15,5,30,0.7),rgba(15,5,30,0.7)),linear-gradient(rgba(15,5,30,0.6),rgba(15,5,30,0.6))] after:bg-no-repeat after:opacity-[0.65] after:content-[''] dark:bg-[radial-gradient(circle_at_50%_35%,rgba(255,46,151,0.8),rgba(180,30,100,0.7)_50%,rgba(100,20,60,0.4)_75%,transparent_85%)] after:[background-position:center_15px,center_32px,center_52px,center_75px] after:[background-size:95%_4px,90%_4.5px,82%_5px,70%_6px]" />
+        <div
+          className={classNames(
+            "absolute left-1/2 h-[clamp(14rem,30vw,18rem)] w-[clamp(14rem,30vw,18rem)] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_50%_35%,rgba(255,208,120,0.95),rgba(255,148,188,0.85)_50%,rgba(255,80,200,0.3)_75%,transparent_85%)] [filter:drop-shadow(0_0_50px_rgba(255,120,160,0.7))] [mask-image:linear-gradient(to_bottom,black_65%,transparent_100%)] after:absolute after:inset-[58%_0%_auto_0%] after:h-[28%] after:bg-[linear-gradient(rgba(15,5,30,0.9),rgba(15,5,30,0.9)),linear-gradient(rgba(15,5,30,0.8),rgba(15,5,30,0.8)),linear-gradient(rgba(15,5,30,0.7),rgba(15,5,30,0.7)),linear-gradient(rgba(15,5,30,0.6),rgba(15,5,30,0.6))] after:bg-no-repeat after:opacity-[0.65] after:content-[''] dark:bg-[radial-gradient(circle_at_50%_35%,rgba(255,46,151,0.8),rgba(180,30,100,0.7)_50%,rgba(100,20,60,0.4)_75%,transparent_85%)] after:[background-position:center_15px,center_32px,center_52px,center_75px] after:[background-size:95%_4px,90%_4.5px,82%_5px,70%_6px]",
+            isHome && 'top-[max(0rem,calc(50vh-20.375rem))]',
+            !isHome && 'top-[clamp(2rem,6vh,4rem)]',
+          )}
+        />
       )}
 
       <div

@@ -1,11 +1,11 @@
 import { getHttpError, usePlayback, useQueue, useRoom } from '@vibes/api';
 import {
   type Song,
+  showToast,
   usePlaybackStore,
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { Toast } from '@vibes/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLoaderData, useNavigate, useParams } from 'react-router';
 import { DeviceSelector } from '../../components/cast/DeviceSelector';
@@ -20,11 +20,6 @@ import type { RoomLoaderData } from './loader';
 import { loader } from './loader';
 
 export { loader };
-
-interface ToastEventDetail {
-  message: string;
-  type: 'success' | 'error' | 'info';
-}
 
 export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
@@ -81,10 +76,6 @@ export default function Room() {
   const [adminPassword, setAdminPassword] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  const [toasts, setToasts] = useState<
-    { id: string; message: string; type: 'success' | 'info' | 'error' }[]
-  >([]);
-
   /* 4. Computed / Derived */
   const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
   const displayRoom = useMemo(
@@ -102,14 +93,7 @@ export default function Room() {
   const handleCopyShareLink = useCallback(() => {
     if (!shareUrl) return;
     navigator.clipboard.writeText(shareUrl);
-    setToasts((prev) => [
-      ...prev,
-      {
-        id: Math.random().toString(36).substr(2, 9),
-        message: 'Link copied!',
-        type: 'success',
-      },
-    ]);
+    showToast('Link copied!', 'success');
     setShowShare(false);
   }, [shareUrl]);
 
@@ -120,26 +104,13 @@ export default function Room() {
     setIsAuthenticating(false);
 
     if (data) {
-      setToasts((prev) => [
-        ...prev,
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          message: room?.hasPassword
-            ? 'Logged in as admin!'
-            : 'Password set and admin granted!',
-          type: 'success',
-        },
-      ]);
+      const message = room?.hasPassword
+        ? 'Logged in as admin!'
+        : 'Password set and admin granted!';
+      showToast(message, 'success');
       setAdminPassword('');
     } else {
-      setToasts((prev) => [
-        ...prev,
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          message: 'Failed to authenticate. Incorrect password?',
-          type: 'error',
-        },
-      ]);
+      showToast('Failed to authenticate. Incorrect password?', 'error');
     }
   }, [adminPassword, joinRoom, room?.hasPassword]);
 
@@ -270,40 +241,18 @@ export default function Room() {
     void fetchPlayback();
   }, [id, hasCurrentSong, songsCount, fetchPlayback]);
 
-  // Global events (Toast, Song Added)
+  // Global song events
   useEffect(() => {
     const handleSongAdded = (event: Event) => {
       const customEvent = event as CustomEvent<Song>;
       const song = customEvent.detail;
-      setToasts((prev) => [
-        ...prev,
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          message: `"${song.title}" added to queue`,
-          type: 'success',
-        },
-      ]);
-    };
-
-    const handleShowToast = (event: Event) => {
-      const customEvent = event as CustomEvent<ToastEventDetail>;
-      const { message, type } = customEvent.detail;
-      setToasts((prev) => [
-        ...prev,
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          message,
-          type,
-        },
-      ]);
+      showToast(`"${song.title}" added to queue`, 'success');
     };
 
     window.addEventListener('song-added', handleSongAdded);
-    window.addEventListener('show-toast', handleShowToast);
 
     return () => {
       window.removeEventListener('song-added', handleSongAdded);
-      window.removeEventListener('show-toast', handleShowToast);
     };
   }, []);
 
@@ -455,24 +404,6 @@ export default function Room() {
             </div>
           </div>
         )}
-
-        {/* Toasts */}
-        {toasts.map((toast) => (
-          <Toast
-            key={toast.id}
-            message={toast.message}
-            type={
-              toast.type === 'success'
-                ? 'success'
-                : toast.type === 'error'
-                  ? 'error'
-                  : 'info'
-            }
-            onClose={() =>
-              setToasts((prev) => prev.filter((t) => t.id !== toast.id))
-            }
-          />
-        ))}
 
         {/* Device Selector Modal */}
         <DeviceSelector
