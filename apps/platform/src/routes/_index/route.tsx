@@ -126,7 +126,7 @@ export default function Home() {
         shouldFadeIn && 'animate-fade-in',
       )}
     >
-      <div className="relative z-10 mx-auto mt-0 flex w-full max-w-5xl flex-col items-center px-6 sm:mt-[min(35vh_,_285px)]">
+      <div className="relative z-10 mx-auto mt-0 flex w-full max-w-5xl flex-col items-center px-6 sm:mt-[calc(50vh-7.25rem)]">
         <div className="crt-frame relative w-full max-w-3xl rounded-[36px] p-6 sm:p-10">
           <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
             <Button
