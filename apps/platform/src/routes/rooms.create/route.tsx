@@ -254,16 +254,19 @@ const CreateRoom: React.FC = () => {
                     {
                       id: 'youtube',
                       Icon: YouTubeIcon,
+                      variant: 'red' as const,
                     },
                     {
                       id: 'spotify',
                       Icon: SpotifyIcon,
+                      variant: 'green' as const,
                     },
                     {
                       id: 'soundcloud',
                       Icon: SoundCloudIcon,
+                      variant: 'orange' as const,
                     },
-                  ].map(({ id, Icon }) => {
+                  ].map(({ id, Icon, variant }) => {
                     const isEnabled = settings.enabledSources.includes(id);
                     return (
                       <Button
@@ -274,7 +277,8 @@ const CreateRoom: React.FC = () => {
                             : [...settings.enabledSources, id];
                           updateSetting('enabledSources', newSources);
                         }}
-                        variant={isEnabled ? 'primary' : 'tertiary'}
+                        variant={isEnabled ? variant : 'tertiary'}
+                        aria-pressed={isEnabled}
                         className="h-10 w-full flex-1"
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
@@ -295,12 +299,13 @@ const CreateRoom: React.FC = () => {
                     type="button"
                     onClick={() => setMode('server')}
                     className="w-full flex-col items-start px-4 py-4 text-left"
-                    variant={mode === 'server' ? 'secondary' : 'tertiary'}
+                    variant={mode === 'server' ? 'cyan' : 'tertiary'}
+                    aria-pressed={mode === 'server'}
                   >
-                    <div className="mb-2 font-pixel text-xs tracking-[0.2em]">
+                    <div className="mb-2 font-pixel text-current text-xs tracking-[0.2em]">
                       SERVER MODE
                     </div>
-                    <div className="text-theme-muted text-xs">
+                    <div className="text-current text-xs opacity-75">
                       Auto-play music 24/7 for radio rooms.
                     </div>
                   </Button>
@@ -308,12 +313,13 @@ const CreateRoom: React.FC = () => {
                     type="button"
                     onClick={() => setMode('host')}
                     className="w-full flex-col items-start px-4 py-4 text-left"
-                    variant={mode === 'host' ? 'primary' : 'tertiary'}
+                    variant={mode === 'host' ? 'magenta' : 'tertiary'}
+                    aria-pressed={mode === 'host'}
                   >
-                    <div className="mb-2 font-pixel text-xs tracking-[0.2em]">
+                    <div className="mb-2 font-pixel text-current text-xs tracking-[0.2em]">
                       HOST MODE
                     </div>
-                    <div className="text-theme-muted text-xs">
+                    <div className="text-current text-xs opacity-75">
                       Host controls playback for parties.
                     </div>
                   </Button>

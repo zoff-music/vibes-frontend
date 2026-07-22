@@ -347,6 +347,7 @@ export const RoomSettingsMenu = ({
                           });
                         }}
                         variant={isEnabled ? variant : 'tertiary'}
+                        aria-pressed={isEnabled}
                         className="w-full py-3"
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
@@ -368,11 +369,12 @@ export const RoomSettingsMenu = ({
                     onClick={() => room && updateRoom({ mode: 'server' })}
                     className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
                     variant={room?.mode === 'server' ? 'cyan' : 'tertiary'}
+                    aria-pressed={room?.mode === 'server'}
                   >
-                    <div className="w-full text-left font-pixel text-sm text-theme leading-snug">
+                    <div className="w-full text-left font-pixel text-current text-sm leading-snug">
                       Server Mode
                     </div>
-                    <div className="w-full text-left text-[11px] text-theme-muted leading-relaxed">
+                    <div className="w-full text-left text-[11px] text-current leading-relaxed opacity-75">
                       Auto-play music 24/7. Perfect for radio stations.
                     </div>
                   </Button>
@@ -382,11 +384,12 @@ export const RoomSettingsMenu = ({
                     onClick={() => room && updateRoom({ mode: 'host' })}
                     className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
                     variant={room?.mode === 'host' ? 'magenta' : 'tertiary'}
+                    aria-pressed={room?.mode === 'host'}
                   >
-                    <div className="w-full text-left font-pixel text-sm text-theme leading-snug">
+                    <div className="w-full text-left font-pixel text-current text-sm leading-snug">
                       Host Mode
                     </div>
-                    <div className="w-full text-left text-[11px] text-theme-muted leading-relaxed">
+                    <div className="w-full text-left text-[11px] text-current leading-relaxed opacity-75">
                       Host controls playback. Great for parties.
                     </div>
                   </Button>
