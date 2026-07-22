@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { LinksFunction } from 'react-router';
 import { Links, Meta, Scripts } from 'react-router';
-import App from './App';
+import { App } from './App';
 import stylesUrl from './index.css?url';
 
 export const links: LinksFunction = () => [

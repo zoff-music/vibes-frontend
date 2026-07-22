@@ -20,12 +20,10 @@ const CastAppContent = () => {
   );
 };
 
-const App = () => {
+export const App = () => {
   return (
     <CastProvider>
       <CastAppContent />
     </CastProvider>
   );
 };
-
-export default App;

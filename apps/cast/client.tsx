@@ -2,7 +2,7 @@ import { applyConsoleLogGuard, isTruthyFlag, safeWrap } from '@vibes/shared';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './src/styles/index.css';
-import App from './src/App';
+import { App } from './src/App';
 
 const debugEnabled = isTruthyFlag(import.meta.env.VITE_DEBUG);
 applyConsoleLogGuard(debugEnabled);
