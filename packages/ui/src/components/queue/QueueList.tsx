@@ -46,8 +46,8 @@ const QueueListComponent: React.FC<Props> = ({
 
   return (
     <div className="space-y-3">
-      {isSSR ? (
-        // SSR: Render without animations
+      {/* SSR: Render without animations */}
+      {isSSR &&
         queueSongs.map((song, index) => (
           <QueueItem
             key={song.id}
@@ -58,9 +58,9 @@ const QueueListComponent: React.FC<Props> = ({
             isAdmin={isAdmin}
             isSSR={true}
           />
-        ))
-      ) : (
-        // Client: Render with animations
+        ))}
+      {/* Client: Render with animations */}
+      {!isSSR && (
         <AnimatePresence initial={false} mode="popLayout">
           {queueSongs.map((song, index) => (
             <QueueItem

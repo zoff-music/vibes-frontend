@@ -344,9 +344,9 @@ export const RoomPlayer = React.memo(
           {VideoPlayerComponent && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               <VideoPlayerComponent
-                onEnded={
-                  displayRoom?.mode === 'host' ? () => skip(false) : undefined
-                }
+                {...(displayRoom?.mode === 'host' && {
+                  onEnded: () => skip(false),
+                })}
                 isVisible={!isConnected && isVideoTrack}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 appContext="platform"
@@ -361,45 +361,48 @@ export const RoomPlayer = React.memo(
               </div>
             </div>
           )}
-          {currentSong ? (
-            isPlayerMissing ? (
-              <div className="min-h-[315px]">
-                <div className="absolute inset-0 flex items-center justify-center bg-black">
-                  {/* SIGNAL CRT */}
-                  <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
-                    <div className="vhs-scanlines h-full w-full opacity-[0.2] mix-blend-overlay" />
-                    <div className="crt-overlay !absolute !z-[2] pointer-events-none inset-0 opacity-[0.1]" />
+          {currentSong && isPlayerMissing && (
+            <div className="min-h-[315px]">
+              <div className="absolute inset-0 flex items-center justify-center bg-black">
+                {/* SIGNAL CRT */}
+                <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
+                  <div className="vhs-scanlines h-full w-full opacity-[0.2] mix-blend-overlay" />
+                  <div className="crt-overlay !absolute !z-[2] pointer-events-none inset-0 opacity-[0.1]" />
+                </div>
+                <div className="relative z-10 text-center">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   </div>
-                  <div className="relative z-10 text-center">
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
-                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    </div>
-                    <p className="text-sm text-theme-muted">
-                      {currentPlayerError ?? 'Loading player...'}
-                    </p>
-                  </div>
+                  <p className="text-sm text-theme-muted">
+                    {currentPlayerError ?? 'Loading player...'}
+                  </p>
                 </div>
               </div>
-            ) : isSpotifyTrack ? (
-              SpotifyPlayerComponent ? (
-                <SpotifyPlayerComponent
-                  onEnded={
-                    displayRoom?.mode === 'host' ? () => skip(false) : undefined
-                  }
-                  isVisible={!isConnected}
-                />
-              ) : null
-            ) : isSoundCloudTrack ? (
-              SoundCloudPlayerComponent ? (
-                <SoundCloudPlayerComponent
-                  onEnded={
-                    displayRoom?.mode === 'host' ? () => skip(false) : undefined
-                  }
-                  isVisible={!isConnected}
-                />
-              ) : null
-            ) : null
-          ) : songs.length > 0 ? (
+            </div>
+          )}
+          {currentSong &&
+            !isPlayerMissing &&
+            isSpotifyTrack &&
+            SpotifyPlayerComponent && (
+              <SpotifyPlayerComponent
+                {...(displayRoom?.mode === 'host' && {
+                  onEnded: () => skip(false),
+                })}
+                isVisible={!isConnected}
+              />
+            )}
+          {currentSong &&
+            !isPlayerMissing &&
+            isSoundCloudTrack &&
+            SoundCloudPlayerComponent && (
+              <SoundCloudPlayerComponent
+                {...(displayRoom?.mode === 'host' && {
+                  onEnded: () => skip(false),
+                })}
+                isVisible={!isConnected}
+              />
+            )}
+          {!currentSong && songs.length > 0 && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               {/* SIGNAL CRT */}
               <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
@@ -413,7 +416,8 @@ export const RoomPlayer = React.memo(
                 <p className="text-sm text-theme-muted">Loading song...</p>
               </div>
             </div>
-          ) : (
+          )}
+          {!currentSong && songs.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-black">
               {/* SIGNAL CRT */}
               <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">

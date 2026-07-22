@@ -68,6 +68,8 @@ Use these rules for frontend work in this repository.
 
 - Keep the interface useful as the first screen; do not build a marketing landing page.
 - Use restrained, scannable UI.
+- Do not use ternaries to render JSX or DOM element branches. Render each branch with an explicit `&&` condition. Ternaries remain allowed for scalar values such as props, labels, and computed data.
+- Do not explicitly pass `undefined` to JSX props. Omit optional attributes with a conditional JSX spread instead.
 - Ensure interactive elements have `cursor-pointer` and visible hover/loading states.
 - Keep Tailwind classes statically discoverable.
 - Avoid arbitrary Tailwind values when built-in utilities are enough.

@@ -144,13 +144,16 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
                     {/* Source Icon */}
                     <div className="relative z-10 flex shrink-0 items-center justify-center opacity-70">
-                      {currentSongData.sourceType === 'spotify' ? (
+                      {currentSongData.sourceType === 'spotify' && (
                         <SpotifyIcon className="h-5 w-5" />
-                      ) : currentSongData.sourceType === 'soundcloud' ? (
-                        <SoundCloudIcon className="h-5 w-5" />
-                      ) : (
-                        <YouTubeIcon className="h-5 w-5" />
                       )}
+                      {currentSongData.sourceType === 'soundcloud' && (
+                        <SoundCloudIcon className="h-5 w-5" />
+                      )}
+                      {currentSongData.sourceType !== 'spotify' &&
+                        currentSongData.sourceType !== 'soundcloud' && (
+                          <YouTubeIcon className="h-5 w-5" />
+                        )}
                     </div>
                   </div>
                 </motion.div>

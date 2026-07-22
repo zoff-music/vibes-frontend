@@ -57,13 +57,16 @@ export const ActiveView: React.FC = () => {
 
             {/* Source Icon on Right */}
             <div className="mb-2 flex shrink-0 items-center justify-center pr-4 pb-1">
-              {currentSong.sourceType === 'spotify' ? (
+              {currentSong.sourceType === 'spotify' && (
                 <SpotifyIcon className="h-10 w-10 text-white/50" />
-              ) : currentSong.sourceType === 'soundcloud' ? (
-                <SoundCloudIcon className="h-10 w-10 text-white/50" />
-              ) : (
-                <YouTubeIcon className="h-10 w-10 text-white/50" />
               )}
+              {currentSong.sourceType === 'soundcloud' && (
+                <SoundCloudIcon className="h-10 w-10 text-white/50" />
+              )}
+              {currentSong.sourceType !== 'spotify' &&
+                currentSong.sourceType !== 'soundcloud' && (
+                  <YouTubeIcon className="h-10 w-10 text-white/50" />
+                )}
             </div>
           </div>
 
@@ -120,7 +123,7 @@ export const ActiveView: React.FC = () => {
         </div>
 
         <div className="custom-scrollbar flex-1 overflow-y-auto pr-2">
-          <QueueList songs={upNext} roomId={roomId || undefined} />
+          <QueueList songs={upNext} {...(roomId && { roomId })} />
         </div>
 
         <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 text-center">

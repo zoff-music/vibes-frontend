@@ -177,12 +177,13 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 variant="primary"
                 className="w-full gap-2"
               >
-                {isCasting ? (
+                {isCasting && (
                   <>
                     <SpinnerIcon className="h-4 w-4 animate-spin" />
                     <span>Casting...</span>
                   </>
-                ) : (
+                )}
+                {!isCasting && (
                   <>
                     <PlayIcon className="h-4 w-4" />
                     <span>Cast Current Song</span>
@@ -259,7 +260,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
             </Button>
           </div>
 
-          {availableDevices.length === 0 ? (
+          {availableDevices.length === 0 && (
             <div className="py-8 text-center text-gray-500 dark:text-gray-400">
               <CastDeviceIcon className="mx-auto mb-2 h-12 w-12 text-gray-300 dark:text-gray-600" />
               <div className="font-medium text-gray-500 dark:text-gray-400">
@@ -275,7 +276,8 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 Check browser console for debug info
               </div>
             </div>
-          ) : (
+          )}
+          {availableDevices.length > 0 && (
             <div className="space-y-2">
               {availableDevices.map((device) => (
                 <Button
@@ -291,9 +293,10 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 >
                   <div className="flex items-center space-x-3">
                     <div className="shrink-0">
-                      {device.type === 'chromecast' ? (
+                      {device.type === 'chromecast' && (
                         <CastDeviceIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-                      ) : (
+                      )}
+                      {device.type !== 'chromecast' && (
                         <CheckCircleIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
                       )}
                     </div>

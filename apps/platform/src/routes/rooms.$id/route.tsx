@@ -412,7 +412,7 @@ export default function Room() {
 
         {/* Main content */}
         {/* Main content - Conditionally rendered */}
-        {isLoading && !room && !loaderData?.room ? (
+        {isLoading && !room && !loaderData?.room && (
           <div className="flex flex-1 items-center justify-center">
             <div className="animate-fade-in text-center">
               <div className="mb-5 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-theme bg-theme-surface shadow-[0_0_20px_rgba(255,46,151,0.25)]">
@@ -424,13 +424,15 @@ export default function Room() {
               </p>
             </div>
           </div>
-        ) : error ? (
+        )}
+        {!(isLoading && !room && !loaderData?.room) && error && (
           <RoomErrorView
             error={error}
             roomId={id || ''}
             onRetry={() => fetchRoom()}
           />
-        ) : (
+        )}
+        {!(isLoading && !room && !loaderData?.room) && !error && (
           <div className="flex-1 overflow-visible lg:overflow-hidden">
             <div className="mx-auto max-w-7xl items-start gap-8 px-4 py-8 lg:grid lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-[1.3fr_0.7fr] lg:py-6">
               {/* Player Section */}

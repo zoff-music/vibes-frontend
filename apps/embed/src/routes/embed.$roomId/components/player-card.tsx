@@ -24,13 +24,14 @@ export function EmbedPlayerCard({
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-black">
-        {currentSong ? (
+        {currentSong && (
           <img
             src={currentSong.thumbnailUrl}
             alt=""
             className="h-full w-full object-cover opacity-75"
           />
-        ) : (
+        )}
+        {!currentSong && (
           <div className="flex h-full items-center justify-center text-theme-muted text-xs">
             Nothing playing
           </div>
