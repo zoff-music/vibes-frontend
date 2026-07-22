@@ -38,34 +38,23 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
   setPlaybackState: (state, roomMode) => {
     const currentState = get();
 
-    // In Server mode, preserve local playing state unless it's a new song
+    // Server playback keeps advancing independently, but play/pause is a local
+    // preference and must survive backend updates, including song changes.
     if (roomMode === 'server' && currentState.localIsPlaying !== null) {
-      const isNewSong =
-        !currentState.currentSong ||
-        !state.currentSong ||
-        currentState.currentSong.id !== state.currentSong.id;
+      set({
+        ...state,
+        isPlaying: currentState.localIsPlaying,
+        clientReferenceTime: Date.now(),
+        roomMode,
+      });
+      get().updateActualPosition();
 
-      if (!isNewSong) {
-        // Keep local playing state, but update position and other fields
-        set({
-          ...state,
-          isPlaying: currentState.localIsPlaying,
-          clientReferenceTime: Date.now(),
-          roomMode: roomMode || currentState.roomMode,
-        });
-        get().updateActualPosition();
-        return;
+      if (currentState.localIsPlaying) {
+        get().startAutoUpdate();
       } else {
-        // New song - clear local override
-        set({
-          ...state,
-          clientReferenceTime: Date.now(),
-          localIsPlaying: null,
-          roomMode: roomMode || currentState.roomMode,
-        });
-        get().updateActualPosition();
-        return;
+        get().stopAutoUpdate();
       }
+      return;
     }
 
     // Host mode or no local override - use server state

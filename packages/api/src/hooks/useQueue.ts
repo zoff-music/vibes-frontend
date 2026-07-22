@@ -2,6 +2,7 @@ import {
   type SourceType,
   usePlaybackStore,
   useQueueStore,
+  useRoomStore,
 } from '@vibes/shared';
 import { useCallback, useRef } from 'react';
 import { api } from '../index';
@@ -12,6 +13,7 @@ export const useQueue = (roomId: string) => {
   const addSong = useQueueStore((state) => state.addSong);
   const removeSong = useQueueStore((state) => state.removeSong);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
+  const roomMode = useRoomStore((state) => state.room?.mode);
   const lastAddTimestamp = useRef<number>(0);
 
   const fetchQueue = useCallback(async () => {
@@ -75,7 +77,7 @@ export const useQueue = (roomId: string) => {
           }
 
           if (playback) {
-            setPlaybackState(playback);
+            setPlaybackState(playback, roomMode);
           }
         }
 
@@ -84,7 +86,7 @@ export const useQueue = (roomId: string) => {
 
       return null;
     },
-    [roomId, addSong, fetchQueue, songs.length, setPlaybackState],
+    [roomId, addSong, fetchQueue, songs.length, setPlaybackState, roomMode],
   );
 
   const removeFromQueue = useCallback(

@@ -222,7 +222,7 @@ export default function Room() {
         setSongs(loaderData.songs);
       }
       if (loaderData.playback) {
-        setPlaybackState(loaderData.playback);
+        setPlaybackState(loaderData.playback, loaderData.room.mode);
       }
       setInitialized(true);
     }
