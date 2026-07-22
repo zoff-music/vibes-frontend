@@ -1,4 +1,4 @@
-import { addVibesUtilities } from '../../tailwind.vibes.mjs';
+import { addVibesUtilities } from './vibes-plugin.mjs';
 
 /** @type {import('tailwindcss').Config} */
 export default {

@@ -1,3 +1,4 @@
+/** Cast-specific theme exported from the shared Tailwind package. */
 /** @type {import('tailwindcss').Config} */
 export default {
   theme: {
@@ -50,20 +51,13 @@ export default {
       },
       animation: {
         'fade-in': 'fadeIn 0.6s ease-out',
-        float: 'float 6s ease-in-out infinite',
-        'float-delayed': 'float 7s ease-in-out 1s infinite',
         tear: 'tear 2.4s steps(1, end) infinite',
         'tear-shift': 'tearShift 3.6s steps(1, end) infinite',
-        'retro-grid-scroll': 'retroGridScroll 16s linear infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-12px)' },
         },
         tear: {
           '0%, 100%': { clipPath: 'inset(0 0 0 0)' },
@@ -80,22 +74,6 @@ export default {
           '60%': { transform: 'translateX(-3px)' },
           '80%': { transform: 'translateX(5px)' },
         },
-        retroGridScroll: {
-          from: { backgroundPosition: '0 0, 0 0' },
-          to: { backgroundPosition: '0 36px, 0 36px' },
-        },
-      },
-      backgroundImage: {
-        'synth-sky': `
-          radial-gradient(circle at 20% 20%, rgba(255, 106, 177, 0.28), transparent 45%),
-          radial-gradient(circle at 80% 10%, rgba(53, 211, 255, 0.24), transparent 40%),
-          linear-gradient(180deg, #120725 0%, #2a0f4e 45%, #ff5d86 100%)
-        `,
-        'vhs-lines': `repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 3px)`,
-        'sun-hero-gradient': `radial-gradient(circle at 50% 40%, #ffd76a, #ff4d86 58%)`,
-        'sun-hero-stripes': `repeating-linear-gradient(180deg, rgba(255, 206, 111, 0.9), rgba(255, 206, 111, 0.9) 6px, rgba(255, 120, 160, 0.75) 6px, rgba(255, 120, 160, 0.75) 12px)`,
-        'retro-grid-gradient': `linear-gradient(rgba(255, 105, 180, 0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(53, 211, 255, 0.25) 1px, transparent 1px)`,
-        'panel-surface-gradient': `linear-gradient(145deg, rgba(26, 12, 50, 0.92), rgba(40, 18, 70, 0.98))`,
       },
     },
   },
@@ -120,13 +98,6 @@ export default {
         '.text-theme-subtle': {
           color: '#8e82b8',
         },
-        '.synth-sky': {
-          backgroundImage: `
-            radial-gradient(circle at 20% 20%, rgba(255, 106, 177, 0.28), transparent 45%),
-            radial-gradient(circle at 80% 10%, rgba(53, 211, 255, 0.24), transparent 40%),
-            linear-gradient(180deg, #120725 0%, #2a0f4e 45%, #ff5d86 100%)
-          `,
-        },
         '.vhs-scanlines::before': {
           content: '""',
           position: 'absolute',
@@ -136,39 +107,6 @@ export default {
           mixBlendMode: 'screen',
           pointerEvents: 'none',
           opacity: '0.8',
-        },
-        '.sun-hero': {
-          position: 'absolute',
-          left: '50%',
-          top: '22%',
-          transform: 'translateX(-50%)',
-          width: 'clamp(240px, 40vw, 420px)',
-          aspectRatio: '1 / 1',
-          borderRadius: '9999px',
-          backgroundImage:
-            'radial-gradient(circle at 50% 40%, #ffd76a, #ff4d86 58%)',
-          boxShadow: '0 0 40px rgba(255, 102, 153, 0.3)',
-        },
-        '.sun-hero::after': {
-          content: '""',
-          position: 'absolute',
-          left: '8%',
-          right: '8%',
-          bottom: '18%',
-          height: '28%',
-          backgroundImage:
-            'repeating-linear-gradient(180deg, rgba(255, 206, 111, 0.9), rgba(255, 206, 111, 0.9) 6px, rgba(255, 120, 160, 0.75) 6px, rgba(255, 120, 160, 0.75) 12px)',
-          borderRadius: '999px',
-        },
-        '.retro-grid': {
-          position: 'absolute',
-          inset: '55% -10% -40%',
-          backgroundImage:
-            'linear-gradient(rgba(255, 105, 180, 0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(53, 211, 255, 0.25) 1px, transparent 1px)',
-          backgroundSize: '36px 36px',
-          animation: 'retroGridScroll 16s linear infinite',
-          willChange: 'background-position',
-          transform: 'perspective(800px) rotateX(55deg)',
         },
         '.panel-surface': {
           backgroundImage:

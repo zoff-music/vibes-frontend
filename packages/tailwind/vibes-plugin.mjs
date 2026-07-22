@@ -1,3 +1,4 @@
+/** Shared Vibes utilities for the Tailwind compatibility config. */
 export function addVibesUtilities({ addBase, addUtilities }) {
   addBase({
     '@keyframes vhsJitter': {
@@ -166,64 +167,6 @@ export function addVibesUtilities({ addBase, addUtilities }) {
       zIndex: '2',
       backgroundSize: '100% 2px, 4px 100%',
       pointerEvents: 'none',
-    },
-    '.synth-sky': {
-      background:
-        'linear-gradient(120deg, var(--synth-sky-1), var(--synth-sky-2), var(--synth-sky-3), var(--synth-sky-4))',
-      backgroundSize: '180% 180%',
-      animation: 'gradientShift 12s ease-in-out infinite',
-    },
-    '.synth-haze': {
-      background:
-        'radial-gradient(circle at 50% 30%, var(--synth-haze-1), transparent 55%), radial-gradient(circle at 80% 10%, var(--synth-haze-2), transparent 50%)',
-      opacity: '0.65',
-    },
-    '.sunset-orb': {
-      position: 'relative',
-      borderRadius: '9999px',
-      background:
-        'radial-gradient(circle at 50% 35%, var(--sunset-core), var(--sunset-mid) 50%, var(--sunset-glow) 75%, transparent 85%)',
-      filter: 'drop-shadow(0 0 50px rgba(255, 120, 160, 0.7))',
-      maskImage: 'linear-gradient(to bottom, black 65%, transparent 100%)',
-    },
-    '.sunset-orb::after': {
-      content: '""',
-      position: 'absolute',
-      inset: '58% 0% auto 0%',
-      height: '28%',
-      opacity: '0.65',
-      background:
-        'linear-gradient(rgba(15, 5, 30, 0.9), rgba(15, 5, 30, 0.9)), linear-gradient(rgba(15, 5, 30, 0.8), rgba(15, 5, 30, 0.8)), linear-gradient(rgba(15, 5, 30, 0.7), rgba(15, 5, 30, 0.7)), linear-gradient(rgba(15, 5, 30, 0.6), rgba(15, 5, 30, 0.6))',
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: '95% 4px, 90% 4.5px, 82% 5px, 70% 6px',
-      backgroundPosition: 'center 15px, center 32px, center 52px, center 75px',
-    },
-    '.sun-hero': {
-      width: 'clamp(14rem, 30vw, 18rem)',
-      height: 'clamp(14rem, 30vw, 18rem)',
-      top: 'clamp(2rem, 6vh, 4rem)',
-      left: '50%',
-      transform: 'translateX(-50%)',
-    },
-    '.retro-grid': {
-      transform: 'translateX(-50%) perspective(600px) rotateX(60deg)',
-      transformOrigin: 'bottom',
-      backgroundImage:
-        'linear-gradient(to right, rgba(255, 105, 180, 0) 0px, rgba(255, 105, 180, 0.45) 1px, rgba(255, 105, 180, 0) 2px), linear-gradient(to bottom, rgba(0, 217, 255, 0) 0px, rgba(0, 217, 255, 0.45) 1px, rgba(0, 217, 255, 0) 2px)',
-      backgroundSize: '80px 80px',
-      animation: 'retroGridScroll var(--grid-speed, 2s) linear infinite',
-      willChange: 'transform, background-position',
-      backfaceVisibility: 'hidden',
-      filter: 'drop-shadow(0 0 25px rgba(255, 46, 151, 0.5))',
-      opacity: '0.8',
-      maskImage: 'linear-gradient(to top, black 30%, transparent 95%)',
-      transition:
-        '--grid-speed 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease',
-    },
-    '.grid-warp': {
-      '--grid-speed': '0.08s',
-      opacity: '1',
-      filter: 'drop-shadow(0 0 40px rgba(255, 46, 151, 0.9))',
     },
     '.neon-panel': {
       background:
