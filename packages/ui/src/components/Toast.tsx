@@ -33,6 +33,9 @@ export const Toast = ({
 
   return (
     <div
+      role={type === 'error' ? 'alert' : 'status'}
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
+      aria-atomic="true"
       className={`fixed bottom-8 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-300 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
       }`}
