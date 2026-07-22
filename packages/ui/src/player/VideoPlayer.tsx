@@ -445,6 +445,9 @@ const VideoPlayerComponent = ({
       const activeSong = usePlaybackStore.getState().currentSong;
       if (activeSong?.sourceType === 'youtube') {
         lastLoadedVideoIdRef.current = activeSong.sourceId;
+        if (!isCastReceiver && !usePlaybackStore.getState().isPlaying) {
+          pauseAfterLoadVideoIdRef.current = activeSong.sourceId;
+        }
       }
 
       if (isCastReceiver) {
@@ -486,6 +489,24 @@ const VideoPlayerComponent = ({
           debugLog('pause-after-load');
           return;
         }
+      }
+
+      const playbackState = usePlaybackStore.getState();
+      const isNativeServerModeResume =
+        state === 1 &&
+        !isCastReceiver &&
+        playbackState.roomMode === 'server' &&
+        !playbackState.isPlaying;
+      if (isNativeServerModeResume) {
+        const targetTime = playbackState.actualPositionMs / 1000;
+        const [seekErr] = safeWrap(() =>
+          playerRef.current?.seekTo(targetTime, true),
+        );
+        playbackState.setLocalPlayingState(true, 'server');
+        if (seekErr && DEBUG) {
+          debugLog('native-resume-seek-error', { error: seekErr.message });
+        }
+        debugLog('native-resume', { targetTime });
       }
 
       if (state === 1 || state === 3) {
