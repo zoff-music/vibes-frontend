@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import React from 'react';
 
 interface ToggleProps {
@@ -47,8 +48,10 @@ export const Toggle: React.FC<ToggleProps> = ({
           className="peer sr-only"
         />
         <div
-          className={`peer h-7 w-12 rounded-full bg-black/10 shadow-[0_0_10px_rgba(0,0,0,0.1)] ring-1 ring-theme-neutral/30 transition-all after:absolute after:top-[2px] after:left-[2px] after:h-6 after:w-6 after:rounded-full after:bg-theme-subtle after:transition-all after:content-[''] peer-checked:bg-secondary peer-checked:ring-secondary peer-checked:after:translate-x-[85%] peer-checked:after:bg-white peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary dark:bg-white/10 dark:peer-checked:bg-secondary ${disabled ? 'cursor-not-allowed opacity-50 grayscale' : ''}
-          `}
+          className={classNames(
+            "peer h-7 w-12 rounded-full bg-black/10 shadow-[0_0_10px_rgba(0,0,0,0.1)] ring-1 ring-theme-neutral/30 transition-all after:absolute after:top-[2px] after:left-[2px] after:h-6 after:w-6 after:rounded-full after:bg-theme-subtle after:transition-all after:content-[''] peer-checked:bg-secondary peer-checked:ring-secondary peer-checked:after:translate-x-[85%] peer-checked:after:bg-white peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary dark:bg-white/10 dark:peer-checked:bg-secondary",
+            disabled && 'cursor-not-allowed opacity-50 grayscale',
+          )}
         />
       </div>
     </>
@@ -65,11 +68,12 @@ export const Toggle: React.FC<ToggleProps> = ({
     return (
       <label
         htmlFor={inputId}
-        className={`${labelClass} ${
+        className={classNames(
+          labelClass,
           !disabled
             ? 'cursor-pointer hover:border-theme-strong'
-            : 'cursor-not-allowed opacity-60'
-        }`}
+            : 'cursor-not-allowed opacity-60',
+        )}
       >
         {content}
       </label>
@@ -79,9 +83,11 @@ export const Toggle: React.FC<ToggleProps> = ({
   return (
     <label
       htmlFor={inputId}
-      className={`relative inline-flex cursor-pointer items-center ${
-        disabled ? 'cursor-not-allowed opacity-50' : ''
-      } ${variant === 'plain-full' ? 'w-full' : ''}`}
+      className={classNames(
+        'relative inline-flex items-center',
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+        variant === 'plain-full' && 'w-full',
+      )}
     >
       <input
         id={inputId}
@@ -93,8 +99,10 @@ export const Toggle: React.FC<ToggleProps> = ({
         className="peer sr-only"
       />
       <div
-        className={`peer h-7 w-12 rounded-full bg-black/10 shadow-[0_0_10px_rgba(0,0,0,0.1)] ring-1 ring-theme-neutral/30 transition-all after:absolute after:top-[2px] after:left-[2px] after:h-6 after:w-6 after:rounded-full after:bg-theme-subtle after:transition-all after:content-[''] peer-checked:bg-secondary peer-checked:ring-secondary peer-checked:after:translate-x-full peer-checked:after:bg-white peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary dark:bg-white/10 dark:peer-checked:bg-secondary ${disabled ? 'cursor-not-allowed opacity-50 grayscale' : ''}
-        `}
+        className={classNames(
+          "peer h-7 w-12 rounded-full bg-black/10 shadow-[0_0_10px_rgba(0,0,0,0.1)] ring-1 ring-theme-neutral/30 transition-all after:absolute after:top-[2px] after:left-[2px] after:h-6 after:w-6 after:rounded-full after:bg-theme-subtle after:transition-all after:content-[''] peer-checked:bg-secondary peer-checked:ring-secondary peer-checked:after:translate-x-full peer-checked:after:bg-white peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary dark:bg-white/10 dark:peer-checked:bg-secondary",
+          disabled && 'cursor-not-allowed opacity-50 grayscale',
+        )}
       />
     </label>
   );

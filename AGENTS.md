@@ -270,6 +270,7 @@ const [error, results] = await api.get('/soundcloud/search', {}, { q: 'never gon
 ## Styling
 
 Use Tailwind CSS v4 with dark mode support. No inline styles or CSS-in-JS.
+Use `classNames` from `@vibes/shared` for conditional or composed class names. Do not interpolate class names with template strings.
 
 ```tsx
 // Good - with dark mode support
@@ -294,6 +295,8 @@ Use Tailwind CSS v4 with dark mode support. No inline styles or CSS-in-JS.
 - Include proper focus states for accessibility
 
 ```typescript
+import { classNames } from '@vibes/shared';
+
 interface ButtonProps {
   variant: 'primary' | 'secondary';
   children: React.ReactNode;
@@ -304,16 +307,13 @@ interface ButtonProps {
 export function Button({ variant, children, onClick, disabled }: ButtonProps) {
   return (
     <button
-      className={`
-        px-4 py-2 rounded-lg font-medium transition-colors duration-200
-        focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-        dark:focus:ring-offset-gray-800
-        ${variant === 'primary' 
+      className={classNames(
+        'px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800',
+        variant === 'primary'
           ? 'bg-primary text-white hover:bg-primary-dark dark:bg-primary-light dark:hover:bg-primary' 
-          : 'bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'
-        }
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-      `}
+          : 'bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600',
+        disabled && 'opacity-50 cursor-not-allowed',
+      )}
       onClick={onClick}
       disabled={disabled}
     >
