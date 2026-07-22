@@ -613,7 +613,11 @@ const VideoPlayerComponent = ({
           onStateChange={handleStateChange}
           onEnd={handleEnd}
           onError={handleError}
-          className="absolute inset-0 flex min-h-[200px] items-center justify-center [&_iframe]:aspect-video [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full"
+          className={
+            fill
+              ? 'absolute inset-0 flex h-full min-h-0 w-full items-center justify-center [&_iframe]:h-full [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
+              : 'absolute inset-0 flex min-h-[200px] items-center justify-center [&_iframe]:aspect-video [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
+          }
         />
       )}
 

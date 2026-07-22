@@ -323,9 +323,12 @@ export default function Room() {
       setShowShare(false);
     };
 
-    document.addEventListener('click', handleOutsideClick);
+    const listenerTimeout = window.setTimeout(() => {
+      document.addEventListener('click', handleOutsideClick);
+    }, 0);
 
     return () => {
+      window.clearTimeout(listenerTimeout);
       document.removeEventListener('click', handleOutsideClick);
     };
   }, [showShare]);
@@ -346,9 +349,12 @@ export default function Room() {
       setShowShare(false);
     };
 
-    document.addEventListener('click', handleOutsideClick);
+    const listenerTimeout = window.setTimeout(() => {
+      document.addEventListener('click', handleOutsideClick);
+    }, 0);
 
     return () => {
+      window.clearTimeout(listenerTimeout);
       document.removeEventListener('click', handleOutsideClick);
     };
   }, [showSettings]);
