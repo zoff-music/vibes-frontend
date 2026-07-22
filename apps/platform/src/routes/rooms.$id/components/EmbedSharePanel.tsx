@@ -149,7 +149,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
         <button
           type="button"
           onClick={handleCopyEmbedScript}
-          className="group w-full cursor-copy rounded-2xl border border-theme bg-theme-surface p-5 text-left transition-colors hover:border-theme-strong"
+          className="group w-full cursor-copy rounded-2xl border border-theme bg-theme-surface p-5 text-left transition-colors hover:border-theme-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
           aria-label="Select and copy embed code"
         >
           <code
