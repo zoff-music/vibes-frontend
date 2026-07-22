@@ -1,4 +1,4 @@
-import { usePageVisibility } from '@vibes/shared';
+import { classNames, usePageVisibility } from '@vibes/shared';
 import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useNavigationType } from 'react-router';
@@ -121,7 +121,10 @@ export default function Home() {
 
   return (
     <div
-      className={`relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden sm:justify-start ${shouldFadeIn ? 'animate-fade-in' : ''}`}
+      className={classNames(
+        'relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden sm:justify-start',
+        shouldFadeIn && 'animate-fade-in',
+      )}
     >
       <div className="relative z-10 mx-auto mt-0 flex w-full max-w-5xl flex-col items-center px-6 sm:mt-[min(35vh_,_285px)]">
         <div className="crt-frame relative w-full max-w-3xl rounded-[36px] p-6 sm:p-10">

@@ -1,5 +1,5 @@
 import { useProviderToken } from '@vibes/api';
-import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
+import { classNames, safeWrapAsync, usePlaybackStore } from '@vibes/shared';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import SpotifyWebPlayer, {
   type CallbackState,
@@ -207,7 +207,12 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
 
   if (!accessToken && isFetchingToken) {
     return (
-      <div className={`${containerClass} flex items-center justify-center`}>
+      <div
+        className={classNames(
+          containerClass,
+          'flex items-center justify-center',
+        )}
+      >
         <div className="text-center">
           <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-green-500/30 border-t-green-500" />
           <p className="text-sm text-white/70">Connecting to Spotify...</p>
@@ -217,7 +222,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   }
 
   return (
-    <div className={`${containerClass} ${!isVisible ? 'hidden' : ''}`}>
+    <div className={containerClass}>
       {/* Spotify Background Gradient - Bottom Layer */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954]/20 via-black/40 to-black opacity-90" />
 
@@ -243,7 +248,12 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
             </p>
             <div className="mt-4 flex items-center gap-3">
               <div
-                className={`h-2.5 w-2.5 rounded-full ${isPlaying ? 'animate-pulse bg-[#1DB954] shadow-[0_0_12px_rgba(29,185,84,0.8)]' : 'bg-white/30'}`}
+                className={classNames(
+                  'h-2.5 w-2.5 rounded-full',
+                  isPlaying &&
+                    'animate-pulse bg-[#1DB954] shadow-[0_0_12px_rgba(29,185,84,0.8)]',
+                  !isPlaying && 'bg-white/30',
+                )}
               />
               <span className="font-mono text-[10px] text-white/50 uppercase tracking-[0.2em]">
                 {isPlaying ? 'Streaming from Spotify' : 'Paused on Spotify'}

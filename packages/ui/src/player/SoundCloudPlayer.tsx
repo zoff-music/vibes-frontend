@@ -1,4 +1,4 @@
-import { safeWrap, usePlaybackStore } from '@vibes/shared';
+import { classNames, safeWrap, usePlaybackStore } from '@vibes/shared';
 import { memo, useEffect, useRef, useState } from 'react';
 
 // Declare SC global on window
@@ -176,7 +176,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     : 'relative aspect-video min-h-[200px] w-full overflow-hidden rounded-xl';
 
   return (
-    <div className={`${containerClass} bg-black ${!isVisible ? 'hidden' : ''}`}>
+    <div className={classNames(containerClass, 'bg-black')}>
       {/* CRT Effects Layer - Behind content, only while loading */}
       {!isReady && (
         <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
@@ -207,7 +207,11 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         scrolling="no"
         frameBorder="0"
         allow="autoplay; encrypted-media"
-        className={`h-full w-full ${isReady ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700`}
+        className={classNames(
+          'h-full w-full transition-opacity duration-700',
+          isReady && 'opacity-100',
+          !isReady && 'opacity-0',
+        )}
         title={currentSong.title}
       />
     </div>
