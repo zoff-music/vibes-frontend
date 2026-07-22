@@ -22,7 +22,7 @@ export function EmbedPlayerCard({
   };
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-col">
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-black">
         {currentSong ? (
           <img

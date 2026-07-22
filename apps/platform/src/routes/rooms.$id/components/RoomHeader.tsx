@@ -105,7 +105,7 @@ export const RoomHeader = React.memo(
               <Button
                 ref={shareButtonRef}
                 onClick={onToggleShare}
-                variant={showShare ? 'secondary' : 'tertiary'}
+                variant={showShare ? 'tertiary-active' : 'tertiary'}
                 size="icon"
                 title="Share Room"
               >
@@ -135,7 +135,7 @@ export const RoomHeader = React.memo(
               <Button
                 ref={settingsButtonRef}
                 onClick={onToggleSettings}
-                variant={showSettings ? 'secondary' : 'tertiary'}
+                variant={showSettings ? 'tertiary-active' : 'tertiary'}
                 size="icon"
                 title="Room Settings"
               >

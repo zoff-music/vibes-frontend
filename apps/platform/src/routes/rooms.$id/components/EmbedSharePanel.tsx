@@ -18,6 +18,7 @@ interface Props {
 export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [autoplay, setAutoplay] = useState(false);
+  const [player, setPlayer] = useState(true);
   const [playlist, setPlaylist] = useState(true);
   const [skip, setSkip] = useState(true);
   const [vote, setVote] = useState(true);
@@ -31,12 +32,13 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
     if (err || !embedUrl) return '';
 
     embedUrl.searchParams.set('autoplay', String(autoplay));
+    embedUrl.searchParams.set('player', String(player));
     embedUrl.searchParams.set('playlist', String(playlist));
     embedUrl.searchParams.set('skip', String(skip));
     embedUrl.searchParams.set('vote', String(vote));
 
     return `<iframe src="${embedUrl.toString()}" title="Zoff room ${roomId}" width="100%" height="480" loading="lazy" allow="autoplay" frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
-  }, [autoplay, embedBasePath, playlist, roomId, skip, url, vote]);
+  }, [autoplay, embedBasePath, player, playlist, roomId, skip, url, vote]);
 
   const handleCopyEmbedScript = async () => {
     const selection = window.getSelection();
@@ -101,6 +103,15 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
               setCopied(false);
             }}
             label="Autoplay"
+            variant="plain-full"
+          />
+          <Toggle
+            checked={player}
+            onChange={(enabled) => {
+              setPlayer(enabled);
+              setCopied(false);
+            }}
+            label="Player"
             variant="plain-full"
           />
           <Toggle

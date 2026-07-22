@@ -123,7 +123,7 @@ export const RoomSettingsMenu = ({
                 <div className="flex items-center gap-3">
                   <Button
                     onClick={onToggleShare}
-                    variant={showShare ? 'primary' : 'tertiary'}
+                    variant={showShare ? 'tertiary-active' : 'tertiary'}
                     className="flex-1 gap-2 font-pixel text-xs"
                     title="Share Room"
                   >
@@ -315,16 +315,19 @@ export const RoomSettingsMenu = ({
                     {
                       id: 'youtube',
                       Icon: YouTubeIcon,
+                      variant: 'red' as const,
                     },
                     {
                       id: 'spotify',
                       Icon: SpotifyIcon,
+                      variant: 'green' as const,
                     },
                     {
                       id: 'soundcloud',
                       Icon: SoundCloudIcon,
+                      variant: 'orange' as const,
                     },
-                  ].map(({ id, Icon }) => {
+                  ].map(({ id, Icon, variant }) => {
                     const isEnabled =
                       room?.settings.enabledSources.includes(id) ?? true;
                     return (
@@ -343,7 +346,7 @@ export const RoomSettingsMenu = ({
                             enabledSources: newSources,
                           });
                         }}
-                        variant={isEnabled ? 'primary' : 'tertiary'}
+                        variant={isEnabled ? variant : 'tertiary'}
                         className="w-full py-3"
                         title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
                       >
@@ -364,7 +367,7 @@ export const RoomSettingsMenu = ({
                     disabled={room?.hasPassword && !isAdmin}
                     onClick={() => room && updateRoom({ mode: 'server' })}
                     className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
-                    variant={room?.mode === 'server' ? 'secondary' : 'tertiary'}
+                    variant={room?.mode === 'server' ? 'cyan' : 'tertiary'}
                   >
                     <div className="w-full text-left font-pixel text-sm text-theme leading-snug">
                       Server Mode
@@ -378,7 +381,7 @@ export const RoomSettingsMenu = ({
                     disabled={room?.hasPassword && !isAdmin}
                     onClick={() => room && updateRoom({ mode: 'host' })}
                     className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
-                    variant={room?.mode === 'host' ? 'primary' : 'tertiary'}
+                    variant={room?.mode === 'host' ? 'magenta' : 'tertiary'}
                   >
                     <div className="w-full text-left font-pixel text-sm text-theme leading-snug">
                       Host Mode

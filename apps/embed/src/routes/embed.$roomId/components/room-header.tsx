@@ -1,4 +1,5 @@
 import type { Room } from '@vibes/models';
+import { useRoomStore } from '@vibes/shared';
 import { Button, ExternalLinkIcon, ListenerCount, SkipIcon } from '@vibes/ui';
 
 interface Props {
@@ -7,7 +8,6 @@ interface Props {
   room: Room;
   roomId: string;
   showSkip: boolean;
-  usersCount: number;
 }
 
 export function EmbedRoomHeader({
@@ -16,9 +16,9 @@ export function EmbedRoomHeader({
   room,
   roomId,
   showSkip,
-  usersCount,
 }: Props) {
   const roomUrl = `/rooms/${encodeURIComponent(roomId)}`;
+  const usersCount = useRoomStore((state) => state.usersCount);
 
   return (
     <header className="flex items-center justify-between border-theme border-b px-4 py-3">

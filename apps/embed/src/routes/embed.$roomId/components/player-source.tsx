@@ -1,11 +1,12 @@
 import type { Song } from '@vibes/models';
 import { SoundCloudPlayer, SpotifyPlayer, VideoPlayer } from '@vibes/ui';
+import { memo } from 'react';
 
 interface Props {
   currentSong: Song | null;
 }
 
-export function EmbedPlayerSource({ currentSong }: Props) {
+function EmbedPlayerSourceComponent({ currentSong }: Props) {
   if (!currentSong) return null;
 
   return (
@@ -20,3 +21,10 @@ export function EmbedPlayerSource({ currentSong }: Props) {
     </div>
   );
 }
+
+export const EmbedPlayerSource = memo(
+  EmbedPlayerSourceComponent,
+  (previous, next) =>
+    previous.currentSong?.sourceType === next.currentSong?.sourceType &&
+    previous.currentSong?.sourceId === next.currentSong?.sourceId,
+);
