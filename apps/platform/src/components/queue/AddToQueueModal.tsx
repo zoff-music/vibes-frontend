@@ -266,7 +266,13 @@ export const AddToQueueModal: React.FC<Props> = ({
   if (!isVisible) return null;
 
   return (
-    <Modal ariaLabelledBy="add-song-title" isOpen={isVisible} onClose={onClose}>
+    <Modal
+      alignment="top"
+      ariaLabelledBy="add-song-title"
+      isOpen={isVisible}
+      onClose={onClose}
+      size="lg"
+    >
       {/* Header */}
       <div className="mb-6">
         <div className="mb-4 flex items-center justify-between">
