@@ -41,7 +41,7 @@ function DebugConsoleLoader() {
   return <DebugConsole />;
 }
 
-export default function App() {
+export function App() {
   const location = useLocation();
 
   useEffect(() => {

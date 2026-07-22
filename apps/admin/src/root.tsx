@@ -7,7 +7,7 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from 'react-router';
-import App from './App';
+import { App } from './App';
 import stylesUrl from './index.css?url';
 import { getThemeFromCookies } from './ssr/theme.server';
 
