@@ -72,11 +72,14 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
     };
 
     const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
+    const ariaLabel = props['aria-label'] || title;
 
     return (
       <button
         type={type}
         ref={ref}
+        title={title}
+        aria-label={ariaLabel}
         disabled={disabled || loading}
         className={classes}
         {...props}
