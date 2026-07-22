@@ -1,6 +1,8 @@
 import type { Room, RoomSettings, RoomUpdate } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import {
   Button,
+  ChevronDownIcon,
   CircleHalfIcon,
   MoonIcon,
   ShareIcon,
@@ -11,7 +13,13 @@ import {
   YouTubeIcon,
 } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
-import { type RefObject, useEffect, useRef, useState } from 'react';
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { Theme } from '../../../stores/themeStore';
 import { RoomSharePanel } from './RoomSharePanel';
 
@@ -61,7 +69,18 @@ export const RoomSettingsMenu = ({
   settingsMenuRef,
 }: RoomSettingsMenuProps) => {
   const [wobblePassword, setWobblePassword] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
   const adminSectionRef = useRef<HTMLDivElement>(null);
+  const scrollPanelRef = useRef<HTMLDivElement>(null);
+
+  const updateScrollCue = useCallback(() => {
+    const panel = scrollPanelRef.current;
+    if (!panel) return;
+
+    const remainingScroll =
+      panel.scrollHeight - panel.scrollTop - panel.clientHeight;
+    setCanScrollDown(remainingScroll > 8);
+  }, []);
 
   useEffect(() => {
     if (wobblePassword) {
@@ -99,6 +118,26 @@ export const RoomSettingsMenu = ({
     };
   }, [showSettings]);
 
+  useEffect(() => {
+    if (!showSettings) return;
+
+    const panel = scrollPanelRef.current;
+    if (!panel) return;
+
+    const animationFrame = requestAnimationFrame(updateScrollCue);
+    const resizeObserver = new ResizeObserver(updateScrollCue);
+    resizeObserver.observe(panel);
+
+    if (panel.firstElementChild) {
+      resizeObserver.observe(panel.firstElementChild);
+    }
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
+    };
+  }, [showSettings, updateScrollCue]);
+
   return (
     <AnimatePresence>
       {showSettings && (
@@ -116,334 +155,360 @@ export const RoomSettingsMenu = ({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="fixed top-[var(--room-header-height)] right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full overflow-y-auto overscroll-contain border-theme border-t bg-theme-surface p-5 text-theme shadow-2xl sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:mt-3 sm:max-h-[70vh] sm:w-72 sm:overflow-y-auto sm:rounded-3xl sm:border"
+            className="fixed top-[var(--room-header-height)] right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full overflow-hidden border-theme border-t bg-theme-surface text-theme shadow-2xl sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:max-h-[70vh] sm:w-72 sm:rounded-3xl sm:border"
           >
-            <div className="space-y-4">
-              <div className="space-y-3 sm:hidden">
-                <div className="flex items-center gap-3">
-                  <Button
-                    onClick={onToggleShare}
-                    variant={showShare ? 'tertiary-active' : 'tertiary'}
-                    className="flex-1 gap-2 font-pixel text-xs"
-                    title="Share Room"
-                  >
-                    <ShareIcon className="h-4 w-4" />
-                    Share
-                  </Button>
+            <div
+              ref={scrollPanelRef}
+              onScroll={updateScrollCue}
+              className="h-full overflow-y-scroll overscroll-contain p-5 sm:max-h-[70vh]"
+            >
+              <div className="space-y-4">
+                <div className="space-y-3 sm:hidden">
+                  <div className="flex items-center gap-3">
+                    <Button
+                      onClick={onToggleShare}
+                      variant={showShare ? 'tertiary-active' : 'tertiary'}
+                      className="flex-1 gap-2 font-pixel text-xs"
+                      title="Share Room"
+                    >
+                      <ShareIcon className="h-4 w-4" />
+                      Share
+                    </Button>
 
-                  <Button
-                    onClick={onToggleDarkMode}
-                    variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
-                    className="flex-1 gap-2 font-pixel text-xs"
-                    title={`Theme: ${currentTheme.name}`}
-                  >
-                    <div className="flex h-4 w-4 items-center justify-center">
-                      {themeId === 'light' && <SunIcon className="h-4 w-4" />}
-                      {themeId === 'dark' && <MoonIcon className="h-4 w-4" />}
-                      {themeId === 'auto' && (
-                        <CircleHalfIcon className="h-4 w-4" />
-                      )}
+                    <Button
+                      onClick={onToggleDarkMode}
+                      variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
+                      className="flex-1 gap-2 font-pixel text-xs"
+                      title={`Theme: ${currentTheme.name}`}
+                    >
+                      <div className="flex h-4 w-4 items-center justify-center">
+                        {themeId === 'light' && <SunIcon className="h-4 w-4" />}
+                        {themeId === 'dark' && <MoonIcon className="h-4 w-4" />}
+                        {themeId === 'auto' && (
+                          <CircleHalfIcon className="h-4 w-4" />
+                        )}
+                      </div>
+                      {currentTheme.name}
+                    </Button>
+                  </div>
+
+                  {showShare && (
+                    <div className="rounded-2xl border border-theme bg-theme-surface p-4">
+                      <RoomSharePanel
+                        url={shareUrl}
+                        roomId={roomId || ''}
+                        onCopy={onCopyShareLink}
+                      />
                     </div>
-                    {currentTheme.name}
-                  </Button>
+                  )}
                 </div>
 
-                {showShare && (
-                  <div className="rounded-2xl border border-theme bg-theme-surface p-4">
-                    <RoomSharePanel
-                      url={shareUrl}
-                      roomId={roomId || ''}
-                      onCopy={onCopyShareLink}
-                    />
+                <h4 className="border-theme border-b pb-2 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+                  Room Control
+                </h4>
+
+                {room?.mode === 'host' && (
+                  <div className="rounded-lg border border-secondary/30 bg-secondary/10 p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-secondary"></div>
+                      <span className="font-pixel text-secondary text-sm">
+                        Host Mode Active
+                      </span>
+                    </div>
+                    <p className="mt-1 text-theme-muted text-xs">
+                      In host mode, only the host can skip songs. Skip settings
+                      are disabled.
+                    </p>
                   </div>
                 )}
-              </div>
 
-              <h4 className="border-theme border-b pb-2 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
-                Room Control
-              </h4>
-
-              {room?.mode === 'host' && (
-                <div className="rounded-lg border border-secondary/30 bg-secondary/10 p-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-secondary"></div>
-                    <span className="font-pixel text-secondary text-sm">
-                      Host Mode Active
-                    </span>
-                  </div>
-                  <p className="mt-1 text-theme-muted text-xs">
-                    In host mode, only the host can skip songs. Skip settings
-                    are disabled.
-                  </p>
-                </div>
-              )}
-
-              <div className="group flex items-center justify-between">
-                <Toggle
-                  label="Allow Skip"
-                  description={
-                    room?.mode === 'host'
-                      ? 'Host controls skipping'
-                      : 'Anyone can skip'
-                  }
-                  disabled={
-                    (room?.hasPassword && !isAdmin) || room?.mode === 'host'
-                  }
-                  checked={room?.settings.skipAllowed ?? false}
-                  onChange={(checked) =>
-                    room &&
-                    updateRoomSettings({
-                      ...room.settings,
-                      skipAllowed: checked,
-                    })
-                  }
-                  variant="plain-full"
-                />
-              </div>
-
-              <div className="group flex items-center justify-between">
-                <Toggle
-                  label="Democratic Skip"
-                  description={
-                    room?.mode === 'host'
-                      ? 'Host decides skipping'
-                      : 'Require votes'
-                  }
-                  disabled={
-                    (room?.hasPassword && !isAdmin) || room?.mode === 'host'
-                  }
-                  checked={room?.settings.democraticSkip ?? false}
-                  onChange={(checked) =>
-                    room &&
-                    updateRoomSettings({
-                      ...room.settings,
-                      democraticSkip: checked,
-                    })
-                  }
-                  variant="plain-full"
-                />
-              </div>
-
-              <div className="group flex items-center justify-between">
-                <Toggle
-                  label="Loop Queue"
-                  description="Cycled back to end"
-                  disabled={room?.hasPassword && !isAdmin}
-                  checked={room?.settings.loopQueue ?? false}
-                  onChange={(checked) =>
-                    room &&
-                    updateRoomSettings({
-                      ...room.settings,
-                      loopQueue: checked,
-                    })
-                  }
-                  variant="plain-full"
-                />
-              </div>
-
-              <div className="group flex items-center justify-between">
-                <Toggle
-                  label="Allow Duplicates"
-                  description="Same song multiple times"
-                  disabled={room?.hasPassword && !isAdmin}
-                  checked={room?.settings.allowDuplicates ?? false}
-                  onChange={(checked) =>
-                    room &&
-                    updateRoomSettings({
-                      ...room.settings,
-                      allowDuplicates: checked,
-                    })
-                  }
-                  variant="plain-full"
-                />
-              </div>
-
-              <div className="group flex items-center justify-between">
-                <Toggle
-                  label="Remove Played"
-                  description="Removed after play"
-                  disabled={room?.hasPassword && !isAdmin}
-                  checked={room?.settings.removeOnPlay ?? false}
-                  onChange={(checked) =>
-                    room &&
-                    updateRoomSettings({
-                      ...room.settings,
-                      removeOnPlay: checked,
-                    })
-                  }
-                  variant="plain-full"
-                />
-              </div>
-
-              <div className="group flex items-center justify-between">
-                <Toggle
-                  label="Admins Only Add"
-                  description="Only admins add songs"
-                  disabled={room?.hasPassword && !isAdmin}
-                  checked={room?.settings.onlyAdminAddSongs ?? false}
-                  onChange={(checked) => {
-                    if (
-                      room &&
-                      checked &&
-                      !room.hasPassword &&
-                      !adminPassword
-                    ) {
-                      setWobblePassword(true);
-                      adminSectionRef.current?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                      });
-                      return;
+                <div className="group flex items-center justify-between">
+                  <Toggle
+                    label="Allow Skip"
+                    description={
+                      room?.mode === 'host'
+                        ? 'Host controls skipping'
+                        : 'Anyone can skip'
                     }
-
-                    room &&
+                    disabled={
+                      (room?.hasPassword && !isAdmin) || room?.mode === 'host'
+                    }
+                    checked={room?.settings.skipAllowed ?? false}
+                    onChange={(checked) =>
+                      room &&
                       updateRoomSettings({
                         ...room.settings,
-                        onlyAdminAddSongs: checked,
-                      });
-                  }}
-                  variant="plain-full"
-                />
-              </div>
-
-              <div className="border-theme border-t pt-4">
-                <h5 className="mb-3 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
-                  Sources
-                </h5>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    {
-                      id: 'youtube',
-                      Icon: YouTubeIcon,
-                      variant: 'red' as const,
-                    },
-                    {
-                      id: 'spotify',
-                      Icon: SpotifyIcon,
-                      variant: 'green' as const,
-                    },
-                    {
-                      id: 'soundcloud',
-                      Icon: SoundCloudIcon,
-                      variant: 'orange' as const,
-                    },
-                  ].map(({ id, Icon, variant }) => {
-                    const isEnabled =
-                      room?.settings.enabledSources.includes(id) ?? true;
-                    return (
-                      <Button
-                        key={id}
-                        disabled={room?.hasPassword && !isAdmin}
-                        onClick={() => {
-                          if (!room) return;
-                          const newSources = isEnabled
-                            ? room.settings.enabledSources.filter(
-                                (s) => s !== id,
-                              )
-                            : [...room.settings.enabledSources, id];
-                          updateRoomSettings({
-                            ...room.settings,
-                            enabledSources: newSources,
-                          });
-                        }}
-                        variant={isEnabled ? variant : 'tertiary'}
-                        aria-pressed={isEnabled}
-                        className="w-full py-3"
-                        title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
-                      >
-                        <Icon className="h-6 w-6" />
-                      </Button>
-                    );
-                  })}
+                        skipAllowed: checked,
+                      })
+                    }
+                    variant="plain-full"
+                  />
                 </div>
-              </div>
 
-              <div className="border-theme border-t pt-4">
-                <h5 className="mb-3 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
-                  Room Mode
-                </h5>
-
-                <div className="space-y-2">
-                  <Button
-                    disabled={room?.hasPassword && !isAdmin}
-                    onClick={() => room && updateRoom({ mode: 'server' })}
-                    className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
-                    variant={room?.mode === 'server' ? 'cyan' : 'tertiary'}
-                    aria-pressed={room?.mode === 'server'}
-                  >
-                    <div className="w-full text-left font-pixel text-current text-sm leading-snug">
-                      Server Mode
-                    </div>
-                    <div className="w-full text-left text-[11px] text-current leading-relaxed opacity-75">
-                      Auto-play music 24/7. Perfect for radio stations.
-                    </div>
-                  </Button>
-
-                  <Button
-                    disabled={room?.hasPassword && !isAdmin}
-                    onClick={() => room && updateRoom({ mode: 'host' })}
-                    className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
-                    variant={room?.mode === 'host' ? 'magenta' : 'tertiary'}
-                    aria-pressed={room?.mode === 'host'}
-                  >
-                    <div className="w-full text-left font-pixel text-current text-sm leading-snug">
-                      Host Mode
-                    </div>
-                    <div className="w-full text-left text-[11px] text-current leading-relaxed opacity-75">
-                      Host controls playback. Great for parties.
-                    </div>
-                  </Button>
+                <div className="group flex items-center justify-between">
+                  <Toggle
+                    label="Democratic Skip"
+                    description={
+                      room?.mode === 'host'
+                        ? 'Host decides skipping'
+                        : 'Require votes'
+                    }
+                    disabled={
+                      (room?.hasPassword && !isAdmin) || room?.mode === 'host'
+                    }
+                    checked={room?.settings.democraticSkip ?? false}
+                    onChange={(checked) =>
+                      room &&
+                      updateRoomSettings({
+                        ...room.settings,
+                        democraticSkip: checked,
+                      })
+                    }
+                    variant="plain-full"
+                  />
                 </div>
-              </div>
 
-              {!isAdmin && (
-                <div
-                  ref={adminSectionRef}
-                  className={`group mt-6 flex flex-col gap-2 border-theme border-t pt-4 text-theme transition-all duration-300 ${wobblePassword ? 'rounded-xl border-red-500' : ''}`}
-                >
-                  <span
-                    className={`font-pixel text-sm transition-colors ${wobblePassword ? 'animate-bounce text-red-500' : ''}`}
-                  >
-                    {wobblePassword ? 'Password required!' : 'Admin Access'}
-                  </span>
-                  <div className="flex gap-2">
-                    <input
-                      type="password"
-                      value={adminPassword}
-                      onChange={(e) => onAdminPasswordChange(e.target.value)}
-                      placeholder={
-                        displayRoom?.hasPassword
-                          ? 'Login as admin'
-                          : 'Add password'
+                <div className="group flex items-center justify-between">
+                  <Toggle
+                    label="Loop Queue"
+                    description="Cycled back to end"
+                    disabled={room?.hasPassword && !isAdmin}
+                    checked={room?.settings.loopQueue ?? false}
+                    onChange={(checked) =>
+                      room &&
+                      updateRoomSettings({
+                        ...room.settings,
+                        loopQueue: checked,
+                      })
+                    }
+                    variant="plain-full"
+                  />
+                </div>
+
+                <div className="group flex items-center justify-between">
+                  <Toggle
+                    label="Allow Duplicates"
+                    description="Same song multiple times"
+                    disabled={room?.hasPassword && !isAdmin}
+                    checked={room?.settings.allowDuplicates ?? false}
+                    onChange={(checked) =>
+                      room &&
+                      updateRoomSettings({
+                        ...room.settings,
+                        allowDuplicates: checked,
+                      })
+                    }
+                    variant="plain-full"
+                  />
+                </div>
+
+                <div className="group flex items-center justify-between">
+                  <Toggle
+                    label="Remove Played"
+                    description="Removed after play"
+                    disabled={room?.hasPassword && !isAdmin}
+                    checked={room?.settings.removeOnPlay ?? false}
+                    onChange={(checked) =>
+                      room &&
+                      updateRoomSettings({
+                        ...room.settings,
+                        removeOnPlay: checked,
+                      })
+                    }
+                    variant="plain-full"
+                  />
+                </div>
+
+                <div className="group flex items-center justify-between">
+                  <Toggle
+                    label="Admins Only Add"
+                    description="Only admins add songs"
+                    disabled={room?.hasPassword && !isAdmin}
+                    checked={room?.settings.onlyAdminAddSongs ?? false}
+                    onChange={(checked) => {
+                      if (
+                        room &&
+                        checked &&
+                        !room.hasPassword &&
+                        !adminPassword
+                      ) {
+                        setWobblePassword(true);
+                        adminSectionRef.current?.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'center',
+                        });
+                        return;
                       }
-                      className={`flex-1 rounded-xl border bg-theme-surface px-3 py-2 text-sm text-theme outline-hidden transition-all focus:border-secondary/60 ${wobblePassword ? 'border-red-500 ring-2 ring-red-500/50' : 'border-theme'}`}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') onJoinAdmin();
-                      }}
-                    />
+
+                      room &&
+                        updateRoomSettings({
+                          ...room.settings,
+                          onlyAdminAddSongs: checked,
+                        });
+                    }}
+                    variant="plain-full"
+                  />
+                </div>
+
+                <div className="border-theme border-t pt-4">
+                  <h5 className="mb-3 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+                    Sources
+                  </h5>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      {
+                        id: 'youtube',
+                        Icon: YouTubeIcon,
+                        variant: 'red' as const,
+                      },
+                      {
+                        id: 'spotify',
+                        Icon: SpotifyIcon,
+                        variant: 'green' as const,
+                      },
+                      {
+                        id: 'soundcloud',
+                        Icon: SoundCloudIcon,
+                        variant: 'orange' as const,
+                      },
+                    ].map(({ id, Icon, variant }) => {
+                      const isEnabled =
+                        room?.settings.enabledSources.includes(id) ?? true;
+                      return (
+                        <Button
+                          key={id}
+                          disabled={room?.hasPassword && !isAdmin}
+                          onClick={() => {
+                            if (!room) return;
+                            const newSources = isEnabled
+                              ? room.settings.enabledSources.filter(
+                                  (s) => s !== id,
+                                )
+                              : [...room.settings.enabledSources, id];
+                            updateRoomSettings({
+                              ...room.settings,
+                              enabledSources: newSources,
+                            });
+                          }}
+                          variant={isEnabled ? variant : 'tertiary'}
+                          aria-pressed={isEnabled}
+                          className="w-full py-3"
+                          title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
+                        >
+                          <Icon className="h-6 w-6" />
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="border-theme border-t pt-4">
+                  <h5 className="mb-3 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+                    Room Mode
+                  </h5>
+
+                  <div className="space-y-2">
                     <Button
-                      onClick={onJoinAdmin}
-                      disabled={isAuthenticating || !adminPassword}
-                      variant="primary"
+                      disabled={room?.hasPassword && !isAdmin}
+                      onClick={() => room && updateRoom({ mode: 'server' })}
+                      className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
+                      variant={room?.mode === 'server' ? 'cyan' : 'tertiary'}
+                      aria-pressed={room?.mode === 'server'}
                     >
-                      {isAuthenticating ? '...' : 'Go'}
+                      <div className="w-full text-left font-pixel text-current text-sm leading-snug">
+                        Server Mode
+                      </div>
+                      <div className="w-full text-left text-[11px] text-current leading-relaxed opacity-75">
+                        Auto-play music 24/7. Perfect for radio stations.
+                      </div>
+                    </Button>
+
+                    <Button
+                      disabled={room?.hasPassword && !isAdmin}
+                      onClick={() => room && updateRoom({ mode: 'host' })}
+                      className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
+                      variant={room?.mode === 'host' ? 'magenta' : 'tertiary'}
+                      aria-pressed={room?.mode === 'host'}
+                    >
+                      <div className="w-full text-left font-pixel text-current text-sm leading-snug">
+                        Host Mode
+                      </div>
+                      <div className="w-full text-left text-[11px] text-current leading-relaxed opacity-75">
+                        Host controls playback. Great for parties.
+                      </div>
                     </Button>
                   </div>
                 </div>
-              )}
 
-              {isAdmin && (
-                <div className="group mt-6 border-theme border-t pt-4 text-center">
-                  <span className="text-secondary text-sm">
-                    ✓ You are an Admin
-                  </span>
-                </div>
-              )}
+                {!isAdmin && (
+                  <div
+                    ref={adminSectionRef}
+                    className={classNames(
+                      'group mt-6 flex flex-col gap-2 border-theme border-t pt-4 text-theme transition-all duration-300',
+                      wobblePassword && 'rounded-xl border-red-500',
+                    )}
+                  >
+                    <span
+                      className={classNames(
+                        'font-pixel text-sm transition-colors',
+                        wobblePassword && 'animate-bounce text-red-500',
+                      )}
+                    >
+                      {wobblePassword ? 'Password required!' : 'Admin Access'}
+                    </span>
+                    <div className="flex gap-2">
+                      <input
+                        type="password"
+                        value={adminPassword}
+                        onChange={(e) => onAdminPasswordChange(e.target.value)}
+                        placeholder={
+                          displayRoom?.hasPassword
+                            ? 'Login as admin'
+                            : 'Add password'
+                        }
+                        className={classNames(
+                          'flex-1 rounded-xl border bg-theme-surface px-3 py-2 text-sm text-theme outline-hidden transition-all focus:border-secondary/60',
+                          wobblePassword &&
+                            'border-red-500 ring-2 ring-red-500/50',
+                          !wobblePassword && 'border-theme',
+                        )}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') onJoinAdmin();
+                        }}
+                      />
+                      <Button
+                        onClick={onJoinAdmin}
+                        disabled={isAuthenticating || !adminPassword}
+                        variant="primary"
+                      >
+                        {isAuthenticating ? '...' : 'Go'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
-              <p className="pt-2 text-center text-[10px] text-theme-muted italic">
-                Settings sync enabled
-              </p>
+                {isAdmin && (
+                  <div className="group mt-6 border-theme border-t pt-4 text-center">
+                    <span className="text-secondary text-sm">
+                      ✓ You are an Admin
+                    </span>
+                  </div>
+                )}
+
+                <p className="pt-2 text-center text-[10px] text-theme-muted italic">
+                  Settings sync enabled
+                </p>
+              </div>
             </div>
+
+            {canScrollDown && (
+              <div className="pointer-events-none absolute right-0 bottom-0 left-0 flex justify-center bg-gradient-to-t from-theme-surface via-theme-surface pt-10 pb-3">
+                <div className="flex animate-bounce items-center gap-1 rounded-full border border-secondary/40 bg-theme-surface-strong px-3 py-1 font-pixel text-[9px] text-secondary shadow-lg">
+                  Scroll for more
+                  <ChevronDownIcon className="h-3 w-3" />
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
       )}
