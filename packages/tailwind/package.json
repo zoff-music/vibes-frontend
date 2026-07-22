@@ -1,0 +1,10 @@
+{
+  "name": "@vibes/tailwind",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./config": "./config.js",
+    "./cast-config": "./cast.config.js",
+    "./plugin": "./vibes-plugin.mjs"
+  }
+}

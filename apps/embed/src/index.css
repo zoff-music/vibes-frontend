@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap");
 @import "tailwindcss";
 
-@config "../tailwind.config.js";
+@config "../../../packages/tailwind/config.js";
 @source "../../../packages/ui/src";
 
 @layer base {

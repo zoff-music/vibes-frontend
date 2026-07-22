@@ -7,7 +7,7 @@ WORKDIR /src
 
 RUN npm install -g pnpm@${PNPM_VERSION}
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml biome.json tsconfig.json tailwind.vibes.mjs ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml biome.json tsconfig.json ./
 COPY apps/embed/package.json apps/embed/package.json
 COPY packages ./packages
 
