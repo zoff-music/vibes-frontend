@@ -73,6 +73,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
 
       <Modal
         ariaLabelledBy="embed-player-title"
+        className="sm:max-w-2xl"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
       >
@@ -82,7 +83,8 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
               Embed player
             </h2>
             <p className="mt-1 text-sm text-theme-muted">
-              Choose what visitors can do in the embedded room.
+              Choose what the embed displays and which actions visitors can
+              take.
             </p>
           </div>
           <Button
@@ -95,57 +97,106 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
           </Button>
         </div>
 
-        <div className="mb-6 grid grid-cols-2 gap-2">
-          <Toggle
-            checked={autoplay}
-            onChange={(enabled) => {
-              setAutoplay(enabled);
-              setCopied(false);
-            }}
-            label="Autoplay"
-            variant="plain-full"
-          />
-          <Toggle
-            checked={player}
-            onChange={(enabled) => {
-              setPlayer(enabled);
-              setCopied(false);
-            }}
-            label="Player"
-            variant="plain-full"
-          />
-          <Toggle
-            checked={playlist}
-            onChange={(enabled) => {
-              setPlaylist(enabled);
-              setCopied(false);
-            }}
-            label="Playlist"
-            variant="plain-full"
-          />
-          <Toggle
-            checked={vote}
-            onChange={(enabled) => {
-              setVote(enabled);
-              setCopied(false);
-            }}
-            label="Voting"
-            variant="plain-full"
-          />
-          <Toggle
-            checked={skip}
-            onChange={(enabled) => {
-              setSkip(enabled);
-              setCopied(false);
-            }}
-            label="Skipping"
-            variant="plain-full"
-          />
+        <div className="mb-6 space-y-6">
+          <section aria-labelledby="embed-layout-title">
+            <div className="mb-3">
+              <h3
+                id="embed-layout-title"
+                className="font-pixel text-[10px] text-theme tracking-[0.2em]"
+              >
+                Layout
+              </h3>
+              <p className="mt-1 text-theme-muted text-xs">
+                Choose which room content appears inside the iframe.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Toggle
+                checked={player}
+                onChange={(enabled) => {
+                  setPlayer(enabled);
+                  setCopied(false);
+                }}
+                label="Player"
+                description="Show the current track, artwork, and playback progress."
+              />
+              <Toggle
+                checked={playlist}
+                onChange={(enabled) => {
+                  setPlaylist(enabled);
+                  setCopied(false);
+                }}
+                label="Playlist"
+                description="Show upcoming songs from the room queue."
+              />
+            </div>
+          </section>
+
+          <section aria-labelledby="embed-playback-title">
+            <div className="mb-3">
+              <h3
+                id="embed-playback-title"
+                className="font-pixel text-[10px] text-theme tracking-[0.2em]"
+              >
+                Playback
+              </h3>
+              <p className="mt-1 text-theme-muted text-xs">
+                Autoplay applies when the player is visible and the browser
+                permits it.
+              </p>
+            </div>
+            <Toggle
+              checked={autoplay}
+              onChange={(enabled) => {
+                setAutoplay(enabled);
+                setCopied(false);
+              }}
+              label="Autoplay"
+              description="Start room playback as soon as the embed loads."
+            />
+          </section>
+
+          <section aria-labelledby="embed-controls-title">
+            <div className="mb-3">
+              <h3
+                id="embed-controls-title"
+                className="font-pixel text-[10px] text-theme tracking-[0.2em]"
+              >
+                Visitor controls
+              </h3>
+              <p className="mt-1 text-theme-muted text-xs">
+                Room permissions still decide whether each action is allowed.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Toggle
+                checked={vote}
+                onChange={(enabled) => {
+                  setVote(enabled);
+                  setCopied(false);
+                }}
+                label="Voting"
+                description="Show vote controls for songs in the playlist."
+              />
+              <Toggle
+                checked={skip}
+                onChange={(enabled) => {
+                  setSkip(enabled);
+                  setCopied(false);
+                }}
+                label="Skipping"
+                description="Show the skip control when the room allows skipping."
+              />
+            </div>
+          </section>
         </div>
 
-        <p className="mb-2 text-[10px] text-theme-muted tracking-[0.2em]">
-          Embed code
-        </p>
+        <div className="mb-2">
+          <p className="text-[10px] text-theme tracking-[0.2em]">Embed code</p>
+          <p className="mt-1 text-theme-muted text-xs">
+            This code updates automatically as you change the settings.
+          </p>
+        </div>
         <button
           type="button"
           onClick={handleCopyEmbedScript}
