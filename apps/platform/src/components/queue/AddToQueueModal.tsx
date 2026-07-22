@@ -367,6 +367,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               onClick={() => handleSearchChange('')}
               variant="ghost"
               size="none"
+              aria-label="Clear search"
               className="absolute top-1/2 right-3 -translate-y-1/2 p-1.5"
             >
               <CloseIcon
