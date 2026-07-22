@@ -49,7 +49,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       tertiary:
         'border border-theme bg-theme-surface text-theme hover:border-theme-strong',
       'tertiary-active':
-        'border border-theme-strong bg-theme-surface-strong text-theme shadow-[0_0_14px_rgba(255,255,255,0.08)]',
+        'border border-secondary/60 bg-secondary/20 text-theme shadow-[0_0_18px_rgba(0,217,255,0.18)] hover:bg-secondary/30',
       ghost: 'bg-transparent text-theme-muted hover:text-theme',
       destructive:
         'border border-error/40 bg-transparent text-error hover:bg-error/10',
