@@ -25,6 +25,7 @@ interface YouTubePlayerRef {
   pauseVideo: () => void;
   getPlayerState: () => number;
   loadVideoById: (videoId: string, startSeconds?: number) => void;
+  cueVideoById: (videoId: string, startSeconds?: number) => void;
   mute: () => void;
   unMute: () => void;
   isMuted: () => boolean;
@@ -540,10 +541,19 @@ const VideoPlayerComponent = ({
 
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
     const startSeconds = actualPositionMs > 0 ? actualPositionMs / 1000 : 0;
+    const shouldLoadAndPlay =
+      isCastReceiver || usePlaybackStore.getState().isPlaying;
     const [err] = safeWrap(() => {
-      player.loadVideoById(videoId, startSeconds);
+      if (shouldLoadAndPlay) {
+        player.loadVideoById(videoId, startSeconds);
+      }
+      if (!shouldLoadAndPlay) {
+        player.cueVideoById(videoId, startSeconds);
+      }
       lastLoadedVideoIdRef.current = videoId;
-      debugLog('load-video', { startSeconds });
+      debugLog(shouldLoadAndPlay ? 'load-video' : 'cue-video', {
+        startSeconds,
+      });
     });
     if (err && DEBUG) {
       debugLog('load-video-error', { error: err.message });
