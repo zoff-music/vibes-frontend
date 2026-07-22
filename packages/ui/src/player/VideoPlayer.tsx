@@ -25,7 +25,6 @@ interface YouTubePlayerRef {
   pauseVideo: () => void;
   getPlayerState: () => number;
   loadVideoById: (videoId: string, startSeconds?: number) => void;
-  cueVideoById: (videoId: string, startSeconds?: number) => void;
   mute: () => void;
   unMute: () => void;
   isMuted: () => boolean;
@@ -50,6 +49,7 @@ const VideoPlayerComponent = ({
   const playerRef = useRef<YouTubePlayerRef | null>(null);
   const lastVideoIdRef = useRef<string | null>(null);
   const lastLoadedVideoIdRef = useRef<string | null>(null);
+  const pauseAfterLoadVideoIdRef = useRef<string | null>(null);
   const initialVideoIdRef = useRef<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -473,6 +473,21 @@ const VideoPlayerComponent = ({
       const state = event.data;
       debugLog('state', { state });
 
+      if (state === 1 && pauseAfterLoadVideoIdRef.current === videoId) {
+        pauseAfterLoadVideoIdRef.current = null;
+        const shouldRemainPaused =
+          !isCastReceiver && !usePlaybackStore.getState().isPlaying;
+        if (shouldRemainPaused) {
+          const [err] = safeWrap(() => playerRef.current?.pauseVideo());
+          if (err && DEBUG) {
+            debugLog('pause-after-load-error', { error: err.message });
+          }
+          setIsReady(true);
+          debugLog('pause-after-load');
+          return;
+        }
+      }
+
       if (state === 1 || state === 3) {
         setIsReady(true);
         const muted = playerRef.current?.isMuted?.() ?? false;
@@ -501,7 +516,7 @@ const VideoPlayerComponent = ({
         }
       }
     },
-    [kickAutoplay, shouldPlay],
+    [debugLog, isCastReceiver, kickAutoplay, shouldPlay, videoId],
   );
 
   const handleEnd = useCallback(() => {
@@ -541,19 +556,13 @@ const VideoPlayerComponent = ({
 
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
     const startSeconds = actualPositionMs > 0 ? actualPositionMs / 1000 : 0;
-    const shouldLoadAndPlay =
-      isCastReceiver || usePlaybackStore.getState().isPlaying;
+    const shouldPauseAfterLoad =
+      !isCastReceiver && !usePlaybackStore.getState().isPlaying;
     const [err] = safeWrap(() => {
-      if (shouldLoadAndPlay) {
-        player.loadVideoById(videoId, startSeconds);
-      }
-      if (!shouldLoadAndPlay) {
-        player.cueVideoById(videoId, startSeconds);
-      }
+      pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad ? videoId : null;
+      player.loadVideoById(videoId, startSeconds);
       lastLoadedVideoIdRef.current = videoId;
-      debugLog(shouldLoadAndPlay ? 'load-video' : 'cue-video', {
-        startSeconds,
-      });
+      debugLog('load-video', { shouldPauseAfterLoad, startSeconds });
     });
     if (err && DEBUG) {
       debugLog('load-video-error', { error: err.message });
