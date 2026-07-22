@@ -122,11 +122,11 @@ export default function Home() {
   return (
     <div
       className={classNames(
-        'relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden sm:justify-start',
+        'relative flex min-h-screen w-full flex-col items-center justify-start overflow-x-hidden',
         shouldFadeIn && 'animate-fade-in',
       )}
     >
-      <div className="relative z-10 mx-auto mt-0 flex w-full max-w-5xl flex-col items-center px-6 sm:mt-[calc(50vh-7.25rem)]">
+      <div className="relative z-10 mx-auto mt-[max(6rem,calc(50vh-7.25rem))] flex w-full max-w-5xl flex-col items-center px-6">
         <div className="crt-frame relative w-full max-w-3xl rounded-[36px] p-6 sm:p-10">
           <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
             <Button
