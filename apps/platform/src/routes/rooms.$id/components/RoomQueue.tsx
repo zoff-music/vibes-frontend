@@ -112,7 +112,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     damping: 30,
                     opacity: { duration: 0.1 },
                   }}
-                  style={{ overflow: 'hidden' }}
+                  className="overflow-hidden"
                 >
                   <div className="group/card panel-surface no-box relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl p-4">
                     <div className="vhs-scanlines pointer-events-none absolute inset-0" />

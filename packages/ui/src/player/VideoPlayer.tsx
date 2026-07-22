@@ -589,8 +589,6 @@ const VideoPlayerComponent = ({
     ? 'relative h-full w-full overflow-hidden bg-black'
     : 'relative h-full w-full overflow-hidden bg-black min-h-[315px]';
 
-  const containerStyle = { height: '100%', width: '100%' };
-
   // Early return after all hooks have been called
   if (!resolvedVideoId) {
     return null;
@@ -602,7 +600,6 @@ const VideoPlayerComponent = ({
       className={`${containerClass} ${
         !isVisible ? 'pointer-events-none opacity-0' : ''
       }`}
-      style={containerStyle}
     >
       {/* Video Content - Back Layer */}
       {!isVerifying && youtubeVideoIdProp && (

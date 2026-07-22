@@ -85,18 +85,15 @@ export const ActiveView: React.FC = () => {
                 )}
               </span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
-              <div
-                className="h-full bg-gradient-to-r from-primary to-secondary"
-                style={{
-                  width: `${Math.min(
-                    (actualPositionMs / ((currentSong.duration || 1) * 1000)) *
-                      100,
-                    100,
-                  )}%`,
-                }}
-              />
-            </div>
+            <progress
+              aria-label="Playback progress"
+              className="h-2 w-full appearance-none overflow-hidden rounded-full bg-white/20 [&::-moz-progress-bar]:bg-gradient-to-r [&::-moz-progress-bar]:from-primary [&::-moz-progress-bar]:to-secondary [&::-webkit-progress-bar]:bg-white/20 [&::-webkit-progress-value]:bg-gradient-to-r [&::-webkit-progress-value]:from-primary [&::-webkit-progress-value]:to-secondary"
+              max={(currentSong.duration || 1) * 1000}
+              value={Math.min(
+                actualPositionMs,
+                (currentSong.duration || 1) * 1000,
+              )}
+            />
           </div>
         </div>
       </div>

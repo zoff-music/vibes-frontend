@@ -173,17 +173,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
   const containerClass = fill
     ? 'relative h-full w-full overflow-hidden'
-    : 'relative w-full overflow-hidden rounded-xl';
-
-  const containerStyle = fill
-    ? { height: '100%', width: '100%' }
-    : { aspectRatio: '16/9', minHeight: '200px' };
+    : 'relative aspect-video min-h-[200px] w-full overflow-hidden rounded-xl';
 
   return (
-    <div
-      className={`${containerClass} bg-black ${!isVisible ? 'hidden' : ''}`}
-      style={containerStyle}
-    >
+    <div className={`${containerClass} bg-black ${!isVisible ? 'hidden' : ''}`}>
       {/* CRT Effects Layer - Behind content, only while loading */}
       {!isReady && (
         <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
