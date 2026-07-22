@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import React from 'react';
 import { Button } from '../components/Button';
 import {
@@ -74,7 +75,11 @@ const PlayerControlsComponent: React.FC<Props> = ({
           }
         >
           <CastIcon
-            className={`h-5 w-5 transition-colors ${isCasting ? 'text-primary' : 'text-theme-muted group-hover:text-primary'}`}
+            className={classNames(
+              'h-5 w-5 transition-colors',
+              isCasting && 'text-primary',
+              !isCasting && 'text-theme-muted group-hover:text-primary',
+            )}
             showDot={isCasting}
           />
         </Button>
