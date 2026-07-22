@@ -203,18 +203,11 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
 
   const containerClass = fill
     ? 'relative h-full w-full overflow-hidden bg-[#121212]'
-    : 'relative w-full overflow-hidden rounded-xl bg-[#121212]';
-
-  const containerStyle = fill
-    ? { height: '100%', width: '100%' }
-    : { aspectRatio: '16/9', minHeight: '200px' };
+    : 'relative aspect-video min-h-[200px] w-full overflow-hidden rounded-xl bg-[#121212]';
 
   if (!accessToken && isFetchingToken) {
     return (
-      <div
-        className={`${containerClass} flex items-center justify-center`}
-        style={containerStyle}
-      >
+      <div className={`${containerClass} flex items-center justify-center`}>
         <div className="text-center">
           <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-green-500/30 border-t-green-500" />
           <p className="text-sm text-white/70">Connecting to Spotify...</p>
@@ -224,10 +217,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   }
 
   return (
-    <div
-      className={`${containerClass} ${!isVisible ? 'hidden' : ''}`}
-      style={containerStyle}
-    >
+    <div className={`${containerClass} ${!isVisible ? 'hidden' : ''}`}>
       {/* Spotify Background Gradient - Bottom Layer */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954]/20 via-black/40 to-black opacity-90" />
 

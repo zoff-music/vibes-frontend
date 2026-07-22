@@ -62,3 +62,4 @@ pnpm-debug.log*
 .idea/
 .vscode/
 .cache/
+ITERATIONS.md

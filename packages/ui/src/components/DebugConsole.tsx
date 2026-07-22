@@ -105,35 +105,8 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
   if (!envDebugEnabled || !isVisible) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        width: '100%',
-        height: '50vh',
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        color: '#fff',
-        zIndex: 9999,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: 'monospace',
-        fontSize: '12px',
-        borderTop: '2px solid #333',
-        pointerEvents: 'none', // Allow clicks to pass through by default
-      }}
-    >
-      <div
-        style={{
-          padding: '4px',
-          backgroundColor: '#333',
-          display: 'flex',
-          justifyContent: 'space-between',
-          pointerEvents: 'auto', // Re-enable pointer events for the header
-          userSelect: 'none',
-        }}
-      >
+    <div className="pointer-events-none fixed bottom-0 left-0 z-[9999] flex h-[50vh] w-full flex-col overflow-hidden border-[#333] border-t-2 bg-black/90 font-mono text-white text-xs">
+      <div className="pointer-events-auto flex select-none justify-between bg-[#333] p-1">
         <strong>Debug Console</strong>
         <Button
           onClick={() => setLogs([])}
@@ -145,43 +118,24 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
       </div>
       <div
         ref={scrollRef}
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '8px',
-          pointerEvents: 'auto', // Re-enable pointer events for the log area
-        }}
+        className="pointer-events-auto flex-1 overflow-y-auto p-2"
       >
         {logs.map((log) => (
           <div
             key={log.id}
-            style={{
-              marginBottom: '4px',
-              borderBottom: '1px solid #222',
-              paddingBottom: '2px',
-              color:
-                log.level === 'error'
-                  ? '#ff5555'
-                  : log.level === 'warn'
-                    ? '#ffcc00'
-                    : '#cccccc',
-            }}
+            className={`mb-1 border-[#222] border-b pb-0.5 ${
+              log.level === 'error'
+                ? 'text-[#ff5555]'
+                : log.level === 'warn'
+                  ? 'text-[#ffcc00]'
+                  : 'text-[#ccc]'
+            }`}
           >
-            <span style={{ color: '#666', marginRight: '8px' }}>
-              [{log.timestamp}]
-            </span>
-            <span
-              style={{
-                fontWeight: 'bold',
-                marginRight: '8px',
-                textTransform: 'uppercase',
-              }}
-            >
-              {log.level}
-            </span>
+            <span className="mr-2 text-[#666]">[{log.timestamp}]</span>
+            <span className="mr-2 font-bold uppercase">{log.level}</span>
             <span>
               {log.messages.map((msg) => (
-                <span key={msg.id} style={{ marginRight: '4px' }}>
+                <span key={msg.id} className="mr-1">
                   {typeof msg.content === 'object'
                     ? JSON.stringify(msg.content, null, 2)
                     : String(msg.content)}
@@ -191,9 +145,7 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
           </div>
         ))}
         {logs.length === 0 && (
-          <div style={{ color: '#666', fontStyle: 'italic' }}>
-            Waiting for logs...
-          </div>
+          <div className="text-[#666] italic">Waiting for logs...</div>
         )}
       </div>
     </div>

@@ -150,7 +150,7 @@ export const QueueItem: React.FC<Props> = ({
         damping: 30,
         opacity: { duration: 0.1 },
       }}
-      style={{ overflow: 'hidden' }}
+      className="overflow-hidden"
     >
       <div className="relative">
         <button
