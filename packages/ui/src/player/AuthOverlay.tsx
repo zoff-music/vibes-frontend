@@ -24,9 +24,8 @@ export function AuthOverlay({
           {errorMessage ? 'ACCESS RESTRICTED' : 'AUTHENTICATION REQUIRED'}
         </h3>
         <p className="mb-8 text-sm text-text-muted leading-relaxed dark:text-white/70">
-          {errorMessage ? (
-            errorMessage
-          ) : (
+          {errorMessage && errorMessage}
+          {!errorMessage && (
             <>
               Connect to{' '}
               <span className="font-bold text-primary capitalize">

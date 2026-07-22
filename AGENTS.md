@@ -293,6 +293,8 @@ Use `classNames` from `@vibes/shared` for conditional or composed class names. D
 - Export named components (not default)
 - Support dark mode
 - Include proper focus states for accessibility
+- Do not use ternaries to render JSX or DOM element branches. Use explicit `&&` conditions for each branch. Ternaries are allowed for scalar props, labels, and computed values.
+- Do not explicitly pass `undefined` to JSX props. Use a conditional JSX spread to omit optional attributes.
 
 ```typescript
 import { classNames } from '@vibes/shared';

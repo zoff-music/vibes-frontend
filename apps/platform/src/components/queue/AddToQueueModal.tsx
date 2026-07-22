@@ -346,11 +346,10 @@ export const AddToQueueModal: React.FC<Props> = ({
           {/* Auth Check Logic Removed: searching allowed without prior active source check */}
 
           <div className="absolute top-1/2 left-4 -translate-y-1/2 text-theme-muted">
-            {isSearching ? (
+            {isSearching && (
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-            ) : (
-              <SearchIcon className="h-5 w-5" />
             )}
+            {!isSearching && <SearchIcon className="h-5 w-5" />}
           </div>
           <input
             ref={inputRef}
@@ -497,12 +496,13 @@ export const AddToQueueModal: React.FC<Props> = ({
             variant="primary"
             className="flex-1 gap-2"
           >
-            {isLoading ? (
+            {isLoading && (
               <>
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 <span>Adding...</span>
               </>
-            ) : (
+            )}
+            {!isLoading && (
               <>
                 <PlusIcon className="h-5 w-5" />
                 <span>Add to Queue</span>

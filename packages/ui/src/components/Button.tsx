@@ -84,11 +84,10 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         className={classes}
         {...props}
       >
-        {loading ? (
+        {loading && (
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        ) : (
-          children || title
         )}
+        {!loading && (children || title)}
       </button>
     );
   },

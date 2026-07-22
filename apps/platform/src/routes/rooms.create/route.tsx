@@ -418,12 +418,13 @@ const CreateRoom: React.FC = () => {
             variant="primary"
             className="mt-8 w-full gap-3 px-6 py-4 font-pixel text-sm"
           >
-            {isLoading ? (
+            {isLoading && (
               <>
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 <span>Creating...</span>
               </>
-            ) : (
+            )}
+            {!isLoading && (
               <>
                 <span>Start Session</span>
                 <ArrowRightIcon className="h-5 w-5" />

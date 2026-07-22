@@ -92,13 +92,14 @@ export const QueueItem: React.FC<Props> = ({
       <div className="flex shrink-0 items-center gap-3 pr-4">
         {/* Source Icon */}
         <div className="flex items-center justify-center opacity-70">
-          {song.sourceType === 'spotify' ? (
-            <SpotifyIcon className="h-5 w-5" />
-          ) : song.sourceType === 'soundcloud' ? (
+          {song.sourceType === 'spotify' && <SpotifyIcon className="h-5 w-5" />}
+          {song.sourceType === 'soundcloud' && (
             <SoundCloudIcon className="h-5 w-5" />
-          ) : (
-            <YouTubeIcon className="h-5 w-5" />
           )}
+          {song.sourceType !== 'spotify' &&
+            song.sourceType !== 'soundcloud' && (
+              <YouTubeIcon className="h-5 w-5" />
+            )}
         </div>
 
         {isAdmin && <div className="h-10 w-10 shrink-0" aria-hidden="true" />}
@@ -106,7 +107,7 @@ export const QueueItem: React.FC<Props> = ({
     </div>
   );
 
-  const removeButton = isAdmin ? (
+  const removeButton = isAdmin && (
     <Button
       onClick={(event) => {
         event.stopPropagation();
@@ -118,7 +119,7 @@ export const QueueItem: React.FC<Props> = ({
     >
       <TrashIcon className="h-5 w-5" />
     </Button>
-  ) : null;
+  );
 
   if (isSSR) {
     // SSR: Render without motion.div

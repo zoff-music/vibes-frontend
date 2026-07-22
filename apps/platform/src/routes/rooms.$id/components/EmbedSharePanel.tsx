@@ -159,11 +159,8 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
             {embedScript}
           </code>
           <span className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-theme-muted group-hover:text-theme">
-            {copied ? (
-              <CheckIcon className="h-3.5 w-3.5" />
-            ) : (
-              <CopyIcon className="h-3.5 w-3.5" />
-            )}
+            {copied && <CheckIcon className="h-3.5 w-3.5" />}
+            {!copied && <CopyIcon className="h-3.5 w-3.5" />}
             {copied ? 'Copied' : 'Click to select and copy'}
           </span>
         </button>

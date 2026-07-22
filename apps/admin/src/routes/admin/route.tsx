@@ -283,11 +283,12 @@ export default function Admin() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                  {room.activeSources.length === 0 ? (
+                  {room.activeSources.length === 0 && (
                     <span className="text-ink/50 text-xs uppercase tracking-widest dark:text-gray-500">
                       No sources
                     </span>
-                  ) : (
+                  )}
+                  {room.activeSources.length > 0 &&
                     room.activeSources.map((source) => (
                       <span
                         key={source}
@@ -296,8 +297,7 @@ export default function Admin() {
                       >
                         {sourceIcons[source]}
                       </span>
-                    ))
-                  )}
+                    ))}
                 </div>
               </div>
 

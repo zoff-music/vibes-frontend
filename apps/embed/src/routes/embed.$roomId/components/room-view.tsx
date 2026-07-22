@@ -23,13 +23,17 @@ export function EmbedRoomView({ loaderData }: Props) {
   } = useEmbedRoom(loaderData);
   const durationMs = (currentSong?.duration ?? 0) * 1000;
   const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
-  const player = options.player ? (
+  const player = options.player && (
     <EmbedPlayerCard
       currentSong={currentSong}
       durationMs={durationMs}
       positionMs={positionMs}
     />
-  ) : null;
+  );
+  const showPlayerAndPlaylist = options.player && options.playlist;
+  const showPlayerOnly = options.player && !options.playlist;
+  const showPlaylistOnly = !options.player && options.playlist;
+  const showEmptyState = !options.player && !options.playlist;
   const canSkip =
     Boolean(currentSong) && room.mode !== 'host' && room.settings.skipAllowed;
 
@@ -44,7 +48,7 @@ export function EmbedRoomView({ loaderData }: Props) {
           showSkip={options.skip}
         />
 
-        {options.player && options.playlist ? (
+        {showPlayerAndPlaylist && (
           <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.2fr)_minmax(0,0.8fr)] gap-4 p-4 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] md:grid-rows-1">
             {player}
             <EmbedPlaylist
@@ -53,11 +57,13 @@ export function EmbedRoomView({ loaderData }: Props) {
               onVote={handleVote}
             />
           </div>
-        ) : options.player ? (
+        )}
+        {showPlayerOnly && (
           <div className="flex min-h-0 flex-1 justify-center overflow-hidden p-3 sm:p-4">
             <div className="h-full min-h-0 w-full max-w-5xl">{player}</div>
           </div>
-        ) : options.playlist ? (
+        )}
+        {showPlaylistOnly && (
           <div className="min-h-0 flex-1 p-3 sm:p-4">
             <EmbedPlaylist
               songs={queuedSongs}
@@ -65,7 +71,8 @@ export function EmbedRoomView({ loaderData }: Props) {
               onVote={handleVote}
             />
           </div>
-        ) : (
+        )}
+        {showEmptyState && (
           <div className="flex min-h-0 flex-1 items-center justify-center p-4 text-center text-theme-muted text-xs">
             This embed has no visible player or playlist.
           </div>

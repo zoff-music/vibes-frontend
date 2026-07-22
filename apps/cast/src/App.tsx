@@ -12,7 +12,8 @@ const CastAppContent = () => {
         {/* Background effects removed for performance */}
 
         <div className="relative z-10 flex h-full w-full items-center justify-center">
-          {currentSong ? <ActiveView /> : <IdleView />}
+          {currentSong && <ActiveView />}
+          {!currentSong && <IdleView />}
         </div>
       </div>
       {debugMode && <DebugConsole enabled />}

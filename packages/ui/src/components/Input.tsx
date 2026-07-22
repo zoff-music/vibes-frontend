@@ -26,8 +26,10 @@ export const Input: React.FC<Props> = ({ label, error, id, ...props }) => {
       )}
       <input
         id={inputId}
-        aria-describedby={error ? errorId : undefined}
-        aria-invalid={error ? true : undefined}
+        {...(error && {
+          'aria-describedby': errorId,
+          'aria-invalid': true,
+        })}
         className={`w-full rounded-lg border bg-surface px-4 py-3 text-base text-text placeholder:text-zinc-500 focus:outline-hidden focus:ring-2 focus:ring-primary ${
           error ? 'border-error' : 'border-surfaceElevated'
         }`}

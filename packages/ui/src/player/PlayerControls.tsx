@@ -49,11 +49,8 @@ const PlayerControlsComponent: React.FC<Props> = ({
           aria-label={isPlaying ? 'Pause' : 'Play'}
           className="group h-12 w-12 shrink-0 rounded-2xl border border-primary/60 p-0 text-white shadow-[0_0_24px_rgba(255,46,151,0.45)] hover:shadow-[0_0_30px_rgba(255,46,151,0.6)] active:scale-95"
         >
-          {isPlaying ? (
-            <PauseIcon className="h-6 w-6 fill-current" />
-          ) : (
-            <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />
-          )}
+          {isPlaying && <PauseIcon className="h-6 w-6 fill-current" />}
+          {!isPlaying && <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />}
         </Button>
 
         <Button
