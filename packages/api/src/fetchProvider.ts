@@ -1,6 +1,7 @@
 import { safeWrapAsync } from '@vibes/shared';
 import type { RequestClientProps, RequestDefinitions } from 'wiretyped';
 import { HTTPError } from 'wiretyped';
+import { showRateLimitToast } from './rateLimit';
 
 type ApiFetchProvider = NonNullable<
   RequestClientProps<RequestDefinitions>['fetchProvider']
@@ -164,6 +165,7 @@ export function createApiFetchProvider(
       }
 
       lifecycle.afterResponse?.(lifecycleRequest, response);
+      showRateLimitToast(response);
       lifecycle.afterRequest?.(lifecycleRequest);
 
       if (response.ok) {

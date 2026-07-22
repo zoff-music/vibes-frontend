@@ -3,6 +3,7 @@ export * from './hooks/usePageVisibility';
 export * from './stores/playbackStore';
 export * from './stores/queueStore';
 export * from './stores/roomStore';
+export * from './toast';
 export * from './types';
 export * from './utils/classNames';
 export * from './utils/debug';

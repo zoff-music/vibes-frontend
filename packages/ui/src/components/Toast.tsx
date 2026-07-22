@@ -1,11 +1,12 @@
-import { classNames } from '@vibes/shared';
+import { classNames, type ToastType } from '@vibes/shared';
 import { useEffect, useState } from 'react';
-import { CheckIcon } from '../icons';
+import { AlertCircleIcon, CheckIcon, InfoIcon } from '../icons';
 
 interface ToastProps {
   message: string;
-  type?: 'success' | 'error' | 'info';
+  type?: ToastType;
   duration?: number;
+  standalone?: boolean;
   onClose: () => void;
 }
 
@@ -13,6 +14,7 @@ export const Toast = ({
   message,
   type = 'info',
   duration = 3000,
+  standalone = true,
   onClose,
 }: ToastProps) => {
   const [isVisible, setIsVisible] = useState(true);
@@ -30,6 +32,7 @@ export const Toast = ({
     success: 'bg-matcha border-matcha/20 text-ink',
     error: 'bg-error border-error/20 text-white',
     info: 'bg-sakura/80 border-sakura text-ink',
+    warning: 'border-orange-300 bg-orange-500 text-white',
   };
 
   return (
@@ -38,7 +41,8 @@ export const Toast = ({
       aria-live={type === 'error' ? 'assertive' : 'polite'}
       aria-atomic="true"
       className={classNames(
-        'fixed bottom-8 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-300',
+        'transform transition-all duration-300',
+        standalone && 'fixed bottom-8 left-1/2 z-50 -translate-x-1/2',
         isVisible && 'translate-y-0 opacity-100',
         !isVisible && 'translate-y-4 opacity-0',
       )}
@@ -50,7 +54,13 @@ export const Toast = ({
         )}
       >
         {type === 'success' && <CheckIcon className="h-5 w-5" />}
-        <span className="font-bold tracking-wide">{message}</span>
+        {type === 'info' && <InfoIcon className="h-5 w-5 shrink-0" />}
+        {(type === 'error' || type === 'warning') && (
+          <AlertCircleIcon className="h-5 w-5 shrink-0" />
+        )}
+        <span className="font-bold text-sm tracking-wide sm:text-base">
+          {message}
+        </span>
       </div>
     </div>
   );

@@ -314,9 +314,7 @@ export function createApiClientWithBaseUrl(
   const { customHeaders = {}, fetchLifecycle } = options;
   const resolvedBaseUrl = resolveApiBaseUrl(baseUrl);
   return new RequestClient({
-    ...(fetchLifecycle && {
-      fetchProvider: createApiFetchProvider(fetchLifecycle),
-    }),
+    fetchProvider: createApiFetchProvider(fetchLifecycle),
     hostname: resolvedBaseUrl,
     baseUrl: resolvedBaseUrl,
     endpoints,
@@ -346,3 +344,4 @@ export * from './hooks/useProviderToken';
 export * from './hooks/useQueue';
 export * from './hooks/useRoom';
 export * from './hooks/useSSE';
+export * from './rateLimit';

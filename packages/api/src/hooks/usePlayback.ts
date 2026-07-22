@@ -1,12 +1,13 @@
 import {
   type PlaybackState,
   type SkipActionResponse,
+  showToast as showGlobalToast,
   usePlaybackStore,
   useRoomStore,
 } from '@vibes/shared';
 
 import { useCallback } from 'react';
-import { api, getHttpError } from '../index';
+import { api, getHttpError, getRateLimitMessage } from '../index';
 import { USE_SSE_CALLBACKS } from './useSSE';
 
 export function usePlayback(roomId: string, callbacks?: USE_SSE_CALLBACKS) {
@@ -29,20 +30,7 @@ export function usePlayback(roomId: string, callbacks?: USE_SSE_CALLBACKS) {
         return;
       }
 
-      if (
-        typeof window !== 'undefined' &&
-        window.dispatchEvent &&
-        typeof CustomEvent !== 'undefined'
-      ) {
-        window.dispatchEvent(
-          new CustomEvent('show-toast', {
-            detail: { message, type },
-          }),
-        );
-        return;
-      }
-
-      console.error('[usePlayback] Toast unavailable:', message);
+      showGlobalToast(message, type);
     },
     [callbacks],
   );
@@ -89,6 +77,10 @@ export function usePlayback(roomId: string, callbacks?: USE_SSE_CALLBACKS) {
 
       // Handle host mode skip error
       if (error) {
+        if (getRateLimitMessage(error)) {
+          return;
+        }
+
         let message = '';
 
         if (action === 'skip') {
