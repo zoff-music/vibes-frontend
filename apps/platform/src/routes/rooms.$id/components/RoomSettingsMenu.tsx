@@ -35,7 +35,7 @@ interface RoomSettingsMenuProps {
   displayRoom: Room | null;
   isAdmin: boolean;
   updateRoomSettings: (settings: RoomSettings) => void;
-  updateRoom: (data: RoomUpdate) => Promise<Room | null> | null;
+  updateRoom: (data: RoomUpdate) => void;
   adminPassword: string;
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;

@@ -1,5 +1,5 @@
-import { useRoom } from '@vibes/api';
-import type { Room } from '@vibes/models';
+import type { Room, RoomSettings, RoomUpdate } from '@vibes/models';
+import { useRoomStore } from '@vibes/shared';
 import {
   ArrowLeftIcon,
   Button,
@@ -10,8 +10,10 @@ import {
   SunIcon,
 } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { type RefObject } from 'react';
+import React, { type RefObject, useCallback, useEffect } from 'react';
+import { useFetcher } from 'react-router';
 import type { Theme } from '../../../stores/themeStore';
+import type { RoomActionData } from '../action';
 
 import { RoomSettingsMenu } from './RoomSettingsMenu';
 import { RoomSharePanel } from './RoomSharePanel';
@@ -67,7 +69,37 @@ export const RoomHeader = React.memo(
     isAuthenticating,
     onLeave,
   }: RoomHeaderProps) => {
-    const { room, isAdmin, updateRoomSettings, updateRoom } = useRoom(roomId);
+    const settingsFetcher = useFetcher<RoomActionData>();
+    const isAdmin = useRoomStore((state) => state.isAdmin);
+    const setRoom = useRoomStore((state) => state.setRoom);
+
+    const updateRoom = useCallback(
+      (room: RoomUpdate) => {
+        settingsFetcher.submit(
+          { intent: 'updateRoom', room },
+          { encType: 'application/json', method: 'post' },
+        );
+      },
+      [settingsFetcher],
+    );
+
+    const updateRoomSettings = useCallback(
+      (settings: RoomSettings) => {
+        updateRoom({ settings });
+      },
+      [updateRoom],
+    );
+
+    useEffect(() => {
+      if (
+        settingsFetcher.state === 'idle' &&
+        settingsFetcher.data?.intent === 'updateRoom' &&
+        settingsFetcher.data.room
+      ) {
+        setRoom(settingsFetcher.data.room);
+      }
+    }, [setRoom, settingsFetcher.data, settingsFetcher.state]);
+
     return (
       <div
         ref={headerRef}
@@ -150,7 +182,7 @@ export const RoomHeader = React.memo(
                 themeId={themeId}
                 currentTheme={currentTheme}
                 onToggleDarkMode={onToggleDarkMode}
-                room={room}
+                room={displayRoom}
                 displayRoom={displayRoom}
                 isAdmin={isAdmin}
                 updateRoomSettings={updateRoomSettings}

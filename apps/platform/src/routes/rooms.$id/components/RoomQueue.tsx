@@ -1,9 +1,10 @@
-import { useQueue } from '@vibes/api';
 import { type PlaybackState, type Song } from '@vibes/models';
-import { usePlaybackStore } from '@vibes/shared';
+import { usePlaybackStore, useQueueStore } from '@vibes/shared';
 import { QueueList, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React from 'react';
+import { useFetcher } from 'react-router';
+import type { RoomActionData } from '../action';
 import { PlaybackProgress } from './PlaybackProgress';
 
 const vinylPlaceholder =
@@ -29,7 +30,8 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialSongs,
   }: RoomQueueProps) => {
     /* 1. Hooks */
-    const { songs, voteSong, removeFromQueue } = useQueue(roomId);
+    const songFetcher = useFetcher<RoomActionData>();
+    const songs = useQueueStore((state) => state.songs);
 
     // Granular store subscriptions
     const isPlayingFromStore = usePlaybackStore((state) => state.isPlaying);
@@ -53,17 +55,23 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
     /* 3. Handlers */
     const handleVote = React.useCallback(
-      async (songId: string) => {
-        await voteSong(songId);
+      (songId: string) => {
+        songFetcher.submit(
+          { intent: 'voteSong', songId },
+          { encType: 'application/json', method: 'post' },
+        );
       },
-      [voteSong],
+      [songFetcher],
     );
 
     const handleRemove = React.useCallback(
-      async (songId: string) => {
-        await removeFromQueue(songId);
+      (songId: string) => {
+        songFetcher.submit(
+          { intent: 'removeSong', songId },
+          { encType: 'application/json', method: 'post' },
+        );
       },
-      [removeFromQueue],
+      [songFetcher],
     );
 
     const formatTime = (ms: number) => {

@@ -378,13 +378,6 @@ export const api = createApiClient();
 // Endpoint helpers (mirrors backend handler filenames)
 export * from './casting';
 export * from './hooks/useAdminEvents';
-export * from './hooks/useAuthCache';
-export * from './hooks/useMusicSearch';
 // Hooks
-export * from './hooks/usePlayback';
-export * from './hooks/useProviderToken';
-export * from './hooks/useQueue';
-export * from './hooks/useRoom';
-export * from './hooks/useRoomGeneration';
 export * from './hooks/useSSE';
 export * from './rateLimit';

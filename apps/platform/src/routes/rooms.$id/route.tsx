@@ -1,4 +1,4 @@
-import { getHttpError, usePlayback, useQueue, useRoom } from '@vibes/api';
+import { useSSE } from '@vibes/api';
 import {
   type Song,
   showToast,
@@ -7,66 +7,49 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLoaderData, useNavigate, useParams } from 'react-router';
+import {
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useParams,
+} from 'react-router';
 import { DeviceSelector } from '../../components/cast/DeviceSelector';
 import { AddToQueueModal } from '../../components/queue/AddToQueueModal';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
-import { RoomErrorView } from './components/RoomErrorView';
+import { clientAction, type RoomActionData } from './action';
+import { clientLoader } from './clientLoader';
 import { RoomHeader } from './components/RoomHeader';
 import { RoomPlayer } from './components/RoomPlayer';
 import { RoomQueue } from './components/RoomQueue';
 import type { RoomLoaderData } from './loader';
 import { loader } from './loader';
 
-export { loader };
+export { clientAction, clientLoader, loader };
 
 export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
-  /* 1. Refs */
+  const { id = '' } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const adminFetcher = useFetcher<RoomActionData>();
+  useSSE(id);
+
   const headerRef = useRef<HTMLDivElement | null>(null);
-  const fetchAttemptedRef = useRef<string | null>(null);
-  const joinAttemptedRef = useRef<string | null>(null);
-  const primeAttemptedRef = useRef<string | null>(null);
-  const playbackAttemptedRef = useRef<string | null>(null);
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);
   const sharePanelRef = useRef<HTMLDivElement | null>(null);
   const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
   const settingsMenuRef = useRef<HTMLDivElement | null>(null);
   const originalTitleRef = useRef<string | null>(null);
 
-  /* 2. Hooks */
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { toggleDarkMode } = useThemeStore();
-  const { room, fetchRoom, isLoading, error, joinRoom, userId, isAdmin } =
-    useRoom(id || '');
-  const { fetchPlayback } = usePlayback(id || '');
-
-  // Set warping state based on loading
-  useEffect(() => {
-    // Keep room loading state local to the page; no background warp.
-  }, []);
-
-  const { fetchQueue } = useQueue(id || '');
-  const primeQueue = useCallback(async () => {
-    if (!id) return;
-    if (!loaderData || loaderData.room?.id !== id || !loaderData.playback) {
-      await fetchPlayback();
-    }
-    fetchQueue();
-  }, [id, loaderData, fetchPlayback, fetchQueue]);
-
-  // Granular store setters (subscription-free/minimized re-renders)
+  const room = useRoomStore((state) => state.room);
+  const isAdmin = useRoomStore((state) => state.isAdmin);
   const setRoom = useRoomStore((state) => state.setRoom);
+  const setSession = useRoomStore((state) => state.setSession);
   const setSongs = useQueueStore((state) => state.setSongs);
-  const songsCount = useQueueStore((state) => state.songs.length);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const currentSongId = usePlaybackStore((state) => state.currentSong?.id);
-  const hasCurrentSong = !!currentSongId;
 
-  /* 3. State */
-  const [initialized, setInitialized] = useState(false);
   const [isSSR, setIsSSR] = useState(true);
   const { themeId, currentTheme } = useThemeDisplay();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -74,77 +57,119 @@ export default function Room() {
   const [showSettings, setShowSettings] = useState(false);
   const [showDeviceSelector, setShowDeviceSelector] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  /* 4. Computed / Derived */
   const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
   const displayRoom = useMemo(
-    () => room || loaderData?.room || null,
-    [room, loaderData?.room],
+    () => room ?? loaderData.room,
+    [loaderData.room, room],
   );
+  const isAuthenticating = adminFetcher.state !== 'idle';
 
-  /* 5. Handlers (Arrow Functions) */
   const handleToggleDarkMode = useCallback(() => {
     toggleDarkMode();
   }, [toggleDarkMode]);
 
-  const handleAddSong = useCallback(() => setIsAddModalVisible(true), []);
+  const handleAddSong = useCallback(() => {
+    setIsAddModalVisible(true);
+  }, []);
+
+  const handleCloseAddSong = useCallback(() => {
+    setIsAddModalVisible(false);
+  }, []);
+
+  const handleOpenCast = useCallback(() => {
+    setShowDeviceSelector(true);
+  }, []);
+
+  const handleCloseCast = useCallback(() => {
+    setShowDeviceSelector(false);
+  }, []);
+
+  const handleToggleShare = useCallback(() => {
+    setShowShare((current) => !current);
+  }, []);
+
+  const handleToggleSettings = useCallback(() => {
+    setShowSettings((current) => !current);
+  }, []);
+
+  const handleCloseSettings = useCallback(() => {
+    setShowSettings(false);
+  }, []);
 
   const handleCopyShareLink = useCallback(() => {
     if (!shareUrl) return;
-    navigator.clipboard.writeText(shareUrl);
+    void navigator.clipboard.writeText(shareUrl);
     showToast('Link copied!', 'success');
     setShowShare(false);
   }, [shareUrl]);
 
-  const handleJoinAdmin = useCallback(async () => {
+  const handleJoinAdmin = useCallback(() => {
     if (!adminPassword) return;
-    setIsAuthenticating(true);
-    const data = await joinRoom(adminPassword);
-    setIsAuthenticating(false);
-
-    if (data) {
-      const message = room?.hasPassword
-        ? 'Logged in as admin!'
-        : 'Password set and admin granted!';
-      showToast(message, 'success');
-      setAdminPassword('');
-    } else {
-      showToast('Failed to authenticate. Incorrect password?', 'error');
-    }
-  }, [adminPassword, joinRoom, room?.hasPassword]);
+    adminFetcher.submit(
+      { intent: 'joinRoom', password: adminPassword },
+      { encType: 'application/json', method: 'post' },
+    );
+  }, [adminFetcher, adminPassword]);
 
   const handleLeave = useCallback(() => {
     navigate('/', { state: { fromRoom: true } });
   }, [navigate]);
 
-  /* 6. Effects */
-
-  // Client-side detection for animations/hydration
   useEffect(() => {
     setIsSSR(false);
-  }, []);
+    setRoom(loaderData.room);
+    setSongs(loaderData.songs);
+    if (loaderData.playback) {
+      setPlaybackState(loaderData.playback, loaderData.room.mode);
+    }
+  }, [loaderData, setPlaybackState, setRoom, setSongs]);
 
-  // Header height syncing
+  useEffect(() => {
+    if (adminFetcher.state !== 'idle' || !adminFetcher.data) return;
+    if (adminFetcher.data.intent !== 'joinRoom') return;
+
+    if (adminFetcher.data.error || !adminFetcher.data.session) {
+      showToast('Failed to authenticate. Incorrect password?', 'error');
+      return;
+    }
+
+    const session = adminFetcher.data.session;
+    setSession(
+      session.sessionId || session.userId,
+      session.isAdmin,
+      session.nickname ?? undefined,
+    );
+    setRoom(session.room);
+    setAdminPassword('');
+    showToast(
+      displayRoom.hasPassword
+        ? 'Logged in as admin!'
+        : 'Password set and admin granted!',
+      'success',
+    );
+  }, [
+    adminFetcher.data,
+    adminFetcher.state,
+    displayRoom.hasPassword,
+    setRoom,
+    setSession,
+  ]);
+
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return;
 
     const updateHeaderHeight = () => {
-      const height = header.getBoundingClientRect().height;
       document.documentElement.style.setProperty(
         '--room-header-height',
-        `${height}px`,
+        `${header.getBoundingClientRect().height}px`,
       );
     };
-
     updateHeaderHeight();
 
-    const resizeObserver = new ResizeObserver(() => {
-      updateHeaderHeight();
-    });
+    const resizeObserver = new ResizeObserver(updateHeaderHeight);
     resizeObserver.observe(header);
-
     window.addEventListener('resize', updateHeaderHeight);
 
     return () => {
@@ -153,178 +178,74 @@ export default function Room() {
     };
   }, []);
 
-  // Document title (now playing) and restore on leave
   useEffect(() => {
-    if (typeof document === 'undefined') return;
     if (!originalTitleRef.current) {
       originalTitleRef.current = document.title;
     }
-
-    const baseTitle = originalTitleRef.current;
-
-    // Use store state directly to avoid re-subscription overhead here
     const currentSong = usePlaybackStore.getState().currentSong;
-
-    if (currentSong?.title) {
-      const roomName = displayRoom?.name ? ` · ${displayRoom.name}` : '';
-      document.title = `${currentSong.title}${roomName}`;
-    } else if (baseTitle) {
-      document.title = baseTitle;
-    }
+    document.title = currentSong?.title
+      ? `${currentSong.title} · ${displayRoom.name}`
+      : originalTitleRef.current;
 
     return () => {
       if (originalTitleRef.current) {
         document.title = originalTitleRef.current;
       }
     };
-  }, [displayRoom?.name, currentSongId]); // currentSongId triggers title update when song metadata arrives
+  }, [currentSongId, displayRoom.name]);
 
-  // SSR Initialization
-  useEffect(() => {
-    if (loaderData && !initialized) {
-      console.log(
-        '[SSR] Initializing room with server-provided data',
-        loaderData,
-      );
-      if (loaderData.room) {
-        setRoom(loaderData.room);
-      }
-      if (loaderData.songs) {
-        setSongs(loaderData.songs);
-      }
-      if (loaderData.playback) {
-        setPlaybackState(loaderData.playback, loaderData.room.mode);
-      }
-      setInitialized(true);
-    }
-  }, [loaderData, initialized, setRoom, setSongs, setPlaybackState]);
-
-  // Initial fetch and session join
-  useEffect(() => {
-    if (!id) return;
-
-    if (fetchAttemptedRef.current !== id) {
-      fetchAttemptedRef.current = id;
-      const shouldFetchRoom = !loaderData || loaderData.room?.id !== id;
-      const shouldPrimeQueue =
-        shouldFetchRoom || !loaderData?.playback || !loaderData?.songs;
-
-      if (shouldFetchRoom) {
-        fetchRoom();
-      }
-
-      if (shouldPrimeQueue && primeAttemptedRef.current !== id) {
-        primeAttemptedRef.current = id;
-        void primeQueue();
-      }
-    }
-
-    if (!userId && joinAttemptedRef.current !== id) {
-      joinAttemptedRef.current = id;
-      fetchRoom();
-      if (primeAttemptedRef.current !== id) {
-        primeAttemptedRef.current = id;
-        void primeQueue();
-      }
-    }
-  }, [id, userId, fetchRoom, loaderData, primeQueue]);
-
-  // If queue is present but playback is missing, retry fetching playback once per queue size.
-  useEffect(() => {
-    if (!id) return;
-    if (hasCurrentSong || songsCount === 0) return;
-
-    const attemptKey = `${id}:${songsCount}`;
-    if (playbackAttemptedRef.current === attemptKey) return;
-    playbackAttemptedRef.current = attemptKey;
-
-    void fetchPlayback();
-  }, [id, hasCurrentSong, songsCount, fetchPlayback]);
-
-  // Global song events
   useEffect(() => {
     const handleSongAdded = (event: Event) => {
-      const customEvent = event as CustomEvent<Song>;
-      const song = customEvent.detail;
+      const song = (event as CustomEvent<Song>).detail;
       showToast(`"${song.title}" added to queue`, 'success');
     };
-
     window.addEventListener('song-added', handleSongAdded);
-
-    return () => {
-      window.removeEventListener('song-added', handleSongAdded);
-    };
+    return () => window.removeEventListener('song-added', handleSongAdded);
   }, []);
 
-  // Share panel outside click
   useEffect(() => {
     if (!showShare) return;
-
     const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
-      if (target instanceof Element && target.closest('[role="dialog"]')) {
+      if (target instanceof Element && target.closest('[role="dialog"]'))
         return;
-      }
       if (sharePanelRef.current?.contains(target)) return;
       if (shareButtonRef.current?.contains(target)) return;
       if (settingsMenuRef.current?.contains(target)) return;
       setShowShare(false);
     };
-
-    const listenerTimeout = window.setTimeout(() => {
-      document.addEventListener('click', handleOutsideClick);
-    }, 0);
-
+    const timeout = window.setTimeout(
+      () => document.addEventListener('click', handleOutsideClick),
+      0,
+    );
     return () => {
-      window.clearTimeout(listenerTimeout);
+      window.clearTimeout(timeout);
       document.removeEventListener('click', handleOutsideClick);
     };
   }, [showShare]);
 
-  // Settings menu outside click
   useEffect(() => {
     if (!showSettings) return;
-
     const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
-      if (target instanceof Element && target.closest('[role="dialog"]')) {
+      if (target instanceof Element && target.closest('[role="dialog"]'))
         return;
-      }
       if (settingsMenuRef.current?.contains(target)) return;
       if (settingsButtonRef.current?.contains(target)) return;
       setShowSettings(false);
       setShowShare(false);
     };
-
-    const listenerTimeout = window.setTimeout(() => {
-      document.addEventListener('click', handleOutsideClick);
-    }, 0);
-
+    const timeout = window.setTimeout(
+      () => document.addEventListener('click', handleOutsideClick),
+      0,
+    );
     return () => {
-      window.clearTimeout(listenerTimeout);
+      window.clearTimeout(timeout);
       document.removeEventListener('click', handleOutsideClick);
     };
   }, [showSettings]);
-
-  // Navigation on error (Room not found)
-  useEffect(() => {
-    if (error && id) {
-      const httpError = getHttpError(error);
-      const isRoomNotFound =
-        httpError?.response?.status === 404 ||
-        error.message.includes('not found') ||
-        error.message.includes('404');
-
-      if (isRoomNotFound) {
-        const timer = setTimeout(() => {
-          navigate(`/rooms/create?name=${encodeURIComponent(id)}`);
-        }, 2000);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [error, id, navigate]);
 
   return (
     <div
@@ -333,13 +254,12 @@ export default function Room() {
       }`}
     >
       <div className="relative z-10 flex min-h-screen flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
-        {/* Header */}
         <RoomHeader
           headerRef={headerRef}
           displayRoom={displayRoom}
-          roomId={id || ''}
+          roomId={id}
           showShare={showShare}
-          onToggleShare={() => setShowShare(!showShare)}
+          onToggleShare={handleToggleShare}
           shareButtonRef={shareButtonRef}
           sharePanelRef={sharePanelRef}
           shareUrl={shareUrl}
@@ -348,8 +268,8 @@ export default function Room() {
           currentTheme={currentTheme}
           onToggleDarkMode={handleToggleDarkMode}
           showSettings={showSettings}
-          onToggleSettings={() => setShowSettings(!showSettings)}
-          onCloseSettings={() => setShowSettings(false)}
+          onToggleSettings={handleToggleSettings}
+          onCloseSettings={handleCloseSettings}
           settingsButtonRef={settingsButtonRef}
           settingsMenuRef={settingsMenuRef}
           adminPassword={adminPassword}
@@ -359,63 +279,31 @@ export default function Room() {
           onLeave={handleLeave}
         />
 
-        {/* Main content */}
-        {/* Main content - Conditionally rendered */}
-        {isLoading && !room && !loaderData?.room && (
-          <div className="flex flex-1 items-center justify-center">
-            <div className="animate-fade-in text-center">
-              <div className="mb-5 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-theme bg-theme-surface shadow-[0_0_20px_rgba(255,46,151,0.25)]">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              </div>
-              <p className="text-sm text-theme-muted">Loading session...</p>
-              <p className="jp-art mt-1 text-theme-subtle text-xs">
-                読み込み中
-              </p>
-            </div>
+        <div className="flex-1 overflow-visible lg:overflow-hidden">
+          <div className="mx-auto max-w-7xl items-start gap-8 px-4 py-8 lg:grid lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-[1.3fr_0.7fr] lg:py-6">
+            <RoomPlayer
+              roomId={id}
+              displayRoom={displayRoom}
+              onAddSong={handleAddSong}
+              onOpenCast={handleOpenCast}
+              initialPlayback={loaderData.playback}
+            />
+            <RoomQueue
+              roomId={id}
+              isSSR={isSSR}
+              isAdmin={isAdmin}
+              initialPlayback={loaderData.playback}
+              initialSongs={loaderData.songs}
+            />
           </div>
-        )}
-        {!(isLoading && !room && !loaderData?.room) && error && (
-          <RoomErrorView
-            error={error}
-            roomId={id || ''}
-            onRetry={() => fetchRoom()}
-          />
-        )}
-        {!(isLoading && !room && !loaderData?.room) && !error && (
-          <div className="flex-1 overflow-visible lg:overflow-hidden">
-            <div className="mx-auto max-w-7xl items-start gap-8 px-4 py-8 lg:grid lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-[1.3fr_0.7fr] lg:py-6">
-              {/* Player Section */}
-              <RoomPlayer
-                roomId={id || ''}
-                displayRoom={displayRoom}
-                onAddSong={handleAddSong}
-                onOpenCast={() => setShowDeviceSelector(true)}
-                initialPlayback={loaderData?.playback}
-              />
+        </div>
 
-              {/* Queue & Now Playing Section */}
-              <RoomQueue
-                roomId={id || ''}
-                isSSR={isSSR}
-                isAdmin={isAdmin}
-                initialPlayback={loaderData?.playback}
-                initialSongs={loaderData?.songs}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Device Selector Modal */}
-        <DeviceSelector
-          isOpen={showDeviceSelector}
-          onClose={() => setShowDeviceSelector(false)}
-        />
-
-        {/* Add Song Modal */}
+        <DeviceSelector isOpen={showDeviceSelector} onClose={handleCloseCast} />
         <AddToQueueModal
-          roomId={id || ''}
+          room={displayRoom}
+          providers={loaderData.providers}
           isVisible={isAddModalVisible}
-          onClose={() => setIsAddModalVisible(false)}
+          onClose={handleCloseAddSong}
         />
       </div>
     </div>

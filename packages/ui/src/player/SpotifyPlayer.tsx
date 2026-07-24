@@ -1,4 +1,3 @@
-import { useProviderToken } from '@vibes/api';
 import { classNames, safeWrapAsync, usePlaybackStore } from '@vibes/shared';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import SpotifyWebPlayer, {
@@ -8,49 +7,39 @@ import SpotifyWebPlayer, {
 import { AuthOverlay } from './AuthOverlay';
 
 interface Props {
+  accessToken?: string | null;
   isVisible?: boolean;
+  isFetchingToken?: boolean;
   onEnded?: () => void;
+  onRequestToken?: (provider: 'spotify', force?: boolean) => void;
+  tokenError?: string | null;
   fill?: boolean;
 }
 
 const SpotifyPlayerComponent: React.FC<Props> = ({
+  accessToken = null,
   isVisible = true,
+  isFetchingToken = false,
   onEnded,
+  onRequestToken,
+  tokenError = null,
   fill = false,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
 
-  const {
-    token: accessToken,
-    error: tokenError,
-    fetchToken,
-  } = useProviderToken();
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [isFetchingToken, setIsFetchingToken] = useState(false);
   const lastPositionRef = useRef<number>(0);
   const hasEndedRef = useRef<boolean>(false);
   const sdkPlayerRef = useRef<SpotifySdkPlayer | null>(null);
   const pendingSeekMsRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let isActive = true;
-
     if (currentSong?.sourceType === 'spotify') {
-      setIsFetchingToken(true);
-      void (async () => {
-        await safeWrapAsync(fetchToken('spotify'));
-        if (isActive) setIsFetchingToken(false);
-      })();
-    } else {
-      setIsFetchingToken(false);
+      onRequestToken?.('spotify');
     }
-
-    return () => {
-      isActive = false;
-    };
-  }, [currentSong?.sourceType, fetchToken]);
+  }, [currentSong?.sourceType, onRequestToken]);
 
   useEffect(() => {
     setIsReady(false);
@@ -156,7 +145,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     const cleanup = () => {
       if (timer) clearInterval(timer);
       window.removeEventListener('message', handleMessage);
-      fetchToken('spotify', true);
+      onRequestToken?.('spotify', true);
       setError(null);
     };
 
@@ -318,7 +307,10 @@ export const SpotifyPlayer = memo(
   (prevProps, nextProps) => {
     return (
       prevProps.isVisible === nextProps.isVisible &&
-      prevProps.onEnded === nextProps.onEnded
+      prevProps.onEnded === nextProps.onEnded &&
+      prevProps.accessToken === nextProps.accessToken &&
+      prevProps.isFetchingToken === nextProps.isFetchingToken &&
+      prevProps.tokenError === nextProps.tokenError
     );
   },
 );

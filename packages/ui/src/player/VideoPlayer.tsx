@@ -1,10 +1,4 @@
-import { useProviderToken } from '@vibes/api';
-import {
-  isTruthyFlag,
-  safeWrap,
-  safeWrapAsync,
-  usePlaybackStore,
-} from '@vibes/shared';
+import { isTruthyFlag, safeWrap, usePlaybackStore } from '@vibes/shared';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import YouTube, { type YouTubeProps } from 'react-youtube';
 import { Button } from '../components/Button';
@@ -16,6 +10,9 @@ interface Props {
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   appContext?: 'platform' | 'cast';
+  isFetchingToken?: boolean;
+  onRequestToken?: (provider: 'youtube', force?: boolean) => void;
+  providerToken?: string | null;
 }
 
 interface YouTubePlayerRef {
@@ -41,11 +38,13 @@ const VideoPlayerComponent = ({
   fill = false,
   onNeedsUserGestureChange,
   appContext = 'platform',
+  isFetchingToken = false,
+  onRequestToken,
+  providerToken = null,
 }: Props) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
 
-  const { fetchToken } = useProviderToken();
   const playerRef = useRef<YouTubePlayerRef | null>(null);
   const lastVideoIdRef = useRef<string | null>(null);
   const lastLoadedVideoIdRef = useRef<string | null>(null);
@@ -54,7 +53,7 @@ const VideoPlayerComponent = ({
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [isVerifying, setIsVerifying] = useState(false);
+  const isVerifying = isFetchingToken;
   const autoPlayRetryRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoPlayKickCountRef = useRef(0);
   const autoPlayKickLastAtRef = useRef(0);
@@ -126,20 +125,8 @@ const VideoPlayerComponent = ({
       if (timer) clearInterval(timer);
       window.removeEventListener('message', handleMessage);
 
-      setIsVerifying(true);
       setError(null);
-
-      void (async () => {
-        const [tokenErr, newToken] = await safeWrapAsync(
-          fetchToken('youtube', true),
-        );
-        setIsVerifying(false);
-        if (tokenErr || !newToken) {
-          setError('Failed to refresh token after authorization.');
-        }
-        if (playerRef.current) {
-        }
-      })();
+      onRequestToken?.('youtube', true);
     };
 
     const handleMessage = (event: MessageEvent) => {
@@ -545,18 +532,16 @@ const VideoPlayerComponent = ({
   }, [onEnded]);
 
   const handleError = useCallback(
-    async (event: unknown) => {
+    (event: unknown) => {
       console.error('[VideoPlayer] Player error:', event);
-
-      const fetchedToken = await fetchToken('youtube');
-
-      if (!fetchedToken) {
-        setError('Authorization required or video unavailable');
-      } else {
-        setError('Failed to load video even with authorization');
-      }
+      onRequestToken?.('youtube');
+      setError(
+        providerToken
+          ? 'Failed to load video even with authorization'
+          : 'Authorization required or video unavailable',
+      );
     },
-    [fetchToken],
+    [onRequestToken, providerToken],
   );
 
   if (videoId) {

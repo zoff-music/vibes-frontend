@@ -1,11 +1,10 @@
-import {
-  usePlayback,
-  usePlaybackPosition,
-  useProviderToken,
-  useQueue,
-} from '@vibes/api';
 import { type PlaybackState, type Room, type Song } from '@vibes/models';
-import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
+import {
+  safeWrapAsync,
+  showToast,
+  usePlaybackStore,
+  useQueueStore,
+} from '@vibes/shared';
 import { PlayerControls } from '@vibes/ui';
 import React, {
   type ComponentType,
@@ -15,7 +14,9 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useFetcher } from 'react-router';
 import { useCasting } from '../../../hooks/useCasting';
+import type { RoomActionData } from '../action';
 
 interface RoomPlayerProps {
   roomId: string;
@@ -31,6 +32,11 @@ interface PlayerProps {
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   appContext?: 'platform' | 'cast';
+  accessToken?: string | null;
+  isFetchingToken?: boolean;
+  onRequestToken?: (provider: 'spotify' | 'youtube', force?: boolean) => void;
+  providerToken?: string | null;
+  tokenError?: string | null;
 }
 
 type PlayerComponent = ComponentType<PlayerProps>;
@@ -52,7 +58,7 @@ const AutoSkipHandler = ({
   skip: (shouldShowToast?: boolean) => void;
   mode: string | undefined;
 }) => {
-  const actualPositionMs = usePlaybackPosition();
+  const actualPositionMs = usePlaybackStore((state) => state.actualPositionMs);
   const autoSkipRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -91,15 +97,20 @@ export const RoomPlayer = React.memo(
     initialPlayback,
   }: RoomPlayerProps) => {
     /* 1. Hooks */
-    const { play, pause, skip, fetchPlayback } = usePlayback(roomId);
-    const { songs } = useQueue(roomId);
+    const playbackFetcher = useFetcher<RoomActionData>();
+    const tokenFetcher = useFetcher<RoomActionData>();
+    const songs = useQueueStore((state) => state.songs);
     const { isConnected, castDeviceName } = useCasting(roomId);
-    const { token: spotifyToken, fetchToken: fetchSpotifyToken } =
-      useProviderToken();
 
     // Granular store subscriptions
     const isPlaying = usePlaybackStore((state) => state.isPlaying);
     const currentSongFromStore = usePlaybackStore((state) => state.currentSong);
+    const setPlaybackState = usePlaybackStore(
+      (state) => state.setPlaybackState,
+    );
+    const setLocalPlayingState = usePlaybackStore(
+      (state) => state.setLocalPlayingState,
+    );
 
     /* 2. State & Computed */
     const currentSong =
@@ -125,15 +136,66 @@ export const RoomPlayer = React.memo(
     const [VideoPlayerComponent, setVideoPlayerComponent] =
       useState<PlayerComponent | null>(null);
     const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
+    const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
+    const [youtubeToken, setYoutubeToken] = useState<string | null>(null);
+    const [tokenError, setTokenError] = useState<string | null>(null);
+    const spotifyTokenAttemptedRef = useRef(false);
+    const youtubeTokenAttemptedRef = useRef(false);
     const [playerLoadErrors, setPlayerLoadErrors] = useState<PlayerLoadErrors>({
       spotify: null,
       soundcloud: null,
       video: null,
     });
-    const playbackFetchAttemptedRef = useRef<string | null>(null);
     const debugMountRef = useRef(false);
 
     /* 3. Handlers */
+    const performPlaybackAction = useCallback(
+      (action: 'pause' | 'play') => {
+        if (displayRoom?.mode) {
+          setLocalPlayingState(action === 'play', displayRoom.mode);
+        }
+        playbackFetcher.submit(
+          { action, intent: 'playback' },
+          { encType: 'application/json', method: 'post' },
+        );
+      },
+      [displayRoom?.mode, playbackFetcher, setLocalPlayingState],
+    );
+
+    const play = useCallback(() => {
+      performPlaybackAction('play');
+    }, [performPlaybackAction]);
+
+    const pause = useCallback(() => {
+      performPlaybackAction('pause');
+    }, [performPlaybackAction]);
+
+    const skip = useCallback(
+      (_shouldShowToast = true) => {
+        playbackFetcher.submit(
+          { intent: 'skip' },
+          { encType: 'application/json', method: 'post' },
+        );
+      },
+      [playbackFetcher],
+    );
+
+    const requestProviderToken = useCallback(
+      (provider: 'spotify' | 'youtube', force = false) => {
+        const attemptRef =
+          provider === 'spotify'
+            ? spotifyTokenAttemptedRef
+            : youtubeTokenAttemptedRef;
+        if (!force && attemptRef.current) return;
+        attemptRef.current = true;
+        tokenFetcher.submit(
+          { force, intent: 'providerToken', provider },
+          { encType: 'application/json', method: 'post' },
+        );
+      },
+      [tokenFetcher],
+    );
+
     const handleConnectSpotify = useCallback(() => {
       const width = 600;
       const height = 800;
@@ -153,7 +215,7 @@ export const RoomPlayer = React.memo(
           event.data?.type === 'oauth-success' &&
           event.data?.provider === 'spotify'
         ) {
-          fetchSpotifyToken('spotify', true);
+          requestProviderToken('spotify', true);
           popup?.close();
           window.removeEventListener('message', handleMessage);
         }
@@ -165,10 +227,10 @@ export const RoomPlayer = React.memo(
         if (popup?.closed) {
           window.removeEventListener('message', handleMessage);
           clearInterval(timer);
-          fetchSpotifyToken('spotify', true);
+          requestProviderToken('spotify', true);
         }
       }, 1000);
-    }, [fetchSpotifyToken]);
+    }, [requestProviderToken]);
 
     /* 4. Effects */
     useEffect(() => {
@@ -187,21 +249,52 @@ export const RoomPlayer = React.memo(
     }, [currentSong?.sourceType]);
 
     useEffect(() => {
-      if (hasSpotifySongs) {
-        fetchSpotifyToken('spotify');
+      if (playbackFetcher.state !== 'idle' || !playbackFetcher.data) return;
+      const response = playbackFetcher.data;
+      if (response.error) {
+        showToast(response.error, 'error');
+        return;
       }
-    }, [hasSpotifySongs, fetchSpotifyToken]);
+      if (response.playback) {
+        setPlaybackState(response.playback, displayRoom?.mode);
+      }
+      if (response.skip) {
+        if (response.skip.skipped) {
+          showToast('Skipped song', 'success');
+        } else if (response.skip.alreadyVoted) {
+          showToast(
+            `Skip vote already counted (${response.skip.currentVotes}/${response.skip.requiredVotes})`,
+            'info',
+          );
+        } else if (response.skip.voted) {
+          showToast(
+            `Skip vote added (${response.skip.currentVotes}/${response.skip.requiredVotes})`,
+            'info',
+          );
+        }
+      }
+    }, [
+      displayRoom?.mode,
+      playbackFetcher.data,
+      playbackFetcher.state,
+      setPlaybackState,
+    ]);
 
     useEffect(() => {
-      if (!roomId) return;
-      if (currentSong || songs.length === 0) return;
-
-      const attemptKey = `${roomId}:${songs.length}`;
-      if (playbackFetchAttemptedRef.current === attemptKey) return;
-      playbackFetchAttemptedRef.current = attemptKey;
-
-      void fetchPlayback();
-    }, [roomId, songs.length, currentSong, fetchPlayback]);
+      if (tokenFetcher.state !== 'idle' || !tokenFetcher.data) return;
+      if (tokenFetcher.data.intent !== 'providerToken') return;
+      if (tokenFetcher.data.error || !tokenFetcher.data.providerToken) {
+        setTokenError(tokenFetcher.data.error ?? 'Failed to fetch token');
+        return;
+      }
+      setTokenError(null);
+      if (tokenFetcher.data.provider === 'spotify') {
+        setSpotifyToken(tokenFetcher.data.providerToken.accessToken);
+      }
+      if (tokenFetcher.data.provider === 'youtube') {
+        setYoutubeToken(tokenFetcher.data.providerToken.accessToken);
+      }
+    }, [tokenFetcher.data, tokenFetcher.state]);
 
     /* 5. Render */
 
@@ -350,6 +443,9 @@ export const RoomPlayer = React.memo(
                 isVisible={!isConnected && isVideoTrack}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 appContext="platform"
+                isFetchingToken={tokenFetcher.state !== 'idle'}
+                onRequestToken={requestProviderToken}
+                providerToken={youtubeToken}
               />
             </div>
           )}
@@ -389,6 +485,10 @@ export const RoomPlayer = React.memo(
                   onEnded: () => skip(false),
                 })}
                 isVisible={!isConnected}
+                accessToken={spotifyToken}
+                isFetchingToken={tokenFetcher.state !== 'idle'}
+                onRequestToken={requestProviderToken}
+                tokenError={tokenError}
               />
             )}
           {currentSong &&

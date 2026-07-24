@@ -1,0 +1,85 @@
+import { api } from '@vibes/api';
+import type {
+  PlaybackState,
+  ProviderToken,
+  SkipActionResponse,
+} from '@vibes/models';
+import type { ClientActionFunctionArgs } from 'react-router';
+
+export interface EmbedActionData {
+  error?: string;
+  intent: 'providerToken' | 'skip' | 'voteSong';
+  playback?: PlaybackState;
+  provider?: 'spotify' | 'youtube';
+  providerToken?: ProviderToken;
+  skip?: SkipActionResponse;
+}
+
+interface EmbedActionRequest {
+  intent: 'providerToken' | 'skip' | 'voteSong';
+  provider?: 'spotify' | 'youtube';
+  songId?: string;
+}
+
+export async function clientAction({
+  params,
+  request,
+}: ClientActionFunctionArgs): Promise<EmbedActionData> {
+  const roomId = params.roomId;
+  const body = (await request.json()) as EmbedActionRequest;
+  if (!roomId) {
+    return { error: 'Room ID is required', intent: body.intent };
+  }
+
+  if (body.intent === 'skip') {
+    const [error, skip] = await api.post(
+      '/rooms/{id}/skips',
+      { id: roomId },
+      {},
+    );
+    if (error || !skip) {
+      return {
+        error: error?.message ?? 'Could not skip song',
+        intent: body.intent,
+      };
+    }
+    return {
+      intent: body.intent,
+      playback: skip.playback,
+      skip,
+    };
+  }
+
+  if (body.intent === 'providerToken') {
+    if (!body.provider) {
+      return { error: 'Provider is required', intent: body.intent };
+    }
+    const [error, providerToken] = await api.get('/tokens/{provider}', {
+      provider: body.provider,
+    });
+    if (error || !providerToken) {
+      return {
+        error: error?.message ?? 'Could not get provider token',
+        intent: body.intent,
+      };
+    }
+    return {
+      intent: body.intent,
+      provider: body.provider,
+      providerToken,
+    };
+  }
+
+  if (!body.songId) {
+    return { error: 'Song ID is required', intent: body.intent };
+  }
+  const [error] = await api.post(
+    '/rooms/{id}/songs/{songId}',
+    { id: roomId, songId: body.songId },
+    {},
+  );
+  if (error) {
+    return { error: error.message, intent: body.intent };
+  }
+  return { intent: body.intent };
+}

@@ -29,6 +29,7 @@ interface CastContextType {
   castToken: string | null;
   error: string | null;
   apiUrl: string;
+  spotifyToken: string | null;
 }
 
 const CastContext = createContext<CastContextType | undefined>(undefined);
@@ -40,6 +41,7 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [statusText, setStatusText] = useState('Ready for Casting');
   const [roomMode, setRoomMode] = useState<string | null>(null);
+  const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
   const [debugMode, setDebugModeState] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('debug') === 'true';
@@ -106,6 +108,7 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
     setStatusText,
     setRoomMode,
     setError,
+    setSpotifyToken,
     updateMediaMetadata,
     debugMode,
   });
@@ -180,6 +183,7 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
         castToken: castToken || null,
         error,
         apiUrl: API_BASE_URL,
+        spotifyToken,
       }}
     >
       {children}
