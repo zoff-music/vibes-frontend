@@ -178,7 +178,6 @@ export const RoomHeader = React.memo(
             </div>
 
             <RoomGenerationMenu
-              canGenerate={!displayRoom?.hasPassword || isAdmin}
               generationCount={displayRoom?.generationCount ?? 0}
               isGenerating={isGenerating}
               onGenerationStarted={onGenerationStarted}
