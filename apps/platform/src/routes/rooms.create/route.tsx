@@ -2,6 +2,9 @@ import { showToast } from '@vibes/shared';
 import {
   AlertCircleIcon,
   Button,
+  CheckIcon,
+  CloseIcon,
+  DiceIcon,
   SoundCloudIcon,
   SpotifyIcon,
   Toggle,
@@ -35,9 +38,18 @@ const DEFAULT_SETTINGS = {
   onlyAdminAddSongs: false,
 };
 
+type RoomNameAvailabilityState =
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'taken'
+  | 'error';
+
 const CreateRoom: React.FC = () => {
   const loaderData = useLoaderData() as RoomsCreateLoaderData;
-  const fetcher = useFetcher<RoomsCreateActionData>();
+  const createFetcher = useFetcher<RoomsCreateActionData>();
+  const suggestionFetcher = useFetcher<RoomsCreateLoaderData>();
+  const availabilityFetcher = useFetcher<RoomsCreateLoaderData>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { setIsWarping } = useThemeStore();
@@ -65,9 +77,29 @@ const CreateRoom: React.FC = () => {
   const [password, setPassword] = useState('');
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [error, setError] = useState<string | null>(null);
+  const [nameAvailability, setNameAvailability] =
+    useState<RoomNameAvailabilityState>('idle');
+  const [nameAvailabilityError, setNameAvailabilityError] = useState<
+    string | null
+  >(null);
   const [isHydrated, setIsHydrated] = useState(false);
   const [wobblePassword, setWobblePassword] = useState(false);
   const passwordRef = React.useRef<HTMLDivElement>(null);
+  const availabilityTimerRef = React.useRef<number | null>(null);
+
+  const checkRoomNameAvailability = React.useCallback(
+    (roomName: string) => {
+      setNameAvailability('checking');
+      setNameAvailabilityError(null);
+
+      const params = new URLSearchParams({
+        intent: 'check-room-name',
+        name: roomName,
+      });
+      void availabilityFetcher.load(`/rooms/create?${params.toString()}`);
+    },
+    [availabilityFetcher],
+  );
 
   // Reset wobble after animation
   useEffect(() => {
@@ -122,10 +154,94 @@ const CreateRoom: React.FC = () => {
     }
   }, [searchParams, isHydrated, loaderData.createRoomName, name]);
 
-  const isLoading = fetcher.state !== 'idle';
+  useEffect(() => {
+    if (availabilityTimerRef.current !== null) {
+      window.clearTimeout(availabilityTimerRef.current);
+      availabilityTimerRef.current = null;
+    }
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setNameAvailability('idle');
+      setNameAvailabilityError(null);
+      return;
+    }
+
+    setNameAvailability('checking');
+    setNameAvailabilityError(null);
+    availabilityTimerRef.current = window.setTimeout(() => {
+      availabilityTimerRef.current = null;
+      void checkRoomNameAvailability(trimmedName);
+    }, 500);
+
+    return () => {
+      if (availabilityTimerRef.current !== null) {
+        window.clearTimeout(availabilityTimerRef.current);
+        availabilityTimerRef.current = null;
+      }
+    };
+  }, [name, checkRoomNameAvailability]);
+
+  useEffect(() => {
+    const data = availabilityFetcher.data;
+    if (!data || data.checkedName !== name.trim()) return;
+
+    if (data.rateLimitMessage) {
+      showToast(data.rateLimitMessage, 'warning', 6000);
+    }
+    if (data.error) {
+      setNameAvailability('error');
+      setNameAvailabilityError(data.error);
+      return;
+    }
+    if (data.roomNameExists === undefined) return;
+
+    setNameAvailability(data.roomNameExists ? 'taken' : 'available');
+    setNameAvailabilityError(null);
+  }, [availabilityFetcher.data, name]);
+
+  useEffect(() => {
+    const data = suggestionFetcher.data;
+    if (!data) return;
+
+    if (data.rateLimitMessage) {
+      showToast(data.rateLimitMessage, 'warning', 6000);
+    }
+    if (data.error) {
+      setError(data.error);
+      return;
+    }
+    if (!data.roomNameSuggestion) return;
+
+    setName(data.roomNameSuggestion);
+  }, [suggestionFetcher.data]);
+
+  const isLoading = createFetcher.state !== 'idle';
+  const isGeneratingName = suggestionFetcher.state !== 'idle';
+
+  const handleNameBlur = () => {
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+
+    if (availabilityTimerRef.current !== null) {
+      window.clearTimeout(availabilityTimerRef.current);
+      availabilityTimerRef.current = null;
+    }
+
+    void checkRoomNameAvailability(trimmedName);
+  };
+
+  const handleGenerateName = () => {
+    if (isGeneratingName || isLoading) return;
+
+    setError(null);
+    void suggestionFetcher.load('/rooms/create?intent=suggest-room-name');
+  };
 
   const handleCreate = () => {
-    if (!name.trim() || isLoading) return;
+    if (!name.trim() || isLoading || nameAvailability !== 'available') {
+      return;
+    }
 
     setIsWarping(true);
     setError(null);
@@ -143,32 +259,26 @@ const CreateRoom: React.FC = () => {
     settings.enabledSources.forEach((source) => {
       formData.append('enabledSources', source);
     });
-    fetcher.submit(formData, { method: 'post' });
+    createFetcher.submit(formData, { method: 'post' });
   };
 
   useEffect(() => {
-    if (!fetcher.data) return;
-    if (fetcher.data.rateLimitMessage) {
-      showToast(fetcher.data.rateLimitMessage, 'warning', 6000);
+    if (!createFetcher.data) return;
+    if (createFetcher.data.rateLimitMessage) {
+      showToast(createFetcher.data.rateLimitMessage, 'warning', 6000);
       setError(null);
       setIsWarping(false);
       return;
     }
-    if (fetcher.data.error) {
-      setError(fetcher.data.error);
+    if (createFetcher.data.error) {
+      setError(createFetcher.data.error);
       setIsWarping(false);
       return;
     }
-    if (!fetcher.data.room) return;
+    if (!createFetcher.data.room) return;
 
-    const createdAt = new Date(fetcher.data.room.createdAt);
-    const now = new Date();
-    const isExisting = now.getTime() - createdAt.getTime() > 10000;
-    if (isExisting) {
-      alert('Welcome! That room already exists, welcome!');
-    }
-    navigate(`/rooms/${fetcher.data.room.id}`, { replace: true });
-  }, [fetcher.data, navigate, setIsWarping]);
+    navigate(`/rooms/${createFetcher.data.room.id}`, { replace: true });
+  }, [createFetcher.data, navigate, setIsWarping]);
 
   const updateSetting = <K extends keyof typeof settings>(
     key: K,
@@ -213,15 +323,68 @@ const CreateRoom: React.FC = () => {
                 <label className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
                   SESSION NAME
                 </label>
-                <input
-                  type="text"
-                  placeholder="Friday Night Vibes"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                  className="w-full rounded-2xl border border-theme bg-theme-surface px-4 py-4 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
-                  autoFocus
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Friday Night Vibes"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onBlur={handleNameBlur}
+                    onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                    className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-24 pl-4 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
+                    autoFocus
+                  />
+                  {nameAvailability === 'checking' && (
+                    <span className="absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2 animate-spin rounded-full border-2 border-theme-muted border-t-transparent" />
+                  )}
+                  {nameAvailability === 'available' && (
+                    <CheckIcon className="absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2 text-green-500" />
+                  )}
+                  {nameAvailability === 'taken' && (
+                    <CloseIcon className="absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2 text-error" />
+                  )}
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleGenerateName}
+                    disabled={isGeneratingName || isLoading}
+                    aria-label="Generate a memorable room name"
+                    title="Generate a memorable room name"
+                    className="absolute top-1/2 right-2 -translate-y-1/2 text-theme-muted hover:text-secondary"
+                  >
+                    {isGeneratingName && (
+                      <DiceIcon className="h-5 w-5 animate-dice-roll" />
+                    )}
+                    {!isGeneratingName && <DiceIcon className="h-5 w-5" />}
+                  </Button>
+                </div>
+                <p className="mt-3 text-theme-subtle text-xs">
+                  Use the dice for an available name that is easy to remember
+                  and share.
+                </p>
+                <div className="mt-2 min-h-5 text-xs" aria-live="polite">
+                  {nameAvailability === 'checking' && (
+                    <span className="text-theme-subtle">
+                      Checking availability...
+                    </span>
+                  )}
+                  {nameAvailability === 'available' && (
+                    <span className="text-secondary">
+                      This name is available.
+                    </span>
+                  )}
+                  {nameAvailability === 'taken' && (
+                    <span className="text-error">
+                      A room with this name already exists.
+                    </span>
+                  )}
+                  {nameAvailability === 'error' && nameAvailabilityError && (
+                    <span className="text-theme-muted">
+                      {nameAvailabilityError}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* 2. ADMIN PASSWORD */}
@@ -421,7 +584,9 @@ const CreateRoom: React.FC = () => {
           {/* Create button */}
           <Button
             onClick={handleCreate}
-            disabled={!name.trim() || isLoading}
+            disabled={
+              !name.trim() || isLoading || nameAvailability !== 'available'
+            }
             variant="primary"
             className="mt-8 w-full gap-3 px-6 py-4 font-pixel text-sm"
           >

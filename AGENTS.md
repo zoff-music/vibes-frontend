@@ -2,6 +2,12 @@
 
 Non-negotiable conventions. Follow strictly.
 
+## Required Skill Check
+
+- Before making changes or reviewing code, check the repository's `.agents/` directory for applicable skills.
+- Frontend work in this repository requires reading `.agents/vibes-frontend/SKILL.md` in full before acting.
+- Treat the skill and this `AGENTS.md` as cumulative, mandatory guidance. If additional applicable skills are added under `.agents/`, read those in full as well.
+
 ## Critical Rules
 
 - **No `any` type** - use explicit types, compose when needed

@@ -24,6 +24,7 @@ import {
   providersSchema,
   providerTokenSchema,
   roomActionRequestSchema,
+  roomNameSuggestionSchema,
   roomSchema,
   roomUpdateSchema,
   searchQuerySchema,
@@ -51,7 +52,9 @@ import {
 
 import {
   type ApiFetchLifecycle,
+  type ApiHeadOptions,
   createApiFetchProvider,
+  headApiUrl,
 } from './fetchProvider';
 
 export type { ApiFetchLifecycle };
@@ -132,6 +135,11 @@ const endpoints = {
     post: {
       request: createRoomRequestSchema,
       response: roomSchema,
+    },
+  },
+  '/rooms/suggestions': {
+    get: {
+      response: roomNameSuggestionSchema,
     },
   },
   '/rooms/{id}': {
@@ -300,6 +308,15 @@ export interface ApiClientOptions {
   fetchLifecycle?: ApiFetchLifecycle;
 }
 
+export type RoomExistsOptions = ApiHeadOptions;
+
+export type ApiClient = RequestClient<typeof endpoints> & {
+  roomExists: (
+    roomID: string,
+    options?: RoomExistsOptions,
+  ) => Promise<[Error | null, boolean | null]>;
+};
+
 function resolveApiBaseUrl(baseUrl: string) {
   const normalized = baseUrl.endsWith(API_BASE_PATH)
     ? baseUrl
@@ -310,10 +327,10 @@ function resolveApiBaseUrl(baseUrl: string) {
 export function createApiClientWithBaseUrl(
   baseUrl: string,
   options: ApiClientOptions = {},
-) {
+): ApiClient {
   const { customHeaders = {}, fetchLifecycle } = options;
   const resolvedBaseUrl = resolveApiBaseUrl(baseUrl);
-  return new RequestClient({
+  const requestClient = new RequestClient({
     fetchProvider: createApiFetchProvider(fetchLifecycle),
     hostname: resolvedBaseUrl,
     baseUrl: resolvedBaseUrl,
@@ -323,6 +340,23 @@ export function createApiClientWithBaseUrl(
       timeout: getRestTimeoutMs(),
       credentials: 'include',
       headers: { ...customHeaders },
+    },
+  });
+
+  return Object.assign(requestClient, {
+    roomExists: (roomID: string, roomExistsOptions: RoomExistsOptions = {}) => {
+      const roomURL = `${resolvedBaseUrl}/rooms/${encodeURIComponent(roomID)}`;
+      return headApiUrl(
+        roomURL,
+        {
+          ...roomExistsOptions,
+          headers: {
+            ...customHeaders,
+            ...roomExistsOptions.headers,
+          },
+        },
+        fetchLifecycle,
+      );
     },
   });
 }
