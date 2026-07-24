@@ -3,6 +3,7 @@ export * from './schemas/authorization';
 export * from './schemas/casting';
 export * from './schemas/common';
 export * from './schemas/config';
+export * from './schemas/generate';
 export * from './schemas/playback';
 export * from './schemas/room';
 export * from './schemas/search';

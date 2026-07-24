@@ -1,5 +1,14 @@
+import { getRateLimitMessage, useRoomGeneration } from '@vibes/api';
+import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
+import {
+  AlertCircleIcon,
+  Button,
+  CircleHalfIcon,
+  MoonIcon,
+  SparklesIcon,
+  SunIcon,
+} from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useNavigationType } from 'react-router';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
@@ -47,6 +56,17 @@ const ANIMATED_WORDS = [
   'でんし',
 ];
 
+const AI_PROMPTS = [
+  'sunny indie pop for a weekend road trip',
+  'late-night jazz in a quiet city bar',
+  'high-energy 2000s dance floor anthems',
+  'dreamy shoegaze for watching the rain',
+  'funk and soul that keeps a party moving',
+  'melodic drum and bass for deep focus',
+  'classic hip-hop for a summer cookout',
+  'heavy riffs for an intense gym session',
+];
+
 export default function Home() {
   const [roomCode, setRoomCode] = useState('');
   const [placeholderText, setPlaceholderText] = useState('');
@@ -54,11 +74,15 @@ export default function Home() {
   const [charIndex, setCharIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
+  const [isAIMode, setIsAIMode] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const { toggleDarkMode } = useThemeStore();
   const { themeId, currentTheme } = useThemeDisplay();
+  const { generateRoom } = useRoomGeneration();
   const previousPath = getPreviousPath();
   const shouldFadeIn =
     navigationType === 'POP' &&
@@ -70,14 +94,16 @@ export default function Home() {
 
   useEffect(() => {
     if (!isTabVisible) return;
-    const currentWord = ANIMATED_WORDS[wordIndex];
+    const animatedWords = isAIMode ? AI_PROMPTS : ANIMATED_WORDS;
+    const currentWord = animatedWords[wordIndex];
     const fullTarget = `${currentWord}...`;
+    const typingDelay = Math.max(10, Math.floor(800 / fullTarget.length));
 
     if (isPaused) {
       const timer = setTimeout(() => {
         setIsPaused(false);
         setCharIndex(0);
-        setWordIndex((prev) => (prev + 1) % ANIMATED_WORDS.length);
+        setWordIndex((prev) => (prev + 1) % animatedWords.length);
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -86,12 +112,12 @@ export default function Home() {
       const timer = setTimeout(() => {
         setPlaceholderText(fullTarget.substring(0, charIndex + 1));
         setCharIndex((prev) => prev + 1);
-      }, 150);
+      }, typingDelay);
       return () => clearTimeout(timer);
     } else {
       setIsPaused(true);
     }
-  }, [wordIndex, charIndex, isPaused, isTabVisible]);
+  }, [wordIndex, charIndex, isPaused, isTabVisible, isAIMode]);
 
   // Handle blinking effect for the last dot
   useEffect(() => {
@@ -117,6 +143,45 @@ export default function Home() {
 
     const slug = roomCode.trim().toLowerCase().replace(/\s+/g, '-');
     navigate(`/rooms/${slug}`);
+  };
+
+  const handleToggleAIMode = () => {
+    setIsAIMode((current) => !current);
+    setRoomCode('');
+    setPlaceholderText('');
+    setWordIndex(0);
+    setCharIndex(0);
+    setIsPaused(false);
+    setGenerationError(null);
+  };
+
+  const handleGenerateRoom = async () => {
+    const prompt = roomCode.trim();
+    if (!prompt || isGenerating) return;
+
+    setIsGenerating(true);
+    setGenerationError(null);
+    const [error, generatedRoom] = await generateRoom(prompt);
+    setIsGenerating(false);
+
+    if (error || !generatedRoom) {
+      const rateLimitMessage = error ? getRateLimitMessage(error) : null;
+      setGenerationError(
+        rateLimitMessage ??
+          'Could not generate your music room. Please try again.',
+      );
+      return;
+    }
+
+    navigate(`/rooms/${generatedRoom.room.id}`);
+  };
+
+  const handlePrimaryAction = () => {
+    if (isAIMode) {
+      void handleGenerateRoom();
+      return;
+    }
+    handleJoinRoom();
   };
 
   return (
@@ -158,43 +223,94 @@ export default function Home() {
           <div className="mt-8 space-y-5">
             <div className="panel-surface rounded-[24px] p-6">
               <label className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
-                ROOM NAME
+                {isAIMode ? 'PLAYLIST PROMPT' : 'ROOM NAME'}
               </label>
-              <input
-                type="text"
-                placeholder={
-                  placeholderText
-                    ? isPaused && !isBlinkerVisible
-                      ? `${placeholderText.slice(0, -1)} `
-                      : placeholderText
-                    : 'Enter Room Name...'
-                }
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toLowerCase())}
-                onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
-                className="w-full rounded-2xl border border-theme bg-theme-surface px-4 py-4 font-mono text-base text-theme tracking-widest placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30 disabled:cursor-not-allowed disabled:opacity-60"
-                maxLength={20}
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={
+                    placeholderText
+                      ? isPaused && !isBlinkerVisible
+                        ? `${placeholderText.slice(0, -1)} `
+                        : placeholderText
+                      : isAIMode
+                        ? 'Describe the music you want...'
+                        : 'Enter Room Name...'
+                  }
+                  value={roomCode}
+                  onChange={(event) => {
+                    const value = isAIMode
+                      ? event.target.value
+                      : event.target.value.toLowerCase();
+                    setRoomCode(value);
+                    setGenerationError(null);
+                  }}
+                  onKeyDown={(event) =>
+                    event.key === 'Enter' && handlePrimaryAction()
+                  }
+                  className={classNames(
+                    'w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-14 pl-4 font-mono text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30 disabled:cursor-not-allowed disabled:opacity-60',
+                    !isAIMode && 'tracking-widest',
+                  )}
+                  maxLength={isAIMode ? generatedPlaylistPromptMaxLength : 20}
+                  disabled={isGenerating}
+                />
+                <Button
+                  onClick={handleToggleAIMode}
+                  variant={isAIMode ? 'tertiary-active' : 'ghost'}
+                  size="icon"
+                  aria-label="Toggle AI playlist generation"
+                  aria-pressed={isAIMode}
+                  title="Generate a music room with AI"
+                  disabled={isGenerating}
+                  className="absolute top-1/2 right-2 -translate-y-1/2"
+                >
+                  <SparklesIcon className="h-5 w-5" />
+                </Button>
+              </div>
+              {isAIMode && (
+                <div className="mt-3 flex justify-between gap-4 text-theme-subtle text-xs">
+                  <span>Generates a playlist based on your suggestion</span>
+                  <span className="tabular-nums">
+                    {roomCode.length}/{generatedPlaylistPromptMaxLength}
+                  </span>
+                </div>
+              )}
+              {generationError && (
+                <div className="mt-3 flex items-start gap-2 text-error text-sm">
+                  <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{generationError}</span>
+                </div>
+              )}
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Link
-                to="/rooms/create"
-                className="group flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-[0_0_28px_rgba(255,46,151,0.45)] transition-all hover:-translate-y-0.5 hover:bg-primary"
-              >
-                Start a Session
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white">
-                  +
-                </span>
-              </Link>
+            <div
+              className={classNames(
+                'grid gap-4',
+                !isAIMode && 'sm:grid-cols-2',
+              )}
+            >
+              {!isAIMode && (
+                <Link
+                  to="/rooms/create"
+                  className="group flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-[0_0_28px_rgba(255,46,151,0.45)] transition-all hover:-translate-y-0.5 hover:bg-primary"
+                >
+                  Start a Session
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white">
+                    +
+                  </span>
+                </Link>
+              )}
               <Button
-                onClick={handleJoinRoom}
+                onClick={handlePrimaryAction}
                 disabled={!roomCode.trim()}
                 variant="secondary"
                 size="large"
+                loading={isGenerating}
                 className="gap-3 font-pixel"
               >
-                Join Room
+                {isAIMode && <SparklesIcon className="h-5 w-5" />}
+                {isAIMode ? 'Generate Room' : 'Join Room'}
               </Button>
             </div>
           </div>

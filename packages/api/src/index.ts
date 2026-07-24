@@ -19,6 +19,8 @@ import {
   createRoomRequestSchema,
   createSessionRequestSchema,
   emptyObjectSchema,
+  generatedPlaylistRequestSchema,
+  generatedRoomSchema,
   messageResponseSchema,
   playbackStateSchema,
   providersSchema,
@@ -193,6 +195,12 @@ const endpoints = {
     },
     post: {
       response: emptyObjectSchema,
+    },
+  },
+  '/rooms/generations': {
+    post: {
+      request: generatedPlaylistRequestSchema,
+      response: generatedRoomSchema,
     },
   },
 
@@ -377,5 +385,6 @@ export * from './hooks/usePlayback';
 export * from './hooks/useProviderToken';
 export * from './hooks/useQueue';
 export * from './hooks/useRoom';
+export * from './hooks/useRoomGeneration';
 export * from './hooks/useSSE';
 export * from './rateLimit';
