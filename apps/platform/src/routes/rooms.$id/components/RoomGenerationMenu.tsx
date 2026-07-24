@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from 'react';
 import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 
 interface RoomGenerationMenuProps {
-  canGenerate: boolean;
   generationCount: number;
   isGenerating: boolean;
   onGenerationStarted: () => void;
@@ -17,7 +16,6 @@ interface RoomGenerationMenuProps {
 }
 
 export function RoomGenerationMenu({
-  canGenerate,
   generationCount,
   isGenerating,
   onGenerationStarted,
@@ -29,8 +27,7 @@ export function RoomGenerationMenu({
   const panelRef = useRef<HTMLDivElement>(null);
   const isAboveSongLimit = songCount > roomGenerationMaxExistingSongs;
   const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
-  const isDisabled =
-    !canGenerate || isGenerating || isAboveSongLimit || isAboveDailyLimit;
+  const isDisabled = isGenerating || isAboveSongLimit || isAboveDailyLimit;
 
   let description = 'Fill this playlist from a prompt';
   if (isAboveSongLimit) {
@@ -42,15 +39,6 @@ export function RoomGenerationMenu({
   if (!isAboveSongLimit && !isGenerating && isAboveDailyLimit) {
     description = `This room has used its ${roomGenerationMaxDailyCount} playlist generations for the day`;
   }
-  if (
-    !isAboveSongLimit &&
-    !isGenerating &&
-    !isAboveDailyLimit &&
-    !canGenerate
-  ) {
-    description = 'Admin access is required to generate a playlist';
-  }
-
   useEffect(() => {
     if (!showGeneration) {
       return;
