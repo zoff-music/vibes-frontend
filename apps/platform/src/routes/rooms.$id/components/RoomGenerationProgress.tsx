@@ -49,7 +49,7 @@ export function RoomGenerationProgress({
           'panel-surface w-full rounded-3xl border p-8 text-center shadow-2xl sm:p-12',
           isFailed && 'border-error/60',
           !isFailed &&
-            'animate-pulse border-secondary/60 shadow-[0_0_40px_rgba(0,217,255,0.2)]',
+            'animate-pulse border-secondary/60 shadow-secondary-progress',
         )}
       >
         {!isFailed && (

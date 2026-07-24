@@ -173,7 +173,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
   const containerClass = fill
     ? 'relative h-full w-full overflow-hidden'
-    : 'relative aspect-video min-h-[200px] w-full overflow-hidden rounded-xl';
+    : 'relative aspect-video min-h-video-min w-full overflow-hidden rounded-xl';
 
   return (
     <div className={classNames(containerClass, 'bg-black')}>

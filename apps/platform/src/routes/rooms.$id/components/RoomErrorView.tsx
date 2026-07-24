@@ -26,7 +26,7 @@ export const RoomErrorView: React.FC<RoomErrorViewProps> = ({
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4">
-      <div className="panel-surface w-full max-w-md animate-scale-in rounded-[28px] p-8 text-center">
+      <div className="panel-surface w-full max-w-md animate-scale-in rounded-player p-8 text-center">
         <div className="mb-5 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-error/50 bg-error/10">
           <AlertCircleIcon className="h-10 w-10 text-error" />
         </div>

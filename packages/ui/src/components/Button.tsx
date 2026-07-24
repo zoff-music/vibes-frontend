@@ -43,22 +43,22 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
 
     const variantClasses: Record<ButtonVariant, string> = {
       primary:
-        'bg-primary text-text-inverse hover:bg-primary-muted active:scale-[0.98]',
+        'bg-primary text-text-inverse hover:bg-primary-muted active:scale-press',
       secondary:
-        'bg-secondary text-text-inverse hover:opacity-90 active:scale-[0.98]',
+        'bg-secondary text-text-inverse hover:opacity-90 active:scale-press',
       tertiary:
         'border border-theme bg-theme-surface text-theme hover:border-theme-strong',
       'tertiary-active':
-        'border border-secondary/60 bg-secondary/20 text-theme shadow-[0_0_18px_rgba(0,217,255,0.18)] hover:bg-secondary/30',
+        'border border-secondary/60 bg-secondary/20 text-theme shadow-secondary-soft hover:bg-secondary/30',
       ghost: 'bg-transparent text-theme-muted hover:text-theme',
       destructive:
         'border border-error/40 bg-transparent text-error hover:bg-error/10',
-      red: 'border border-red-400 bg-[#ff0000] text-white shadow-[0_0_16px_rgba(255,0,0,0.35)] hover:bg-red-500',
+      red: 'border border-red-400 bg-youtube text-white shadow-youtube hover:bg-red-500',
       green:
-        'border border-green-300 bg-[#1ed760] text-[#07150b] shadow-[0_0_16px_rgba(30,215,96,0.3)] hover:bg-green-400',
+        'border border-green-300 bg-spotify-bright text-on-spotify shadow-spotify hover:bg-green-400',
       orange:
-        'border border-orange-300 bg-[#ff5500] text-[#1c0900] shadow-[0_0_16px_rgba(255,85,0,0.3)] hover:bg-orange-400',
-      cyan: 'border border-cyan-200 bg-[#00d9ff] text-[#04151a] shadow-[0_0_16px_rgba(0,217,255,0.3)] hover:bg-cyan-300',
+        'border border-orange-300 bg-soundcloud text-on-soundcloud shadow-soundcloud hover:bg-orange-400',
+      cyan: 'border border-cyan-200 bg-secondary text-on-secondary shadow-cyan hover:bg-cyan-300',
       magenta:
         'border border-fuchsia-400 bg-fuchsia-700 text-white shadow-lg shadow-fuchsia-500/30 hover:bg-fuchsia-600',
     };

@@ -612,7 +612,7 @@ const VideoPlayerComponent = ({
 
   const containerClass = fill
     ? 'relative h-full w-full overflow-hidden bg-black'
-    : 'relative h-full w-full overflow-hidden bg-black min-h-[315px]';
+    : 'relative h-full w-full overflow-hidden bg-black min-h-player-min';
 
   // Early return after all hooks have been called
   if (!resolvedVideoId) {
@@ -638,16 +638,16 @@ const VideoPlayerComponent = ({
           className={
             fill
               ? 'absolute inset-0 flex h-full min-h-0 w-full items-center justify-center [&_iframe]:h-full [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
-              : 'absolute inset-0 flex min-h-[200px] items-center justify-center [&_iframe]:aspect-video [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
+              : 'absolute inset-0 flex min-h-video-min items-center justify-center [&_iframe]:aspect-video [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
           }
         />
       )}
 
       {/* CRT Effects Layer - Middle Layer (if shown) */}
       {showOverlay && (
-        <div className="pointer-events-none absolute inset-0 z-[5] overflow-hidden">
-          <div className="vhs-scanlines h-full w-full opacity-[0.14] mix-blend-overlay" />
-          <div className="crt-overlay !absolute !z-[6] pointer-events-none inset-0 opacity-[0.1]" />
+        <div className="pointer-events-none absolute inset-0 z-5 overflow-hidden">
+          <div className="vhs-scanlines h-full w-full opacity-14 mix-blend-overlay" />
+          <div className="crt-overlay !absolute !z-6 pointer-events-none inset-0 opacity-10" />
         </div>
       )}
 
@@ -681,7 +681,7 @@ const VideoPlayerComponent = ({
             <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/30 text-white/80">
               ▶
             </div>
-            <p className="font-mono text-[11px] text-white/80 uppercase tracking-widest">
+            <p className="font-mono text-caption text-white/80 uppercase tracking-widest">
               Click to play
             </p>
           </div>
@@ -702,7 +702,7 @@ const VideoPlayerComponent = ({
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="text-center">
             <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-red-500/30 border-t-red-500" />
-            <p className="font-mono text-[10px] text-white/70 uppercase tracking-widest">
+            <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
               Verifying Authorization...
             </p>
           </div>
@@ -713,7 +713,7 @@ const VideoPlayerComponent = ({
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="text-center">
             <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-red-500/30 border-t-red-500" />
-            <p className="font-mono text-[10px] text-white/70 uppercase tracking-widest">
+            <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
               Loading Satellite Feed...
             </p>
           </div>

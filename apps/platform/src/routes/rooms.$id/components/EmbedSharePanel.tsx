@@ -105,7 +105,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
             <div className="mb-3">
               <h3
                 id="embed-layout-title"
-                className="font-pixel text-[10px] text-theme tracking-[0.2em]"
+                className="font-pixel text-2xs text-theme tracking-display"
               >
                 Layout
               </h3>
@@ -139,7 +139,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
             <div className="mb-3">
               <h3
                 id="embed-playback-title"
-                className="font-pixel text-[10px] text-theme tracking-[0.2em]"
+                className="font-pixel text-2xs text-theme tracking-display"
               >
                 Playback
               </h3>
@@ -163,7 +163,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
             <div className="mb-3">
               <h3
                 id="embed-controls-title"
-                className="font-pixel text-[10px] text-theme tracking-[0.2em]"
+                className="font-pixel text-2xs text-theme tracking-display"
               >
                 Visitor controls
               </h3>
@@ -195,7 +195,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
         </div>
 
         <div className="mb-2">
-          <p className="text-[10px] text-theme tracking-[0.2em]">Embed code</p>
+          <p className="text-2xs text-theme tracking-display">Embed code</p>
           <p className="mt-1 text-theme-muted text-xs">
             This code updates automatically as you change the settings.
           </p>
@@ -212,7 +212,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
           >
             {embedScript}
           </code>
-          <span className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-theme-muted group-hover:text-theme">
+          <span className="mt-3 flex items-center justify-end gap-1.5 text-2xs text-theme-muted group-hover:text-theme">
             {copied && <CheckIcon className="h-3.5 w-3.5" />}
             {!copied && <CopyIcon className="h-3.5 w-3.5" />}
             {copied ? 'Copied' : 'Click to select and copy'}

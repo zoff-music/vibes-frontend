@@ -29,7 +29,7 @@ export const Toggle: React.FC<ToggleProps> = ({
     <>
       <div className="mr-4 flex-1">
         {label && (
-          <div className="font-pixel text-theme text-xs tracking-[0.2em]">
+          <div className="font-pixel text-theme text-xs tracking-display">
             {label}
           </div>
         )}
@@ -49,7 +49,7 @@ export const Toggle: React.FC<ToggleProps> = ({
         />
         <div
           className={classNames(
-            "peer h-7 w-12 rounded-full bg-black/10 shadow-[0_0_10px_rgba(0,0,0,0.1)] ring-1 ring-theme-neutral/30 transition-all after:absolute after:top-[2px] after:left-[2px] after:h-6 after:w-6 after:rounded-full after:bg-theme-subtle after:transition-all after:content-[''] peer-checked:bg-secondary peer-checked:ring-secondary peer-checked:after:translate-x-[85%] peer-checked:after:bg-white peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary dark:bg-white/10 dark:peer-checked:bg-secondary",
+            "peer h-7 w-12 rounded-full bg-black/10 shadow-toggle ring-1 ring-theme-neutral/30 transition-all after:absolute after:top-0.5 after:left-0.5 after:h-6 after:w-6 after:rounded-full after:bg-theme-subtle after:transition-all after:content-[''] peer-checked:bg-secondary peer-checked:ring-secondary peer-checked:after:translate-x-full peer-checked:after:bg-white peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary dark:bg-white/10 dark:peer-checked:bg-secondary",
             disabled && 'cursor-not-allowed opacity-50 grayscale',
           )}
         />
@@ -100,7 +100,7 @@ export const Toggle: React.FC<ToggleProps> = ({
       />
       <div
         className={classNames(
-          "peer h-7 w-12 rounded-full bg-black/10 shadow-[0_0_10px_rgba(0,0,0,0.1)] ring-1 ring-theme-neutral/30 transition-all after:absolute after:top-[2px] after:left-[2px] after:h-6 after:w-6 after:rounded-full after:bg-theme-subtle after:transition-all after:content-[''] peer-checked:bg-secondary peer-checked:ring-secondary peer-checked:after:translate-x-full peer-checked:after:bg-white peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary dark:bg-white/10 dark:peer-checked:bg-secondary",
+          "peer h-7 w-12 rounded-full bg-black/10 shadow-toggle ring-1 ring-theme-neutral/30 transition-all after:absolute after:top-0.5 after:left-0.5 after:h-6 after:w-6 after:rounded-full after:bg-theme-subtle after:transition-all after:content-[''] peer-checked:bg-secondary peer-checked:ring-secondary peer-checked:after:translate-x-full peer-checked:after:bg-white peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary dark:bg-white/10 dark:peer-checked:bg-secondary",
           disabled && 'cursor-not-allowed opacity-50 grayscale',
         )}
       />

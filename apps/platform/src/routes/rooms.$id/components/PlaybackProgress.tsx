@@ -28,7 +28,7 @@ export const PlaybackProgress: React.FC<PlaybackProgressProps> = React.memo(
           value={isSSR ? 0 : Math.min(progress, 1)}
           max={1}
         />
-        <div className="mt-1 flex justify-between font-mono text-[10px] text-theme-subtle">
+        <div className="mt-1 flex justify-between font-mono text-2xs text-theme-subtle">
           <span>{formatTime(actualPositionMs)}</span>
           <span>{formatTime(durationMs)}</span>
         </div>

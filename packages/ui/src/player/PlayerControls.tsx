@@ -48,7 +48,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
           variant="primary"
           size="none"
           aria-label={isPlaying ? 'Pause' : 'Play'}
-          className="group h-12 w-12 shrink-0 rounded-2xl border border-primary/60 p-0 text-white shadow-[0_0_24px_rgba(255,46,151,0.45)] hover:shadow-[0_0_30px_rgba(255,46,151,0.6)] active:scale-95"
+          className="group h-12 w-12 shrink-0 rounded-2xl border border-primary/60 p-0 text-white shadow-primary-button hover:shadow-primary-button-hover active:scale-95"
         >
           {isPlaying && <PauseIcon className="h-6 w-6 fill-current" />}
           {!isPlaying && <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />}
@@ -92,7 +92,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
             title="Connect Spotify"
           >
             <SpotifyIcon className="h-6 w-6" />
-            <span className="whitespace-nowrap font-display text-xs tracking-[0.2em]">
+            <span className="whitespace-nowrap font-display text-xs tracking-display">
               Connect Spotify
             </span>
           </Button>
@@ -105,7 +105,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
           title="Add Song"
         >
           <PlusIcon className="h-5 w-5 shrink-0" />
-          <span className="whitespace-nowrap font-display text-theme text-xs tracking-[0.2em]">
+          <span className="whitespace-nowrap font-display text-theme text-xs tracking-display">
             Add Song
           </span>
         </Button>

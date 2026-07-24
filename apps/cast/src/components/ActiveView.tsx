@@ -102,10 +102,10 @@ export const ActiveView: React.FC = () => {
       </div>
 
       {/* Right Column: Up Next Queue */}
-      <div className="flex h-full flex-1 flex-col bg-[#111111] p-10">
+      <div className="flex h-full flex-1 flex-col bg-neutral-900 p-10">
         <div className="mb-8 flex items-center justify-between border-white/10 border-b pb-6">
           <div>
-            <h2 className="font-display text-sm text-text-muted uppercase tracking-[0.4em]">
+            <h2 className="font-display text-sm text-text-muted uppercase tracking-banner">
               Up Next
             </h2>
           </div>
@@ -141,7 +141,7 @@ export const ActiveView: React.FC = () => {
               <p className="mb-2 font-display text-2xl text-theme">
                 Join the Party
               </p>
-              <p className="max-w-[200px] text-lg text-theme-muted leading-snug">
+              <p className="max-w-50 text-lg text-theme-muted leading-snug">
                 Scan to add songs & vote from your phone
               </p>
             </div>

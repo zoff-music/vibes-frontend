@@ -161,7 +161,7 @@ export default function Home() {
       )}
     >
       <div className="relative z-10 mx-auto mt-[max(6rem,calc(50vh-7.25rem))] flex w-full max-w-5xl flex-col items-center px-6">
-        <div className="crt-frame relative w-full max-w-3xl rounded-[36px] p-6 sm:p-10">
+        <div className="crt-frame relative w-full max-w-3xl rounded-frame p-6 sm:p-10">
           <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
             <Button
               onClick={handleToggleDarkMode}

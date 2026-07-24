@@ -1,0 +1,58 @@
+@theme {
+  --text-3xs: 0.5625rem;
+  --text-3xs--line-height: 0.75rem;
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 1rem;
+  --text-caption: 0.6875rem;
+  --text-caption--line-height: 1rem;
+
+  --tracking-display: 0.2em;
+  --tracking-logo: 0.22em;
+  --tracking-heading: 0.25em;
+  --tracking-label: 0.3em;
+  --tracking-banner: 0.4em;
+
+  --radius-player: 1.75rem;
+  --radius-frame: 2.25rem;
+
+  --spacing-video-min: 12.5rem;
+  --spacing-player-min: 19.6875rem;
+  --spacing-player-sm-min: 21.25rem;
+  --spacing-player-lg-min: 25rem;
+  --spacing-settings-max: 70vh;
+
+  --color-spotify: #1db954;
+  --color-spotify-bright: #1ed760;
+  --color-spotify-surface: #121212;
+  --color-youtube: #ff0000;
+  --color-soundcloud: #ff5500;
+  --color-on-spotify: #07150b;
+  --color-on-soundcloud: #1c0900;
+  --color-on-secondary: #04151a;
+
+  --shadow-focus-primary: 0 0 0 3px rgba(255, 46, 151, 0.1);
+  --shadow-auth: 0 0 80px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 46, 151, 0.3);
+  --shadow-toggle: 0 0 10px rgba(0, 0, 0, 0.1);
+  --shadow-primary-soft: 0 0 20px rgba(255, 46, 151, 0.2);
+  --shadow-primary-panel: 0 0 28px rgba(255, 46, 151, 0.25);
+  --shadow-primary-popover: 0 0 24px rgba(255, 46, 151, 0.25);
+  --shadow-primary-button: 0 0 24px rgba(255, 46, 151, 0.45);
+  --shadow-primary-cta: 0 0 28px rgba(255, 46, 151, 0.45);
+  --shadow-primary-button-hover: 0 0 30px rgba(255, 46, 151, 0.6);
+  --shadow-secondary-soft: 0 0 18px rgba(0, 217, 255, 0.18);
+  --shadow-secondary-panel: 0 0 32px rgba(0, 217, 255, 0.24);
+  --shadow-secondary-progress: 0 0 40px rgba(0, 217, 255, 0.2);
+  --shadow-secondary-strong: 0 0 10px rgba(0, 217, 255, 0.6);
+  --shadow-playback-badge: 0 0 22px rgba(0, 0, 0, 0.28);
+  --shadow-error: 0 0 20px rgba(239, 68, 68, 0.4);
+  --shadow-youtube: 0 0 16px rgba(255, 0, 0, 0.35);
+  --shadow-spotify: 0 0 16px rgba(30, 215, 96, 0.3);
+  --shadow-soundcloud: 0 0 16px rgba(255, 85, 0, 0.3);
+  --shadow-cyan: 0 0 16px rgba(0, 217, 255, 0.3);
+  --shadow-spotify-cover: 0 0 40px rgba(29, 185, 84, 0.4);
+  --shadow-spotify-pulse: 0 0 12px rgba(29, 185, 84, 0.8);
+
+  --scale-press: 0.98;
+
+  --border-width-5: 5px;
+}

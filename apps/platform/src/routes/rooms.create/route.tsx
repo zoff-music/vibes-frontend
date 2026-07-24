@@ -297,14 +297,14 @@ const CreateRoom: React.FC = () => {
             className="group inline-flex cursor-pointer items-center gap-2 text-theme-muted transition-colors hover:text-theme"
           >
             <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            <span className="font-pixel text-xs tracking-[0.3em]">Back</span>
+            <span className="font-pixel text-xs tracking-label">Back</span>
           </Link>
-          <div className="text-right font-pixel text-theme-muted text-xs tracking-[0.3em]">
+          <div className="text-right font-pixel text-theme-muted text-xs tracking-label">
             CREATE A SESSION
           </div>
         </div>
 
-        <div className="crt-frame rounded-[36px] p-6 sm:p-10">
+        <div className="crt-frame rounded-frame p-6 sm:p-10">
           <div className="mb-10 text-center">
             <h1 className="font-pixel text-3xl text-theme sm:text-4xl">
               CREATE A SESSION
@@ -320,8 +320,8 @@ const CreateRoom: React.FC = () => {
           <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
             <div className="space-y-6">
               {/* 1. SESSION NAME */}
-              <div className="panel-surface rounded-[24px] p-6">
-                <label className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+              <div className="panel-surface rounded-3xl p-6">
+                <label className="mb-3 block font-pixel text-2xs text-theme-muted tracking-label">
                   SESSION NAME
                 </label>
                 <div className="relative">
@@ -391,10 +391,10 @@ const CreateRoom: React.FC = () => {
               {/* 2. ADMIN PASSWORD */}
               <div
                 ref={passwordRef}
-                className={`panel-surface rounded-[24px] p-6 transition-all duration-300 ${wobblePassword ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.4)] ring-2 ring-red-500/50' : ''}`}
+                className={`panel-surface rounded-3xl p-6 transition-all duration-300 ${wobblePassword ? 'border-red-500 shadow-error ring-2 ring-red-500/50' : ''}`}
               >
                 <label
-                  className={`mb-3 block font-pixel text-[10px] tracking-[0.3em] transition-colors ${wobblePassword ? 'animate-bounce text-red-500' : 'text-theme-muted'}`}
+                  className={`mb-3 block font-pixel text-2xs tracking-label transition-colors ${wobblePassword ? 'animate-bounce text-red-500' : 'text-theme-muted'}`}
                 >
                   ADMIN PASSWORD
                   <span className="ml-2 text-theme-subtle">(optional)</span>
@@ -416,8 +416,8 @@ const CreateRoom: React.FC = () => {
               </div>
 
               {/* 3. ALLOWED SOURCES */}
-              <div className="panel-surface rounded-[24px] p-6">
-                <label className="mb-4 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+              <div className="panel-surface rounded-3xl p-6">
+                <label className="mb-4 block font-pixel text-2xs text-theme-muted tracking-label">
                   ALLOWED SOURCES
                 </label>
                 <div className="flex gap-2">
@@ -461,8 +461,8 @@ const CreateRoom: React.FC = () => {
               </div>
 
               {/* 4. ROOM MODE */}
-              <div className="panel-surface rounded-[24px] p-6">
-                <label className="mb-4 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+              <div className="panel-surface rounded-3xl p-6">
+                <label className="mb-4 block font-pixel text-2xs text-theme-muted tracking-label">
                   ROOM MODE
                 </label>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -473,7 +473,7 @@ const CreateRoom: React.FC = () => {
                     variant={mode === 'server' ? 'cyan' : 'tertiary'}
                     aria-pressed={mode === 'server'}
                   >
-                    <div className="mb-2 font-pixel text-current text-xs tracking-[0.2em]">
+                    <div className="mb-2 font-pixel text-current text-xs tracking-display">
                       SERVER MODE
                     </div>
                     <div className="text-current text-xs opacity-75">
@@ -487,7 +487,7 @@ const CreateRoom: React.FC = () => {
                     variant={mode === 'host' ? 'magenta' : 'tertiary'}
                     aria-pressed={mode === 'host'}
                   >
-                    <div className="mb-2 font-pixel text-current text-xs tracking-[0.2em]">
+                    <div className="mb-2 font-pixel text-current text-xs tracking-display">
                       HOST MODE
                     </div>
                     <div className="text-current text-xs opacity-75">
@@ -499,9 +499,9 @@ const CreateRoom: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="panel-surface rounded-[24px] p-6">
+              <div className="panel-surface rounded-3xl p-6">
                 <div className="mb-6">
-                  <h2 className="font-pixel text-[11px] text-theme-muted tracking-[0.4em]">
+                  <h2 className="font-pixel text-caption text-theme-muted tracking-banner">
                     PLAYBACK SETTINGS
                   </h2>
                 </div>

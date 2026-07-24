@@ -108,7 +108,7 @@ export const RoomHeader = React.memo(
         <div className="relative mx-auto flex max-w-7xl items-center justify-between">
           <Button onClick={onLeave} variant="ghost">
             <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            <span className="text-[10px] tracking-[0.3em]">Leave</span>
+            <span className="text-2xs tracking-label">Leave</span>
           </Button>
 
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">

@@ -37,7 +37,7 @@ export const RoomSharePanel = ({ url, roomId, onCopy }: Props) => {
 
       <div className="space-y-4">
         <div>
-          <p className="mb-2 font-display text-[10px] text-theme-muted tracking-[0.2em]">
+          <p className="mb-2 font-display text-2xs text-theme-muted tracking-display">
             Room Code
           </p>
           <div className="flex items-center gap-2 rounded-xl border border-theme bg-theme-surface p-2">
@@ -47,7 +47,7 @@ export const RoomSharePanel = ({ url, roomId, onCopy }: Props) => {
             <Button
               onClick={handleCopyRoomId}
               variant="tertiary"
-              className="px-3 py-1.5 text-[10px]"
+              className="px-3 py-1.5 text-2xs"
             >
               Copy
             </Button>
@@ -55,17 +55,17 @@ export const RoomSharePanel = ({ url, roomId, onCopy }: Props) => {
         </div>
 
         <div>
-          <p className="mb-2 font-display text-[10px] text-theme-muted tracking-[0.2em]">
+          <p className="mb-2 font-display text-2xs text-theme-muted tracking-display">
             Invite Link
           </p>
           <div className="flex items-center gap-2 rounded-xl border border-theme bg-theme-surface p-2">
-            <p className="flex-1 truncate text-left font-mono text-[10px] text-theme-muted">
+            <p className="flex-1 truncate text-left font-mono text-2xs text-theme-muted">
               {url}
             </p>
             <Button
               onClick={onCopy}
               variant="tertiary"
-              className="px-3 py-1.5 text-[10px]"
+              className="px-3 py-1.5 text-2xs"
             >
               Copy
             </Button>

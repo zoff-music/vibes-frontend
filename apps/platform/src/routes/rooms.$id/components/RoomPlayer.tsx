@@ -433,7 +433,7 @@ export const RoomPlayer = React.memo(
           mode={displayRoom?.mode}
         />
         {/* Player - Reserve height to prevent CLS */}
-        <div className="crt-frame relative flex min-h-[315px] w-full overflow-hidden rounded-[28px] bg-black sm:min-h-[340px] lg:aspect-auto lg:min-h-0 lg:min-h-[400px] lg:flex-1">
+        <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1">
           {VideoPlayerComponent && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               <VideoPlayerComponent
@@ -451,19 +451,19 @@ export const RoomPlayer = React.memo(
           )}
           {isConnected && castDeviceName && (
             <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
-              <div className="panel-surface flex items-center gap-3 rounded-full px-5 py-2 text-sm text-theme shadow-[0_0_22px_rgba(0,0,0,0.28)]">
+              <div className="panel-surface flex items-center gap-3 rounded-full px-5 py-2 text-sm text-theme shadow-playback-badge">
                 <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-primary" />
                 <span className="font-medium">Casting to {castDeviceName}</span>
               </div>
             </div>
           )}
           {currentSong && isPlayerMissing && (
-            <div className="min-h-[315px]">
+            <div className="min-h-player-min">
               <div className="absolute inset-0 flex items-center justify-center bg-black">
                 {/* SIGNAL CRT */}
-                <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
-                  <div className="vhs-scanlines h-full w-full opacity-[0.2] mix-blend-overlay" />
-                  <div className="crt-overlay !absolute !z-[2] pointer-events-none inset-0 opacity-[0.1]" />
+                <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
+                  <div className="vhs-scanlines h-full w-full opacity-20 mix-blend-overlay" />
+                  <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
                 </div>
                 <div className="relative z-10 text-center">
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
@@ -505,9 +505,9 @@ export const RoomPlayer = React.memo(
           {!currentSong && songs.length > 0 && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               {/* SIGNAL CRT */}
-              <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
-                <div className="vhs-scanlines h-full w-full opacity-[0.2] mix-blend-overlay" />
-                <div className="crt-overlay !absolute !z-[2] pointer-events-none inset-0 opacity-[0.1]" />
+              <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
+                <div className="vhs-scanlines h-full w-full opacity-20 mix-blend-overlay" />
+                <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
               </div>
               <div className="relative z-10 text-center">
                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
@@ -520,12 +520,12 @@ export const RoomPlayer = React.memo(
           {!currentSong && songs.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-black">
               {/* SIGNAL CRT */}
-              <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
-                <div className="vhs-scanlines h-full w-full opacity-[0.2] mix-blend-overlay" />
-                <div className="crt-overlay !absolute !z-[2] pointer-events-none inset-0 opacity-[0.1]" />
+              <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
+                <div className="vhs-scanlines h-full w-full opacity-20 mix-blend-overlay" />
+                <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
               </div>
               <div className="relative z-10 text-center">
-                <div className="mb-6 inline-flex items-center rounded-full border border-theme px-4 py-2 text-[10px] text-theme-muted tracking-[0.3em]">
+                <div className="mb-6 inline-flex items-center rounded-full border border-theme px-4 py-2 text-2xs text-theme-muted tracking-label">
                   NO SIGNAL
                 </div>
                 <h3 className="mb-2 font-display text-base text-theme">
