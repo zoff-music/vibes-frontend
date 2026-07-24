@@ -13,6 +13,7 @@ import {
   useLoaderData,
   useNavigate,
   useParams,
+  useRevalidator,
 } from 'react-router';
 import { DeviceSelector } from '../../components/cast/DeviceSelector';
 import { AddToQueueModal } from '../../components/queue/AddToQueueModal';
@@ -35,6 +36,7 @@ export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const revalidate = useRevalidator().revalidate;
   const adminFetcher = useFetcher<RoomActionData>();
 
   const headerRef = useRef<HTMLDivElement | null>(null);
@@ -64,6 +66,8 @@ export default function Room() {
   const [isGenerating, setIsGenerating] = useState(
     loaderData.room.isGenerating,
   );
+  const [isGenerationProgressVisible, setIsGenerationProgressVisible] =
+    useState(loaderData.room.isGenerating && loaderData.songs.length === 0);
   const [generationError, setGenerationError] = useState<string>();
 
   const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
@@ -72,21 +76,27 @@ export default function Room() {
     [loaderData.room, room],
   );
   const isAuthenticating = adminFetcher.state !== 'idle';
-  const showGenerationProgress = isGenerating && songs.length <= 2;
+  const showGenerationProgress =
+    isGenerating && isGenerationProgressVisible && songs.length <= 2;
 
-  const handleGenerationUpdate = useCallback((update: RoomGenerationUpdate) => {
-    if (update.status === 'generating') {
-      setIsGenerating(true);
-      return;
-    }
+  const handleGenerationUpdate = useCallback(
+    (update: RoomGenerationUpdate) => {
+      if (update.status === 'generating') {
+        setIsGenerating(true);
+        return;
+      }
 
-    setIsGenerating(false);
-    if (update.status === 'failed') {
-      setGenerationError(
-        update.error ?? 'Could not finish generating this playlist.',
-      );
-    }
-  }, []);
+      setIsGenerating(false);
+      setIsGenerationProgressVisible(false);
+      void revalidate();
+      if (update.status === 'failed') {
+        setGenerationError(
+          update.error ?? 'Could not finish generating this playlist.',
+        );
+      }
+    },
+    [revalidate],
+  );
 
   const sseCallbacks = useMemo(
     () => ({ onGenerationUpdate: handleGenerationUpdate }),
@@ -126,6 +136,19 @@ export default function Room() {
     setShowSettings(false);
   }, []);
 
+  const handleGenerationStarted = useCallback(() => {
+    setGenerationError(undefined);
+    setIsGenerating(true);
+    setIsGenerationProgressVisible(false);
+    setShowSettings(false);
+    if (displayRoom) {
+      setRoom({
+        ...displayRoom,
+        generationCount: displayRoom.generationCount + 1,
+      });
+    }
+  }, [displayRoom, setRoom]);
+
   const handleCopyShareLink = useCallback(() => {
     if (!shareUrl) return;
     void navigator.clipboard.writeText(shareUrl);
@@ -150,6 +173,9 @@ export default function Room() {
     setRoom(loaderData.room);
     setSongs(loaderData.songs);
     setIsGenerating(loaderData.room.isGenerating);
+    setIsGenerationProgressVisible(
+      loaderData.room.isGenerating && loaderData.songs.length === 0,
+    );
     if (loaderData.playback) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
@@ -318,7 +344,10 @@ export default function Room() {
           onAdminPasswordChange={setAdminPassword}
           onJoinAdmin={handleJoinAdmin}
           isAuthenticating={isAuthenticating}
+          isGenerating={isGenerating}
+          onGenerationStarted={handleGenerationStarted}
           onLeave={handleLeave}
+          songCount={songs.length}
         />
 
         <div className="flex-1 overflow-visible lg:overflow-hidden">

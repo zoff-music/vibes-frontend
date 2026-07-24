@@ -15,6 +15,7 @@ import { useFetcher } from 'react-router';
 import type { Theme } from '../../../stores/themeStore';
 import type { RoomActionData } from '../action';
 
+import { RoomGenerationMenu } from './RoomGenerationMenu';
 import { RoomSettingsMenu } from './RoomSettingsMenu';
 import { RoomSharePanel } from './RoomSharePanel';
 import { UserCount } from './UserCount';
@@ -41,7 +42,10 @@ interface RoomHeaderProps {
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
+  isGenerating: boolean;
+  onGenerationStarted: () => void;
   onLeave: () => void;
+  songCount: number;
 }
 
 export const RoomHeader = React.memo(
@@ -67,11 +71,21 @@ export const RoomHeader = React.memo(
     onAdminPasswordChange,
     onJoinAdmin,
     isAuthenticating,
+    isGenerating,
+    onGenerationStarted,
     onLeave,
+    songCount,
   }: RoomHeaderProps) => {
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = useRoomStore((state) => state.isAdmin);
     const setRoom = useRoomStore((state) => state.setRoom);
+
+    const handleOpenGeneration = useCallback(() => {
+      onCloseSettings();
+      if (showShare) {
+        onToggleShare();
+      }
+    }, [onCloseSettings, onToggleShare, showShare]);
 
     const updateRoom = useCallback(
       (room: RoomUpdate) => {
@@ -162,6 +176,15 @@ export const RoomHeader = React.memo(
                 )}
               </AnimatePresence>
             </div>
+
+            <RoomGenerationMenu
+              canGenerate={!displayRoom?.hasPassword || isAdmin}
+              generationCount={displayRoom?.generationCount ?? 0}
+              isGenerating={isGenerating}
+              onGenerationStarted={onGenerationStarted}
+              onOpen={handleOpenGeneration}
+              songCount={songCount}
+            />
 
             <div className="relative ml-1">
               <Button

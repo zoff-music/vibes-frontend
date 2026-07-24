@@ -29,6 +29,7 @@ export const roomSchema = yup.object({
   isAdmin: yup.boolean().optional(),
   activeSources: yup.array(yup.string().required()).optional(),
   isGenerating: yup.boolean().default(false),
+  generationCount: yup.number().integer().min(0).default(0),
 });
 export type Room = yup.InferType<typeof roomSchema>;
 
