@@ -22,11 +22,12 @@ import { ArrowLeftIcon } from '../../components/icons/ArrowLeftIcon';
 import { ArrowRightIcon } from '../../components/icons/ArrowRightIcon';
 import { useThemeStore } from '../../stores/themeStore';
 import type { RoomsCreateActionData } from './action';
-import { action } from './action';
+import { clientAction } from './action';
+import { clientLoader } from './clientLoader';
 import type { RoomsCreateLoaderData } from './loader';
 
 export { loader } from './loader';
-export { action };
+export { clientAction, clientLoader };
 
 const DEFAULT_SETTINGS = {
   skipAllowed: true,

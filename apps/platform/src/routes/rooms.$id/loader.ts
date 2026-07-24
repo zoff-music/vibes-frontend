@@ -8,6 +8,7 @@ export interface RoomLoaderData {
   room: RoomModel;
   songs: Song[];
   playback?: PlaybackState;
+  providers: string[];
 }
 
 export async function loader({
@@ -23,7 +24,7 @@ export async function loader({
   const cookieHeader = request.headers.get('cookie') ?? undefined;
   const requestHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
 
-  const [roomRes, songsRes, playbackRes] = await Promise.all([
+  const [roomRes, songsRes, playbackRes, providersRes] = await Promise.all([
     serverApi.get('/rooms/{id}', { id: roomId }, { headers: requestHeaders }),
     serverApi.get(
       '/rooms/{id}/songs',
@@ -35,11 +36,13 @@ export async function loader({
       { id: roomId },
       { headers: requestHeaders },
     ),
+    serverApi.get('/providers', null, { headers: requestHeaders }),
   ]);
 
   const [roomErr, room] = roomRes;
   const [songsErr, songs] = songsRes;
   const [playbackErr, playback] = playbackRes;
+  const [, providers] = providersRes;
   if (roomErr || songsErr || playbackErr || !room) {
     const createUrl = new URL('/rooms/create', request.url);
     createUrl.searchParams.set('name', roomId);
@@ -50,5 +53,6 @@ export async function loader({
     room,
     songs: songs || [],
     playback: (playback || undefined) as PlaybackState | undefined,
+    providers: providers ?? [],
   };
 }

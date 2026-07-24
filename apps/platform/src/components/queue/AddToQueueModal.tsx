@@ -1,10 +1,4 @@
-import {
-  type SearchApiResult,
-  useAuthCache,
-  useMusicSearch,
-  useQueue,
-  useRoom,
-} from '@vibes/api';
+import type { Room } from '@vibes/models';
 import {
   type AddSongOutcome,
   formatDuration,
@@ -24,9 +18,12 @@ import {
   SearchIcon,
 } from '@vibes/ui';
 import React, { useEffect, useRef, useState } from 'react';
+import { useFetcher } from 'react-router';
+import type { RoomActionData } from '../../routes/rooms.$id/action';
 
 interface Props {
-  roomId: string;
+  room: Room;
+  providers: string[];
   isVisible: boolean;
   onClose: () => void;
 }
@@ -48,10 +45,13 @@ const resolveThumbnail = (value?: string) =>
   value && value.trim().length > 0 ? value : vinylPlaceholder;
 
 export const AddToQueueModal: React.FC<Props> = ({
-  roomId,
+  room,
+  providers,
   isVisible,
   onClose,
 }) => {
+  const searchFetcher = useFetcher<RoomActionData>();
+  const songFetcher = useFetcher<RoomActionData>();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -61,7 +61,6 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [previewVideo, setPreviewVideo] = useState<SearchResult | null>(null);
   const [justAdded, setJustAdded] = useState(false);
   const [addOutcome, setAddOutcome] = useState<AddSongOutcome | null>(null);
-  const { addToQueue } = useQueue(roomId);
   const { songs } = useQueueStore();
   const { currentSong } = usePlaybackStore();
 
@@ -69,10 +68,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     songs.some((s) => s.sourceType === 'spotify') ||
     currentSong?.sourceType === 'spotify';
 
-  const { providers, fetchProviders } = useAuthCache();
-  const { searchProvider, getYouTubeVideo } = useMusicSearch();
-  const { room } = useRoom(roomId);
-  const enabledSources = room?.settings.enabledSources ?? [
+  const enabledSources = room.settings.enabledSources ?? [
     'youtube',
     'spotify',
     'soundcloud',
@@ -98,16 +94,6 @@ export const AddToQueueModal: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Fetch available providers and authorizations via cache
-    const loadData = async () => {
-      await fetchProviders();
-      // Logic to set default provider is handled by initial state + effect if needed,
-      // but 'youtube' as default is good enough if available.
-    };
-    loadData();
-  }, [fetchProviders]);
-
-  useEffect(() => {
     if (!isVisible) {
       setTimeout(() => {
         setSearchQuery('');
@@ -121,6 +107,74 @@ export const AddToQueueModal: React.FC<Props> = ({
     }
   }, [isVisible]);
 
+  useEffect(() => {
+    if (searchFetcher.state !== 'idle' || !searchFetcher.data) return;
+    setIsSearching(false);
+
+    if (searchFetcher.data.error) {
+      setError(
+        searchFetcher.data.intent === 'youtubeVideo'
+          ? 'Could not find that video'
+          : 'Search failed. Please try again.',
+      );
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    if (
+      searchFetcher.data.intent === 'youtubeVideo' &&
+      searchFetcher.data.video
+    ) {
+      const video = searchFetcher.data.video;
+      setPreviewVideo({
+        artist: video.channelTitle,
+        duration: video.duration,
+        id: video.id,
+        thumbnailUrl: video.thumbnailUrl,
+        title: video.title,
+      });
+      return;
+    }
+
+    if (
+      searchFetcher.data.intent === 'search' &&
+      searchFetcher.data.searchResults
+    ) {
+      setSearchResults(
+        searchFetcher.data.searchResults.map((result) => ({
+          artist: result.channelTitle || 'Unknown',
+          duration: result.duration,
+          id: result.id,
+          source: 'source' in result ? result.source : 'youtube',
+          thumbnailUrl: result.thumbnailUrl ?? '',
+          title: result.title,
+        })),
+      );
+      setShowResults(true);
+    }
+  }, [searchFetcher.data, searchFetcher.state]);
+
+  useEffect(() => {
+    if (songFetcher.state !== 'idle' || !songFetcher.data) return;
+    if (songFetcher.data.intent !== 'addSong') return;
+    setIsLoading(false);
+
+    if (songFetcher.data.error || !songFetcher.data.addSong) {
+      setError('Failed to add song to queue');
+      return;
+    }
+
+    const result = songFetcher.data.addSong;
+    setAddOutcome(result.outcome);
+    setJustAdded(true);
+    const timeout = window.setTimeout(
+      onClose,
+      result.outcome === 'added' ? 800 : 1600,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [onClose, songFetcher.data, songFetcher.state]);
+
   const extractYoutubeId = (url: string) => {
     const regExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -128,7 +182,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     return match && match[2].length === 11 ? match[2] : null;
   };
 
-  const performSearch = async (query: string) => {
+  const performSearch = (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
       setShowResults(false);
@@ -138,39 +192,14 @@ export const AddToQueueModal: React.FC<Props> = ({
     setIsSearching(true);
     setError(null);
 
-    let err: Error | null = null;
-    let results: SearchApiResult[] | null = null;
-
-    const [providerErr, providerResults] = await searchProvider(
-      selectedProvider,
-      query,
+    searchFetcher.submit(
+      {
+        intent: 'search',
+        prompt: query,
+        provider: selectedProvider,
+      },
+      { encType: 'application/json', method: 'post' },
     );
-    err = providerErr;
-    results = providerResults;
-
-    setIsSearching(false);
-
-    if (err || !results) {
-      setError('Search failed. Please try again.');
-      setSearchResults([]);
-      setShowResults(false);
-      return;
-    }
-
-    // Backend returns MusicTracks with { id, title, artist, duration, thumbnail, url }
-    // We map it to SearchResult { id, title, artist, thumbnailUrl, duration, url }
-    const mappedResults: SearchResult[] = results.map((r) => ({
-      id: r.id,
-      title: r.title,
-      artist: r.channelTitle || 'Unknown',
-      thumbnailUrl: r.thumbnailUrl,
-      duration: r.duration,
-      url: r.url, // Backend might not send this, but keeping it optional
-      source: r.source,
-    }));
-
-    setSearchResults(mappedResults);
-    setShowResults(true);
   };
 
   const handleSearchChange = (query: string) => {
@@ -185,23 +214,10 @@ export const AddToQueueModal: React.FC<Props> = ({
     if (videoId && selectedProvider === 'youtube') {
       setShowResults(false);
       setIsSearching(true);
-      const loadVideoPreview = async () => {
-        const [err, video] = await getYouTubeVideo(videoId);
-        setIsSearching(false);
-        if (err || !video) {
-          setError('Could not find that video');
-          return;
-        }
-
-        setPreviewVideo({
-          id: video.id,
-          title: video.title,
-          artist: video.channelTitle,
-          thumbnailUrl: video.thumbnailUrl,
-          duration: video.duration,
-        });
-      };
-      void loadVideoPreview();
+      searchFetcher.submit(
+        { intent: 'youtubeVideo', songId: videoId },
+        { encType: 'application/json', method: 'post' },
+      );
       return;
     }
 
@@ -220,34 +236,23 @@ export const AddToQueueModal: React.FC<Props> = ({
     }, 300);
   };
 
-  const handleSelectResult = async (song: SearchResult) => {
+  const handleSelectResult = (song: SearchResult) => {
     setIsLoading(true);
     const durationSec = parseISODuration(song.duration);
-
-    // Determine sourceType from selectedProvider (which is 'youtube', 'spotify', etc.)
-    // Assuming selectedProvider matches sourceType strings.
-    const result = await addToQueue(
-      selectedProvider,
-      song.id,
-      song.title,
-      song.thumbnailUrl,
-      durationSec,
-      song.artist,
-    );
-
-    setIsLoading(false);
-    if (result) {
-      setAddOutcome(result.outcome);
-      setJustAdded(true);
-      setTimeout(
-        () => {
-          onClose();
+    songFetcher.submit(
+      {
+        intent: 'addSong',
+        song: {
+          artist: song.artist,
+          duration: durationSec,
+          sourceId: song.id,
+          sourceType: selectedProvider,
+          thumbnailUrl: song.thumbnailUrl,
+          title: song.title,
         },
-        result.outcome === 'added' ? 800 : 1600,
-      );
-    } else {
-      setError('Failed to add song to queue');
-    }
+      },
+      { encType: 'application/json', method: 'post' },
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -258,7 +263,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     }
   };
 
-  const handleAdd = async () => {
+  const handleAdd = () => {
     if (!previewVideo || justAdded) return;
     handleSelectResult(previewVideo);
   };

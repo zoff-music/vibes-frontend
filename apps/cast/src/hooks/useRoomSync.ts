@@ -14,6 +14,7 @@ interface UseRoomSyncProps {
   setStatusText: (text: string) => void;
   setRoomMode: (mode: string | null) => void;
   setError: (err: string | null) => void;
+  setSpotifyToken: (token: string | null) => void;
   updateMediaMetadata: (song: Song) => void;
   debugMode: boolean;
 }
@@ -34,6 +35,7 @@ export function useRoomSync({
   setStatusText,
   setRoomMode,
   setError,
+  setSpotifyToken,
   updateMediaMetadata,
 }: UseRoomSyncProps) {
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
@@ -64,12 +66,22 @@ export function useRoomSync({
             headers: authHeaders,
           },
         ),
+        api.get(
+          '/tokens/{provider}',
+          { provider: 'spotify' },
+          { headers: authHeaders },
+        ),
       ]);
       if (!isMounted) return;
 
-      const [queueRes, playbackRes] = initialState;
+      const [queueRes, playbackRes, spotifyTokenRes] = initialState;
       const [songsErr, songs] = queueRes;
       const [playbackErr, playbackState] = playbackRes;
+      const [, spotifyToken] = spotifyTokenRes;
+
+      if (spotifyToken) {
+        setSpotifyToken(spotifyToken.accessToken);
+      }
 
       if (!songsErr && songs) {
         console.log(`[Cast] Fetched ${songs.length} songs for room ${roomId}`);

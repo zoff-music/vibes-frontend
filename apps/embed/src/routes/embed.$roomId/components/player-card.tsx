@@ -6,12 +6,23 @@ interface Props {
   currentSong: Song | null;
   durationMs: number;
   positionMs: number;
+  requestProviderToken: (
+    provider: 'spotify' | 'youtube',
+    force?: boolean,
+  ) => void;
+  spotifyToken: string | null;
+  tokenLoading: boolean;
+  youtubeToken: string | null;
 }
 
 export function EmbedPlayerCard({
   currentSong,
   durationMs,
   positionMs,
+  requestProviderToken,
+  spotifyToken,
+  tokenLoading,
+  youtubeToken,
 }: Props) {
   const progress = durationMs > 0 ? positionMs / durationMs : 0;
   const formatTime = (milliseconds: number) => {
@@ -36,7 +47,13 @@ export function EmbedPlayerCard({
             Nothing playing
           </div>
         )}
-        <EmbedPlayerSource currentSong={currentSong} />
+        <EmbedPlayerSource
+          currentSong={currentSong}
+          requestProviderToken={requestProviderToken}
+          spotifyToken={spotifyToken}
+          tokenLoading={tokenLoading}
+          youtubeToken={youtubeToken}
+        />
       </div>
 
       <div className="mt-3 min-w-0 shrink-0">

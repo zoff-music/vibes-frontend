@@ -19,11 +19,13 @@ import {
   createRoomRequestSchema,
   createSessionRequestSchema,
   emptyObjectSchema,
+  generatedPlaylistRequestSchema,
   messageResponseSchema,
   playbackStateSchema,
   providersSchema,
   providerTokenSchema,
   roomActionRequestSchema,
+  roomGenerationUpdateSchema,
   roomNameSuggestionSchema,
   roomSchema,
   roomUpdateSchema,
@@ -195,6 +197,12 @@ const endpoints = {
       response: emptyObjectSchema,
     },
   },
+  '/rooms/generation': {
+    post: {
+      request: generatedPlaylistRequestSchema,
+      response: roomSchema,
+    },
+  },
 
   '/youtube/search': {
     get: {
@@ -218,6 +226,7 @@ const endpoints = {
         skip_vote: skipVoteUpdateSchema,
         settings_update: roomSchema,
         users_update: usersUpdateSchema,
+        generation_update: roomGenerationUpdateSchema,
       },
     },
   },
@@ -370,12 +379,6 @@ export const api = createApiClient();
 // Endpoint helpers (mirrors backend handler filenames)
 export * from './casting';
 export * from './hooks/useAdminEvents';
-export * from './hooks/useAuthCache';
-export * from './hooks/useMusicSearch';
 // Hooks
-export * from './hooks/usePlayback';
-export * from './hooks/useProviderToken';
-export * from './hooks/useQueue';
-export * from './hooks/useRoom';
 export * from './hooks/useSSE';
 export * from './rateLimit';

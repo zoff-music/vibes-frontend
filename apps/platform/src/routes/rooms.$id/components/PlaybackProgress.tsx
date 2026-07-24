@@ -1,4 +1,4 @@
-import { usePlaybackPosition } from '@vibes/api';
+import { usePlaybackStore } from '@vibes/shared';
 import React from 'react';
 
 interface PlaybackProgressProps {
@@ -8,7 +8,9 @@ interface PlaybackProgressProps {
 
 export const PlaybackProgress: React.FC<PlaybackProgressProps> = React.memo(
   ({ durationMs, isSSR }) => {
-    const actualPositionMs = usePlaybackPosition();
+    const actualPositionMs = usePlaybackStore(
+      (state) => state.actualPositionMs,
+    );
 
     const progress = durationMs > 0 ? actualPositionMs / durationMs : 0;
 

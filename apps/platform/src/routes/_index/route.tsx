@@ -1,13 +1,16 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
 import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate, useNavigationType } from 'react-router';
+import { useNavigate, useNavigationType } from 'react-router';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
+import { clientAction } from './action';
+import { PlaylistGenerationControls } from './components/PlaylistGenerationControls';
+import { RoomJoinControls } from './components/RoomJoinControls';
 import { loader } from './loader';
 
-export { loader };
+export { clientAction, loader };
 
 const ANIMATED_WORDS = [
   'electro',
@@ -47,6 +50,17 @@ const ANIMATED_WORDS = [
   'でんし',
 ];
 
+const AI_PROMPTS = [
+  'sunny indie pop for a weekend road trip',
+  'late-night jazz in a quiet city bar',
+  'high-energy 2000s dance floor anthems',
+  'dreamy shoegaze for watching the rain',
+  'funk and soul that keeps a party moving',
+  'melodic drum and bass for deep focus',
+  'classic hip-hop for a summer cookout',
+  'heavy riffs for an intense gym session',
+];
+
 export default function Home() {
   const [roomCode, setRoomCode] = useState('');
   const [placeholderText, setPlaceholderText] = useState('');
@@ -54,6 +68,7 @@ export default function Home() {
   const [charIndex, setCharIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
+  const [isAIMode, setIsAIMode] = useState(false);
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -63,6 +78,13 @@ export default function Home() {
   const shouldFadeIn =
     navigationType === 'POP' &&
     Boolean(previousPath && /^\/rooms\/[^/]+$/.test(previousPath));
+  const placeholder = placeholderText
+    ? isPaused && !isBlinkerVisible
+      ? `${placeholderText.slice(0, -1)} `
+      : placeholderText
+    : isAIMode
+      ? 'Describe the music you want...'
+      : 'Enter Room Name...';
 
   const handleToggleDarkMode = useCallback(() => {
     toggleDarkMode();
@@ -70,53 +92,65 @@ export default function Home() {
 
   useEffect(() => {
     if (!isTabVisible) return;
-    const currentWord = ANIMATED_WORDS[wordIndex];
+    const animatedWords = isAIMode ? AI_PROMPTS : ANIMATED_WORDS;
+    const currentWord = animatedWords[wordIndex];
     const fullTarget = `${currentWord}...`;
+    const typingDelay = Math.max(10, Math.floor(700 / fullTarget.length));
 
     if (isPaused) {
-      const timer = setTimeout(() => {
+      const timer = window.setTimeout(() => {
         setIsPaused(false);
         setCharIndex(0);
-        setWordIndex((prev) => (prev + 1) % ANIMATED_WORDS.length);
-      }, 3000);
-      return () => clearTimeout(timer);
+        setWordIndex((current) => (current + 1) % animatedWords.length);
+      }, 1600);
+      return () => window.clearTimeout(timer);
     }
 
     if (charIndex < fullTarget.length) {
-      const timer = setTimeout(() => {
+      const timer = window.setTimeout(() => {
         setPlaceholderText(fullTarget.substring(0, charIndex + 1));
-        setCharIndex((prev) => prev + 1);
-      }, 150);
-      return () => clearTimeout(timer);
-    } else {
-      setIsPaused(true);
+        setCharIndex((current) => current + 1);
+      }, typingDelay);
+      return () => window.clearTimeout(timer);
     }
-  }, [wordIndex, charIndex, isPaused, isTabVisible]);
 
-  // Handle blinking effect for the last dot
+    setIsPaused(true);
+  }, [wordIndex, charIndex, isPaused, isTabVisible, isAIMode]);
+
   useEffect(() => {
     if (!isTabVisible) {
       setIsBlinkerVisible(true);
       return;
     }
-
     if (!isPaused) {
       setIsBlinkerVisible(true);
       return;
     }
 
-    const interval = setInterval(() => {
-      setIsBlinkerVisible((prev) => !prev);
+    const interval = window.setInterval(() => {
+      setIsBlinkerVisible((current) => !current);
     }, 500);
 
-    return () => clearInterval(interval);
+    return () => window.clearInterval(interval);
   }, [isPaused, isTabVisible]);
 
   const handleJoinRoom = () => {
     if (!roomCode.trim()) return;
-
     const slug = roomCode.trim().toLowerCase().replace(/\s+/g, '-');
     navigate(`/rooms/${slug}`);
+  };
+
+  const handleToggleAIMode = () => {
+    setIsAIMode((current) => !current);
+    setRoomCode('');
+    setPlaceholderText('');
+    setWordIndex(0);
+    setCharIndex(0);
+    setIsPaused(false);
+  };
+
+  const handleRoomCodeChange = (value: string) => {
+    setRoomCode(value);
   };
 
   return (
@@ -140,6 +174,7 @@ export default function Home() {
               {themeId === 'auto' && <CircleHalfIcon className="h-5 w-5" />}
             </Button>
           </div>
+
           <div className="text-center">
             <h1
               className="vhs-tear vhs-tear-strong glow-text font-wide text-4xl text-theme leading-none sm:text-5xl"
@@ -155,49 +190,23 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-8 space-y-5">
-            <div className="panel-surface rounded-[24px] p-6">
-              <label className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
-                ROOM NAME
-              </label>
-              <input
-                type="text"
-                placeholder={
-                  placeholderText
-                    ? isPaused && !isBlinkerVisible
-                      ? `${placeholderText.slice(0, -1)} `
-                      : placeholderText
-                    : 'Enter Room Name...'
-                }
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toLowerCase())}
-                onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
-                className="w-full rounded-2xl border border-theme bg-theme-surface px-4 py-4 font-mono text-base text-theme tracking-widest placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30 disabled:cursor-not-allowed disabled:opacity-60"
-                maxLength={20}
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Link
-                to="/rooms/create"
-                className="group flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-[0_0_28px_rgba(255,46,151,0.45)] transition-all hover:-translate-y-0.5 hover:bg-primary"
-              >
-                Start a Session
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white">
-                  +
-                </span>
-              </Link>
-              <Button
-                onClick={handleJoinRoom}
-                disabled={!roomCode.trim()}
-                variant="secondary"
-                size="large"
-                className="gap-3 font-pixel"
-              >
-                Join Room
-              </Button>
-            </div>
-          </div>
+          {!isAIMode && (
+            <RoomJoinControls
+              onJoinRoom={handleJoinRoom}
+              onRoomCodeChange={handleRoomCodeChange}
+              onToggleAIMode={handleToggleAIMode}
+              placeholder={placeholder}
+              roomCode={roomCode}
+            />
+          )}
+          {isAIMode && (
+            <PlaylistGenerationControls
+              onPromptChange={handleRoomCodeChange}
+              onToggleAIMode={handleToggleAIMode}
+              placeholder={placeholder}
+              prompt={roomCode}
+            />
+          )}
         </div>
       </div>
     </div>
