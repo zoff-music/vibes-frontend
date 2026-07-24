@@ -29,6 +29,8 @@ import { loader } from './loader';
 
 export { clientAction, clientLoader, loader };
 
+const GENERATION_RELOAD_DELAY_MS = 5 * 60 * 1000;
+
 export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
   const { id = '' } = useParams<{ id: string }>();
@@ -152,6 +154,18 @@ export default function Room() {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
   }, [loaderData, setPlaybackState, setRoom, setSongs]);
+
+  useEffect(() => {
+    if (!isGenerating) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      window.location.reload();
+    }, GENERATION_RELOAD_DELAY_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, [isGenerating]);
 
   useEffect(() => {
     if (adminFetcher.state !== 'idle' || !adminFetcher.data) return;

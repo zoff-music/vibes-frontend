@@ -17,7 +17,19 @@ const GENERATION_MESSAGES = [
   'Giving the queue a final polish',
   'Adding songs to your room',
   'Almost ready to press play',
+  'Reading between the lines',
+  'Matching the mood to the moment',
+  'Following the musical thread',
+  'Chasing the right kind of energy',
+  'Mixing classics with discoveries',
+  'Trimming anything that breaks the flow',
+  'Hunting down official uploads',
+  'Double-checking the song choices',
+  'Shaping the middle of the playlist',
+  'Saving the best finish for last',
 ];
+
+const TAKING_LONGER_DELAY_MS = 2.5 * 60 * 1000;
 
 interface RoomGenerationProgressProps {
   error?: string;
@@ -29,6 +41,7 @@ export function RoomGenerationProgress({
   isFailed,
 }: RoomGenerationProgressProps) {
   const [messageIndex, setMessageIndex] = useState(0);
+  const [isTakingLonger, setIsTakingLonger] = useState(false);
 
   useEffect(() => {
     if (isFailed) {
@@ -40,6 +53,18 @@ export function RoomGenerationProgress({
     }, 1800);
 
     return () => window.clearInterval(interval);
+  }, [isFailed]);
+
+  useEffect(() => {
+    if (isFailed) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setIsTakingLonger(true);
+    }, TAKING_LONGER_DELAY_MS);
+
+    return () => window.clearTimeout(timeout);
   }, [isFailed]);
 
   return (
@@ -74,6 +99,11 @@ export function RoomGenerationProgress({
             (error ??
               'Could not finish this playlist. You can still use the room normally.')}
         </p>
+        {!isFailed && isTakingLonger && (
+          <p className="mx-auto mt-3 max-w-xl text-sm text-theme-subtle sm:text-base">
+            This is taking longer than usual.
+          </p>
+        )}
       </div>
     </div>
   );

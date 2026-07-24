@@ -25,6 +25,16 @@ const GENERATION_MESSAGES = [
   'Giving the queue a final polish',
   'Building your music room',
   'Almost ready to press play',
+  'Reading between the lines',
+  'Matching the mood to the moment',
+  'Following the musical thread',
+  'Chasing the right kind of energy',
+  'Mixing classics with discoveries',
+  'Trimming anything that breaks the flow',
+  'Hunting down official uploads',
+  'Double-checking the song choices',
+  'Shaping the middle of the playlist',
+  'Saving the best finish for last',
 ];
 
 interface PlaylistGenerationControlsProps {
