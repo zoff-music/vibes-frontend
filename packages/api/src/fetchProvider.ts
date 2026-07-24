@@ -182,3 +182,35 @@ export function createApiFetchProvider(
     }
   };
 }
+
+export async function headApiUrl(
+  url: string,
+): Promise<[Error | null, boolean | null]> {
+  const request = new Request(url, {
+    credentials: 'include',
+    method: 'HEAD',
+  });
+  const [err, response] = await safeWrapAsync(fetch(request));
+  if (err || !response) {
+    const normalizedErr = err ?? new Error('error fetching HEAD response');
+    return [createFetchError('HEAD', normalizedErr), null];
+  }
+
+  showRateLimitToast(response);
+
+  if (response.status === 404) {
+    return [null, false];
+  }
+
+  if (response.ok) {
+    return [null, true];
+  }
+
+  return [
+    new HTTPError(
+      response as ApiFetchResponse,
+      'error in HEAD request in fetchClient',
+    ),
+    null,
+  ];
+}

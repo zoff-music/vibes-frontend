@@ -31,6 +31,11 @@ export const roomSchema = yup.object({
 });
 export type Room = yup.InferType<typeof roomSchema>;
 
+export const roomNameSuggestionSchema = yup.object({
+  name: yup.string().required(),
+});
+export type RoomNameSuggestion = yup.InferType<typeof roomNameSuggestionSchema>;
+
 export const usersUpdateSchema = yup.number().required();
 
 export const createRoomRequestSchema = yup.object({

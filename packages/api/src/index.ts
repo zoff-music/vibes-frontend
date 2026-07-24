@@ -24,6 +24,7 @@ import {
   providersSchema,
   providerTokenSchema,
   roomActionRequestSchema,
+  roomNameSuggestionSchema,
   roomSchema,
   roomUpdateSchema,
   searchQuerySchema,
@@ -134,10 +135,16 @@ const endpoints = {
       response: roomSchema,
     },
   },
+  '/rooms/suggestions': {
+    get: {
+      response: roomNameSuggestionSchema,
+    },
+  },
   '/rooms/{id}': {
     get: {
       response: roomSchema,
     },
+    url: {},
     post: {
       request: roomActionRequestSchema,
       response: playbackStateSchema,
@@ -343,5 +350,6 @@ export * from './hooks/usePlayback';
 export * from './hooks/useProviderToken';
 export * from './hooks/useQueue';
 export * from './hooks/useRoom';
+export * from './hooks/useRoomNames';
 export * from './hooks/useSSE';
 export * from './rateLimit';
