@@ -1,4 +1,4 @@
-import { api, getRateLimitMessage } from '@vibes/api';
+import { api, getAPIErrorMessage, getRateLimitMessage } from '@vibes/api';
 import type {
   AddSongRequest,
   AddSongResponse,
@@ -56,9 +56,11 @@ interface RoomActionRequest {
   songId?: string;
 }
 
-function createErrorData(intent: RoomActionIntent, error: Error | null) {
+async function createErrorData(intent: RoomActionIntent, error: Error | null) {
+  const apiErrorMessage = error ? await getAPIErrorMessage(error) : null;
   return {
     error:
+      apiErrorMessage ??
       (error && getRateLimitMessage(error)) ??
       error?.message ??
       'The request failed',

@@ -1,4 +1,4 @@
-import { api, getRateLimitMessage } from '@vibes/api';
+import { api, getAPIErrorMessage, getRateLimitMessage } from '@vibes/api';
 import { type ClientActionFunctionArgs, redirect } from 'react-router';
 
 export interface HomeActionData {
@@ -27,9 +27,11 @@ export async function clientAction({
       prompt,
     });
     if (createError) {
+      const apiErrorMessage = await getAPIErrorMessage(createError);
       return {
         intent: 'generateRoom',
         error:
+          apiErrorMessage ??
           getRateLimitMessage(createError) ??
           'Could not generate your music room. Please try again.',
       };

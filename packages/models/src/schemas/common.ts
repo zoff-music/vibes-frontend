@@ -10,3 +10,11 @@ export type Connected = yup.InferType<typeof connectedSchema>;
 
 export const messageResponseSchema = yup.string();
 export type MessageResponse = yup.InferType<typeof messageResponseSchema>;
+
+export const errorCodeResponseSchema = yup.object({
+  namespace: yup.string().required(),
+  error: yup.string().required(),
+  message: yup.string().required(),
+  propagate: yup.boolean().optional(),
+});
+export type ErrorCodeResponse = yup.InferType<typeof errorCodeResponseSchema>;
