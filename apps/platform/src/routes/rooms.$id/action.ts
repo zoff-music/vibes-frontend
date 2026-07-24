@@ -1,4 +1,9 @@
-import { api, getAPIErrorMessage, getRateLimitMessage } from '@vibes/api';
+import {
+  api,
+  getAPIErrorMessage,
+  getHttpError,
+  getRateLimitMessage,
+} from '@vibes/api';
 import type {
   AddSongRequest,
   AddSongResponse,
@@ -58,15 +63,29 @@ interface RoomActionRequest {
 
 async function createErrorData(intent: RoomActionIntent, error: Error | null) {
   const apiErrorMessage = error ? await getAPIErrorMessage(error) : null;
+  const status = error ? getHttpError(error)?.response.status : null;
+  let permissionError: string | null = null;
+  if (
+    intent === 'generatePlaylist' &&
+    (status === UNAUTHORIZED_STATUS || status === FORBIDDEN_STATUS)
+  ) {
+    permissionError = 'Log in as admin to generate songs for this room.';
+  }
+
   return {
     error:
-      apiErrorMessage ??
+      permissionError ??
       (error && getRateLimitMessage(error)) ??
+      apiErrorMessage ??
       error?.message ??
       'The request failed',
     intent,
   } satisfies RoomActionData;
 }
+
+const FORBIDDEN_STATUS = 403;
+
+const UNAUTHORIZED_STATUS = 401;
 
 export async function clientAction({
   request,
