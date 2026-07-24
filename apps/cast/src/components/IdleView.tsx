@@ -9,12 +9,12 @@ export const IdleView: React.FC = () => {
       <div className="panel-frame panel-surface w-full px-10 py-12">
         <div className="mb-6 flex flex-col items-center gap-3">
           <span
-            className="vhs-tear-strong glow-text font-display text-6xl text-readable text-theme uppercase tracking-[0.22em] md:text-7xl"
+            className="vhs-tear-strong glow-text font-display text-6xl text-readable text-theme uppercase tracking-logo md:text-7xl"
             data-text="ゾフ"
           >
             ゾフ
           </span>
-          <p className="font-mono text-theme-subtle text-xs lowercase tracking-[0.4em]">
+          <p className="font-mono text-theme-subtle text-xs lowercase tracking-banner">
             zoff
           </p>
         </div>
@@ -30,8 +30,8 @@ export const IdleView: React.FC = () => {
         <div className="panel-frame panel-surface w-full px-8 py-6">
           <p className="font-display text-3xl text-theme">{roomInfo.name}</p>
           <div className="mt-3 flex items-center justify-center gap-2 text-theme-muted">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-secondary)]" />
-            <span className="text-sm uppercase tracking-[0.25em]">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
+            <span className="text-sm uppercase tracking-heading">
               {roomInfo.participantCount} active
             </span>
           </div>

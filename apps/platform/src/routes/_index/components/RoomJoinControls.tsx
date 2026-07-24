@@ -29,10 +29,10 @@ export function RoomJoinControls({
 
   return (
     <div className="mt-8 space-y-5">
-      <div className="panel-surface rounded-[24px] p-6">
+      <div className="panel-surface rounded-3xl p-6">
         <label
           htmlFor="room-name"
-          className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]"
+          className="mb-3 block font-pixel text-2xs text-theme-muted tracking-label"
         >
           ROOM NAME
         </label>
@@ -64,7 +64,7 @@ export function RoomJoinControls({
       <div className="grid gap-4 sm:grid-cols-2">
         <Link
           to="/rooms/create"
-          className="group flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-[0_0_28px_rgba(255,46,151,0.45)] transition-all hover:-translate-y-0.5 hover:bg-primary"
+          className="group flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-primary-cta transition-all hover:-translate-y-0.5 hover:bg-primary"
         >
           Start a Session
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white">

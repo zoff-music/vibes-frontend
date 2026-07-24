@@ -87,14 +87,14 @@ export function PlaylistGenerationControls({
     <div className="mt-8 space-y-5">
       <div
         className={classNames(
-          'panel-surface rounded-[24px] p-6 transition-all duration-500',
+          'panel-surface rounded-3xl p-6 transition-all duration-500',
           isGenerating &&
-            'animate-pulse border-secondary/70 shadow-[0_0_32px_rgba(0,217,255,0.24)]',
+            'animate-pulse border-secondary/70 shadow-secondary-panel',
         )}
       >
         <label
           htmlFor="playlist-prompt"
-          className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]"
+          className="mb-3 block font-pixel text-2xs text-theme-muted tracking-label"
         >
           PLAYLIST PROMPT
         </label>

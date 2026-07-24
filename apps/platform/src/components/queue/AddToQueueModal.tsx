@@ -326,8 +326,8 @@ export const AddToQueueModal: React.FC<Props> = ({
               <InfoIcon className="h-5 w-5" />
             </div>
             <p className="text-sm text-theme-muted leading-relaxed">
-              <span className="text-[10px] text-orange-400">Note:</span> By
-              adding Spotify, viewers are required to have{' '}
+              <span className="text-2xs text-orange-400">Note:</span> By adding
+              Spotify, viewers are required to have{' '}
               <span className="font-semibold text-theme">Spotify Premium</span>{' '}
               to view content.
             </p>
@@ -343,7 +343,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               <InfoIcon className="h-5 w-5" />
             </div>
             <p className="text-sm text-theme-muted leading-relaxed">
-              <span className="text-[10px] text-orange-400">Note:</span> Some
+              <span className="text-2xs text-orange-400">Note:</span> Some
               SoundCloud searches may return empty results due to rights or
               copyright restrictions on certain tracks.
             </p>
@@ -400,7 +400,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           searchResults.length > 0 &&
           !isLoading &&
           !justAdded && (
-            <div className="mt-2 max-h-96 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-[0_0_24px_rgba(255,46,151,0.25)]">
+            <div className="mt-2 max-h-96 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-primary-popover">
               {searchResults.map((result) => (
                 <Button
                   key={result.id}
@@ -416,7 +416,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                       className="h-20 w-28 rounded-xl border border-theme bg-theme-surface object-cover"
                     />
                     {result.duration && (
-                      <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-[10px] text-theme backdrop-blur-sm">
+                      <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
                         {formatDuration(parseISODuration(result.duration))}
                       </div>
                     )}
@@ -455,7 +455,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                 alt={previewVideo.title}
                 className="h-24 w-32 rounded-xl border border-theme bg-theme-surface object-cover"
               />
-              <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-[10px] text-theme backdrop-blur-sm">
+              <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
                 {formatDuration(parseISODuration(previewVideo.duration))}
               </div>
             </div>

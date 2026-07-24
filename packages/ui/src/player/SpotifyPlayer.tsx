@@ -191,8 +191,8 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     (error?.includes('auth') ? error : null);
 
   const containerClass = fill
-    ? 'relative h-full w-full overflow-hidden bg-[#121212]'
-    : 'relative aspect-video min-h-[200px] w-full overflow-hidden rounded-xl bg-[#121212]';
+    ? 'relative h-full w-full overflow-hidden bg-spotify-surface'
+    : 'relative aspect-video min-h-video-min w-full overflow-hidden rounded-xl bg-spotify-surface';
 
   if (!accessToken && isFetchingToken) {
     return (
@@ -213,7 +213,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   return (
     <div className={containerClass}>
       {/* Spotify Background Gradient - Bottom Layer */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954]/20 via-black/40 to-black opacity-90" />
+      <div className="absolute inset-0 bg-gradient-to-br from-spotify/20 via-black/40 to-black opacity-90" />
 
       {/* Content Layer - Back Layer */}
       <div className="absolute inset-0 flex items-center justify-center p-8">
@@ -223,7 +223,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
               <img
                 src={currentSong.thumbnailUrl}
                 alt={currentSong.title}
-                className="h-full w-full rounded-lg object-cover shadow-[0_0_40px_rgba(29,185,84,0.4)]"
+                className="h-full w-full rounded-lg object-cover shadow-spotify-cover"
               />
               <div className="absolute inset-0 rounded-lg border border-white/10" />
             </div>
@@ -232,19 +232,18 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
             <h3 className="truncate font-display text-2xl text-white tracking-tight">
               {currentSong.title}
             </h3>
-            <p className="mt-1 truncate font-medium text-[#1DB954] text-lg">
+            <p className="mt-1 truncate font-medium text-lg text-spotify">
               {currentSong.artist || 'Unknown Artist'}
             </p>
             <div className="mt-4 flex items-center gap-3">
               <div
                 className={classNames(
                   'h-2.5 w-2.5 rounded-full',
-                  isPlaying &&
-                    'animate-pulse bg-[#1DB954] shadow-[0_0_12px_rgba(29,185,84,0.8)]',
+                  isPlaying && 'animate-pulse bg-spotify shadow-spotify-pulse',
                   !isPlaying && 'bg-white/30',
                 )}
               />
-              <span className="font-mono text-[10px] text-white/50 uppercase tracking-[0.2em]">
+              <span className="font-mono text-2xs text-white/50 uppercase tracking-display">
                 {isPlaying ? 'Streaming from Spotify' : 'Paused on Spotify'}
               </span>
             </div>
@@ -254,9 +253,9 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
 
       {/* CRT Effects Layer - Middle Layer (if shown) */}
       {showOverlay && (
-        <div className="pointer-events-none absolute inset-0 z-[5] overflow-hidden">
-          <div className="vhs-scanlines h-full w-full opacity-[0.2] mix-blend-overlay" />
-          <div className="crt-overlay !absolute !z-[6] pointer-events-none inset-0 opacity-[0.18]" />
+        <div className="pointer-events-none absolute inset-0 z-5 overflow-hidden">
+          <div className="vhs-scanlines h-full w-full opacity-20 mix-blend-overlay" />
+          <div className="crt-overlay !absolute !z-6 pointer-events-none inset-0 opacity-18" />
         </div>
       )}
 
@@ -291,8 +290,8 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
       {!isReady && !error && !showOverlay && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="text-center">
-            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#1DB954]/30 border-t-[#1DB954]" />
-            <p className="font-mono text-[#1DB954] text-[10px] uppercase tracking-widest">
+            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-spotify/30 border-t-spotify" />
+            <p className="font-mono text-2xs text-spotify uppercase tracking-widest">
               Initialising Track...
             </p>
           </div>

@@ -141,7 +141,7 @@ export const RoomSettingsMenu = ({
   return (
     <AnimatePresence>
       {showSettings && (
-        <div className="fixed top-[var(--room-header-height)] right-0 bottom-0 left-0 z-40">
+        <div className="fixed top-(--room-header-height) right-0 bottom-0 left-0 z-40">
           <Button
             type="button"
             variant="ghost"
@@ -155,12 +155,12 @@ export const RoomSettingsMenu = ({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="fixed top-[var(--room-header-height)] right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full overflow-hidden border-theme border-t bg-theme-surface text-theme shadow-2xl sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:max-h-[70vh] sm:w-72 sm:rounded-3xl sm:border"
+            className="fixed top-(--room-header-height) right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full overflow-hidden border-theme border-t bg-theme-surface text-theme shadow-2xl sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:max-h-settings-max sm:w-72 sm:rounded-3xl sm:border"
           >
             <div
               ref={scrollPanelRef}
               onScroll={updateScrollCue}
-              className="h-full overflow-y-scroll overscroll-contain p-5 sm:max-h-[70vh]"
+              className="h-full overflow-y-scroll overscroll-contain p-5 sm:max-h-settings-max"
             >
               <div className="space-y-4">
                 <div className="space-y-3 sm:hidden">
@@ -203,7 +203,7 @@ export const RoomSettingsMenu = ({
                   )}
                 </div>
 
-                <h4 className="border-theme border-b pb-2 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+                <h4 className="border-theme border-b pb-2 font-pixel text-2xs text-theme-muted tracking-label">
                   Room Control
                 </h4>
 
@@ -351,7 +351,7 @@ export const RoomSettingsMenu = ({
                 </div>
 
                 <div className="border-theme border-t pt-4">
-                  <h5 className="mb-3 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+                  <h5 className="mb-3 font-pixel text-2xs text-theme-muted tracking-label">
                     Sources
                   </h5>
                   <div className="grid grid-cols-3 gap-2">
@@ -403,7 +403,7 @@ export const RoomSettingsMenu = ({
                 </div>
 
                 <div className="border-theme border-t pt-4">
-                  <h5 className="mb-3 font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+                  <h5 className="mb-3 font-pixel text-2xs text-theme-muted tracking-label">
                     Room Mode
                   </h5>
 
@@ -418,7 +418,7 @@ export const RoomSettingsMenu = ({
                       <div className="w-full text-left font-pixel text-current text-sm leading-snug">
                         Server Mode
                       </div>
-                      <div className="w-full text-left text-[11px] text-current leading-relaxed opacity-75">
+                      <div className="w-full text-left text-caption text-current leading-relaxed opacity-75">
                         Auto-play music 24/7. Perfect for radio stations.
                       </div>
                     </Button>
@@ -433,7 +433,7 @@ export const RoomSettingsMenu = ({
                       <div className="w-full text-left font-pixel text-current text-sm leading-snug">
                         Host Mode
                       </div>
-                      <div className="w-full text-left text-[11px] text-current leading-relaxed opacity-75">
+                      <div className="w-full text-left text-caption text-current leading-relaxed opacity-75">
                         Host controls playback. Great for parties.
                       </div>
                     </Button>
@@ -495,7 +495,7 @@ export const RoomSettingsMenu = ({
                   </div>
                 )}
 
-                <p className="pt-2 text-center text-[10px] text-theme-muted italic">
+                <p className="pt-2 text-center text-2xs text-theme-muted italic">
                   Settings sync enabled
                 </p>
               </div>
@@ -503,7 +503,7 @@ export const RoomSettingsMenu = ({
 
             {canScrollDown && (
               <div className="pointer-events-none absolute right-0 bottom-0 left-0 flex justify-center bg-gradient-to-t from-theme-surface via-theme-surface pt-10 pb-3">
-                <div className="flex animate-bounce items-center gap-1 rounded-full border border-secondary/40 bg-theme-surface-strong px-3 py-1 font-pixel text-[9px] text-secondary shadow-lg">
+                <div className="flex animate-bounce items-center gap-1 rounded-full border border-secondary/40 bg-theme-surface-strong px-3 py-1 font-pixel text-3xs text-secondary shadow-lg">
                   Scroll for more
                   <ChevronDownIcon className="h-3 w-3" />
                 </div>

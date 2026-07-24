@@ -105,8 +105,8 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
   if (!envDebugEnabled || !isVisible) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-0 left-0 z-[9999] flex h-[50vh] w-full flex-col overflow-hidden border-[#333] border-t-2 bg-black/90 font-mono text-white text-xs">
-      <div className="pointer-events-auto flex select-none justify-between bg-[#333] p-1">
+    <div className="pointer-events-none fixed bottom-0 left-0 z-9999 flex h-[50vh] w-full flex-col overflow-hidden border-zinc-700 border-t-2 bg-black/90 font-mono text-white text-xs">
+      <div className="pointer-events-auto flex select-none justify-between bg-zinc-700 p-1">
         <strong>Debug Console</strong>
         <Button
           onClick={() => setLogs([])}
@@ -123,15 +123,15 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
         {logs.map((log) => (
           <div
             key={log.id}
-            className={`mb-1 border-[#222] border-b pb-0.5 ${
+            className={`mb-1 border-zinc-800 border-b pb-0.5 ${
               log.level === 'error'
-                ? 'text-[#ff5555]'
+                ? 'text-red-400'
                 : log.level === 'warn'
-                  ? 'text-[#ffcc00]'
-                  : 'text-[#ccc]'
+                  ? 'text-yellow-400'
+                  : 'text-zinc-300'
             }`}
           >
-            <span className="mr-2 text-[#666]">[{log.timestamp}]</span>
+            <span className="mr-2 text-zinc-500">[{log.timestamp}]</span>
             <span className="mr-2 font-bold uppercase">{log.level}</span>
             <span>
               {log.messages.map((msg) => (
@@ -145,7 +145,7 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
           </div>
         ))}
         {logs.length === 0 && (
-          <div className="text-[#666] italic">Waiting for logs...</div>
+          <div className="text-zinc-500 italic">Waiting for logs...</div>
         )}
       </div>
     </div>

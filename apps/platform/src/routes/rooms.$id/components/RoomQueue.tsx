@@ -91,11 +91,11 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 <div
                   className={`h-2 w-2 rounded-full ${
                     isPlaying
-                      ? 'animate-pulse bg-secondary shadow-[0_0_10px_rgba(0,217,255,0.6)]'
+                      ? 'animate-pulse bg-secondary shadow-secondary-strong'
                       : 'bg-white/30'
                   }`}
                 />
-                <span className="font-display text-[10px] text-theme-muted tracking-[0.3em]">
+                <span className="font-display text-2xs text-theme-muted tracking-label">
                   {isPlaying ? 'Now Playing' : 'Paused'}
                 </span>
               </div>
@@ -178,7 +178,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
           {/* Up Next List */}
           <div>
-            <h3 className="mb-4 font-display text-[10px] text-theme-muted tracking-[0.3em]">
+            <h3 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
               Up Next (
               {displaySongs.filter((s) => s.id !== currentSongData?.id).length})
             </h3>

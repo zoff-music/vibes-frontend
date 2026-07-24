@@ -74,7 +74,7 @@ export function EmbedPlayerCard({
           max={1}
           value={Math.min(progress, 1)}
         />
-        <div className="mt-1 flex justify-between font-mono text-[10px] text-theme-subtle">
+        <div className="mt-1 flex justify-between font-mono text-2xs text-theme-subtle">
           <span>{formatTime(positionMs)}</span>
           <span>{formatTime(durationMs)}</span>
         </div>
