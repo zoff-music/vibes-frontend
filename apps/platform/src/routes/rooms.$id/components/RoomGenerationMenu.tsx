@@ -9,6 +9,7 @@ import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 
 interface RoomGenerationMenuProps {
   generationCount: number;
+  hasGenerationPermission: boolean;
   isGenerating: boolean;
   onGenerationStarted: () => void;
   onOpen: () => void;
@@ -17,6 +18,7 @@ interface RoomGenerationMenuProps {
 
 export function RoomGenerationMenu({
   generationCount,
+  hasGenerationPermission,
   isGenerating,
   onGenerationStarted,
   onOpen,
@@ -27,16 +29,28 @@ export function RoomGenerationMenu({
   const panelRef = useRef<HTMLDivElement>(null);
   const isAboveSongLimit = songCount > roomGenerationMaxExistingSongs;
   const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
-  const isDisabled = isGenerating || isAboveSongLimit || isAboveDailyLimit;
+  const isDisabled =
+    !hasGenerationPermission ||
+    isGenerating ||
+    isAboveSongLimit ||
+    isAboveDailyLimit;
 
   let description = 'Fill this playlist from a prompt';
-  if (isAboveSongLimit) {
+  if (!hasGenerationPermission) {
+    description = 'Log in as admin to fill this playlist';
+  }
+  if (hasGenerationPermission && isAboveSongLimit) {
     description = `Only available when the room has ${roomGenerationMaxExistingSongs} songs or fewer`;
   }
-  if (!isAboveSongLimit && isGenerating) {
+  if (hasGenerationPermission && !isAboveSongLimit && isGenerating) {
     description = 'A playlist is already being generated';
   }
-  if (!isAboveSongLimit && !isGenerating && isAboveDailyLimit) {
+  if (
+    hasGenerationPermission &&
+    !isAboveSongLimit &&
+    !isGenerating &&
+    isAboveDailyLimit
+  ) {
     description = `This room has used its ${roomGenerationMaxDailyCount} playlist generations for the day`;
   }
   useEffect(() => {
