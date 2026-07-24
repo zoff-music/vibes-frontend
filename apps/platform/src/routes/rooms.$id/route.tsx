@@ -68,7 +68,9 @@ export default function Room() {
   );
   const [isGenerationProgressVisible, setIsGenerationProgressVisible] =
     useState(loaderData.room.isGenerating && loaderData.songs.length === 0);
-  const [generationError, setGenerationError] = useState<string>();
+  const [generationError, setGenerationError] = useState<string | undefined>(
+    loaderData.room.generationError,
+  );
 
   const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
   const displayRoom = useMemo(
@@ -173,6 +175,7 @@ export default function Room() {
     setRoom(loaderData.room);
     setSongs(loaderData.songs);
     setIsGenerating(loaderData.room.isGenerating);
+    setGenerationError(loaderData.room.generationError);
     setIsGenerationProgressVisible(
       loaderData.room.isGenerating && loaderData.songs.length === 0,
     );

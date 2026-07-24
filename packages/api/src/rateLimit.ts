@@ -1,4 +1,5 @@
-import { showToast } from '@vibes/shared';
+import { errorCodeResponseSchema } from '@vibes/models';
+import { safeWrap, safeWrapAsync, showToast } from '@vibes/shared';
 import { getHttpError } from 'wiretyped';
 
 function getRetryAfterSeconds(response: Response) {
@@ -45,6 +46,27 @@ export function getRateLimitMessage(error: Error) {
   }
 
   return getRateLimitMessageFromResponse(response);
+}
+
+export async function getAPIErrorMessage(error: Error) {
+  const response = getHttpError(error)?.response;
+  if (!response) {
+    return null;
+  }
+
+  const [bodyError, body] = await safeWrapAsync(response.clone().json());
+  if (bodyError || !body) {
+    return null;
+  }
+
+  const [validationError, parsedBody] = safeWrap(() =>
+    errorCodeResponseSchema.validateSync(body),
+  );
+  if (validationError || !parsedBody?.propagate) {
+    return null;
+  }
+
+  return parsedBody.message;
 }
 
 export function showRateLimitToast(response: Response) {

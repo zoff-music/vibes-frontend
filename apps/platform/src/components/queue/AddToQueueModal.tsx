@@ -115,7 +115,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       setError(
         searchFetcher.data.intent === 'youtubeVideo'
           ? 'Could not find that video'
-          : 'Search failed. Please try again.',
+          : searchFetcher.data.error,
       );
       setSearchResults([]);
       setShowResults(false);
