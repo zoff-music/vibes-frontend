@@ -354,7 +354,7 @@ const CreateRoom: React.FC = () => {
                     className="absolute top-1/2 right-2 -translate-y-1/2 text-theme-muted hover:text-secondary"
                   >
                     {isGeneratingName && (
-                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      <DiceIcon className="h-5 w-5 animate-dice-roll" />
                     )}
                     {!isGeneratingName && <DiceIcon className="h-5 w-5" />}
                   </Button>
