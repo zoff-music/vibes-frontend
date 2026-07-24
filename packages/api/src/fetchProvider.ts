@@ -32,6 +32,11 @@ export interface ApiFetchLifecycle {
   afterRequest?: (request: Request) => void;
 }
 
+export interface ApiHeadOptions {
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+}
+
 function mergeHeaders(
   defaults: ApiFetchClientOptions['headers'] | undefined,
   overrides: ApiFetchClientOptions['headers'] | undefined,
@@ -185,18 +190,27 @@ export function createApiFetchProvider(
 
 export async function headApiUrl(
   url: string,
+  options: ApiHeadOptions = {},
+  lifecycle: ApiFetchLifecycle = {},
 ): Promise<[Error | null, boolean | null]> {
   const request = new Request(url, {
     credentials: 'include',
+    headers: options.headers,
     method: 'HEAD',
+    ...(options.signal && { signal: options.signal }),
   });
-  const [err, response] = await safeWrapAsync(fetch(request));
+  const lifecycleRequest = lifecycle.beforeRequest?.(request) ?? request;
+  const [err, response] = await safeWrapAsync(fetch(lifecycleRequest));
   if (err || !response) {
     const normalizedErr = err ?? new Error('error fetching HEAD response');
+    lifecycle.afterError?.(lifecycleRequest, normalizedErr);
+    lifecycle.afterRequest?.(lifecycleRequest);
     return [createFetchError('HEAD', normalizedErr), null];
   }
 
+  lifecycle.afterResponse?.(lifecycleRequest, response);
   showRateLimitToast(response);
+  lifecycle.afterRequest?.(lifecycleRequest);
 
   if (response.status === 404) {
     return [null, false];

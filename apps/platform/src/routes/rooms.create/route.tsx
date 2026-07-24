@@ -1,4 +1,3 @@
-import { getRateLimitMessage, useRoomNames } from '@vibes/api';
 import { showToast } from '@vibes/shared';
 import {
   AlertCircleIcon,
@@ -48,11 +47,12 @@ type RoomNameAvailabilityState =
 
 const CreateRoom: React.FC = () => {
   const loaderData = useLoaderData() as RoomsCreateLoaderData;
-  const fetcher = useFetcher<RoomsCreateActionData>();
+  const createFetcher = useFetcher<RoomsCreateActionData>();
+  const suggestionFetcher = useFetcher<RoomsCreateLoaderData>();
+  const availabilityFetcher = useFetcher<RoomsCreateLoaderData>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { setIsWarping } = useThemeStore();
-  const { getRoomNameSuggestion, roomExists } = useRoomNames();
 
   // Initialize name - prioritize SSR data, then URL params
   const [name, setName] = useState(() => {
@@ -77,7 +77,6 @@ const CreateRoom: React.FC = () => {
   const [password, setPassword] = useState('');
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [error, setError] = useState<string | null>(null);
-  const [isGeneratingName, setIsGeneratingName] = useState(false);
   const [nameAvailability, setNameAvailability] =
     useState<RoomNameAvailabilityState>('idle');
   const [nameAvailabilityError, setNameAvailabilityError] = useState<
@@ -87,34 +86,19 @@ const CreateRoom: React.FC = () => {
   const [wobblePassword, setWobblePassword] = useState(false);
   const passwordRef = React.useRef<HTMLDivElement>(null);
   const availabilityTimerRef = React.useRef<number | null>(null);
-  const availabilityRequestRef = React.useRef(0);
 
   const checkRoomNameAvailability = React.useCallback(
-    async (roomName: string) => {
-      const requestID = availabilityRequestRef.current + 1;
-      availabilityRequestRef.current = requestID;
+    (roomName: string) => {
       setNameAvailability('checking');
       setNameAvailabilityError(null);
 
-      const [existenceError, exists] = await roomExists(roomName);
-      if (requestID !== availabilityRequestRef.current) return;
-
-      if (existenceError || exists === null) {
-        const rateLimitMessage = existenceError
-          ? getRateLimitMessage(existenceError)
-          : null;
-        setNameAvailability('error');
-        setNameAvailabilityError(
-          rateLimitMessage ??
-            existenceError?.message ??
-            'Could not check this name',
-        );
-        return;
-      }
-
-      setNameAvailability(exists ? 'taken' : 'available');
+      const params = new URLSearchParams({
+        intent: 'check-room-name',
+        name: roomName,
+      });
+      void availabilityFetcher.load(`/rooms/create?${params.toString()}`);
     },
-    [roomExists],
+    [availabilityFetcher],
   );
 
   // Reset wobble after animation
@@ -171,8 +155,6 @@ const CreateRoom: React.FC = () => {
   }, [searchParams, isHydrated, loaderData.createRoomName, name]);
 
   useEffect(() => {
-    availabilityRequestRef.current += 1;
-
     if (availabilityTimerRef.current !== null) {
       window.clearTimeout(availabilityTimerRef.current);
       availabilityTimerRef.current = null;
@@ -200,7 +182,42 @@ const CreateRoom: React.FC = () => {
     };
   }, [name, checkRoomNameAvailability]);
 
-  const isLoading = fetcher.state !== 'idle';
+  useEffect(() => {
+    const data = availabilityFetcher.data;
+    if (!data || data.checkedName !== name.trim()) return;
+
+    if (data.rateLimitMessage) {
+      showToast(data.rateLimitMessage, 'warning', 6000);
+    }
+    if (data.error) {
+      setNameAvailability('error');
+      setNameAvailabilityError(data.error);
+      return;
+    }
+    if (data.roomNameExists === undefined) return;
+
+    setNameAvailability(data.roomNameExists ? 'taken' : 'available');
+    setNameAvailabilityError(null);
+  }, [availabilityFetcher.data, name]);
+
+  useEffect(() => {
+    const data = suggestionFetcher.data;
+    if (!data) return;
+
+    if (data.rateLimitMessage) {
+      showToast(data.rateLimitMessage, 'warning', 6000);
+    }
+    if (data.error) {
+      setError(data.error);
+      return;
+    }
+    if (!data.roomNameSuggestion) return;
+
+    setName(data.roomNameSuggestion);
+  }, [suggestionFetcher.data]);
+
+  const isLoading = createFetcher.state !== 'idle';
+  const isGeneratingName = suggestionFetcher.state !== 'idle';
 
   const handleNameBlur = () => {
     const trimmedName = name.trim();
@@ -214,26 +231,11 @@ const CreateRoom: React.FC = () => {
     void checkRoomNameAvailability(trimmedName);
   };
 
-  const handleGenerateName = async () => {
+  const handleGenerateName = () => {
     if (isGeneratingName || isLoading) return;
 
-    setIsGeneratingName(true);
     setError(null);
-
-    const [generationError, suggestion] = await getRoomNameSuggestion();
-    setIsGeneratingName(false);
-
-    if (generationError || !suggestion) {
-      const message = generationError
-        ? getRateLimitMessage(generationError)
-        : null;
-      setError(
-        message ?? generationError?.message ?? 'Failed to generate a room name',
-      );
-      return;
-    }
-
-    setName(suggestion.name);
+    void suggestionFetcher.load('/rooms/create?intent=suggest-room-name');
   };
 
   const handleCreate = () => {
@@ -257,26 +259,26 @@ const CreateRoom: React.FC = () => {
     settings.enabledSources.forEach((source) => {
       formData.append('enabledSources', source);
     });
-    fetcher.submit(formData, { method: 'post' });
+    createFetcher.submit(formData, { method: 'post' });
   };
 
   useEffect(() => {
-    if (!fetcher.data) return;
-    if (fetcher.data.rateLimitMessage) {
-      showToast(fetcher.data.rateLimitMessage, 'warning', 6000);
+    if (!createFetcher.data) return;
+    if (createFetcher.data.rateLimitMessage) {
+      showToast(createFetcher.data.rateLimitMessage, 'warning', 6000);
       setError(null);
       setIsWarping(false);
       return;
     }
-    if (fetcher.data.error) {
-      setError(fetcher.data.error);
+    if (createFetcher.data.error) {
+      setError(createFetcher.data.error);
       setIsWarping(false);
       return;
     }
-    if (!fetcher.data.room) return;
+    if (!createFetcher.data.room) return;
 
-    navigate(`/rooms/${fetcher.data.room.id}`, { replace: true });
-  }, [fetcher.data, navigate, setIsWarping]);
+    navigate(`/rooms/${createFetcher.data.room.id}`, { replace: true });
+  }, [createFetcher.data, navigate, setIsWarping]);
 
   const updateSetting = <K extends keyof typeof settings>(
     key: K,

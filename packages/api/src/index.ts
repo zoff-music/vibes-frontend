@@ -52,7 +52,9 @@ import {
 
 import {
   type ApiFetchLifecycle,
+  type ApiHeadOptions,
   createApiFetchProvider,
+  headApiUrl,
 } from './fetchProvider';
 
 export type { ApiFetchLifecycle };
@@ -144,7 +146,6 @@ const endpoints = {
     get: {
       response: roomSchema,
     },
-    url: {},
     post: {
       request: roomActionRequestSchema,
       response: playbackStateSchema,
@@ -307,6 +308,15 @@ export interface ApiClientOptions {
   fetchLifecycle?: ApiFetchLifecycle;
 }
 
+export type RoomExistsOptions = ApiHeadOptions;
+
+export type ApiClient = RequestClient<typeof endpoints> & {
+  roomExists: (
+    roomID: string,
+    options?: RoomExistsOptions,
+  ) => Promise<[Error | null, boolean | null]>;
+};
+
 function resolveApiBaseUrl(baseUrl: string) {
   const normalized = baseUrl.endsWith(API_BASE_PATH)
     ? baseUrl
@@ -317,10 +327,10 @@ function resolveApiBaseUrl(baseUrl: string) {
 export function createApiClientWithBaseUrl(
   baseUrl: string,
   options: ApiClientOptions = {},
-) {
+): ApiClient {
   const { customHeaders = {}, fetchLifecycle } = options;
   const resolvedBaseUrl = resolveApiBaseUrl(baseUrl);
-  return new RequestClient({
+  const requestClient = new RequestClient({
     fetchProvider: createApiFetchProvider(fetchLifecycle),
     hostname: resolvedBaseUrl,
     baseUrl: resolvedBaseUrl,
@@ -330,6 +340,23 @@ export function createApiClientWithBaseUrl(
       timeout: getRestTimeoutMs(),
       credentials: 'include',
       headers: { ...customHeaders },
+    },
+  });
+
+  return Object.assign(requestClient, {
+    roomExists: (roomID: string, roomExistsOptions: RoomExistsOptions = {}) => {
+      const roomURL = `${resolvedBaseUrl}/rooms/${encodeURIComponent(roomID)}`;
+      return headApiUrl(
+        roomURL,
+        {
+          ...roomExistsOptions,
+          headers: {
+            ...customHeaders,
+            ...roomExistsOptions.headers,
+          },
+        },
+        fetchLifecycle,
+      );
     },
   });
 }
@@ -350,6 +377,5 @@ export * from './hooks/usePlayback';
 export * from './hooks/useProviderToken';
 export * from './hooks/useQueue';
 export * from './hooks/useRoom';
-export * from './hooks/useRoomNames';
 export * from './hooks/useSSE';
 export * from './rateLimit';
