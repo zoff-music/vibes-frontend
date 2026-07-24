@@ -1,4 +1,7 @@
-import { roomGenerationMaxExistingSongs } from '@vibes/models';
+import {
+  roomGenerationMaxDailyCount,
+  roomGenerationMaxExistingSongs,
+} from '@vibes/models';
 import { Button, SparklesIcon } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
@@ -6,6 +9,7 @@ import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 
 interface RoomGenerationMenuProps {
   canGenerate: boolean;
+  generationCount: number;
   isGenerating: boolean;
   onGenerationStarted: () => void;
   onOpen: () => void;
@@ -14,6 +18,7 @@ interface RoomGenerationMenuProps {
 
 export function RoomGenerationMenu({
   canGenerate,
+  generationCount,
   isGenerating,
   onGenerationStarted,
   onOpen,
@@ -23,7 +28,9 @@ export function RoomGenerationMenu({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const isAboveSongLimit = songCount > roomGenerationMaxExistingSongs;
-  const isDisabled = !canGenerate || isGenerating || isAboveSongLimit;
+  const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
+  const isDisabled =
+    !canGenerate || isGenerating || isAboveSongLimit || isAboveDailyLimit;
 
   let description = 'Fill this playlist from a prompt';
   if (isAboveSongLimit) {
@@ -32,7 +39,15 @@ export function RoomGenerationMenu({
   if (!isAboveSongLimit && isGenerating) {
     description = 'A playlist is already being generated';
   }
-  if (!isAboveSongLimit && !isGenerating && !canGenerate) {
+  if (!isAboveSongLimit && !isGenerating && isAboveDailyLimit) {
+    description = `This room has used its ${roomGenerationMaxDailyCount} playlist generations for the day`;
+  }
+  if (
+    !isAboveSongLimit &&
+    !isGenerating &&
+    !isAboveDailyLimit &&
+    !canGenerate
+  ) {
     description = 'Admin access is required to generate a playlist';
   }
 

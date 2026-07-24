@@ -13,6 +13,7 @@ import {
   useLoaderData,
   useNavigate,
   useParams,
+  useRevalidator,
 } from 'react-router';
 import { DeviceSelector } from '../../components/cast/DeviceSelector';
 import { AddToQueueModal } from '../../components/queue/AddToQueueModal';
@@ -35,6 +36,7 @@ export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const revalidate = useRevalidator().revalidate;
   const adminFetcher = useFetcher<RoomActionData>();
 
   const headerRef = useRef<HTMLDivElement | null>(null);
@@ -77,20 +79,24 @@ export default function Room() {
   const showGenerationProgress =
     isGenerating && isGenerationProgressVisible && songs.length <= 2;
 
-  const handleGenerationUpdate = useCallback((update: RoomGenerationUpdate) => {
-    if (update.status === 'generating') {
-      setIsGenerating(true);
-      return;
-    }
+  const handleGenerationUpdate = useCallback(
+    (update: RoomGenerationUpdate) => {
+      if (update.status === 'generating') {
+        setIsGenerating(true);
+        return;
+      }
 
-    setIsGenerating(false);
-    setIsGenerationProgressVisible(false);
-    if (update.status === 'failed') {
-      setGenerationError(
-        update.error ?? 'Could not finish generating this playlist.',
-      );
-    }
-  }, []);
+      setIsGenerating(false);
+      setIsGenerationProgressVisible(false);
+      void revalidate();
+      if (update.status === 'failed') {
+        setGenerationError(
+          update.error ?? 'Could not finish generating this playlist.',
+        );
+      }
+    },
+    [revalidate],
+  );
 
   const sseCallbacks = useMemo(
     () => ({ onGenerationUpdate: handleGenerationUpdate }),
@@ -135,7 +141,13 @@ export default function Room() {
     setIsGenerating(true);
     setIsGenerationProgressVisible(false);
     setShowSettings(false);
-  }, []);
+    if (displayRoom) {
+      setRoom({
+        ...displayRoom,
+        generationCount: displayRoom.generationCount + 1,
+      });
+    }
+  }, [displayRoom, setRoom]);
 
   const handleCopyShareLink = useCallback(() => {
     if (!shareUrl) return;
