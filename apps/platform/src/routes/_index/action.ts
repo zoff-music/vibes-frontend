@@ -16,26 +16,26 @@ export async function clientAction({
 
   if (intent === 'generateRoom') {
     const prompt = String(formData.get('prompt') ?? '').trim();
-    const [error, generatedRoom] = await api.post(
-      '/rooms/generations',
-      null,
-      { prompt },
-      { timeout: 50_000 },
-    );
-    const responseData: HomeActionData = {
-      intent: 'generateRoom',
-      ...(error && {
-        error:
-          getRateLimitMessage(error) ??
-          'Could not generate your music room. Please try again.',
-      }),
-    };
-
-    if (generatedRoom) {
-      return redirect(`/rooms/${generatedRoom.room.id}`);
+    if (!prompt) {
+      return {
+        error: 'Describe the playlist you want.',
+        intent: 'generateRoom',
+      };
     }
 
-    return responseData;
+    const [createError, room] = await api.post('/rooms/generation', null, {
+      prompt,
+    });
+    if (createError) {
+      return {
+        intent: 'generateRoom',
+        error:
+          getRateLimitMessage(createError) ??
+          'Could not generate your music room. Please try again.',
+      };
+    }
+
+    return redirect(`/rooms/${room.id}`);
   }
 
   const rawRoomCode = String(formData.get('roomCode') ?? '');

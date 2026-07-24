@@ -30,11 +30,15 @@ export function RoomJoinControls({
   return (
     <div className="mt-8 space-y-5">
       <div className="panel-surface rounded-[24px] p-6">
-        <label className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+        <label
+          htmlFor="room-name"
+          className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]"
+        >
           ROOM NAME
         </label>
         <div className="relative">
           <input
+            id="room-name"
             type="text"
             placeholder={placeholder}
             value={roomCode}

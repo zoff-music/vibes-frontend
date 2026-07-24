@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import { roomSchema } from './room';
 
 export const generatedPlaylistPromptMaxLength = 300;
 export const generatedPlaylistTrackCount = 50;
@@ -22,16 +21,23 @@ export type GeneratedPlaylistRequest = yup.InferType<
 
 export const generatedPlaylistSchema = yup
   .array(generatedTrackSchema)
-  .length(generatedPlaylistTrackCount)
+  .min(1)
+  .max(generatedPlaylistTrackCount)
   .required();
 export type GeneratedPlaylist = yup.InferType<typeof generatedPlaylistSchema>;
 
-export const generatedRoomSchema = yup.object({
-  room: roomSchema.required(),
-  tracks: yup
-    .array(generatedTrackSchema)
-    .min(1)
-    .max(generatedPlaylistTrackCount)
-    .required(),
+export const roomGenerationStatusSchema = yup
+  .string()
+  .oneOf(['generating', 'completed', 'failed'])
+  .required();
+export type RoomGenerationStatus = yup.InferType<
+  typeof roomGenerationStatusSchema
+>;
+
+export const roomGenerationUpdateSchema = yup.object({
+  status: roomGenerationStatusSchema,
+  error: yup.string().optional(),
 });
-export type GeneratedRoom = yup.InferType<typeof generatedRoomSchema>;
+export type RoomGenerationUpdate = yup.InferType<
+  typeof roomGenerationUpdateSchema
+>;

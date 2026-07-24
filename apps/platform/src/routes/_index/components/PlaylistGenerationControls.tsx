@@ -92,11 +92,15 @@ export function PlaylistGenerationControls({
             'animate-pulse border-secondary/70 shadow-[0_0_32px_rgba(0,217,255,0.24)]',
         )}
       >
-        <label className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
+        <label
+          htmlFor="playlist-prompt"
+          className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]"
+        >
           PLAYLIST PROMPT
         </label>
         <div className="relative">
           <input
+            id="playlist-prompt"
             type="text"
             placeholder={placeholder}
             value={prompt}

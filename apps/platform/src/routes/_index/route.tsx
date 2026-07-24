@@ -95,7 +95,7 @@ export default function Home() {
     const animatedWords = isAIMode ? AI_PROMPTS : ANIMATED_WORDS;
     const currentWord = animatedWords[wordIndex];
     const fullTarget = `${currentWord}...`;
-    const typingDelay = Math.max(10, Math.floor(800 / fullTarget.length));
+    const typingDelay = Math.max(10, Math.floor(700 / fullTarget.length));
 
     if (isPaused) {
       const timer = window.setTimeout(() => {

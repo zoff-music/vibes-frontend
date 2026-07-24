@@ -1,4 +1,5 @@
 import { useSSE } from '@vibes/api';
+import type { RoomGenerationUpdate } from '@vibes/models';
 import {
   type Song,
   showToast,
@@ -19,6 +20,7 @@ import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
+import { RoomGenerationProgress } from './components/RoomGenerationProgress';
 import { RoomHeader } from './components/RoomHeader';
 import { RoomPlayer } from './components/RoomPlayer';
 import { RoomQueue } from './components/RoomQueue';
@@ -32,7 +34,6 @@ export default function Room() {
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const adminFetcher = useFetcher<RoomActionData>();
-  useSSE(id);
 
   const headerRef = useRef<HTMLDivElement | null>(null);
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -46,6 +47,7 @@ export default function Room() {
   const isAdmin = useRoomStore((state) => state.isAdmin);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setSession = useRoomStore((state) => state.setSession);
+  const songs = useQueueStore((state) => state.songs);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const currentSongId = usePlaybackStore((state) => state.currentSong?.id);
@@ -57,6 +59,10 @@ export default function Room() {
   const [showSettings, setShowSettings] = useState(false);
   const [showDeviceSelector, setShowDeviceSelector] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [isGenerating, setIsGenerating] = useState(
+    loaderData.room.isGenerating,
+  );
+  const [generationError, setGenerationError] = useState<string>();
 
   const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
   const displayRoom = useMemo(
@@ -64,6 +70,27 @@ export default function Room() {
     [loaderData.room, room],
   );
   const isAuthenticating = adminFetcher.state !== 'idle';
+  const showGenerationProgress = isGenerating && songs.length <= 2;
+
+  const handleGenerationUpdate = useCallback((update: RoomGenerationUpdate) => {
+    if (update.status === 'generating') {
+      setIsGenerating(true);
+      return;
+    }
+
+    setIsGenerating(false);
+    if (update.status === 'failed') {
+      setGenerationError(
+        update.error ?? 'Could not finish generating this playlist.',
+      );
+    }
+  }, []);
+
+  const sseCallbacks = useMemo(
+    () => ({ onGenerationUpdate: handleGenerationUpdate }),
+    [handleGenerationUpdate],
+  );
+  useSSE(id, sseCallbacks);
 
   const handleToggleDarkMode = useCallback(() => {
     toggleDarkMode();
@@ -120,6 +147,7 @@ export default function Room() {
     setIsSSR(false);
     setRoom(loaderData.room);
     setSongs(loaderData.songs);
+    setIsGenerating(loaderData.room.isGenerating);
     if (loaderData.playback) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
@@ -280,22 +308,32 @@ export default function Room() {
         />
 
         <div className="flex-1 overflow-visible lg:overflow-hidden">
-          <div className="mx-auto max-w-7xl items-start gap-8 px-4 py-8 lg:grid lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-[1.3fr_0.7fr] lg:py-6">
-            <RoomPlayer
-              roomId={id}
-              displayRoom={displayRoom}
-              onAddSong={handleAddSong}
-              onOpenCast={handleOpenCast}
-              initialPlayback={loaderData.playback}
-            />
-            <RoomQueue
-              roomId={id}
-              isSSR={isSSR}
-              isAdmin={isAdmin}
-              initialPlayback={loaderData.playback}
-              initialSongs={loaderData.songs}
-            />
-          </div>
+          {showGenerationProgress && (
+            <RoomGenerationProgress isFailed={false} />
+          )}
+          {!showGenerationProgress && (
+            <>
+              {generationError && (
+                <RoomGenerationProgress error={generationError} isFailed />
+              )}
+              <div className="mx-auto max-w-7xl items-start gap-8 px-4 py-8 lg:grid lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-[1.3fr_0.7fr] lg:py-6">
+                <RoomPlayer
+                  roomId={id}
+                  displayRoom={displayRoom}
+                  onAddSong={handleAddSong}
+                  onOpenCast={handleOpenCast}
+                  initialPlayback={loaderData.playback}
+                />
+                <RoomQueue
+                  roomId={id}
+                  isSSR={isSSR}
+                  isAdmin={isAdmin}
+                  initialPlayback={loaderData.playback}
+                  initialSongs={loaderData.songs}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <DeviceSelector isOpen={showDeviceSelector} onClose={handleCloseCast} />

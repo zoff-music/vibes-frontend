@@ -20,12 +20,12 @@ import {
   createSessionRequestSchema,
   emptyObjectSchema,
   generatedPlaylistRequestSchema,
-  generatedRoomSchema,
   messageResponseSchema,
   playbackStateSchema,
   providersSchema,
   providerTokenSchema,
   roomActionRequestSchema,
+  roomGenerationUpdateSchema,
   roomNameSuggestionSchema,
   roomSchema,
   roomUpdateSchema,
@@ -197,10 +197,10 @@ const endpoints = {
       response: emptyObjectSchema,
     },
   },
-  '/rooms/generations': {
+  '/rooms/generation': {
     post: {
       request: generatedPlaylistRequestSchema,
-      response: generatedRoomSchema,
+      response: roomSchema,
     },
   },
 
@@ -226,6 +226,7 @@ const endpoints = {
         skip_vote: skipVoteUpdateSchema,
         settings_update: roomSchema,
         users_update: usersUpdateSchema,
+        generation_update: roomGenerationUpdateSchema,
       },
     },
   },

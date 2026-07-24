@@ -1,4 +1,10 @@
-import type { PlaybackState, Room, SkipVoteUpdate, Song } from '@vibes/models';
+import type {
+  PlaybackState,
+  Room,
+  RoomGenerationUpdate,
+  SkipVoteUpdate,
+  Song,
+} from '@vibes/models';
 import {
   safeWrap,
   usePlaybackStore,
@@ -17,8 +23,10 @@ type UnsubscribeResult = Promise<[Error | null, (() => void) | null]>;
 
 const IN_FLIGHT_CONNECTIONS = new Map<string, UnsubscribeResult>();
 const PENDING_CLEANUPS = new Map<string, ReturnType<typeof setTimeout>>();
+const ROOM_CALLBACKS = new Map<string, Set<USE_SSE_CALLBACKS>>();
 
 export interface USE_SSE_CALLBACKS {
+  onGenerationUpdate?: (update: RoomGenerationUpdate) => void;
   onSongAdded?: (song: Song) => void;
   onToast?: (message: string, type: 'success' | 'error' | 'info') => void;
 }
@@ -34,6 +42,23 @@ export const useSSE = (
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
 
   const isSubscribedRef = useRef(false);
+
+  useEffect(() => {
+    if (!roomId || !callbacks) {
+      return;
+    }
+
+    const roomCallbacks = ROOM_CALLBACKS.get(roomId) ?? new Set();
+    roomCallbacks.add(callbacks);
+    ROOM_CALLBACKS.set(roomId, roomCallbacks);
+
+    return () => {
+      roomCallbacks.delete(callbacks);
+      if (roomCallbacks.size === 0) {
+        ROOM_CALLBACKS.delete(roomId);
+      }
+    };
+  }, [callbacks, roomId]);
 
   useEffect(() => {
     if (!roomId) return;
@@ -57,7 +82,8 @@ export const useSSE = (
           | { type: 'users_update'; data: number }
           | { type: 'song_added'; data: Song }
           | { type: 'skip_vote'; data: SkipVoteUpdate }
-          | { type: 'settings_update'; data: Room };
+          | { type: 'settings_update'; data: Room }
+          | { type: 'generation_update'; data: RoomGenerationUpdate };
 
         // ...
 
@@ -101,9 +127,16 @@ export const useSSE = (
                     const song = message.data;
                     console.log('[SSE] song_added received:', song);
                     addSong(song);
-                    if (callbacks?.onSongAdded) {
-                      callbacks.onSongAdded(song);
-                    } else if (
+                    const roomCallbacks = ROOM_CALLBACKS.get(roomId);
+                    let hasSongAddedCallback = false;
+                    for (const roomCallback of roomCallbacks ?? []) {
+                      if (roomCallback.onSongAdded) {
+                        hasSongAddedCallback = true;
+                        roomCallback.onSongAdded(song);
+                      }
+                    }
+                    if (
+                      !hasSongAddedCallback &&
                       typeof window !== 'undefined' &&
                       window.dispatchEvent
                     ) {
@@ -132,6 +165,13 @@ export const useSSE = (
                 }
                 case 'skip_vote':
                   break;
+                case 'generation_update': {
+                  const roomCallbacks = ROOM_CALLBACKS.get(roomId);
+                  for (const roomCallback of roomCallbacks ?? []) {
+                    roomCallback.onGenerationUpdate?.(message.data);
+                  }
+                  break;
+                }
               }
             },
           );
@@ -196,13 +236,5 @@ export const useSSE = (
         isSubscribedRef.current = false;
       }
     };
-  }, [
-    roomId,
-    addSong,
-    setRoom,
-    setUsersCount,
-    setSongs,
-    setPlaybackState,
-    callbacks,
-  ]);
+  }, [roomId, addSong, setRoom, setUsersCount, setSongs, setPlaybackState]);
 };
