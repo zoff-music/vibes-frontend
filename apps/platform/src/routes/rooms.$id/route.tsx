@@ -64,6 +64,8 @@ export default function Room() {
   const [isGenerating, setIsGenerating] = useState(
     loaderData.room.isGenerating,
   );
+  const [isGenerationProgressVisible, setIsGenerationProgressVisible] =
+    useState(loaderData.room.isGenerating && loaderData.songs.length === 0);
   const [generationError, setGenerationError] = useState<string>();
 
   const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
@@ -72,7 +74,8 @@ export default function Room() {
     [loaderData.room, room],
   );
   const isAuthenticating = adminFetcher.state !== 'idle';
-  const showGenerationProgress = isGenerating && songs.length <= 2;
+  const showGenerationProgress =
+    isGenerating && isGenerationProgressVisible && songs.length <= 2;
 
   const handleGenerationUpdate = useCallback((update: RoomGenerationUpdate) => {
     if (update.status === 'generating') {
@@ -81,6 +84,7 @@ export default function Room() {
     }
 
     setIsGenerating(false);
+    setIsGenerationProgressVisible(false);
     if (update.status === 'failed') {
       setGenerationError(
         update.error ?? 'Could not finish generating this playlist.',
@@ -129,6 +133,7 @@ export default function Room() {
   const handleGenerationStarted = useCallback(() => {
     setGenerationError(undefined);
     setIsGenerating(true);
+    setIsGenerationProgressVisible(false);
     setShowSettings(false);
   }, []);
 
@@ -156,6 +161,9 @@ export default function Room() {
     setRoom(loaderData.room);
     setSongs(loaderData.songs);
     setIsGenerating(loaderData.room.isGenerating);
+    setIsGenerationProgressVisible(
+      loaderData.room.isGenerating && loaderData.songs.length === 0,
+    );
     if (loaderData.playback) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }

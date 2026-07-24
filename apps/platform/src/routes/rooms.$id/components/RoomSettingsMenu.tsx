@@ -21,7 +21,6 @@ import {
   useState,
 } from 'react';
 import type { Theme } from '../../../stores/themeStore';
-import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 import { RoomSharePanel } from './RoomSharePanel';
 
 interface RoomSettingsMenuProps {
@@ -41,9 +40,6 @@ interface RoomSettingsMenuProps {
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
-  isGenerating: boolean;
-  onGenerationStarted: () => void;
-  songCount: number;
   shareUrl: string;
   onCopyShareLink: () => void;
   roomId?: string;
@@ -67,9 +63,6 @@ export const RoomSettingsMenu = ({
   onAdminPasswordChange,
   onJoinAdmin,
   isAuthenticating,
-  isGenerating,
-  onGenerationStarted,
-  songCount,
   shareUrl,
   onCopyShareLink,
   roomId,
@@ -356,13 +349,6 @@ export const RoomSettingsMenu = ({
                     variant="plain-full"
                   />
                 </div>
-
-                <RoomPlaylistGeneration
-                  canGenerate={!room?.hasPassword || isAdmin}
-                  isGenerating={isGenerating}
-                  onGenerationStarted={onGenerationStarted}
-                  songCount={songCount}
-                />
 
                 <div className="border-theme border-t pt-4">
                   <h5 className="mb-3 font-pixel text-2xs text-theme-muted tracking-label">

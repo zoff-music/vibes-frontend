@@ -15,6 +15,7 @@ import { useFetcher } from 'react-router';
 import type { Theme } from '../../../stores/themeStore';
 import type { RoomActionData } from '../action';
 
+import { RoomGenerationMenu } from './RoomGenerationMenu';
 import { RoomSettingsMenu } from './RoomSettingsMenu';
 import { RoomSharePanel } from './RoomSharePanel';
 import { UserCount } from './UserCount';
@@ -78,6 +79,13 @@ export const RoomHeader = React.memo(
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = useRoomStore((state) => state.isAdmin);
     const setRoom = useRoomStore((state) => state.setRoom);
+
+    const handleOpenGeneration = useCallback(() => {
+      onCloseSettings();
+      if (showShare) {
+        onToggleShare();
+      }
+    }, [onCloseSettings, onToggleShare, showShare]);
 
     const updateRoom = useCallback(
       (room: RoomUpdate) => {
@@ -169,6 +177,14 @@ export const RoomHeader = React.memo(
               </AnimatePresence>
             </div>
 
+            <RoomGenerationMenu
+              canGenerate={!displayRoom?.hasPassword || isAdmin}
+              isGenerating={isGenerating}
+              onGenerationStarted={onGenerationStarted}
+              onOpen={handleOpenGeneration}
+              songCount={songCount}
+            />
+
             <div className="relative ml-1">
               <Button
                 ref={settingsButtonRef}
@@ -197,9 +213,6 @@ export const RoomHeader = React.memo(
                 onAdminPasswordChange={onAdminPasswordChange}
                 onJoinAdmin={onJoinAdmin}
                 isAuthenticating={isAuthenticating}
-                isGenerating={isGenerating}
-                onGenerationStarted={onGenerationStarted}
-                songCount={songCount}
                 shareUrl={shareUrl}
                 onCopyShareLink={onCopyShareLink}
                 roomId={roomId}
