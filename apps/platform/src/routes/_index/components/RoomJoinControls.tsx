@@ -64,7 +64,7 @@ export function RoomJoinControls({
       <div className="grid gap-4 sm:grid-cols-2">
         <Link
           to="/rooms/create"
-          className="group flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-primary-cta transition-all hover:-translate-y-0.5 hover:bg-primary"
+          className="group flex h-16 w-full cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-primary-cta transition-all hover:-translate-y-0.5 hover:bg-primary"
         >
           Start a Session
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white">
@@ -76,7 +76,7 @@ export function RoomJoinControls({
           disabled={!roomCode.trim()}
           variant="secondary"
           size="large"
-          className="font-pixel"
+          className="h-16 w-full font-pixel"
         >
           Join Room
         </Button>

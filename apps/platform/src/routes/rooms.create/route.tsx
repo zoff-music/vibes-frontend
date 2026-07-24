@@ -87,21 +87,21 @@ const CreateRoom: React.FC = () => {
   const [wobblePassword, setWobblePassword] = useState(false);
   const passwordRef = React.useRef<HTMLDivElement>(null);
   const availabilityTimerRef = React.useRef<number | null>(null);
-  const loadRoomNameAvailability = availabilityFetcher.load;
+  const availabilityFetcherLoadRef = React.useRef(availabilityFetcher.load);
+  availabilityFetcherLoadRef.current = availabilityFetcher.load;
 
-  const checkRoomNameAvailability = React.useCallback(
-    (roomName: string) => {
-      setNameAvailability('checking');
-      setNameAvailabilityError(null);
+  const checkRoomNameAvailability = React.useCallback((roomName: string) => {
+    setNameAvailability('checking');
+    setNameAvailabilityError(null);
 
-      const params = new URLSearchParams({
-        intent: 'check-room-name',
-        name: roomName,
-      });
-      void loadRoomNameAvailability(`/rooms/create?${params.toString()}`);
-    },
-    [loadRoomNameAvailability],
-  );
+    const params = new URLSearchParams({
+      intent: 'check-room-name',
+      name: roomName,
+    });
+    void availabilityFetcherLoadRef.current(
+      `/rooms/create?${params.toString()}`,
+    );
+  }, []);
 
   // Reset wobble after animation
   useEffect(() => {
