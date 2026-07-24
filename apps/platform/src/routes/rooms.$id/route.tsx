@@ -126,6 +126,12 @@ export default function Room() {
     setShowSettings(false);
   }, []);
 
+  const handleGenerationStarted = useCallback(() => {
+    setGenerationError(undefined);
+    setIsGenerating(true);
+    setShowSettings(false);
+  }, []);
+
   const handleCopyShareLink = useCallback(() => {
     if (!shareUrl) return;
     void navigator.clipboard.writeText(shareUrl);
@@ -318,7 +324,10 @@ export default function Room() {
           onAdminPasswordChange={setAdminPassword}
           onJoinAdmin={handleJoinAdmin}
           isAuthenticating={isAuthenticating}
+          isGenerating={isGenerating}
+          onGenerationStarted={handleGenerationStarted}
           onLeave={handleLeave}
+          songCount={songs.length}
         />
 
         <div className="flex-1 overflow-visible lg:overflow-hidden">

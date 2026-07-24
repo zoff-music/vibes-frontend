@@ -5,6 +5,7 @@ import type {
   PlaybackState,
   ProviderToken,
   Room,
+  RoomGenerationUpdate,
   RoomUpdate,
   SearchResponse,
   SessionResponse,
@@ -16,6 +17,7 @@ import type { ClientActionFunctionArgs } from 'react-router';
 
 export type RoomActionIntent =
   | 'addSong'
+  | 'generatePlaylist'
   | 'joinRoom'
   | 'playback'
   | 'providerToken'
@@ -30,6 +32,7 @@ export interface RoomActionData {
   addSong?: AddSongResponse;
   error?: string;
   intent: RoomActionIntent;
+  generation?: RoomGenerationUpdate;
   playback?: PlaybackState;
   provider?: 'soundcloud' | 'spotify' | 'youtube';
   providerToken?: ProviderToken;
@@ -104,6 +107,24 @@ export async function clientAction({
       return createErrorData(body.intent, error);
     }
     return { intent: body.intent, room };
+  }
+
+  if (body.intent === 'generatePlaylist') {
+    const prompt = body.prompt?.trim();
+    if (!prompt) {
+      return { error: 'Playlist prompt is required', intent: body.intent };
+    }
+
+    const [error, generation] = await api.post(
+      '/rooms/{id}/generations',
+      { id: roomId },
+      { prompt },
+    );
+    if (error || !generation) {
+      return createErrorData(body.intent, error);
+    }
+
+    return { generation, intent: body.intent };
   }
 
   if (body.intent === 'playback') {

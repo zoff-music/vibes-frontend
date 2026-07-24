@@ -203,6 +203,12 @@ const endpoints = {
       response: roomSchema,
     },
   },
+  '/rooms/{id}/generations': {
+    post: {
+      request: generatedPlaylistRequestSchema,
+      response: roomGenerationUpdateSchema,
+    },
+  },
 
   '/youtube/search': {
     get: {

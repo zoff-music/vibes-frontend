@@ -41,7 +41,10 @@ interface RoomHeaderProps {
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
+  isGenerating: boolean;
+  onGenerationStarted: () => void;
   onLeave: () => void;
+  songCount: number;
 }
 
 export const RoomHeader = React.memo(
@@ -67,7 +70,10 @@ export const RoomHeader = React.memo(
     onAdminPasswordChange,
     onJoinAdmin,
     isAuthenticating,
+    isGenerating,
+    onGenerationStarted,
     onLeave,
+    songCount,
   }: RoomHeaderProps) => {
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = useRoomStore((state) => state.isAdmin);
@@ -191,6 +197,9 @@ export const RoomHeader = React.memo(
                 onAdminPasswordChange={onAdminPasswordChange}
                 onJoinAdmin={onJoinAdmin}
                 isAuthenticating={isAuthenticating}
+                isGenerating={isGenerating}
+                onGenerationStarted={onGenerationStarted}
+                songCount={songCount}
                 shareUrl={shareUrl}
                 onCopyShareLink={onCopyShareLink}
                 roomId={roomId}
