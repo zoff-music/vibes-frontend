@@ -26,8 +26,57 @@
   animation: dice-roll 600ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
+@keyframes ai-sparkles {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px rgb(255 255 255 / 40%));
+    transform: rotate(-12deg) scale(0.9);
+  }
+
+  50% {
+    filter: drop-shadow(0 0 10px rgb(255 255 255 / 95%));
+    transform: rotate(12deg) scale(1.2);
+  }
+}
+
+@keyframes ai-button-shimmer {
+  from {
+    transform: translateX(-250%);
+  }
+
+  to {
+    transform: translateX(450%);
+  }
+}
+
+@keyframes ai-button-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgb(0 217 255 / 30%);
+  }
+
+  50% {
+    box-shadow: 0 0 38px rgb(0 217 255 / 65%);
+  }
+}
+
+.animate-ai-sparkles {
+  animation: ai-sparkles 900ms ease-in-out infinite;
+}
+
+.animate-ai-button-shimmer {
+  animation: ai-button-shimmer 1.6s ease-in-out infinite;
+}
+
+.animate-ai-button-glow {
+  animation: ai-button-glow 1.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-dice-roll {
+  .animate-dice-roll,
+  .animate-ai-sparkles,
+  .animate-ai-button-shimmer,
+  .animate-ai-button-glow {
     animation: none;
   }
 }

@@ -67,6 +67,13 @@ const AI_PROMPTS = [
   'heavy riffs for an intense gym session',
 ];
 
+const GENERATION_MESSAGES = [
+  'Generating your playlist',
+  'Finding songs that fit the vibe',
+  'Checking what plays on YouTube',
+  'Building your music room',
+];
+
 export default function Home() {
   const [roomCode, setRoomCode] = useState('');
   const [placeholderText, setPlaceholderText] = useState('');
@@ -76,6 +83,7 @@ export default function Home() {
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
   const [isAIMode, setIsAIMode] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationMessageIndex, setGenerationMessageIndex] = useState(0);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
@@ -138,6 +146,18 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isPaused, isTabVisible]);
 
+  useEffect(() => {
+    if (!isGenerating || !isTabVisible) return;
+
+    const interval = setInterval(() => {
+      setGenerationMessageIndex(
+        (current) => (current + 1) % GENERATION_MESSAGES.length,
+      );
+    }, 1800);
+
+    return () => clearInterval(interval);
+  }, [isGenerating, isTabVisible]);
+
   const handleJoinRoom = () => {
     if (!roomCode.trim()) return;
 
@@ -160,6 +180,7 @@ export default function Home() {
     if (!prompt || isGenerating) return;
 
     setIsGenerating(true);
+    setGenerationMessageIndex(0);
     setGenerationError(null);
     const [error, generatedRoom] = await generateRoom(prompt);
     setIsGenerating(false);
@@ -221,7 +242,13 @@ export default function Home() {
           </div>
 
           <div className="mt-8 space-y-5">
-            <div className="panel-surface rounded-[24px] p-6">
+            <div
+              className={classNames(
+                'panel-surface rounded-[24px] p-6 transition-all duration-500',
+                isGenerating &&
+                  'animate-pulse border-secondary/70 shadow-[0_0_32px_rgba(0,217,255,0.24)]',
+              )}
+            >
               <label className="mb-3 block font-pixel text-[10px] text-theme-muted tracking-[0.3em]">
                 {isAIMode ? 'PLAYLIST PROMPT' : 'ROOM NAME'}
               </label>
@@ -270,7 +297,11 @@ export default function Home() {
               </div>
               {isAIMode && (
                 <div className="mt-3 flex justify-between gap-4 text-theme-subtle text-xs">
-                  <span>Generates a playlist based on your suggestion</span>
+                  <span aria-live="polite">
+                    {isGenerating
+                      ? GENERATION_MESSAGES[generationMessageIndex]
+                      : 'Generates a playlist based on your suggestion'}
+                  </span>
                   <span className="tabular-nums">
                     {roomCode.length}/{generatedPlaylistPromptMaxLength}
                   </span>
@@ -303,14 +334,34 @@ export default function Home() {
               )}
               <Button
                 onClick={handlePrimaryAction}
-                disabled={!roomCode.trim()}
+                disabled={!roomCode.trim() || isGenerating}
                 variant="secondary"
                 size="large"
-                loading={isGenerating}
-                className="gap-3 font-pixel"
+                className={classNames(
+                  'relative gap-3 overflow-hidden font-pixel',
+                  isGenerating && 'animate-ai-button-glow disabled:opacity-100',
+                )}
               >
-                {isAIMode && <SparklesIcon className="h-5 w-5" />}
-                {isAIMode ? 'Generate Room' : 'Join Room'}
+                {isGenerating && (
+                  <span className="absolute inset-y-0 w-1/3 animate-ai-button-shimmer bg-linear-to-r from-transparent via-white/35 to-transparent" />
+                )}
+                {isAIMode && (
+                  <span
+                    className={classNames(
+                      'relative',
+                      isGenerating && 'animate-ai-sparkles',
+                    )}
+                  >
+                    <SparklesIcon className="h-5 w-5" />
+                  </span>
+                )}
+                <span className="relative">
+                  {isGenerating
+                    ? GENERATION_MESSAGES[generationMessageIndex]
+                    : isAIMode
+                      ? 'Generate Room'
+                      : 'Join Room'}
+                </span>
               </Button>
             </div>
           </div>
