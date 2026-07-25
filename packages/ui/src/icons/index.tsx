@@ -138,7 +138,17 @@ export const SparklesIcon = (props: IconProps) => (
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
-      d="M12 3l1.15 3.35L16.5 7.5l-3.35 1.15L12 12l-1.15-3.35L7.5 7.5l3.35-1.15L12 3zM18.5 13l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2zM5.5 13l.95 2.55L9 16.5l-2.55.95L5.5 20l-.95-2.55L2 16.5l2.55-.95L5.5 13z"
+      d="M12 3l1.15 3.35L16.5 7.5l-3.35 1.15L12 12l-1.15-3.35L7.5 7.5l3.35-1.15L12 3z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M18.5 13l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M5.5 13l.95 2.55L9 16.5l-2.55.95L5.5 20l-.95-2.55L2 16.5l2.55-.95L5.5 13z"
     />
   </svg>
 );
