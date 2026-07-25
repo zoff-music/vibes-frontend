@@ -190,6 +190,7 @@ export default function Home() {
             <p className="jp-art mt-2 text-theme-subtle text-xs">
               音楽は共有するもの
             </p>
+            {/* lol i aint fucking showing these terrible stats, so lets just drop the embarrassment */}
             {totalListeners > 10 && (
               <p className="mt-4 font-pixel text-theme-muted text-xs sm:text-sm">
                 The signal is live. Join {totalListeners} other listeners across
