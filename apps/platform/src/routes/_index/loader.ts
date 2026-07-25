@@ -5,7 +5,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const serverApi = getServerApi(request);
   const [err, stats] = await serverApi.get('/stats', null);
   if (err || !stats) {
-    return { totalListeners: 0 };
+    return {
+      totalListeners: 0,
+      totalRooms: 0,
+      totalSongs: 0,
+    };
   }
 
   return stats;
