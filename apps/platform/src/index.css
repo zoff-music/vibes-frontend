@@ -1,4 +1,5 @@
 @import "@vibes/tailwind/styles.css";
+@source "./";
 
 @keyframes dice-roll {
   0% {
