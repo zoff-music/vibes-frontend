@@ -1,3 +1,4 @@
+import type { RoomNameReservation } from '@vibes/models';
 import { showToast } from '@vibes/shared';
 import {
   AlertCircleIcon,
@@ -49,8 +50,8 @@ type RoomNameAvailabilityState =
 const CreateRoom: React.FC = () => {
   const loaderData = useLoaderData() as RoomsCreateLoaderData;
   const createFetcher = useFetcher<RoomsCreateActionData>();
-  const suggestionFetcher = useFetcher<RoomsCreateLoaderData>();
-  const availabilityFetcher = useFetcher<RoomsCreateLoaderData>();
+  const suggestionFetcher = useFetcher<RoomsCreateActionData>();
+  const availabilityFetcher = useFetcher<RoomsCreateActionData>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { setIsWarping } = useThemeStore();
@@ -83,24 +84,29 @@ const CreateRoom: React.FC = () => {
   const [nameAvailabilityError, setNameAvailabilityError] = useState<
     string | null
   >(null);
+  const [reservation, setReservation] = useState<RoomNameReservation | null>(
+    null,
+  );
   const [isHydrated, setIsHydrated] = useState(false);
   const [wobblePassword, setWobblePassword] = useState(false);
   const passwordRef = React.useRef<HTMLDivElement>(null);
   const availabilityTimerRef = React.useRef<number | null>(null);
-  const availabilityFetcherLoadRef = React.useRef(availabilityFetcher.load);
-  availabilityFetcherLoadRef.current = availabilityFetcher.load;
+  const reservationTokenRef = React.useRef('');
+  reservationTokenRef.current = reservation?.token ?? '';
+  const availabilityFetcherSubmitRef = React.useRef(availabilityFetcher.submit);
+  availabilityFetcherSubmitRef.current = availabilityFetcher.submit;
 
   const checkRoomNameAvailability = React.useCallback((roomName: string) => {
     setNameAvailability('checking');
     setNameAvailabilityError(null);
 
-    const params = new URLSearchParams({
-      intent: 'check-room-name',
-      name: roomName,
+    const formData = new FormData();
+    formData.set('intent', 'reserveRoomName');
+    formData.set('name', roomName);
+    void availabilityFetcherSubmitRef.current(formData, {
+      method: 'post',
+      action: '/rooms/create',
     });
-    void availabilityFetcherLoadRef.current(
-      `/rooms/create?${params.toString()}`,
-    );
   }, []);
 
   // Reset wobble after animation
@@ -164,7 +170,18 @@ const CreateRoom: React.FC = () => {
 
     const trimmedName = name.trim();
     if (!trimmedName) {
+      setReservation(null);
       setNameAvailability('idle');
+      setNameAvailabilityError(null);
+      return;
+    }
+
+    if (
+      reservation &&
+      reservation.name === slugifyRoomName(trimmedName) &&
+      Date.parse(reservation.expiresAt) > Date.now()
+    ) {
+      setNameAvailability('available');
       setNameAvailabilityError(null);
       return;
     }
@@ -182,7 +199,22 @@ const CreateRoom: React.FC = () => {
         availabilityTimerRef.current = null;
       }
     };
-  }, [name, checkRoomNameAvailability]);
+  }, [name, reservation, checkRoomNameAvailability]);
+
+  useEffect(() => {
+    if (!reservation) return;
+
+    const expiresIn = Date.parse(reservation.expiresAt) - Date.now();
+    if (expiresIn <= 0) {
+      setReservation(null);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setReservation(null);
+    }, expiresIn);
+    return () => window.clearTimeout(timer);
+  }, [reservation]);
 
   useEffect(() => {
     const data = availabilityFetcher.data;
@@ -192,13 +224,19 @@ const CreateRoom: React.FC = () => {
       showToast(data.rateLimitMessage, 'warning', 6000);
     }
     if (data.error) {
-      setNameAvailability('error');
+      setReservation(null);
+      if (data.roomNameUnavailable) {
+        setNameAvailability('taken');
+      } else {
+        setNameAvailability('error');
+      }
       setNameAvailabilityError(data.error);
       return;
     }
-    if (data.roomNameExists === undefined) return;
+    if (!data.reservation) return;
 
-    setNameAvailability(data.roomNameExists ? 'taken' : 'available');
+    setReservation(data.reservation);
+    setNameAvailability('available');
     setNameAvailabilityError(null);
   }, [availabilityFetcher.data, name]);
 
@@ -213,9 +251,12 @@ const CreateRoom: React.FC = () => {
       setError(data.error);
       return;
     }
-    if (!data.roomNameSuggestion) return;
+    if (!data.reservation) return;
 
-    setName(data.roomNameSuggestion);
+    setReservation(data.reservation);
+    setNameAvailability('available');
+    setNameAvailabilityError(null);
+    setName(data.reservation.name);
   }, [suggestionFetcher.data]);
 
   const isLoading = createFetcher.state !== 'idle';
@@ -237,7 +278,12 @@ const CreateRoom: React.FC = () => {
     if (isGeneratingName || isLoading) return;
 
     setError(null);
-    void suggestionFetcher.load('/rooms/create?intent=suggest-room-name');
+    const formData = new FormData();
+    formData.set('intent', 'reserveRoomName');
+    void suggestionFetcher.submit(formData, {
+      method: 'post',
+      action: '/rooms/create',
+    });
   };
 
   const handleCreate = () => {
@@ -250,6 +296,7 @@ const CreateRoom: React.FC = () => {
 
     const formData = new FormData();
     formData.set('name', name.trim());
+    formData.set('reservationToken', reservationTokenRef.current);
     formData.set('password', password);
     formData.set('mode', mode);
     formData.set('skipAllowed', String(settings.skipAllowed));
@@ -261,7 +308,10 @@ const CreateRoom: React.FC = () => {
     settings.enabledSources.forEach((source) => {
       formData.append('enabledSources', source);
     });
-    createFetcher.submit(formData, { method: 'post' });
+    createFetcher.submit(formData, {
+      method: 'post',
+      action: '/rooms/create',
+    });
   };
 
   useEffect(() => {
@@ -392,7 +442,7 @@ const CreateRoom: React.FC = () => {
                   )}
                   {nameAvailability === 'taken' && (
                     <span className="text-error">
-                      A room with this name already exists.
+                      This name is already in use or temporarily reserved.
                     </span>
                   )}
                   {nameAvailability === 'error' && nameAvailabilityError && (
@@ -622,5 +672,13 @@ const CreateRoom: React.FC = () => {
     </div>
   );
 };
+
+function slugifyRoomName(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/[ -]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
 
 export default CreateRoom;
