@@ -34,10 +34,21 @@ export const roomSchema = yup.object({
 });
 export type Room = yup.InferType<typeof roomSchema>;
 
-export const roomNameSuggestionSchema = yup.object({
+export const roomNameReservationSchema = yup.object({
   name: yup.string().required(),
+  token: yup.string().required(),
+  expiresAt: yup.string().required(),
 });
-export type RoomNameSuggestion = yup.InferType<typeof roomNameSuggestionSchema>;
+export type RoomNameReservation = yup.InferType<
+  typeof roomNameReservationSchema
+>;
+
+export const roomNameReservationRequestSchema = yup.object({
+  name: yup.string().optional(),
+});
+export type RoomNameReservationRequest = yup.InferType<
+  typeof roomNameReservationRequestSchema
+>;
 
 export const usersUpdateSchema = yup.number().required();
 
@@ -45,6 +56,7 @@ export const createRoomRequestSchema = yup.object({
   name: yup.string().required(),
   mode: yup.string().oneOf(['server', 'host']).optional(),
   password: yup.string().optional(),
+  reservationToken: yup.string().optional(),
   settings: roomSettingsSchema.partial().optional(),
 });
 export type CreateRoomRequest = yup.InferType<typeof createRoomRequestSchema>;

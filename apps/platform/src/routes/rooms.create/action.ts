@@ -1,12 +1,22 @@
-import { api, getRateLimitMessage } from '@vibes/api';
-import type { Room } from '@vibes/models';
+import {
+  api,
+  getAPIErrorMessage,
+  getHttpError,
+  getRateLimitMessage,
+} from '@vibes/api';
+import type { Room, RoomNameReservation } from '@vibes/models';
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface RoomsCreateActionData {
+  checkedName?: string;
   error?: string;
   rateLimitMessage?: string;
+  reservation?: RoomNameReservation;
   room?: Room;
+  roomNameUnavailable?: boolean;
 }
+
+const CONFLICT_STATUS = 409;
 
 function readBoolean(formData: FormData, key: string) {
   return formData.get(key) === 'true';
@@ -23,6 +33,11 @@ export async function clientAction({
   request,
 }: ClientActionFunctionArgs): Promise<RoomsCreateActionData> {
   const formData = await request.formData();
+  const intent = String(formData.get('intent') ?? 'createRoom');
+  if (intent === 'reserveRoomName') {
+    return reserveRoomName(formData);
+  }
+
   const name = String(formData.get('name') ?? '').trim();
   if (!name) {
     return {
@@ -31,10 +46,14 @@ export async function clientAction({
   }
 
   const password = String(formData.get('password') ?? '');
+  const reservationToken = String(
+    formData.get('reservationToken') ?? '',
+  ).trim();
   const mode = formData.get('mode') === 'host' ? 'host' : 'server';
   const [err, room] = await api.post('/rooms', null, {
     name,
     password: password || undefined,
+    reservationToken: reservationToken || undefined,
     mode,
     settings: {
       skipAllowed: readBoolean(formData, 'skipAllowed'),
@@ -56,5 +75,34 @@ export async function clientAction({
 
   return {
     room,
+  };
+}
+
+async function reserveRoomName(
+  formData: FormData,
+): Promise<RoomsCreateActionData> {
+  const name = String(formData.get('name') ?? '').trim();
+  const [err, reservation] = await api.post('/rooms/reservations', null, {
+    name: name || undefined,
+  });
+  if (err || !reservation) {
+    const rateLimitMessage = err ? getRateLimitMessage(err) : null;
+    const apiErrorMessage = err ? await getAPIErrorMessage(err) : null;
+    const status = err ? getHttpError(err)?.response.status : null;
+    return {
+      checkedName: name,
+      error:
+        rateLimitMessage ??
+        apiErrorMessage ??
+        err?.message ??
+        'Could not reserve this name',
+      ...(rateLimitMessage && { rateLimitMessage }),
+      ...(status === CONFLICT_STATUS && { roomNameUnavailable: true }),
+    };
+  }
+
+  return {
+    checkedName: name,
+    reservation,
   };
 }
