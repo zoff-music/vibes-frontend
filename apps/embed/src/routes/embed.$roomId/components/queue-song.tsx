@@ -1,4 +1,5 @@
 import type { Song } from '@vibes/models';
+import { resolveSongThumbnail } from '@vibes/shared';
 import { Button, VoteIcon } from '@vibes/ui';
 
 interface Props {
@@ -17,7 +18,7 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
   const content = (
     <>
       <img
-        src={song.thumbnailUrl}
+        src={resolveSongThumbnail(song.thumbnailUrl)}
         alt=""
         className="h-11 w-11 shrink-0 rounded-lg object-cover"
         loading="lazy"

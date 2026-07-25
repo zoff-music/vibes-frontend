@@ -1,5 +1,5 @@
 import type { Song } from '@vibes/shared';
-import { safeWrap } from '@vibes/shared';
+import { resolveSongThumbnail, safeWrap } from '@vibes/shared';
 import type { framework } from 'chromecast-caf-receiver';
 import { useCallback } from 'react';
 
@@ -23,9 +23,11 @@ export function useMediaMetadata() {
       const metadata = new cast.framework.messages.MusicTrackMediaMetadata();
       metadata.title = song.title;
       metadata.artist = song.artist || 'Unknown Artist';
-      metadata.images = song.thumbnailUrl
-        ? [new cast.framework.messages.Image(song.thumbnailUrl)]
-        : [];
+      metadata.images = [
+        new cast.framework.messages.Image(
+          resolveSongThumbnail(song.thumbnailUrl),
+        ),
+      ];
 
       mediaInfo.metadata = metadata;
       mediaInfo.contentId = song.id; // Or sourceId
