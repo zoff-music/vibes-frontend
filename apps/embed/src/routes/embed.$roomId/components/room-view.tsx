@@ -27,13 +27,18 @@ export function EmbedRoomView({ loaderData }: Props) {
   } = useEmbedRoom(loaderData);
   const durationMs = (currentSong?.duration ?? 0) * 1000;
   const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
+  const enabledProviders = loaderData.providers.filter((provider) =>
+    room.settings.enabledSources.includes(provider),
+  );
   const player = options.player && (
     <EmbedPlayerCard
       currentSong={currentSong}
       durationMs={durationMs}
+      enabledProviders={enabledProviders}
       positionMs={positionMs}
       requestProviderToken={requestProviderToken}
       spotifyToken={spotifyToken}
+      songs={songs}
       tokenLoading={tokenLoading}
       youtubeToken={youtubeToken}
     />

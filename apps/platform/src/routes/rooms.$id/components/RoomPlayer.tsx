@@ -1,5 +1,6 @@
 import { type PlaybackState, type Room, type Song } from '@vibes/models';
 import {
+  classNames,
   safeWrapAsync,
   showToast,
   usePlaybackStore,
@@ -24,6 +25,7 @@ interface RoomPlayerProps {
   onAddSong: () => void;
   onOpenCast: () => void;
   initialPlayback?: PlaybackState;
+  providers: string[];
 }
 
 interface PlayerProps {
@@ -35,6 +37,7 @@ interface PlayerProps {
   accessToken?: string | null;
   isFetchingToken?: boolean;
   onRequestToken?: (provider: 'spotify' | 'youtube', force?: boolean) => void;
+  preloadSong?: Song | null;
   providerToken?: string | null;
   tokenError?: string | null;
 }
@@ -95,6 +98,7 @@ export const RoomPlayer = React.memo(
     onAddSong,
     onOpenCast,
     initialPlayback,
+    providers,
   }: RoomPlayerProps) => {
     /* 1. Hooks */
     const playbackFetcher = useFetcher<RoomActionData>();
@@ -128,6 +132,23 @@ export const RoomPlayer = React.memo(
       currentSourceType !== null &&
       currentSourceType !== 'spotify' &&
       currentSourceType !== 'soundcloud';
+    const enabledSources = displayRoom?.settings.enabledSources ?? [];
+    const shouldPrepareSpotifyPlayer =
+      needsSpotifyPlayer ||
+      (providers.includes('spotify') && enabledSources.includes('spotify'));
+    const shouldPrepareSoundCloudPlayer =
+      needsSoundCloudPlayer ||
+      (providers.includes('soundcloud') &&
+        enabledSources.includes('soundcloud'));
+    const shouldPrepareVideoPlayer =
+      needsVideoPlayer ||
+      (providers.includes('youtube') && enabledSources.includes('youtube'));
+    const preloadSpotifySong =
+      songs.find((song) => song.sourceType === 'spotify') ?? null;
+    const preloadSoundCloudSong =
+      songs.find((song) => song.sourceType === 'soundcloud') ?? null;
+    const preloadVideoSong =
+      songs.find((song) => song.sourceType === 'youtube') ?? null;
 
     const [SpotifyPlayerComponent, setSpotifyPlayerComponent] =
       useState<PlayerComponent | null>(null);
@@ -299,7 +320,7 @@ export const RoomPlayer = React.memo(
     /* 5. Render */
 
     useEffect(() => {
-      if (!needsSpotifyPlayer || SpotifyPlayerComponent) return;
+      if (!shouldPrepareSpotifyPlayer || SpotifyPlayerComponent) return;
 
       let isMounted = true;
       const loadSpotifyPlayer = async () => {
@@ -330,10 +351,10 @@ export const RoomPlayer = React.memo(
       return () => {
         isMounted = false;
       };
-    }, [needsSpotifyPlayer, SpotifyPlayerComponent]);
+    }, [shouldPrepareSpotifyPlayer, SpotifyPlayerComponent]);
 
     useEffect(() => {
-      if (!needsSoundCloudPlayer || SoundCloudPlayerComponent) return;
+      if (!shouldPrepareSoundCloudPlayer || SoundCloudPlayerComponent) return;
 
       let isMounted = true;
       const loadSoundCloudPlayer = async () => {
@@ -367,10 +388,10 @@ export const RoomPlayer = React.memo(
       return () => {
         isMounted = false;
       };
-    }, [needsSoundCloudPlayer, SoundCloudPlayerComponent]);
+    }, [shouldPrepareSoundCloudPlayer, SoundCloudPlayerComponent]);
 
     useEffect(() => {
-      if (!needsVideoPlayer || VideoPlayerComponent) return;
+      if (!shouldPrepareVideoPlayer || VideoPlayerComponent) return;
 
       let isMounted = true;
       const loadVideoPlayer = async () => {
@@ -401,7 +422,7 @@ export const RoomPlayer = React.memo(
       return () => {
         isMounted = false;
       };
-    }, [needsVideoPlayer, VideoPlayerComponent]);
+    }, [shouldPrepareVideoPlayer, VideoPlayerComponent]);
 
     useEffect(() => {
       if (debugMountRef.current) return;
@@ -441,7 +462,12 @@ export const RoomPlayer = React.memo(
         {/* Player - Reserve height to prevent CLS */}
         <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1">
           {VideoPlayerComponent && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black">
+            <div
+              className={classNames(
+                'absolute inset-0 flex items-center justify-center bg-black',
+                !isVideoTrack && 'pointer-events-none opacity-0',
+              )}
+            >
               <VideoPlayerComponent
                 {...(displayRoom?.mode === 'host' && {
                   onEnded: () => skip(false),
@@ -451,6 +477,7 @@ export const RoomPlayer = React.memo(
                 appContext="platform"
                 isFetchingToken={tokenFetcher.state !== 'idle'}
                 onRequestToken={requestProviderToken}
+                preloadSong={preloadVideoSong}
                 providerToken={youtubeToken}
               />
             </div>
@@ -473,7 +500,7 @@ export const RoomPlayer = React.memo(
                 </div>
                 <div className="relative z-10 text-center">
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-theme border-t-primary" />
                   </div>
                   <p className="text-sm text-theme-muted">
                     {currentPlayerError ?? 'Loading player...'}
@@ -482,32 +509,32 @@ export const RoomPlayer = React.memo(
               </div>
             </div>
           )}
-          {currentSong &&
-            !isPlayerMissing &&
-            isSpotifyTrack &&
-            SpotifyPlayerComponent && (
+          {SpotifyPlayerComponent && (
+            <div className="absolute inset-0">
               <SpotifyPlayerComponent
                 {...(displayRoom?.mode === 'host' && {
                   onEnded: () => skip(false),
                 })}
-                isVisible={!isConnected}
+                isVisible={!isConnected && isSpotifyTrack}
                 accessToken={spotifyToken}
                 isFetchingToken={tokenFetcher.state !== 'idle'}
                 onRequestToken={requestProviderToken}
+                preloadSong={preloadSpotifySong}
                 tokenError={tokenError}
               />
-            )}
-          {currentSong &&
-            !isPlayerMissing &&
-            isSoundCloudTrack &&
-            SoundCloudPlayerComponent && (
+            </div>
+          )}
+          {SoundCloudPlayerComponent && (
+            <div className="absolute inset-0">
               <SoundCloudPlayerComponent
                 {...(displayRoom?.mode === 'host' && {
                   onEnded: () => skip(false),
                 })}
-                isVisible={!isConnected}
+                isVisible={!isConnected && isSoundCloudTrack}
+                preloadSong={preloadSoundCloudSong}
               />
-            )}
+            </div>
+          )}
           {!currentSong && songs.length > 0 && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               {/* SIGNAL CRT */}
@@ -517,7 +544,7 @@ export const RoomPlayer = React.memo(
               </div>
               <div className="relative z-10 text-center">
                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-theme border-t-primary" />
                 </div>
                 <p className="text-sm text-theme-muted">Loading song...</p>
               </div>

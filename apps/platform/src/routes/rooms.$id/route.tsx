@@ -48,6 +48,24 @@ const LazyAddToQueueModal = lazy(async () => {
   return { default: module.AddToQueueModal };
 });
 
+interface DeferredModalLoadingProps {
+  label: string;
+}
+
+function DeferredModalLoading({ label }: DeferredModalLoadingProps) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+      <div
+        className="panel-strong flex items-center gap-3 rounded-2xl border border-theme px-5 py-4 text-theme shadow-2xl"
+        role="status"
+      >
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-theme border-t-primary" />
+        <span className="font-pixel text-theme-muted text-xs">{label}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
   const { id = '' } = useParams<{ id: string }>();
@@ -386,6 +404,7 @@ export default function Room() {
                   onAddSong={handleAddSong}
                   onOpenCast={handleOpenCast}
                   initialPlayback={loaderData.playback}
+                  providers={loaderData.providers}
                 />
                 <RoomQueue
                   roomId={id}
@@ -400,7 +419,9 @@ export default function Room() {
         </div>
 
         {showDeviceSelector && (
-          <Suspense fallback={null}>
+          <Suspense
+            fallback={<DeferredModalLoading label="Loading cast devices..." />}
+          >
             <LazyDeviceSelector
               isOpen={showDeviceSelector}
               onClose={handleCloseCast}
@@ -408,7 +429,9 @@ export default function Room() {
           </Suspense>
         )}
         {isAddModalVisible && (
-          <Suspense fallback={null}>
+          <Suspense
+            fallback={<DeferredModalLoading label="Loading song search..." />}
+          >
             <LazyAddToQueueModal
               room={displayRoom}
               providers={loaderData.providers}

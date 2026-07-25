@@ -23,7 +23,6 @@ Use these rules for frontend work in this repository.
 - `packages/models` owns shared types and Yup schemas.
 - `packages/shared` owns utilities, hooks, stores, and constants such as `safeWrap`, `safeWrapAsync`, and playback state.
 - `packages/ui` owns shared UI and player components.
-- `packages/player` re-exports player UI where needed.
 - `packages/serve` owns shared TypeScript server, metrics, and tracing utilities.
 - Dependencies used across multiple workspaces should be workspace dependencies where appropriate.
 

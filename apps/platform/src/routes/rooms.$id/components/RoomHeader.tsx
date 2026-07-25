@@ -33,6 +33,32 @@ const LazyRoomSharePanel = lazy(async () => {
   return { default: module.RoomSharePanel };
 });
 
+interface DeferredHeaderLoadingProps {
+  label: string;
+}
+
+function DeferredHeaderLoading({ label }: DeferredHeaderLoadingProps) {
+  return (
+    <div
+      className="flex min-h-24 items-center justify-center gap-3 text-theme"
+      role="status"
+    >
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-theme border-t-primary" />
+      <span className="font-pixel text-2xs text-theme-muted">{label}</span>
+    </div>
+  );
+}
+
+function DeferredSettingsLoading() {
+  return (
+    <div className="fixed top-(--room-header-height) right-0 bottom-0 left-0 z-40">
+      <div className="fixed top-(--room-header-height) right-0 left-0 h-[calc(100dvh-var(--room-header-height))] w-full border-theme border-t bg-theme-surface shadow-2xl sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:min-h-40 sm:w-72 sm:rounded-3xl sm:border">
+        <DeferredHeaderLoading label="Loading settings..." />
+      </div>
+    </div>
+  );
+}
+
 interface RoomHeaderProps {
   headerRef: RefObject<HTMLDivElement | null>;
   displayRoom: Room | null;
@@ -182,7 +208,11 @@ export const RoomHeader = React.memo(
                     ref={sharePanelRef}
                     className="panel-strong absolute right-0 z-50 mt-3 w-96 animate-scale-in rounded-3xl p-4 shadow-2xl"
                   >
-                    <Suspense fallback={null}>
+                    <Suspense
+                      fallback={
+                        <DeferredHeaderLoading label="Loading sharing..." />
+                      }
+                    >
                       <LazyRoomSharePanel
                         url={shareUrl}
                         roomId={roomId || ''}
@@ -216,7 +246,7 @@ export const RoomHeader = React.memo(
                 </Button>
 
                 {showSettings && (
-                  <Suspense fallback={null}>
+                  <Suspense fallback={<DeferredSettingsLoading />}>
                     <LazyRoomSettingsMenu
                       showSettings={showSettings}
                       onClose={onCloseSettings}

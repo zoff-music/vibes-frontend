@@ -1,4 +1,9 @@
-import { isTruthyFlag, safeWrap, usePlaybackStore } from '@vibes/shared';
+import {
+  isTruthyFlag,
+  type Song,
+  safeWrap,
+  usePlaybackStore,
+} from '@vibes/shared';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import YouTube, { type YouTubeProps } from 'react-youtube';
 import { Button } from '../components/Button';
@@ -12,6 +17,7 @@ interface Props {
   appContext?: 'platform' | 'cast';
   isFetchingToken?: boolean;
   onRequestToken?: (provider: 'youtube', force?: boolean) => void;
+  preloadSong?: Song | null;
   providerToken?: string | null;
 }
 
@@ -40,6 +46,7 @@ const VideoPlayerComponent = ({
   appContext = 'platform',
   isFetchingToken = false,
   onRequestToken,
+  preloadSong = null,
   providerToken = null,
 }: Props) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
@@ -59,10 +66,15 @@ const VideoPlayerComponent = ({
   const autoPlayKickLastAtRef = useRef(0);
   const autoPlayKickVideoIdRef = useRef<string | null>(null);
   const suppressLoadUntilRef = useRef(0);
-  const isYouTubeActive = currentSong?.sourceType === 'youtube';
+  const isYouTubeActive =
+    isVisible && currentSong?.sourceType === 'youtube' && !!currentSong;
   const shouldPlay = isYouTubeActive && isPlaying;
   const videoId =
-    currentSong?.sourceType === 'youtube' ? currentSong.sourceId : null;
+    currentSong?.sourceType === 'youtube'
+      ? currentSong.sourceId
+      : preloadSong?.sourceType === 'youtube'
+        ? preloadSong.sourceId
+        : null;
   const debugLastRef = useRef(0);
   const hasEverPlayedRef = useRef(false);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);

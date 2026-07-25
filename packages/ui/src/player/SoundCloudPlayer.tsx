@@ -1,4 +1,9 @@
-import { classNames, safeWrap, usePlaybackStore } from '@vibes/shared';
+import {
+  classNames,
+  type Song,
+  safeWrap,
+  usePlaybackStore,
+} from '@vibes/shared';
 import { memo, useEffect, useRef, useState } from 'react';
 
 // Declare SC global on window
@@ -32,15 +37,21 @@ interface Props {
   isVisible?: boolean;
   onEnded?: () => void;
   fill?: boolean;
+  preloadSong?: Song | null;
 }
 
 const SoundCloudPlayerComponent: React.FC<Props> = ({
   isVisible = true,
   onEnded,
   fill = false,
+  preloadSong = null,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const providerSong =
+    currentSong?.sourceType === 'soundcloud' ? currentSong : preloadSong;
+  const isActive =
+    isVisible && currentSong?.sourceType === 'soundcloud' && !!currentSong;
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const widgetRef = useRef<SoundCloudWidget | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -79,8 +90,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     widget.bind(soundCloud.Widget.Events.READY, () => {
       setIsReady(true);
       // Sync initial state
-      if (isPlaying) {
+      if (isActive && isPlaying) {
         widget.play();
+      } else {
+        widget.pause();
       }
     });
 
@@ -107,23 +120,23 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     // Reset state
     widgetRef.current = null;
     setIsReady(false);
-  }, [currentSong?.sourceId]);
+  }, [providerSong?.sourceId]);
 
   // Sync Playback State
   useEffect(() => {
     if (!widgetRef.current || !isReady) return;
 
-    if (isPlaying) {
+    if (isActive && isPlaying) {
       widgetRef.current.play();
     } else {
       widgetRef.current.pause();
     }
-  }, [isPlaying, isReady]);
+  }, [isActive, isPlaying, isReady]);
 
   // Drift Correction Interval
   useEffect(() => {
     const widget = widgetRef.current;
-    if (!isReady || !widget || !isPlaying) return;
+    if (!isReady || !widget || !isPlaying || !isActive) return;
 
     const interval = setInterval(() => {
       if (
@@ -147,7 +160,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isReady, isPlaying]);
+  }, [isActive, isReady, isPlaying]);
 
   // Sync Volume - optional, but good to have
   useEffect(() => {
@@ -155,17 +168,17 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     // widgetRef.current.setVolume(volume * 100);
   }, []);
 
-  if (!currentSong || !isVisible) {
+  if (!providerSong) {
     return null;
   }
 
-  if (currentSong.sourceType !== 'soundcloud') {
+  if (providerSong.sourceType !== 'soundcloud') {
     return null;
   }
 
-  const soundcloudUrl = currentSong.sourceId.startsWith('http')
-    ? currentSong.sourceId
-    : `https://api.soundcloud.com/tracks/${currentSong.sourceId}`;
+  const soundcloudUrl = providerSong.sourceId.startsWith('http')
+    ? providerSong.sourceId
+    : `https://api.soundcloud.com/tracks/${providerSong.sourceId}`;
 
   // Construct iframe src with parameters
   // visual=true makes it the big album art player
@@ -176,7 +189,13 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     : 'relative aspect-video min-h-video-min w-full overflow-hidden rounded-xl';
 
   return (
-    <div className={classNames(containerClass, 'bg-black')}>
+    <div
+      className={classNames(
+        containerClass,
+        'bg-black',
+        !isActive && 'pointer-events-none opacity-0',
+      )}
+    >
       {/* CRT Effects Layer - Behind content, only while loading */}
       {!isReady && (
         <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
@@ -212,7 +231,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
           isReady && 'opacity-100',
           !isReady && 'opacity-0',
         )}
-        title={currentSong.title}
+        title={providerSong.title}
       />
     </div>
   );
@@ -223,7 +242,8 @@ export const SoundCloudPlayer = memo(
   (prevProps, nextProps) => {
     return (
       prevProps.isVisible === nextProps.isVisible &&
-      prevProps.onEnded === nextProps.onEnded
+      prevProps.onEnded === nextProps.onEnded &&
+      prevProps.preloadSong?.id === nextProps.preloadSong?.id
     );
   },
 );
