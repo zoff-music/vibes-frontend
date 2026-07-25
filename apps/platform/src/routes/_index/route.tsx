@@ -2,7 +2,7 @@ import { classNames, usePageVisibility } from '@vibes/shared';
 import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useNavigationType } from 'react-router';
-import { LegalFooter } from '../../components/legal/LegalFooter';
+import { SiteFooter } from '../../components/legal/SiteFooter';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
@@ -157,11 +157,11 @@ export default function Home() {
   return (
     <div
       className={classNames(
-        'relative flex min-h-screen w-full flex-col items-center justify-start overflow-x-hidden',
+        'relative flex min-h-dvh w-full flex-col items-center overflow-x-hidden',
         shouldFadeIn && 'animate-fade-in',
       )}
     >
-      <div className="relative z-10 mx-auto mt-[max(6rem,calc(50vh-7.25rem))] flex w-full max-w-5xl flex-col items-center px-6">
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-6 py-6 sm:py-10">
         <div className="crt-frame relative w-full max-w-3xl rounded-frame p-6 sm:p-10">
           <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
             <Button
@@ -210,7 +210,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      <LegalFooter />
+      <SiteFooter />
     </div>
   );
 }
