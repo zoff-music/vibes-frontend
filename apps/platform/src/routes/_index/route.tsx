@@ -19,7 +19,7 @@ const ANIMATED_WORDS = [
   'party',
   'ふんいき',
   'jazz',
-  'のり',
+  'ゾフ',
   'techno',
   'よる',
   'ambient',

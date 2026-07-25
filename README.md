@@ -1,6 +1,20 @@
+<p align="center">
+  <img src="apps/platform/public/web-app-manifest-512x512.png" alt="zoff logo" width="192">
+</p>
+
 # Vibes Frontend
 
 A React Router + Vite + TypeScript monorepo using pnpm workspaces.
+
+## Screenshots
+
+### Front page
+
+![Zoff front page in dark mode](docs/screenshots/frontpage.png)
+
+### Playlist room
+
+![Zoff electro playlist room](docs/screenshots/playlist.png)
 
 ## Applications
 
