@@ -13,6 +13,11 @@ interface LegalSectionProps {
   title: string;
 }
 
+interface LegalSubsectionProps {
+  children: ReactNode;
+  title: string;
+}
+
 interface LegalLinkProps {
   children: ReactNode;
   href: string;
@@ -64,6 +69,17 @@ export function LegalSection({ children, title }: LegalSectionProps) {
         {title}
       </h2>
       <div className="space-y-4 text-theme-muted leading-7">{children}</div>
+    </section>
+  );
+}
+
+export function LegalSubsection({ children, title }: LegalSubsectionProps) {
+  return (
+    <section className="space-y-3 pt-2">
+      <h3 className="font-pixel text-base text-theme tracking-display">
+        {title}
+      </h3>
+      <div className="space-y-4">{children}</div>
     </section>
   );
 }

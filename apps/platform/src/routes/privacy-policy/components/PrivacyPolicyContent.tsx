@@ -3,6 +3,7 @@ import {
   LegalDocument,
   LegalLink,
   LegalSection,
+  LegalSubsection,
 } from '../../../components/legal/LegalDocument';
 
 interface PrivacyPolicyContentProps {
@@ -13,6 +14,7 @@ export function PrivacyPolicyContent({ providers }: PrivacyPolicyContentProps) {
   const hasYouTube = providers.includes('youtube');
   const hasSoundCloud = providers.includes('soundcloud');
   const hasSpotify = providers.includes('spotify');
+  const hasProviders = hasYouTube || hasSoundCloud || hasSpotify;
 
   return (
     <LegalDocument
@@ -69,95 +71,106 @@ export function PrivacyPolicyContent({ providers }: PrivacyPolicyContentProps) {
         </p>
       </LegalSection>
 
-      {hasYouTube && (
-        <LegalSection title="3. YouTube">
+      {hasProviders && (
+        <LegalSection title="3. Providers">
           <p>
-            Zoff uses YouTube API Services and the YouTube embedded player to
-            search for and play publicly available videos. Zoff sends user
-            search terms to YouTube and receives public video information such
-            as video IDs, titles, channel names, thumbnails, durations,
-            categories, view counts, and like counts.
+            Zoff connects to the music providers enabled for the service.
+            Provider-specific processing and terms are described below only when
+            that integration is available.
           </p>
-          <p>
-            YouTube search results are cached for up to three days to reduce
-            duplicate API requests. When a user adds a result to a room, the
-            relevant public track information is stored with that room so the
-            shared queue can function.
-          </p>
-          <p>
-            Use of YouTube features is subject to the{' '}
-            <LegalLink href="https://www.youtube.com/t/terms">
-              YouTube Terms of Service
-            </LegalLink>
-            . Google describes how it processes information in the{' '}
-            <LegalLink href="https://policies.google.com/privacy">
-              Google Privacy Policy
-            </LegalLink>
-            .
-          </p>
-          <p>
-            Zoff does not download, extract, rehost, sell, or independently
-            profile users from YouTube audiovisual content or API data.
-          </p>
-        </LegalSection>
-      )}
 
-      {hasSoundCloud && (
-        <LegalSection title="SoundCloud">
-          <p>
-            Zoff uses the SoundCloud API and player to search for and play
-            publicly available tracks. Search terms are sent to SoundCloud, and
-            Zoff may receive track IDs, titles, uploader names, artwork,
-            duration, genre, and playback information.
-          </p>
-          <p>
-            SoundCloud search results are cached for up to three days to avoid
-            repeated provider requests. Tracks selected for a room are stored
-            with the room queue. Zoff does not claim ownership of SoundCloud
-            user content.
-          </p>
-          <p>
-            SoundCloud processes information under its{' '}
-            <LegalLink href="https://soundcloud.com/pages/privacy">
-              Privacy Policy
-            </LegalLink>{' '}
-            and{' '}
-            <LegalLink href="https://soundcloud.com/terms-of-use">
-              Terms of Use
-            </LegalLink>
-            .
-          </p>
-        </LegalSection>
-      )}
+          {hasYouTube && (
+            <LegalSubsection title="YouTube">
+              <p>
+                Zoff uses YouTube API Services and the YouTube embedded player
+                to search for and play publicly available videos. Zoff sends
+                user search terms to YouTube and receives public video
+                information such as video IDs, titles, channel names,
+                thumbnails, durations, categories, view counts, and like counts.
+              </p>
+              <p>
+                YouTube search results are cached for up to three days to reduce
+                duplicate API requests. When a user adds a result to a room, the
+                relevant public track information is stored with that room so
+                the shared queue can function. Stored YouTube metadata is
+                refreshed or deleted within 30 days.
+              </p>
+              <p>
+                Use of YouTube features is subject to the{' '}
+                <LegalLink href="https://www.youtube.com/t/terms">
+                  YouTube Terms of Service
+                </LegalLink>
+                . Google describes how it processes information in the{' '}
+                <LegalLink href="https://policies.google.com/privacy">
+                  Google Privacy Policy
+                </LegalLink>
+                .
+              </p>
+              <p>
+                Zoff does not download, extract, rehost, sell, or independently
+                profile users from YouTube audiovisual content or API data.
+              </p>
+            </LegalSubsection>
+          )}
 
-      {hasSpotify && (
-        <LegalSection title="Spotify">
-          <p>
-            Zoff can search Spotify&apos;s catalogue and play Spotify content
-            for eligible Spotify users. Zoff may process search terms and
-            catalogue information such as track, artist, album, artwork,
-            duration, and Spotify identifiers.
-          </p>
-          <p>
-            Spotify playback requires the user to connect a Spotify account.
-            Zoff receives and stores OAuth access and refresh tokens needed to
-            provide the connected playback feature. Zoff does not receive or
-            store the user&apos;s Spotify password. Tokens are associated with
-            the user&apos;s pseudonymous Zoff session and are not shared with
-            other room participants.
-          </p>
-          <p>
-            Users can revoke Zoff&apos;s access from their Spotify account
-            settings. Spotify processes information under the{' '}
-            <LegalLink href="https://www.spotify.com/legal/privacy-policy/">
-              Spotify Privacy Policy
-            </LegalLink>{' '}
-            and{' '}
-            <LegalLink href="https://www.spotify.com/legal/end-user-agreement/">
-              Spotify Terms of Use
-            </LegalLink>
-            .
-          </p>
+          {hasSoundCloud && (
+            <LegalSubsection title="SoundCloud">
+              <p>
+                Zoff uses the SoundCloud API and player to search for and play
+                publicly available tracks. Search terms are sent to SoundCloud,
+                and Zoff may receive track IDs, titles, uploader names, artwork,
+                duration, genre, and playback information.
+              </p>
+              <p>
+                SoundCloud search results are cached for up to three days to
+                avoid repeated provider requests. Tracks selected for a room are
+                stored with the room queue. Zoff does not claim ownership of
+                SoundCloud user content.
+              </p>
+              <p>
+                SoundCloud processes information under its{' '}
+                <LegalLink href="https://soundcloud.com/pages/privacy">
+                  Privacy Policy
+                </LegalLink>{' '}
+                and{' '}
+                <LegalLink href="https://soundcloud.com/terms-of-use">
+                  Terms of Use
+                </LegalLink>
+                .
+              </p>
+            </LegalSubsection>
+          )}
+
+          {hasSpotify && (
+            <LegalSubsection title="Spotify">
+              <p>
+                Zoff can search Spotify&apos;s catalogue and play Spotify
+                content for eligible Spotify users. Zoff may process search
+                terms and catalogue information such as track, artist, album,
+                artwork, duration, and Spotify identifiers.
+              </p>
+              <p>
+                Spotify playback requires the user to connect a Spotify account.
+                Zoff receives and stores OAuth access and refresh tokens needed
+                to provide the connected playback feature. Zoff does not receive
+                or store the user&apos;s Spotify password. Tokens are associated
+                with the user&apos;s pseudonymous Zoff session and are not
+                shared with other room participants.
+              </p>
+              <p>
+                Users can revoke Zoff&apos;s access from their Spotify account
+                settings. Spotify processes information under the{' '}
+                <LegalLink href="https://www.spotify.com/legal/privacy-policy/">
+                  Spotify Privacy Policy
+                </LegalLink>{' '}
+                and{' '}
+                <LegalLink href="https://www.spotify.com/legal/end-user-agreement/">
+                  Spotify Terms of Use
+                </LegalLink>
+                .
+              </p>
+            </LegalSubsection>
+          )}
         </LegalSection>
       )}
 

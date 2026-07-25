@@ -158,10 +158,18 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                       {currentSongData.sourceType === 'soundcloud' && (
                         <SoundCloudIcon className="h-5 w-5" />
                       )}
-                      {currentSongData.sourceType !== 'spotify' &&
-                        currentSongData.sourceType !== 'soundcloud' && (
+                      {currentSongData.sourceType === 'youtube' && (
+                        <a
+                          href={`https://www.youtube.com/watch?v=${currentSongData.sourceId}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+                          aria-label={`Open ${currentSongData.title} on YouTube`}
+                          title="Open on YouTube"
+                        >
                           <YouTubeIcon className="h-5 w-5" />
-                        )}
+                        </a>
+                      )}
                     </div>
                   </div>
                 </motion.div>

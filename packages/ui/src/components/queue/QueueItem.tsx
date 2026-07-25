@@ -43,6 +43,11 @@ export const QueueItem: React.FC<Props> = ({
     onVote?.(song.id);
   };
 
+  const handleRemove = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onRemove?.(song.id);
+  };
+
   const cardClass =
     'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-shadow hover:shadow-primary-soft focus:outline-hidden focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent';
 
@@ -96,10 +101,9 @@ export const QueueItem: React.FC<Props> = ({
           {song.sourceType === 'soundcloud' && (
             <SoundCloudIcon className="h-5 w-5" />
           )}
-          {song.sourceType !== 'spotify' &&
-            song.sourceType !== 'soundcloud' && (
-              <YouTubeIcon className="h-5 w-5" />
-            )}
+          {song.sourceType === 'youtube' && (
+            <div className="h-5 w-5" aria-hidden="true" />
+          )}
         </div>
 
         {isAdmin && <div className="h-10 w-10 shrink-0" aria-hidden="true" />}
@@ -109,16 +113,33 @@ export const QueueItem: React.FC<Props> = ({
 
   const removeButton = isAdmin && (
     <Button
-      onClick={(event) => {
-        event.stopPropagation();
-        onRemove?.(song.id);
-      }}
+      onClick={handleRemove}
       variant="destructive"
       className="absolute top-1/2 right-6 -translate-y-1/2 p-2.5"
       title="Remove from queue"
     >
       <TrashIcon className="h-5 w-5" />
     </Button>
+  );
+
+  let sourceLinkClass =
+    'absolute top-1/2 right-6 z-10 -translate-y-1/2 cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40';
+  if (isAdmin) {
+    sourceLinkClass =
+      'absolute top-1/2 right-20 z-10 -translate-y-1/2 cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40';
+  }
+
+  const sourceLink = song.sourceType === 'youtube' && (
+    <a
+      href={`https://www.youtube.com/watch?v=${song.sourceId}`}
+      target="_blank"
+      rel="noreferrer"
+      className={sourceLinkClass}
+      aria-label={`Open ${song.title} on YouTube`}
+      title="Open on YouTube"
+    >
+      <YouTubeIcon className="h-5 w-5" />
+    </a>
   );
 
   if (isSSR) {
@@ -133,6 +154,7 @@ export const QueueItem: React.FC<Props> = ({
         >
           {content}
         </button>
+        {sourceLink}
         {removeButton}
       </div>
     );
@@ -162,6 +184,7 @@ export const QueueItem: React.FC<Props> = ({
         >
           {content}
         </button>
+        {sourceLink}
         {removeButton}
       </div>
     </motion.div>
