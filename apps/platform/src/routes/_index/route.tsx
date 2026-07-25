@@ -2,6 +2,7 @@ import { classNames, usePageVisibility } from '@vibes/shared';
 import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useNavigationType } from 'react-router';
+import { LegalFooter } from '../../components/legal/LegalFooter';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
@@ -209,6 +210,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      <LegalFooter />
     </div>
   );
 }
