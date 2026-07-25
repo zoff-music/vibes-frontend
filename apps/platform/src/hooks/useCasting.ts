@@ -13,12 +13,10 @@ import { useCastStore } from '../stores/castStore';
  */
 export const useCasting = (_roomId: string) => {
   const {
-    isInitialized,
     isConnected,
     currentSession,
     availableDevices,
     lastError,
-    initialize,
     castCurrentSong,
     syncPlaybackState,
     updateQueue,
@@ -52,14 +50,6 @@ export const useCasting = (_roomId: string) => {
   const stableSyncPlaybackState = useCallback(syncPlaybackState, []);
   const stableUpdateQueue = useCallback(updateQueue, []);
   const stableUpdateRoomInfo = useCallback(updateRoomInfo, []);
-
-  // Initialize casting when hook is first used
-  useEffect(() => {
-    if (!isInitialized) {
-      console.log('[Cast] useCasting initializing');
-      initialize();
-    }
-  }, [isInitialized, initialize]);
 
   useEffect(() => {
     if (!isLocalEmulatorEnabled) return;
@@ -175,7 +165,6 @@ export const useCasting = (_roomId: string) => {
 
   return {
     // State
-    isInitialized,
     isConnected,
     currentSession,
     availableDevices,

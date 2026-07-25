@@ -22,9 +22,11 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
   onClose,
 }) => {
   const {
+    isInitialized,
     availableDevices,
     currentSession,
     isConnected,
+    initialize,
     connectToDevice,
     disconnectFromDevice,
     discoverDevices,
@@ -43,6 +45,14 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
     const refreshOnOpen = async () => {
       console.log('[Cast] refreshing devices on open');
+      if (!isInitialized) {
+        const [initializeErr] = await safeWrapAsync(initialize());
+        if (initializeErr) {
+          console.error('Failed to initialize casting:', initializeErr);
+        }
+        return;
+      }
+
       const [forceErr] = await safeWrapAsync(castManager.forceDiscovery());
       if (forceErr) {
         console.error('Failed to force cast discovery:', forceErr);
@@ -55,7 +65,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     };
 
     refreshOnOpen();
-  }, [isOpen, discoverDevices]);
+  }, [isOpen, isInitialized, initialize, discoverDevices]);
 
   const handleDeviceSelect = async (device: CastDevice) => {
     setIsConnecting(device.id);
@@ -121,8 +131,6 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
   const handleRefresh = async () => {
     console.log('🔄 Refreshing devices...');
-    const { castManager } = await import('../../services/cast');
-
     console.log('Cast Debug Info:', castManager.getDebugInfo());
     await safeWrapAsync(castManager.forceDiscovery());
     await safeWrapAsync(discoverDevices());

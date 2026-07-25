@@ -9,16 +9,29 @@ import {
   ShareIcon,
   SunIcon,
 } from '@vibes/ui';
-import { AnimatePresence, motion } from 'framer-motion';
-import React, { type RefObject, useCallback, useEffect } from 'react';
+import React, {
+  lazy,
+  type RefObject,
+  Suspense,
+  useCallback,
+  useEffect,
+} from 'react';
 import { useFetcher } from 'react-router';
 import type { Theme } from '../../../stores/themeStore';
 import type { RoomActionData } from '../action';
 
 import { RoomGenerationMenu } from './RoomGenerationMenu';
-import { RoomSettingsMenu } from './RoomSettingsMenu';
-import { RoomSharePanel } from './RoomSharePanel';
 import { UserCount } from './UserCount';
+
+const LazyRoomSettingsMenu = lazy(async () => {
+  const module = await import('./RoomSettingsMenu');
+  return { default: module.RoomSettingsMenu };
+});
+
+const LazyRoomSharePanel = lazy(async () => {
+  const module = await import('./RoomSharePanel');
+  return { default: module.RoomSharePanel };
+});
 
 interface RoomHeaderProps {
   headerRef: RefObject<HTMLDivElement | null>;
@@ -164,23 +177,20 @@ export const RoomHeader = React.memo(
                   <ShareIcon className="h-5 w-5" />
                 </Button>
 
-                <AnimatePresence>
-                  {showShare && (
-                    <motion.div
-                      ref={sharePanelRef}
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="panel-strong absolute right-0 z-50 mt-3 w-96 rounded-3xl p-4 shadow-2xl"
-                    >
-                      <RoomSharePanel
+                {showShare && (
+                  <div
+                    ref={sharePanelRef}
+                    className="panel-strong absolute right-0 z-50 mt-3 w-96 animate-scale-in rounded-3xl p-4 shadow-2xl"
+                  >
+                    <Suspense fallback={null}>
+                      <LazyRoomSharePanel
                         url={shareUrl}
                         roomId={roomId || ''}
                         onCopy={onCopyShareLink}
                       />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    </Suspense>
+                  </div>
+                )}
               </div>
 
               <RoomGenerationMenu
@@ -205,29 +215,33 @@ export const RoomHeader = React.memo(
                   <SettingsIcon className="h-5 w-5" />
                 </Button>
 
-                <RoomSettingsMenu
-                  showSettings={showSettings}
-                  onClose={onCloseSettings}
-                  showShare={showShare}
-                  onToggleShare={onToggleShare}
-                  themeId={themeId}
-                  currentTheme={currentTheme}
-                  onToggleDarkMode={onToggleDarkMode}
-                  room={displayRoom}
-                  displayRoom={displayRoom}
-                  isAdmin={isAdmin}
-                  updateRoomSettings={updateRoomSettings}
-                  updateRoom={updateRoom}
-                  adminPassword={adminPassword}
-                  onAdminPasswordChange={onAdminPasswordChange}
-                  onJoinAdmin={onJoinAdmin}
-                  isAuthenticating={isAuthenticating}
-                  shareUrl={shareUrl}
-                  onCopyShareLink={onCopyShareLink}
-                  roomId={roomId}
-                  settingsMenuRef={settingsMenuRef}
-                  providers={providers}
-                />
+                {showSettings && (
+                  <Suspense fallback={null}>
+                    <LazyRoomSettingsMenu
+                      showSettings={showSettings}
+                      onClose={onCloseSettings}
+                      showShare={showShare}
+                      onToggleShare={onToggleShare}
+                      themeId={themeId}
+                      currentTheme={currentTheme}
+                      onToggleDarkMode={onToggleDarkMode}
+                      room={displayRoom}
+                      displayRoom={displayRoom}
+                      isAdmin={isAdmin}
+                      updateRoomSettings={updateRoomSettings}
+                      updateRoom={updateRoom}
+                      adminPassword={adminPassword}
+                      onAdminPasswordChange={onAdminPasswordChange}
+                      onJoinAdmin={onJoinAdmin}
+                      isAuthenticating={isAuthenticating}
+                      shareUrl={shareUrl}
+                      onCopyShareLink={onCopyShareLink}
+                      roomId={roomId}
+                      settingsMenuRef={settingsMenuRef}
+                      providers={providers}
+                    />
+                  </Suspense>
+                )}
               </div>
             </div>
           </div>

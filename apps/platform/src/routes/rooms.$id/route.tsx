@@ -7,7 +7,15 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   useFetcher,
   useLoaderData,
@@ -15,8 +23,6 @@ import {
   useParams,
   useRevalidator,
 } from 'react-router';
-import { DeviceSelector } from '../../components/cast/DeviceSelector';
-import { AddToQueueModal } from '../../components/queue/AddToQueueModal';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { clientAction, type RoomActionData } from './action';
@@ -31,6 +37,16 @@ import { loader } from './loader';
 export { clientAction, clientLoader, loader };
 
 const GENERATION_RELOAD_DELAY_MS = 5 * 60 * 1000;
+
+const LazyDeviceSelector = lazy(async () => {
+  const module = await import('../../components/cast/DeviceSelector');
+  return { default: module.DeviceSelector };
+});
+
+const LazyAddToQueueModal = lazy(async () => {
+  const module = await import('../../components/queue/AddToQueueModal');
+  return { default: module.AddToQueueModal };
+});
 
 export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
@@ -383,13 +399,24 @@ export default function Room() {
           )}
         </div>
 
-        <DeviceSelector isOpen={showDeviceSelector} onClose={handleCloseCast} />
-        <AddToQueueModal
-          room={displayRoom}
-          providers={loaderData.providers}
-          isVisible={isAddModalVisible}
-          onClose={handleCloseAddSong}
-        />
+        {showDeviceSelector && (
+          <Suspense fallback={null}>
+            <LazyDeviceSelector
+              isOpen={showDeviceSelector}
+              onClose={handleCloseCast}
+            />
+          </Suspense>
+        )}
+        {isAddModalVisible && (
+          <Suspense fallback={null}>
+            <LazyAddToQueueModal
+              room={displayRoom}
+              providers={loaderData.providers}
+              isVisible={isAddModalVisible}
+              onClose={handleCloseAddSong}
+            />
+          </Suspense>
+        )}
       </div>
     </div>
   );

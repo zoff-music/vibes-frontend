@@ -303,7 +303,9 @@ export const RoomPlayer = React.memo(
 
       let isMounted = true;
       const loadSpotifyPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(import('@vibes/ui'));
+        const [loadErr, module] = await safeWrapAsync(
+          import('@vibes/ui/player/SpotifyPlayer'),
+        );
         const resolvedComponent = module?.SpotifyPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
           if (loadErr) {
@@ -335,7 +337,9 @@ export const RoomPlayer = React.memo(
 
       let isMounted = true;
       const loadSoundCloudPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(import('@vibes/ui'));
+        const [loadErr, module] = await safeWrapAsync(
+          import('@vibes/ui/player/SoundCloudPlayer'),
+        );
         const resolvedComponent = module?.SoundCloudPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
           if (loadErr) {
@@ -370,7 +374,9 @@ export const RoomPlayer = React.memo(
 
       let isMounted = true;
       const loadVideoPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(import('@vibes/ui'));
+        const [loadErr, module] = await safeWrapAsync(
+          import('@vibes/ui/player/VideoPlayer'),
+        );
         const resolvedComponent = module?.VideoPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
           if (loadErr) {

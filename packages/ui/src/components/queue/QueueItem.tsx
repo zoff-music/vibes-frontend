@@ -1,5 +1,4 @@
 import { Song } from '@vibes/shared';
-import { motion } from 'framer-motion';
 import React from 'react';
 import {
   SoundCloudIcon,
@@ -22,7 +21,6 @@ interface Props {
   onRemove?: (id: string) => void;
   onVote?: (id: string) => void;
   isAdmin?: boolean;
-  isSSR?: boolean;
 }
 
 export const QueueItem: React.FC<Props> = ({
@@ -31,7 +29,6 @@ export const QueueItem: React.FC<Props> = ({
   onRemove,
   onVote,
   isAdmin,
-  isSSR = false,
 }) => {
   const formatDuration = (seconds: number) => {
     const min = Math.floor(seconds / 60);
@@ -142,39 +139,8 @@ export const QueueItem: React.FC<Props> = ({
     </a>
   );
 
-  if (isSSR) {
-    // SSR: Render without motion.div
-    return (
-      <div className="relative">
-        <button
-          type="button"
-          onClick={handleVote}
-          className={cardClass}
-          aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}`}
-        >
-          {content}
-        </button>
-        {sourceLink}
-        {removeButton}
-      </div>
-    );
-  }
-
-  // Client: Render with motion.div wrapper for height animation
   return (
-    <motion.div
-      layout="position"
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, y: -20, transition: { duration: 0.15 } }}
-      transition={{
-        type: 'spring',
-        stiffness: 400,
-        damping: 30,
-        opacity: { duration: 0.1 },
-      }}
-      className="overflow-hidden"
-    >
+    <div className="animate-fade-in overflow-hidden">
       <div className="relative">
         <button
           type="button"
@@ -187,6 +153,6 @@ export const QueueItem: React.FC<Props> = ({
         {sourceLink}
         {removeButton}
       </div>
-    </motion.div>
+    </div>
   );
 };

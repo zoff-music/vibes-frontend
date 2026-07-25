@@ -51,10 +51,6 @@ class GoogleCastManager implements ICastManager {
         this.devices = devices;
       },
     });
-
-    if (typeof window !== 'undefined') {
-      this.initializeCastSDK();
-    }
   }
 
   // ============================================================

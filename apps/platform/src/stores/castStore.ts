@@ -7,7 +7,20 @@ import type {
 } from '@vibes/models';
 import { safeWrap, safeWrapAsync } from '@vibes/shared';
 import { create } from 'zustand';
-import { castManager } from '../services/cast';
+
+type CastManagerInstance = typeof import('../services/cast')['castManager'];
+
+let loadedCastManager: CastManagerInstance | null = null;
+
+const getCastManager = async () => {
+  if (loadedCastManager) {
+    return loadedCastManager;
+  }
+
+  const module = await import('../services/cast');
+  loadedCastManager = module.castManager;
+  return loadedCastManager;
+};
 
 const isHttpUrl = (value: string) =>
   value.startsWith('http://') || value.startsWith('https://');
@@ -64,6 +77,8 @@ export const useCastStore = create<CastState>((set, get) => ({
     console.log('[Cast] store initialize:start');
     set({ lastError: null });
 
+    const castManager = await getCastManager();
+
     // Set up event listeners
     castManager.onDeviceAvailable((device) => {
       console.log('[Cast] store device available', device);
@@ -116,6 +131,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   discoverDevices: async () => {
     console.log('[Cast] store discoverDevices:start');
     set({ isDiscovering: true, lastError: null });
+    const castManager = await getCastManager();
     const [error, devices] = await safeWrapAsync(castManager.discoverDevices());
 
     if (error) {
@@ -141,6 +157,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   connectToDevice: async (deviceId: string) => {
     console.log('[Cast] store connectToDevice:start', { deviceId });
     set({ lastError: null });
+    const castManager = await getCastManager();
     const [error, session] = await safeWrapAsync(
       castManager.connectToDevice(deviceId),
     );
@@ -167,6 +184,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   disconnectFromDevice: async (deviceId: string) => {
     console.log('[Cast] store disconnectFromDevice:start', { deviceId });
     set({ lastError: null });
+    const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(
       castManager.disconnectFromDevice(deviceId),
     );
@@ -201,6 +219,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       sourceId: song?.sourceId,
     });
     set({ lastError: null });
+    const castManager = await getCastManager();
 
     // Build content URL based on source type
     let contentId = '';
@@ -263,6 +282,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       title: state?.currentSong?.title,
     });
     set({ lastError: null });
+    const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(
       castManager.syncPlaybackState(state),
     );
@@ -284,6 +304,7 @@ export const useCastStore = create<CastState>((set, get) => ({
 
     console.log('[Cast] store updateQueue:start', { count: queue.length });
     set({ lastError: null });
+    const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(castManager.updateQueue(queue));
 
     if (error) {
@@ -306,6 +327,7 @@ export const useCastStore = create<CastState>((set, get) => ({
 
     console.log('[Cast] store updateRoomInfo:start', roomInfo);
     set({ lastError: null });
+    const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(
       castManager.updateRoomInfo(roomInfo),
     );
@@ -327,6 +349,7 @@ export const useCastStore = create<CastState>((set, get) => ({
 
     console.log('[Cast] store joinRoom:start', { roomId });
     set({ lastError: null });
+    const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(castManager.joinRoom(roomId));
 
     if (error) {
@@ -347,11 +370,12 @@ export const useCastStore = create<CastState>((set, get) => ({
 
   cleanup: () => {
     console.log('[Cast] store cleanup:start');
-    const [error, _] = safeWrap(() => castManager.destroy());
+    const [error, _] = safeWrap(() => loadedCastManager?.destroy());
 
     if (error) {
       console.error('Error during cleanup:', error);
     }
+    loadedCastManager = null;
 
     set({
       isInitialized: false,
