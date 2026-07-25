@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react';
-import type { LinksFunction, LoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs } from 'react-router';
 import {
   Links,
   Meta,
@@ -10,10 +10,6 @@ import {
 import { App } from './App';
 import stylesUrl from './index.css?url';
 import { getThemeFromCookies } from './ssr/theme.server';
-
-export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: stylesUrl },
-];
 
 interface RootContext {
   cspNonce?: string;
@@ -48,6 +44,9 @@ export function Layout({ children }: Props) {
     <html lang="en" className={themeClass}>
       <head>
         <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
+        <link rel="stylesheet" href={stylesUrl} />
         <link
           rel="icon"
           type="image/png"
@@ -62,7 +61,6 @@ export function Layout({ children }: Props) {
           href="/apple-touch-icon.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ゾフ - Shared Music Queue</title>
         <script defer src="/plausible-init.js" />
         <script
