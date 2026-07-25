@@ -146,8 +146,8 @@ export function TermsOfServiceContent({
 
       <LegalSection title="Playlist generation">
         <p>
-          Playlist generation uses an automated AI system to suggest songs from
-          a user&apos;s prompt. Suggestions can be incomplete, inaccurate,
+          Playlist generation uses Google&apos;s Gemini API to suggest songs
+          from a user&apos;s prompt. Suggestions can be incomplete, inaccurate,
           unsuitable, or unavailable. Zoff attempts to validate provider
           metadata but does not guarantee that every suggestion, provider ID,
           result, ordering, or description is correct.

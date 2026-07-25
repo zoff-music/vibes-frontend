@@ -181,20 +181,20 @@ export function PrivacyPolicyContent({
       <LegalSection title="AI playlist generation">
         <p>
           If a user asks Zoff to generate a playlist, the submitted prompt is
-          sent to xAI&apos;s API to produce song and artist suggestions. Zoff
-          then checks suggested public music metadata with an enabled music
-          provider. Users should not include personal, confidential, or
-          sensitive information in a playlist prompt.
+          sent to Google&apos;s Gemini API to produce song and artist
+          suggestions. Zoff then checks suggested public music metadata with an
+          enabled music provider. Users should not include personal,
+          confidential, or sensitive information in a playlist prompt.
         </p>
         <p>
-          xAI processes API data under its applicable business terms and data
+          Google processes Gemini API data under its applicable terms and data
           practices. More information is available in the{' '}
-          <LegalLink href="https://x.ai/legal/privacy-policy">
-            xAI Privacy Policy
+          <LegalLink href="https://policies.google.com/privacy">
+            Google Privacy Policy
           </LegalLink>{' '}
           and{' '}
-          <LegalLink href="https://x.ai/legal/terms-of-service-enterprise">
-            xAI Enterprise Terms
+          <LegalLink href="https://ai.google.dev/gemini-api/terms">
+            Gemini API Additional Terms
           </LegalLink>
           .
         </p>
@@ -221,9 +221,9 @@ export function PrivacyPolicyContent({
         <p>
           Zoff shares information only when needed to operate the service,
           including with hosting and infrastructure providers, analytics
-          infrastructure, xAI when playlist generation is requested, and the
-          enabled music providers. Zoff does not sell personal information or
-          use it for targeted advertising.
+          infrastructure, Google when Gemini playlist generation is requested,
+          and the enabled music providers. Zoff does not sell personal
+          information or use it for targeted advertising.
         </p>
         <p>
           These providers may process information in countries outside the
