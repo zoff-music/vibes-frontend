@@ -9,6 +9,7 @@ export * from './schemas/room';
 export * from './schemas/search';
 export * from './schemas/session';
 export * from './schemas/songs';
+export * from './schemas/stats';
 export * from './schemas/youtube';
 
 // Export types that are not schemas (if any remained as pure types)

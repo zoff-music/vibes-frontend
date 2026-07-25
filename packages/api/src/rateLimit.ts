@@ -36,7 +36,7 @@ export function getRateLimitMessageFromResponse(response: Response) {
   }
 
   const retryAfter = formatRetryAfter(getRetryAfterSeconds(response));
-  return `Easy there — too many requests. ${retryAfter}`;
+  return `Easy there. Too many requests. ${retryAfter}`;
 }
 
 export function getRateLimitMessage(error: Error) {
