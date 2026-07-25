@@ -7,7 +7,15 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   useFetcher,
   useLoaderData,
@@ -15,8 +23,6 @@ import {
   useParams,
   useRevalidator,
 } from 'react-router';
-import { DeviceSelector } from '../../components/cast/DeviceSelector';
-import { AddToQueueModal } from '../../components/queue/AddToQueueModal';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { clientAction, type RoomActionData } from './action';
@@ -31,6 +37,34 @@ import { loader } from './loader';
 export { clientAction, clientLoader, loader };
 
 const GENERATION_RELOAD_DELAY_MS = 5 * 60 * 1000;
+
+const LazyDeviceSelector = lazy(async () => {
+  const module = await import('../../components/cast/DeviceSelector');
+  return { default: module.DeviceSelector };
+});
+
+const LazyAddToQueueModal = lazy(async () => {
+  const module = await import('../../components/queue/AddToQueueModal');
+  return { default: module.AddToQueueModal };
+});
+
+interface DeferredModalLoadingProps {
+  label: string;
+}
+
+function DeferredModalLoading({ label }: DeferredModalLoadingProps) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+      <div
+        className="panel-strong flex items-center gap-3 rounded-2xl border border-theme px-5 py-4 text-theme shadow-2xl"
+        role="status"
+      >
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-theme border-t-primary" />
+        <span className="font-pixel text-theme-muted text-xs">{label}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
@@ -370,6 +404,7 @@ export default function Room() {
                   onAddSong={handleAddSong}
                   onOpenCast={handleOpenCast}
                   initialPlayback={loaderData.playback}
+                  providers={loaderData.providers}
                 />
                 <RoomQueue
                   roomId={id}
@@ -383,13 +418,28 @@ export default function Room() {
           )}
         </div>
 
-        <DeviceSelector isOpen={showDeviceSelector} onClose={handleCloseCast} />
-        <AddToQueueModal
-          room={displayRoom}
-          providers={loaderData.providers}
-          isVisible={isAddModalVisible}
-          onClose={handleCloseAddSong}
-        />
+        {showDeviceSelector && (
+          <Suspense
+            fallback={<DeferredModalLoading label="Loading cast devices..." />}
+          >
+            <LazyDeviceSelector
+              isOpen={showDeviceSelector}
+              onClose={handleCloseCast}
+            />
+          </Suspense>
+        )}
+        {isAddModalVisible && (
+          <Suspense
+            fallback={<DeferredModalLoading label="Loading song search..." />}
+          >
+            <LazyAddToQueueModal
+              room={displayRoom}
+              providers={loaderData.providers}
+              isVisible={isAddModalVisible}
+              onClose={handleCloseAddSong}
+            />
+          </Suspense>
+        )}
       </div>
     </div>
   );

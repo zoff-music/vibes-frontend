@@ -3,6 +3,13 @@
   "version": "0.0.1",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/DebugConsole": "./src/components/DebugConsole.tsx",
+    "./player/SoundCloudPlayer": "./src/player/SoundCloudPlayer.tsx",
+    "./player/SpotifyPlayer": "./src/player/SpotifyPlayer.tsx",
+    "./player/VideoPlayer": "./src/player/VideoPlayer.tsx"
+  },
   "sideEffects": false,
   "license": "MIT",
   "scripts": {
@@ -10,7 +17,6 @@
     "lint": "biome check ."
   },
   "peerDependencies": {
-    "framer-motion": "^12.29.2",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-player": "^3.4.0",

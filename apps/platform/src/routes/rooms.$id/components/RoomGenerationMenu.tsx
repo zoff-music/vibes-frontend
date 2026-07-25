@@ -3,7 +3,6 @@ import {
   roomGenerationMaxExistingSongs,
 } from '@vibes/models';
 import { Button, SparklesIcon } from '@vibes/ui';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 
@@ -117,21 +116,16 @@ export function RoomGenerationMenu({
         </Button>
       </div>
 
-      <AnimatePresence>
-        {showGeneration && (
-          <motion.div
-            ref={panelRef}
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="panel-strong absolute right-0 z-50 mt-3 w-72 rounded-3xl p-4 shadow-2xl sm:w-80"
-          >
-            <RoomPlaylistGeneration
-              onGenerationStarted={handleGenerationStarted}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showGeneration && (
+        <div
+          ref={panelRef}
+          className="panel-strong absolute right-0 z-50 mt-3 w-72 animate-scale-in rounded-3xl p-4 shadow-2xl sm:w-80"
+        >
+          <RoomPlaylistGeneration
+            onGenerationStarted={handleGenerationStarted}
+          />
+        </div>
+      )}
     </div>
   );
 }

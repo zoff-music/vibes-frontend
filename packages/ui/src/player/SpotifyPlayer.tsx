@@ -1,4 +1,9 @@
-import { classNames, safeWrapAsync, usePlaybackStore } from '@vibes/shared';
+import {
+  classNames,
+  type Song,
+  safeWrapAsync,
+  usePlaybackStore,
+} from '@vibes/shared';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import SpotifyWebPlayer, {
   type CallbackState,
@@ -12,6 +17,7 @@ interface Props {
   isFetchingToken?: boolean;
   onEnded?: () => void;
   onRequestToken?: (provider: 'spotify', force?: boolean) => void;
+  preloadSong?: Song | null;
   tokenError?: string | null;
   fill?: boolean;
 }
@@ -22,11 +28,16 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   isFetchingToken = false,
   onEnded,
   onRequestToken,
+  preloadSong = null,
   tokenError = null,
   fill = false,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const providerSong =
+    currentSong?.sourceType === 'spotify' ? currentSong : preloadSong;
+  const isActive =
+    isVisible && currentSong?.sourceType === 'spotify' && !!currentSong;
 
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -36,10 +47,10 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   const pendingSeekMsRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (currentSong?.sourceType === 'spotify') {
+    if (providerSong?.sourceType === 'spotify') {
       onRequestToken?.('spotify');
     }
-  }, [currentSong?.sourceType, onRequestToken]);
+  }, [providerSong?.sourceType, onRequestToken]);
 
   useEffect(() => {
     setIsReady(false);
@@ -47,7 +58,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     lastPositionRef.current = 0;
     pendingSeekMsRef.current = usePlaybackStore.getState().actualPositionMs;
     setError(null);
-  }, [currentSong?.id]);
+  }, [providerSong?.id]);
 
   useEffect(() => {
     if (
@@ -55,7 +66,8 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
       !sdkPlayerRef.current ||
       pendingSeekMsRef.current === null ||
       !currentSong ||
-      currentSong.sourceType !== 'spotify'
+      currentSong.sourceType !== 'spotify' ||
+      !isActive
     ) {
       return;
     }
@@ -78,7 +90,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         lastPositionRef.current = targetMs;
       }
     })();
-  }, [currentSong, isReady]);
+  }, [currentSong, isActive, isReady]);
 
   const handleCallback = useCallback(
     (state: CallbackState) => {
@@ -174,11 +186,11 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     }, 500);
   };
 
-  if (!currentSong || !isVisible || currentSong.sourceType !== 'spotify') {
+  if (!providerSong || providerSong.sourceType !== 'spotify') {
     return null;
   }
 
-  const spotifyUri = `spotify:track:${currentSong.sourceId}`;
+  const spotifyUri = `spotify:track:${providerSong.sourceId}`;
 
   const showOverlay =
     (!accessToken && !isFetchingToken) ||
@@ -200,6 +212,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         className={classNames(
           containerClass,
           'flex items-center justify-center',
+          !isActive && 'pointer-events-none opacity-0',
         )}
       >
         <div className="text-center">
@@ -211,18 +224,23 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   }
 
   return (
-    <div className={containerClass}>
+    <div
+      className={classNames(
+        containerClass,
+        !isActive && 'pointer-events-none opacity-0',
+      )}
+    >
       {/* Spotify Background Gradient - Bottom Layer */}
       <div className="absolute inset-0 bg-gradient-to-br from-spotify/20 via-black/40 to-black opacity-90" />
 
       {/* Content Layer - Back Layer */}
       <div className="absolute inset-0 flex items-center justify-center p-8">
         <div className="flex max-w-full items-center gap-6">
-          {currentSong.thumbnailUrl && (
+          {providerSong.thumbnailUrl && (
             <div className="relative h-32 w-32 shrink-0">
               <img
-                src={currentSong.thumbnailUrl}
-                alt={currentSong.title}
+                src={providerSong.thumbnailUrl}
+                alt={providerSong.title}
                 className="h-full w-full rounded-lg object-cover shadow-spotify-cover"
               />
               <div className="absolute inset-0 rounded-lg border border-white/10" />
@@ -230,21 +248,25 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
           )}
           <div className="min-w-0">
             <h3 className="truncate font-display text-2xl text-white tracking-tight">
-              {currentSong.title}
+              {providerSong.title}
             </h3>
             <p className="mt-1 truncate font-medium text-lg text-spotify">
-              {currentSong.artist || 'Unknown Artist'}
+              {providerSong.artist || 'Unknown Artist'}
             </p>
             <div className="mt-4 flex items-center gap-3">
               <div
                 className={classNames(
                   'h-2.5 w-2.5 rounded-full',
-                  isPlaying && 'animate-pulse bg-spotify shadow-spotify-pulse',
-                  !isPlaying && 'bg-white/30',
+                  isActive &&
+                    isPlaying &&
+                    'animate-pulse bg-spotify shadow-spotify-pulse',
+                  (!isActive || !isPlaying) && 'bg-white/30',
                 )}
               />
               <span className="font-mono text-2xs text-white/50 uppercase tracking-display">
-                {isPlaying ? 'Streaming from Spotify' : 'Paused on Spotify'}
+                {isActive && isPlaying
+                  ? 'Streaming from Spotify'
+                  : 'Paused on Spotify'}
               </span>
             </div>
           </div>
@@ -273,7 +295,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
           <SpotifyWebPlayer
             token={accessToken}
             uris={[spotifyUri]}
-            play={isPlaying}
+            play={isActive && isPlaying}
             callback={handleCallback}
             getPlayer={handleGetPlayer}
             initialVolume={0.5}
@@ -309,6 +331,7 @@ export const SpotifyPlayer = memo(
       prevProps.onEnded === nextProps.onEnded &&
       prevProps.accessToken === nextProps.accessToken &&
       prevProps.isFetchingToken === nextProps.isFetchingToken &&
+      prevProps.preloadSong?.id === nextProps.preloadSong?.id &&
       prevProps.tokenError === nextProps.tokenError
     );
   },

@@ -1,6 +1,5 @@
 import { Song } from '@vibes/shared';
-import { AnimatePresence } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { QueueEmptyIcon } from '../../icons';
 import { QueueItem } from './QueueItem';
 
@@ -19,12 +18,6 @@ const QueueListComponent: React.FC<Props> = ({
   onVote,
   isAdmin,
 }) => {
-  const [isSSR, setIsSSR] = useState(true);
-
-  useEffect(() => {
-    setIsSSR(false);
-  }, []);
-
   if (songs.length === 0) {
     return (
       <div className="panel-surface animate-fade-in rounded-3xl px-4 py-20 text-center sm:px-12">
@@ -46,35 +39,16 @@ const QueueListComponent: React.FC<Props> = ({
 
   return (
     <div className="space-y-3">
-      {/* SSR: Render without animations */}
-      {isSSR &&
-        queueSongs.map((song, index) => (
-          <QueueItem
-            key={song.id}
-            song={song}
-            position={index + 1}
-            onRemove={onRemove}
-            onVote={onVote}
-            isAdmin={isAdmin}
-            isSSR={true}
-          />
-        ))}
-      {/* Client: Render with animations */}
-      {!isSSR && (
-        <AnimatePresence initial={false} mode="popLayout">
-          {queueSongs.map((song, index) => (
-            <QueueItem
-              key={song.id}
-              song={song}
-              position={index + 1}
-              onRemove={onRemove}
-              onVote={onVote}
-              isAdmin={isAdmin}
-              isSSR={false}
-            />
-          ))}
-        </AnimatePresence>
-      )}
+      {queueSongs.map((song, index) => (
+        <QueueItem
+          key={song.id}
+          song={song}
+          position={index + 1}
+          onRemove={onRemove}
+          onVote={onVote}
+          isAdmin={isAdmin}
+        />
+      ))}
     </div>
   );
 };

@@ -28,7 +28,6 @@ A React Router + Vite + TypeScript monorepo using pnpm workspaces.
 - **`packages/api`**: Type-safe API client
 - **`packages/models`**: Shared domain types, interfaces, and validation schemas
 - **`packages/shared`**: Shared React hooks, utilities, and Zustand stores (includes safeWrap error handling)
-- **`packages/player`**: Re-export package for shared player UI where needed
 - **`packages/serve`**: Shared TypeScript server, metrics, and tracing utilities
 
 ## Development

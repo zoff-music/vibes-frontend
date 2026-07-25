@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Button } from '../components/Button';
 
 interface AuthOverlayProps {
@@ -13,12 +12,7 @@ export function AuthOverlay({
   onAuthorize,
 }: AuthOverlayProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="absolute inset-0 z-999 flex items-center justify-center rounded-2xl bg-black/95 backdrop-blur-sm"
-    >
+    <div className="absolute inset-0 z-999 flex animate-fade-in items-center justify-center rounded-2xl bg-black/95 backdrop-blur-sm">
       <div className="mx-4 max-w-sm rounded-4xl border-5 border-primary bg-paper p-10 text-center shadow-auth dark:bg-dark-background">
         <h3 className="mb-2 font-black text-text text-xl tracking-tight dark:text-white">
           {errorMessage ? 'ACCESS RESTRICTED' : 'AUTHENTICATION REQUIRED'}
@@ -41,6 +35,6 @@ export function AuthOverlay({
             : `CONNECT ${provider.toUpperCase()}`}
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 }

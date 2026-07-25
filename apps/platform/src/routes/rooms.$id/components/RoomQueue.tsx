@@ -1,7 +1,6 @@
 import { type PlaybackState, type Song } from '@vibes/models';
 import { usePlaybackStore, useQueueStore } from '@vibes/shared';
 import { QueueList, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
-import { AnimatePresence, motion } from 'framer-motion';
 import React from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../action';
@@ -100,80 +99,61 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 </span>
               </div>
 
-              <AnimatePresence initial={false} mode="popLayout">
-                <motion.div
-                  key={currentSongData.id}
-                  layout="position"
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0.95,
-                    y: -20,
-                    position: 'absolute',
-                    width: '100%',
-                    transition: { duration: 0.15 },
-                  }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 400,
-                    damping: 30,
-                    opacity: { duration: 0.1 },
-                  }}
-                  className="overflow-hidden"
-                >
-                  <div className="group/card panel-surface no-box relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl p-4">
-                    <div className="vhs-scanlines pointer-events-none absolute inset-0" />
+              <div
+                key={currentSongData.id}
+                className="animate-slide-up overflow-hidden"
+              >
+                <div className="group/card panel-surface no-box relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl p-4">
+                  <div className="vhs-scanlines pointer-events-none absolute inset-0" />
 
-                    {/* Thumbnail */}
-                    <div className="relative z-10 shrink-0">
-                      <img
-                        src={resolveThumbnail(currentSongData.thumbnailUrl)}
-                        alt=""
-                        className="h-16 w-16 rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105"
-                      />
-                    </div>
+                  {/* Thumbnail */}
+                  <div className="relative z-10 shrink-0">
+                    <img
+                      src={resolveThumbnail(currentSongData.thumbnailUrl)}
+                      alt=""
+                      className="h-16 w-16 rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105"
+                    />
+                  </div>
 
-                    {/* Song info */}
-                    <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
-                      <h3 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
-                        {currentSongData.title}
-                      </h3>
-                      <div className="flex min-w-0 items-center gap-2 overflow-hidden text-theme-muted text-xs">
-                        <span className="min-w-0 truncate">
-                          {currentSongData.artist || 'Unknown Artist'}
-                        </span>
-                        <span className="text-theme-subtle">•</span>
-                        <span className="shrink-0 font-mono text-theme-subtle text-xs">
-                          {formatTime(currentSongData.duration * 1000)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Source Icon */}
-                    <div className="relative z-10 flex shrink-0 items-center justify-center opacity-70">
-                      {currentSongData.sourceType === 'spotify' && (
-                        <SpotifyIcon className="h-5 w-5" />
-                      )}
-                      {currentSongData.sourceType === 'soundcloud' && (
-                        <SoundCloudIcon className="h-5 w-5" />
-                      )}
-                      {currentSongData.sourceType === 'youtube' && (
-                        <a
-                          href={`https://www.youtube.com/watch?v=${currentSongData.sourceId}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-                          aria-label={`Open ${currentSongData.title} on YouTube`}
-                          title="Open on YouTube"
-                        >
-                          <YouTubeIcon className="h-5 w-5" />
-                        </a>
-                      )}
+                  {/* Song info */}
+                  <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
+                    <h3 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
+                      {currentSongData.title}
+                    </h3>
+                    <div className="flex min-w-0 items-center gap-2 overflow-hidden text-theme-muted text-xs">
+                      <span className="min-w-0 truncate">
+                        {currentSongData.artist || 'Unknown Artist'}
+                      </span>
+                      <span className="text-theme-subtle">•</span>
+                      <span className="shrink-0 font-mono text-theme-subtle text-xs">
+                        {formatTime(currentSongData.duration * 1000)}
+                      </span>
                     </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
+
+                  {/* Source Icon */}
+                  <div className="relative z-10 flex shrink-0 items-center justify-center opacity-70">
+                    {currentSongData.sourceType === 'spotify' && (
+                      <SpotifyIcon className="h-5 w-5" />
+                    )}
+                    {currentSongData.sourceType === 'soundcloud' && (
+                      <SoundCloudIcon className="h-5 w-5" />
+                    )}
+                    {currentSongData.sourceType === 'youtube' && (
+                      <a
+                        href={`https://www.youtube.com/watch?v=${currentSongData.sourceId}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+                        aria-label={`Open ${currentSongData.title} on YouTube`}
+                        title="Open on YouTube"
+                      >
+                        <YouTubeIcon className="h-5 w-5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
 
               <PlaybackProgress
                 durationMs={currentSongData.duration * 1000}

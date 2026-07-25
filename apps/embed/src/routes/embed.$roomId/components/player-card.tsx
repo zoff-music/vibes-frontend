@@ -5,12 +5,14 @@ import { EmbedSourceIcon } from './source-icon';
 interface Props {
   currentSong: Song | null;
   durationMs: number;
+  enabledProviders: string[];
   positionMs: number;
   requestProviderToken: (
     provider: 'spotify' | 'youtube',
     force?: boolean,
   ) => void;
   spotifyToken: string | null;
+  songs: Song[];
   tokenLoading: boolean;
   youtubeToken: string | null;
 }
@@ -18,9 +20,11 @@ interface Props {
 export function EmbedPlayerCard({
   currentSong,
   durationMs,
+  enabledProviders,
   positionMs,
   requestProviderToken,
   spotifyToken,
+  songs,
   tokenLoading,
   youtubeToken,
 }: Props) {
@@ -49,7 +53,9 @@ export function EmbedPlayerCard({
         )}
         <EmbedPlayerSource
           currentSong={currentSong}
+          enabledProviders={enabledProviders}
           requestProviderToken={requestProviderToken}
+          songs={songs}
           spotifyToken={spotifyToken}
           tokenLoading={tokenLoading}
           youtubeToken={youtubeToken}

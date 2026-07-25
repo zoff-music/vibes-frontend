@@ -20,7 +20,9 @@ function DebugConsoleLoader() {
     let isMounted = true;
 
     const loadDebugConsole = async () => {
-      const [loadErr, module] = await safeWrapAsync(import('@vibes/ui'));
+      const [loadErr, module] = await safeWrapAsync(
+        import('@vibes/ui/components/DebugConsole'),
+      );
       if (!isMounted || loadErr || !module?.DebugConsole) {
         if (loadErr) {
           console.error('[DebugConsole] Failed to load', loadErr);

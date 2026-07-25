@@ -14,7 +14,6 @@
   "dependencies": {
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
-    "@vibes/player": "workspace:*",
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
