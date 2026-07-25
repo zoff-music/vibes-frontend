@@ -77,7 +77,7 @@ const CreateRoom: React.FC = () => {
   const [mode, setMode] = useState<'server' | 'host'>('server');
   const [password, setPassword] = useState('');
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(loaderData.error ?? null);
   const [nameAvailability, setNameAvailability] =
     useState<RoomNameAvailabilityState>('idle');
   const [nameAvailabilityError, setNameAvailabilityError] = useState<
@@ -289,6 +289,20 @@ const CreateRoom: React.FC = () => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
+  const handleSourceToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const source = event.currentTarget.value;
+    if (!loaderData.providers?.includes(source)) {
+      return;
+    }
+
+    const enabledSources = settings.enabledSources.includes(source)
+      ? settings.enabledSources.filter(
+          (enabledSource) => enabledSource !== source,
+        )
+      : [...settings.enabledSources, source];
+    updateSetting('enabledSources', enabledSources);
+  };
+
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-start overflow-hidden">
       <div className="relative z-10 mx-auto mt-[min(26.5vh_,_230px)] flex w-full max-w-6xl flex-col px-6 pb-24">
@@ -438,26 +452,24 @@ const CreateRoom: React.FC = () => {
                       Icon: SoundCloudIcon,
                       variant: 'orange' as const,
                     },
-                  ].map(({ id, Icon, variant }) => {
-                    const isEnabled = settings.enabledSources.includes(id);
-                    return (
-                      <Button
-                        key={id}
-                        onClick={() => {
-                          const newSources = isEnabled
-                            ? settings.enabledSources.filter((s) => s !== id)
-                            : [...settings.enabledSources, id];
-                          updateSetting('enabledSources', newSources);
-                        }}
-                        variant={isEnabled ? variant : 'tertiary'}
-                        aria-pressed={isEnabled}
-                        className="h-10 w-full flex-1"
-                        title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </Button>
-                    );
-                  })}
+                  ]
+                    .filter(({ id }) => loaderData.providers?.includes(id))
+                    .map(({ id, Icon, variant }) => {
+                      const isEnabled = settings.enabledSources.includes(id);
+                      return (
+                        <Button
+                          key={id}
+                          value={id}
+                          onClick={handleSourceToggle}
+                          variant={isEnabled ? variant : 'tertiary'}
+                          aria-pressed={isEnabled}
+                          className="h-10 w-full flex-1"
+                          title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
+                        >
+                          <Icon className="h-5 w-5" />
+                        </Button>
+                      );
+                    })}
                 </div>
               </div>
 

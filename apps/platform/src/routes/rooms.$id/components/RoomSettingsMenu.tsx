@@ -14,6 +14,7 @@ import {
 } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  type MouseEvent,
   type RefObject,
   useCallback,
   useEffect,
@@ -44,6 +45,7 @@ interface RoomSettingsMenuProps {
   onCopyShareLink: () => void;
   roomId?: string;
   settingsMenuRef?: RefObject<HTMLDivElement | null>;
+  providers: string[];
 }
 
 export const RoomSettingsMenu = ({
@@ -67,11 +69,30 @@ export const RoomSettingsMenu = ({
   onCopyShareLink,
   roomId,
   settingsMenuRef,
+  providers,
 }: RoomSettingsMenuProps) => {
   const [wobblePassword, setWobblePassword] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
   const adminSectionRef = useRef<HTMLDivElement>(null);
   const scrollPanelRef = useRef<HTMLDivElement>(null);
+
+  const handleSourceToggle = (event: MouseEvent<HTMLButtonElement>) => {
+    if (!room) {
+      return;
+    }
+
+    const source = event.currentTarget.value;
+    const isEnabled = room.settings.enabledSources.includes(source);
+    const enabledSources = isEnabled
+      ? room.settings.enabledSources.filter(
+          (enabledSource) => enabledSource !== source,
+        )
+      : [...room.settings.enabledSources, source];
+    updateRoomSettings({
+      ...room.settings,
+      enabledSources,
+    });
+  };
 
   const updateScrollCue = useCallback(() => {
     const panel = scrollPanelRef.current;
@@ -354,7 +375,14 @@ export const RoomSettingsMenu = ({
                   <h5 className="mb-3 font-pixel text-2xs text-theme-muted tracking-label">
                     Sources
                   </h5>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div
+                    className={classNames(
+                      'grid gap-2',
+                      providers.length === 1 && 'grid-cols-1',
+                      providers.length === 2 && 'grid-cols-2',
+                      providers.length >= 3 && 'grid-cols-3',
+                    )}
+                  >
                     {[
                       {
                         id: 'youtube',
@@ -371,34 +399,26 @@ export const RoomSettingsMenu = ({
                         Icon: SoundCloudIcon,
                         variant: 'orange' as const,
                       },
-                    ].map(({ id, Icon, variant }) => {
-                      const isEnabled =
-                        room?.settings.enabledSources.includes(id) ?? true;
-                      return (
-                        <Button
-                          key={id}
-                          disabled={room?.hasPassword && !isAdmin}
-                          onClick={() => {
-                            if (!room) return;
-                            const newSources = isEnabled
-                              ? room.settings.enabledSources.filter(
-                                  (s) => s !== id,
-                                )
-                              : [...room.settings.enabledSources, id];
-                            updateRoomSettings({
-                              ...room.settings,
-                              enabledSources: newSources,
-                            });
-                          }}
-                          variant={isEnabled ? variant : 'tertiary'}
-                          aria-pressed={isEnabled}
-                          className="w-full py-3"
-                          title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
-                        >
-                          <Icon className="h-6 w-6" />
-                        </Button>
-                      );
-                    })}
+                    ]
+                      .filter(({ id }) => providers.includes(id))
+                      .map(({ id, Icon, variant }) => {
+                        const isEnabled =
+                          room?.settings.enabledSources.includes(id) ?? true;
+                        return (
+                          <Button
+                            key={id}
+                            value={id}
+                            disabled={room?.hasPassword && !isAdmin}
+                            onClick={handleSourceToggle}
+                            variant={isEnabled ? variant : 'tertiary'}
+                            aria-pressed={isEnabled}
+                            className="w-full py-3"
+                            title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
+                          >
+                            <Icon className="h-6 w-6" />
+                          </Button>
+                        );
+                      })}
                   </div>
                 </div>
 
