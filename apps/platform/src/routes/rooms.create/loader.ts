@@ -1,4 +1,5 @@
 import { getRateLimitMessage } from '@vibes/api';
+import type { Providers } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 
@@ -9,6 +10,7 @@ export interface RoomsCreateLoaderData {
   rateLimitMessage?: string;
   roomNameExists?: boolean;
   roomNameSuggestion?: string;
+  providers?: Providers;
 }
 
 export async function loader({
@@ -24,7 +26,23 @@ export async function loader({
     return loadRoomNameExistence(request, name?.trim() ?? '');
   }
 
-  return { createRoomName: name };
+  const serverApi = getServerApi(request);
+  const requestHeaders = getRequestHeaders(request);
+  const [err, providers] = await serverApi.get('/providers', null, {
+    headers: requestHeaders,
+  });
+  if (err || !providers) {
+    return {
+      createRoomName: name,
+      providers: [],
+      ...getLoaderError(err, 'Failed to load music providers'),
+    };
+  }
+
+  return {
+    createRoomName: name,
+    providers,
+  };
 }
 
 async function loadRoomNameSuggestion(

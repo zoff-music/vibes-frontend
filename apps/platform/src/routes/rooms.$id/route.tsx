@@ -351,6 +351,7 @@ export default function Room() {
           onGenerationStarted={handleGenerationStarted}
           onLeave={handleLeave}
           songCount={songs.length}
+          providers={loaderData.providers}
         />
 
         <div className="flex-1 overflow-visible lg:overflow-hidden">

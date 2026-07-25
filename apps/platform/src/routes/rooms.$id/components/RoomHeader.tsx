@@ -46,6 +46,7 @@ interface RoomHeaderProps {
   onGenerationStarted: () => void;
   onLeave: () => void;
   songCount: number;
+  providers: string[];
 }
 
 export const RoomHeader = React.memo(
@@ -75,6 +76,7 @@ export const RoomHeader = React.memo(
     onGenerationStarted,
     onLeave,
     songCount,
+    providers,
   }: RoomHeaderProps) => {
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = useRoomStore((state) => state.isAdmin);
@@ -220,6 +222,7 @@ export const RoomHeader = React.memo(
                 onCopyShareLink={onCopyShareLink}
                 roomId={roomId}
                 settingsMenuRef={settingsMenuRef}
+                providers={providers}
               />
             </div>
           </div>

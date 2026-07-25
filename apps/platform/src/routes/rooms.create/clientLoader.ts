@@ -4,6 +4,7 @@ import type { RoomsCreateLoaderData } from './loader';
 
 export async function clientLoader({
   request,
+  serverLoader,
 }: ClientLoaderFunctionArgs): Promise<RoomsCreateLoaderData> {
   const url = new URL(request.url);
   const name = url.searchParams.get('name') ?? undefined;
@@ -36,7 +37,8 @@ export async function clientLoader({
     return { checkedName: trimmedName, roomNameExists: exists };
   }
 
-  return { createRoomName: name };
+  const loaderData = await serverLoader<RoomsCreateLoaderData>();
+  return loaderData;
 }
 
 function getLoaderError(
