@@ -2,7 +2,11 @@ import path from 'node:path';
 import { safeWrapAsync } from '@vibes/shared/src/utils/wrap.ts';
 import compression from 'compression';
 import express, { type Request } from 'express';
-import type { ServerBuild } from 'react-router';
+import {
+  type HandleErrorFunction,
+  isRouteErrorResponse,
+  type ServerBuild,
+} from 'react-router';
 import { metricsApp } from './metrics.ts';
 import {
   createBodySizeLimitMiddleware,
@@ -15,6 +19,18 @@ import { initTracing } from './tracing.ts';
 export type ServerRequest = Request;
 
 const defaultBodySizeLimitBytes = 1024 * 1024;
+
+export const handleServerError: HandleErrorFunction = (error, { request }) => {
+  if (request.signal.aborted) {
+    return;
+  }
+
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return;
+  }
+
+  console.error(error);
+};
 
 type ServerMode =
   | {

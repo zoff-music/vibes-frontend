@@ -13,5 +13,10 @@ export const meta = termsOfServiceMeta;
 export default function TermsOfService() {
   const loaderData = useLoaderData<TermsOfServiceLoaderData>();
 
-  return <TermsOfServiceContent providers={loaderData.providers} />;
+  return (
+    <TermsOfServiceContent
+      contactEmail={loaderData.contactEmail}
+      providers={loaderData.providers}
+    />
+  );
 }

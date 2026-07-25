@@ -1,4 +1,5 @@
 export {
+  handleServerError,
   type ServerConfig,
   type ServerRequest,
   startServer,

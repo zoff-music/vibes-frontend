@@ -6,10 +6,12 @@ import {
 } from '../../../components/legal/LegalDocument';
 
 interface TermsOfServiceContentProps {
+  contactEmail: string;
   providers: Providers;
 }
 
 export function TermsOfServiceContent({
+  contactEmail,
   providers,
 }: TermsOfServiceContentProps) {
   const hasYouTube = providers.includes('youtube');
@@ -199,9 +201,9 @@ export function TermsOfServiceContent({
           Questions about these terms can be sent to{' '}
           <a
             className="text-secondary underline decoration-secondary/40 underline-offset-4 transition-colors hover:text-theme"
-            href="mailto:privacy@zoff.me"
+            href={`mailto:${contactEmail}`}
           >
-            privacy@zoff.me
+            {contactEmail}
           </a>
           .
         </p>
