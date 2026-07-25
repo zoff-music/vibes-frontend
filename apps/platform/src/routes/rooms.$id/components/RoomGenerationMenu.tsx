@@ -111,7 +111,9 @@ export function RoomGenerationMenu({
           aria-label={description}
           aria-pressed={showGeneration}
         >
-          <SparklesIcon className="h-5 w-5" />
+          <SparklesIcon
+            className={isGenerating ? 'h-5 w-5 animate-ai-sparkles' : 'h-5 w-5'}
+          />
         </Button>
       </div>
 
