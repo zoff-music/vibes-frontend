@@ -7,10 +7,14 @@ import {
 } from '../../../components/legal/LegalDocument';
 
 interface PrivacyPolicyContentProps {
+  privacyEmail: string;
   providers: Providers;
 }
 
-export function PrivacyPolicyContent({ providers }: PrivacyPolicyContentProps) {
+export function PrivacyPolicyContent({
+  privacyEmail,
+  providers,
+}: PrivacyPolicyContentProps) {
   const hasYouTube = providers.includes('youtube');
   const hasSoundCloud = providers.includes('soundcloud');
   const hasSpotify = providers.includes('spotify');
@@ -28,9 +32,9 @@ export function PrivacyPolicyContent({ providers }: PrivacyPolicyContentProps) {
           Questions, privacy requests, and deletion requests can be sent to{' '}
           <a
             className="text-secondary underline decoration-secondary/40 underline-offset-4 transition-colors hover:text-theme"
-            href="mailto:privacy@zoff.me"
+            href={`mailto:${privacyEmail}`}
           >
-            privacy@zoff.me
+            {privacyEmail}
           </a>
           .
         </p>
@@ -207,7 +211,7 @@ export function PrivacyPolicyContent({ providers }: PrivacyPolicyContentProps) {
         </p>
         <p>
           A user may request deletion of data associated with their Zoff session
-          by contacting privacy@zoff.me. Zoff may need information sufficient to
+          by contacting {privacyEmail}. Zoff may need information sufficient to
           identify the relevant session or room. Provider permissions can also
           be revoked directly through the applicable provider account.
         </p>
@@ -237,8 +241,8 @@ export function PrivacyPolicyContent({ providers }: PrivacyPolicyContentProps) {
         <p>
           Depending on applicable law, users may have rights to request access,
           correction, deletion, restriction, portability, or objection to the
-          processing of their personal information. Requests can be sent to
-          privacy@zoff.me.
+          processing of their personal information. Requests can be sent to{' '}
+          {privacyEmail}.
         </p>
         <p>
           This policy may be updated as Zoff changes. Material changes will be

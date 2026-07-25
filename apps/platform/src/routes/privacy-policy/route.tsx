@@ -13,5 +13,10 @@ export const meta = privacyPolicyMeta;
 export default function PrivacyPolicy() {
   const loaderData = useLoaderData<PrivacyPolicyLoaderData>();
 
-  return <PrivacyPolicyContent providers={loaderData.providers} />;
+  return (
+    <PrivacyPolicyContent
+      privacyEmail={loaderData.privacyEmail}
+      providers={loaderData.providers}
+    />
+  );
 }

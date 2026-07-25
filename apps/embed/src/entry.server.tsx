@@ -1,7 +1,10 @@
+import { handleServerError } from '@vibes/serve';
 import { renderToReadableStream } from 'react-dom/server';
-import type { EntryContext } from 'react-router';
+import type { EntryContext, HandleErrorFunction } from 'react-router';
 import { ServerRouter } from 'react-router';
 import { robotsDirectives } from './robots';
+
+export const handleError: HandleErrorFunction = handleServerError;
 
 export default async function handleRequest(
   request: Request,
