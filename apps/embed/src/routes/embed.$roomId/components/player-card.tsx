@@ -1,4 +1,5 @@
 import type { Song } from '@vibes/models';
+import { resolveSongThumbnail } from '@vibes/shared';
 import { EmbedPlayerSource } from './player-source';
 import { EmbedSourceIcon } from './source-icon';
 
@@ -41,7 +42,7 @@ export function EmbedPlayerCard({
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-black">
         {currentSong && (
           <img
-            src={currentSong.thumbnailUrl}
+            src={resolveSongThumbnail(currentSong.thumbnailUrl)}
             alt=""
             className="h-full w-full object-cover opacity-75"
           />

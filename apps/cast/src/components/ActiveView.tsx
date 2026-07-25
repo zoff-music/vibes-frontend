@@ -1,3 +1,4 @@
+import { resolveSongThumbnail } from '@vibes/shared';
 import { QueueList, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
@@ -33,7 +34,7 @@ export const ActiveView: React.FC = () => {
             <div className="relative shrink-0">
               <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-primary to-secondary opacity-30" />
               <img
-                src={currentSong.thumbnailUrl}
+                src={resolveSongThumbnail(currentSong.thumbnailUrl)}
                 alt={currentSong.title}
                 className="relative h-28 w-28 rounded-xl border border-white/20 object-cover"
               />
