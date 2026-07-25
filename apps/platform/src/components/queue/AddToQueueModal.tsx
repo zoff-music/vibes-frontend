@@ -17,7 +17,7 @@ import {
   PlusIcon,
   SearchIcon,
 } from '@vibes/ui';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../../routes/rooms.$id/action';
 
@@ -89,9 +89,6 @@ export const AddToQueueModal: React.FC<Props> = ({
       setSelectedProvider(providerList[0]);
     }
   }, [providerList, selectedProvider]);
-
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isVisible) {
@@ -183,19 +180,33 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const performSearch = (query: string) => {
-    if (!query.trim()) {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
       setSearchResults([]);
       setShowResults(false);
       return;
     }
+    if (isSearching) return;
 
     setIsSearching(true);
     setError(null);
+    setPreviewVideo(null);
+    setSearchResults([]);
+    setShowResults(false);
+
+    const videoId = extractYoutubeId(trimmedQuery);
+    if (videoId && selectedProvider === 'youtube') {
+      searchFetcher.submit(
+        { intent: 'youtubeVideo', songId: videoId },
+        { encType: 'application/json', method: 'post' },
+      );
+      return;
+    }
 
     searchFetcher.submit(
       {
         intent: 'search',
-        prompt: query,
+        prompt: trimmedQuery,
         provider: selectedProvider,
       },
       { encType: 'application/json', method: 'post' },
@@ -206,34 +217,13 @@ export const AddToQueueModal: React.FC<Props> = ({
     setSearchQuery(query);
     setError(null);
     setPreviewVideo(null);
-
-    // Check if it's a YouTube URL (only if strictly YouTube provider or maybe auto-detect?)
-    // For now let's keep it simple: if generic URL detected, maybe switch to generic "add by URL"?
-    // But existing logic was specific to YouTube ID extraction.
-    const videoId = extractYoutubeId(query);
-    if (videoId && selectedProvider === 'youtube') {
-      setShowResults(false);
-      setIsSearching(true);
-      searchFetcher.submit(
-        { intent: 'youtubeVideo', songId: videoId },
-        { encType: 'application/json', method: 'post' },
-      );
-      return;
-    }
-
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
+    setSearchResults([]);
+    setShowResults(false);
 
     if (!query.trim()) {
-      setSearchResults([]);
-      setShowResults(false);
+      setIsSearching(false);
       return;
     }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      performSearch(query);
-    }, 300);
   };
 
   const handleSelectResult = (song: SearchResult) => {
@@ -257,9 +247,8 @@ export const AddToQueueModal: React.FC<Props> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      if (searchResults.length > 0) {
-        handleSelectResult(searchResults[0]);
-      }
+      e.preventDefault();
+      performSearch(searchQuery);
     }
   };
 
@@ -353,39 +342,47 @@ export const AddToQueueModal: React.FC<Props> = ({
 
       {/* Search Input */}
       <div className="relative mb-6">
-        <div className="relative">
-          {/* Auth Check Logic Removed: searching allowed without prior active source check */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            {/* Auth Check Logic Removed: searching allowed without prior active source check */}
 
-          <div className="absolute top-1/2 left-4 -translate-y-1/2 text-theme-muted">
-            {isSearching && (
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <div className="absolute top-1/2 left-4 -translate-y-1/2 text-theme-muted">
+              {isSearching && (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              )}
+              {!isSearching && <SearchIcon className="h-5 w-5" />}
+            </div>
+            <input
+              type="text"
+              placeholder={`Search ${selectedProvider}...`}
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
+              autoFocus
+            />
+            {searchQuery && (
+              <Button
+                onClick={() => handleSearchChange('')}
+                variant="ghost"
+                size="none"
+                aria-label="Clear search"
+                className="absolute top-1/2 right-3 -translate-y-1/2 p-1.5"
+              >
+                <CloseIcon
+                  className="h-5 w-5 text-theme-subtle"
+                  strokeWidth={2}
+                />
+              </Button>
             )}
-            {!isSearching && <SearchIcon className="h-5 w-5" />}
           </div>
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder={`Search ${selectedProvider}...`}
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
-            autoFocus
-          />
-          {searchQuery && (
-            <Button
-              onClick={() => handleSearchChange('')}
-              variant="ghost"
-              size="none"
-              aria-label="Clear search"
-              className="absolute top-1/2 right-3 -translate-y-1/2 p-1.5"
-            >
-              <CloseIcon
-                className="h-5 w-5 text-theme-subtle"
-                strokeWidth={2}
-              />
-            </Button>
-          )}
+          <Button
+            onClick={() => performSearch(searchQuery)}
+            disabled={!searchQuery.trim() || isSearching}
+            variant="primary"
+          >
+            Search
+          </Button>
         </div>
 
         {error && (
