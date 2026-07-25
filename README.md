@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="apps/platform/public/web-app-manifest-512x512.png" alt="zoff logo" width="192">
+  <img src="apps/platform/public/logo.png" alt="zoff logo" width="192">
 </p>
 
 # Vibes Frontend
