@@ -1,7 +1,7 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
 import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useNavigationType } from 'react-router';
+import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
 import { SiteFooter } from '../../components/legal/SiteFooter';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
@@ -63,6 +63,7 @@ const AI_PROMPTS = [
 ];
 
 export default function Home() {
+  const { totalListeners } = useLoaderData<typeof loader>();
   const [roomCode, setRoomCode] = useState('');
   const [placeholderText, setPlaceholderText] = useState('');
   const [wordIndex, setWordIndex] = useState(0);
@@ -189,6 +190,12 @@ export default function Home() {
             <p className="jp-art mt-2 text-theme-subtle text-xs">
               音楽は共有するもの
             </p>
+            {totalListeners > 10 && (
+              <p className="mt-4 font-pixel text-theme-muted text-xs sm:text-sm">
+                The signal is live. Join {totalListeners} other listeners across
+                the airwaves
+              </p>
+            )}
           </div>
 
           {!isAIMode && (

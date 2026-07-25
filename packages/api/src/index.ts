@@ -39,6 +39,7 @@ import {
   songsListSchema,
   spotifyTokenSchema,
   sseQuerySchema,
+  statsSchema,
   usersUpdateSchema,
   youTubeSearchQuerySchema,
   youTubeSearchResponseSchema,
@@ -272,6 +273,11 @@ const endpoints = {
   '/providers': {
     get: {
       response: providersSchema,
+    },
+  },
+  '/stats': {
+    get: {
+      response: statsSchema,
     },
   },
   '/tokens/casting': {
