@@ -122,22 +122,22 @@ export const RoomHeader = React.memo(
         className="panel-surface sticky top-0 z-20 border-theme border-b px-4 py-3 sm:py-4"
       >
         <div className="mx-auto max-w-7xl">
-          <div className="relative flex items-center justify-between">
-            <Button onClick={onLeave} variant="ghost">
+          <div className="flex items-center">
+            <Button className="shrink-0" onClick={onLeave} variant="ghost">
               <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
               <span className="text-2xs tracking-label">Leave</span>
             </Button>
 
-            <div className="absolute top-1/2 left-1/2 hidden max-w-80 -translate-x-1/2 -translate-y-1/2 sm:block">
+            <div className="min-w-0 flex-1 px-2 text-center sm:px-4">
               <h1
-                className="truncate whitespace-nowrap text-sm text-theme"
+                className="block w-full truncate whitespace-nowrap text-theme text-xs sm:text-sm"
                 title={displayRoom?.name}
               >
                 {displayRoom?.name || 'Loading...'}
               </h1>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
               <UserCount />
 
               <div className="hidden sm:block">
@@ -230,15 +230,6 @@ export const RoomHeader = React.memo(
                 />
               </div>
             </div>
-          </div>
-
-          <div className="mt-2 flex min-w-0 justify-center sm:hidden">
-            <h1
-              className="max-w-full truncate whitespace-nowrap rounded-full border border-theme bg-theme-surface px-4 py-2 text-center text-theme text-xs shadow-xs"
-              title={displayRoom?.name}
-            >
-              {displayRoom?.name || 'Loading...'}
-            </h1>
           </div>
         </div>
       </div>
