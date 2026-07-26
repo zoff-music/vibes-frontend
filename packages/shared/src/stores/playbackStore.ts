@@ -57,6 +57,8 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     const isSameSong = currentState.currentSong?.id === state.currentSong?.id;
     const isSamePlaybackUpdate =
       isSameSong && currentState.updatedAt === state.updatedAt;
+    const shouldResetLocalPlayback =
+      currentState.currentSong !== null && !isSameSong;
 
     if (isSamePlaybackUpdate) {
       if (roomMode) {
@@ -100,6 +102,9 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
         ? currentState.hasLocalPlaybackChanges
         : false,
       localIsPlaying: null,
+      resetVersion: shouldResetLocalPlayback
+        ? currentState.resetVersion + 1
+        : currentState.resetVersion,
       roomMode: roomMode || currentState.roomMode,
     });
     get().updateActualPosition();
