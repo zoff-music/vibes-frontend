@@ -78,6 +78,7 @@ const VideoPlayerComponent = ({
   const playerRef = useRef<YouTubePlayerRef | null>(null);
   const lastVideoIdRef = useRef<string | null>(null);
   const lastLoadedVideoIdRef = useRef<string | null>(null);
+  const pendingVideoIdRef = useRef<string | null>(null);
   const pauseAfterLoadVideoIdRef = useRef<string | null>(null);
   const initialVideoIdRef = useRef<string | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -212,6 +213,7 @@ const VideoPlayerComponent = ({
     if (!currentSong && !isPlaying) {
       lastVideoIdRef.current = null;
       lastLoadedVideoIdRef.current = null;
+      pendingVideoIdRef.current = null;
     }
   }, [currentSong, isPlaying]);
 
@@ -240,6 +242,7 @@ const VideoPlayerComponent = ({
         const loadedVideoID = player.getVideoData().video_id;
         if (loadedVideoID !== videoId) {
           expectedPlayingStateRef.current = shouldPlay;
+          pendingVideoIdRef.current = videoId;
           player.loadVideoById(videoId, targetTime);
           lastLoadedVideoIdRef.current = videoId;
         } else if (
@@ -321,13 +324,19 @@ const VideoPlayerComponent = ({
 
         const playbackStore = usePlaybackStore.getState();
         const authoritativePlayback = playbackStore.authoritativePlayback;
+        const loadedVideoID = player.getVideoData().video_id;
+        if (pendingVideoIdRef.current) {
+          if (loadedVideoID !== pendingVideoIdRef.current) {
+            return;
+          }
+          pendingVideoIdRef.current = null;
+        }
         const authoritativePositionMs =
           playbackStore.getAuthoritativePositionMs();
         const isLocallyPlaying =
           state === YOUTUBE_STATE_PLAYING || state === YOUTUBE_STATE_BUFFERING;
         const isAligned =
-          player.getVideoData().video_id ===
-            authoritativePlayback.currentSong?.sourceId &&
+          loadedVideoID === authoritativePlayback.currentSong?.sourceId &&
           isLocallyPlaying === authoritativePlayback.isPlaying &&
           Math.abs(positionSeconds * 1000 - authoritativePositionMs) <=
             ALIGNED_POSITION_TOLERANCE_MS &&
@@ -407,6 +416,7 @@ const VideoPlayerComponent = ({
           !alreadyLoaded &&
           (reason !== 'state' || player.getPlayerState() !== 1)
         ) {
+          pendingVideoIdRef.current = videoId;
           player.loadVideoById(videoId, startSeconds);
           lastLoadedVideoIdRef.current = videoId;
         }
@@ -543,6 +553,9 @@ const VideoPlayerComponent = ({
       const activeSong = usePlaybackStore.getState().currentSong;
       if (activeSong?.sourceType === 'youtube') {
         lastLoadedVideoIdRef.current = activeSong.sourceId;
+        if (event.target.getVideoData().video_id === activeSong.sourceId) {
+          pendingVideoIdRef.current = null;
+        }
         if (!isCastReceiver && !usePlaybackStore.getState().isPlaying) {
           pauseAfterLoadVideoIdRef.current = activeSong.sourceId;
         }
@@ -590,6 +603,12 @@ const VideoPlayerComponent = ({
       }
 
       if (state === 1 || state === 3) {
+        if (
+          playerRef.current?.getVideoData().video_id ===
+          pendingVideoIdRef.current
+        ) {
+          pendingVideoIdRef.current = null;
+        }
         if (autoPlayRetryRef.current) {
           clearInterval(autoPlayRetryRef.current);
           autoPlayRetryRef.current = null;
@@ -709,6 +728,7 @@ const VideoPlayerComponent = ({
       pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad ? videoId : null;
       expectedPlayingStateRef.current = !shouldPauseAfterLoad;
       observedPlaybackRef.current = null;
+      pendingVideoIdRef.current = videoId;
       player.loadVideoById(videoId, startSeconds);
       lastLoadedVideoIdRef.current = videoId;
       debugLog('load-video', { shouldPauseAfterLoad, startSeconds });
