@@ -17,16 +17,19 @@ import {
   useState,
 } from 'react';
 import {
+  isRouteErrorResponse,
   useFetcher,
   useLoaderData,
   useNavigate,
   useParams,
   useRevalidator,
+  useRouteError,
 } from 'react-router';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
+import { RoomErrorView } from './components/RoomErrorView';
 import { RoomGenerationProgress } from './components/RoomGenerationProgress';
 import { RoomHeader } from './components/RoomHeader';
 import { RoomPlayer } from './components/RoomPlayer';
@@ -37,6 +40,35 @@ import { loader } from './loader';
 export { clientAction, clientLoader, loader };
 
 const GENERATION_RELOAD_DELAY_MS = 5 * 60 * 1000;
+
+function normalizeRouteError(routeError: unknown): Error {
+  if (routeError instanceof Error) {
+    return routeError;
+  }
+  if (isRouteErrorResponse(routeError)) {
+    return new Error(
+      routeError.statusText ||
+        `Could not load this room (${routeError.status})`,
+    );
+  }
+  return new Error('Could not load this room. Please try again.');
+}
+
+export function ErrorBoundary() {
+  const routeError = useRouteError();
+  const { id = '' } = useParams<{ id: string }>();
+  const revalidator = useRevalidator();
+
+  return (
+    <div className="relative z-10 flex min-h-screen">
+      <RoomErrorView
+        error={normalizeRouteError(routeError)}
+        roomId={id}
+        onRetry={revalidator.revalidate}
+      />
+    </div>
+  );
+}
 
 const LazyDeviceSelector = lazy(async () => {
   const module = await import('../../components/cast/DeviceSelector');

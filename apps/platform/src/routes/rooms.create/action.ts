@@ -4,15 +4,14 @@ import {
   getHttpError,
   getRateLimitMessage,
 } from '@vibes/api';
-import type { Room, RoomNameReservation } from '@vibes/models';
-import type { ClientActionFunctionArgs } from 'react-router';
+import type { RoomNameReservation } from '@vibes/models';
+import { type ClientActionFunctionArgs, redirect } from 'react-router';
 
 export interface RoomsCreateActionData {
   checkedName?: string;
   error?: string;
   rateLimitMessage?: string;
   reservation?: RoomNameReservation;
-  room?: Room;
   roomNameUnavailable?: boolean;
 }
 
@@ -31,7 +30,7 @@ function readEnabledSources(formData: FormData) {
 
 export async function clientAction({
   request,
-}: ClientActionFunctionArgs): Promise<RoomsCreateActionData> {
+}: ClientActionFunctionArgs): Promise<RoomsCreateActionData | Response> {
   const formData = await request.formData();
   const intent = String(formData.get('intent') ?? 'createRoom');
   if (intent === 'reserveRoomName') {
@@ -73,9 +72,7 @@ export async function clientAction({
     };
   }
 
-  return {
-    room,
-  };
+  return redirect(`/rooms/${room.id}`);
 }
 
 async function reserveRoomName(

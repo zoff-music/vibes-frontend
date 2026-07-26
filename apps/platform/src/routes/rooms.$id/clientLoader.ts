@@ -20,10 +20,10 @@ export async function clientLoader({
     api.get('/providers', null),
   ]);
   const [roomErr, room] = roomRes;
-  const [songsErr, songs] = songsRes;
-  const [playbackErr, playback] = playbackRes;
+  const [, songs] = songsRes;
+  const [, playback] = playbackRes;
   const [, providers] = providersRes;
-  if (roomErr || songsErr || playbackErr || !room) {
+  if (roomErr || !room) {
     const createUrl = new URL('/rooms/create', request.url);
     createUrl.searchParams.set('name', roomId);
     return redirect(createUrl.toString());

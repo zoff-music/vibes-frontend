@@ -45,10 +45,10 @@ const PlayerControlsComponent: React.FC<Props> = ({
         <Button
           onClick={isPlaying ? onPause : onPlay}
           disabled={!canPlay}
-          variant="primary"
+          variant="tertiary"
           size="none"
           aria-label={isPlaying ? 'Pause' : 'Play'}
-          className="group h-12 w-12 shrink-0 rounded-2xl border border-primary/60 p-0 text-white shadow-primary-button hover:shadow-primary-button-hover active:scale-95"
+          className="group h-12 w-12 shrink-0 rounded-2xl p-0 active:scale-95"
         >
           {isPlaying && <PauseIcon className="h-6 w-6 fill-current" />}
           {!isPlaying && <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />}
@@ -100,12 +100,12 @@ const PlayerControlsComponent: React.FC<Props> = ({
 
         <Button
           onClick={onAddSong}
-          variant="tertiary"
+          variant="primary"
           className="ml-auto h-12 gap-2 px-6"
           title="Add Song"
         >
           <PlusIcon className="h-5 w-5 shrink-0" />
-          <span className="whitespace-nowrap font-display text-theme text-xs tracking-display">
+          <span className="whitespace-nowrap font-display text-xs tracking-display">
             Add Song
           </span>
         </Button>

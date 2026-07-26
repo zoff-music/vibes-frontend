@@ -29,7 +29,7 @@ export function RoomJoinControls({
 
   return (
     <div className="mt-8 space-y-5">
-      <div className="panel-surface rounded-3xl p-6">
+      <div className="panel-surface rounded-3xl p-4 sm:p-6">
         <label
           htmlFor="room-name"
           className="mb-3 block font-pixel text-2xs text-theme-muted tracking-label"
@@ -63,7 +63,11 @@ export function RoomJoinControls({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Link
-          to="/rooms/create"
+          to={
+            roomCode.trim()
+              ? `/rooms/create?name=${encodeURIComponent(roomCode.trim())}`
+              : '/rooms/create'
+          }
           className="group flex h-16 w-full cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-primary-cta transition-all hover:-translate-y-0.5 hover:bg-primary"
         >
           Start a Session
