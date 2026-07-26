@@ -1,5 +1,6 @@
 import { type PlaybackState, type Song } from '@vibes/models';
 import {
+  getProviderTrackUrl,
   resolveSongThumbnail,
   usePlaybackStore,
   useQueueStore,
@@ -78,6 +79,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
+    const currentSongProviderUrl = currentSongData
+      ? getProviderTrackUrl(
+          currentSongData.sourceType,
+          currentSongData.sourceId,
+          currentSongData.providerUrl,
+        )
+      : null;
+
     return (
       <div className="mt-8 space-y-8 lg:mt-0 lg:h-full lg:overflow-y-auto lg:pr-2">
         <div className="relative lg:pb-6">
@@ -131,24 +140,30 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
                   {/* Source Icon */}
                   <div className="relative z-10 flex shrink-0 items-center justify-center opacity-70">
-                    {currentSongData.sourceType === 'spotify' && (
-                      <SpotifyIcon className="h-5 w-5" />
-                    )}
-                    {currentSongData.sourceType === 'soundcloud' && (
-                      <SoundCloudIcon className="h-5 w-5" />
-                    )}
-                    {currentSongData.sourceType === 'youtube' && (
+                    {currentSongProviderUrl && (
                       <a
-                        href={`https://www.youtube.com/watch?v=${currentSongData.sourceId}`}
+                        href={currentSongProviderUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-                        aria-label={`Open ${currentSongData.title} on YouTube`}
-                        title="Open on YouTube"
+                        aria-label={`Open ${currentSongData.title} on ${providerNames[currentSongData.sourceType]}`}
+                        title={`Open on ${providerNames[currentSongData.sourceType]}`}
                       >
-                        <YouTubeIcon className="h-5 w-5" />
+                        {currentSongData.sourceType === 'youtube' && (
+                          <YouTubeIcon className="h-5 w-5" />
+                        )}
+                        {currentSongData.sourceType === 'spotify' && (
+                          <SpotifyIcon className="h-5 w-5" />
+                        )}
+                        {currentSongData.sourceType === 'soundcloud' && (
+                          <SoundCloudIcon className="h-5 w-5" />
+                        )}
                       </a>
                     )}
+                    {!currentSongProviderUrl &&
+                      currentSongData.sourceType === 'soundcloud' && (
+                        <SoundCloudIcon className="h-5 w-5" />
+                      )}
                   </div>
                 </div>
               </div>
@@ -181,3 +196,9 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     );
   },
 );
+
+const providerNames: Record<Song['sourceType'], string> = {
+  soundcloud: 'SoundCloud',
+  spotify: 'Spotify',
+  youtube: 'YouTube',
+};

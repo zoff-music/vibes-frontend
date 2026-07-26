@@ -2,6 +2,7 @@ import type { Room } from '@vibes/models';
 import {
   type AddSongOutcome,
   formatDuration,
+  getProviderTrackUrl,
   parseISODuration,
   resolveSongThumbnail,
   type SourceType,
@@ -38,6 +39,7 @@ interface SearchResult {
   artist: string;
   thumbnailUrl: string;
   duration?: string;
+  providerUrl?: string;
   source: SourceType;
 }
 
@@ -123,6 +125,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         artist: video.channelTitle,
         duration: video.duration,
         id: video.id,
+        providerUrl: video.providerUrl,
         source: 'youtube',
         thumbnailUrl: video.thumbnailUrl,
         title: video.title,
@@ -139,6 +142,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           artist: result.channelTitle || 'Unknown',
           duration: result.duration,
           id: result.id,
+          providerUrl: result.providerUrl,
           source: 'source' in result ? result.source : 'youtube',
           thumbnailUrl: result.thumbnailUrl ?? '',
           title: result.title,
@@ -235,6 +239,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           sourceType: song.source,
           thumbnailUrl: song.thumbnailUrl,
           title: song.title,
+          ...(song.providerUrl ? { providerUrl: song.providerUrl } : {}),
         },
       },
       { encType: 'application/json', method: 'post' },
@@ -550,15 +555,21 @@ interface ProviderAttributionProps {
 const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
   result,
 }) => {
-  if (result.source === 'youtube') {
+  const providerUrl = getProviderTrackUrl(
+    result.source,
+    result.id,
+    result.providerUrl,
+  );
+
+  if (providerUrl) {
     return (
       <a
-        href={`https://www.youtube.com/watch?v=${result.id}`}
+        href={providerUrl}
         target="_blank"
         rel="noreferrer"
         className="flex shrink-0 cursor-pointer items-center justify-center self-stretch px-4 text-theme-muted transition-colors hover:bg-theme hover:text-theme focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-        aria-label={`Open ${result.title} on YouTube`}
-        title="Open on YouTube"
+        aria-label={`Open ${result.title} on ${providerNames[result.source]}`}
+        title={`Open on ${providerNames[result.source]}`}
       >
         <ProviderIcon className="h-5 w-5" provider={result.source} />
       </a>
@@ -569,8 +580,8 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
     <div
       className="flex shrink-0 items-center justify-center self-stretch px-4 text-theme-muted"
       role="img"
-      aria-label={`${result.source} result`}
-      title={`${result.source} result`}
+      aria-label={`${providerNames[result.source]} result`}
+      title={`${providerNames[result.source]} result`}
     >
       <ProviderIcon className="h-5 w-5" provider={result.source} />
     </div>
@@ -578,3 +589,9 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
 };
 
 const orderedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];
+
+const providerNames: Record<SourceType, string> = {
+  soundcloud: 'SoundCloud',
+  spotify: 'Spotify',
+  youtube: 'YouTube',
+};

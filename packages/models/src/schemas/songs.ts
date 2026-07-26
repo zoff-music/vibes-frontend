@@ -10,6 +10,7 @@ export const songSchema = yup.object({
   id: yup.string().required(),
   sourceType: sourceTypeSchema,
   sourceId: yup.string().required(),
+  providerUrl: yup.string().optional(),
   title: yup.string().required(),
   artist: yup.string().optional(),
   thumbnailUrl: yup.string().defined(),
@@ -24,6 +25,7 @@ export type Song = yup.InferType<typeof songSchema>;
 export const addSongRequestSchema = yup.object({
   sourceType: sourceTypeSchema,
   sourceId: yup.string().required(),
+  providerUrl: yup.string().optional(),
   title: yup.string().required(),
   artist: yup.string().optional(),
   thumbnailUrl: yup.string().defined(),

@@ -4,6 +4,7 @@ import { sourceTypeSchema } from './songs';
 export const searchResultSchema = yup.object({
   id: yup.string().required(),
   source: sourceTypeSchema,
+  providerUrl: yup.string().optional(),
   title: yup.string().required(),
   channelTitle: yup.string().optional(),
   thumbnailUrl: yup.string().optional(),

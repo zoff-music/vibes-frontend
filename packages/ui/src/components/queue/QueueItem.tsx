@@ -1,4 +1,4 @@
-import { resolveSongThumbnail, Song } from '@vibes/shared';
+import { getProviderTrackUrl, resolveSongThumbnail, Song } from '@vibes/shared';
 import React from 'react';
 import {
   SoundCloudIcon,
@@ -41,6 +41,12 @@ export const QueueItem: React.FC<Props> = ({
 
   const cardClass =
     'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-shadow hover:shadow-primary-soft focus:outline-hidden focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent';
+
+  const providerUrl = getProviderTrackUrl(
+    song.sourceType,
+    song.sourceId,
+    song.providerUrl,
+  );
 
   const content = (
     <div className="flex min-w-0 items-center gap-4">
@@ -88,12 +94,9 @@ export const QueueItem: React.FC<Props> = ({
       <div className="flex shrink-0 items-center gap-3 pr-4">
         {/* Source Icon */}
         <div className="flex items-center justify-center opacity-70">
-          {song.sourceType === 'spotify' && <SpotifyIcon className="h-5 w-5" />}
-          {song.sourceType === 'soundcloud' && (
+          {providerUrl && <div className="h-5 w-5" aria-hidden="true" />}
+          {!providerUrl && song.sourceType === 'soundcloud' && (
             <SoundCloudIcon className="h-5 w-5" />
-          )}
-          {song.sourceType === 'youtube' && (
-            <div className="h-5 w-5" aria-hidden="true" />
           )}
         </div>
 
@@ -120,16 +123,20 @@ export const QueueItem: React.FC<Props> = ({
       'absolute top-1/2 right-20 z-10 -translate-y-1/2 cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40';
   }
 
-  const sourceLink = song.sourceType === 'youtube' && (
+  const sourceLink = providerUrl && (
     <a
-      href={`https://www.youtube.com/watch?v=${song.sourceId}`}
+      href={providerUrl}
       target="_blank"
       rel="noreferrer"
       className={sourceLinkClass}
-      aria-label={`Open ${song.title} on YouTube`}
-      title="Open on YouTube"
+      aria-label={`Open ${song.title} on ${providerNames[song.sourceType]}`}
+      title={`Open on ${providerNames[song.sourceType]}`}
     >
-      <YouTubeIcon className="h-5 w-5" />
+      {song.sourceType === 'youtube' && <YouTubeIcon className="h-5 w-5" />}
+      {song.sourceType === 'spotify' && <SpotifyIcon className="h-5 w-5" />}
+      {song.sourceType === 'soundcloud' && (
+        <SoundCloudIcon className="h-5 w-5" />
+      )}
     </a>
   );
 
@@ -149,4 +156,10 @@ export const QueueItem: React.FC<Props> = ({
       </div>
     </div>
   );
+};
+
+const providerNames: Record<Song['sourceType'], string> = {
+  soundcloud: 'SoundCloud',
+  spotify: 'Spotify',
+  youtube: 'YouTube',
 };
