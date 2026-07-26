@@ -7,6 +7,7 @@ import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
 import { clientAction } from './action';
+import { LegalAcknowledgement } from './components/LegalAcknowledgement';
 import { PlaylistGenerationControls } from './components/PlaylistGenerationControls';
 import { RoomJoinControls } from './components/RoomJoinControls';
 import { loader } from './loader';
@@ -216,6 +217,7 @@ export default function Home() {
               prompt={roomCode}
             />
           )}
+          <LegalAcknowledgement />
         </div>
       </div>
       <SiteFooter />
