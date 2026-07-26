@@ -12,13 +12,7 @@ import {
   YouTubeIcon,
 } from '@vibes/ui';
 import React, { useEffect, useState } from 'react';
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useNavigate,
-  useSearchParams,
-} from 'react-router';
+import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
 import { ArrowLeftIcon } from '../../components/icons/ArrowLeftIcon';
 import { ArrowRightIcon } from '../../components/icons/ArrowRightIcon';
 import { useThemeStore } from '../../stores/themeStore';
@@ -53,7 +47,6 @@ const CreateRoom: React.FC = () => {
   const suggestionFetcher = useFetcher<RoomsCreateActionData>();
   const availabilityFetcher = useFetcher<RoomsCreateActionData>();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { setIsWarping } = useThemeStore();
 
   // Initialize name - prioritize SSR data, then URL params
@@ -325,12 +318,12 @@ const CreateRoom: React.FC = () => {
     if (createFetcher.data.error) {
       setError(createFetcher.data.error);
       setIsWarping(false);
-      return;
     }
-    if (!createFetcher.data.room) return;
+  }, [createFetcher.data, setIsWarping]);
 
-    navigate(`/rooms/${createFetcher.data.room.id}`, { replace: true });
-  }, [createFetcher.data, navigate, setIsWarping]);
+  useEffect(() => {
+    return () => setIsWarping(false);
+  }, [setIsWarping]);
 
   const updateSetting = <K extends keyof typeof settings>(
     key: K,
@@ -355,7 +348,7 @@ const CreateRoom: React.FC = () => {
 
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-start overflow-hidden">
-      <div className="relative z-10 mx-auto mt-[min(26.5vh_,_230px)] flex w-full max-w-6xl flex-col px-6 pb-24">
+      <div className="relative z-10 mx-auto mt-24 flex w-full max-w-6xl flex-col px-3 pb-16 sm:mt-[min(26.5vh_,_230px)] sm:px-6 sm:pb-24">
         <div className="mb-8 flex items-center justify-between">
           <Link
             to="/"
@@ -369,7 +362,7 @@ const CreateRoom: React.FC = () => {
           </div>
         </div>
 
-        <div className="crt-frame rounded-frame p-6 sm:p-10">
+        <div className="crt-frame rounded-frame p-3 sm:p-10">
           <div className="mb-10 text-center">
             <h1 className="font-pixel text-3xl text-theme sm:text-4xl">
               CREATE A SESSION
@@ -382,10 +375,10 @@ const CreateRoom: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-            <div className="space-y-6">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 lg:items-start">
+            <div className="space-y-4 sm:space-y-6">
               {/* 1. SESSION NAME */}
-              <div className="panel-surface rounded-3xl p-6">
+              <div className="panel-surface rounded-3xl p-4 sm:p-6">
                 <label className="mb-3 block font-pixel text-2xs text-theme-muted tracking-label">
                   SESSION NAME
                 </label>
@@ -456,7 +449,7 @@ const CreateRoom: React.FC = () => {
               {/* 2. ADMIN PASSWORD */}
               <div
                 ref={passwordRef}
-                className={`panel-surface rounded-3xl p-6 transition-all duration-300 ${wobblePassword ? 'border-red-500 shadow-error ring-2 ring-red-500/50' : ''}`}
+                className={`panel-surface rounded-3xl p-4 transition-all duration-300 sm:p-6 ${wobblePassword ? 'border-red-500 shadow-error ring-2 ring-red-500/50' : ''}`}
               >
                 <label
                   className={`mb-3 block font-pixel text-2xs tracking-label transition-colors ${wobblePassword ? 'animate-bounce text-red-500' : 'text-theme-muted'}`}
@@ -481,7 +474,7 @@ const CreateRoom: React.FC = () => {
               </div>
 
               {/* 3. ALLOWED SOURCES */}
-              <div className="panel-surface rounded-3xl p-6">
+              <div className="panel-surface rounded-3xl p-4 sm:p-6">
                 <label className="mb-4 block font-pixel text-2xs text-theme-muted tracking-label">
                   ALLOWED SOURCES
                 </label>
@@ -524,7 +517,7 @@ const CreateRoom: React.FC = () => {
               </div>
 
               {/* 4. ROOM MODE */}
-              <div className="panel-surface rounded-3xl p-6">
+              <div className="panel-surface rounded-3xl p-4 sm:p-6">
                 <label className="mb-4 block font-pixel text-2xs text-theme-muted tracking-label">
                   ROOM MODE
                 </label>
@@ -561,8 +554,8 @@ const CreateRoom: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="panel-surface rounded-3xl p-6">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="panel-surface rounded-3xl p-4 sm:p-6">
                 <div className="mb-6">
                   <h2 className="font-pixel text-caption text-theme-muted tracking-banner">
                     PLAYBACK SETTINGS

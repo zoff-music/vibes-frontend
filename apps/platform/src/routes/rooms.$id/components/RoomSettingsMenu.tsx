@@ -514,8 +514,8 @@ export const RoomSettingsMenu = ({
         </div>
 
         {canScrollDown && (
-          <div className="pointer-events-none absolute right-0 bottom-0 left-0 flex justify-center bg-gradient-to-t from-theme-surface via-theme-surface pt-10 pb-3">
-            <div className="flex animate-bounce items-center gap-1 rounded-full border border-secondary/40 bg-theme-surface-strong px-3 py-1 font-pixel text-3xs text-secondary shadow-lg">
+          <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-20 flex justify-center bg-gradient-to-t from-theme-surface via-theme-surface/95 pt-12 pb-4">
+            <div className="flex animate-bounce items-center gap-1 rounded-full border border-white/40 bg-primary px-3 py-1.5 font-pixel text-3xs text-white shadow-primary-button">
               Scroll for more
               <ChevronDownIcon className="h-3 w-3" />
             </div>
