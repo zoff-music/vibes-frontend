@@ -23,7 +23,7 @@ interface Props {
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
-  onLocalChange?: () => void;
+  onLocalAlignmentChange?: (isAligned: boolean) => void;
 }
 
 interface YouTubeVideoData {
@@ -63,7 +63,7 @@ const VideoPlayerComponent = ({
   onRequestToken,
   preloadSong = null,
   providerToken = null,
-  onLocalChange,
+  onLocalAlignmentChange,
   onLocalPause,
   onLocalPlay,
   onLocalSeek,
@@ -214,6 +214,12 @@ const VideoPlayerComponent = ({
   }, [currentSong, isPlaying]);
 
   useEffect(() => {
+    if (!isYouTubeActive) {
+      lastResetVersionRef.current = resetVersion;
+    }
+  }, [isYouTubeActive, resetVersion]);
+
+  useEffect(() => {
     if (!isReady || !playerRef.current || !isYouTubeActive || !videoId) return;
 
     const player = playerRef.current;
@@ -268,7 +274,11 @@ const VideoPlayerComponent = ({
   ]);
 
   useEffect(() => {
-    if (!isReady || !isYouTubeActive || (!onLocalChange && !onLocalSeek)) {
+    if (
+      !isReady ||
+      !isYouTubeActive ||
+      (!onLocalAlignmentChange && !onLocalSeek)
+    ) {
       return;
     }
 
@@ -296,13 +306,25 @@ const VideoPlayerComponent = ({
           volume,
         };
 
-        if (!previous) {
+        if (!previous || !hasEverPlayedRef.current) {
           return;
         }
 
-        if (previous.isMuted !== isMuted || previous.volume !== volume) {
-          onLocalChange?.();
-        }
+        const playbackStore = usePlaybackStore.getState();
+        const authoritativePlayback = playbackStore.authoritativePlayback;
+        const authoritativePositionMs =
+          playbackStore.getAuthoritativePositionMs();
+        const isLocallyPlaying =
+          state === YOUTUBE_STATE_PLAYING || state === YOUTUBE_STATE_BUFFERING;
+        const isAligned =
+          player.getVideoData().video_id ===
+            authoritativePlayback.currentSong?.sourceId &&
+          isLocallyPlaying === authoritativePlayback.isPlaying &&
+          Math.abs(positionSeconds * 1000 - authoritativePositionMs) <=
+            ALIGNED_POSITION_TOLERANCE_MS &&
+          !isMuted &&
+          volume === MAX_VOLUME;
+        onLocalAlignmentChange?.(isAligned);
 
         const elapsedSeconds =
           previous.state === YOUTUBE_STATE_PLAYING
@@ -318,7 +340,6 @@ const VideoPlayerComponent = ({
         }
 
         lastReportedSeekAtRef.current = now;
-        onLocalChange?.();
         onLocalSeek?.(Math.round(positionSeconds * 1000));
       });
       if (err && DEBUG) {
@@ -327,7 +348,7 @@ const VideoPlayerComponent = ({
     }, LOCAL_SEEK_SAMPLE_MS);
 
     return () => clearInterval(interval);
-  }, [debugLog, isReady, isYouTubeActive, onLocalChange, onLocalSeek]);
+  }, [debugLog, isReady, isYouTubeActive, onLocalAlignmentChange, onLocalSeek]);
 
   useEffect(() => {
     if (isYouTubeActive || !playerRef.current) return;
@@ -590,7 +611,6 @@ const VideoPlayerComponent = ({
           state === YOUTUBE_STATE_PLAYING &&
           !usePlaybackStore.getState().isPlaying
         ) {
-          onLocalChange?.();
           onLocalPlay?.();
         }
         return;
@@ -617,7 +637,6 @@ const VideoPlayerComponent = ({
         if (!usePlaybackStore.getState().isPlaying) {
           return;
         }
-        onLocalChange?.();
         onLocalPause?.();
       }
     },
@@ -627,7 +646,6 @@ const VideoPlayerComponent = ({
       kickAutoplay,
       onLocalPause,
       onLocalPlay,
-      onLocalChange,
       shouldPlay,
       videoId,
     ],
@@ -842,6 +860,8 @@ export const VideoPlayer = memo(VideoPlayerComponent);
 
 const AUTHORITATIVE_SEEK_THRESHOLD_SECONDS = 1;
 
+const ALIGNED_POSITION_TOLERANCE_MS = 2000;
+
 const AUTOPLAY_KICK_COOLDOWN_MS = 800;
 
 const AUTOPLAY_RETRY_MS = 500;
@@ -861,3 +881,5 @@ const MAX_VOLUME = 100;
 const YOUTUBE_STATE_PAUSED = 2;
 
 const YOUTUBE_STATE_PLAYING = 1;
+
+const YOUTUBE_STATE_BUFFERING = 3;

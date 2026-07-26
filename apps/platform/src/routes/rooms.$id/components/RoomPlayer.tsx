@@ -44,7 +44,7 @@ interface PlayerProps {
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
-  onLocalChange?: () => void;
+  onLocalAlignmentChange?: (isAligned: boolean) => void;
 }
 
 type PlayerComponent = ComponentType<PlayerProps>;
@@ -125,8 +125,8 @@ export const RoomPlayer = React.memo(
     const hasLocalPlaybackChanges = usePlaybackStore(
       (state) => state.hasLocalPlaybackChanges,
     );
-    const markLocalPlaybackChanged = usePlaybackStore(
-      (state) => state.markLocalPlaybackChanged,
+    const setLocalPlaybackAligned = usePlaybackStore(
+      (state) => state.setLocalPlaybackAligned,
     );
     const setLocalPlayingState = usePlaybackStore(
       (state) => state.setLocalPlayingState,
@@ -538,7 +538,7 @@ export const RoomPlayer = React.memo(
               )}
             >
               <VideoPlayerComponent
-                onLocalChange={markLocalPlaybackChanged}
+                onLocalAlignmentChange={setLocalPlaybackAligned}
                 {...((hasHostPlaybackAuthority ||
                   displayRoom?.mode === 'server') && {
                   onLocalPause: handleLocalPause,
@@ -586,9 +586,15 @@ export const RoomPlayer = React.memo(
             </div>
           )}
           {SpotifyPlayerComponent && (
-            <div className="absolute inset-0">
+            <div
+              className={classNames(
+                'absolute inset-0',
+                (!isSpotifyTrack || isConnected) &&
+                  'pointer-events-none opacity-0',
+              )}
+            >
               <SpotifyPlayerComponent
-                onLocalChange={markLocalPlaybackChanged}
+                onLocalAlignmentChange={setLocalPlaybackAligned}
                 {...((hasHostPlaybackAuthority ||
                   displayRoom?.mode === 'server') && {
                   onLocalPause: handleLocalPause,
@@ -608,9 +614,15 @@ export const RoomPlayer = React.memo(
             </div>
           )}
           {SoundCloudPlayerComponent && (
-            <div className="absolute inset-0">
+            <div
+              className={classNames(
+                'absolute inset-0',
+                (!isSoundCloudTrack || isConnected) &&
+                  'pointer-events-none opacity-0',
+              )}
+            >
               <SoundCloudPlayerComponent
-                onLocalChange={markLocalPlaybackChanged}
+                onLocalAlignmentChange={setLocalPlaybackAligned}
                 {...((hasHostPlaybackAuthority ||
                   displayRoom?.mode === 'server') && {
                   onLocalPause: handleLocalPause,

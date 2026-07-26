@@ -11,6 +11,8 @@ interface PlaybackStoreState extends PlaybackState {
   roomMode: string | null;
   hasLocalPlaybackChanges: boolean;
   resetVersion: number;
+  authoritativePlayback: PlaybackState;
+  authoritativeClientReferenceTime: number;
 
   // Interval management
   autoUpdateInterval: ReturnType<typeof setInterval> | null;
@@ -19,7 +21,8 @@ interface PlaybackStoreState extends PlaybackState {
 
   setPlaybackState: (state: PlaybackState, roomMode?: string) => void;
   resetPlaybackState: (state: PlaybackState, roomMode?: string) => void;
-  markLocalPlaybackChanged: () => void;
+  setLocalPlaybackAligned: (isAligned: boolean) => void;
+  getAuthoritativePositionMs: () => number;
   setIsPlaying: (isPlaying: boolean) => void;
   setLocalPlayingState: (isPlaying: boolean, roomMode: string) => void;
   updateActualPosition: () => void;
@@ -40,6 +43,14 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
   roomMode: null,
   hasLocalPlaybackChanges: false,
   resetVersion: 0,
+  authoritativePlayback: {
+    currentSong: null,
+    isPlaying: false,
+    positionMs: 0,
+    updatedAt: new Date().toISOString(),
+    serverTimeMs: Date.now(),
+  },
+  authoritativeClientReferenceTime: Date.now(),
 
   setPlaybackState: (state, roomMode) => {
     const currentState = get();
@@ -55,8 +66,9 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       set({
         ...state,
         isPlaying: currentState.localIsPlaying,
+        authoritativeClientReferenceTime: Date.now(),
+        authoritativePlayback: state,
         clientReferenceTime: Date.now(),
-        hasLocalPlaybackChanges: true,
         roomMode,
       });
       get().updateActualPosition();
@@ -72,8 +84,12 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     // Host mode or no local override - use server state
     set({
       ...state,
+      authoritativeClientReferenceTime: Date.now(),
+      authoritativePlayback: state,
       clientReferenceTime: Date.now(),
-      hasLocalPlaybackChanges: false,
+      hasLocalPlaybackChanges: isSameSong
+        ? currentState.hasLocalPlaybackChanges
+        : false,
       localIsPlaying: null,
       roomMode: roomMode || currentState.roomMode,
     });
@@ -100,6 +116,8 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     const currentState = get();
     set({
       ...state,
+      authoritativeClientReferenceTime: Date.now(),
+      authoritativePlayback: state,
       clientReferenceTime: Date.now(),
       hasLocalPlaybackChanges: false,
       localIsPlaying: null,
@@ -115,14 +133,40 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     get().stopAutoUpdate();
   },
 
-  markLocalPlaybackChanged: () => {
+  setLocalPlaybackAligned: (isAligned) => {
+    if (isAligned) {
+      set({
+        hasLocalPlaybackChanges: false,
+        localIsPlaying: null,
+      });
+      return;
+    }
     set({ hasLocalPlaybackChanges: true });
+  },
+
+  getAuthoritativePositionMs: () => {
+    const { authoritativeClientReferenceTime, authoritativePlayback } = get();
+    if (!authoritativePlayback.isPlaying) {
+      return authoritativePlayback.positionMs;
+    }
+
+    const elapsedOnClient = Math.max(
+      0,
+      Date.now() - authoritativeClientReferenceTime,
+    );
+    let positionMs = authoritativePlayback.positionMs + elapsedOnClient;
+    if (authoritativePlayback.currentSong?.duration) {
+      positionMs = Math.min(
+        positionMs,
+        authoritativePlayback.currentSong.duration * 1000,
+      );
+    }
+    return positionMs;
   },
 
   setLocalPlayingState: (isPlaying, roomMode) => {
     if (roomMode === 'server') {
       set({
-        hasLocalPlaybackChanges: true,
         isPlaying,
         localIsPlaying: isPlaying,
         roomMode,
