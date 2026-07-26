@@ -5,6 +5,7 @@ import {
   showToast,
   usePlaybackStore,
   useQueueStore,
+  useRoomStore,
 } from '@vibes/shared';
 import { PlayerControls } from '@vibes/ui';
 import React, {
@@ -40,6 +41,9 @@ interface PlayerProps {
   preloadSong?: Song | null;
   providerToken?: string | null;
   tokenError?: string | null;
+  onLocalPause?: () => void;
+  onLocalPlay?: () => void;
+  onLocalSeek?: (positionMs: number) => void;
 }
 
 type PlayerComponent = ComponentType<PlayerProps>;
@@ -50,17 +54,19 @@ interface PlayerLoadErrors {
   video: string | null;
 }
 
+interface AutoSkipHandlerProps {
+  currentSong: Song | null;
+  isPlaying: boolean;
+  skip: (shouldShowToast?: boolean) => void;
+  mode?: string;
+}
+
 const AutoSkipHandler = ({
   currentSong,
   isPlaying,
   skip,
   mode,
-}: {
-  currentSong: Song | null;
-  isPlaying: boolean;
-  skip: (shouldShowToast?: boolean) => void;
-  mode: string | undefined;
-}) => {
+}: AutoSkipHandlerProps) => {
   const actualPositionMs = usePlaybackStore((state) => state.actualPositionMs);
   const autoSkipRef = useRef<string | null>(null);
 
@@ -115,10 +121,17 @@ export const RoomPlayer = React.memo(
     const setLocalPlayingState = usePlaybackStore(
       (state) => state.setLocalPlayingState,
     );
+    const isAdmin = useRoomStore((state) => state.isAdmin);
 
     /* 2. State & Computed */
     const currentSong =
       currentSongFromStore || initialPlayback?.currentSong || null;
+    const hasHostPlaybackAuthority =
+      displayRoom?.mode === 'host' &&
+      (isAdmin ||
+        (!!displayRoom.userId && displayRoom.hostId === displayRoom.userId));
+    const canControlRoomPlayback =
+      displayRoom?.mode !== 'host' || hasHostPlaybackAuthority;
 
     const hasSpotifySongs = useMemo(
       () => songs.some((s) => s.sourceType === 'spotify'),
@@ -191,6 +204,36 @@ export const RoomPlayer = React.memo(
       performPlaybackAction('pause');
     }, [performPlaybackAction]);
 
+    const handleLocalPause = useCallback(() => {
+      if (displayRoom?.mode === 'host') {
+        pause();
+        return;
+      }
+      if (displayRoom?.mode === 'server') {
+        setLocalPlayingState(false, displayRoom.mode);
+      }
+    }, [displayRoom?.mode, pause, setLocalPlayingState]);
+
+    const handleLocalPlay = useCallback(() => {
+      if (displayRoom?.mode === 'host') {
+        play();
+        return;
+      }
+      if (displayRoom?.mode === 'server') {
+        setLocalPlayingState(true, displayRoom.mode);
+      }
+    }, [displayRoom?.mode, play, setLocalPlayingState]);
+
+    const seek = useCallback(
+      (positionMs: number) => {
+        playbackFetcher.submit(
+          { action: 'seek', intent: 'playback', positionMs },
+          { encType: 'application/json', method: 'post' },
+        );
+      },
+      [playbackFetcher],
+    );
+
     const skip = useCallback(
       (_shouldShowToast = true) => {
         playbackFetcher.submit(
@@ -200,6 +243,10 @@ export const RoomPlayer = React.memo(
       },
       [playbackFetcher],
     );
+
+    const handleEnded = useCallback(() => {
+      skip(false);
+    }, [skip]);
 
     const requestProviderToken = useCallback(
       (provider: 'spotify' | 'youtube', force = false) => {
@@ -457,7 +504,7 @@ export const RoomPlayer = React.memo(
           currentSong={currentSong}
           isPlaying={isPlaying}
           skip={skip}
-          mode={displayRoom?.mode}
+          {...(hasHostPlaybackAuthority && { mode: 'host' })}
         />
         {/* Player - Reserve height to prevent CLS */}
         <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1">
@@ -469,8 +516,14 @@ export const RoomPlayer = React.memo(
               )}
             >
               <VideoPlayerComponent
-                {...(displayRoom?.mode === 'host' && {
-                  onEnded: () => skip(false),
+                {...((hasHostPlaybackAuthority ||
+                  displayRoom?.mode === 'server') && {
+                  onLocalPause: handleLocalPause,
+                  onLocalPlay: handleLocalPlay,
+                })}
+                {...(hasHostPlaybackAuthority && {
+                  onEnded: handleEnded,
+                  onLocalSeek: seek,
                 })}
                 isVisible={!isConnected && isVideoTrack}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
@@ -512,8 +565,14 @@ export const RoomPlayer = React.memo(
           {SpotifyPlayerComponent && (
             <div className="absolute inset-0">
               <SpotifyPlayerComponent
-                {...(displayRoom?.mode === 'host' && {
-                  onEnded: () => skip(false),
+                {...((hasHostPlaybackAuthority ||
+                  displayRoom?.mode === 'server') && {
+                  onLocalPause: handleLocalPause,
+                  onLocalPlay: handleLocalPlay,
+                })}
+                {...(hasHostPlaybackAuthority && {
+                  onEnded: handleEnded,
+                  onLocalSeek: seek,
                 })}
                 isVisible={!isConnected && isSpotifyTrack}
                 accessToken={spotifyToken}
@@ -527,8 +586,14 @@ export const RoomPlayer = React.memo(
           {SoundCloudPlayerComponent && (
             <div className="absolute inset-0">
               <SoundCloudPlayerComponent
-                {...(displayRoom?.mode === 'host' && {
-                  onEnded: () => skip(false),
+                {...((hasHostPlaybackAuthority ||
+                  displayRoom?.mode === 'server') && {
+                  onLocalPause: handleLocalPause,
+                  onLocalPlay: handleLocalPlay,
+                })}
+                {...(hasHostPlaybackAuthority && {
+                  onEnded: handleEnded,
+                  onLocalSeek: seek,
                 })}
                 isVisible={!isConnected && isSoundCloudTrack}
                 preloadSong={preloadSoundCloudSong}
@@ -575,8 +640,10 @@ export const RoomPlayer = React.memo(
         {/* Controls (always below video) */}
         <PlayerControls
           isPlaying={isPlaying && !isPlaybackBlocked}
-          canPlay={Boolean(currentSong || songs.length > 0)}
-          canSkip={Boolean(currentSong)}
+          canPlay={
+            canControlRoomPlayback && Boolean(currentSong || songs.length > 0)
+          }
+          canSkip={canControlRoomPlayback && Boolean(currentSong)}
           onPlay={play}
           onPause={pause}
           onSkip={skip}

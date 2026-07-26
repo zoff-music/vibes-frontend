@@ -11,6 +11,7 @@ interface RoomState {
   usersCount: number;
 
   setRoom: (room: Room) => void;
+  setHost: (userId: string) => void;
   setUsers: (users: RoomUser[]) => void;
   setUsersCount: (count: number) => void;
   setSession: (userId: string, isAdmin: boolean, nickname?: string) => void;
@@ -26,14 +27,24 @@ export const useRoomStore = create<RoomState>((set) => ({
   usersCount: 0,
 
   setRoom: (room) => {
-    const isAdmin = room.isAdmin !== undefined ? room.isAdmin : false;
     const usersCount = room.userCount !== undefined ? room.userCount : 0;
-    set(() => ({
-      room,
-      isAdmin,
-      usersCount,
-    }));
+    set((state) => {
+      const isSameRoom = state.room?.id === room.id;
+
+      return {
+        room: {
+          ...room,
+          userId: isSameRoom ? state.room?.userId : room.userId,
+        },
+        isAdmin: isSameRoom ? state.isAdmin : (room.isAdmin ?? false),
+        usersCount,
+      };
+    });
   },
+  setHost: (userId) =>
+    set((state) => ({
+      room: state.room ? { ...state.room, hostId: userId } : null,
+    })),
   setUsers: (users) => set({ users, usersCount: users.length }),
   setUsersCount: (usersCount) => set({ usersCount }),
   setSession: (userId, isAdmin, nickname) =>

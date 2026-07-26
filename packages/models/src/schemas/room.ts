@@ -26,6 +26,7 @@ export const roomSchema = yup.object({
   hasPassword: yup.boolean().required(),
   settings: roomSettingsSchema.required(),
   userCount: yup.number().optional(),
+  userId: yup.string().optional(),
   isAdmin: yup.boolean().optional(),
   activeSources: yup.array(yup.string().required()).optional(),
   isGenerating: yup.boolean().default(false),
@@ -33,6 +34,12 @@ export const roomSchema = yup.object({
   generationError: yup.string().optional(),
 });
 export type Room = yup.InferType<typeof roomSchema>;
+
+export const roomHostUpdateSchema = yup.object({
+  userId: yup.string().required(),
+  message: yup.string().required(),
+});
+export type RoomHostUpdate = yup.InferType<typeof roomHostUpdateSchema>;
 
 export const roomNameReservationSchema = yup.object({
   name: yup.string().required(),
