@@ -23,6 +23,7 @@ interface Props {
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
+  onLocalChange?: () => void;
 }
 
 const SpotifyPlayerComponent: React.FC<Props> = ({
@@ -34,12 +35,14 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   preloadSong = null,
   tokenError = null,
   fill = false,
+  onLocalChange,
   onLocalPause,
   onLocalPlay,
   onLocalSeek,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const resetVersion = usePlaybackStore((state) => state.resetVersion);
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
   const providerSong =
     currentSong?.sourceType === 'spotify' ? currentSong : preloadSong;
@@ -56,8 +59,11 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   const lastCallbackAtRef = useRef(0);
   const lastCallbackIsPlayingRef = useRef<boolean | null>(null);
   const lastCallbackPositionRef = useRef<number | null>(null);
+  const lastCallbackVolumeRef = useRef<number | null>(null);
   const lastReportedSeekAtRef = useRef(0);
   const synchronizationQueueRef = useRef(Promise.resolve());
+  const lastResetVersionRef = useRef(resetVersion);
+  const expectedVolumeRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (providerSong?.sourceType === 'spotify') {
@@ -74,6 +80,8 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     lastCallbackAtRef.current = 0;
     lastCallbackIsPlayingRef.current = null;
     lastCallbackPositionRef.current = null;
+    lastCallbackVolumeRef.current = null;
+    expectedVolumeRef.current = null;
     setError(null);
   }, [providerSong?.id]);
 
@@ -93,7 +101,23 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         const player = sdkPlayerRef.current;
         if (!player) return;
 
-        if (lastSynchronizedUpdateRef.current !== updatedAt) {
+        const shouldReset = lastResetVersionRef.current !== resetVersion;
+        if (shouldReset) {
+          expectedVolumeRef.current = MAX_VOLUME;
+          const [volumeError] = await safeWrapAsync(
+            player.setVolume(MAX_VOLUME),
+          );
+          if (volumeError) {
+            console.error(
+              '[SpotifyPlayer] Failed to reset volume:',
+              volumeError,
+            );
+          } else {
+            lastResetVersionRef.current = resetVersion;
+          }
+        }
+
+        if (lastSynchronizedUpdateRef.current !== updatedAt || shouldReset) {
           const targetMs = usePlaybackStore.getState().actualPositionMs;
           lastCallbackPositionRef.current = null;
           const [seekError] = await safeWrapAsync(player.seek(targetMs));
@@ -122,7 +146,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         }
       },
     );
-  }, [currentSong, isActive, isPlaying, isReady, updatedAt]);
+  }, [currentSong, isActive, isPlaying, isReady, resetVersion, updatedAt]);
 
   const handleCallback = useCallback(
     (state: CallbackState) => {
@@ -151,18 +175,27 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         const previousPosition = lastCallbackPositionRef.current;
         const previousObservedAt = lastCallbackAtRef.current;
         const previousIsPlaying = lastCallbackIsPlayingRef.current;
+        const previousVolume = lastCallbackVolumeRef.current;
+        if (previousVolume !== null && previousVolume !== state.volume) {
+          const expectedVolume = expectedVolumeRef.current;
+          expectedVolumeRef.current = null;
+          if (expectedVolume !== state.volume) {
+            onLocalChange?.();
+          }
+        }
         if (previousPosition !== null && previousObservedAt > 0) {
           const expectedPosition =
             previousPosition +
             (previousIsPlaying ? Math.max(0, now - previousObservedAt) : 0);
           const seekDistance = Math.abs(state.progressMs - expectedPosition);
           if (
-            onLocalSeek &&
+            (onLocalSeek || onLocalChange) &&
             seekDistance >= LOCAL_SEEK_THRESHOLD_MS &&
             now - lastReportedSeekAtRef.current >= LOCAL_SEEK_DEBOUNCE_MS
           ) {
             lastReportedSeekAtRef.current = now;
-            onLocalSeek(Math.round(state.progressMs));
+            onLocalChange?.();
+            onLocalSeek?.(Math.round(state.progressMs));
           }
         }
 
@@ -176,14 +209,17 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
             lastCallbackAtRef.current = now;
             lastCallbackIsPlayingRef.current = state.isPlaying;
             lastCallbackPositionRef.current = state.progressMs;
+            lastCallbackVolumeRef.current = state.volume;
             lastPositionRef.current = state.progressMs;
             return;
           }
           const authoritativeIsPlaying = usePlaybackStore.getState().isPlaying;
           if (state.isPlaying && !authoritativeIsPlaying) {
+            onLocalChange?.();
             onLocalPlay?.();
           }
           if (!state.isPlaying && authoritativeIsPlaying) {
+            onLocalChange?.();
             onLocalPause?.();
           }
         }
@@ -191,6 +227,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         lastCallbackAtRef.current = now;
         lastCallbackIsPlayingRef.current = state.isPlaying;
         lastCallbackPositionRef.current = state.progressMs;
+        lastCallbackVolumeRef.current = state.volume;
         lastPositionRef.current = state.progressMs;
       }
 
@@ -209,7 +246,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         }
       }
     },
-    [onEnded, onLocalPause, onLocalPlay, onLocalSeek],
+    [onEnded, onLocalChange, onLocalPause, onLocalPlay, onLocalSeek],
   );
 
   const handleGetPlayer = useCallback((player: SpotifySdkPlayer) => {
@@ -405,6 +442,7 @@ export const SpotifyPlayer = memo(
     return (
       prevProps.isVisible === nextProps.isVisible &&
       prevProps.onEnded === nextProps.onEnded &&
+      prevProps.onLocalChange === nextProps.onLocalChange &&
       prevProps.onLocalPause === nextProps.onLocalPause &&
       prevProps.onLocalPlay === nextProps.onLocalPlay &&
       prevProps.onLocalSeek === nextProps.onLocalSeek &&
@@ -419,3 +457,5 @@ export const SpotifyPlayer = memo(
 const LOCAL_SEEK_DEBOUNCE_MS = 1000;
 
 const LOCAL_SEEK_THRESHOLD_MS = 2000;
+
+const MAX_VOLUME = 1;

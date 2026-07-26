@@ -9,6 +9,8 @@ interface PlaybackStoreState extends PlaybackState {
   // Server mode local state
   localIsPlaying: boolean | null; // null means use server state, boolean means local override
   roomMode: string | null;
+  hasLocalPlaybackChanges: boolean;
+  resetVersion: number;
 
   // Interval management
   autoUpdateInterval: ReturnType<typeof setInterval> | null;
@@ -16,6 +18,8 @@ interface PlaybackStoreState extends PlaybackState {
   stopAutoUpdate: () => void;
 
   setPlaybackState: (state: PlaybackState, roomMode?: string) => void;
+  resetPlaybackState: (state: PlaybackState, roomMode?: string) => void;
+  markLocalPlaybackChanged: () => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setLocalPlayingState: (isPlaying: boolean, roomMode: string) => void;
   updateActualPosition: () => void;
@@ -34,6 +38,8 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
   autoUpdateInterval: null,
   localIsPlaying: null,
   roomMode: null,
+  hasLocalPlaybackChanges: false,
+  resetVersion: 0,
 
   setPlaybackState: (state, roomMode) => {
     const currentState = get();
@@ -50,6 +56,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
         ...state,
         isPlaying: currentState.localIsPlaying,
         clientReferenceTime: Date.now(),
+        hasLocalPlaybackChanges: true,
         roomMode,
       });
       get().updateActualPosition();
@@ -66,6 +73,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     set({
       ...state,
       clientReferenceTime: Date.now(),
+      hasLocalPlaybackChanges: false,
       localIsPlaying: null,
       roomMode: roomMode || currentState.roomMode,
     });
@@ -88,9 +96,33 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     }
   },
 
+  resetPlaybackState: (state, roomMode) => {
+    const currentState = get();
+    set({
+      ...state,
+      clientReferenceTime: Date.now(),
+      hasLocalPlaybackChanges: false,
+      localIsPlaying: null,
+      resetVersion: currentState.resetVersion + 1,
+      roomMode: roomMode || currentState.roomMode,
+    });
+    get().updateActualPosition();
+
+    if (state.isPlaying) {
+      get().startAutoUpdate();
+      return;
+    }
+    get().stopAutoUpdate();
+  },
+
+  markLocalPlaybackChanged: () => {
+    set({ hasLocalPlaybackChanges: true });
+  },
+
   setLocalPlayingState: (isPlaying, roomMode) => {
     if (roomMode === 'server') {
       set({
+        hasLocalPlaybackChanges: true,
         isPlaying,
         localIsPlaying: isPlaying,
         roomMode,

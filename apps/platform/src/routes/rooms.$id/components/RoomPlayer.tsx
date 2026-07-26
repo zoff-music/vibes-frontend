@@ -44,6 +44,7 @@ interface PlayerProps {
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
+  onLocalChange?: () => void;
 }
 
 type PlayerComponent = ComponentType<PlayerProps>;
@@ -117,6 +118,15 @@ export const RoomPlayer = React.memo(
     const currentSongFromStore = usePlaybackStore((state) => state.currentSong);
     const setPlaybackState = usePlaybackStore(
       (state) => state.setPlaybackState,
+    );
+    const resetPlaybackState = usePlaybackStore(
+      (state) => state.resetPlaybackState,
+    );
+    const hasLocalPlaybackChanges = usePlaybackStore(
+      (state) => state.hasLocalPlaybackChanges,
+    );
+    const markLocalPlaybackChanged = usePlaybackStore(
+      (state) => state.markLocalPlaybackChanged,
     );
     const setLocalPlayingState = usePlaybackStore(
       (state) => state.setLocalPlayingState,
@@ -248,6 +258,13 @@ export const RoomPlayer = React.memo(
       skip(false);
     }, [skip]);
 
+    const reset = useCallback(() => {
+      playbackFetcher.submit(
+        { intent: 'resetPlayback' },
+        { encType: 'application/json', method: 'post' },
+      );
+    }, [playbackFetcher]);
+
     const requestProviderToken = useCallback(
       (provider: 'spotify' | 'youtube', force = false) => {
         const attemptRef =
@@ -324,7 +341,11 @@ export const RoomPlayer = React.memo(
         return;
       }
       if (response.playback) {
-        setPlaybackState(response.playback, displayRoom?.mode);
+        if (response.intent === 'resetPlayback') {
+          resetPlaybackState(response.playback, displayRoom?.mode);
+        } else {
+          setPlaybackState(response.playback, displayRoom?.mode);
+        }
       }
       if (response.skip) {
         if (response.skip.skipped) {
@@ -345,6 +366,7 @@ export const RoomPlayer = React.memo(
       displayRoom?.mode,
       playbackFetcher.data,
       playbackFetcher.state,
+      resetPlaybackState,
       setPlaybackState,
     ]);
 
@@ -516,6 +538,7 @@ export const RoomPlayer = React.memo(
               )}
             >
               <VideoPlayerComponent
+                onLocalChange={markLocalPlaybackChanged}
                 {...((hasHostPlaybackAuthority ||
                   displayRoom?.mode === 'server') && {
                   onLocalPause: handleLocalPause,
@@ -565,6 +588,7 @@ export const RoomPlayer = React.memo(
           {SpotifyPlayerComponent && (
             <div className="absolute inset-0">
               <SpotifyPlayerComponent
+                onLocalChange={markLocalPlaybackChanged}
                 {...((hasHostPlaybackAuthority ||
                   displayRoom?.mode === 'server') && {
                   onLocalPause: handleLocalPause,
@@ -586,6 +610,7 @@ export const RoomPlayer = React.memo(
           {SoundCloudPlayerComponent && (
             <div className="absolute inset-0">
               <SoundCloudPlayerComponent
+                onLocalChange={markLocalPlaybackChanged}
                 {...((hasHostPlaybackAuthority ||
                   displayRoom?.mode === 'server') && {
                   onLocalPause: handleLocalPause,
@@ -644,9 +669,11 @@ export const RoomPlayer = React.memo(
             canControlRoomPlayback && Boolean(currentSong || songs.length > 0)
           }
           canSkip={canControlRoomPlayback && Boolean(currentSong)}
+          showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
           onPlay={play}
           onPause={pause}
           onSkip={skip}
+          onReset={reset}
           onAddSong={onAddSong}
           onOpenCast={onOpenCast}
           isCasting={isConnected}

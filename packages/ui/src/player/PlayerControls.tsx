@@ -6,6 +6,7 @@ import {
   PauseIcon,
   PlayIcon,
   PlusIcon,
+  ResetIcon,
   SkipIcon,
   SpotifyIcon,
 } from '../icons';
@@ -14,8 +15,10 @@ interface Props {
   isPlaying: boolean;
   canPlay: boolean;
   canSkip: boolean;
+  showReset: boolean;
   onPlay: () => void;
   onPause: () => void;
+  onReset: () => void;
   onSkip: () => void;
   onAddSong: () => void;
   onOpenCast: () => void;
@@ -29,8 +32,10 @@ const PlayerControlsComponent: React.FC<Props> = ({
   isPlaying,
   canPlay,
   canSkip,
+  showReset,
   onPlay,
   onPause,
+  onReset,
   onSkip,
   onAddSong,
   onOpenCast,
@@ -63,6 +68,17 @@ const PlayerControlsComponent: React.FC<Props> = ({
         >
           <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
         </Button>
+
+        {showReset && (
+          <Button
+            onClick={onReset}
+            variant="tertiary"
+            size="icon"
+            title="Reset playback"
+          >
+            <ResetIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
+          </Button>
+        )}
 
         <Button
           onClick={onOpenCast}
