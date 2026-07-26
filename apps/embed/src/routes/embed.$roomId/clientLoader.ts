@@ -8,7 +8,7 @@ export async function embedRoomClientLoader({
   request,
 }: ClientLoaderFunctionArgs): Promise<EmbedLoaderData> {
   const requestUrl = new URL(request.url);
-  const encodedRoomId = params.roomId;
+  const encodedRoomId = params['*']?.split('/').at(-1);
   const [decodeError, roomId] = safeWrap(() =>
     decodeURIComponent(encodedRoomId ?? ''),
   );

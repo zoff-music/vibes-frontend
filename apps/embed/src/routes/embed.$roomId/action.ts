@@ -8,7 +8,7 @@ import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface EmbedActionData {
   error?: string;
-  intent: 'providerToken' | 'skip' | 'voteSong';
+  intent: 'providerToken' | 'resetPlayback' | 'skip' | 'voteSong';
   playback?: PlaybackState;
   provider?: 'spotify' | 'youtube';
   providerToken?: ProviderToken;
@@ -16,7 +16,7 @@ export interface EmbedActionData {
 }
 
 interface EmbedActionRequest {
-  intent: 'providerToken' | 'skip' | 'voteSong';
+  intent: 'providerToken' | 'resetPlayback' | 'skip' | 'voteSong';
   provider?: 'spotify' | 'youtube';
   songId?: string;
 }
@@ -68,6 +68,19 @@ export async function clientAction({
       provider: body.provider,
       providerToken,
     };
+  }
+
+  if (body.intent === 'resetPlayback') {
+    const [error, playback] = await api.get('/rooms/{id}/states', {
+      id: roomId,
+    });
+    if (error || !playback) {
+      return {
+        error: error?.message ?? 'Could not reset playback',
+        intent: body.intent,
+      };
+    }
+    return { intent: body.intent, playback };
   }
 
   if (!body.songId) {

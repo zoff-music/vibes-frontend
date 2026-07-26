@@ -40,7 +40,7 @@ export const QueueItem: React.FC<Props> = ({
   };
 
   const cardClass =
-    'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-shadow hover:shadow-primary-soft focus:outline-hidden focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent';
+    'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-colors hover:border-theme-strong focus:outline-hidden focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent';
 
   const providerUrl = getProviderTrackUrl(
     song.sourceType,

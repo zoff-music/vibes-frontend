@@ -14,15 +14,22 @@ export function EmbedRoomView({ loaderData }: Props) {
   const {
     currentSong,
     dismissToast,
+    handleLocalAlignmentChange,
+    handleLocalPlayerInteraction,
+    handlePlayPause,
+    handleReset,
     handleSkip,
     handleVote,
+    hasLocalPlaybackChanges,
+    isPlaying,
     positionMs,
     requestProviderToken,
     room,
     songs,
+    spotifyTokenLoading,
     spotifyToken,
     toast,
-    tokenLoading,
+    youtubeTokenLoading,
     youtubeToken,
   } = useEmbedRoom(loaderData);
   const durationMs = (currentSong?.duration ?? 0) * 1000;
@@ -35,11 +42,14 @@ export function EmbedRoomView({ loaderData }: Props) {
       currentSong={currentSong}
       durationMs={durationMs}
       enabledProviders={enabledProviders}
+      onLocalAlignmentChange={handleLocalAlignmentChange}
+      onLocalInteraction={handleLocalPlayerInteraction}
       positionMs={positionMs}
       requestProviderToken={requestProviderToken}
+      spotifyTokenLoading={spotifyTokenLoading}
       spotifyToken={spotifyToken}
       songs={songs}
-      tokenLoading={tokenLoading}
+      youtubeTokenLoading={youtubeTokenLoading}
       youtubeToken={youtubeToken}
     />
   );
@@ -55,9 +65,14 @@ export function EmbedRoomView({ loaderData }: Props) {
       <section className="panel-strong flex h-full w-full flex-col overflow-hidden">
         <EmbedRoomHeader
           canSkip={canSkip}
+          isPlaying={isPlaying}
+          showPlaybackControls={Boolean(currentSong)}
+          onPlayPause={handlePlayPause}
+          onReset={handleReset}
           onSkip={handleSkip}
           room={room}
           roomId={roomId}
+          showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
           showSkip={options.skip}
         />
 

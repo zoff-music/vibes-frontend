@@ -7,14 +7,17 @@ interface Props {
   currentSong: Song | null;
   durationMs: number;
   enabledProviders: string[];
+  onLocalAlignmentChange: (isAligned: boolean) => void;
+  onLocalInteraction: () => void;
   positionMs: number;
   requestProviderToken: (
     provider: 'spotify' | 'youtube',
     force?: boolean,
   ) => void;
+  spotifyTokenLoading: boolean;
   spotifyToken: string | null;
   songs: Song[];
-  tokenLoading: boolean;
+  youtubeTokenLoading: boolean;
   youtubeToken: string | null;
 }
 
@@ -22,11 +25,14 @@ export function EmbedPlayerCard({
   currentSong,
   durationMs,
   enabledProviders,
+  onLocalAlignmentChange,
+  onLocalInteraction,
   positionMs,
   requestProviderToken,
+  spotifyTokenLoading,
   spotifyToken,
   songs,
-  tokenLoading,
+  youtubeTokenLoading,
   youtubeToken,
 }: Props) {
   const progress = durationMs > 0 ? positionMs / durationMs : 0;
@@ -55,10 +61,13 @@ export function EmbedPlayerCard({
         <EmbedPlayerSource
           currentSong={currentSong}
           enabledProviders={enabledProviders}
+          onLocalAlignmentChange={onLocalAlignmentChange}
+          onLocalInteraction={onLocalInteraction}
           requestProviderToken={requestProviderToken}
+          spotifyTokenLoading={spotifyTokenLoading}
           songs={songs}
           spotifyToken={spotifyToken}
-          tokenLoading={tokenLoading}
+          youtubeTokenLoading={youtubeTokenLoading}
           youtubeToken={youtubeToken}
         />
       </div>

@@ -88,7 +88,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       : null;
 
     return (
-      <div className="mt-8 space-y-8 lg:mt-0 lg:h-full lg:overflow-y-auto lg:pr-2">
+      <div className="mt-8 space-y-8 lg:mt-0 lg:h-full lg:overflow-y-auto">
         <div className="relative lg:pb-6">
           {/* Now Playing (Integrated into list style) */}
           {currentSongData && (

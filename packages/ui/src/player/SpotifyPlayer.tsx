@@ -24,6 +24,7 @@ interface Props {
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
   onLocalAlignmentChange?: (isAligned: boolean) => void;
+  onLocalVolumeChange?: () => void;
 }
 
 const SpotifyPlayerComponent: React.FC<Props> = ({
@@ -39,6 +40,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   onLocalPause,
   onLocalPlay,
   onLocalSeek,
+  onLocalVolumeChange,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
@@ -62,6 +64,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   const lastCallbackIsPlayingRef = useRef<boolean | null>(null);
   const lastCallbackPositionRef = useRef<number | null>(null);
   const lastCallbackTrackURIRef = useRef<string | null>(null);
+  const lastObservedVolumeRef = useRef<number | null>(null);
   const lastReportedSeekAtRef = useRef(0);
   const synchronizationQueueRef = useRef(Promise.resolve());
   const lastResetVersionRef = useRef(resetVersion);
@@ -82,6 +85,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     lastCallbackIsPlayingRef.current = null;
     lastCallbackPositionRef.current = null;
     lastCallbackTrackURIRef.current = null;
+    lastObservedVolumeRef.current = null;
     setError(null);
   }, [providerSong?.id]);
 
@@ -273,6 +277,13 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         return;
       }
 
+      const volume = Number(volumeValue);
+      const previousVolume = lastObservedVolumeRef.current;
+      lastObservedVolumeRef.current = volume;
+      if (previousVolume !== null && previousVolume !== volume) {
+        onLocalVolumeChange?.();
+      }
+
       const elapsedMs = localIsPlaying
         ? Math.max(0, Date.now() - lastCallbackAtRef.current)
         : 0;
@@ -288,12 +299,12 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
             elapsedMs -
             playbackStore.getAuthoritativePositionMs(),
         ) <= ALIGNED_POSITION_TOLERANCE_MS &&
-        Number(volumeValue) === DEFAULT_VOLUME;
+        volume === DEFAULT_VOLUME;
       onLocalAlignmentChange(isAligned);
     }, ALIGNMENT_SAMPLE_MS);
 
     return () => clearInterval(interval);
-  }, [isActive, isReady, onLocalAlignmentChange]);
+  }, [isActive, isReady, onLocalAlignmentChange, onLocalVolumeChange]);
 
   const handleGetPlayer = useCallback((player: SpotifySdkPlayer) => {
     sdkPlayerRef.current = player;
@@ -494,6 +505,7 @@ export const SpotifyPlayer = memo(
       prevProps.onLocalPause === nextProps.onLocalPause &&
       prevProps.onLocalPlay === nextProps.onLocalPlay &&
       prevProps.onLocalSeek === nextProps.onLocalSeek &&
+      prevProps.onLocalVolumeChange === nextProps.onLocalVolumeChange &&
       prevProps.accessToken === nextProps.accessToken &&
       prevProps.isFetchingToken === nextProps.isFetchingToken &&
       prevProps.preloadSong?.id === nextProps.preloadSong?.id &&

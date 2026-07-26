@@ -55,6 +55,15 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
   setPlaybackState: (state, roomMode) => {
     const currentState = get();
     const isSameSong = currentState.currentSong?.id === state.currentSong?.id;
+    const isSamePlaybackUpdate =
+      isSameSong && currentState.updatedAt === state.updatedAt;
+
+    if (isSamePlaybackUpdate) {
+      if (roomMode) {
+        set({ roomMode });
+      }
+      return;
+    }
 
     // Server playback keeps advancing independently, but play/pause is a local
     // preference until the server advances to another song.
