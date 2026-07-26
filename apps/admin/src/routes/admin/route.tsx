@@ -441,10 +441,10 @@ function SearchUsageCard({ label, summaries }: SearchUsageCardProps) {
 }
 
 const searchUsageWindows = [
-  { id: 'hour', label: 'Last hour' },
-  { id: 'day', label: 'Last day' },
-  { id: 'week', label: 'Last week' },
-  { id: 'month', label: 'Last month' },
+  { id: 'hour', label: 'This hour' },
+  { id: 'day', label: 'Today' },
+  { id: 'week', label: 'This week' },
+  { id: 'month', label: 'This month' },
 ];
 
 export function ErrorBoundary() {
