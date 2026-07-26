@@ -27,6 +27,7 @@ export type RoomActionIntent =
   | 'playback'
   | 'providerToken'
   | 'removeSong'
+  | 'resetPlayback'
   | 'search'
   | 'skip'
   | 'updateRoom'
@@ -157,6 +158,16 @@ export async function clientAction({
       { id: roomId },
       { action: body.action, positionMs: body.positionMs },
     );
+    if (error || !playback) {
+      return createErrorData(body.intent, error);
+    }
+    return { intent: body.intent, playback };
+  }
+
+  if (body.intent === 'resetPlayback') {
+    const [error, playback] = await api.get('/rooms/{id}/states', {
+      id: roomId,
+    });
     if (error || !playback) {
       return createErrorData(body.intent, error);
     }

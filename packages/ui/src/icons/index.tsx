@@ -279,6 +279,22 @@ export const SkipIcon = (props: IconProps) => (
   </svg>
 );
 
+export const ResetIcon = (props: IconProps) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2.5}
+    {...props}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4 4v6h6M20 20v-6h-6M5.1 15a8 8 0 0013.2 2M18.9 9A8 8 0 005.7 7"
+    />
+  </svg>
+);
+
 export const ExternalLinkIcon = (props: IconProps) => (
   <svg
     viewBox="0 0 24 24"

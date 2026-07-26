@@ -23,6 +23,7 @@ interface Props {
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
+  onLocalAlignmentChange?: (isAligned: boolean) => void;
 }
 
 const SpotifyPlayerComponent: React.FC<Props> = ({
@@ -34,12 +35,14 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   preloadSong = null,
   tokenError = null,
   fill = false,
+  onLocalAlignmentChange,
   onLocalPause,
   onLocalPlay,
   onLocalSeek,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const resetVersion = usePlaybackStore((state) => state.resetVersion);
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
   const providerSong =
     currentSong?.sourceType === 'spotify' ? currentSong : preloadSong;
@@ -48,16 +51,20 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
 
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [playerResetVersion, setPlayerResetVersion] = useState(resetVersion);
   const lastPositionRef = useRef<number>(0);
   const hasEndedRef = useRef<boolean>(false);
   const sdkPlayerRef = useRef<SpotifySdkPlayer | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const lastSynchronizedUpdateRef = useRef<string | null>(null);
   const expectedPlayingStateRef = useRef<boolean | null>(null);
   const lastCallbackAtRef = useRef(0);
   const lastCallbackIsPlayingRef = useRef<boolean | null>(null);
   const lastCallbackPositionRef = useRef<number | null>(null);
+  const lastCallbackTrackURIRef = useRef<string | null>(null);
   const lastReportedSeekAtRef = useRef(0);
   const synchronizationQueueRef = useRef(Promise.resolve());
+  const lastResetVersionRef = useRef(resetVersion);
 
   useEffect(() => {
     if (providerSong?.sourceType === 'spotify') {
@@ -74,8 +81,24 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     lastCallbackAtRef.current = 0;
     lastCallbackIsPlayingRef.current = null;
     lastCallbackPositionRef.current = null;
+    lastCallbackTrackURIRef.current = null;
     setError(null);
   }, [providerSong?.id]);
+
+  useEffect(() => {
+    if (!isActive) {
+      lastResetVersionRef.current = resetVersion;
+      return;
+    }
+
+    if (lastResetVersionRef.current !== resetVersion) {
+      sdkPlayerRef.current = null;
+      lastSynchronizedUpdateRef.current = null;
+      expectedPlayingStateRef.current = null;
+      setIsReady(false);
+      setPlayerResetVersion(resetVersion);
+    }
+  }, [isActive, resetVersion]);
 
   useEffect(() => {
     if (
@@ -93,7 +116,22 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         const player = sdkPlayerRef.current;
         if (!player) return;
 
-        if (lastSynchronizedUpdateRef.current !== updatedAt) {
+        const shouldReset = lastResetVersionRef.current !== resetVersion;
+        if (shouldReset) {
+          const [volumeError] = await safeWrapAsync(
+            player.setVolume(DEFAULT_VOLUME),
+          );
+          if (volumeError) {
+            console.error(
+              '[SpotifyPlayer] Failed to reset volume:',
+              volumeError,
+            );
+          } else {
+            lastResetVersionRef.current = resetVersion;
+          }
+        }
+
+        if (lastSynchronizedUpdateRef.current !== updatedAt || shouldReset) {
           const targetMs = usePlaybackStore.getState().actualPositionMs;
           lastCallbackPositionRef.current = null;
           const [seekError] = await safeWrapAsync(player.seek(targetMs));
@@ -122,7 +160,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         }
       },
     );
-  }, [currentSong, isActive, isPlaying, isReady, updatedAt]);
+  }, [currentSong, isActive, isPlaying, isReady, resetVersion, updatedAt]);
 
   const handleCallback = useCallback(
     (state: CallbackState) => {
@@ -131,6 +169,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
       }
 
       if (
+        isActive &&
         state.progressMs !== undefined &&
         state.track?.durationMs !== undefined
       ) {
@@ -151,6 +190,8 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         const previousPosition = lastCallbackPositionRef.current;
         const previousObservedAt = lastCallbackAtRef.current;
         const previousIsPlaying = lastCallbackIsPlayingRef.current;
+        lastCallbackTrackURIRef.current = state.track.uri;
+
         if (previousPosition !== null && previousObservedAt > 0) {
           const expectedPosition =
             previousPosition +
@@ -209,8 +250,50 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         }
       }
     },
-    [onEnded, onLocalPause, onLocalPlay, onLocalSeek],
+    [isActive, onEnded, onLocalPause, onLocalPlay, onLocalSeek],
   );
+
+  useEffect(() => {
+    if (!isActive || !isReady || !onLocalAlignmentChange) return;
+
+    const interval = setInterval(() => {
+      const localPositionMs = lastCallbackPositionRef.current;
+      const localIsPlaying = lastCallbackIsPlayingRef.current;
+      const localTrackURI = lastCallbackTrackURIRef.current;
+      const volumeElement = containerRef.current?.querySelector<HTMLElement>(
+        '[data-component-name="Volume"]',
+      );
+      const volumeValue = volumeElement?.getAttribute('data-value');
+      if (
+        localPositionMs === null ||
+        localIsPlaying === null ||
+        !localTrackURI ||
+        !volumeValue
+      ) {
+        return;
+      }
+
+      const elapsedMs = localIsPlaying
+        ? Math.max(0, Date.now() - lastCallbackAtRef.current)
+        : 0;
+      const playbackStore = usePlaybackStore.getState();
+      const authoritativePlayback = playbackStore.authoritativePlayback;
+      const authoritativeSourceID = authoritativePlayback.currentSong?.sourceId;
+      const isAligned =
+        !!authoritativeSourceID &&
+        localTrackURI === `spotify:track:${authoritativeSourceID}` &&
+        localIsPlaying === authoritativePlayback.isPlaying &&
+        Math.abs(
+          localPositionMs +
+            elapsedMs -
+            playbackStore.getAuthoritativePositionMs(),
+        ) <= ALIGNED_POSITION_TOLERANCE_MS &&
+        Number(volumeValue) === DEFAULT_VOLUME;
+      onLocalAlignmentChange(isAligned);
+    }, ALIGNMENT_SAMPLE_MS);
+
+    return () => clearInterval(interval);
+  }, [isActive, isReady, onLocalAlignmentChange]);
 
   const handleGetPlayer = useCallback((player: SpotifySdkPlayer) => {
     sdkPlayerRef.current = player;
@@ -301,6 +384,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
 
   return (
     <div
+      ref={containerRef}
       className={classNames(
         containerClass,
         !isActive && 'pointer-events-none opacity-0',
@@ -369,12 +453,13 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
       <div className="absolute right-4 bottom-4 left-4 z-10 overflow-hidden rounded-xl">
         {accessToken && (
           <SpotifyWebPlayer
+            key={playerResetVersion}
             token={accessToken}
             uris={[spotifyUri]}
             play={isActive && isPlaying}
             callback={handleCallback}
             getPlayer={handleGetPlayer}
-            initialVolume={0.5}
+            initialVolume={DEFAULT_VOLUME}
             name="Vibes Player"
             styles={{
               bgColor: 'transparent',
@@ -405,6 +490,7 @@ export const SpotifyPlayer = memo(
     return (
       prevProps.isVisible === nextProps.isVisible &&
       prevProps.onEnded === nextProps.onEnded &&
+      prevProps.onLocalAlignmentChange === nextProps.onLocalAlignmentChange &&
       prevProps.onLocalPause === nextProps.onLocalPause &&
       prevProps.onLocalPlay === nextProps.onLocalPlay &&
       prevProps.onLocalSeek === nextProps.onLocalSeek &&
@@ -419,3 +505,9 @@ export const SpotifyPlayer = memo(
 const LOCAL_SEEK_DEBOUNCE_MS = 1000;
 
 const LOCAL_SEEK_THRESHOLD_MS = 2000;
+
+const ALIGNED_POSITION_TOLERANCE_MS = 2000;
+
+const ALIGNMENT_SAMPLE_MS = 1000;
+
+const DEFAULT_VOLUME = 0.5;

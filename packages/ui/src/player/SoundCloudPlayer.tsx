@@ -16,9 +16,12 @@ declare global {
 interface SoundCloudWidget {
   bind: (event: string, callback: (event?: unknown) => void) => void;
   getPosition: (callback: (currentTimeMs: number) => void) => void;
+  getVolume: (callback: (volume: number) => void) => void;
+  isPaused: (callback: (isPaused: boolean) => void) => void;
   pause: () => void;
   play: () => void;
   seekTo: (milliseconds: number) => void;
+  setVolume: (volume: number) => void;
 }
 
 interface SoundCloudApi {
@@ -43,6 +46,7 @@ interface Props {
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
+  onLocalAlignmentChange?: (isAligned: boolean) => void;
 }
 
 const SoundCloudPlayerComponent: React.FC<Props> = ({
@@ -50,12 +54,14 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   onEnded,
   fill = false,
   preloadSong = null,
+  onLocalAlignmentChange,
   onLocalPause,
   onLocalPlay,
   onLocalSeek,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const resetVersion = usePlaybackStore((state) => state.resetVersion);
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
   const providerSong =
     currentSong?.sourceType === 'soundcloud' ? currentSong : preloadSong;
@@ -67,17 +73,20 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const expectedPlayingStateRef = useRef<boolean | null>(null);
   const expectedSeekPositionRef = useRef<number | null>(null);
   const onEndedRef = useRef(onEnded);
+  const onLocalAlignmentChangeRef = useRef(onLocalAlignmentChange);
   const onLocalPauseRef = useRef(onLocalPause);
   const onLocalPlayRef = useRef(onLocalPlay);
   const onLocalSeekRef = useRef(onLocalSeek);
+  const lastResetVersionRef = useRef(resetVersion);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     onEndedRef.current = onEnded;
+    onLocalAlignmentChangeRef.current = onLocalAlignmentChange;
     onLocalPauseRef.current = onLocalPause;
     onLocalPlayRef.current = onLocalPlay;
     onLocalSeekRef.current = onLocalSeek;
-  }, [onEnded, onLocalPause, onLocalPlay, onLocalSeek]);
+  }, [onEnded, onLocalAlignmentChange, onLocalPause, onLocalPlay, onLocalSeek]);
 
   // Load SoundCloud Widget API script
   useEffect(() => {
@@ -189,9 +198,20 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   }, [providerSong?.sourceId]);
 
   useEffect(() => {
-    if (!widgetRef.current || !isReady) return;
+    if (!isActive) {
+      lastResetVersionRef.current = resetVersion;
+    }
+  }, [isActive, resetVersion]);
 
-    if (lastSynchronizedUpdateRef.current !== updatedAt) {
+  useEffect(() => {
+    if (!widgetRef.current || !isActive || !isReady) return;
+
+    const shouldReset = lastResetVersionRef.current !== resetVersion;
+    if (shouldReset) {
+      widgetRef.current.setVolume(MAX_VOLUME);
+      lastResetVersionRef.current = resetVersion;
+    }
+    if (lastSynchronizedUpdateRef.current !== updatedAt || shouldReset) {
       const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
       expectedSeekPositionRef.current = actualPositionMs;
       widgetRef.current.seekTo(actualPositionMs);
@@ -205,7 +225,42 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       expectedPlayingStateRef.current = false;
       widgetRef.current.pause();
     }
-  }, [isActive, isPlaying, isReady, updatedAt]);
+  }, [isActive, isPlaying, isReady, resetVersion, updatedAt]);
+
+  useEffect(() => {
+    if (!isActive || !isReady || !onLocalAlignmentChange) return;
+
+    let cancelled = false;
+    const interval = setInterval(() => {
+      const widget = widgetRef.current;
+      if (!widget) return;
+
+      widget.getPosition((positionMs) => {
+        widget.getVolume((volume) => {
+          widget.isPaused((isPaused) => {
+            if (cancelled) return;
+
+            const playbackStore = usePlaybackStore.getState();
+            const authoritativePlayback = playbackStore.authoritativePlayback;
+            const isAligned =
+              providerSong?.sourceId ===
+                authoritativePlayback.currentSong?.sourceId &&
+              !isPaused === authoritativePlayback.isPlaying &&
+              Math.abs(
+                positionMs - playbackStore.getAuthoritativePositionMs(),
+              ) <= ALIGNED_POSITION_TOLERANCE_MS &&
+              volume === MAX_VOLUME;
+            onLocalAlignmentChangeRef.current?.(isAligned);
+          });
+        });
+      });
+    }, VOLUME_SAMPLE_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [isActive, isReady, onLocalAlignmentChange, providerSong?.sourceId]);
 
   if (!providerSong) {
     return null;
@@ -282,6 +337,7 @@ export const SoundCloudPlayer = memo(
     return (
       prevProps.isVisible === nextProps.isVisible &&
       prevProps.onEnded === nextProps.onEnded &&
+      prevProps.onLocalAlignmentChange === nextProps.onLocalAlignmentChange &&
       prevProps.onLocalPause === nextProps.onLocalPause &&
       prevProps.onLocalPlay === nextProps.onLocalPlay &&
       prevProps.onLocalSeek === nextProps.onLocalSeek &&
@@ -291,3 +347,9 @@ export const SoundCloudPlayer = memo(
 );
 
 const EXPECTED_SEEK_TOLERANCE_MS = 1000;
+
+const ALIGNED_POSITION_TOLERANCE_MS = 2000;
+
+const MAX_VOLUME = 100;
+
+const VOLUME_SAMPLE_MS = 1000;
