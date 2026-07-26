@@ -52,11 +52,12 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   const hasEndedRef = useRef<boolean>(false);
   const sdkPlayerRef = useRef<SpotifySdkPlayer | null>(null);
   const lastSynchronizedUpdateRef = useRef<string | null>(null);
-  const suppressLocalEventsUntilRef = useRef(0);
+  const expectedPlayingStateRef = useRef<boolean | null>(null);
   const lastCallbackAtRef = useRef(0);
   const lastCallbackIsPlayingRef = useRef<boolean | null>(null);
   const lastCallbackPositionRef = useRef<number | null>(null);
   const lastReportedSeekAtRef = useRef(0);
+  const synchronizationQueueRef = useRef(Promise.resolve());
 
   useEffect(() => {
     if (providerSong?.sourceType === 'spotify') {
@@ -69,8 +70,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     hasEndedRef.current = false;
     lastPositionRef.current = 0;
     lastSynchronizedUpdateRef.current = null;
-    suppressLocalEventsUntilRef.current =
-      Date.now() + AUTHORITATIVE_EVENT_SUPPRESSION_MS;
+    expectedPlayingStateRef.current = null;
     lastCallbackAtRef.current = 0;
     lastCallbackIsPlayingRef.current = null;
     lastCallbackPositionRef.current = null;
@@ -88,38 +88,40 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
       return;
     }
 
-    void (async () => {
-      const player = sdkPlayerRef.current;
-      if (!player) return;
+    synchronizationQueueRef.current = synchronizationQueueRef.current.then(
+      async () => {
+        const player = sdkPlayerRef.current;
+        if (!player) return;
 
-      suppressLocalEventsUntilRef.current =
-        Date.now() + AUTHORITATIVE_EVENT_SUPPRESSION_MS;
-
-      if (lastSynchronizedUpdateRef.current !== updatedAt) {
-        const targetMs = usePlaybackStore.getState().actualPositionMs;
-        const [seekError] = await safeWrapAsync(player.seek(targetMs));
-        if (seekError) {
-          console.error('[SpotifyPlayer] Failed to seek:', seekError);
-        } else {
-          lastPositionRef.current = targetMs;
-          lastSynchronizedUpdateRef.current = updatedAt;
+        if (lastSynchronizedUpdateRef.current !== updatedAt) {
+          const targetMs = usePlaybackStore.getState().actualPositionMs;
           lastCallbackPositionRef.current = null;
+          const [seekError] = await safeWrapAsync(player.seek(targetMs));
+          if (seekError) {
+            console.error('[SpotifyPlayer] Failed to seek:', seekError);
+          } else {
+            lastPositionRef.current = targetMs;
+            lastSynchronizedUpdateRef.current = updatedAt;
+            lastCallbackPositionRef.current = null;
+          }
         }
-      }
 
-      if (isPlaying) {
-        const [resumeError] = await safeWrapAsync(player.resume());
-        if (resumeError) {
-          console.error('[SpotifyPlayer] Failed to resume:', resumeError);
+        if (isPlaying) {
+          expectedPlayingStateRef.current = true;
+          const [resumeError] = await safeWrapAsync(player.resume());
+          if (resumeError) {
+            console.error('[SpotifyPlayer] Failed to resume:', resumeError);
+          }
+          return;
         }
-        return;
-      }
 
-      const [pauseError] = await safeWrapAsync(player.pause());
-      if (pauseError) {
-        console.error('[SpotifyPlayer] Failed to pause:', pauseError);
-      }
-    })();
+        expectedPlayingStateRef.current = false;
+        const [pauseError] = await safeWrapAsync(player.pause());
+        if (pauseError) {
+          console.error('[SpotifyPlayer] Failed to pause:', pauseError);
+        }
+      },
+    );
   }, [currentSong, isActive, isPlaying, isReady, updatedAt]);
 
   const handleCallback = useCallback(
@@ -149,11 +151,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         const previousPosition = lastCallbackPositionRef.current;
         const previousObservedAt = lastCallbackAtRef.current;
         const previousIsPlaying = lastCallbackIsPlayingRef.current;
-        if (
-          now >= suppressLocalEventsUntilRef.current &&
-          previousPosition !== null &&
-          previousObservedAt > 0
-        ) {
+        if (previousPosition !== null && previousObservedAt > 0) {
           const expectedPosition =
             previousPosition +
             (previousIsPlaying ? Math.max(0, now - previousObservedAt) : 0);
@@ -169,10 +167,18 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         }
 
         if (
-          now >= suppressLocalEventsUntilRef.current &&
           previousIsPlaying !== null &&
           previousIsPlaying !== state.isPlaying
         ) {
+          const expectedPlayingState = expectedPlayingStateRef.current;
+          expectedPlayingStateRef.current = null;
+          if (expectedPlayingState === state.isPlaying) {
+            lastCallbackAtRef.current = now;
+            lastCallbackIsPlayingRef.current = state.isPlaying;
+            lastCallbackPositionRef.current = state.progressMs;
+            lastPositionRef.current = state.progressMs;
+            return;
+          }
           const authoritativeIsPlaying = usePlaybackStore.getState().isPlaying;
           if (state.isPlaying && !authoritativeIsPlaying) {
             onLocalPlay?.();
@@ -409,8 +415,6 @@ export const SpotifyPlayer = memo(
     );
   },
 );
-
-const AUTHORITATIVE_EVENT_SUPPRESSION_MS = 1500;
 
 const LOCAL_SEEK_DEBOUNCE_MS = 1000;
 

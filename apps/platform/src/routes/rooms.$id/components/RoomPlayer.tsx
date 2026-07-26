@@ -110,7 +110,6 @@ export const RoomPlayer = React.memo(
     const playbackFetcher = useFetcher<RoomActionData>();
     const tokenFetcher = useFetcher<RoomActionData>();
     const songs = useQueueStore((state) => state.songs);
-    const userId = useRoomStore((state) => state.userId);
     const { isConnected, castDeviceName } = useCasting(roomId);
 
     // Granular store subscriptions
@@ -122,15 +121,17 @@ export const RoomPlayer = React.memo(
     const setLocalPlayingState = usePlaybackStore(
       (state) => state.setLocalPlayingState,
     );
+    const isAdmin = useRoomStore((state) => state.isAdmin);
 
     /* 2. State & Computed */
     const currentSong =
       currentSongFromStore || initialPlayback?.currentSong || null;
-    const isRoomHost =
+    const hasHostPlaybackAuthority =
       displayRoom?.mode === 'host' &&
-      !!userId &&
-      (!displayRoom.hostId || displayRoom.hostId === userId);
-    const canControlRoomPlayback = displayRoom?.mode !== 'host' || isRoomHost;
+      (isAdmin ||
+        (!!displayRoom.userId && displayRoom.hostId === displayRoom.userId));
+    const canControlRoomPlayback =
+      displayRoom?.mode !== 'host' || hasHostPlaybackAuthority;
 
     const hasSpotifySongs = useMemo(
       () => songs.some((s) => s.sourceType === 'spotify'),
@@ -202,6 +203,26 @@ export const RoomPlayer = React.memo(
     const pause = useCallback(() => {
       performPlaybackAction('pause');
     }, [performPlaybackAction]);
+
+    const handleLocalPause = useCallback(() => {
+      if (displayRoom?.mode === 'host') {
+        pause();
+        return;
+      }
+      if (displayRoom?.mode === 'server') {
+        setLocalPlayingState(false, displayRoom.mode);
+      }
+    }, [displayRoom?.mode, pause, setLocalPlayingState]);
+
+    const handleLocalPlay = useCallback(() => {
+      if (displayRoom?.mode === 'host') {
+        play();
+        return;
+      }
+      if (displayRoom?.mode === 'server') {
+        setLocalPlayingState(true, displayRoom.mode);
+      }
+    }, [displayRoom?.mode, play, setLocalPlayingState]);
 
     const seek = useCallback(
       (positionMs: number) => {
@@ -483,7 +504,7 @@ export const RoomPlayer = React.memo(
           currentSong={currentSong}
           isPlaying={isPlaying}
           skip={skip}
-          {...(isRoomHost && { mode: 'host' })}
+          {...(hasHostPlaybackAuthority && { mode: 'host' })}
         />
         {/* Player - Reserve height to prevent CLS */}
         <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1">
@@ -495,10 +516,13 @@ export const RoomPlayer = React.memo(
               )}
             >
               <VideoPlayerComponent
-                {...(isRoomHost && {
+                {...((hasHostPlaybackAuthority ||
+                  displayRoom?.mode === 'server') && {
+                  onLocalPause: handleLocalPause,
+                  onLocalPlay: handleLocalPlay,
+                })}
+                {...(hasHostPlaybackAuthority && {
                   onEnded: handleEnded,
-                  onLocalPause: pause,
-                  onLocalPlay: play,
                   onLocalSeek: seek,
                 })}
                 isVisible={!isConnected && isVideoTrack}
@@ -541,10 +565,13 @@ export const RoomPlayer = React.memo(
           {SpotifyPlayerComponent && (
             <div className="absolute inset-0">
               <SpotifyPlayerComponent
-                {...(isRoomHost && {
+                {...((hasHostPlaybackAuthority ||
+                  displayRoom?.mode === 'server') && {
+                  onLocalPause: handleLocalPause,
+                  onLocalPlay: handleLocalPlay,
+                })}
+                {...(hasHostPlaybackAuthority && {
                   onEnded: handleEnded,
-                  onLocalPause: pause,
-                  onLocalPlay: play,
                   onLocalSeek: seek,
                 })}
                 isVisible={!isConnected && isSpotifyTrack}
@@ -559,10 +586,13 @@ export const RoomPlayer = React.memo(
           {SoundCloudPlayerComponent && (
             <div className="absolute inset-0">
               <SoundCloudPlayerComponent
-                {...(isRoomHost && {
+                {...((hasHostPlaybackAuthority ||
+                  displayRoom?.mode === 'server') && {
+                  onLocalPause: handleLocalPause,
+                  onLocalPlay: handleLocalPlay,
+                })}
+                {...(hasHostPlaybackAuthority && {
                   onEnded: handleEnded,
-                  onLocalPause: pause,
-                  onLocalPlay: play,
                   onLocalSeek: seek,
                 })}
                 isVisible={!isConnected && isSoundCloudTrack}

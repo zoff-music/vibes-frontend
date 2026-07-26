@@ -26,6 +26,7 @@ export const roomSchema = yup.object({
   hasPassword: yup.boolean().required(),
   settings: roomSettingsSchema.required(),
   userCount: yup.number().optional(),
+  userId: yup.string().optional(),
   isAdmin: yup.boolean().optional(),
   activeSources: yup.array(yup.string().required()).optional(),
   isGenerating: yup.boolean().default(false),

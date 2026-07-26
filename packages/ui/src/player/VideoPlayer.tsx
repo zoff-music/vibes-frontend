@@ -80,7 +80,7 @@ const VideoPlayerComponent = ({
   const autoPlayKickLastAtRef = useRef(0);
   const autoPlayKickVideoIdRef = useRef<string | null>(null);
   const suppressLoadUntilRef = useRef(0);
-  const suppressLocalEventsUntilRef = useRef(0);
+  const expectedPlayingStateRef = useRef<boolean | null>(null);
   const lastSynchronizedUpdateRef = useRef<string | null>(null);
   const observedPlaybackRef = useRef<ObservedPlayback | null>(null);
   const lastReportedSeekAtRef = useRef(0);
@@ -212,14 +212,12 @@ const VideoPlayerComponent = ({
     const shouldSynchronizePosition =
       lastSynchronizedUpdateRef.current !== updatedAt;
     const [err] = safeWrap(() => {
-      suppressLocalEventsUntilRef.current =
-        Date.now() + AUTHORITATIVE_EVENT_SUPPRESSION_MS;
-
       if (shouldSynchronizePosition) {
         const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
         const targetTime = actualPositionMs / 1000;
         const loadedVideoID = player.getVideoData().video_id;
         if (loadedVideoID !== videoId) {
+          expectedPlayingStateRef.current = shouldPlay;
           player.loadVideoById(videoId, targetTime);
           lastLoadedVideoIdRef.current = videoId;
         } else if (
@@ -234,9 +232,11 @@ const VideoPlayerComponent = ({
 
       const state = player.getPlayerState();
       if (shouldPlay && state !== YOUTUBE_STATE_PLAYING) {
+        expectedPlayingStateRef.current = true;
         player.playVideo();
       }
       if (!shouldPlay && state === YOUTUBE_STATE_PLAYING) {
+        expectedPlayingStateRef.current = false;
         player.pauseVideo();
       }
     });
@@ -268,7 +268,7 @@ const VideoPlayerComponent = ({
           state,
         };
 
-        if (!previous || now < suppressLocalEventsUntilRef.current) {
+        if (!previous) {
           return;
         }
 
@@ -458,8 +458,6 @@ const VideoPlayerComponent = ({
   const handleReady = useCallback(
     (event: { target: YouTubePlayerRef }) => {
       playerRef.current = event.target;
-      suppressLocalEventsUntilRef.current =
-        Date.now() + AUTHORITATIVE_EVENT_SUPPRESSION_MS;
       setIsReady(true);
       setError(null);
       debugLog('ready');
@@ -538,9 +536,23 @@ const VideoPlayerComponent = ({
         } else {
           setNeedsUserGesture(!isCastReceiver);
         }
+        const expectedPlayingState = expectedPlayingStateRef.current;
+        if (state === YOUTUBE_STATE_PLAYING && expectedPlayingState === true) {
+          expectedPlayingStateRef.current = null;
+          return;
+        }
         if (
           state === YOUTUBE_STATE_PLAYING &&
-          Date.now() >= suppressLocalEventsUntilRef.current &&
+          expectedPlayingState === false &&
+          pauseAfterLoadVideoIdRef.current === videoId
+        ) {
+          return;
+        }
+        if (state === YOUTUBE_STATE_PLAYING && expectedPlayingState !== null) {
+          expectedPlayingStateRef.current = null;
+        }
+        if (
+          state === YOUTUBE_STATE_PLAYING &&
           !usePlaybackStore.getState().isPlaying
         ) {
           onLocalPlay?.();
@@ -561,9 +573,14 @@ const VideoPlayerComponent = ({
         }
       } else if (
         state === YOUTUBE_STATE_PAUSED &&
-        Date.now() >= suppressLocalEventsUntilRef.current &&
-        usePlaybackStore.getState().isPlaying
+        expectedPlayingStateRef.current === false
       ) {
+        expectedPlayingStateRef.current = null;
+      } else if (state === YOUTUBE_STATE_PAUSED) {
+        expectedPlayingStateRef.current = null;
+        if (!usePlaybackStore.getState().isPlaying) {
+          return;
+        }
         onLocalPause?.();
       }
     },
@@ -616,9 +633,9 @@ const VideoPlayerComponent = ({
     const shouldPauseAfterLoad =
       !isCastReceiver && !usePlaybackStore.getState().isPlaying;
     const [err] = safeWrap(() => {
-      suppressLocalEventsUntilRef.current =
-        Date.now() + AUTHORITATIVE_EVENT_SUPPRESSION_MS;
       pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad ? videoId : null;
+      expectedPlayingStateRef.current = !shouldPauseAfterLoad;
+      observedPlaybackRef.current = null;
       player.loadVideoById(videoId, startSeconds);
       lastLoadedVideoIdRef.current = videoId;
       debugLog('load-video', { shouldPauseAfterLoad, startSeconds });
@@ -778,8 +795,6 @@ const VideoPlayerComponent = ({
 };
 
 export const VideoPlayer = memo(VideoPlayerComponent);
-
-const AUTHORITATIVE_EVENT_SUPPRESSION_MS = 1500;
 
 const AUTHORITATIVE_SEEK_THRESHOLD_SECONDS = 1;
 
