@@ -2,6 +2,7 @@ import type { Room } from '@vibes/models';
 import {
   type AddSongOutcome,
   formatDuration,
+  getProviderTrackUrl,
   parseISODuration,
   resolveSongThumbnail,
   type SourceType,
@@ -17,6 +18,9 @@ import {
   Modal,
   PlusIcon,
   SearchIcon,
+  SoundCloudIcon,
+  SpotifyIcon,
+  YouTubeIcon,
 } from '@vibes/ui';
 import React, { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
@@ -35,8 +39,8 @@ interface SearchResult {
   artist: string;
   thumbnailUrl: string;
   duration?: string;
-  url?: string;
-  source?: string;
+  providerUrl?: string;
+  source: SourceType;
 }
 
 export const AddToQueueModal: React.FC<Props> = ({
@@ -69,8 +73,6 @@ export const AddToQueueModal: React.FC<Props> = ({
     'soundcloud',
   ];
 
-  // Ensure YouTube is first, then Spotify, then SoundCloud
-  const orderedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];
   const providerList = orderedProviders.filter(
     (p) => (providers || []).includes(p) && enabledSources.includes(p),
   );
@@ -123,6 +125,8 @@ export const AddToQueueModal: React.FC<Props> = ({
         artist: video.channelTitle,
         duration: video.duration,
         id: video.id,
+        providerUrl: video.providerUrl,
+        source: 'youtube',
         thumbnailUrl: video.thumbnailUrl,
         title: video.title,
       });
@@ -138,6 +142,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           artist: result.channelTitle || 'Unknown',
           duration: result.duration,
           id: result.id,
+          providerUrl: result.providerUrl,
           source: 'source' in result ? result.source : 'youtube',
           thumbnailUrl: result.thumbnailUrl ?? '',
           title: result.title,
@@ -231,9 +236,10 @@ export const AddToQueueModal: React.FC<Props> = ({
           artist: song.artist,
           duration: durationSec,
           sourceId: song.id,
-          sourceType: selectedProvider,
+          sourceType: song.source,
           thumbnailUrl: song.thumbnailUrl,
           title: song.title,
+          ...(song.providerUrl ? { providerUrl: song.providerUrl } : {}),
         },
       },
       { encType: 'application/json', method: 'post' },
@@ -296,6 +302,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               }}
               variant={selectedProvider === p ? 'tertiary' : 'ghost'}
             >
+              <ProviderIcon className="h-5 w-5" provider={p} />
               {p.charAt(0).toUpperCase() + p.slice(1)}
             </Button>
           ))}
@@ -394,34 +401,39 @@ export const AddToQueueModal: React.FC<Props> = ({
           !justAdded && (
             <div className="mt-2 max-h-96 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-primary-popover">
               {searchResults.map((result) => (
-                <Button
+                <div
                   key={result.id}
-                  onClick={() => handleSelectResult(result)}
-                  variant="ghost"
-                  size="none"
-                  className="w-full justify-start gap-3 border-theme border-t p-4 text-left first:border-t-0 hover:bg-theme"
+                  className="flex border-theme border-t first:border-t-0"
                 >
-                  <div className="relative shrink-0">
-                    <img
-                      src={resolveSongThumbnail(result.thumbnailUrl)}
-                      alt={result.title}
-                      className="h-20 w-28 rounded-xl border border-theme bg-theme-surface object-cover"
-                    />
-                    {result.duration && (
-                      <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
-                        {formatDuration(parseISODuration(result.duration))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex min-w-0 flex-1 flex-col justify-center">
-                    <h4 className="mb-1.5 line-clamp-2 text-sm text-theme leading-snug">
-                      {result.title}
-                    </h4>
-                    <p className="line-clamp-1 text-theme-muted text-xs">
-                      {result.artist}
-                    </p>
-                  </div>
-                </Button>
+                  <Button
+                    onClick={() => handleSelectResult(result)}
+                    variant="ghost"
+                    size="none"
+                    className="min-w-0 flex-1 justify-start gap-3 p-4 text-left hover:bg-theme"
+                  >
+                    <div className="relative shrink-0">
+                      <img
+                        src={resolveSongThumbnail(result.thumbnailUrl)}
+                        alt={result.title}
+                        className="h-20 w-28 rounded-xl border border-theme bg-theme-surface object-cover"
+                      />
+                      {result.duration && (
+                        <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
+                          {formatDuration(parseISODuration(result.duration))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col justify-center">
+                      <h4 className="mb-1.5 line-clamp-2 text-sm text-theme leading-snug">
+                        {result.title}
+                      </h4>
+                      <p className="line-clamp-1 text-theme-muted text-xs">
+                        {result.artist}
+                      </p>
+                    </div>
+                  </Button>
+                  <ProviderAttribution result={result} />
+                </div>
               ))}
             </div>
           )}
@@ -440,7 +452,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       {/* Video Preview */}
       {previewVideo && !justAdded && (
         <div className="mb-6 animate-scale-in rounded-2xl border border-theme bg-theme-surface p-4">
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
             <div className="relative shrink-0">
               <img
                 src={resolveSongThumbnail(previewVideo.thumbnailUrl)}
@@ -459,6 +471,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                 {previewVideo.artist}
               </p>
             </div>
+            <ProviderAttribution result={previewVideo} />
           </div>
         </div>
       )}
@@ -516,4 +529,69 @@ export const AddToQueueModal: React.FC<Props> = ({
       )}
     </Modal>
   );
+};
+
+interface ProviderIconProps {
+  className: string;
+  provider: SourceType;
+}
+
+const ProviderIcon: React.FC<ProviderIconProps> = ({ className, provider }) => {
+  if (provider === 'spotify') {
+    return <SpotifyIcon className={className} />;
+  }
+
+  if (provider === 'soundcloud') {
+    return <SoundCloudIcon className={className} />;
+  }
+
+  return <YouTubeIcon className={className} />;
+};
+
+interface ProviderAttributionProps {
+  result: SearchResult;
+}
+
+const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
+  result,
+}) => {
+  const providerUrl = getProviderTrackUrl(
+    result.source,
+    result.id,
+    result.providerUrl,
+  );
+
+  if (providerUrl) {
+    return (
+      <a
+        href={providerUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="flex shrink-0 cursor-pointer items-center justify-center self-stretch px-4 text-theme-muted transition-colors hover:bg-theme hover:text-theme focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+        aria-label={`Open ${result.title} on ${providerNames[result.source]}`}
+        title={`Open on ${providerNames[result.source]}`}
+      >
+        <ProviderIcon className="h-5 w-5" provider={result.source} />
+      </a>
+    );
+  }
+
+  return (
+    <div
+      className="flex shrink-0 items-center justify-center self-stretch px-4 text-theme-muted"
+      role="img"
+      aria-label={`${providerNames[result.source]} result`}
+      title={`${providerNames[result.source]} result`}
+    >
+      <ProviderIcon className="h-5 w-5" provider={result.source} />
+    </div>
+  );
+};
+
+const orderedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];
+
+const providerNames: Record<SourceType, string> = {
+  soundcloud: 'SoundCloud',
+  spotify: 'Spotify',
+  youtube: 'YouTube',
 };

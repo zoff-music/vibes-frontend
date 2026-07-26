@@ -2,6 +2,7 @@ import * as yup from 'yup';
 
 export const youTubeVideoSchema = yup.object({
   id: yup.string().required(),
+  providerUrl: yup.string().optional(),
   title: yup.string().required(),
   channelTitle: yup.string().required(),
   thumbnailUrl: yup.string().required(),
