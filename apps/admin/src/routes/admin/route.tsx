@@ -1,6 +1,5 @@
-import { useAdminEvents } from '@vibes/api';
+import { showRateLimitMessageToast, useAdminEvents } from '@vibes/api';
 import type { AdminRoomSummary } from '@vibes/models';
-import { showToast } from '@vibes/shared';
 import { Button, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 import { JSX, useEffect, useMemo, useState } from 'react';
 import {
@@ -78,7 +77,7 @@ export default function Admin() {
       setIsAuthorized(fetcher.data.authorized);
     }
     if (fetcher.data.rateLimitMessage) {
-      showToast(fetcher.data.rateLimitMessage, 'warning', 6000);
+      showRateLimitMessageToast(fetcher.data.rateLimitMessage);
       setErrorMessage(null);
     } else if (fetcher.data.error) {
       setErrorMessage(fetcher.data.error);

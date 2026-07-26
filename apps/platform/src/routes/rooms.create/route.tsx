@@ -1,5 +1,5 @@
+import { showRateLimitMessageToast } from '@vibes/api';
 import type { RoomNameReservation } from '@vibes/models';
-import { showToast } from '@vibes/shared';
 import {
   AlertCircleIcon,
   Button,
@@ -214,7 +214,7 @@ const CreateRoom: React.FC = () => {
     if (!data || data.checkedName !== name.trim()) return;
 
     if (data.rateLimitMessage) {
-      showToast(data.rateLimitMessage, 'warning', 6000);
+      showRateLimitMessageToast(data.rateLimitMessage);
     }
     if (data.error) {
       setReservation(null);
@@ -238,7 +238,7 @@ const CreateRoom: React.FC = () => {
     if (!data) return;
 
     if (data.rateLimitMessage) {
-      showToast(data.rateLimitMessage, 'warning', 6000);
+      showRateLimitMessageToast(data.rateLimitMessage);
     }
     if (data.error) {
       setError(data.error);
@@ -310,7 +310,7 @@ const CreateRoom: React.FC = () => {
   useEffect(() => {
     if (!createFetcher.data) return;
     if (createFetcher.data.rateLimitMessage) {
-      showToast(createFetcher.data.rateLimitMessage, 'warning', 6000);
+      showRateLimitMessageToast(createFetcher.data.rateLimitMessage);
       setError(null);
       setIsWarping(false);
       return;
