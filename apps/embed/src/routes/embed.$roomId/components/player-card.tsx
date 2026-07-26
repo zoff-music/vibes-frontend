@@ -10,15 +10,10 @@ interface Props {
   onLocalAlignmentChange: (isAligned: boolean) => void;
   onLocalInteraction: () => void;
   positionMs: number;
-  requestProviderToken: (
-    provider: 'spotify' | 'youtube',
-    force?: boolean,
-  ) => void;
+  requestProviderToken: (provider: 'spotify', force?: boolean) => void;
   spotifyTokenLoading: boolean;
   spotifyToken: string | null;
   songs: Song[];
-  youtubeTokenLoading: boolean;
-  youtubeToken: string | null;
 }
 
 export function EmbedPlayerCard({
@@ -32,8 +27,6 @@ export function EmbedPlayerCard({
   spotifyTokenLoading,
   spotifyToken,
   songs,
-  youtubeTokenLoading,
-  youtubeToken,
 }: Props) {
   const progress = durationMs > 0 ? positionMs / durationMs : 0;
   const formatTime = (milliseconds: number) => {
@@ -67,8 +60,6 @@ export function EmbedPlayerCard({
           spotifyTokenLoading={spotifyTokenLoading}
           songs={songs}
           spotifyToken={spotifyToken}
-          youtubeTokenLoading={youtubeTokenLoading}
-          youtubeToken={youtubeToken}
         />
       </div>
 

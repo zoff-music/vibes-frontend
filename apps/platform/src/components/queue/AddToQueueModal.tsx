@@ -4,6 +4,7 @@ import {
   formatDuration,
   getProviderTrackUrl,
   parseISODuration,
+  parseProviderTrackLink,
   resolveSongThumbnail,
   type SourceType,
   usePlaybackStore,
@@ -17,6 +18,7 @@ import {
   InfoIcon,
   Modal,
   PlusIcon,
+  ProviderMark,
   SearchIcon,
   SoundCloudIcon,
   SpotifyIcon,
@@ -57,7 +59,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewVideo, setPreviewVideo] = useState<SearchResult | null>(null);
+  const [previewTrack, setPreviewTrack] = useState<SearchResult | null>(null);
   const [justAdded, setJustAdded] = useState(false);
   const [addOutcome, setAddOutcome] = useState<AddSongOutcome | null>(null);
   const { songs } = useQueueStore();
@@ -93,7 +95,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         setSearchQuery('');
         setSearchResults([]);
         setShowResults(false);
-        setPreviewVideo(null);
+        setPreviewTrack(null);
         setError(null);
         setJustAdded(false);
         setAddOutcome(null);
@@ -107,8 +109,8 @@ export const AddToQueueModal: React.FC<Props> = ({
 
     if (searchFetcher.data.error) {
       setError(
-        searchFetcher.data.intent === 'youtubeVideo'
-          ? 'Could not find that video'
+        searchFetcher.data.intent === 'providerTrack'
+          ? 'Could not load that track'
           : searchFetcher.data.error,
       );
       setSearchResults([]);
@@ -117,18 +119,18 @@ export const AddToQueueModal: React.FC<Props> = ({
     }
 
     if (
-      searchFetcher.data.intent === 'youtubeVideo' &&
-      searchFetcher.data.video
+      searchFetcher.data.intent === 'providerTrack' &&
+      searchFetcher.data.track
     ) {
-      const video = searchFetcher.data.video;
-      setPreviewVideo({
-        artist: video.channelTitle,
-        duration: video.duration,
-        id: video.id,
-        providerUrl: video.providerUrl,
-        source: 'youtube',
-        thumbnailUrl: video.thumbnailUrl,
-        title: video.title,
+      const track = searchFetcher.data.track;
+      setPreviewTrack({
+        artist: track.channelTitle ?? 'Unknown',
+        duration: track.duration,
+        id: track.id,
+        providerUrl: track.providerUrl,
+        source: track.source,
+        thumbnailUrl: track.thumbnailUrl ?? '',
+        title: track.title,
       });
       return;
     }
@@ -172,13 +174,6 @@ export const AddToQueueModal: React.FC<Props> = ({
     return () => window.clearTimeout(timeout);
   }, [onClose, songFetcher.data, songFetcher.state]);
 
-  const extractYoutubeId = (url: string) => {
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
-
   const performSearch = (query: string) => {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
@@ -190,15 +185,41 @@ export const AddToQueueModal: React.FC<Props> = ({
 
     setIsSearching(true);
     setError(null);
-    setPreviewVideo(null);
+    setPreviewTrack(null);
     setSearchResults([]);
     setShowResults(false);
 
-    const videoId = extractYoutubeId(trimmedQuery);
-    if (videoId && selectedProvider === 'youtube') {
+    const providerTrackLink = parseProviderTrackLink(trimmedQuery);
+    if (providerTrackLink) {
+      if (!providerList.includes(providerTrackLink.provider)) {
+        setIsSearching(false);
+        setError(
+          `${providerNames[providerTrackLink.provider]} is not enabled in this room`,
+        );
+        return;
+      }
+
+      setSelectedProvider(providerTrackLink.provider);
       searchFetcher.submit(
-        { intent: 'youtubeVideo', songId: videoId },
+        {
+          intent: 'providerTrack',
+          provider: providerTrackLink.provider,
+          ...(providerTrackLink.sourceId
+            ? { songId: providerTrackLink.sourceId }
+            : {}),
+          ...(providerTrackLink.providerUrl
+            ? { providerUrl: providerTrackLink.providerUrl }
+            : {}),
+        },
         { encType: 'application/json', method: 'post' },
+      );
+      return;
+    }
+
+    if (trimmedQuery.length < MINIMUM_SEARCH_QUERY_LENGTH) {
+      setIsSearching(false);
+      setError(
+        `Enter at least ${MINIMUM_SEARCH_QUERY_LENGTH} characters to search`,
       );
       return;
     }
@@ -216,7 +237,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
     setError(null);
-    setPreviewVideo(null);
+    setPreviewTrack(null);
     setSearchResults([]);
     setShowResults(false);
 
@@ -254,9 +275,24 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const handleAdd = () => {
-    if (!previewVideo || justAdded) return;
-    handleSelectResult(previewVideo);
+    if (!previewTrack || justAdded) return;
+    handleSelectResult(previewTrack);
   };
+
+  const handleSearchInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    handleSearchChange(event.target.value);
+  };
+
+  const handleSearch = () => {
+    performSearch(searchQuery);
+  };
+
+  const providerTrackLink = parseProviderTrackLink(searchQuery);
+  const canSubmitSearch =
+    Boolean(providerTrackLink) ||
+    searchQuery.trim().length >= MINIMUM_SEARCH_QUERY_LENGTH;
 
   if (!isVisible) return null;
 
@@ -298,7 +334,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                 setSelectedProvider(p);
                 setSearchResults([]);
                 setSearchQuery('');
-                setPreviewVideo(null);
+                setPreviewTrack(null);
               }}
               variant={selectedProvider === p ? 'tertiary' : 'ghost'}
             >
@@ -358,7 +394,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               type="text"
               placeholder={`Search ${selectedProvider}...`}
               value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              onChange={handleSearchInputChange}
               onKeyDown={handleKeyDown}
               className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
               autoFocus
@@ -379,8 +415,8 @@ export const AddToQueueModal: React.FC<Props> = ({
             )}
           </div>
           <Button
-            onClick={() => performSearch(searchQuery)}
-            disabled={!searchQuery.trim() || isSearching}
+            onClick={handleSearch}
+            disabled={!canSubmitSearch || isSearching}
             variant="primary"
           >
             Search
@@ -440,7 +476,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       </div>
 
       {/* Loading State */}
-      {isSearching && !previewVideo && extractYoutubeId(searchQuery) && (
+      {isSearching && !previewTrack && providerTrackLink && (
         <div className="animate-scale-in rounded-2xl border border-theme bg-theme-surface p-8 text-center">
           <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-theme bg-theme">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -450,28 +486,28 @@ export const AddToQueueModal: React.FC<Props> = ({
       )}
 
       {/* Video Preview */}
-      {previewVideo && !justAdded && (
+      {previewTrack && !justAdded && (
         <div className="mb-6 animate-scale-in rounded-2xl border border-theme bg-theme-surface p-4">
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
               <img
-                src={resolveSongThumbnail(previewVideo.thumbnailUrl)}
-                alt={previewVideo.title}
+                src={resolveSongThumbnail(previewTrack.thumbnailUrl)}
+                alt={previewTrack.title}
                 className="h-24 w-32 rounded-xl border border-theme bg-theme-surface object-cover"
               />
               <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
-                {formatDuration(parseISODuration(previewVideo.duration))}
+                {formatDuration(parseISODuration(previewTrack.duration))}
               </div>
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="mb-2 line-clamp-2 text-sm text-theme">
-                {previewVideo.title}
+                {previewTrack.title}
               </h3>
               <p className="line-clamp-1 text-theme-muted text-xs">
-                {previewVideo.artist}
+                {previewTrack.artist}
               </p>
             </div>
-            <ProviderAttribution result={previewVideo} />
+            <ProviderAttribution result={previewTrack} />
           </div>
         </div>
       )}
@@ -501,7 +537,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       )}
 
       {/* Action Buttons */}
-      {previewVideo && !justAdded && (
+      {previewTrack && !justAdded && (
         <div className="flex gap-3">
           <Button onClick={onClose} variant="tertiary" className="flex-1">
             Cancel
@@ -571,7 +607,7 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
         aria-label={`Open ${result.title} on ${providerNames[result.source]}`}
         title={`Open on ${providerNames[result.source]}`}
       >
-        <ProviderIcon className="h-5 w-5" provider={result.source} />
+        <ProviderMark className="h-4 w-16" provider={result.source} />
       </a>
     );
   }
@@ -583,7 +619,7 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
       aria-label={`${providerNames[result.source]} result`}
       title={`${providerNames[result.source]} result`}
     >
-      <ProviderIcon className="h-5 w-5" provider={result.source} />
+      <ProviderMark className="h-4 w-16" provider={result.source} />
     </div>
   );
 };
@@ -595,3 +631,5 @@ const providerNames: Record<SourceType, string> = {
   spotify: 'Spotify',
   youtube: 'YouTube',
 };
+
+const MINIMUM_SEARCH_QUERY_LENGTH = 3;

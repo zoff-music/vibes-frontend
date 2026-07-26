@@ -29,8 +29,6 @@ export function EmbedRoomView({ loaderData }: Props) {
     spotifyTokenLoading,
     spotifyToken,
     toast,
-    youtubeTokenLoading,
-    youtubeToken,
   } = useEmbedRoom(loaderData);
   const durationMs = (currentSong?.duration ?? 0) * 1000;
   const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
@@ -49,8 +47,6 @@ export function EmbedRoomView({ loaderData }: Props) {
       spotifyTokenLoading={spotifyTokenLoading}
       spotifyToken={spotifyToken}
       songs={songs}
-      youtubeTokenLoading={youtubeTokenLoading}
-      youtubeToken={youtubeToken}
     />
   );
   const showPlayerAndPlaylist = options.player && options.playlist;

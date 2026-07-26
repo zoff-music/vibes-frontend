@@ -11,6 +11,7 @@ import {
   addSongResponseSchema,
   adminLoginRequestSchema,
   adminRoomsSchema,
+  adminSearchUsageSchema,
   adminSessionResponseSchema,
   adminUpdateRoomRequestSchema,
   castingTokenResponseSchema,
@@ -24,6 +25,7 @@ import {
   playbackStateSchema,
   providersSchema,
   providerTokenSchema,
+  providerURLQuerySchema,
   roomActionRequestSchema,
   roomGenerationUpdateSchema,
   roomHostUpdateSchema,
@@ -33,6 +35,7 @@ import {
   roomUpdateSchema,
   searchQuerySchema,
   searchResponseSchema,
+  searchResultSchema,
   sessionResponseSchema,
   skipActionResponseSchema,
   skipVoteUpdateSchema,
@@ -302,6 +305,11 @@ const endpoints = {
       response: adminRoomsSchema,
     },
   },
+  '/admin/search-usage': {
+    get: {
+      response: adminSearchUsageSchema,
+    },
+  },
   '/admin/rooms/{id}': {
     patch: {
       request: adminUpdateRoomRequestSchema,
@@ -325,10 +333,21 @@ const endpoints = {
       response: searchResponseSchema,
     },
   },
+  '/spotify/tracks/{id}': {
+    get: {
+      response: searchResultSchema,
+    },
+  },
   '/soundcloud/search': {
     get: {
       $search: searchQuerySchema,
       response: searchResponseSchema,
+    },
+  },
+  '/soundcloud/tracks': {
+    get: {
+      $search: providerURLQuerySchema,
+      response: searchResultSchema,
     },
   },
 } as const satisfies RequestDefinitions;

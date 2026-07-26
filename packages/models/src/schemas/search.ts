@@ -16,6 +16,11 @@ export const searchResponseSchema = yup.array(searchResultSchema).required();
 export type SearchResponse = yup.InferType<typeof searchResponseSchema>;
 
 export const searchQuerySchema = yup.object({
-  q: yup.string().required(),
+  q: yup.string().trim().min(3).required(),
 });
 export type SearchQuery = yup.InferType<typeof searchQuerySchema>;
+
+export const providerURLQuerySchema = yup.object({
+  url: yup.string().url().required(),
+});
+export type ProviderURLQuery = yup.InferType<typeof providerURLQuerySchema>;

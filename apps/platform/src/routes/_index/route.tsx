@@ -9,6 +9,7 @@ import { getPreviousPath } from '../../utils/navigationHistory';
 import { clientAction } from './action';
 import { LegalAcknowledgement } from './components/LegalAcknowledgement';
 import { PlaylistGenerationControls } from './components/PlaylistGenerationControls';
+import { ProviderAttribution } from './components/ProviderAttribution';
 import { RoomJoinControls } from './components/RoomJoinControls';
 import { loader } from './loader';
 
@@ -64,7 +65,7 @@ const AI_PROMPTS = [
 ];
 
 export default function Home() {
-  const { totalListeners } = useLoaderData<typeof loader>();
+  const { providers, totalListeners } = useLoaderData<typeof loader>();
   const [roomCode, setRoomCode] = useState('');
   const [placeholderText, setPlaceholderText] = useState('');
   const [wordIndex, setWordIndex] = useState(0);
@@ -217,6 +218,7 @@ export default function Home() {
               prompt={roomCode}
             />
           )}
+          <ProviderAttribution providers={providers} />
           <LegalAcknowledgement />
         </div>
       </div>

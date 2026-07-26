@@ -8,7 +8,6 @@ import {
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import YouTube, { type YouTubeProps } from 'react-youtube';
 import { Button } from '../components/Button';
-import { AuthOverlay } from './AuthOverlay';
 
 interface Props {
   isVisible?: boolean;
@@ -16,10 +15,7 @@ interface Props {
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   appContext?: 'platform' | 'cast';
-  isFetchingToken?: boolean;
-  onRequestToken?: (provider: 'youtube', force?: boolean) => void;
   preloadSong?: Song | null;
-  providerToken?: string | null;
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
@@ -60,10 +56,7 @@ const VideoPlayerComponent = ({
   fill = false,
   onNeedsUserGestureChange,
   appContext = 'platform',
-  isFetchingToken = false,
-  onRequestToken,
   preloadSong = null,
-  providerToken = null,
   onLocalAlignmentChange,
   onLocalPause,
   onLocalPlay,
@@ -84,7 +77,6 @@ const VideoPlayerComponent = ({
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isVerifying = isFetchingToken;
   const autoPlayRetryRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoPlayKickCountRef = useRef(0);
   const autoPlayKickLastAtRef = useRef(0);
@@ -140,56 +132,6 @@ const VideoPlayerComponent = ({
     },
     [videoId, isPlaying, shouldPlay, isReady],
   );
-
-  const handleAuthorize = () => {
-    // Check if running on Chromecast (CrKey)
-    const isChromecast = /CrKey/i.test(navigator.userAgent);
-    if (isChromecast) {
-      setError('Please authorize YouTube on your phone to continue casting.');
-      return;
-    }
-
-    const width = 600;
-    const height = 800;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-
-    const popup = window.open(
-      '/api/v1/authorizations/youtube',
-      'YouTubeAuth',
-      `width=${width},height=${height},left=${left},top=${top}`,
-    );
-
-    let timer: ReturnType<typeof setInterval> | null = null;
-
-    const cleanup = () => {
-      if (timer) clearInterval(timer);
-      window.removeEventListener('message', handleMessage);
-
-      setError(null);
-      onRequestToken?.('youtube', true);
-    };
-
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (!popup || event.source !== popup) return;
-      if (
-        event.data?.type === 'oauth-success' &&
-        event.data?.provider === 'youtube'
-      ) {
-        cleanup();
-        popup?.close();
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-
-    timer = setInterval(() => {
-      if (popup?.closed) {
-        cleanup();
-      }
-    }, 1000);
-  };
 
   useEffect(() => {
     setError(null);
@@ -691,18 +633,10 @@ const VideoPlayerComponent = ({
     onEnded?.();
   }, [onEnded]);
 
-  const handleError = useCallback(
-    (event: unknown) => {
-      console.error('[VideoPlayer] Player error:', event);
-      onRequestToken?.('youtube');
-      setError(
-        providerToken
-          ? 'Failed to load video even with authorization'
-          : 'Authorization required or video unavailable',
-      );
-    },
-    [onRequestToken, providerToken],
-  );
+  const handleError = useCallback((event: unknown) => {
+    console.error('[VideoPlayer] Player error:', event);
+    setError('This video is unavailable in the embedded player.');
+  }, []);
 
   if (videoId) {
     lastVideoIdRef.current = videoId;
@@ -761,21 +695,45 @@ const VideoPlayerComponent = ({
     [isCastReceiver, origin],
   );
 
-  const showOverlay = !!error;
   const showClickToPlay =
     isYouTubeActive &&
     !isCastReceiver &&
     (needsUserGesture || (shouldPlay && isMutedState)) &&
-    !error &&
-    !isVerifying;
+    !error;
+
+  const handleUserGesturePlay = useCallback(() => {
+    const player = playerRef.current;
+    if (!player) return;
+
+    const [err] = safeWrap(() => {
+      player.unMute();
+      setIsMutedState(false);
+      suppressLoadUntilRef.current = Date.now() + 2000;
+      if (videoId) {
+        lastLoadedVideoIdRef.current = videoId;
+      }
+      const playbackState = usePlaybackStore.getState();
+      playbackState.updateActualPosition();
+      const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
+      player.seekTo(actualPositionMs / 1000, true);
+      observedPlaybackRef.current = null;
+      player.playVideo();
+      hasEverPlayedRef.current = true;
+      setNeedsUserGesture(false);
+      debugLog('user-gesture-play');
+    });
+    if (err && DEBUG) {
+      debugLog('user-gesture-error', { error: err.message });
+    }
+  }, [debugLog, videoId]);
 
   useEffect(() => {
     onNeedsUserGestureChange?.(showClickToPlay);
   }, [showClickToPlay, onNeedsUserGestureChange]);
 
   const containerClass = fill
-    ? 'relative h-full w-full overflow-hidden bg-black'
-    : 'relative h-full w-full overflow-hidden bg-black min-h-player-min';
+    ? 'relative flex h-full w-full flex-col overflow-hidden bg-black'
+    : 'relative flex h-full min-h-player-min w-full flex-col overflow-hidden bg-black';
 
   // Early return after all hooks have been called
   if (!resolvedVideoId) {
@@ -790,103 +748,52 @@ const VideoPlayerComponent = ({
         !isVisible && 'pointer-events-none opacity-0',
       )}
     >
-      {/* Video Content - Back Layer */}
-      {!isVerifying && youtubeVideoIdProp && (
-        <YouTube
-          videoId={youtubeVideoIdProp}
-          opts={opts}
-          onReady={handleReady}
-          onStateChange={handleStateChange}
-          onEnd={handleEnd}
-          onError={handleError}
-          className={
-            fill
-              ? 'absolute inset-0 flex h-full min-h-0 w-full items-center justify-center [&_iframe]:h-full [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
-              : 'absolute inset-0 flex min-h-video-min items-center justify-center [&_iframe]:aspect-video [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
-          }
-        />
-      )}
-
-      {/* CRT Effects Layer - Middle Layer (if shown) */}
-      {showOverlay && (
-        <div className="pointer-events-none absolute inset-0 z-5 overflow-hidden">
-          <div className="vhs-scanlines h-full w-full opacity-14 mix-blend-overlay" />
-          <div className="crt-overlay !absolute !z-6 pointer-events-none inset-0 opacity-10" />
-        </div>
-      )}
+      <div className="relative min-h-0 flex-1 bg-black">
+        {youtubeVideoIdProp && (
+          <YouTube
+            videoId={youtubeVideoIdProp}
+            opts={opts}
+            onReady={handleReady}
+            onStateChange={handleStateChange}
+            onEnd={handleEnd}
+            onError={handleError}
+            className={
+              fill
+                ? 'absolute inset-0 flex h-full min-h-0 w-full items-center justify-center [&_iframe]:h-full [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
+                : 'absolute inset-0 flex min-h-video-min items-center justify-center [&_iframe]:aspect-video [&_iframe]:max-h-full [&_iframe]:w-full [&_iframe]:max-w-full'
+            }
+          />
+        )}
+      </div>
 
       {showClickToPlay && (
         <Button
           type="button"
           variant="ghost"
           size="none"
-          className="absolute inset-0 z-20 bg-black/70 backdrop-blur-sm"
-          onClick={() => {
-            const player = playerRef.current;
-            if (!player) return;
-            const [err] = safeWrap(() => {
-              player.unMute();
-              setIsMutedState(false);
-              suppressLoadUntilRef.current = Date.now() + 2000;
-              if (videoId) {
-                lastLoadedVideoIdRef.current = videoId;
-              }
-              const playbackState = usePlaybackStore.getState();
-              playbackState.updateActualPosition();
-              const actualPositionMs =
-                usePlaybackStore.getState().actualPositionMs;
-              player.seekTo(actualPositionMs / 1000, true);
-              observedPlaybackRef.current = null;
-              player.playVideo();
-              hasEverPlayedRef.current = true;
-              setNeedsUserGesture(false);
-              debugLog('user-gesture-play');
-            });
-            if (err && DEBUG) {
-              debugLog('user-gesture-error', { error: err.message });
-            }
-          }}
+          className="w-full shrink-0 border-white/15 border-t bg-black px-4 py-3 text-white hover:bg-white/10"
+          onClick={handleUserGesturePlay}
         >
-          <div className="text-center">
-            <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/30 text-white/80">
-              ▶
-            </div>
-            <p className="font-mono text-caption text-white/80 uppercase tracking-widest">
-              Click to play
-            </p>
-          </div>
+          <span className="font-mono text-caption uppercase tracking-widest">
+            ▶ Click to play
+          </span>
         </Button>
       )}
 
-      {/* Auth/Error Overlay - Top Layer */}
-      {showOverlay && (
-        <AuthOverlay
-          provider="youtube"
-          errorMessage={error}
-          onAuthorize={handleAuthorize}
-        />
-      )}
-
-      {/* Loading States */}
-      {isVerifying && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="text-center">
-            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-red-500/30 border-t-red-500" />
-            <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
-              Verifying Authorization...
-            </p>
-          </div>
+      {error && (
+        <div className="shrink-0 border-white/15 border-t bg-black px-4 py-3 text-center">
+          <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
+            {error}
+          </p>
         </div>
       )}
 
-      {!isReady && !showOverlay && !isVerifying && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="text-center">
-            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-red-500/30 border-t-red-500" />
-            <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
-              Loading Satellite Feed...
-            </p>
-          </div>
+      {!isReady && !error && !showClickToPlay && (
+        <div className="flex shrink-0 items-center justify-center gap-3 border-white/15 border-t bg-black px-4 py-3">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500/30 border-t-red-500" />
+          <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
+            Loading player...
+          </p>
         </div>
       )}
     </div>

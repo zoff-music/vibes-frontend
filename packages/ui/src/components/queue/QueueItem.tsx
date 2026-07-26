@@ -1,13 +1,8 @@
 import { getProviderTrackUrl, resolveSongThumbnail, Song } from '@vibes/shared';
 import React from 'react';
-import {
-  SoundCloudIcon,
-  SpotifyIcon,
-  TrashIcon,
-  VoteIcon,
-  YouTubeIcon,
-} from '../../icons';
+import { TrashIcon, VoteIcon } from '../../icons';
 import { Button } from '../Button';
+import { ProviderMark } from '../ProviderMark';
 
 interface Props {
   song: Song;
@@ -94,9 +89,9 @@ export const QueueItem: React.FC<Props> = ({
       <div className="flex shrink-0 items-center gap-3 pr-4">
         {/* Source Icon */}
         <div className="flex items-center justify-center opacity-70">
-          {providerUrl && <div className="h-5 w-5" aria-hidden="true" />}
+          {providerUrl && <div className="h-4 w-16" aria-hidden="true" />}
           {!providerUrl && song.sourceType === 'soundcloud' && (
-            <SoundCloudIcon className="h-5 w-5" />
+            <ProviderMark className="h-4 w-16" provider="soundcloud" />
           )}
         </div>
 
@@ -132,11 +127,7 @@ export const QueueItem: React.FC<Props> = ({
       aria-label={`Open ${song.title} on ${providerNames[song.sourceType]}`}
       title={`Open on ${providerNames[song.sourceType]}`}
     >
-      {song.sourceType === 'youtube' && <YouTubeIcon className="h-5 w-5" />}
-      {song.sourceType === 'spotify' && <SpotifyIcon className="h-5 w-5" />}
-      {song.sourceType === 'soundcloud' && (
-        <SoundCloudIcon className="h-5 w-5" />
-      )}
+      <ProviderMark className="h-4 w-16" provider={song.sourceType} />
     </a>
   );
 
