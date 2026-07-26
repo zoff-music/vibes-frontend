@@ -54,7 +54,7 @@ Use these rules for frontend work in this repository.
 ## Code Style
 
 - Use Biome only.
-- Use double quotes and 2-space indentation.
+- Use single quotes and 2-space indentation.
 - Use early returns.
 - Use `safeWrap` and `safeWrapAsync` from `@vibes/shared` instead of local `try/catch`.
 - Only the implementations of `safeWrap` and `safeWrapAsync` are allowed to use `try/catch`.

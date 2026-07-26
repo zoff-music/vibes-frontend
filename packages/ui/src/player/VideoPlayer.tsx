@@ -24,6 +24,7 @@ interface Props {
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
   onLocalAlignmentChange?: (isAligned: boolean) => void;
+  onLocalVolumeChange?: () => void;
 }
 
 interface YouTubeVideoData {
@@ -67,6 +68,7 @@ const VideoPlayerComponent = ({
   onLocalPause,
   onLocalPlay,
   onLocalSeek,
+  onLocalVolumeChange,
 }: Props) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
@@ -277,7 +279,7 @@ const VideoPlayerComponent = ({
     if (
       !isReady ||
       !isYouTubeActive ||
-      (!onLocalAlignmentChange && !onLocalSeek)
+      (!onLocalAlignmentChange && !onLocalSeek && !onLocalVolumeChange)
     ) {
       return;
     }
@@ -308,6 +310,13 @@ const VideoPlayerComponent = ({
 
         if (!previous || !hasEverPlayedRef.current) {
           return;
+        }
+
+        if (
+          (previous.isMuted !== isMuted || previous.volume !== volume) &&
+          (!shouldPlay || hasEverPlayedRef.current)
+        ) {
+          onLocalVolumeChange?.();
         }
 
         const playbackStore = usePlaybackStore.getState();
@@ -348,7 +357,15 @@ const VideoPlayerComponent = ({
     }, LOCAL_SEEK_SAMPLE_MS);
 
     return () => clearInterval(interval);
-  }, [debugLog, isReady, isYouTubeActive, onLocalAlignmentChange, onLocalSeek]);
+  }, [
+    debugLog,
+    isReady,
+    isYouTubeActive,
+    onLocalAlignmentChange,
+    onLocalSeek,
+    onLocalVolumeChange,
+    shouldPlay,
+  ]);
 
   useEffect(() => {
     if (isYouTubeActive || !playerRef.current) return;

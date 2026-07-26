@@ -12,20 +12,38 @@ interface EmbedToast {
 
 export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const { roomId } = loaderData;
-  const fetcher = useFetcher<EmbedActionData>();
+  const actionFetcher = useFetcher<EmbedActionData>();
+  const spotifyTokenFetcher = useFetcher<EmbedActionData>();
+  const youtubeTokenFetcher = useFetcher<EmbedActionData>();
   useSSE(roomId);
 
   const [toast, setToast] = useState<EmbedToast | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
   const [youtubeToken, setYoutubeToken] = useState<string | null>(null);
-  const requestedProviderRef = useRef<string | null>(null);
+  const [hasLocalPlayerInteraction, setHasLocalPlayerInteraction] = useState(
+    loaderData.options.autoplay,
+  );
+  const interactionRoomIDRef = useRef(loaderData.roomId);
+  const spotifyTokenRequestedRef = useRef(false);
+  const youtubeTokenRequestedRef = useRef(false);
   const room = useRoomStore((state) => state.room) ?? loaderData.room;
+  const roomModeRef = useRef(room.mode);
   const songs = useQueueStore((state) => state.songs);
   const currentSong = usePlaybackStore((state) => state.currentSong);
+  const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const hasLocalPlaybackChanges = usePlaybackStore(
+    (state) => state.hasLocalPlaybackChanges,
+  );
   const positionMs = usePlaybackStore((state) => state.actualPositionMs);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
+  const resetPlaybackState = usePlaybackStore(
+    (state) => state.resetPlaybackState,
+  );
+  const setLocalPlaybackAligned = usePlaybackStore(
+    (state) => state.setLocalPlaybackAligned,
+  );
   const setLocalPlayingState = usePlaybackStore(
     (state) => state.setLocalPlayingState,
   );
@@ -34,34 +52,72 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     setToast(null);
   }, []);
 
+  const handleLocalPlayerInteraction = useCallback(() => {
+    setHasLocalPlayerInteraction(true);
+  }, []);
+
+  const handleLocalAlignmentChange = useCallback(
+    (isAligned: boolean) => {
+      if (!hasLocalPlayerInteraction) return;
+      setLocalPlaybackAligned(isAligned);
+    },
+    [hasLocalPlayerInteraction, setLocalPlaybackAligned],
+  );
+
   const handleSkip = useCallback(() => {
-    fetcher.submit(
+    actionFetcher.submit(
       { intent: 'skip' },
       { encType: 'application/json', method: 'post' },
     );
-  }, [fetcher]);
+  }, [actionFetcher]);
+
+  const handleReset = useCallback(() => {
+    actionFetcher.submit(
+      { intent: 'resetPlayback' },
+      { encType: 'application/json', method: 'post' },
+    );
+  }, [actionFetcher]);
+
+  const handlePlayPause = useCallback(() => {
+    setHasLocalPlayerInteraction(true);
+    setLocalPlayingState(!isPlaying, room.mode);
+  }, [isPlaying, room.mode, setLocalPlayingState]);
 
   const handleVote = useCallback(
     (songId: string) => {
-      fetcher.submit(
+      actionFetcher.submit(
         { intent: 'voteSong', songId },
         { encType: 'application/json', method: 'post' },
       );
     },
-    [fetcher],
+    [actionFetcher],
   );
 
   const requestProviderToken = useCallback(
     (provider: 'spotify' | 'youtube', force = false) => {
-      if (!force && requestedProviderRef.current === provider) return;
-      requestedProviderRef.current = provider;
-      fetcher.submit(
+      if (provider === 'spotify') {
+        if (!force && spotifyTokenRequestedRef.current) return;
+        spotifyTokenRequestedRef.current = true;
+        spotifyTokenFetcher.submit(
+          { intent: 'providerToken', provider },
+          { encType: 'application/json', method: 'post' },
+        );
+        return;
+      }
+
+      if (!force && youtubeTokenRequestedRef.current) return;
+      youtubeTokenRequestedRef.current = true;
+      youtubeTokenFetcher.submit(
         { intent: 'providerToken', provider },
         { encType: 'application/json', method: 'post' },
       );
     },
-    [fetcher],
+    [spotifyTokenFetcher, youtubeTokenFetcher],
   );
+
+  useEffect(() => {
+    roomModeRef.current = room.mode;
+  }, [room.mode]);
 
   useEffect(() => {
     setRoom(loaderData.room);
@@ -70,6 +126,12 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
   }, [loaderData, setPlaybackState, setRoom, setSongs]);
+
+  useEffect(() => {
+    if (interactionRoomIDRef.current === loaderData.roomId) return;
+    interactionRoomIDRef.current = loaderData.roomId;
+    setHasLocalPlayerInteraction(loaderData.options.autoplay);
+  }, [loaderData.options.autoplay, loaderData.roomId]);
 
   useEffect(() => {
     if (loaderData.options.autoplay || !currentSong?.id) return;
@@ -82,32 +144,68 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   ]);
 
   useEffect(() => {
-    if (fetcher.state !== 'idle' || !fetcher.data) return;
-    if (fetcher.data.error) {
-      if (fetcher.data.intent === 'providerToken') {
-        requestedProviderRef.current = null;
-        return;
-      }
-      setToast({ message: fetcher.data.error, type: 'error' });
+    if (spotifyTokenFetcher.state !== 'idle' || !spotifyTokenFetcher.data) {
       return;
     }
-    if (fetcher.data.intent === 'providerToken' && fetcher.data.providerToken) {
-      if (fetcher.data.provider === 'spotify') {
-        setSpotifyToken(fetcher.data.providerToken.accessToken);
-      }
-      if (fetcher.data.provider === 'youtube') {
-        setYoutubeToken(fetcher.data.providerToken.accessToken);
-      }
+    if (spotifyTokenFetcher.data.error) {
+      spotifyTokenRequestedRef.current = false;
       return;
     }
-    if (fetcher.data.playback) {
-      setPlaybackState(fetcher.data.playback, room.mode);
+    if (
+      spotifyTokenFetcher.data.intent !== 'providerToken' ||
+      spotifyTokenFetcher.data.provider !== 'spotify' ||
+      !spotifyTokenFetcher.data.providerToken
+    ) {
+      return;
+    }
+    setSpotifyToken(spotifyTokenFetcher.data.providerToken.accessToken);
+  }, [spotifyTokenFetcher.data, spotifyTokenFetcher.state]);
+
+  useEffect(() => {
+    if (youtubeTokenFetcher.state !== 'idle' || !youtubeTokenFetcher.data) {
+      return;
+    }
+    if (youtubeTokenFetcher.data.error) {
+      youtubeTokenRequestedRef.current = false;
+      return;
+    }
+    if (
+      youtubeTokenFetcher.data.intent !== 'providerToken' ||
+      youtubeTokenFetcher.data.provider !== 'youtube' ||
+      !youtubeTokenFetcher.data.providerToken
+    ) {
+      return;
+    }
+    setYoutubeToken(youtubeTokenFetcher.data.providerToken.accessToken);
+  }, [youtubeTokenFetcher.data, youtubeTokenFetcher.state]);
+
+  useEffect(() => {
+    if (actionFetcher.state !== 'idle' || !actionFetcher.data) return;
+    if (actionFetcher.data.error) {
+      setToast({ message: actionFetcher.data.error, type: 'error' });
+      return;
+    }
+    if (
+      actionFetcher.data.intent === 'resetPlayback' &&
+      actionFetcher.data.playback
+    ) {
+      resetPlaybackState(actionFetcher.data.playback, roomModeRef.current);
+      return;
+    }
+    if (actionFetcher.data.playback) {
+      setPlaybackState(actionFetcher.data.playback, roomModeRef.current);
     }
     setToast({
-      message: fetcher.data.intent === 'skip' ? 'Skip requested' : 'Vote added',
+      message:
+        actionFetcher.data.intent === 'skip' ? 'Skip requested' : 'Vote added',
       type: 'success',
     });
-  }, [fetcher.data, fetcher.state, room.mode, setPlaybackState]);
+  }, [
+    actionFetcher.data,
+    actionFetcher.state,
+    resetPlaybackState,
+    setPlaybackState,
+  ]);
 
   useEffect(() => {
     if (!toast) return;
@@ -118,15 +216,22 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   return {
     currentSong,
     dismissToast,
+    handleLocalAlignmentChange,
+    handleLocalPlayerInteraction,
+    handlePlayPause,
+    handleReset,
     handleSkip,
     handleVote,
+    hasLocalPlaybackChanges,
+    isPlaying,
     positionMs,
     requestProviderToken,
     room,
     songs,
+    spotifyTokenLoading: spotifyTokenFetcher.state !== 'idle',
     spotifyToken,
     toast,
-    tokenLoading: fetcher.state !== 'idle',
+    youtubeTokenLoading: youtubeTokenFetcher.state !== 'idle',
     youtubeToken,
   };
 }

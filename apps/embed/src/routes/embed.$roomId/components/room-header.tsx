@@ -1,20 +1,39 @@
 import type { Room } from '@vibes/models';
 import { useRoomStore } from '@vibes/shared';
-import { Button, ExternalLinkIcon, ListenerCount, SkipIcon } from '@vibes/ui';
+import {
+  Button,
+  ExternalLinkIcon,
+  ListenerCount,
+  PauseIcon,
+  PlayIcon,
+  ResetIcon,
+  SkipIcon,
+} from '@vibes/ui';
+import logoUrl from '../../../assets/logo.png';
 
 interface Props {
   canSkip: boolean;
+  isPlaying: boolean;
+  showPlaybackControls: boolean;
+  onReset: () => void;
+  onPlayPause: () => void;
   onSkip: () => void;
   room: Room;
   roomId: string;
+  showReset: boolean;
   showSkip: boolean;
 }
 
 export function EmbedRoomHeader({
   canSkip,
+  isPlaying,
+  showPlaybackControls,
+  onReset,
+  onPlayPause,
   onSkip,
   room,
   roomId,
+  showReset,
   showSkip,
 }: Props) {
   const roomUrl = `/rooms/${encodeURIComponent(roomId)}`;
@@ -27,6 +46,40 @@ export function EmbedRoomHeader({
       </h1>
       <div className="ml-3 flex shrink-0 items-center gap-2">
         <ListenerCount count={usersCount} />
+        <Button
+          disabled={!showPlaybackControls}
+          onClick={onPlayPause}
+          title={
+            showPlaybackControls
+              ? isPlaying
+                ? 'Pause'
+                : 'Play'
+              : 'Nothing is playing'
+          }
+          aria-label={
+            showPlaybackControls
+              ? isPlaying
+                ? 'Pause'
+                : 'Play'
+              : 'Nothing is playing'
+          }
+          variant="tertiary"
+          size="icon"
+        >
+          {isPlaying && <PauseIcon className="h-5 w-5" />}
+          {!isPlaying && <PlayIcon className="h-5 w-5" />}
+        </Button>
+        {showReset && (
+          <Button
+            onClick={onReset}
+            title="Reset playback"
+            aria-label="Reset playback"
+            variant="tertiary"
+            size="icon"
+          >
+            <ResetIcon className="h-5 w-5" />
+          </Button>
+        )}
         {showSkip && (
           <Button
             disabled={!canSkip}
@@ -43,11 +96,12 @@ export function EmbedRoomHeader({
           href={roomUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-theme bg-theme-surface p-2.5 text-theme transition-colors hover:border-theme-strong"
-          title="Open room in a new tab"
-          aria-label="Open room in a new tab"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-theme bg-theme-surface p-1.5 pr-2.5 text-theme transition-colors hover:border-theme-strong"
+          title="Open room on Zoff in a new tab"
+          aria-label="Open room on Zoff in a new tab"
         >
-          <ExternalLinkIcon className="h-5 w-5" />
+          <img className="h-7 w-7 rounded-full" src={logoUrl} alt="" />
+          <ExternalLinkIcon className="h-4 w-4" />
         </a>
       </div>
     </header>

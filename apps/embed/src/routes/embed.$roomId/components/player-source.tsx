@@ -1,4 +1,5 @@
 import type { Song } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import { lazy, memo, Suspense, useEffect, useState } from 'react';
 
 const LazySoundCloudPlayer = lazy(async () => {
@@ -19,13 +20,16 @@ const LazyVideoPlayer = lazy(async () => {
 interface Props {
   currentSong: Song | null;
   enabledProviders: string[];
+  onLocalAlignmentChange: (isAligned: boolean) => void;
+  onLocalInteraction: () => void;
   requestProviderToken: (
     provider: 'spotify' | 'youtube',
     force?: boolean,
   ) => void;
+  spotifyTokenLoading: boolean;
   spotifyToken: string | null;
   songs: Song[];
-  tokenLoading: boolean;
+  youtubeTokenLoading: boolean;
   youtubeToken: string | null;
 }
 
@@ -46,10 +50,13 @@ function PlayerLoading() {
 function EmbedPlayerSourceComponent({
   currentSong,
   enabledProviders,
+  onLocalAlignmentChange,
+  onLocalInteraction,
   requestProviderToken,
+  spotifyTokenLoading,
   spotifyToken,
   songs,
-  tokenLoading,
+  youtubeTokenLoading,
   youtubeToken,
 }: Props) {
   const isSoundCloudActive = currentSong?.sourceType === 'soundcloud';
@@ -93,38 +100,74 @@ function EmbedPlayerSourceComponent({
   return (
     <div className="absolute inset-0">
       {shouldMountYouTube && (
-        <Suspense fallback={isYouTubeActive && <PlayerLoading />}>
-          <LazyVideoPlayer
-            isVisible={isYouTubeActive}
-            fill
-            appContext="platform"
-            isFetchingToken={tokenLoading}
-            onRequestToken={requestProviderToken}
-            preloadSong={preloadYouTubeSong}
-            providerToken={youtubeToken}
-          />
-        </Suspense>
+        <div
+          className={classNames(
+            'absolute inset-0',
+            !isYouTubeActive && 'pointer-events-none opacity-0',
+          )}
+        >
+          <Suspense fallback={isYouTubeActive && <PlayerLoading />}>
+            <LazyVideoPlayer
+              isVisible={isYouTubeActive}
+              fill
+              appContext="platform"
+              isFetchingToken={youtubeTokenLoading}
+              onLocalAlignmentChange={onLocalAlignmentChange}
+              onLocalPause={onLocalInteraction}
+              onLocalPlay={onLocalInteraction}
+              onLocalSeek={onLocalInteraction}
+              onLocalVolumeChange={onLocalInteraction}
+              onRequestToken={requestProviderToken}
+              preloadSong={preloadYouTubeSong}
+              providerToken={youtubeToken}
+            />
+          </Suspense>
+        </div>
       )}
       {shouldMountSpotify && (
-        <Suspense fallback={isSpotifyActive && <PlayerLoading />}>
-          <LazySpotifyPlayer
-            isVisible={isSpotifyActive}
-            fill
-            accessToken={spotifyToken}
-            isFetchingToken={tokenLoading}
-            onRequestToken={requestProviderToken}
-            preloadSong={preloadSpotifySong}
-          />
-        </Suspense>
+        <div
+          className={classNames(
+            'absolute inset-0',
+            !isSpotifyActive && 'pointer-events-none opacity-0',
+          )}
+        >
+          <Suspense fallback={isSpotifyActive && <PlayerLoading />}>
+            <LazySpotifyPlayer
+              isVisible={isSpotifyActive}
+              fill
+              accessToken={spotifyToken}
+              isFetchingToken={spotifyTokenLoading}
+              onLocalAlignmentChange={onLocalAlignmentChange}
+              onLocalPause={onLocalInteraction}
+              onLocalPlay={onLocalInteraction}
+              onLocalSeek={onLocalInteraction}
+              onLocalVolumeChange={onLocalInteraction}
+              onRequestToken={requestProviderToken}
+              preloadSong={preloadSpotifySong}
+            />
+          </Suspense>
+        </div>
       )}
       {shouldMountSoundCloud && (
-        <Suspense fallback={isSoundCloudActive && <PlayerLoading />}>
-          <LazySoundCloudPlayer
-            isVisible={isSoundCloudActive}
-            fill
-            preloadSong={preloadSoundCloudSong}
-          />
-        </Suspense>
+        <div
+          className={classNames(
+            'absolute inset-0',
+            !isSoundCloudActive && 'pointer-events-none opacity-0',
+          )}
+        >
+          <Suspense fallback={isSoundCloudActive && <PlayerLoading />}>
+            <LazySoundCloudPlayer
+              isVisible={isSoundCloudActive}
+              fill
+              onLocalAlignmentChange={onLocalAlignmentChange}
+              onLocalPause={onLocalInteraction}
+              onLocalPlay={onLocalInteraction}
+              onLocalSeek={onLocalInteraction}
+              onLocalVolumeChange={onLocalInteraction}
+              preloadSong={preloadSoundCloudSong}
+            />
+          </Suspense>
+        </div>
       )}
     </div>
   );
@@ -136,6 +179,9 @@ export const EmbedPlayerSource = memo(
     previous.currentSong?.sourceType === next.currentSong?.sourceType &&
     previous.currentSong?.sourceId === next.currentSong?.sourceId &&
     previous.spotifyToken === next.spotifyToken &&
-    previous.tokenLoading === next.tokenLoading &&
-    previous.youtubeToken === next.youtubeToken,
+    previous.spotifyTokenLoading === next.spotifyTokenLoading &&
+    previous.youtubeTokenLoading === next.youtubeTokenLoading &&
+    previous.youtubeToken === next.youtubeToken &&
+    previous.onLocalAlignmentChange === next.onLocalAlignmentChange &&
+    previous.onLocalInteraction === next.onLocalInteraction,
 );
