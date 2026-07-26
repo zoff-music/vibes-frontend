@@ -19,6 +19,28 @@ export function ToastViewport() {
       }
 
       setToasts((currentToasts) => {
+        if (toast.dedupeKey) {
+          const currentToast = currentToasts.find(
+            (activeToast) => activeToast.dedupeKey === toast.dedupeKey,
+          );
+          if (
+            currentToast &&
+            (currentToast.priority ?? 0) >= (toast.priority ?? 0)
+          ) {
+            return currentToasts;
+          }
+
+          nextId.current += 1;
+          return [
+            ...currentToasts
+              .filter(
+                (activeToast) => activeToast.dedupeKey !== toast.dedupeKey,
+              )
+              .slice(-2),
+            { ...toast, id: nextId.current },
+          ];
+        }
+
         const isDuplicate = currentToasts.some(
           (currentToast) =>
             currentToast.message === toast.message &&
