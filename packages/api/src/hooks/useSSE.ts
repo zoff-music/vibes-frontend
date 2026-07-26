@@ -2,6 +2,7 @@ import type {
   PlaybackState,
   Room,
   RoomGenerationUpdate,
+  RoomHostUpdate,
   SkipVoteUpdate,
   Song,
 } from '@vibes/models';
@@ -36,6 +37,7 @@ export const useSSE = (
   callbacks?: USE_SSE_CALLBACKS,
 ) => {
   const setRoom = useRoomStore((state) => state.setRoom);
+  const setHost = useRoomStore((state) => state.setHost);
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
   const addSong = useQueueStore((state) => state.addSong);
   const setSongs = useQueueStore((state) => state.setSongs);
@@ -83,7 +85,8 @@ export const useSSE = (
           | { type: 'song_added'; data: Song }
           | { type: 'skip_vote'; data: SkipVoteUpdate }
           | { type: 'settings_update'; data: Room }
-          | { type: 'generation_update'; data: RoomGenerationUpdate };
+          | { type: 'generation_update'; data: RoomGenerationUpdate }
+          | { type: 'new_host'; data: RoomHostUpdate };
 
         // ...
 
@@ -172,6 +175,15 @@ export const useSSE = (
                   }
                   break;
                 }
+                case 'new_host': {
+                  const [error] = safeWrap(() => {
+                    setHost(message.data.userId);
+                  });
+                  if (error) {
+                    console.error('Failed to parse new_host', error);
+                  }
+                  break;
+                }
               }
             },
           );
@@ -236,5 +248,13 @@ export const useSSE = (
         isSubscribedRef.current = false;
       }
     };
-  }, [roomId, addSong, setRoom, setUsersCount, setSongs, setPlaybackState]);
+  }, [
+    roomId,
+    addSong,
+    setHost,
+    setRoom,
+    setUsersCount,
+    setSongs,
+    setPlaybackState,
+  ]);
 };

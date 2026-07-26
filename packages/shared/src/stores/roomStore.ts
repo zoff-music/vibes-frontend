@@ -11,6 +11,7 @@ interface RoomState {
   usersCount: number;
 
   setRoom: (room: Room) => void;
+  setHost: (userId: string) => void;
   setUsers: (users: RoomUser[]) => void;
   setUsersCount: (count: number) => void;
   setSession: (userId: string, isAdmin: boolean, nickname?: string) => void;
@@ -34,6 +35,10 @@ export const useRoomStore = create<RoomState>((set) => ({
       usersCount,
     }));
   },
+  setHost: (userId) =>
+    set((state) => ({
+      room: state.room ? { ...state.room, hostId: userId } : null,
+    })),
   setUsers: (users) => set({ users, usersCount: users.length }),
   setUsersCount: (usersCount) => set({ usersCount }),
   setSession: (userId, isAdmin, nickname) =>
