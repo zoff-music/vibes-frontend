@@ -36,8 +36,9 @@ import { RoomPlayer } from './components/RoomPlayer';
 import { RoomQueue } from './components/RoomQueue';
 import type { RoomLoaderData } from './loader';
 import { loader } from './loader';
+import { shouldRevalidate } from './shouldRevalidate';
 
-export { clientAction, clientLoader, loader };
+export { clientAction, clientLoader, loader, shouldRevalidate };
 
 const GENERATION_RELOAD_DELAY_MS = 5 * 60 * 1000;
 

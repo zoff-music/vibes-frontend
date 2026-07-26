@@ -6,6 +6,7 @@ import { EmbedRoomHydrateFallback } from './components/hydrate-fallback';
 import { EmbedRoomView } from './components/room-view';
 import { embedRoomLoader } from './loader';
 import { embedRoomMeta } from './meta';
+import { shouldRevalidate } from './shouldRevalidate';
 
 export const ErrorBoundary = EmbedRoomErrorBoundary;
 export const HydrateFallback = EmbedRoomHydrateFallback;
@@ -13,6 +14,7 @@ export { clientAction };
 export const clientLoader = embedRoomClientLoader;
 export const loader = embedRoomLoader;
 export const meta = embedRoomMeta;
+export { shouldRevalidate };
 
 export default function EmbedRoomRoute() {
   const loaderData = useLoaderData<typeof loader>();
