@@ -16,6 +16,6 @@ export type YouTubeSearchResponse = yup.InferType<
 >;
 
 export const youTubeSearchQuerySchema = yup.object({
-  q: yup.string().required(),
+  q: yup.string().trim().min(3).required(),
 });
 export type YouTubeSearchQuery = yup.InferType<typeof youTubeSearchQuerySchema>;

@@ -1,5 +1,5 @@
 import { showRateLimitMessageToast, useAdminEvents } from '@vibes/api';
-import type { AdminRoomSummary } from '@vibes/models';
+import type { AdminRoomSummary, AdminSearchUsageSummary } from '@vibes/models';
 import { Button, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
 import { JSX, useEffect, useMemo, useState } from 'react';
 import {
@@ -38,6 +38,7 @@ export default function Admin() {
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const isLoading = fetcher.state !== 'idle';
+  const searchUsage = loaderData.searchUsage ?? [];
 
   const hasRooms = rooms.length > 0;
 
@@ -255,6 +256,27 @@ export default function Admin() {
           </p>
         )}
 
+        <section>
+          <div className="mb-4">
+            <h2 className="font-black text-2xl tracking-tight">Search Usage</h2>
+            <p className="text-ink/60 text-sm dark:text-gray-400">
+              Provider searches only. Direct track links use metadata lookup and
+              are not counted.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {searchUsageWindows.map((window) => (
+              <SearchUsageCard
+                key={window.id}
+                label={window.label}
+                summaries={searchUsage.filter(
+                  (summary) => summary.window === window.id,
+                )}
+              />
+            ))}
+          </div>
+        </section>
+
         <div className="grid gap-4">
           {rooms.map((room) => (
             <div
@@ -369,6 +391,61 @@ export default function Admin() {
     </div>
   );
 }
+
+interface SearchUsageCardProps {
+  label: string;
+  summaries: AdminSearchUsageSummary[];
+}
+
+function SearchUsageCard({ label, summaries }: SearchUsageCardProps) {
+  const total = summaries.reduce((sum, summary) => sum + summary.total, 0);
+  const unique = summaries.reduce((sum, summary) => sum + summary.unique, 0);
+  const cached = summaries.reduce((sum, summary) => sum + summary.cached, 0);
+  const live = summaries.reduce((sum, summary) => sum + summary.live, 0);
+
+  return (
+    <div className="glass rounded-2xl border-2 border-ink/10 p-5 dark:border-gray-700">
+      <p className="text-ink/50 text-xs uppercase tracking-widest dark:text-gray-500">
+        {label}
+      </p>
+      <p className="mt-2 font-black text-3xl">{total}</p>
+      <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+        <div className="rounded-lg bg-ink/5 p-2 dark:bg-gray-800">
+          <span className="block font-bold">{unique}</span>
+          <span className="text-ink/50 dark:text-gray-500">unique</span>
+        </div>
+        <div className="rounded-lg bg-ink/5 p-2 dark:bg-gray-800">
+          <span className="block font-bold">{cached}</span>
+          <span className="text-ink/50 dark:text-gray-500">cached</span>
+        </div>
+        <div className="rounded-lg bg-ink/5 p-2 dark:bg-gray-800">
+          <span className="block font-bold">{live}</span>
+          <span className="text-ink/50 dark:text-gray-500">live</span>
+        </div>
+      </div>
+      {summaries.length > 0 && (
+        <div className="mt-3 space-y-1 border-ink/10 border-t pt-3 dark:border-gray-700">
+          {summaries.map((summary) => (
+            <div
+              className="flex justify-between text-ink/60 text-xs dark:text-gray-400"
+              key={summary.provider}
+            >
+              <span className="capitalize">{summary.provider}</span>
+              <span className="font-mono">{summary.total}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const searchUsageWindows = [
+  { id: 'hour', label: 'This hour' },
+  { id: 'day', label: 'Today' },
+  { id: 'week', label: 'This week' },
+  { id: 'month', label: 'This month' },
+];
 
 export function ErrorBoundary() {
   const error = useRouteError();

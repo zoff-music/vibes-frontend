@@ -13,10 +13,10 @@ import type {
   RoomGenerationUpdate,
   RoomUpdate,
   SearchResponse,
+  SearchResult,
   SessionResponse,
   SkipActionResponse,
   YouTubeSearchResponse,
-  YouTubeVideo,
 } from '@vibes/models';
 import type { ClientActionFunctionArgs } from 'react-router';
 
@@ -26,13 +26,13 @@ export type RoomActionIntent =
   | 'joinRoom'
   | 'playback'
   | 'providerToken'
+  | 'providerTrack'
   | 'removeSong'
   | 'resetPlayback'
   | 'search'
   | 'skip'
   | 'updateRoom'
-  | 'voteSong'
-  | 'youtubeVideo';
+  | 'voteSong';
 
 export interface RoomActionData {
   addSong?: AddSongResponse;
@@ -46,7 +46,7 @@ export interface RoomActionData {
   searchResults?: SearchResponse | YouTubeSearchResponse;
   session?: SessionResponse;
   skip?: SkipActionResponse;
-  video?: YouTubeVideo;
+  track?: SearchResult;
 }
 
 interface RoomActionRequest {
@@ -60,6 +60,7 @@ interface RoomActionRequest {
   room?: RoomUpdate;
   song?: AddSongRequest;
   songId?: string;
+  providerUrl?: string;
 }
 
 async function createErrorData(intent: RoomActionIntent, error: Error | null) {
@@ -243,27 +244,67 @@ export async function clientAction({
     return { intent: body.intent, provider: body.provider, providerToken };
   }
 
-  if (body.intent === 'youtubeVideo') {
-    if (!body.songId) {
-      return { error: 'Video ID is required', intent: body.intent };
+  if (body.intent === 'providerTrack') {
+    if (!body.provider) {
+      return { error: 'Provider is required', intent: body.intent };
     }
-    const [error, video] = await api.get('/youtube/videos/{id}', {
-      id: body.songId,
+
+    if (body.provider === 'youtube') {
+      if (!body.songId) {
+        return { error: 'Video ID is required', intent: body.intent };
+      }
+      const [error, video] = await api.get('/youtube/videos/{id}', {
+        id: body.songId,
+      });
+      if (error || !video) {
+        return createErrorData(body.intent, error);
+      }
+      return {
+        intent: body.intent,
+        track: {
+          ...video,
+          source: 'youtube',
+        },
+      };
+    }
+
+    if (body.provider === 'spotify') {
+      if (!body.songId) {
+        return { error: 'Track ID is required', intent: body.intent };
+      }
+      const [error, track] = await api.get('/spotify/tracks/{id}', {
+        id: body.songId,
+      });
+      if (error || !track) {
+        return createErrorData(body.intent, error);
+      }
+      return { intent: body.intent, track };
+    }
+
+    if (!body.providerUrl) {
+      return { error: 'SoundCloud URL is required', intent: body.intent };
+    }
+    const [error, track] = await api.get('/soundcloud/tracks', {
+      $search: { url: body.providerUrl },
     });
-    if (error || !video) {
+    if (error || !track) {
       return createErrorData(body.intent, error);
     }
-    return { intent: body.intent, video };
+    return { intent: body.intent, track };
   }
 
   if (body.intent === 'search') {
-    if (!body.provider || !body.prompt) {
-      return { error: 'Provider and query are required', intent: body.intent };
+    const prompt = body.prompt?.trim() ?? '';
+    if (!body.provider || prompt.length < MINIMUM_SEARCH_QUERY_LENGTH) {
+      return {
+        error: `Search queries must contain at least ${MINIMUM_SEARCH_QUERY_LENGTH} characters`,
+        intent: body.intent,
+      };
     }
 
     if (body.provider === 'youtube') {
       const [error, searchResults] = await api.get('/youtube/search', {
-        $search: { q: body.prompt },
+        $search: { q: prompt },
       });
       if (error || !searchResults) {
         return createErrorData(body.intent, error);
@@ -273,7 +314,7 @@ export async function clientAction({
 
     if (body.provider === 'spotify') {
       const [error, searchResults] = await api.get('/spotify/search', {
-        $search: { q: body.prompt },
+        $search: { q: prompt },
       });
       if (error || !searchResults) {
         return createErrorData(body.intent, error);
@@ -282,7 +323,7 @@ export async function clientAction({
     }
 
     const [error, searchResults] = await api.get('/soundcloud/search', {
-      $search: { q: body.prompt },
+      $search: { q: prompt },
     });
     if (error || !searchResults) {
       return createErrorData(body.intent, error);
@@ -292,3 +333,5 @@ export async function clientAction({
 
   return { error: 'Unsupported room action', intent: body.intent };
 }
+
+const MINIMUM_SEARCH_QUERY_LENGTH = 3;

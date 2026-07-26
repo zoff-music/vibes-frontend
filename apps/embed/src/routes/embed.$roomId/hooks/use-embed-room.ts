@@ -14,18 +14,15 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const { roomId } = loaderData;
   const actionFetcher = useFetcher<EmbedActionData>();
   const spotifyTokenFetcher = useFetcher<EmbedActionData>();
-  const youtubeTokenFetcher = useFetcher<EmbedActionData>();
   useSSE(roomId);
 
   const [toast, setToast] = useState<EmbedToast | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
-  const [youtubeToken, setYoutubeToken] = useState<string | null>(null);
   const [hasLocalPlayerInteraction, setHasLocalPlayerInteraction] = useState(
     loaderData.options.autoplay,
   );
   const interactionRoomIDRef = useRef(loaderData.roomId);
   const spotifyTokenRequestedRef = useRef(false);
-  const youtubeTokenRequestedRef = useRef(false);
   const room = useRoomStore((state) => state.room) ?? loaderData.room;
   const roomModeRef = useRef(room.mode);
   const songs = useQueueStore((state) => state.songs);
@@ -94,25 +91,15 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   );
 
   const requestProviderToken = useCallback(
-    (provider: 'spotify' | 'youtube', force = false) => {
-      if (provider === 'spotify') {
-        if (!force && spotifyTokenRequestedRef.current) return;
-        spotifyTokenRequestedRef.current = true;
-        spotifyTokenFetcher.submit(
-          { intent: 'providerToken', provider },
-          { encType: 'application/json', method: 'post' },
-        );
-        return;
-      }
-
-      if (!force && youtubeTokenRequestedRef.current) return;
-      youtubeTokenRequestedRef.current = true;
-      youtubeTokenFetcher.submit(
+    (provider: 'spotify', force = false) => {
+      if (!force && spotifyTokenRequestedRef.current) return;
+      spotifyTokenRequestedRef.current = true;
+      spotifyTokenFetcher.submit(
         { intent: 'providerToken', provider },
         { encType: 'application/json', method: 'post' },
       );
     },
-    [spotifyTokenFetcher, youtubeTokenFetcher],
+    [spotifyTokenFetcher],
   );
 
   useEffect(() => {
@@ -160,24 +147,6 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     }
     setSpotifyToken(spotifyTokenFetcher.data.providerToken.accessToken);
   }, [spotifyTokenFetcher.data, spotifyTokenFetcher.state]);
-
-  useEffect(() => {
-    if (youtubeTokenFetcher.state !== 'idle' || !youtubeTokenFetcher.data) {
-      return;
-    }
-    if (youtubeTokenFetcher.data.error) {
-      youtubeTokenRequestedRef.current = false;
-      return;
-    }
-    if (
-      youtubeTokenFetcher.data.intent !== 'providerToken' ||
-      youtubeTokenFetcher.data.provider !== 'youtube' ||
-      !youtubeTokenFetcher.data.providerToken
-    ) {
-      return;
-    }
-    setYoutubeToken(youtubeTokenFetcher.data.providerToken.accessToken);
-  }, [youtubeTokenFetcher.data, youtubeTokenFetcher.state]);
 
   useEffect(() => {
     if (actionFetcher.state !== 'idle' || !actionFetcher.data) return;
@@ -231,7 +200,5 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     spotifyTokenLoading: spotifyTokenFetcher.state !== 'idle',
     spotifyToken,
     toast,
-    youtubeTokenLoading: youtubeTokenFetcher.state !== 'idle',
-    youtubeToken,
   };
 }

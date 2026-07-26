@@ -22,15 +22,10 @@ interface Props {
   enabledProviders: string[];
   onLocalAlignmentChange: (isAligned: boolean) => void;
   onLocalInteraction: () => void;
-  requestProviderToken: (
-    provider: 'spotify' | 'youtube',
-    force?: boolean,
-  ) => void;
+  requestProviderToken: (provider: 'spotify', force?: boolean) => void;
   spotifyTokenLoading: boolean;
   spotifyToken: string | null;
   songs: Song[];
-  youtubeTokenLoading: boolean;
-  youtubeToken: string | null;
 }
 
 interface LoadedPlayers {
@@ -56,8 +51,6 @@ function EmbedPlayerSourceComponent({
   spotifyTokenLoading,
   spotifyToken,
   songs,
-  youtubeTokenLoading,
-  youtubeToken,
 }: Props) {
   const isSoundCloudActive = currentSong?.sourceType === 'soundcloud';
   const isSpotifyActive = currentSong?.sourceType === 'spotify';
@@ -111,15 +104,12 @@ function EmbedPlayerSourceComponent({
               isVisible={isYouTubeActive}
               fill
               appContext="platform"
-              isFetchingToken={youtubeTokenLoading}
               onLocalAlignmentChange={onLocalAlignmentChange}
               onLocalPause={onLocalInteraction}
               onLocalPlay={onLocalInteraction}
               onLocalSeek={onLocalInteraction}
               onLocalVolumeChange={onLocalInteraction}
-              onRequestToken={requestProviderToken}
               preloadSong={preloadYouTubeSong}
-              providerToken={youtubeToken}
             />
           </Suspense>
         </div>
@@ -180,8 +170,6 @@ export const EmbedPlayerSource = memo(
     previous.currentSong?.sourceId === next.currentSong?.sourceId &&
     previous.spotifyToken === next.spotifyToken &&
     previous.spotifyTokenLoading === next.spotifyTokenLoading &&
-    previous.youtubeTokenLoading === next.youtubeTokenLoading &&
-    previous.youtubeToken === next.youtubeToken &&
     previous.onLocalAlignmentChange === next.onLocalAlignmentChange &&
     previous.onLocalInteraction === next.onLocalInteraction,
 );

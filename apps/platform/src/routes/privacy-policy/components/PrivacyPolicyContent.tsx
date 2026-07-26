@@ -24,7 +24,7 @@ export function PrivacyPolicyContent({
     <LegalDocument
       description="This policy explains what information Zoff processes, why it is needed, how long it is kept, and how third-party music and infrastructure providers handle data."
       title="Privacy Policy"
-      updatedAt="25 July 2026"
+      updatedAt="27 July 2026"
     >
       <LegalSection title="1. Who operates Zoff">
         <p>
@@ -212,8 +212,11 @@ export function PrivacyPolicyContent({
         <p>
           A user may request deletion of data associated with their Zoff session
           by contacting {privacyEmail}. Zoff may need information sufficient to
-          identify the relevant session or room. Provider permissions can also
-          be revoked directly through the applicable provider account.
+          identify the relevant session or room. Verified deletion requests are
+          completed within seven days. Deleting data held by Zoff does not
+          delete data held by YouTube, Google, or another music provider;
+          provider data and permissions must be managed directly with that
+          provider.
         </p>
       </LegalSection>
 

@@ -5,7 +5,7 @@ import {
   usePlaybackStore,
   useQueueStore,
 } from '@vibes/shared';
-import { QueueList, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
+import { ProviderMark, QueueList } from '@vibes/ui';
 import React from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../action';
@@ -149,20 +149,18 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                         aria-label={`Open ${currentSongData.title} on ${providerNames[currentSongData.sourceType]}`}
                         title={`Open on ${providerNames[currentSongData.sourceType]}`}
                       >
-                        {currentSongData.sourceType === 'youtube' && (
-                          <YouTubeIcon className="h-5 w-5" />
-                        )}
-                        {currentSongData.sourceType === 'spotify' && (
-                          <SpotifyIcon className="h-5 w-5" />
-                        )}
-                        {currentSongData.sourceType === 'soundcloud' && (
-                          <SoundCloudIcon className="h-5 w-5" />
-                        )}
+                        <ProviderMark
+                          className="h-4 w-16"
+                          provider={currentSongData.sourceType}
+                        />
                       </a>
                     )}
                     {!currentSongProviderUrl &&
                       currentSongData.sourceType === 'soundcloud' && (
-                        <SoundCloudIcon className="h-5 w-5" />
+                        <ProviderMark
+                          className="h-4 w-16"
+                          provider="soundcloud"
+                        />
                       )}
                   </div>
                 </div>

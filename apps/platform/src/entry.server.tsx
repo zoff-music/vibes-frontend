@@ -19,5 +19,6 @@ export default async function handleRequest(
   );
 
   headers.set('Content-Type', 'text/html');
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   return new Response(stream, { status: statusCode, headers });
 }

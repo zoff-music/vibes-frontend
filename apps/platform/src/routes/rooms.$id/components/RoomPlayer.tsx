@@ -37,9 +37,8 @@ interface PlayerProps {
   appContext?: 'platform' | 'cast';
   accessToken?: string | null;
   isFetchingToken?: boolean;
-  onRequestToken?: (provider: 'spotify' | 'youtube', force?: boolean) => void;
+  onRequestToken?: (provider: 'spotify', force?: boolean) => void;
   preloadSong?: Song | null;
-  providerToken?: string | null;
   tokenError?: string | null;
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
@@ -181,10 +180,8 @@ export const RoomPlayer = React.memo(
       useState<PlayerComponent | null>(null);
     const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
     const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
-    const [youtubeToken, setYoutubeToken] = useState<string | null>(null);
     const [tokenError, setTokenError] = useState<string | null>(null);
     const spotifyTokenAttemptedRef = useRef(false);
-    const youtubeTokenAttemptedRef = useRef(false);
     const [playerLoadErrors, setPlayerLoadErrors] = useState<PlayerLoadErrors>({
       spotify: null,
       soundcloud: null,
@@ -266,13 +263,9 @@ export const RoomPlayer = React.memo(
     }, [playbackFetcher]);
 
     const requestProviderToken = useCallback(
-      (provider: 'spotify' | 'youtube', force = false) => {
-        const attemptRef =
-          provider === 'spotify'
-            ? spotifyTokenAttemptedRef
-            : youtubeTokenAttemptedRef;
-        if (!force && attemptRef.current) return;
-        attemptRef.current = true;
+      (provider: 'spotify', force = false) => {
+        if (!force && spotifyTokenAttemptedRef.current) return;
+        spotifyTokenAttemptedRef.current = true;
         tokenFetcher.submit(
           { force, intent: 'providerToken', provider },
           { encType: 'application/json', method: 'post' },
@@ -380,9 +373,6 @@ export const RoomPlayer = React.memo(
       setTokenError(null);
       if (tokenFetcher.data.provider === 'spotify') {
         setSpotifyToken(tokenFetcher.data.providerToken.accessToken);
-      }
-      if (tokenFetcher.data.provider === 'youtube') {
-        setYoutubeToken(tokenFetcher.data.providerToken.accessToken);
       }
     }, [tokenFetcher.data, tokenFetcher.state]);
 
@@ -551,10 +541,7 @@ export const RoomPlayer = React.memo(
                 isVisible={!isConnected && isVideoTrack}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 appContext="platform"
-                isFetchingToken={tokenFetcher.state !== 'idle'}
-                onRequestToken={requestProviderToken}
                 preloadSong={preloadVideoSong}
-                providerToken={youtubeToken}
               />
             </div>
           )}
