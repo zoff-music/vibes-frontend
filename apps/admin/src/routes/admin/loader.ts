@@ -1,4 +1,8 @@
-import type { AdminRoomResult, AdminSearchUsage } from '@vibes/models';
+import type {
+  AdminListenerUsage,
+  AdminRoomResult,
+  AdminSearchUsage,
+} from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 
@@ -14,6 +18,7 @@ export interface AdminRoomSearch {
 export interface AdminLoaderData {
   adminRooms: AdminRoomResult;
   adminAuthorized: boolean;
+  listenerUsage: AdminListenerUsage;
   roomSearch: AdminRoomSearch;
   searchUsage: AdminSearchUsage;
 }
@@ -35,9 +40,9 @@ export async function loader({
   const requestedTo = Number.isNaN(parsedTo)
     ? from + adminRoomPageSize - 1
     : Math.max(from, parsedTo);
-  const to = Math.min(requestedTo, from + adminRoomMaximumPageSize - 1);
+  const to = Math.min(requestedTo, from + adminRoomPageSize - 1);
 
-  const [roomsResult, usageResult] = await Promise.all([
+  const [roomsResult, usageResult, listenerUsageResult] = await Promise.all([
     serverApi.get(
       '/admin/rooms',
       {
@@ -56,15 +61,22 @@ export async function loader({
     serverApi.get('/admin/searches/usage', null, {
       headers: requestHeaders,
     }),
+    serverApi.get('/admin/listeners/usage', null, {
+      headers: requestHeaders,
+    }),
   ]);
   const [roomsErr, rooms] = roomsResult;
   const [usageErr, searchUsage] = usageResult;
+  const [listenerUsageErr, listenerUsage] = listenerUsageResult;
 
   return {
     adminRooms: roomsErr
       ? { rooms: [], from, to: from, total: 0, count: 0 }
       : (rooms ?? { rooms: [], from, to: from, total: 0, count: 0 }),
     adminAuthorized: !roomsErr,
+    listenerUsage: listenerUsageErr
+      ? { points: [], generatedAt: '' }
+      : (listenerUsage ?? { points: [], generatedAt: '' }),
     roomSearch: {
       q,
       sortBy,
@@ -79,6 +91,4 @@ export async function loader({
   };
 }
 
-const adminRoomPageSize = 12;
-
-const adminRoomMaximumPageSize = 50;
+const adminRoomPageSize = 10;

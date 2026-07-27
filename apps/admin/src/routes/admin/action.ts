@@ -1,11 +1,16 @@
 import { getRateLimitMessage } from '@vibes/api';
-import type { AdminRoomResult, AdminSearchUsage } from '@vibes/models';
+import type {
+  AdminListenerUsage,
+  AdminRoomResult,
+  AdminSearchUsage,
+} from '@vibes/models';
 import { type ActionFunctionArgs, data } from 'react-router';
 import { getServerApi } from '../../http.server';
 
 export interface AdminActionData {
   authorized?: boolean;
   error?: string;
+  listenerUsage?: AdminListenerUsage;
   rateLimitMessage?: string;
   roomResult?: AdminRoomResult;
   roomsUpdated?: boolean;
@@ -104,6 +109,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return createActionDataResponse(
       {
         authorized: false,
+        listenerUsage: { points: [], generatedAt: '' },
         roomResult: { rooms: [], from: 0, to: 0, total: 0, count: 0 },
         searchUsage: { summaries: [], generatedAt: '' },
       },
@@ -216,11 +222,12 @@ export async function action({ request }: ActionFunctionArgs) {
   const parsedFrom = Number.parseInt(String(formData.get('from') ?? ''), 10);
   const from = Number.isNaN(parsedFrom) ? 0 : Math.max(0, parsedFrom);
   const parsedTo = Number.parseInt(String(formData.get('to') ?? ''), 10);
-  const to = Number.isNaN(parsedTo)
+  const requestedTo = Number.isNaN(parsedTo)
     ? from + adminRoomPageSize - 1
     : Math.max(from, parsedTo);
+  const to = Math.min(requestedTo, from + adminRoomPageSize - 1);
 
-  const [roomsResult, usageResult] = await Promise.all([
+  const [roomsResult, usageResult, listenerUsageResult] = await Promise.all([
     serverApi.get(
       '/admin/rooms',
       {
@@ -239,9 +246,13 @@ export async function action({ request }: ActionFunctionArgs) {
     serverApi.get('/admin/searches/usage', null, {
       headers: requestHeaders,
     }),
+    serverApi.get('/admin/listeners/usage', null, {
+      headers: requestHeaders,
+    }),
   ]);
   const [roomsError, roomResult] = roomsResult;
   const [usageError, searchUsage] = usageResult;
+  const [listenerUsageError, listenerUsage] = listenerUsageResult;
   if (roomsError || !roomResult) {
     const isAuthCheck = intent === 'refresh';
     const actionError = getAdminActionError(
@@ -264,6 +275,9 @@ export async function action({ request }: ActionFunctionArgs) {
   return createActionDataResponse(
     {
       authorized: true,
+      listenerUsage: listenerUsageError
+        ? { points: [], generatedAt: '' }
+        : (listenerUsage ?? { points: [], generatedAt: '' }),
       roomResult,
       searchUsage: usageError
         ? { summaries: [], generatedAt: '' }
@@ -273,4 +287,4 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 }
 
-const adminRoomPageSize = 12;
+const adminRoomPageSize = 10;

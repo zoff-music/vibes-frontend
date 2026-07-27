@@ -64,9 +64,6 @@ importers:
       '@vibes/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      d3:
-        specifier: ^7.9.0
-        version: 7.9.0
       react:
         specifier: 19.2.7
         version: 19.2.7
@@ -83,9 +80,6 @@ importers:
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.3(vite@8.1.3(@types/node@25.0.10)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
-      '@types/d3':
-        specifier: ^7.4.3
-        version: 7.4.3
       '@types/node':
         specifier: 25.0.10
         version: 25.0.10
@@ -455,9 +449,15 @@ importers:
       '@vibes/api':
         specifier: workspace:*
         version: link:../api
+      '@vibes/models':
+        specifier: workspace:*
+        version: link:../models
       '@vibes/shared':
         specifier: workspace:*
         version: link:../shared
+      d3:
+        specifier: ^7.9.0
+        version: 7.9.0
       react-player:
         specifier: ^3.4.0
         version: 3.4.0(@svta/cml-cta@1.0.6(@svta/cml-structured-field-values@1.1.3(@svta/cml-utils@1.5.0))(@svta/cml-utils@1.5.0))(@svta/cml-structured-field-values@1.1.3(@svta/cml-utils@1.5.0))(@svta/cml-utils@1.5.0)(@types/react-dom@19.2.3(@types/react@19.2.16))(@types/react@19.2.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -471,6 +471,9 @@ importers:
       '@biomejs/biome':
         specifier: 2.3.13
         version: 2.3.13
+      '@types/d3':
+        specifier: ^7.4.3
+        version: 7.4.3
       '@types/react':
         specifier: 19.2.16
         version: 19.2.16

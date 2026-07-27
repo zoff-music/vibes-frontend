@@ -69,3 +69,18 @@ export const adminSearchUsageSchema = yup
   })
   .required();
 export type AdminSearchUsage = yup.InferType<typeof adminSearchUsageSchema>;
+
+export const listenerUsagePointSchema = yup.object({
+  window: yup.string().oneOf(['hour', 'day', 'week', 'month']).required(),
+  timestamp: yup.string().required(),
+  listeners: yup.number().required(),
+});
+export type ListenerUsagePoint = yup.InferType<typeof listenerUsagePointSchema>;
+
+export const adminListenerUsageSchema = yup
+  .object({
+    points: yup.array(listenerUsagePointSchema).required(),
+    generatedAt: yup.string().required(),
+  })
+  .required();
+export type AdminListenerUsage = yup.InferType<typeof adminListenerUsageSchema>;
