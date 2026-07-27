@@ -108,6 +108,7 @@ export const QueueItem: React.FC<Props> = ({
         <Button
           onClick={handleRemove}
           variant="destructive"
+          size="none"
           className="p-2.5"
           aria-label="Remove from queue"
         >
