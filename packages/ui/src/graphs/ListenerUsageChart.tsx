@@ -25,7 +25,7 @@ export function ListenerUsageChart({
   const xScale = scaleTime()
     .domain([
       buckets[0]?.timestamp ?? new Date(),
-      buckets.at(-1)?.timestamp ?? new Date(),
+      buckets[buckets.length - 1]?.timestamp ?? new Date(),
     ])
     .range([chartLeft, chartRight]);
   const yScale = scaleLinear()
@@ -37,7 +37,7 @@ export function ListenerUsageChart({
   const path = line<ListenerUsageBucket>()
     .x((bucket) => xScale(bucket.timestamp))
     .y((bucket) => yScale(bucket.listeners))(buckets);
-  const currentListeners = buckets.at(-1)?.listeners ?? 0;
+  const currentListeners = buckets[buckets.length - 1]?.listeners ?? 0;
 
   const handleWindowChange = (event: MouseEvent<HTMLButtonElement>) => {
     setSelectedWindow(event.currentTarget.value);
