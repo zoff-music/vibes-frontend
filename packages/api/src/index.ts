@@ -9,6 +9,7 @@ declare const process:
 import {
   addSongRequestSchema,
   addSongResponseSchema,
+  adminCreateUserRequestSchema,
   adminListenerUsageSchema,
   adminLoginRequestSchema,
   adminRoomResultSchema,
@@ -17,6 +18,9 @@ import {
   adminSearchUsageSchema,
   adminSessionResponseSchema,
   adminUpdateRoomRequestSchema,
+  adminUpdateUserRequestSchema,
+  adminUserSchema,
+  adminUsersSchema,
   castingTokenResponseSchema,
   connectedSchema,
   createCastingTokenRequestSchema,
@@ -295,12 +299,33 @@ const endpoints = {
     },
   },
   '/admin/sessions': {
+    get: {
+      response: adminSessionResponseSchema,
+    },
     post: {
       request: adminLoginRequestSchema,
       response: adminSessionResponseSchema,
     },
     delete: {
       response: adminSessionResponseSchema,
+    },
+  },
+  '/admin/users': {
+    get: {
+      response: adminUsersSchema,
+    },
+    post: {
+      request: adminCreateUserRequestSchema,
+      response: adminUserSchema,
+    },
+  },
+  '/admin/users/{id}': {
+    patch: {
+      request: adminUpdateUserRequestSchema,
+      response: emptyObjectSchema,
+    },
+    delete: {
+      response: emptyObjectSchema,
     },
   },
   '/admin/rooms': {
