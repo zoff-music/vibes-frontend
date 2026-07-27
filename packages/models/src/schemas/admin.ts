@@ -13,6 +13,23 @@ export type AdminRoomSummary = yup.InferType<typeof adminRoomSummarySchema>;
 export const adminRoomsSchema = yup.array(adminRoomSummarySchema).required();
 export type AdminRooms = yup.InferType<typeof adminRoomsSchema>;
 
+export const adminRoomResultSchema = yup.object({
+  rooms: adminRoomsSchema,
+  from: yup.number().required(),
+  to: yup.number().required(),
+  total: yup.number().required(),
+  count: yup.number().required(),
+});
+export type AdminRoomResult = yup.InferType<typeof adminRoomResultSchema>;
+
+export const adminRoomSearchSchema = yup.object({
+  q: yup.string().optional(),
+  sortBy: yup.string().oneOf(['listeners', 'songs']).optional(),
+  order: yup.string().oneOf(['asc', 'desc']).optional(),
+  from: yup.number().integer().min(0).optional(),
+  to: yup.number().integer().min(0).optional(),
+});
+
 export const adminLoginRequestSchema = yup.object({
   password: yup.string().required(),
 });
@@ -46,6 +63,9 @@ export type AdminSearchUsageSummary = yup.InferType<
 >;
 
 export const adminSearchUsageSchema = yup
-  .array(adminSearchUsageSummarySchema)
+  .object({
+    summaries: yup.array(adminSearchUsageSummarySchema).required(),
+    generatedAt: yup.string().required(),
+  })
   .required();
 export type AdminSearchUsage = yup.InferType<typeof adminSearchUsageSchema>;

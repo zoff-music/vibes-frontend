@@ -1,7 +1,20 @@
 import { showRateLimitMessageToast, useAdminEvents } from '@vibes/api';
-import type { AdminRoomSummary, AdminSearchUsageSummary } from '@vibes/models';
+import type {
+  AdminRoomResult,
+  AdminRoomSummary,
+  AdminSearchUsage,
+  AdminSearchUsageSummary,
+} from '@vibes/models';
 import { Button, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
-import { JSX, useEffect, useMemo, useState } from 'react';
+import {
+  type ChangeEvent,
+  JSX,
+  type KeyboardEvent,
+  type MouseEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   isRouteErrorResponse,
   useFetcher,
@@ -10,7 +23,9 @@ import {
 } from 'react-router';
 import type { AdminActionData } from './action';
 import { action } from './action';
-import type { AdminLoaderData } from './loader';
+import { AdminRoomFilters } from './components/AdminRoomFilters';
+import { SearchUsageChart } from './components/SearchUsageChart';
+import type { AdminLoaderData, AdminRoomSearch } from './loader';
 import { loader } from './loader';
 
 export { action, loader };
@@ -22,10 +37,17 @@ const sourceIcons: Record<string, JSX.Element> = {
 };
 
 export default function Admin() {
-  const loaderData = useLoaderData() as AdminLoaderData;
+  const loaderData = useLoaderData<AdminLoaderData>();
   const fetcher = useFetcher<AdminActionData>();
-  const [rooms, setRooms] = useState<AdminRoomSummary[]>(
-    loaderData.adminRooms ?? [],
+  const roomFetcher = useFetcher<AdminLoaderData>();
+  const [roomResult, setRoomResult] = useState<AdminRoomResult>(
+    loaderData.adminRooms,
+  );
+  const [roomSearch, setRoomSearch] = useState<AdminRoomSearch>(
+    loaderData.roomSearch,
+  );
+  const [searchUsage, setSearchUsage] = useState<AdminSearchUsage>(
+    loaderData.searchUsage,
   );
   const [isAuthorized, setIsAuthorized] = useState<boolean>(
     loaderData.adminAuthorized ?? false,
@@ -37,9 +59,8 @@ export default function Admin() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
-  const isLoading = fetcher.state !== 'idle';
-  const searchUsage = loaderData.searchUsage ?? [];
-
+  const isLoading = fetcher.state !== 'idle' || roomFetcher.state !== 'idle';
+  const rooms = roomResult.rooms;
   const hasRooms = rooms.length > 0;
 
   const totalViewers = useMemo(
@@ -47,16 +68,40 @@ export default function Admin() {
     [rooms],
   );
 
-  const fetchRooms = () => {
-    fetcher.submit({ intent: 'refresh' }, { method: 'post' });
+  const loadRoomPage = (next: AdminRoomSearch) => {
+    const params = new URLSearchParams({
+      sortBy: next.sortBy,
+      order: next.order,
+      from: String(next.from),
+      to: String(next.to),
+    });
+    if (next.q) {
+      params.set('q', next.q);
+    }
+
+    roomFetcher.load(`/admin?${params.toString()}`);
+    window.history.replaceState(null, '', `?${params.toString()}`);
   };
 
-  useAdminEvents({ enabled: isAuthorized, onRoomsUpdate: setRooms });
+  const refreshRooms = () => {
+    loadRoomPage(roomSearch);
+  };
 
-  useEffect(() => {
-    if (!isAuthorized) return;
-    fetchRooms();
-  }, [isAuthorized]);
+  const checkAdminSession = () => {
+    fetcher.submit(
+      {
+        intent: 'refresh',
+        q: roomSearch.q,
+        sortBy: roomSearch.sortBy,
+        order: roomSearch.order,
+        from: String(roomSearch.from),
+        to: String(roomSearch.to),
+      },
+      { method: 'post' },
+    );
+  };
+
+  useAdminEvents({ enabled: isAuthorized, onRoomsUpdate: refreshRooms });
 
   useEffect(() => {
     if (loaderData.adminAuthorized) {
@@ -64,15 +109,18 @@ export default function Admin() {
       return;
     }
 
-    fetcher.submit({ intent: 'refresh' }, { method: 'post' });
+    checkAdminSession();
   }, [loaderData.adminAuthorized]);
 
   useEffect(() => {
     if (!fetcher.data) return;
-    if (fetcher.data.rooms) {
-      setRooms(fetcher.data.rooms);
+    if (fetcher.data.roomResult) {
+      setRoomResult(fetcher.data.roomResult);
       setEditingRoomId(null);
       setEditingName('');
+    }
+    if (fetcher.data.searchUsage) {
+      setSearchUsage(fetcher.data.searchUsage);
     }
     if (typeof fetcher.data.authorized === 'boolean') {
       setIsAuthorized(fetcher.data.authorized);
@@ -89,7 +137,36 @@ export default function Admin() {
     if (fetcher.data.authorized) {
       setPassword('');
     }
+    if (fetcher.data.roomsUpdated) {
+      refreshRooms();
+    }
   }, [fetcher.data]);
+
+  useEffect(() => {
+    if (!roomFetcher.data) {
+      return;
+    }
+
+    if (
+      roomFetcher.data.adminRooms.count === 0 &&
+      roomFetcher.data.roomSearch.from > 0
+    ) {
+      const from = Math.max(
+        0,
+        roomFetcher.data.roomSearch.from - roomFetcher.data.roomSearch.pageSize,
+      );
+      loadRoomPage({
+        ...roomFetcher.data.roomSearch,
+        from,
+        to: from + roomFetcher.data.roomSearch.pageSize - 1,
+      });
+      return;
+    }
+
+    setRoomResult(roomFetcher.data.adminRooms);
+    setRoomSearch(roomFetcher.data.roomSearch);
+    setSearchUsage(roomFetcher.data.searchUsage);
+  }, [roomFetcher.data]);
 
   const handleLogin = () => {
     if (!password.trim() || isLoading) {
@@ -101,6 +178,11 @@ export default function Admin() {
       {
         intent: 'login',
         password: password.trim(),
+        q: roomSearch.q,
+        sortBy: roomSearch.sortBy,
+        order: roomSearch.order,
+        from: String(roomSearch.from),
+        to: String(roomSearch.to),
       },
       { method: 'post' },
     );
@@ -111,14 +193,41 @@ export default function Admin() {
     fetcher.submit({ intent: 'logout' }, { method: 'post' });
   };
 
+  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+  };
+
+  const handlePasswordKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleLogin();
+    }
+  };
+
   const startRename = (room: AdminRoomSummary) => {
     setEditingRoomId(room.id);
     setEditingName(room.name);
   };
 
+  const handleStartRename = (event: MouseEvent<HTMLButtonElement>) => {
+    const room = rooms.find((item) => item.id === event.currentTarget.value);
+    if (room) {
+      startRename(room);
+    }
+  };
+
   const cancelRename = () => {
     setEditingRoomId(null);
     setEditingName('');
+  };
+
+  const handleEditingNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditingName(event.target.value);
+  };
+
+  const handleEditingNameKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      saveRename();
+    }
   };
 
   const saveRename = () => {
@@ -153,6 +262,13 @@ export default function Admin() {
     );
   };
 
+  const handleClearPassword = (event: MouseEvent<HTMLButtonElement>) => {
+    const room = rooms.find((item) => item.id === event.currentTarget.value);
+    if (room) {
+      clearPassword(room);
+    }
+  };
+
   const deleteRoom = (room: AdminRoomSummary) => {
     if (isLoading) {
       return;
@@ -171,6 +287,53 @@ export default function Admin() {
       },
       { method: 'post' },
     );
+  };
+
+  const handleDeleteRoom = (event: MouseEvent<HTMLButtonElement>) => {
+    const room = rooms.find((item) => item.id === event.currentTarget.value);
+    if (room) {
+      deleteRoom(room);
+    }
+  };
+
+  const searchRooms = (query: string) => {
+    loadRoomPage({
+      ...roomSearch,
+      q: query,
+      from: 0,
+      to: roomSearch.pageSize - 1,
+    });
+  };
+
+  const sortRooms = (
+    sortBy: AdminRoomSearch['sortBy'],
+    order: AdminRoomSearch['order'],
+  ) => {
+    loadRoomPage({
+      ...roomSearch,
+      sortBy,
+      order,
+      from: 0,
+      to: roomSearch.pageSize - 1,
+    });
+  };
+
+  const loadPreviousRooms = () => {
+    const from = Math.max(0, roomSearch.from - roomSearch.pageSize);
+    loadRoomPage({
+      ...roomSearch,
+      from,
+      to: from + roomSearch.pageSize - 1,
+    });
+  };
+
+  const loadNextRooms = () => {
+    const from = roomSearch.from + roomSearch.pageSize;
+    loadRoomPage({
+      ...roomSearch,
+      from,
+      to: from + roomSearch.pageSize - 1,
+    });
   };
 
   if (isCheckingAuth) {
@@ -205,8 +368,8 @@ export default function Admin() {
               <input
                 type="password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                onKeyDown={(event) => event.key === 'Enter' && handleLogin()}
+                onChange={handlePasswordChange}
+                onKeyDown={handlePasswordKeyDown}
                 className="w-full rounded-xl border-2 border-ink/20 bg-surface px-4 py-3 font-mono text-base text-ink transition-all placeholder:text-ink/40 focus:border-primary focus:shadow-focus-primary focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500"
                 placeholder="Password"
                 disabled={isLoading}
@@ -237,12 +400,14 @@ export default function Admin() {
             <h1 className="font-black text-3xl tracking-tight">Live Rooms</h1>
             <p className="text-ink/60 text-sm dark:text-gray-400">
               {hasRooms
-                ? `${rooms.length} rooms, ${totalViewers} viewers online`
-                : 'No active rooms yet'}
+                ? `${roomResult.total} rooms, ${totalViewers} listeners on this page`
+                : roomSearch.q
+                  ? 'No rooms match this search'
+                  : 'No active rooms yet'}
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={fetchRooms} variant="tertiary">
+            <Button onClick={refreshRooms} variant="tertiary">
               Refresh
             </Button>
             <Button onClick={handleLogout} variant="secondary">
@@ -263,19 +428,36 @@ export default function Admin() {
               Provider searches only. Direct track links use metadata lookup and
               are not counted.
             </p>
+            {searchUsage.generatedAt && (
+              <p className="mt-1 text-ink/50 text-xs dark:text-gray-500">
+                Updated{' '}
+                {searchUsageDateFormatter.format(
+                  new Date(searchUsage.generatedAt),
+                )}{' '}
+                UTC
+              </p>
+            )}
           </div>
+          <SearchUsageChart summaries={searchUsage.summaries} />
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {searchUsageWindows.map((window) => (
               <SearchUsageCard
                 key={window.id}
                 label={window.label}
-                summaries={searchUsage.filter(
+                summaries={searchUsage.summaries.filter(
                   (summary) => summary.window === window.id,
                 )}
               />
             ))}
           </div>
         </section>
+
+        <AdminRoomFilters
+          disabled={isLoading}
+          onSearch={searchRooms}
+          onSort={sortRooms}
+          search={roomSearch}
+        />
 
         <div className="grid gap-4">
           {rooms.map((room) => (
@@ -331,8 +513,8 @@ export default function Admin() {
                   <input
                     type="text"
                     value={editingName}
-                    onChange={(event) => setEditingName(event.target.value)}
-                    onKeyDown={(event) => event.key === 'Enter' && saveRename()}
+                    onChange={handleEditingNameChange}
+                    onKeyDown={handleEditingNameKeyDown}
                     className="min-w-0 flex-1 rounded-xl border border-ink/15 bg-surface px-3 py-2 text-ink text-sm outline-hidden transition-all focus:border-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                     disabled={isLoading}
                   />
@@ -363,23 +545,26 @@ export default function Admin() {
                   Open Room
                 </a>
                 <Button
-                  onClick={() => startRename(room)}
+                  onClick={handleStartRename}
                   disabled={isLoading || editingRoomId === room.id}
                   variant="tertiary"
+                  value={room.id}
                 >
                   Rename
                 </Button>
                 <Button
-                  onClick={() => clearPassword(room)}
+                  onClick={handleClearPassword}
                   disabled={!room.hasAdminPassword || isLoading}
                   variant="secondary"
+                  value={room.id}
                 >
                   Clear Password
                 </Button>
                 <Button
-                  onClick={() => deleteRoom(room)}
+                  onClick={handleDeleteRoom}
                   disabled={isLoading}
                   variant="secondary"
+                  value={room.id}
                 >
                   Delete
                 </Button>
@@ -387,6 +572,33 @@ export default function Admin() {
             </div>
           ))}
         </div>
+
+        <nav
+          aria-label="Room pagination"
+          className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p className="text-ink/60 text-sm dark:text-gray-400">
+            {roomResult.total === 0
+              ? 'No rooms'
+              : `${roomResult.from + 1}–${roomResult.to + 1} of ${roomResult.total}`}
+          </p>
+          <div className="flex gap-3">
+            <Button
+              disabled={roomSearch.from === 0 || isLoading}
+              onClick={loadPreviousRooms}
+              variant="secondary"
+            >
+              Previous
+            </Button>
+            <Button
+              disabled={roomResult.to + 1 >= roomResult.total || isLoading}
+              onClick={loadNextRooms}
+              variant="secondary"
+            >
+              Next
+            </Button>
+          </div>
+        </nav>
       </div>
     </div>
   );
@@ -447,6 +659,12 @@ const searchUsageWindows = [
   { id: 'month', label: 'This month' },
 ];
 
+const searchUsageDateFormatter = new Intl.DateTimeFormat('en-GB', {
+  dateStyle: 'medium',
+  timeStyle: 'medium',
+  timeZone: 'UTC',
+});
+
 export function ErrorBoundary() {
   const error = useRouteError();
   const message = isRouteErrorResponse(error)
@@ -454,6 +672,9 @@ export function ErrorBoundary() {
     : error instanceof Error
       ? error.message
       : 'Could not load the admin dashboard.';
+  const reloadPage = () => {
+    window.location.reload();
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-12">
@@ -465,11 +686,7 @@ export function ErrorBoundary() {
           <p className="mb-6 text-ink/60 text-sm dark:text-gray-400">
             {message}
           </p>
-          <Button
-            onClick={() => window.location.reload()}
-            variant="primary"
-            className="w-full"
-          >
+          <Button onClick={reloadPage} variant="primary" className="w-full">
             Reload
           </Button>
         </div>

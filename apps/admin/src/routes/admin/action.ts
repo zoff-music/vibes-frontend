@@ -1,5 +1,5 @@
 import { getRateLimitMessage } from '@vibes/api';
-import type { AdminRoomSummary } from '@vibes/models';
+import type { AdminRoomResult, AdminSearchUsage } from '@vibes/models';
 import { type ActionFunctionArgs, data } from 'react-router';
 import { getServerApi } from '../../http.server';
 
@@ -7,7 +7,9 @@ export interface AdminActionData {
   authorized?: boolean;
   error?: string;
   rateLimitMessage?: string;
-  rooms?: AdminRoomSummary[];
+  roomResult?: AdminRoomResult;
+  roomsUpdated?: boolean;
+  searchUsage?: AdminSearchUsage;
 }
 
 function getAdminActionError(error: Error | null, fallback: string) {
@@ -100,7 +102,11 @@ export async function action({ request }: ActionFunctionArgs) {
       return getAdminActionError(logoutError, 'Failed to sign out.');
     }
     return createActionDataResponse(
-      { authorized: false, rooms: [] },
+      {
+        authorized: false,
+        roomResult: { rooms: [], from: 0, to: 0, total: 0, count: 0 },
+        searchUsage: { summaries: [], generatedAt: '' },
+      },
       adminSessionSetCookie,
     );
   }
@@ -125,13 +131,13 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === 'renameRoom') {
     const roomId = String(formData.get('roomId') ?? '').trim();
     const name = String(formData.get('name') ?? '').trim();
-    const [renameError, rooms] = await serverApi.patch(
+    const [renameError] = await serverApi.patch(
       '/admin/rooms/{id}',
       { id: roomId },
       { name },
       { headers: requestHeaders },
     );
-    if (renameError || !rooms) {
+    if (renameError) {
       return createActionDataResponse(
         {
           authorized: true,
@@ -145,20 +151,20 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return createActionDataResponse(
-      { authorized: true, rooms },
+      { authorized: true, roomsUpdated: true },
       adminSessionSetCookie,
     );
   }
 
   if (intent === 'clearPassword') {
     const roomId = String(formData.get('roomId') ?? '').trim();
-    const [clearError, rooms] = await serverApi.patch(
+    const [clearError] = await serverApi.patch(
       '/admin/rooms/{id}',
       { id: roomId },
       { clearAdminPassword: true },
       { headers: requestHeaders },
     );
-    if (clearError || !rooms) {
+    if (clearError) {
       return createActionDataResponse(
         {
           authorized: true,
@@ -172,19 +178,19 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return createActionDataResponse(
-      { authorized: true, rooms },
+      { authorized: true, roomsUpdated: true },
       adminSessionSetCookie,
     );
   }
 
   if (intent === 'deleteRoom') {
     const roomId = String(formData.get('roomId') ?? '').trim();
-    const [deleteError, rooms] = await serverApi.delete(
+    const [deleteError] = await serverApi.delete(
       '/admin/rooms/{id}',
       { id: roomId },
       { headers: requestHeaders },
     );
-    if (deleteError || !rooms) {
+    if (deleteError) {
       return createActionDataResponse(
         {
           authorized: true,
@@ -198,15 +204,45 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return createActionDataResponse(
-      { authorized: true, rooms },
+      { authorized: true, roomsUpdated: true },
       adminSessionSetCookie,
     );
   }
 
-  const [roomsError, rooms] = await serverApi.get('/admin/rooms', null, {
-    headers: requestHeaders,
-  });
-  if (roomsError || !rooms) {
+  const q = String(formData.get('q') ?? '').trim();
+  const sortBy =
+    String(formData.get('sortBy') ?? '') === 'songs' ? 'songs' : 'listeners';
+  const order = String(formData.get('order') ?? '') === 'asc' ? 'asc' : 'desc';
+  const parsedFrom = Number.parseInt(String(formData.get('from') ?? ''), 10);
+  const from = Number.isNaN(parsedFrom) ? 0 : Math.max(0, parsedFrom);
+  const parsedTo = Number.parseInt(String(formData.get('to') ?? ''), 10);
+  const to = Number.isNaN(parsedTo)
+    ? from + adminRoomPageSize - 1
+    : Math.max(from, parsedTo);
+
+  const [roomsResult, usageResult] = await Promise.all([
+    serverApi.get(
+      '/admin/rooms',
+      {
+        $search: {
+          ...(q && { q }),
+          sortBy,
+          order,
+          from,
+          to,
+        },
+      },
+      {
+        headers: requestHeaders,
+      },
+    ),
+    serverApi.get('/admin/searches/usage', null, {
+      headers: requestHeaders,
+    }),
+  ]);
+  const [roomsError, roomResult] = roomsResult;
+  const [usageError, searchUsage] = usageResult;
+  if (roomsError || !roomResult) {
     const isAuthCheck = intent === 'refresh';
     const actionError = getAdminActionError(
       roomsError,
@@ -228,8 +264,13 @@ export async function action({ request }: ActionFunctionArgs) {
   return createActionDataResponse(
     {
       authorized: true,
-      rooms,
+      roomResult,
+      searchUsage: usageError
+        ? { summaries: [], generatedAt: '' }
+        : (searchUsage ?? { summaries: [], generatedAt: '' }),
     },
     adminSessionSetCookie,
   );
 }
+
+const adminRoomPageSize = 12;
