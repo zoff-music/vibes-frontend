@@ -1,11 +1,21 @@
-import type { AdminRoomSummary, AdminSearchUsageSummary } from '@vibes/models';
+import type { AdminRoomResult, AdminSearchUsage } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 
+export interface AdminRoomSearch {
+  q: string;
+  sortBy: 'listeners' | 'songs';
+  order: 'asc' | 'desc';
+  from: number;
+  to: number;
+  pageSize: number;
+}
+
 export interface AdminLoaderData {
-  adminRooms: AdminRoomSummary[];
+  adminRooms: AdminRoomResult;
   adminAuthorized: boolean;
-  searchUsage: AdminSearchUsageSummary[];
+  roomSearch: AdminRoomSearch;
+  searchUsage: AdminSearchUsage;
 }
 
 export async function loader({
@@ -14,12 +24,36 @@ export async function loader({
   const serverApi = getServerApi(request);
   const cookieHeader = request.headers.get('cookie') ?? undefined;
   const requestHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
+  const url = new URL(request.url);
+  const q = url.searchParams.get('q')?.trim() ?? '';
+  const sortBy =
+    url.searchParams.get('sortBy') === 'songs' ? 'songs' : 'listeners';
+  const order = url.searchParams.get('order') === 'asc' ? 'asc' : 'desc';
+  const parsedFrom = Number.parseInt(url.searchParams.get('from') ?? '', 10);
+  const from = Number.isNaN(parsedFrom) ? 0 : Math.max(0, parsedFrom);
+  const parsedTo = Number.parseInt(url.searchParams.get('to') ?? '', 10);
+  const requestedTo = Number.isNaN(parsedTo)
+    ? from + adminRoomPageSize - 1
+    : Math.max(from, parsedTo);
+  const to = Math.min(requestedTo, from + adminRoomMaximumPageSize - 1);
 
   const [roomsResult, usageResult] = await Promise.all([
-    serverApi.get('/admin/rooms', null, {
-      headers: requestHeaders,
-    }),
-    serverApi.get('/admin/search-usage', null, {
+    serverApi.get(
+      '/admin/rooms',
+      {
+        $search: {
+          ...(q && { q }),
+          sortBy,
+          order,
+          from,
+          to,
+        },
+      },
+      {
+        headers: requestHeaders,
+      },
+    ),
+    serverApi.get('/admin/searches/usage', null, {
       headers: requestHeaders,
     }),
   ]);
@@ -27,8 +61,24 @@ export async function loader({
   const [usageErr, searchUsage] = usageResult;
 
   return {
-    adminRooms: roomsErr ? [] : rooms || [],
+    adminRooms: roomsErr
+      ? { rooms: [], from, to: from, total: 0, count: 0 }
+      : (rooms ?? { rooms: [], from, to: from, total: 0, count: 0 }),
     adminAuthorized: !roomsErr,
-    searchUsage: usageErr ? [] : (searchUsage ?? []),
+    roomSearch: {
+      q,
+      sortBy,
+      order,
+      from,
+      to,
+      pageSize: to - from + 1,
+    },
+    searchUsage: usageErr
+      ? { summaries: [], generatedAt: '' }
+      : (searchUsage ?? { summaries: [], generatedAt: '' }),
   };
 }
+
+const adminRoomPageSize = 12;
+
+const adminRoomMaximumPageSize = 50;

@@ -10,6 +10,8 @@ import {
   addSongRequestSchema,
   addSongResponseSchema,
   adminLoginRequestSchema,
+  adminRoomResultSchema,
+  adminRoomSearchSchema,
   adminRoomsSchema,
   adminSearchUsageSchema,
   adminSessionResponseSchema,
@@ -302,10 +304,11 @@ const endpoints = {
   },
   '/admin/rooms': {
     get: {
-      response: adminRoomsSchema,
+      $search: adminRoomSearchSchema,
+      response: adminRoomResultSchema,
     },
   },
-  '/admin/search-usage': {
+  '/admin/searches/usage': {
     get: {
       response: adminSearchUsageSchema,
     },
