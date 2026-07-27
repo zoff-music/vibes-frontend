@@ -108,48 +108,47 @@ export const QueueItem: React.FC<Props> = ({
   );
 
   const removeButton = isAdmin && (
-    <Tooltip
-      className="absolute top-1/2 right-5 inline-flex -translate-y-1/2"
-      content="Remove"
-    >
-      <Button
-        onClick={handleRemove}
-        variant="destructive"
-        className="p-2.5"
-        aria-label="Remove from queue"
-      >
-        <TrashIcon className="h-5 w-5" />
-      </Button>
-    </Tooltip>
+    <div className="absolute top-1/2 right-5 -translate-y-1/2">
+      <Tooltip className="inline-flex" content="Remove">
+        <Button
+          onClick={handleRemove}
+          variant="destructive"
+          className="p-2.5"
+          aria-label="Remove from queue"
+        >
+          <TrashIcon className="h-5 w-5" />
+        </Button>
+      </Tooltip>
+    </div>
   );
 
-  let sourceLinkClass =
-    'absolute top-1/2 right-5 z-10 inline-flex -translate-y-1/2';
+  let sourceLinkClass = 'absolute top-1/2 right-5 z-10 -translate-y-1/2';
   if (isAdmin) {
-    sourceLinkClass =
-      'absolute top-1/2 right-18 z-10 inline-flex -translate-y-1/2';
+    sourceLinkClass = 'absolute top-1/2 right-18 z-10 -translate-y-1/2';
   }
 
   const sourceLink = providerUrl && (
-    <Tooltip
-      className={sourceLinkClass}
-      content={`Open on ${providerNames[song.sourceType]}`}
-    >
-      <a
-        href={providerUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-        aria-label={`Open ${song.title} on ${providerNames[song.sourceType]}`}
+    <div className={sourceLinkClass}>
+      <Tooltip
+        className="inline-flex"
+        content={`Open on ${providerNames[song.sourceType]}`}
       >
-        <ProviderIcon
-          className={classNames(
-            'h-5 w-5',
-            providerIconClasses[song.sourceType],
-          )}
-        />
-      </a>
-    </Tooltip>
+        <a
+          href={providerUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+          aria-label={`Open ${song.title} on ${providerNames[song.sourceType]}`}
+        >
+          <ProviderIcon
+            className={classNames(
+              'h-5 w-5',
+              providerIconClasses[song.sourceType],
+            )}
+          />
+        </a>
+      </Tooltip>
+    </div>
   );
 
   return (
