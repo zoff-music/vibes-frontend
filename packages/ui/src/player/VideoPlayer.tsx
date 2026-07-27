@@ -332,6 +332,41 @@ const VideoPlayerComponent = ({
     }
   }, [isYouTubeActive]);
 
+  useEffect(() => {
+    if (
+      !isReady ||
+      !isYouTubeActive ||
+      isCastReceiver ||
+      hasUserStartedPlayback
+    ) {
+      return;
+    }
+
+    const enforceMutedPlayback = () => {
+      const [err] = safeWrap(() => {
+        playerRef.current?.mute();
+        setIsMutedState(true);
+      });
+      if (err && DEBUG) {
+        debugLog('mute-enforcement-error', { error: err.message });
+      }
+    };
+
+    enforceMutedPlayback();
+    const interval = setInterval(
+      enforceMutedPlayback,
+      MUTE_ENFORCEMENT_INTERVAL_MS,
+    );
+
+    return () => clearInterval(interval);
+  }, [
+    debugLog,
+    hasUserStartedPlayback,
+    isCastReceiver,
+    isReady,
+    isYouTubeActive,
+  ]);
+
   const kickAutoplay = useCallback(
     (reason: 'state' | 'hidden' | 'retry') => {
       if (!videoId || !shouldPlay) return;
@@ -561,7 +596,11 @@ const VideoPlayerComponent = ({
           autoPlayRetryRef.current = null;
         }
         setIsReady(true);
-        const muted = playerRef.current?.isMuted?.() ?? false;
+        let muted = playerRef.current?.isMuted?.() ?? false;
+        if (!isCastReceiver && !hasUserStartedPlayback && !muted) {
+          playerRef.current?.mute();
+          muted = true;
+        }
         if (isCastReceiver && muted) {
           playerRef.current?.unMute?.();
         }
@@ -624,6 +663,7 @@ const VideoPlayerComponent = ({
     },
     [
       debugLog,
+      hasUserStartedPlayback,
       isCastReceiver,
       kickAutoplay,
       onLocalPause,
@@ -821,6 +861,8 @@ const LOCAL_SEEK_DEBOUNCE_MS = 1000;
 const LOCAL_SEEK_SAMPLE_MS = 500;
 
 const LOCAL_SEEK_THRESHOLD_SECONDS = 2;
+
+const MUTE_ENFORCEMENT_INTERVAL_MS = 500;
 
 const MAX_AUTOPLAY_RETRIES = 12;
 
