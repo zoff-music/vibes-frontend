@@ -2,7 +2,7 @@ import {
   roomGenerationMaxDailyCount,
   roomGenerationMaxExistingSongs,
 } from '@vibes/models';
-import { Button, SparklesIcon } from '@vibes/ui';
+import { Button, SparklesIcon, Tooltip } from '@vibes/ui';
 import { useEffect, useRef, useState } from 'react';
 import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 
@@ -100,7 +100,7 @@ export function RoomGenerationMenu({
 
   return (
     <div className="relative">
-      <div title={description}>
+      <Tooltip className="inline-flex" content={description} side="bottom">
         <Button
           ref={buttonRef}
           onClick={handleToggle}
@@ -114,7 +114,7 @@ export function RoomGenerationMenu({
             className={isGenerating ? 'h-5 w-5 animate-ai-sparkles' : 'h-5 w-5'}
           />
         </Button>
-      </div>
+      </Tooltip>
 
       {showGeneration && (
         <div
