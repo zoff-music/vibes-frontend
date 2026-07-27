@@ -1,6 +1,6 @@
 import { Button } from '@vibes/ui';
 import { type ChangeEvent, type SubmitEvent, useEffect, useState } from 'react';
-import type { AdminRoomSearch } from '../loader';
+import type { AdminRoomSearch } from '../rooms/loader';
 
 interface AdminRoomFiltersProps {
   disabled: boolean;

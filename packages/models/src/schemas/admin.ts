@@ -31,9 +31,36 @@ export const adminRoomSearchSchema = yup.object({
 });
 
 export const adminLoginRequestSchema = yup.object({
+  username: yup.string().required(),
   password: yup.string().required(),
 });
 export type AdminLoginRequest = yup.InferType<typeof adminLoginRequestSchema>;
+
+export const adminUserSchema = yup.object({
+  id: yup.string().required(),
+  username: yup.string().required(),
+  createdAt: yup.string().required(),
+  updatedAt: yup.string().required(),
+});
+export type AdminUser = yup.InferType<typeof adminUserSchema>;
+
+export const adminUsersSchema = yup.array(adminUserSchema).required();
+export type AdminUsers = yup.InferType<typeof adminUsersSchema>;
+
+export const adminCreateUserRequestSchema = yup.object({
+  username: yup.string().required(),
+  password: yup.string().required(),
+});
+export type AdminCreateUserRequest = yup.InferType<
+  typeof adminCreateUserRequestSchema
+>;
+
+export const adminUpdateUserRequestSchema = yup.object({
+  password: yup.string().required(),
+});
+export type AdminUpdateUserRequest = yup.InferType<
+  typeof adminUpdateUserRequestSchema
+>;
 
 export const adminUpdateRoomRequestSchema = yup.object({
   name: yup.string().optional(),
@@ -45,6 +72,7 @@ export type AdminUpdateRoomRequest = yup.InferType<
 
 export const adminSessionResponseSchema = yup.object({
   authorized: yup.boolean().required(),
+  user: adminUserSchema.optional(),
 });
 export type AdminSessionResponse = yup.InferType<
   typeof adminSessionResponseSchema
