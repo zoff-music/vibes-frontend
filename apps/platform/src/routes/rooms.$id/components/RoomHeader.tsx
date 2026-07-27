@@ -51,8 +51,8 @@ function DeferredHeaderLoading({ label }: DeferredHeaderLoadingProps) {
 
 function DeferredSettingsLoading() {
   return (
-    <div className="fixed top-(--room-header-height) right-0 bottom-0 left-0 z-40">
-      <div className="fixed top-(--room-header-height) right-0 left-0 h-[calc(100dvh-var(--room-header-height))] w-full border-theme border-t bg-theme-surface shadow-2xl sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:min-h-40 sm:w-72 sm:rounded-3xl sm:border">
+    <div className="fixed top-(--room-header-height) right-0 bottom-0 left-0 z-40 sm:contents">
+      <div className="fixed top-(--room-header-height) right-0 left-0 h-[calc(100dvh-var(--room-header-height))] w-full border-theme border-t bg-theme-surface shadow-2xl sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:min-h-40 sm:w-72 sm:rounded-3xl sm:border">
         <DeferredHeaderLoading label="Loading settings..." />
       </div>
     </div>

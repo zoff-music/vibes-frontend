@@ -12,6 +12,7 @@ export * from './components/Text';
 export * from './components/Toast';
 export * from './components/ToastViewport';
 export * from './components/Toggle';
+export * from './components/Tooltip';
 export * from './graphs/ListenerUsageChart';
 export * from './graphs/SearchUsageChart';
 export * from './icons';
