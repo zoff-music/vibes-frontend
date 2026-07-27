@@ -8,6 +8,7 @@ import {
   SettingsIcon,
   ShareIcon,
   SunIcon,
+  Tooltip,
 } from '@vibes/ui';
 import React, {
   lazy,
@@ -180,28 +181,42 @@ export const RoomHeader = React.memo(
               <UserCount />
 
               <div className="hidden sm:block">
-                <Button
-                  onClick={onToggleDarkMode}
-                  variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
-                  size="icon"
-                  title={`Theme: ${currentTheme.name}`}
+                <Tooltip
+                  className="inline-flex"
+                  content={`Theme: ${currentTheme.name}`}
+                  side="bottom"
                 >
-                  {themeId === 'light' && <SunIcon className="h-5 w-5" />}
-                  {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
-                  {themeId === 'auto' && <CircleHalfIcon className="h-5 w-5" />}
-                </Button>
+                  <Button
+                    onClick={onToggleDarkMode}
+                    variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
+                    size="icon"
+                    aria-label={`Theme: ${currentTheme.name}`}
+                  >
+                    {themeId === 'light' && <SunIcon className="h-5 w-5" />}
+                    {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
+                    {themeId === 'auto' && (
+                      <CircleHalfIcon className="h-5 w-5" />
+                    )}
+                  </Button>
+                </Tooltip>
               </div>
 
               <div className="relative hidden sm:block">
-                <Button
-                  ref={shareButtonRef}
-                  onClick={onToggleShare}
-                  variant={showShare ? 'tertiary-active' : 'tertiary'}
-                  size="icon"
-                  title="Share Room"
+                <Tooltip
+                  className="inline-flex"
+                  content="Share Room"
+                  side="bottom"
                 >
-                  <ShareIcon className="h-5 w-5" />
-                </Button>
+                  <Button
+                    ref={shareButtonRef}
+                    onClick={onToggleShare}
+                    variant={showShare ? 'tertiary-active' : 'tertiary'}
+                    size="icon"
+                    aria-label="Share Room"
+                  >
+                    <ShareIcon className="h-5 w-5" />
+                  </Button>
+                </Tooltip>
 
                 {showShare && (
                   <div
@@ -235,15 +250,21 @@ export const RoomHeader = React.memo(
               />
 
               <div className="relative ml-1">
-                <Button
-                  ref={settingsButtonRef}
-                  onClick={onToggleSettings}
-                  variant={showSettings ? 'tertiary-active' : 'tertiary'}
-                  size="icon"
-                  title="Room Settings"
+                <Tooltip
+                  className="inline-flex"
+                  content="Room Settings"
+                  side="bottom"
                 >
-                  <SettingsIcon className="h-5 w-5" />
-                </Button>
+                  <Button
+                    ref={settingsButtonRef}
+                    onClick={onToggleSettings}
+                    variant={showSettings ? 'tertiary-active' : 'tertiary'}
+                    size="icon"
+                    aria-label="Room Settings"
+                  >
+                    <SettingsIcon className="h-5 w-5" />
+                  </Button>
+                </Tooltip>
 
                 {showSettings && (
                   <Suspense fallback={<DeferredSettingsLoading />}>
