@@ -163,18 +163,18 @@ export const RoomSettingsMenu = ({
   }
 
   return (
-    <div className="fixed top-(--room-header-height) right-0 bottom-0 left-0 z-40">
+    <div className="fixed top-(--room-header-height) right-0 bottom-0 left-0 z-40 sm:contents">
       <Button
         type="button"
         variant="ghost"
         size="none"
-        className="absolute inset-0 h-full w-full"
+        className="absolute inset-0 h-full w-full sm:hidden"
         onClick={onClose}
         aria-label="Close settings"
       />
       <div
         ref={settingsMenuRef}
-        className="fixed top-(--room-header-height) right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full animate-scale-in overflow-hidden border-theme border-t bg-theme-surface text-theme shadow-2xl sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:max-h-settings-max sm:w-72 sm:rounded-3xl sm:border"
+        className="fixed top-(--room-header-height) right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full animate-scale-in overflow-hidden border-theme border-t bg-theme-surface text-theme shadow-2xl sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:max-h-settings-max sm:w-72 sm:rounded-3xl sm:border"
       >
         <div
           ref={scrollPanelRef}

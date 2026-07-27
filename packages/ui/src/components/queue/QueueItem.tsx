@@ -1,8 +1,19 @@
-import { getProviderTrackUrl, resolveSongThumbnail, Song } from '@vibes/shared';
+import {
+  classNames,
+  getProviderTrackUrl,
+  resolveSongThumbnail,
+  Song,
+} from '@vibes/shared';
 import React from 'react';
-import { TrashIcon, VoteIcon } from '../../icons';
+import {
+  SoundCloudIcon,
+  SpotifyIcon,
+  TrashIcon,
+  VoteIcon,
+  YouTubeIcon,
+} from '../../icons';
 import { Button } from '../Button';
-import { ProviderMark } from '../ProviderMark';
+import { Tooltip } from '../Tooltip';
 
 interface Props {
   song: Song;
@@ -42,6 +53,7 @@ export const QueueItem: React.FC<Props> = ({
     song.sourceId,
     song.providerUrl,
   );
+  const ProviderIcon = providerIcons[song.sourceType];
 
   const content = (
     <div className="flex min-w-0 items-center gap-4">
@@ -86,14 +98,9 @@ export const QueueItem: React.FC<Props> = ({
       </div>
 
       {/* Actions */}
-      <div className="flex shrink-0 items-center gap-3 pr-4">
+      <div className="flex shrink-0 items-center gap-3 pr-3">
         {/* Source Icon */}
-        <div className="flex items-center justify-center opacity-70">
-          {providerUrl && <div className="h-4 w-16" aria-hidden="true" />}
-          {!providerUrl && song.sourceType === 'soundcloud' && (
-            <ProviderMark className="h-4 w-16" provider="soundcloud" />
-          )}
-        </div>
+        <div className="h-5 w-5" aria-hidden="true" />
 
         {isAdmin && <div className="h-10 w-10 shrink-0" aria-hidden="true" />}
       </div>
@@ -101,47 +108,63 @@ export const QueueItem: React.FC<Props> = ({
   );
 
   const removeButton = isAdmin && (
-    <Button
-      onClick={handleRemove}
-      variant="destructive"
-      className="absolute top-1/2 right-6 -translate-y-1/2 p-2.5"
-      title="Remove from queue"
+    <Tooltip
+      className="absolute top-1/2 right-5 inline-flex -translate-y-1/2"
+      content="Remove"
     >
-      <TrashIcon className="h-5 w-5" />
-    </Button>
+      <Button
+        onClick={handleRemove}
+        variant="destructive"
+        className="p-2.5"
+        aria-label="Remove from queue"
+      >
+        <TrashIcon className="h-5 w-5" />
+      </Button>
+    </Tooltip>
   );
 
   let sourceLinkClass =
-    'absolute top-1/2 right-6 z-10 -translate-y-1/2 cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40';
+    'absolute top-1/2 right-5 z-10 inline-flex -translate-y-1/2';
   if (isAdmin) {
     sourceLinkClass =
-      'absolute top-1/2 right-20 z-10 -translate-y-1/2 cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40';
+      'absolute top-1/2 right-18 z-10 inline-flex -translate-y-1/2';
   }
 
   const sourceLink = providerUrl && (
-    <a
-      href={providerUrl}
-      target="_blank"
-      rel="noreferrer"
+    <Tooltip
       className={sourceLinkClass}
-      aria-label={`Open ${song.title} on ${providerNames[song.sourceType]}`}
-      title={`Open on ${providerNames[song.sourceType]}`}
+      content={`Open on ${providerNames[song.sourceType]}`}
     >
-      <ProviderMark className="h-4 w-16" provider={song.sourceType} />
-    </a>
+      <a
+        href={providerUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+        aria-label={`Open ${song.title} on ${providerNames[song.sourceType]}`}
+      >
+        <ProviderIcon
+          className={classNames(
+            'h-5 w-5',
+            providerIconClasses[song.sourceType],
+          )}
+        />
+      </a>
+    </Tooltip>
   );
 
   return (
-    <div className="animate-fade-in overflow-hidden">
+    <div className="animate-fade-in">
       <div className="relative">
-        <button
-          type="button"
-          onClick={handleVote}
-          className={cardClass}
-          aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}`}
-        >
-          {content}
-        </button>
+        <Tooltip className="block w-full" content="Vote">
+          <button
+            type="button"
+            onClick={handleVote}
+            className={cardClass}
+            aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}`}
+          >
+            {content}
+          </button>
+        </Tooltip>
         {sourceLink}
         {removeButton}
       </div>
@@ -153,4 +176,19 @@ const providerNames: Record<Song['sourceType'], string> = {
   soundcloud: 'SoundCloud',
   spotify: 'Spotify',
   youtube: 'YouTube',
+};
+
+const providerIcons: Record<
+  Song['sourceType'],
+  React.ComponentType<React.SVGProps<SVGSVGElement>>
+> = {
+  soundcloud: SoundCloudIcon,
+  spotify: SpotifyIcon,
+  youtube: YouTubeIcon,
+};
+
+const providerIconClasses: Record<Song['sourceType'], string> = {
+  soundcloud: 'text-soundcloud',
+  spotify: 'text-spotify-bright',
+  youtube: 'text-youtube',
 };

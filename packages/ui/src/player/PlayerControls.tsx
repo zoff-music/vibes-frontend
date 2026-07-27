@@ -1,6 +1,7 @@
 import { classNames } from '@vibes/shared';
 import React from 'react';
 import { Button } from '../components/Button';
+import { Tooltip } from '../components/Tooltip';
 import {
   CastIcon,
   PauseIcon,
@@ -44,61 +45,78 @@ const PlayerControlsComponent: React.FC<Props> = ({
   showSpotifyConnect,
   onConnectSpotify,
 }) => {
+  const playbackLabel = isPlaying ? 'Pause' : 'Play';
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-start gap-4">
-        <Button
-          onClick={isPlaying ? onPause : onPlay}
-          disabled={!canPlay}
-          variant="tertiary"
-          size="none"
-          aria-label={isPlaying ? 'Pause' : 'Play'}
-          className="group h-12 w-12 shrink-0 rounded-2xl p-0 active:scale-95"
-        >
-          {isPlaying && <PauseIcon className="h-6 w-6 fill-current" />}
-          {!isPlaying && <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />}
-        </Button>
-
-        <Button
-          onClick={onSkip}
-          disabled={!canSkip}
-          variant="tertiary"
-          size="icon"
-          title="Skip"
-        >
-          <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
-        </Button>
-
-        {showReset && (
+        <Tooltip className="inline-flex" content={playbackLabel}>
           <Button
-            onClick={onReset}
+            onClick={isPlaying ? onPause : onPlay}
+            disabled={!canPlay}
+            variant="tertiary"
+            size="none"
+            aria-label={playbackLabel}
+            className="group h-12 w-12 shrink-0 rounded-2xl p-0 active:scale-95"
+          >
+            {isPlaying && <PauseIcon className="h-6 w-6 fill-current" />}
+            {!isPlaying && <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />}
+          </Button>
+        </Tooltip>
+
+        <Tooltip className="inline-flex" content="Skip">
+          <Button
+            onClick={onSkip}
+            disabled={!canSkip}
             variant="tertiary"
             size="icon"
-            title="Reset playback"
+            aria-label="Skip"
           >
-            <ResetIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
+            <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
           </Button>
+        </Tooltip>
+
+        {showReset && (
+          <Tooltip className="inline-flex" content="Reset playback">
+            <Button
+              onClick={onReset}
+              variant="tertiary"
+              size="icon"
+              aria-label="Reset playback"
+            >
+              <ResetIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
+            </Button>
+          </Tooltip>
         )}
 
-        <Button
-          onClick={onOpenCast}
-          variant={isCasting ? 'secondary' : 'tertiary'}
-          size="icon"
-          title={
+        <Tooltip
+          className="inline-flex"
+          content={
             isCasting && castDeviceName
               ? `Casting to ${castDeviceName}`
               : 'Cast'
           }
         >
-          <CastIcon
-            className={classNames(
-              'h-5 w-5 transition-colors',
-              isCasting && 'text-primary',
-              !isCasting && 'text-theme-muted group-hover:text-primary',
-            )}
-            showDot={isCasting}
-          />
-        </Button>
+          <Button
+            onClick={onOpenCast}
+            variant={isCasting ? 'secondary' : 'tertiary'}
+            size="icon"
+            aria-label={
+              isCasting && castDeviceName
+                ? `Casting to ${castDeviceName}`
+                : 'Cast'
+            }
+          >
+            <CastIcon
+              className={classNames(
+                'h-5 w-5 transition-colors',
+                isCasting && 'text-primary',
+                !isCasting && 'text-theme-muted group-hover:text-primary',
+              )}
+              showDot={isCasting}
+            />
+          </Button>
+        </Tooltip>
 
         {showSpotifyConnect && onConnectSpotify && (
           <Button
