@@ -1,11 +1,19 @@
 import { showRateLimitMessageToast, useAdminEvents } from '@vibes/api';
 import type {
+  AdminListenerUsage,
   AdminRoomResult,
   AdminRoomSummary,
   AdminSearchUsage,
   AdminSearchUsageSummary,
 } from '@vibes/models';
-import { Button, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
+import {
+  Button,
+  ListenerUsageChart,
+  SearchUsageChart,
+  SoundCloudIcon,
+  SpotifyIcon,
+  YouTubeIcon,
+} from '@vibes/ui';
 import {
   type ChangeEvent,
   JSX,
@@ -24,7 +32,6 @@ import {
 import type { AdminActionData } from './action';
 import { action } from './action';
 import { AdminRoomFilters } from './components/AdminRoomFilters';
-import { SearchUsageChart } from './components/SearchUsageChart';
 import type { AdminLoaderData, AdminRoomSearch } from './loader';
 import { loader } from './loader';
 
@@ -48,6 +55,9 @@ export default function Admin() {
   );
   const [searchUsage, setSearchUsage] = useState<AdminSearchUsage>(
     loaderData.searchUsage,
+  );
+  const [listenerUsage, setListenerUsage] = useState<AdminListenerUsage>(
+    loaderData.listenerUsage,
   );
   const [isAuthorized, setIsAuthorized] = useState<boolean>(
     loaderData.adminAuthorized ?? false,
@@ -122,6 +132,9 @@ export default function Admin() {
     if (fetcher.data.searchUsage) {
       setSearchUsage(fetcher.data.searchUsage);
     }
+    if (fetcher.data.listenerUsage) {
+      setListenerUsage(fetcher.data.listenerUsage);
+    }
     if (typeof fetcher.data.authorized === 'boolean') {
       setIsAuthorized(fetcher.data.authorized);
     }
@@ -166,6 +179,7 @@ export default function Admin() {
     setRoomResult(roomFetcher.data.adminRooms);
     setRoomSearch(roomFetcher.data.roomSearch);
     setSearchUsage(roomFetcher.data.searchUsage);
+    setListenerUsage(roomFetcher.data.listenerUsage);
   }, [roomFetcher.data]);
 
   const handleLogin = () => {
@@ -420,6 +434,30 @@ export default function Admin() {
             {errorMessage}
           </p>
         )}
+
+        <section>
+          <div className="mb-4">
+            <h2 className="font-black text-2xl tracking-tight">
+              Listener Usage
+            </h2>
+            <p className="text-ink/60 text-sm dark:text-gray-400">
+              Concurrent active listeners sampled once per minute.
+            </p>
+            {listenerUsage.generatedAt && (
+              <p className="mt-1 text-ink/50 text-xs dark:text-gray-500">
+                Updated{' '}
+                {searchUsageDateFormatter.format(
+                  new Date(listenerUsage.generatedAt),
+                )}{' '}
+                UTC
+              </p>
+            )}
+          </div>
+          <ListenerUsageChart
+            generatedAt={listenerUsage.generatedAt}
+            points={listenerUsage.points}
+          />
+        </section>
 
         <section>
           <div className="mb-4">

@@ -19,7 +19,6 @@
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
-    "d3": "^7.9.0",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-router": "8.1.0"
@@ -27,7 +26,6 @@
   "devDependencies": {
     "@react-router/dev": "8.1.0",
     "@tailwindcss/vite": "catalog:",
-    "@types/d3": "^7.4.3",
     "@types/node": "25.0.10",
     "@types/react": "19.2.16",
     "@types/react-dom": "19.2.3",

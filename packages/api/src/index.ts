@@ -9,6 +9,7 @@ declare const process:
 import {
   addSongRequestSchema,
   addSongResponseSchema,
+  adminListenerUsageSchema,
   adminLoginRequestSchema,
   adminRoomResultSchema,
   adminRoomSearchSchema,
@@ -311,6 +312,11 @@ const endpoints = {
   '/admin/searches/usage': {
     get: {
       response: adminSearchUsageSchema,
+    },
+  },
+  '/admin/listeners/usage': {
+    get: {
+      response: adminListenerUsageSchema,
     },
   },
   '/admin/rooms/{id}': {
