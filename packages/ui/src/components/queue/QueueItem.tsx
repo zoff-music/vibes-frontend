@@ -1,9 +1,4 @@
-import {
-  classNames,
-  getProviderTrackUrl,
-  resolveSongThumbnail,
-  Song,
-} from '@vibes/shared';
+import { getProviderTrackUrl, resolveSongThumbnail, Song } from '@vibes/shared';
 import React from 'react';
 import {
   SoundCloudIcon,
@@ -124,7 +119,7 @@ export const QueueItem: React.FC<Props> = ({
 
   let sourceLinkClass = 'absolute top-1/2 right-5 z-10 -translate-y-1/2';
   if (isAdmin) {
-    sourceLinkClass = 'absolute top-1/2 right-18 z-10 -translate-y-1/2';
+    sourceLinkClass = 'absolute top-1/2 right-24 z-10 -translate-y-1/2';
   }
 
   const sourceLink = providerUrl && (
@@ -140,12 +135,7 @@ export const QueueItem: React.FC<Props> = ({
           className="cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
           aria-label={`Open ${song.title} on ${providerNames[song.sourceType]}`}
         >
-          <ProviderIcon
-            className={classNames(
-              'h-5 w-5',
-              providerIconClasses[song.sourceType],
-            )}
-          />
+          <ProviderIcon className="h-5 w-5 text-white" />
         </a>
       </Tooltip>
     </div>
@@ -184,10 +174,4 @@ const providerIcons: Record<
   soundcloud: SoundCloudIcon,
   spotify: SpotifyIcon,
   youtube: YouTubeIcon,
-};
-
-const providerIconClasses: Record<Song['sourceType'], string> = {
-  soundcloud: 'text-soundcloud',
-  spotify: 'text-spotify-bright',
-  youtube: 'text-youtube',
 };
