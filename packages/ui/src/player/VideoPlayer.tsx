@@ -7,7 +7,6 @@ import {
 } from '@vibes/shared';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import YouTube, { type YouTubeProps } from 'react-youtube';
-import { Button } from '../components/Button';
 
 interface Props {
   isVisible?: boolean;
@@ -97,7 +96,7 @@ const VideoPlayerComponent = ({
         ? preloadSong.sourceId
         : null;
   const debugLastRef = useRef(0);
-  const hasEverPlayedRef = useRef(false);
+  const [hasUserStartedPlayback, setHasUserStartedPlayback] = useState(false);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
   const [isMutedState, setIsMutedState] = useState(false);
   const origin =
@@ -138,11 +137,17 @@ const VideoPlayerComponent = ({
     if (!playerRef.current) {
       setIsReady(false);
     }
-    if (isYouTubeActive && !hasEverPlayedRef.current && !isCastReceiver) {
+    if (isYouTubeActive && !hasUserStartedPlayback && !isCastReceiver) {
       setNeedsUserGesture(true);
     }
     debugLog('song-change', { currentSongId: currentSong?.id });
-  }, [currentSong?.id, isYouTubeActive, isCastReceiver, debugLog]);
+  }, [
+    currentSong?.id,
+    isYouTubeActive,
+    hasUserStartedPlayback,
+    isCastReceiver,
+    debugLog,
+  ]);
 
   useEffect(() => {
     debugLog('mount');
@@ -253,13 +258,13 @@ const VideoPlayerComponent = ({
           volume,
         };
 
-        if (!previous || !hasEverPlayedRef.current) {
+        if (!previous || !hasUserStartedPlayback) {
           return;
         }
 
         if (
           (previous.isMuted !== isMuted || previous.volume !== volume) &&
-          (!shouldPlay || hasEverPlayedRef.current)
+          (!shouldPlay || hasUserStartedPlayback)
         ) {
           onLocalVolumeChange?.();
         }
@@ -316,6 +321,7 @@ const VideoPlayerComponent = ({
     onLocalSeek,
     onLocalVolumeChange,
     shouldPlay,
+    hasUserStartedPlayback,
   ]);
 
   useEffect(() => {
@@ -471,7 +477,6 @@ const VideoPlayerComponent = ({
         debugLog('force-autoplay-play-error', { error: playErr.message });
       }
 
-      hasEverPlayedRef.current = true;
       setNeedsUserGesture(false);
       debugLog('force-autoplay', { label });
     },
@@ -510,7 +515,7 @@ const VideoPlayerComponent = ({
 
       if (usePlaybackStore.getState().isPlaying) {
         const [err] = safeWrap(() => {
-          if (!hasEverPlayedRef.current) {
+          if (!hasUserStartedPlayback) {
             event.target.mute();
             setIsMutedState(true);
           }
@@ -521,7 +526,7 @@ const VideoPlayerComponent = ({
         }
       }
     },
-    [debugLog, forceAutoplay, isCastReceiver],
+    [debugLog, forceAutoplay, hasUserStartedPlayback, isCastReceiver],
   );
 
   const handleStateChange = useCallback(
@@ -565,7 +570,6 @@ const VideoPlayerComponent = ({
           : muted;
         setIsMutedState(resolvedMuted);
         if (!resolvedMuted) {
-          hasEverPlayedRef.current = true;
           setNeedsUserGesture(false);
         } else {
           setNeedsUserGesture(!isCastReceiver);
@@ -698,7 +702,9 @@ const VideoPlayerComponent = ({
   const showClickToPlay =
     isYouTubeActive &&
     !isCastReceiver &&
-    (needsUserGesture || (shouldPlay && isMutedState)) &&
+    (!hasUserStartedPlayback ||
+      needsUserGesture ||
+      (shouldPlay && isMutedState)) &&
     !error;
 
   const handleUserGesturePlay = useCallback(() => {
@@ -718,7 +724,7 @@ const VideoPlayerComponent = ({
       player.seekTo(actualPositionMs / 1000, true);
       observedPlaybackRef.current = null;
       player.playVideo();
-      hasEverPlayedRef.current = true;
+      setHasUserStartedPlayback(true);
       setNeedsUserGesture(false);
       debugLog('user-gesture-play');
     });
@@ -767,17 +773,15 @@ const VideoPlayerComponent = ({
       </div>
 
       {showClickToPlay && (
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="none"
-          className="w-full shrink-0 border-white/15 border-t bg-black px-4 py-3 text-white hover:bg-white/10"
+          className="absolute inset-0 z-40 flex h-full w-full cursor-pointer items-center justify-center bg-black text-white transition-colors hover:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-inset"
           onClick={handleUserGesturePlay}
         >
-          <span className="font-mono text-caption uppercase tracking-widest">
+          <span className="rounded-full border border-white/20 bg-white/5 px-6 py-3 font-mono text-caption uppercase tracking-widest">
             ▶ Click to play
           </span>
-        </Button>
+        </button>
       )}
 
       {error && (

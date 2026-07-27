@@ -5,7 +5,7 @@ import {
   usePlaybackStore,
   useQueueStore,
 } from '@vibes/shared';
-import { ProviderMark, QueueList } from '@vibes/ui';
+import { ProviderIcon, QueueList, Tooltip } from '@vibes/ui';
 import React from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../action';
@@ -141,24 +141,29 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   {/* Source Icon */}
                   <div className="relative z-10 flex shrink-0 items-center justify-center opacity-70">
                     {currentSongProviderUrl && (
-                      <a
-                        href={currentSongProviderUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-                        aria-label={`Open ${currentSongData.title} on ${providerNames[currentSongData.sourceType]}`}
-                        title={`Open on ${providerNames[currentSongData.sourceType]}`}
+                      <Tooltip
+                        align="end"
+                        className="inline-flex"
+                        content={`Open on ${providerNames[currentSongData.sourceType]}`}
                       >
-                        <ProviderMark
-                          className="h-4 w-16"
-                          provider={currentSongData.sourceType}
-                        />
-                      </a>
+                        <a
+                          href={currentSongProviderUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+                          aria-label={`Open ${currentSongData.title} on ${providerNames[currentSongData.sourceType]}`}
+                        >
+                          <ProviderIcon
+                            className="h-5 w-5 text-white"
+                            provider={currentSongData.sourceType}
+                          />
+                        </a>
+                      </Tooltip>
                     )}
                     {!currentSongProviderUrl &&
                       currentSongData.sourceType === 'soundcloud' && (
-                        <ProviderMark
-                          className="h-4 w-16"
+                        <ProviderIcon
+                          className="h-5 w-5 text-white"
                           provider="soundcloud"
                         />
                       )}

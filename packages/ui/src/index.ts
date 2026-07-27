@@ -5,6 +5,7 @@ export * from './components/Input'; // Just to be safe if GlassInput was expecte
 export * from './components/ListenerCount';
 export * from './components/Modal';
 export * from './components/NotFoundView';
+export * from './components/ProviderIcon';
 export * from './components/ProviderMark';
 export * from './components/queue/QueueItem';
 export * from './components/queue/QueueList';

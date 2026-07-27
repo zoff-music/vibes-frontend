@@ -1,13 +1,8 @@
 import { getProviderTrackUrl, resolveSongThumbnail, Song } from '@vibes/shared';
 import React from 'react';
-import {
-  SoundCloudIcon,
-  SpotifyIcon,
-  TrashIcon,
-  VoteIcon,
-  YouTubeIcon,
-} from '../../icons';
+import { TrashIcon, VoteIcon } from '../../icons';
 import { Button } from '../Button';
+import { ProviderIcon } from '../ProviderIcon';
 import { Tooltip } from '../Tooltip';
 
 interface Props {
@@ -48,8 +43,6 @@ export const QueueItem: React.FC<Props> = ({
     song.sourceId,
     song.providerUrl,
   );
-  const ProviderIcon = providerIcons[song.sourceType];
-
   const content = (
     <div className="flex min-w-0 items-center gap-4">
       {/* Position number */}
@@ -104,7 +97,7 @@ export const QueueItem: React.FC<Props> = ({
 
   const removeButton = isAdmin && (
     <div className="absolute top-1/2 right-5 -translate-y-1/2">
-      <Tooltip className="inline-flex" content="Remove">
+      <Tooltip align="end" className="inline-flex" content="Remove">
         <Button
           onClick={handleRemove}
           variant="destructive"
@@ -126,6 +119,7 @@ export const QueueItem: React.FC<Props> = ({
   const sourceLink = providerUrl && (
     <div className={sourceLinkClass}>
       <Tooltip
+        align="end"
         className="inline-flex"
         content={`Open on ${providerNames[song.sourceType]}`}
       >
@@ -136,7 +130,10 @@ export const QueueItem: React.FC<Props> = ({
           className="cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
           aria-label={`Open ${song.title} on ${providerNames[song.sourceType]}`}
         >
-          <ProviderIcon className="h-5 w-5 text-white" />
+          <ProviderIcon
+            className="h-5 w-5 text-white"
+            provider={song.sourceType}
+          />
         </a>
       </Tooltip>
     </div>
@@ -166,13 +163,4 @@ const providerNames: Record<Song['sourceType'], string> = {
   soundcloud: 'SoundCloud',
   spotify: 'Spotify',
   youtube: 'YouTube',
-};
-
-const providerIcons: Record<
-  Song['sourceType'],
-  React.ComponentType<React.SVGProps<SVGSVGElement>>
-> = {
-  soundcloud: SoundCloudIcon,
-  spotify: SpotifyIcon,
-  youtube: YouTubeIcon,
 };
