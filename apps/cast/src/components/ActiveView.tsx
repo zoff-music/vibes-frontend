@@ -6,29 +6,20 @@ import { useCast } from './CastProvider';
 import { PlayerLayer } from './PlayerLayer';
 
 export const ActiveView: React.FC = () => {
-  const {
-    currentSong,
-    queue,
-    roomInfo,
-    actualPositionMs,
-    roomId,
-    error,
-    apiUrl,
-  } = useCast();
+  const { currentSong, queue, roomInfo, actualPositionMs, roomId } = useCast();
 
   if (!currentSong) return null;
 
   const joinUrl = `${window.location.origin}/rooms/${roomId}`;
   const upNext = queue.filter((song) => song.id !== currentSong.id);
+  const participantCount = roomInfo?.participantCount ?? 0;
+  const roomName = roomInfo?.name ?? roomId;
 
   return (
-    <div className="flex h-screen w-screen flex-row overflow-hidden bg-black font-body">
-      {/* Left Column: Player & Current Song Info - FIXED WIDTH */}
-      <div className="relative h-full w-[65%] shrink-0 overflow-hidden border-white/10 border-r bg-black shadow-2xl">
-        {/* Player Container */}
+    <div className="flex h-screen w-screen flex-row gap-6 overflow-hidden p-6 font-body">
+      <div className="cast-panel relative h-full w-[65%] shrink-0 overflow-hidden rounded-frame">
         <PlayerLayer />
 
-        {/* Info Overlay - TV Optimized */}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent px-10 pt-32 pb-10">
           <div className="flex items-end gap-6">
             <div className="relative shrink-0">
@@ -56,7 +47,6 @@ export const ActiveView: React.FC = () => {
               )}
             </div>
 
-            {/* Source Icon on Right */}
             <div className="mb-2 flex shrink-0 items-center justify-center pr-4 pb-1">
               {currentSong.sourceType === 'spotify' && (
                 <SpotifyIcon className="h-10 w-10 text-white/50" />
@@ -71,7 +61,6 @@ export const ActiveView: React.FC = () => {
             </div>
           </div>
 
-          {/* Progress Bar */}
           <div className="mt-8">
             <div className="mb-3 flex justify-between font-mono text-lg text-white/60">
               <span>
@@ -102,66 +91,56 @@ export const ActiveView: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Column: Up Next Queue */}
-      <div className="flex h-full flex-1 flex-col bg-neutral-900 p-10">
-        <div className="mb-8 flex items-center justify-between border-white/10 border-b pb-6">
-          <div>
-            <h2 className="font-display text-sm text-text-muted uppercase tracking-banner">
-              Up Next
-            </h2>
+      <div className="cast-panel flex h-full min-w-0 flex-1 flex-col rounded-frame p-7">
+        <div className="mb-6 flex items-center justify-between border-white/10 border-b pb-5">
+          <h2 className="font-display text-sm text-theme-muted uppercase tracking-banner">
+            Up Next
+          </h2>
+          <div className="flex items-center gap-2 rounded-full border border-secondary/30 bg-black/30 px-4 py-2 text-sm text-theme-muted">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
+            {participantCount}{' '}
+            {participantCount === 1 ? 'listener' : 'listeners'}
           </div>
-          {roomInfo && (
-            <div className="text-right">
-              {/* <h3 className="font-medium text-theme text-xl">
-                {roomInfo.name}
-              </h3> */}
-              <div className="mt-1 flex items-center justify-end gap-2 text-sm text-theme-muted">
-                <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                {roomInfo.participantCount} listening
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="custom-scrollbar flex-1 overflow-y-auto pr-2">
           <QueueList songs={upNext} {...(roomId && { roomId })} />
         </div>
 
-        <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 text-center">
-          <div className="flex items-center justify-center gap-8">
-            <div className="inline-flex items-center justify-center rounded-2xl bg-white p-3 shadow-lg">
+        <div className="mt-6 rounded-3xl border border-primary/30 bg-black/30 p-5">
+          <div className="flex items-center gap-5">
+            <div className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-white p-2 shadow-lg">
               <QRCodeSVG
                 value={joinUrl}
-                size={140}
+                size={108}
                 bgColor="#ffffff"
                 fgColor="#000000"
                 level="M"
               />
             </div>
-            <div className="text-left">
-              <p className="mb-2 font-display text-2xl text-theme">
-                Join the Party
+            <div className="min-w-0 flex-1 text-left">
+              <div className="mb-3 flex items-center gap-3">
+                <img
+                  src="/casting/receiver/logo.png"
+                  alt="Zoff"
+                  className="h-10 w-10 object-contain"
+                />
+                <p className="font-mono text-secondary text-xs uppercase tracking-heading">
+                  Scan to join
+                </p>
+              </div>
+              <p className="truncate font-display text-2xl text-theme">
+                {roomName}
               </p>
-              <p className="max-w-50 text-lg text-theme-muted leading-snug">
-                Scan to add songs & vote from your phone
+              <p className="mt-2 flex items-center gap-2 text-base text-theme-muted">
+                <span className="h-2 w-2 rounded-full bg-secondary" />
+                {participantCount}{' '}
+                {participantCount === 1 ? 'listener' : 'listeners'} · Add songs
+                and vote
               </p>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Debug Overlay - Always visible for now until fixed */}
-      <div className="pointer-events-none absolute top-0 right-0 z-50 border-green-900 border-b border-l bg-black/80 p-4 font-mono text-green-400 text-xs">
-        <div>Room: {roomId || 'NULL'}</div>
-        <div>Err: {error || 'None'}</div>
-        <div>API: {apiUrl}</div>
-        <div>
-          Q: {queue.length} | Next: {upNext.length}
-        </div>
-        <div>
-          Song: {currentSong?.id} | {currentSong?.title}
-        </div>
-        <div>Q IDs: {queue.map((s) => s.id).join(', ')}</div>
       </div>
     </div>
   );
