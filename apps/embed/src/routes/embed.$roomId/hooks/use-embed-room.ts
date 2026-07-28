@@ -1,5 +1,10 @@
 import { useSSE } from '@vibes/api';
-import { usePlaybackStore, useQueueStore, useRoomStore } from '@vibes/shared';
+import {
+  useMediaSession,
+  usePlaybackStore,
+  useQueueStore,
+  useRoomStore,
+} from '@vibes/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { EmbedActionData } from '../action';
@@ -75,10 +80,38 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     );
   }, [actionFetcher]);
 
-  const handlePlayPause = useCallback(() => {
+  const handlePlay = useCallback(() => {
     setHasLocalPlayerInteraction(true);
-    setLocalPlayingState(!isPlaying, room.mode);
-  }, [isPlaying, room.mode, setLocalPlayingState]);
+    setLocalPlayingState(true, room.mode);
+  }, [room.mode, setLocalPlayingState]);
+
+  const handlePause = useCallback(() => {
+    setHasLocalPlayerInteraction(true);
+    setLocalPlayingState(false, room.mode);
+  }, [room.mode, setLocalPlayingState]);
+
+  const handlePlayPause = useCallback(() => {
+    if (isPlaying) {
+      handlePause();
+      return;
+    }
+
+    handlePlay();
+  }, [handlePause, handlePlay, isPlaying]);
+
+  useMediaSession({
+    canPlay: loaderData.options.player && Boolean(currentSong),
+    canSkip:
+      loaderData.options.skip &&
+      Boolean(currentSong) &&
+      room.mode !== 'host' &&
+      room.settings.skipAllowed,
+    currentSong,
+    isPlaying,
+    onPause: handlePause,
+    onPlay: handlePlay,
+    onSkip: handleSkip,
+  });
 
   const handleVote = useCallback(
     (songId: string) => {
@@ -187,11 +220,13 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     dismissToast,
     handleLocalAlignmentChange,
     handleLocalPlayerInteraction,
+    handlePlay,
     handlePlayPause,
     handleReset,
     handleSkip,
     handleVote,
     hasLocalPlaybackChanges,
+    hasLocalPlayerInteraction,
     isPlaying,
     positionMs,
     requestProviderToken,

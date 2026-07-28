@@ -41,9 +41,22 @@ export function EmbedRoomHeader({
 
   return (
     <header className="flex items-center justify-between border-theme border-b px-4 py-3">
-      <h1 className="min-w-0 truncate font-pixel text-sm text-theme">
-        {room.name}
-      </h1>
+      <div className="flex min-w-0 items-center gap-2">
+        <h1 className="min-w-0 truncate font-pixel text-sm text-theme">
+          {room.name}
+        </h1>
+        {showReset && (
+          <Button
+            onClick={onReset}
+            title="Reset playback"
+            aria-label="Reset playback"
+            variant="tertiary"
+            size="icon"
+          >
+            <ResetIcon className="h-5 w-5" />
+          </Button>
+        )}
+      </div>
       <div className="ml-3 flex shrink-0 items-center gap-2">
         <ListenerCount count={usersCount} />
         <Button
@@ -69,17 +82,6 @@ export function EmbedRoomHeader({
           {isPlaying && <PauseIcon className="h-5 w-5" />}
           {!isPlaying && <PlayIcon className="h-5 w-5" />}
         </Button>
-        {showReset && (
-          <Button
-            onClick={onReset}
-            title="Reset playback"
-            aria-label="Reset playback"
-            variant="tertiary"
-            size="icon"
-          >
-            <ResetIcon className="h-5 w-5" />
-          </Button>
-        )}
         {showSkip && (
           <Button
             disabled={!canSkip}
