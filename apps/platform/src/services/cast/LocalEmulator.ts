@@ -131,8 +131,7 @@ export class LocalEmulator {
           return '/casting/receiver/';
         }
 
-        const pathname = parsedUrl.pathname || '/';
-        return `${pathname}${parsedUrl.search || ''}`;
+        return parsedUrl.toString();
       }
 
       if (!CUSTOM_RECEIVER_URL.startsWith('/')) {
@@ -206,8 +205,8 @@ export class LocalEmulator {
     const popup =
       existingWindow ||
       (() => {
-        const width = 480;
-        const height = 270;
+        const width = Math.min(960, window.screen.availWidth);
+        const height = Math.min(540, window.screen.availHeight);
         const left = Math.max(0, window.screen.width / 2 - width / 2);
         const top = Math.max(0, window.screen.height / 2 - height / 2);
         const features = [
