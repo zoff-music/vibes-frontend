@@ -78,21 +78,22 @@ export type AdminSessionResponse = yup.InferType<
   typeof adminSessionResponseSchema
 >;
 
-export const adminSearchUsageSummarySchema = yup.object({
-  window: yup.string().oneOf(['hour', 'day', 'week', 'month']).required(),
+export const adminSearchUsagePointSchema = yup.object({
+  window: yup.string().oneOf(['hour', 'day']).required(),
+  timestamp: yup.string().required(),
   provider: yup.string().required(),
   total: yup.number().required(),
   unique: yup.number().required(),
   cached: yup.number().required(),
   live: yup.number().required(),
 });
-export type AdminSearchUsageSummary = yup.InferType<
-  typeof adminSearchUsageSummarySchema
+export type AdminSearchUsagePoint = yup.InferType<
+  typeof adminSearchUsagePointSchema
 >;
 
 export const adminSearchUsageSchema = yup
   .object({
-    summaries: yup.array(adminSearchUsageSummarySchema).required(),
+    points: yup.array(adminSearchUsagePointSchema).required(),
     generatedAt: yup.string().required(),
   })
   .required();

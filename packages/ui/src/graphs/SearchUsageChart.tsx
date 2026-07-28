@@ -1,60 +1,63 @@
-import type { AdminSearchUsageSummary } from '@vibes/models';
-import { max, scaleBand, scaleLinear } from 'd3';
+import type { AdminSearchUsagePoint } from '@vibes/models';
+import { line, max, scaleLinear, scaleUtc, utcFormat } from 'd3';
 import { type MouseEvent, useMemo, useState } from 'react';
+import { Button } from '../components/Button';
 
 interface SearchUsageChartProps {
-  summaries: AdminSearchUsageSummary[];
+  generatedAt: string;
+  points: AdminSearchUsagePoint[];
 }
 
-interface SearchUsageBar {
+interface SearchUsageBucket {
   cached: number;
   live: number;
-  provider: string;
+  timestamp: Date;
   total: number;
 }
 
-export function SearchUsageChart({ summaries }: SearchUsageChartProps) {
-  const [selectedWindow, setSelectedWindow] = useState('day');
+export function SearchUsageChart({
+  generatedAt,
+  points,
+}: SearchUsageChartProps) {
+  const [selectedWindow, setSelectedWindow] = useState('hour');
   const [selectedProvider, setSelectedProvider] = useState(allProviders);
   const providers = useMemo(
     () =>
-      Array.from(new Set(summaries.map((summary) => summary.provider))).sort(
+      Array.from(new Set(points.map((point) => point.provider))).sort(
         (left, right) => left.localeCompare(right),
       ),
-    [summaries],
+    [points],
   );
   const activeProvider =
     selectedProvider === allProviders || providers.includes(selectedProvider)
       ? selectedProvider
       : allProviders;
-  const bars = useMemo<SearchUsageBar[]>(
+  const buckets = useMemo(
     () =>
-      summaries
-        .filter(
-          (summary) =>
-            summary.window === selectedWindow &&
-            (activeProvider === allProviders ||
-              summary.provider === activeProvider),
-        )
-        .map((summary) => ({
-          cached: summary.cached,
-          live: summary.live,
-          provider: summary.provider,
-          total: summary.total,
-        }))
-        .sort((left, right) => left.provider.localeCompare(right.provider)),
-    [activeProvider, selectedWindow, summaries],
+      generateSearchUsageBuckets(
+        points,
+        generatedAt,
+        selectedWindow,
+        activeProvider,
+      ),
+    [activeProvider, generatedAt, points, selectedWindow],
   );
-  const highestTotal = max(bars, (bar) => bar.total) ?? 0;
-  const xScale = scaleBand<string>()
-    .domain(bars.map((bar) => bar.provider))
-    .range([chartLeft, chartRight])
-    .padding(chartBarPadding);
+  const highestTotal = max(buckets, (bucket) => bucket.total) ?? 0;
+  const xScale = scaleUtc()
+    .domain([
+      buckets[0]?.timestamp ?? new Date(),
+      buckets[buckets.length - 1]?.timestamp ?? new Date(),
+    ])
+    .range([chartLeft, chartRight]);
   const yScale = scaleLinear()
-    .domain([0, Math.max(highestTotal, 1)])
+    .domain([0, Math.max(highestTotal, minimumSearchDomain)])
     .nice()
     .range([chartBottom, chartTop]);
-  const ticks = yScale.ticks(chartTickCount);
+  const yTicks = yScale.ticks(chartTickCount);
+  const xTicks = xScale.ticks(chartTickCount);
+  const totalPath = generateSearchUsagePath(buckets, xScale, yScale, 'total');
+  const cachedPath = generateSearchUsagePath(buckets, xScale, yScale, 'cached');
+  const livePath = generateSearchUsagePath(buckets, xScale, yScale, 'live');
 
   const handleWindowChange = (event: MouseEvent<HTMLButtonElement>) => {
     setSelectedWindow(event.currentTarget.value);
@@ -68,90 +71,86 @@ export function SearchUsageChart({ summaries }: SearchUsageChartProps) {
     <div className="glass mb-4 rounded-2xl border-2 border-ink/10 p-5 dark:border-gray-700">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="font-bold text-lg">Provider search distribution</h3>
+          <h3 className="font-bold text-lg">Search activity</h3>
           <p className="text-ink/50 text-xs dark:text-gray-500">
-            Cached and live searches for the selected calendar window.
+            Search volume over time. Quiet intervals are shown as zero.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {searchUsageWindows.map((window) => (
-            <button
+            <Button
               aria-pressed={selectedWindow === window.id}
-              className={
-                selectedWindow === window.id
-                  ? 'rounded-lg bg-primary px-3 py-2 font-bold text-white text-xs'
-                  : 'rounded-lg bg-ink/5 px-3 py-2 font-bold text-ink/60 text-xs transition-colors hover:bg-ink/10 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'
-              }
               key={window.id}
               onClick={handleWindowChange}
-              type="button"
+              size="small"
               value={window.id}
+              variant={selectedWindow === window.id ? 'primary' : 'tertiary'}
             >
               {window.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       <fieldset className="mt-4 flex flex-wrap gap-2">
         <legend className="sr-only">Search provider</legend>
-        <button
+        <Button
           aria-pressed={activeProvider === allProviders}
-          className={
-            activeProvider === allProviders
-              ? 'rounded-lg bg-secondary px-3 py-2 font-bold text-white text-xs'
-              : 'rounded-lg bg-ink/5 px-3 py-2 font-bold text-ink/60 text-xs transition-colors hover:bg-ink/10 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'
-          }
           onClick={handleProviderChange}
-          type="button"
+          size="small"
           value={allProviders}
+          variant={
+            activeProvider === allProviders ? 'tertiary-active' : 'tertiary'
+          }
         >
           All providers
-        </button>
+        </Button>
         {providers.map((provider) => (
-          <button
+          <Button
             aria-pressed={activeProvider === provider}
-            className={
-              activeProvider === provider
-                ? 'rounded-lg bg-secondary px-3 py-2 font-bold text-white text-xs'
-                : 'rounded-lg bg-ink/5 px-3 py-2 font-bold text-ink/60 text-xs transition-colors hover:bg-ink/10 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'
-            }
             key={provider}
             onClick={handleProviderChange}
-            type="button"
+            size="small"
             value={provider}
+            variant={
+              activeProvider === provider ? 'tertiary-active' : 'tertiary'
+            }
           >
             {providerLabels[provider] ?? provider}
-          </button>
+          </Button>
         ))}
       </fieldset>
 
-      <div className="mt-4 flex items-center gap-4 text-ink/60 text-xs dark:text-gray-400">
-        <span className="inline-flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
-          Cached
-        </span>
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-ink/60 text-xs dark:text-gray-400">
         <span className="inline-flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+          Total
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
           Live
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-violet-400" />
+          Cached
         </span>
       </div>
 
-      {bars.length === 0 && (
+      {!generatedAt && (
         <p className="py-16 text-center text-ink/50 text-sm dark:text-gray-500">
-          No searches recorded for this window.
+          Search activity is unavailable.
         </p>
       )}
 
-      {bars.length > 0 && (
+      {generatedAt && (
         <div className="mt-3 overflow-x-auto">
           <svg
-            aria-label={`Cached and live ${activeProvider === allProviders ? 'provider' : activeProvider} searches for ${selectedWindow}`}
+            aria-label={`${activeProvider === allProviders ? 'All provider' : activeProvider} search activity for the last ${selectedWindow === 'hour' ? '24 hours' : '30 days'}`}
             className="w-full min-w-xl"
             role="img"
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
           >
-            {ticks.map((tick) => (
+            {yTicks.map((tick) => (
               <g key={tick}>
                 <line
                   className="stroke-ink/10 dark:stroke-gray-700"
@@ -170,49 +169,50 @@ export function SearchUsageChart({ summaries }: SearchUsageChartProps) {
                 </text>
               </g>
             ))}
-            {bars.map((bar) => {
-              const x = xScale(bar.provider) ?? chartLeft;
-              const width = xScale.bandwidth();
-              const cachedTop = yScale(bar.cached);
-              const totalTop = yScale(bar.cached + bar.live);
-
-              return (
-                <g key={bar.provider}>
-                  <rect
-                    className="fill-cyan-400"
-                    height={chartBottom - cachedTop}
-                    rx={chartBarRadius}
-                    width={width}
-                    x={x}
-                    y={cachedTop}
-                  />
-                  <rect
-                    className="fill-primary"
-                    height={cachedTop - totalTop}
-                    rx={chartBarRadius}
-                    width={width}
-                    x={x}
-                    y={totalTop}
-                  />
-                  <text
-                    className="fill-ink font-bold text-sm dark:fill-white"
-                    textAnchor="middle"
-                    x={x + width / 2}
-                    y={Math.max(totalTop - chartValueGap, chartTop)}
-                  >
-                    {bar.total}
-                  </text>
-                  <text
-                    className="fill-ink/60 text-xs capitalize dark:fill-gray-400"
-                    textAnchor="middle"
-                    x={x + width / 2}
-                    y={chartBottom + chartLabelGap}
-                  >
-                    {bar.provider}
-                  </text>
-                </g>
-              );
-            })}
+            {xTicks.map((tick) => (
+              <text
+                className="fill-ink/50 text-xs dark:fill-gray-500"
+                key={tick.toISOString()}
+                textAnchor="middle"
+                x={xScale(tick)}
+                y={chartBottom + chartLabelGap}
+              >
+                {formatSearchUsageTick(tick, selectedWindow)}
+              </text>
+            ))}
+            <path
+              className="fill-none stroke-violet-400"
+              d={cachedPath ?? undefined}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={supportingLineWidth}
+            />
+            <path
+              className="fill-none stroke-cyan-400"
+              d={livePath ?? undefined}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={supportingLineWidth}
+            />
+            <path
+              className="fill-none stroke-primary"
+              d={totalPath ?? undefined}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={totalLineWidth}
+            />
+            {buckets.map((bucket) => (
+              <circle
+                className="fill-primary stroke-theme-surface"
+                cx={xScale(bucket.timestamp)}
+                cy={yScale(bucket.total)}
+                key={bucket.timestamp.toISOString()}
+                r={pointRadius}
+                strokeWidth={pointStrokeWidth}
+              >
+                <title>{formatSearchUsagePoint(bucket, selectedWindow)}</title>
+              </circle>
+            ))}
           </svg>
         </div>
       )}
@@ -220,11 +220,119 @@ export function SearchUsageChart({ summaries }: SearchUsageChartProps) {
   );
 }
 
+function generateSearchUsageBuckets(
+  points: AdminSearchUsagePoint[],
+  generatedAt: string,
+  window: string,
+  provider: string,
+) {
+  if (!generatedAt) {
+    return [];
+  }
+
+  const matchingPoints = points.filter(
+    (point) =>
+      point.window === window &&
+      (provider === allProviders || point.provider === provider),
+  );
+  const usageByTimestamp = new Map<number, SearchUsageBucket>();
+  for (const point of matchingPoints) {
+    const timestamp = new Date(point.timestamp);
+    const key = timestamp.getTime();
+    const current = usageByTimestamp.get(key);
+    usageByTimestamp.set(key, {
+      cached: (current?.cached ?? 0) + point.cached,
+      live: (current?.live ?? 0) + point.live,
+      timestamp,
+      total: (current?.total ?? 0) + point.total,
+    });
+  }
+
+  const end = floorSearchUsageDate(new Date(generatedAt), window);
+  const start = new Date(end);
+  if (window === 'hour') {
+    start.setUTCHours(start.getUTCHours() - hourlyBucketOffset);
+  } else {
+    start.setUTCDate(start.getUTCDate() - dailyBucketOffset);
+  }
+
+  const buckets: SearchUsageBucket[] = [];
+  let timestamp = start;
+  while (timestamp.getTime() <= end.getTime()) {
+    const existing = usageByTimestamp.get(timestamp.getTime());
+    buckets.push(
+      existing ?? {
+        cached: 0,
+        live: 0,
+        timestamp,
+        total: 0,
+      },
+    );
+    timestamp = incrementSearchUsageDate(timestamp, window);
+  }
+
+  return buckets;
+}
+
+function generateSearchUsagePath(
+  buckets: SearchUsageBucket[],
+  xScale: (timestamp: Date) => number,
+  yScale: (value: number) => number,
+  value: 'cached' | 'live' | 'total',
+) {
+  return line<SearchUsageBucket>()
+    .x((bucket) => xScale(bucket.timestamp))
+    .y((bucket) => yScale(bucket[value]))(buckets);
+}
+
+function floorSearchUsageDate(date: Date, window: string) {
+  if (window === 'hour') {
+    return new Date(
+      Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        date.getUTCHours(),
+      ),
+    );
+  }
+
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
+}
+
+function incrementSearchUsageDate(date: Date, window: string) {
+  const next = new Date(date);
+  if (window === 'hour') {
+    next.setUTCHours(next.getUTCHours() + 1);
+    return next;
+  }
+
+  next.setUTCDate(next.getUTCDate() + 1);
+  return next;
+}
+
+function formatSearchUsageTick(date: Date, window: string) {
+  if (window === 'hour') {
+    return utcFormat('%H:00')(date);
+  }
+
+  return utcFormat('%d %b')(date);
+}
+
+function formatSearchUsagePoint(bucket: SearchUsageBucket, window: string) {
+  const timestamp =
+    window === 'hour'
+      ? utcFormat('%d %b %H:00 UTC')(bucket.timestamp)
+      : utcFormat('%d %b %Y')(bucket.timestamp);
+
+  return `${timestamp}: ${bucket.total} total, ${bucket.live} live, ${bucket.cached} cached`;
+}
+
 const searchUsageWindows = [
-  { id: 'hour', label: 'Hour' },
-  { id: 'day', label: 'Day' },
-  { id: 'week', label: 'Week' },
-  { id: 'month', label: 'Month' },
+  { id: 'hour', label: '24 hours' },
+  { id: 'day', label: '30 days' },
 ];
 
 const providerLabels: Record<string, string> = {
@@ -241,10 +349,14 @@ const chartLeft = 52;
 const chartRight = 696;
 const chartTop = 30;
 const chartBottom = 270;
-const chartTickCount = 4;
-const chartBarPadding = 0.35;
+const chartTickCount = 5;
 const chartAxisGap = 10;
 const chartTickOffset = 4;
-const chartBarRadius = 6;
-const chartValueGap = 8;
 const chartLabelGap = 24;
+const totalLineWidth = 4;
+const supportingLineWidth = 2;
+const pointRadius = 3;
+const pointStrokeWidth = 2;
+const minimumSearchDomain = 1;
+const hourlyBucketOffset = 23;
+const dailyBucketOffset = 29;
