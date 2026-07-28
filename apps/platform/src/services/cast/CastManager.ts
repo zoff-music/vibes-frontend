@@ -554,6 +554,12 @@ class GoogleCastManager implements ICastManager {
             this.currentSession = castSession;
             this.actualCastSession = session;
             this.reconnectAttempts = 0;
+            session.setReceiverMuted(
+              false,
+              () => console.log('[Cast] receiver output unmuted'),
+              (error: chrome.cast.Error) =>
+                console.error('Failed to unmute Cast receiver output:', error),
+            );
             console.log('[Cast] stored session', {
               sessionId: castSession.id,
               deviceName: castSession.deviceName,

@@ -15,6 +15,8 @@ const plugins: PluginOption[] = [
   }),
 ];
 
+const hmrHost = process.env.CAST_HMR_HOST;
+
 export default defineConfig({
   plugins,
   css: {
@@ -29,12 +31,14 @@ export default defineConfig({
     host: true,
     port: 3003,
     strictPort: true,
-    hmr: {
-      host: 'localhost',
-      protocol: 'wss',
-      clientPort: 443,
-      path: '/casting/receiver/__hmr',
-    },
+    hmr: hmrHost
+      ? {
+          host: hmrHost,
+          protocol: 'wss',
+          clientPort: 443,
+          path: '/casting/receiver/__hmr',
+        }
+      : undefined,
   },
   build: {
     cssTarget: 'chrome80',

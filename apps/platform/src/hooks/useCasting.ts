@@ -5,7 +5,7 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useCastStore } from '../stores/castStore';
 
 /**
@@ -17,7 +17,6 @@ export const useCasting = (_roomId: string) => {
     currentSession,
     availableDevices,
     lastError,
-    castCurrentSong,
     syncPlaybackState,
     updateQueue,
     updateRoomInfo,
@@ -26,13 +25,9 @@ export const useCasting = (_roomId: string) => {
 
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
-  const setLocalPlayingState = usePlaybackStore(
-    (state) => state.setLocalPlayingState,
-  );
   const queueSongs = useQueueStore((state) => state.songs);
   const room = useRoomStore((state) => state.room);
   const usersCount = useRoomStore((state) => state.usersCount);
-  const roomMode = useRoomStore((state) => state.room?.mode || null);
 
   const isLocalEmulatorEnabled = (() => {
     if (isTruthyFlag(import.meta.env.VITE_CAST_LOCAL_EMULATOR)) {
@@ -46,7 +41,6 @@ export const useCasting = (_roomId: string) => {
   })();
 
   // Create stable callback references
-  const stableCastCurrentSong = useCallback(castCurrentSong, []);
   const stableSyncPlaybackState = useCallback(syncPlaybackState, []);
   const stableUpdateQueue = useCallback(updateQueue, []);
   const stableUpdateRoomInfo = useCallback(updateRoomInfo, []);
@@ -58,80 +52,79 @@ export const useCasting = (_roomId: string) => {
     console.log('[Cast] local emulator available; waiting for user connect');
   }, [isConnected, isLocalEmulatorEnabled, availableDevices.length]);
 
-  // Cast current song when casting becomes available or song changes
-  // Only cast when user explicitly connects and there's a current song
-  useEffect(() => {
-    // Only auto-cast if we're already connected and have a session
-    if (isConnected && currentSong && currentSession) {
-      console.log('🎵 Auto-casting current song:', currentSong.title);
-      void (async () => {
-        const [error] = await safeWrapAsync(stableCastCurrentSong(currentSong));
-        if (error) {
-          console.error('Failed to cast current song:', error);
-        }
-      })();
-    }
-  }, [isConnected, currentSong, currentSession, stableCastCurrentSong]);
+  const initializedSessionIdRef = useRef<string | null>(null);
 
-  // Stop local playback when casting from this device
   useEffect(() => {
-    if (!isConnected || !currentSession) return;
-    if (!isPlaying) return;
+    if (!isConnected || !currentSession || !_roomId) return;
 
-    setLocalPlayingState(false, roomMode || 'host');
-  }, [isConnected, currentSession, isPlaying, roomMode, setLocalPlayingState]);
+    let cancelled = false;
+    const sessionId = currentSession.id;
 
-  // Send Join Room message when connected
-  useEffect(() => {
-    if (isConnected && currentSession && _roomId) {
-      console.log('[Cast] Sending joinRoom handshake for room:', _roomId);
+    void (async () => {
+      console.log('[Cast] starting ordered room handshake:', _roomId);
       const { joinRoom } = useCastStore.getState();
-      void (async () => {
-        const [err] = await safeWrapAsync(joinRoom(_roomId));
-        if (err) {
-          console.error('Failed to send joinRoom handshake:', err);
-        }
-      })();
-    }
-  }, [isConnected, currentSession, _roomId]);
+      const [joinError] = await safeWrapAsync(joinRoom(_roomId));
+      if (joinError) {
+        console.error('Failed to send joinRoom handshake:', joinError);
+        return;
+      }
+      if (cancelled) return;
 
-  // Sync playback state with cast device
+      initializedSessionIdRef.current = sessionId;
+      const playbackState = usePlaybackStore.getState();
+      if (!playbackState.currentSong) return;
+
+      const [syncError] = await safeWrapAsync(
+        stableSyncPlaybackState({
+          isPlaying: playbackState.isPlaying,
+          positionMs: playbackState.actualPositionMs,
+          currentSong: playbackState.currentSong,
+          updatedAt: new Date().toISOString(),
+          serverTimeMs: Date.now(),
+        }),
+      );
+      if (syncError) {
+        console.error('Failed to send initial playback state:', syncError);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (initializedSessionIdRef.current === sessionId) {
+        initializedSessionIdRef.current = null;
+      }
+    };
+  }, [isConnected, currentSession?.id, _roomId, stableSyncPlaybackState]);
+
   useEffect(() => {
-    const isLocalSession = currentSession?.deviceId === 'local-cast-emulator';
-    if (
-      isConnected &&
-      currentSession &&
-      currentSong &&
-      (isLocalSession || currentSession.mediaSessionId || isConnected) // Sync if connected regardless of media session
-    ) {
-      const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
-      console.log('[Cast] syncing playback state', {
-        title: currentSong.title,
-        isPlaying,
-        positionMs: actualPositionMs,
-        mediaSessionId: currentSession.mediaSessionId,
-      });
-      void (async () => {
-        const [error] = await safeWrapAsync(
-          stableSyncPlaybackState({
-            isPlaying,
-            positionMs: actualPositionMs,
-            currentSong,
-            updatedAt: new Date().toISOString(),
-            serverTimeMs: Date.now(),
-          }),
-        );
-        if (error) {
-          console.error('Failed to sync playback state:', error);
-        }
-      })();
-    }
+    if (!isConnected || !currentSession || !currentSong) return;
+    if (initializedSessionIdRef.current !== currentSession.id) return;
+
+    const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
+    console.log('[Cast] syncing playback state', {
+      title: currentSong.title,
+      isPlaying,
+      positionMs: actualPositionMs,
+    });
+    void (async () => {
+      const [error] = await safeWrapAsync(
+        stableSyncPlaybackState({
+          isPlaying,
+          positionMs: actualPositionMs,
+          currentSong,
+          updatedAt: new Date().toISOString(),
+          serverTimeMs: Date.now(),
+        }),
+      );
+      if (error) {
+        console.error('Failed to sync playback state:', error);
+      }
+    })();
   }, [
     isConnected,
     isPlaying,
     currentSong,
-    currentSession?.deviceId,
-    currentSession?.mediaSessionId,
+    currentSession?.id,
     stableSyncPlaybackState,
   ]);
 

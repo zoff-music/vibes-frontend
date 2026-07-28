@@ -50,6 +50,9 @@ Set `EMBED_BASE_PATH` in both `apps/platform/.env` and `apps/embed/.env` to
 change the local embed mount path. Embed URLs accept the optional boolean query
 parameters `autoplay`, `playlist`, `skip`, and `vote`.
 
+For sender and receiver testing with a local API, PostgreSQL database, and
+Redis instance, see [Local Cast development](docs/local-cast-development.md).
+
 ## Server-Side Rendering (SSR)
 
 The web applications support SSR for improved performance and SEO:

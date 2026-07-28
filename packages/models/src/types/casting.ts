@@ -230,6 +230,11 @@ declare global {
         onSuccess?: (media: media.Media) => void,
         onError?: (error: Error) => void,
       ): void;
+      setReceiverMuted(
+        muted: boolean,
+        onSuccess?: () => void,
+        onError?: (error: Error) => void,
+      ): void;
       stop(onSuccess?: () => void, onError?: (error: Error) => void): void;
     }
 
