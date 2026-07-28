@@ -34,7 +34,7 @@ export async function loader({
         : listenerUsage,
     searchUsage:
       searchError || !searchUsage
-        ? { summaries: [], generatedAt: '' }
+        ? { points: [], generatedAt: '' }
         : searchUsage,
     stats:
       statsError || !stats

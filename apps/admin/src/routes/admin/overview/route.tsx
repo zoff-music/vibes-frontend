@@ -82,7 +82,10 @@ export default function AdminOverview() {
             </p>
           )}
         </div>
-        <SearchUsageChart summaries={searchUsage.summaries} />
+        <SearchUsageChart
+          generatedAt={searchUsage.generatedAt}
+          points={searchUsage.points}
+        />
       </section>
     </main>
   );
