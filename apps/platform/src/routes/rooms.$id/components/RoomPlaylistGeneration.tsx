@@ -1,6 +1,6 @@
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { AlertCircleIcon, Button, SparklesIcon } from '@vibes/ui';
-import { type ChangeEvent, useEffect, useState } from 'react';
+import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../action';
 
@@ -44,8 +44,13 @@ export function RoomPlaylistGeneration({
     );
   };
 
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleGenerate();
+  };
+
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <div className="mb-3 flex items-center gap-2">
         <SparklesIcon className="h-4 w-4 text-secondary" />
         <h5 className="font-pixel text-2xs text-theme-muted tracking-label">
@@ -82,7 +87,7 @@ export function RoomPlaylistGeneration({
       )}
 
       <Button
-        onClick={handleGenerate}
+        type="submit"
         disabled={isSubmitting || !prompt.trim()}
         variant="secondary"
         className="mt-3 w-full gap-2 font-pixel text-xs"
@@ -90,6 +95,6 @@ export function RoomPlaylistGeneration({
         <SparklesIcon className="h-4 w-4" />
         {isSubmitting ? 'Starting...' : 'Fill Playlist'}
       </Button>
-    </div>
+    </form>
   );
 }
