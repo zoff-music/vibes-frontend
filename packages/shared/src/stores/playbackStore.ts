@@ -67,19 +67,21 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       return;
     }
 
-    // Server playback keeps advancing independently, but play/pause is a local
-    // preference until the server advances to another song.
-    if (
-      roomMode === 'server' &&
-      currentState.localIsPlaying !== null &&
-      isSameSong
-    ) {
+    // Server playback keeps advancing independently, while play/pause remains
+    // a local preference across song changes.
+    if (roomMode === 'server' && currentState.localIsPlaying !== null) {
       set({
         ...state,
         isPlaying: currentState.localIsPlaying,
         authoritativeClientReferenceTime: Date.now(),
         authoritativePlayback: state,
         clientReferenceTime: Date.now(),
+        hasLocalPlaybackChanges: isSameSong
+          ? currentState.hasLocalPlaybackChanges
+          : state.isPlaying !== currentState.localIsPlaying,
+        resetVersion: shouldResetLocalPlayback
+          ? currentState.resetVersion + 1
+          : currentState.resetVersion,
         roomMode,
       });
       get().updateActualPosition();
