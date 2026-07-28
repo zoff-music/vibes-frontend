@@ -294,18 +294,6 @@ const CreateRoom: React.FC = () => {
   const isCreating = isLoading || isWaitingToCreate;
   const isGeneratingName = suggestionFetcher.state !== 'idle';
 
-  const handleNameBlur = () => {
-    const trimmedName = name.trim();
-    if (!trimmedName) return;
-
-    if (availabilityTimerRef.current !== null) {
-      window.clearTimeout(availabilityTimerRef.current);
-      availabilityTimerRef.current = null;
-    }
-
-    void checkRoomNameAvailability(trimmedName);
-  };
-
   const handleGenerateName = () => {
     if (isGeneratingName || isLoading) return;
 
@@ -431,7 +419,6 @@ const CreateRoom: React.FC = () => {
                     placeholder="Friday Night Vibes"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    onBlur={handleNameBlur}
                     onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                     className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-24 pl-4 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
                     autoFocus
