@@ -1,9 +1,6 @@
 import * as yup from 'yup';
 
 export const generatedPlaylistPromptMaxLength = 300;
-export const generatedPlaylistTrackCount = 50;
-export const roomGenerationMaxDailyCount = 2;
-export const roomGenerationMaxExistingSongs = 5;
 
 export const generatedTrackSchema = yup.object({
   artist: yup.string().trim().required(),
@@ -24,7 +21,6 @@ export type GeneratedPlaylistRequest = yup.InferType<
 export const generatedPlaylistSchema = yup
   .array(generatedTrackSchema)
   .min(1)
-  .max(generatedPlaylistTrackCount)
   .required();
 export type GeneratedPlaylist = yup.InferType<typeof generatedPlaylistSchema>;
 

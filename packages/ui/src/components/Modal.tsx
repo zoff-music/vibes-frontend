@@ -105,7 +105,7 @@ export function Modal({
           'panel-strong relative w-full animate-scale-in rounded-4xl p-7 shadow-primary-panel',
           alignment === 'center' && 'my-auto',
           size === 'md' && 'max-w-2xl',
-          size === 'lg' && 'max-w-4xl',
+          size === 'lg' && 'max-w-5xl',
           className,
         )}
       >
