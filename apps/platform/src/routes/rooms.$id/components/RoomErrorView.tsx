@@ -41,7 +41,9 @@ export const RoomErrorView: React.FC<RoomErrorViewProps> = ({
           {isRoomNotFound && (
             <Button
               onClick={() =>
-                navigate(`/rooms/create?name=${encodeURIComponent(roomId)}`)
+                navigate(`/rooms/create?name=${encodeURIComponent(roomId)}`, {
+                  viewTransition: true,
+                })
               }
               variant="primary"
             >

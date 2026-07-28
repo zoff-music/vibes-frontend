@@ -11,7 +11,7 @@ export const ActiveView: React.FC = () => {
 
   if (!currentSong) return null;
 
-  const joinUrl = `${window.location.origin}/rooms/${roomId}`;
+  const joinUrl = `${window.location.origin}/${encodeURIComponent(roomId ?? '')}`;
   const upNext = queue.filter((song) => song.id !== currentSong.id);
   const participantCount = roomInfo?.participantCount ?? 0;
   const roomName = roomInfo?.name ?? roomId;

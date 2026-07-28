@@ -1,4 +1,5 @@
-import { Song } from '@vibes/shared';
+import { type Song } from '@vibes/shared';
+import { AnimatePresence, motion } from 'framer-motion';
 import React from 'react';
 import { QueueEmptyIcon } from '../../icons';
 import { QueueItem } from './QueueItem';
@@ -9,6 +10,7 @@ interface Props {
   onRemove?: (id: string) => void;
   onVote?: (id: string) => void;
   isAdmin?: boolean;
+  votingSongId?: string | null;
 }
 
 const QueueListComponent: React.FC<Props> = ({
@@ -17,6 +19,7 @@ const QueueListComponent: React.FC<Props> = ({
   onRemove,
   onVote,
   isAdmin,
+  votingSongId,
 }) => {
   if (songs.length === 0) {
     return (
@@ -39,16 +42,32 @@ const QueueListComponent: React.FC<Props> = ({
 
   return (
     <div className="space-y-3">
-      {queueSongs.map((song, index) => (
-        <QueueItem
-          key={song.id}
-          song={song}
-          position={index + 1}
-          onRemove={onRemove}
-          onVote={onVote}
-          isAdmin={isAdmin}
-        />
-      ))}
+      <AnimatePresence initial={false} mode="popLayout">
+        {queueSongs.map((song, index) => (
+          <motion.div
+            key={song.id}
+            layout="position"
+            initial={{ opacity: 0, scale: 0.96, y: 14 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, x: 24 }}
+            transition={{
+              type: 'spring',
+              stiffness: 420,
+              damping: 34,
+              opacity: { duration: 0.16 },
+            }}
+          >
+            <QueueItem
+              song={song}
+              position={index + 1}
+              isVoting={votingSongId === song.id}
+              {...(onRemove && { onRemove })}
+              {...(onVote && { onVote })}
+              {...(isAdmin !== undefined && { isAdmin })}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 };

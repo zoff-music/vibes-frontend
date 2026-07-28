@@ -2,11 +2,12 @@ import { type PlaybackState, type Song } from '@vibes/models';
 import {
   getProviderTrackUrl,
   resolveSongThumbnail,
+  showToast,
   usePlaybackStore,
   useQueueStore,
 } from '@vibes/shared';
 import { ProviderIcon, QueueList, Tooltip } from '@vibes/ui';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../action';
 import { PlaybackProgress } from './PlaybackProgress';
@@ -28,8 +29,10 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialSongs,
   }: RoomQueueProps) => {
     /* 1. Hooks */
-    const songFetcher = useFetcher<RoomActionData>();
+    const voteFetcher = useFetcher<RoomActionData>();
+    const removeFetcher = useFetcher<RoomActionData>();
     const songs = useQueueStore((state) => state.songs);
+    const [votingSongId, setVotingSongId] = useState<string | null>(null);
 
     // Granular store subscriptions
     const isPlayingFromStore = usePlaybackStore((state) => state.isPlaying);
@@ -54,23 +57,42 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     /* 3. Handlers */
     const handleVote = React.useCallback(
       (songId: string) => {
-        songFetcher.submit(
+        if (votingSongId) {
+          return;
+        }
+        setVotingSongId(songId);
+        voteFetcher.submit(
           { intent: 'voteSong', songId },
           { encType: 'application/json', method: 'post' },
         );
       },
-      [songFetcher],
+      [voteFetcher, votingSongId],
     );
 
     const handleRemove = React.useCallback(
       (songId: string) => {
-        songFetcher.submit(
+        removeFetcher.submit(
           { intent: 'removeSong', songId },
           { encType: 'application/json', method: 'post' },
         );
       },
-      [songFetcher],
+      [removeFetcher],
     );
+
+    useEffect(() => {
+      if (voteFetcher.state !== 'idle' || !voteFetcher.data || !votingSongId) {
+        return;
+      }
+
+      if (voteFetcher.data.error) {
+        showToast(voteFetcher.data.error, 'error');
+        setVotingSongId(null);
+        return;
+      }
+
+      showToast('Vote added — queue updated', 'success');
+      setVotingSongId(null);
+    }, [voteFetcher.data, voteFetcher.state, votingSongId]);
 
     const formatTime = (ms: number) => {
       const seconds = Math.floor(ms / 1000);
@@ -192,6 +214,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               onVote={handleVote}
               onRemove={handleRemove}
               isAdmin={isAdmin}
+              votingSongId={votingSongId}
             />
           </div>
         </div>

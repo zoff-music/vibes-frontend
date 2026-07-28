@@ -234,7 +234,7 @@ export default function Room() {
   }, [adminFetcher, adminPassword]);
 
   const handleLeave = useCallback(() => {
-    navigate('/', { state: { fromRoom: true } });
+    navigate('/', { state: { fromRoom: true }, viewTransition: true });
   }, [navigate]);
 
   useEffect(() => {

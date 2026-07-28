@@ -78,7 +78,7 @@ export async function clientAction({
     };
   }
 
-  return redirect(`/rooms/${room.id}`);
+  return redirect(`/${room.id}`);
 }
 
 async function reserveRoomName(

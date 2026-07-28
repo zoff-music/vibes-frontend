@@ -37,7 +37,7 @@ export async function clientAction({
       };
     }
 
-    return redirect(`/rooms/${room.id}`);
+    return redirect(`/${room.id}`);
   }
 
   const rawRoomCode = String(formData.get('roomCode') ?? '');

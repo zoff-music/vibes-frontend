@@ -27,16 +27,17 @@
     "@vibes/models": "workspace:*",
     "@vibes/shared": "workspace:*",
     "d3": "^7.9.0",
+    "framer-motion": "12.29.2",
     "react-youtube": "10.1.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.13",
+    "@types/d3": "^7.4.3",
     "@types/react": "19.2.16",
     "@types/react-dom": "19.2.3",
-    "@types/d3": "^7.4.3",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "typescript": "5.9.3",
-    "@biomejs/biome": "2.3.13",
     "vite": "8.1.3"
   }
 }
