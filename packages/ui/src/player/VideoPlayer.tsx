@@ -189,7 +189,11 @@ const VideoPlayerComponent = ({
         const targetTime = actualPositionMs / 1000;
         const loadedVideoID = player.getVideoData().video_id;
         if (loadedVideoID !== videoId) {
-          expectedPlayingStateRef.current = shouldPlay;
+          const shouldPauseAfterLoad = !isCastReceiver && !shouldPlay;
+          pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad
+            ? videoId
+            : null;
+          expectedPlayingStateRef.current = !shouldPauseAfterLoad;
           pendingVideoIdRef.current = videoId;
           player.loadVideoById(videoId, targetTime);
           lastLoadedVideoIdRef.current = videoId;
@@ -218,6 +222,7 @@ const VideoPlayerComponent = ({
     }
   }, [
     debugLog,
+    isCastReceiver,
     isReady,
     isYouTubeActive,
     resetVersion,
