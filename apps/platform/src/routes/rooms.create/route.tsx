@@ -400,6 +400,7 @@ const CreateRoom: React.FC = () => {
         <div className="mb-8 flex items-center justify-between">
           <Link
             to="/"
+            viewTransition
             className="group inline-flex cursor-pointer items-center gap-2 text-theme-muted transition-colors hover:text-theme"
           >
             <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />

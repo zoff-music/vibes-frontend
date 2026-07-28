@@ -180,6 +180,7 @@ export const RoomPlayer = React.memo(
     const [VideoPlayerComponent, setVideoPlayerComponent] =
       useState<PlayerComponent | null>(null);
     const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
+    const [isSkipPending, setIsSkipPending] = useState(false);
     const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
     const [tokenError, setTokenError] = useState<string | null>(null);
     const spotifyTokenAttemptedRef = useRef(false);
@@ -243,7 +244,10 @@ export const RoomPlayer = React.memo(
     );
 
     const skip = useCallback(
-      (_shouldShowToast = true) => {
+      (shouldShowFeedback = true) => {
+        if (shouldShowFeedback) {
+          setIsSkipPending(true);
+        }
         playbackFetcher.submit(
           { intent: 'skip' },
           { encType: 'application/json', method: 'post' },
@@ -341,6 +345,9 @@ export const RoomPlayer = React.memo(
     useEffect(() => {
       if (playbackFetcher.state !== 'idle' || !playbackFetcher.data) return;
       const response = playbackFetcher.data;
+      if (response.intent === 'skip') {
+        setIsSkipPending(false);
+      }
       if (response.error) {
         showToast(response.error, 'error');
         return;
@@ -680,6 +687,7 @@ export const RoomPlayer = React.memo(
             canControlRoomPlayback && Boolean(currentSong || songs.length > 0)
           }
           canSkip={canControlRoomPlayback && Boolean(currentSong)}
+          isSkipping={isSkipPending}
           showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
           onPlay={play}
           onPause={pause}

@@ -12,6 +12,7 @@ import {
   Toggle,
   YouTubeIcon,
 } from '@vibes/ui';
+import { motion } from 'framer-motion';
 import {
   type MouseEvent,
   type RefObject,
@@ -172,9 +173,12 @@ export const RoomSettingsMenu = ({
         onClick={onClose}
         aria-label="Close settings"
       />
-      <div
+      <motion.div
         ref={settingsMenuRef}
-        className="fixed top-(--room-header-height) right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full animate-scale-in overflow-hidden border-theme border-t bg-theme-surface text-theme shadow-2xl sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:max-h-settings-max sm:w-72 sm:rounded-3xl sm:border"
+        initial={{ opacity: 0, scale: 0.96, y: -8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 440, damping: 34 }}
+        className="fixed top-(--room-header-height) right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full origin-top-right overflow-hidden border-theme border-t bg-theme-surface text-theme shadow-2xl sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:max-h-settings-max sm:w-72 sm:rounded-3xl sm:border"
       >
         <div
           ref={scrollPanelRef}
@@ -521,7 +525,7 @@ export const RoomSettingsMenu = ({
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

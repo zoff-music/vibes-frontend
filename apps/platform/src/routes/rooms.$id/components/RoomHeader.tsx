@@ -10,6 +10,7 @@ import {
   SunIcon,
   Tooltip,
 } from '@vibes/ui';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, {
   lazy,
   type RefObject,
@@ -218,24 +219,35 @@ export const RoomHeader = React.memo(
                   </Button>
                 </Tooltip>
 
-                {showShare && (
-                  <div
-                    ref={sharePanelRef}
-                    className="panel-strong absolute right-0 z-50 mt-3 w-96 animate-scale-in rounded-3xl p-4 shadow-2xl"
-                  >
-                    <Suspense
-                      fallback={
-                        <DeferredHeaderLoading label="Loading sharing..." />
-                      }
+                <AnimatePresence>
+                  {showShare && (
+                    <motion.div
+                      key="share-panel"
+                      ref={sharePanelRef}
+                      initial={{ opacity: 0, scale: 0.92, y: -8 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.96, y: -6 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 450,
+                        damping: 32,
+                      }}
+                      className="panel-strong absolute right-0 z-50 mt-3 w-96 origin-top-right rounded-3xl p-4 shadow-2xl"
                     >
-                      <LazyRoomSharePanel
-                        url={shareUrl}
-                        roomId={roomId || ''}
-                        onCopy={onCopyShareLink}
-                      />
-                    </Suspense>
-                  </div>
-                )}
+                      <Suspense
+                        fallback={
+                          <DeferredHeaderLoading label="Loading sharing..." />
+                        }
+                      >
+                        <LazyRoomSharePanel
+                          url={shareUrl}
+                          roomId={roomId || ''}
+                          onCopy={onCopyShareLink}
+                        />
+                      </Suspense>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               <RoomGenerationMenu

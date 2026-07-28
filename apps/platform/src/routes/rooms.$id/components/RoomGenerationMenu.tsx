@@ -1,4 +1,5 @@
 import { Button, SparklesIcon, Tooltip } from '@vibes/ui';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 
@@ -117,16 +118,23 @@ export function RoomGenerationMenu({
         </Button>
       </Tooltip>
 
-      {showGeneration && (
-        <div
-          ref={panelRef}
-          className="panel-strong absolute right-0 z-50 mt-3 w-72 animate-scale-in rounded-3xl p-4 shadow-2xl sm:w-80"
-        >
-          <RoomPlaylistGeneration
-            onGenerationStarted={handleGenerationStarted}
-          />
-        </div>
-      )}
+      <AnimatePresence>
+        {showGeneration && (
+          <motion.div
+            key="generation-menu"
+            ref={panelRef}
+            initial={{ opacity: 0, scale: 0.92, y: -8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: -6 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+            className="panel-strong absolute right-0 z-50 mt-3 w-72 origin-top-right rounded-3xl p-4 shadow-2xl sm:w-80"
+          >
+            <RoomPlaylistGeneration
+              onGenerationStarted={handleGenerationStarted}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

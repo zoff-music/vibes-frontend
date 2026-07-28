@@ -63,6 +63,7 @@ export function RoomJoinControls({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Link
+          viewTransition
           to={
             roomCode.trim()
               ? `/rooms/create?name=${encodeURIComponent(roomCode.trim())}`

@@ -107,7 +107,7 @@ export function AdminRoomCard({
       <div className="flex flex-wrap items-center gap-3">
         <a
           className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-primary/40 px-4 py-2 font-semibold text-primary text-sm transition-all hover:border-primary hover:bg-primary/10 dark:text-primary-light"
-          href={`/rooms/${encodeURIComponent(room.name)}`}
+          href={`/${encodeURIComponent(room.name)}`}
         >
           Open Room
         </a>

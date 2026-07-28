@@ -79,9 +79,10 @@ export default function Home() {
   const { toggleDarkMode } = useThemeStore();
   const { themeId, currentTheme } = useThemeDisplay();
   const previousPath = getPreviousPath();
+  const previousRoomId = previousPath?.match(/^\/([^/]+)$/)?.[1];
   const shouldFadeIn =
     navigationType === 'POP' &&
-    Boolean(previousPath && /^\/rooms\/[^/]+$/.test(previousPath));
+    Boolean(previousRoomId && !RESERVED_TOP_LEVEL_PATHS.has(previousRoomId));
   const placeholder = placeholderText
     ? isPaused && !isBlinkerVisible
       ? `${placeholderText.slice(0, -1)} `
@@ -141,7 +142,7 @@ export default function Home() {
   const handleJoinRoom = () => {
     if (!roomCode.trim()) return;
     const slug = roomCode.trim().toLowerCase().replace(/\s+/g, '-');
-    navigate(`/rooms/${slug}`);
+    navigate(`/${slug}`, { viewTransition: true });
   };
 
   const handleToggleAIMode = () => {
@@ -226,3 +227,10 @@ export default function Home() {
     </div>
   );
 }
+
+const RESERVED_TOP_LEVEL_PATHS = new Set([
+  'callback',
+  'privacy-policy',
+  'security',
+  'terms-of-service',
+]);

@@ -1,4 +1,5 @@
 import { classNames } from '@vibes/shared';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -24,6 +25,7 @@ export function Modal({
   size = 'md',
 }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -79,9 +81,12 @@ export function Modal({
   if (!isOpen || typeof document === 'undefined') return null;
 
   return createPortal(
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
       className={classNames(
-        'fixed inset-0 z-50 flex animate-fade-in items-start justify-center overflow-y-auto bg-black/70 px-4 backdrop-blur-md',
+        'fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 px-4 backdrop-blur-md',
         alignment === 'center' && 'py-4',
         alignment === 'top' && 'items-start pt-4 pb-safe',
       )}
@@ -98,11 +103,23 @@ export function Modal({
         aria-label="Close modal"
         tabIndex={-1}
       />
-      <div
+      <motion.div
+        initial={
+          shouldReduceMotion
+            ? { opacity: 1 }
+            : { opacity: 0, scale: 0.94, y: 28 }
+        }
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{
+          type: 'spring',
+          stiffness: 420,
+          damping: 32,
+          mass: 0.8,
+        }}
         ref={panelRef}
         tabIndex={-1}
         className={classNames(
-          'panel-strong relative w-full animate-scale-in rounded-4xl p-7 shadow-primary-panel',
+          'panel-strong relative w-full rounded-4xl p-7 shadow-primary-panel',
           alignment === 'center' && 'my-auto',
           size === 'md' && 'max-w-2xl',
           size === 'lg' && 'max-w-5xl',
@@ -110,8 +127,8 @@ export function Modal({
         )}
       >
         {children}
-      </div>
-    </div>,
+      </motion.div>
+    </motion.div>,
     document.body,
   );
 }

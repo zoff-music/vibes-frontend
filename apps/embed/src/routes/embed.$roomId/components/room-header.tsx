@@ -38,7 +38,7 @@ export function EmbedRoomHeader({
   showReset,
   showSkip,
 }: Props) {
-  const roomUrl = `/rooms/${encodeURIComponent(roomId)}`;
+  const roomUrl = `/${encodeURIComponent(roomId)}`;
   const usersCount = useRoomStore((state) => state.usersCount);
 
   return (
