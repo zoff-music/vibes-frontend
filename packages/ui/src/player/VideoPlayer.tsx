@@ -88,6 +88,7 @@ const VideoPlayerComponent = ({
   const autoPlayKickCountRef = useRef(0);
   const autoPlayKickLastAtRef = useRef(0);
   const autoPlayKickVideoIdRef = useRef<string | null>(null);
+  const castUnmutedVideoIdRef = useRef<string | null>(null);
   const suppressLoadUntilRef = useRef(0);
   const expectedPlayingStateRef = useRef<boolean | null>(null);
   const lastSynchronizedUpdateRef = useRef<string | null>(null);
@@ -198,6 +199,7 @@ const VideoPlayerComponent = ({
         const loadedVideoID = player.getVideoData().video_id;
         if (loadedVideoID !== videoId) {
           if (isCastReceiver) {
+            castUnmutedVideoIdRef.current = null;
             player.mute();
             player.setVolume(MAX_VOLUME);
             setIsMutedState(true);
@@ -224,6 +226,9 @@ const VideoPlayerComponent = ({
       const state = player.getPlayerState();
       if (shouldPlay && state !== YOUTUBE_STATE_PLAYING) {
         if (isCastReceiver) {
+          if (castUnmutedVideoIdRef.current === videoId) {
+            return;
+          }
           player.mute();
           player.setVolume(MAX_VOLUME);
           setIsMutedState(true);
@@ -397,6 +402,9 @@ const VideoPlayerComponent = ({
       if (!videoId || !shouldPlay) return;
       const player = playerRef.current;
       if (!player) return;
+      if (isCastReceiver && castUnmutedVideoIdRef.current === videoId) {
+        return;
+      }
 
       if (autoPlayKickVideoIdRef.current !== videoId) {
         autoPlayKickVideoIdRef.current = videoId;
@@ -465,6 +473,9 @@ const VideoPlayerComponent = ({
         }
         if (state === 2) {
           if (isCastReceiver) {
+            if (castUnmutedVideoIdRef.current === videoId) {
+              return;
+            }
             player.mute();
             player.setVolume(MAX_VOLUME);
             setIsMutedState(true);
@@ -635,7 +646,12 @@ const VideoPlayerComponent = ({
           playerRef.current?.mute();
           muted = true;
         }
-        if (isCastReceiver && state === YOUTUBE_STATE_PLAYING) {
+        if (
+          isCastReceiver &&
+          state === YOUTUBE_STATE_PLAYING &&
+          castUnmutedVideoIdRef.current !== videoId
+        ) {
+          castUnmutedVideoIdRef.current = videoId;
           playerRef.current?.unMute();
           playerRef.current?.setVolume(MAX_VOLUME);
           muted = false;
@@ -680,6 +696,9 @@ const VideoPlayerComponent = ({
         isCastReceiver &&
         shouldPlay
       ) {
+        if (castUnmutedVideoIdRef.current === videoId) {
+          return;
+        }
         const [err] = safeWrap(() => {
           playerRef.current?.mute();
           playerRef.current?.setVolume(MAX_VOLUME);
@@ -787,6 +806,7 @@ const VideoPlayerComponent = ({
       !isCastReceiver && !usePlaybackStore.getState().isPlaying;
     const [err] = safeWrap(() => {
       if (isCastReceiver) {
+        castUnmutedVideoIdRef.current = null;
         player.mute();
         player.setVolume(MAX_VOLUME);
         setIsMutedState(true);
