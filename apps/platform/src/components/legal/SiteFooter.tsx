@@ -17,30 +17,18 @@ export function SiteFooter() {
           GitHub
           <ExternalLinkIcon className="h-3 w-3 transition-transform group-hover:translate-x-px group-hover:-translate-y-px" />
         </a>
-        <span
-          aria-hidden="true"
-          className="hidden h-1 w-1 rounded-full bg-theme sm:block"
-        />
         <Link
           className="flex min-h-11 items-center rounded-full px-2 py-2 font-pixel text-3xs text-theme-subtle tracking-label transition-colors hover:bg-theme hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-3 sm:text-2xs"
           to="/security"
         >
           Security
         </Link>
-        <span
-          aria-hidden="true"
-          className="hidden h-1 w-1 rounded-full bg-theme sm:block"
-        />
         <Link
           className="flex min-h-11 items-center rounded-full px-2 py-2 font-pixel text-3xs text-theme-subtle tracking-label transition-colors hover:bg-theme hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-3 sm:text-2xs"
           to="/privacy-policy"
         >
           Privacy
         </Link>
-        <span
-          aria-hidden="true"
-          className="hidden h-1 w-1 rounded-full bg-theme sm:block"
-        />
         <Link
           className="flex min-h-11 items-center rounded-full px-2 py-2 font-pixel text-3xs text-theme-subtle tracking-label transition-colors hover:bg-theme hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-3 sm:text-2xs"
           to="/terms-of-service"
