@@ -211,8 +211,9 @@ const VideoPlayerComponent = ({
           player.loadVideoById(videoId, targetTime);
           lastLoadedVideoIdRef.current = videoId;
         } else if (
+          !isCastReceiver &&
           Math.abs(player.getCurrentTime() - targetTime) >
-          AUTHORITATIVE_SEEK_THRESHOLD_SECONDS
+            AUTHORITATIVE_SEEK_THRESHOLD_SECONDS
         ) {
           player.seekTo(targetTime, true);
         }
@@ -637,7 +638,6 @@ const VideoPlayerComponent = ({
         if (isCastReceiver && state === YOUTUBE_STATE_PLAYING) {
           playerRef.current?.unMute();
           playerRef.current?.setVolume(MAX_VOLUME);
-          playerRef.current?.playVideo();
           muted = false;
         }
         const resolvedMuted = isCastReceiver

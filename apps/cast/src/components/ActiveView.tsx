@@ -23,21 +23,21 @@ export const ActiveView: React.FC = () => {
           <PlayerLayer />
         </div>
 
-        <div className="shrink-0 border-white/10 border-t bg-black/70 px-8 py-5">
+        <div className="cast-track-details-panel shrink-0 border-white/10 border-t bg-black/70 px-8 py-5">
           <div className="flex items-end gap-6">
             <div className="relative shrink-0">
               <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-primary to-secondary opacity-30" />
               <img
                 src={resolveSongThumbnail(currentSong.thumbnailUrl)}
                 alt={currentSong.title}
-                className="relative h-20 w-20 rounded-xl border border-white/20 object-cover"
+                className="cast-track-thumbnail relative h-20 w-20 rounded-xl border border-white/20 object-cover"
               />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="mb-2 truncate font-display text-2xl text-white leading-tight">
+              <h1 className="cast-track-title mb-2 truncate font-display text-2xl text-white leading-tight">
                 {currentSong.title}
               </h1>
-              <p className="truncate font-light font-sans text-lg text-white/80">
+              <p className="cast-track-artist truncate font-light font-sans text-lg text-white/80">
                 {currentSong.artist || 'Unknown Artist'}
               </p>
             </div>
@@ -87,10 +87,15 @@ export const ActiveView: React.FC = () => {
       </div>
 
       <div className="cast-panel cast-side-panel flex h-full min-w-0 flex-1 flex-col rounded-frame p-7">
-        <div className="mb-5 border-white/10 border-b pb-5">
+        <div className="mb-5 flex items-center justify-between border-white/10 border-b pb-5">
           <h2 className="font-display text-sm text-theme-muted uppercase tracking-banner">
-            Up Next
+            Up Next ({upNext.length})
           </h2>
+          <div className="cast-listener-badge flex items-center gap-2 rounded-full border border-secondary/30 bg-black/30 px-4 py-2 text-sm text-theme-muted">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
+            {participantCount}{' '}
+            {participantCount === 1 ? 'listener' : 'listeners'}
+          </div>
         </div>
 
         <CastQueue songs={upNext} />
@@ -98,6 +103,7 @@ export const ActiveView: React.FC = () => {
         <div className="cast-room-card mt-5 rounded-3xl border border-primary/30 bg-black/30 p-4">
           <div className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-white p-2 shadow-lg">
             <QRCodeSVG
+              className="cast-join-code h-24 w-24"
               value={joinUrl}
               size={96}
               bgColor="#ffffff"
@@ -112,12 +118,7 @@ export const ActiveView: React.FC = () => {
             <p className="mt-3 truncate font-display text-2xl text-theme">
               {roomName}
             </p>
-            <p className="mt-2 flex items-center gap-2 text-base text-theme-muted">
-              <span className="h-2 w-2 shrink-0 rounded-full bg-secondary" />
-              {participantCount}{' '}
-              {participantCount === 1 ? 'listener' : 'listeners'}
-            </p>
-            <p className="mt-1 text-sm text-theme-subtle">
+            <p className="mt-2 text-sm text-theme-subtle">
               Add songs and vote from your phone
             </p>
           </div>
