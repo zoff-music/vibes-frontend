@@ -19,10 +19,12 @@ export const IdleView: React.FC = () => {
           </p>
         </div>
         <p className="font-display text-2xl text-readable text-theme">
-          {statusText}
+          Add a song to start listening
         </p>
         <p className="mt-3 text-base text-theme-muted">
-          Waiting for music to play...
+          {roomInfo
+            ? 'Open the room on your phone to build the queue.'
+            : statusText}
         </p>
       </div>
 

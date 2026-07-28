@@ -211,11 +211,13 @@ const VideoPlayerComponent = ({
           player.loadVideoById(videoId, targetTime);
           lastLoadedVideoIdRef.current = videoId;
         } else if (
-          !isCastReceiver &&
           Math.abs(player.getCurrentTime() - targetTime) >
-            AUTHORITATIVE_SEEK_THRESHOLD_SECONDS
+          AUTHORITATIVE_SEEK_THRESHOLD_SECONDS
         ) {
           player.seekTo(targetTime, true);
+          if (isCastReceiver && shouldPlay) {
+            player.playVideo();
+          }
         }
         lastSynchronizedUpdateRef.current = updatedAt;
         observedPlaybackRef.current = null;

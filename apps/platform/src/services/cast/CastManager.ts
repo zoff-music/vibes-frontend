@@ -985,6 +985,8 @@ class GoogleCastManager implements ICastManager {
       isPlaying: state.isPlaying,
       positionMs: state.positionMs,
       currentSong: state.currentSong,
+      updatedAt: state.updatedAt,
+      serverTimeMs: state.serverTimeMs,
       timestamp: Date.now(),
     };
 

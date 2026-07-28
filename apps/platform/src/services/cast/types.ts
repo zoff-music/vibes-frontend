@@ -66,6 +66,8 @@ export type LocalCastMessage =
       action: 'syncPlayback';
       isPlaying: boolean;
       positionMs: number;
+      updatedAt: string;
+      serverTimeMs: number;
       currentSong?: {
         id: string;
         title: string;

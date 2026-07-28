@@ -17,6 +17,8 @@ export type LocalCastMessage =
       currentSong?: QueueItem;
       isPlaying?: boolean;
       positionMs?: number;
+      updatedAt?: string;
+      serverTimeMs?: number;
       queue?: QueueItem[];
       roomInfo?: RoomInfo;
     }
@@ -25,6 +27,8 @@ export type LocalCastMessage =
       currentSong?: QueueItem;
       isPlaying?: boolean;
       positionMs?: number;
+      updatedAt?: string;
+      serverTimeMs?: number;
     }
   | {
       action: 'updateQueue';
