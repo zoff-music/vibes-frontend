@@ -12,6 +12,7 @@ import {
 import logoUrl from '../../../assets/logo.png';
 
 interface Props {
+  canControlPlayback: boolean;
   canSkip: boolean;
   isPlaying: boolean;
   showPlaybackControls: boolean;
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export function EmbedRoomHeader({
+  canControlPlayback,
   canSkip,
   isPlaying,
   showPlaybackControls,
@@ -59,29 +61,31 @@ export function EmbedRoomHeader({
       </div>
       <div className="ml-3 flex shrink-0 items-center gap-2">
         <ListenerCount count={usersCount} />
-        <Button
-          disabled={!showPlaybackControls}
-          onClick={onPlayPause}
-          title={
-            showPlaybackControls
-              ? isPlaying
-                ? 'Pause'
-                : 'Play'
-              : 'Nothing is playing'
-          }
-          aria-label={
-            showPlaybackControls
-              ? isPlaying
-                ? 'Pause'
-                : 'Play'
-              : 'Nothing is playing'
-          }
-          variant="tertiary"
-          size="icon"
-        >
-          {isPlaying && <PauseIcon className="h-5 w-5" />}
-          {!isPlaying && <PlayIcon className="h-5 w-5" />}
-        </Button>
+        {showPlaybackControls && (
+          <Button
+            disabled={!canControlPlayback}
+            onClick={onPlayPause}
+            title={
+              canControlPlayback
+                ? isPlaying
+                  ? 'Pause'
+                  : 'Play'
+                : 'Nothing is playing'
+            }
+            aria-label={
+              canControlPlayback
+                ? isPlaying
+                  ? 'Pause'
+                  : 'Play'
+                : 'Nothing is playing'
+            }
+            variant="tertiary"
+            size="icon"
+          >
+            {isPlaying && <PauseIcon className="h-5 w-5" />}
+            {!isPlaying && <PlayIcon className="h-5 w-5" />}
+          </Button>
+        )}
         {showSkip && (
           <Button
             disabled={!canSkip}
