@@ -18,7 +18,8 @@ export interface RoomsCreateActionData {
 const CONFLICT_STATUS = 409;
 
 function readBoolean(formData: FormData, key: string) {
-  return formData.get(key) === 'true';
+  const value = formData.get(key);
+  return value === 'on' || value === 'true';
 }
 
 function readEnabledSources(formData: FormData) {
