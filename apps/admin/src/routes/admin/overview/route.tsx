@@ -6,7 +6,7 @@ import { loader } from './loader';
 export { loader };
 
 export default function AdminOverview() {
-  const { listenerUsage, searchUsage } =
+  const { listenerUsage, searchUsage, stats } =
     useLoaderData<AdminOverviewLoaderData>();
 
   return (
@@ -17,6 +17,36 @@ export default function AdminOverview() {
           Search and listener activity across Zoff.
         </p>
       </header>
+
+      <section
+        aria-label="Overall statistics"
+        className="grid gap-4 sm:grid-cols-3"
+      >
+        <article className="glass rounded-2xl border-2 border-ink/10 p-5 dark:border-gray-700">
+          <p className="font-semibold text-ink/60 text-sm dark:text-gray-400">
+            Active listeners
+          </p>
+          <p className="mt-2 font-black text-3xl text-ink dark:text-white">
+            {stats.totalListeners.toLocaleString()}
+          </p>
+        </article>
+        <article className="glass rounded-2xl border-2 border-ink/10 p-5 dark:border-gray-700">
+          <p className="font-semibold text-ink/60 text-sm dark:text-gray-400">
+            Songs
+          </p>
+          <p className="mt-2 font-black text-3xl text-ink dark:text-white">
+            {stats.totalSongs.toLocaleString()}
+          </p>
+        </article>
+        <article className="glass rounded-2xl border-2 border-ink/10 p-5 dark:border-gray-700">
+          <p className="font-semibold text-ink/60 text-sm dark:text-gray-400">
+            Rooms
+          </p>
+          <p className="mt-2 font-black text-3xl text-ink dark:text-white">
+            {stats.totalRooms.toLocaleString()}
+          </p>
+        </article>
+      </section>
 
       <section>
         <div className="mb-4">

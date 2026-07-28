@@ -3,7 +3,7 @@ import * as yup from 'yup';
 export const generatedPlaylistPromptMaxLength = 300;
 export const generatedPlaylistTrackCount = 50;
 export const roomGenerationMaxDailyCount = 2;
-export const roomGenerationMaxExistingSongs = 5;
+export const roomGenerationMaxExistingSongs = 10;
 
 export const generatedTrackSchema = yup.object({
   artist: yup.string().trim().required(),
