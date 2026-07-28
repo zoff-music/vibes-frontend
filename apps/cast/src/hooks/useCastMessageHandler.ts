@@ -72,8 +72,8 @@ export const useCastMessageHandler = ({
                 currentSong: normalizedSong,
                 isPlaying: message.isPlaying || false,
                 positionMs: positionMs,
-                updatedAt: new Date().toISOString(),
-                serverTimeMs: Date.now(),
+                updatedAt: message.updatedAt || new Date().toISOString(),
+                serverTimeMs: message.serverTimeMs || Date.now(),
               },
               roomMode || undefined,
             );

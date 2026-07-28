@@ -25,6 +25,7 @@ export const useCasting = (_roomId: string) => {
 
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const playbackUpdatedAt = usePlaybackStore((state) => state.updatedAt);
   const queueSongs = useQueueStore((state) => state.songs);
   const room = useRoomStore((state) => state.room);
   const usersCount = useRoomStore((state) => state.usersCount);
@@ -79,8 +80,8 @@ export const useCasting = (_roomId: string) => {
           isPlaying: playbackState.isPlaying,
           positionMs: playbackState.actualPositionMs,
           currentSong: playbackState.currentSong,
-          updatedAt: new Date().toISOString(),
-          serverTimeMs: Date.now(),
+          updatedAt: playbackState.updatedAt,
+          serverTimeMs: playbackState.serverTimeMs,
         }),
       );
       if (syncError) {
@@ -112,8 +113,8 @@ export const useCasting = (_roomId: string) => {
           isPlaying,
           positionMs: actualPositionMs,
           currentSong,
-          updatedAt: new Date().toISOString(),
-          serverTimeMs: Date.now(),
+          updatedAt: playbackUpdatedAt,
+          serverTimeMs: usePlaybackStore.getState().serverTimeMs,
         }),
       );
       if (error) {
@@ -123,8 +124,9 @@ export const useCasting = (_roomId: string) => {
   }, [
     isConnected,
     isPlaying,
-    currentSong,
+    currentSong?.id,
     currentSession?.id,
+    playbackUpdatedAt,
     stableSyncPlaybackState,
   ]);
 
