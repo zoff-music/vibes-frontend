@@ -197,6 +197,11 @@ const VideoPlayerComponent = ({
         const targetTime = actualPositionMs / 1000;
         const loadedVideoID = player.getVideoData().video_id;
         if (loadedVideoID !== videoId) {
+          if (isCastReceiver) {
+            player.mute();
+            player.setVolume(MAX_VOLUME);
+            setIsMutedState(true);
+          }
           const shouldPauseAfterLoad = !isCastReceiver && !shouldPlay;
           pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad
             ? videoId
@@ -217,6 +222,11 @@ const VideoPlayerComponent = ({
 
       const state = player.getPlayerState();
       if (shouldPlay && state !== YOUTUBE_STATE_PLAYING) {
+        if (isCastReceiver) {
+          player.mute();
+          player.setVolume(MAX_VOLUME);
+          setIsMutedState(true);
+        }
         expectedPlayingStateRef.current = true;
         player.playVideo();
       }
@@ -404,6 +414,11 @@ const VideoPlayerComponent = ({
       autoPlayKickCountRef.current += 1;
 
       const [err] = safeWrap(() => {
+        if (isCastReceiver) {
+          player.mute();
+          player.setVolume(MAX_VOLUME);
+          setIsMutedState(true);
+        }
         const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
         const startSeconds = actualPositionMs > 0 ? actualPositionMs / 1000 : 0;
         const shouldSuppressLoad = now < suppressLoadUntilRef.current;
@@ -424,7 +439,7 @@ const VideoPlayerComponent = ({
         debugLog('kick-error', { reason, error: err.message });
       }
     },
-    [videoId, shouldPlay],
+    [isCastReceiver, videoId, shouldPlay],
   );
 
   useEffect(() => {
@@ -448,6 +463,11 @@ const VideoPlayerComponent = ({
           return;
         }
         if (state === 2) {
+          if (isCastReceiver) {
+            player.mute();
+            player.setVolume(MAX_VOLUME);
+            setIsMutedState(true);
+          }
           player.playVideo();
           return;
         }
@@ -477,7 +497,7 @@ const VideoPlayerComponent = ({
         autoPlayRetryRef.current = null;
       }
     };
-  }, [videoId, shouldPlay, kickAutoplay]);
+  }, [isCastReceiver, videoId, shouldPlay, kickAutoplay]);
 
   useEffect(() => {
     if (!videoId || !shouldPlay) return;
@@ -513,18 +533,16 @@ const VideoPlayerComponent = ({
       const player = playerRef.current;
       if (!player) return;
 
-      const [unmuteErr] = safeWrap(() => {
-        player.unMute();
+      const [prepareErr] = safeWrap(() => {
+        player.mute();
         player.setVolume(MAX_VOLUME);
-        setIsMutedState(false);
+        setIsMutedState(true);
+        player.playVideo();
       });
-      if (unmuteErr && DEBUG) {
-        debugLog('force-autoplay-unmute-error', { error: unmuteErr.message });
-      }
-
-      const [playErr] = safeWrap(() => player.playVideo());
-      if (playErr && DEBUG) {
-        debugLog('force-autoplay-play-error', { error: playErr.message });
+      if (prepareErr && DEBUG) {
+        debugLog('force-autoplay-prepare-error', {
+          error: prepareErr.message,
+        });
       }
 
       setNeedsUserGesture(false);
@@ -616,9 +634,10 @@ const VideoPlayerComponent = ({
           playerRef.current?.mute();
           muted = true;
         }
-        if (isCastReceiver) {
+        if (isCastReceiver && state === YOUTUBE_STATE_PLAYING) {
           playerRef.current?.unMute();
           playerRef.current?.setVolume(MAX_VOLUME);
+          playerRef.current?.playVideo();
           muted = false;
         }
         const resolvedMuted = isCastReceiver
@@ -661,7 +680,12 @@ const VideoPlayerComponent = ({
         isCastReceiver &&
         shouldPlay
       ) {
-        const [err] = safeWrap(() => playerRef.current?.playVideo());
+        const [err] = safeWrap(() => {
+          playerRef.current?.mute();
+          playerRef.current?.setVolume(MAX_VOLUME);
+          setIsMutedState(true);
+          playerRef.current?.playVideo();
+        });
         if (err && DEBUG) {
           debugLog('state-autoplay-error', { error: err.message });
         }
@@ -762,6 +786,11 @@ const VideoPlayerComponent = ({
     const shouldPauseAfterLoad =
       !isCastReceiver && !usePlaybackStore.getState().isPlaying;
     const [err] = safeWrap(() => {
+      if (isCastReceiver) {
+        player.mute();
+        player.setVolume(MAX_VOLUME);
+        setIsMutedState(true);
+      }
       pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad ? videoId : null;
       expectedPlayingStateRef.current = !shouldPauseAfterLoad;
       observedPlaybackRef.current = null;
