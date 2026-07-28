@@ -45,7 +45,7 @@ export function CastQueue({ songs }: Props) {
           {visibleSongs.map((song, index) => (
             <div
               key={song.id}
-              className="flex h-24 items-center gap-4 rounded-2xl border border-white/10 bg-black/20 px-4"
+              className="cast-queue-card flex h-24 items-center gap-4 rounded-2xl border px-4"
             >
               <span className="w-7 shrink-0 text-center text-theme-subtle text-xs">
                 {index + 1}
@@ -53,7 +53,7 @@ export function CastQueue({ songs }: Props) {
               <img
                 src={resolveSongThumbnail(song.thumbnailUrl)}
                 alt=""
-                className="h-16 w-16 shrink-0 rounded-xl border border-theme object-cover"
+                className="cast-queue-thumbnail h-16 w-16 shrink-0 rounded-xl border object-cover"
               />
               <div className="cast-queue-track-details min-w-0 flex-1">
                 <p className="truncate text-theme text-xs">{song.title}</p>
