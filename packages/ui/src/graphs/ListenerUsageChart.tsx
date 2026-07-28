@@ -1,5 +1,5 @@
 import type { ListenerUsagePoint } from '@vibes/models';
-import { line, max, scaleLinear, scaleTime, utcFormat } from 'd3';
+import { line, max, scaleLinear, scaleUtc, utcFormat } from 'd3';
 import { type MouseEvent, useMemo, useState } from 'react';
 
 interface ListenerUsageChartProps {
@@ -22,7 +22,7 @@ export function ListenerUsageChart({
     [generatedAt, points, selectedWindow],
   );
   const highestListeners = max(buckets, (bucket) => bucket.listeners) ?? 0;
-  const xScale = scaleTime()
+  const xScale = scaleUtc()
     .domain([
       buckets[0]?.timestamp ?? new Date(),
       buckets[buckets.length - 1]?.timestamp ?? new Date(),
