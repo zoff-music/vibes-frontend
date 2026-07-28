@@ -43,6 +43,14 @@ export function SearchUsageChart({
     [activeProvider, generatedAt, points, selectedWindow],
   );
   const highestTotal = max(buckets, (bucket) => bucket.total) ?? 0;
+  const shownUsage = buckets.reduce(
+    (usage, bucket) => ({
+      cached: usage.cached + bucket.cached,
+      live: usage.live + bucket.live,
+      total: usage.total + bucket.total,
+    }),
+    { cached: 0, live: 0, total: 0 },
+  );
   const xScale = scaleUtc()
     .domain([
       buckets[0]?.timestamp ?? new Date(),
@@ -73,7 +81,8 @@ export function SearchUsageChart({
         <div>
           <h3 className="font-bold text-lg">Search activity</h3>
           <p className="text-ink/50 text-xs dark:text-gray-500">
-            Search volume over time. Quiet intervals are shown as zero.
+            Searches in each {selectedWindow === 'hour' ? 'hour' : 'day'}. Quiet
+            intervals are shown as zero.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -120,6 +129,17 @@ export function SearchUsageChart({
           </Button>
         ))}
       </fieldset>
+
+      <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <p className="font-black text-2xl text-ink dark:text-white">
+          {shownUsage.total.toLocaleString()} searches
+        </p>
+        <p className="text-ink/50 text-xs dark:text-gray-500">
+          in the displayed {selectedWindow === 'hour' ? '24 hours' : '30 days'}{' '}
+          · {shownUsage.live.toLocaleString()} live ·{' '}
+          {shownUsage.cached.toLocaleString()} cached
+        </p>
+      </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-4 text-ink/60 text-xs dark:text-gray-400">
         <span className="inline-flex items-center gap-2">
