@@ -82,7 +82,9 @@ const CreateRoom: React.FC = () => {
   );
   const [isHydrated, setIsHydrated] = useState(false);
   const [isWaitingToCreate, setIsWaitingToCreate] = useState(false);
+  const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
   const [wobblePassword, setWobblePassword] = useState(false);
+  const createFormRef = React.useRef<HTMLFormElement>(null);
   const passwordRef = React.useRef<HTMLDivElement>(null);
   const availabilityTimerRef = React.useRef<number | null>(null);
   const pendingCreationNameRef = React.useRef('');
@@ -95,38 +97,17 @@ const CreateRoom: React.FC = () => {
     setNameAvailability('checking');
     setNameAvailabilityError(null);
 
-    const formData = new FormData();
-    formData.set('intent', 'reserveRoomName');
-    formData.set('name', roomName);
-    void availabilityFetcherSubmitRef.current(formData, {
-      method: 'post',
-      action: '/rooms/create',
-    });
+    void availabilityFetcherSubmitRef.current(
+      {
+        intent: 'reserveRoomName',
+        name: roomName,
+      },
+      {
+        method: 'post',
+        action: '/rooms/create',
+      },
+    );
   }, []);
-
-  const submitRoomCreation = (reservationToken: string) => {
-    setIsWarping(true);
-    setError(null);
-
-    const formData = new FormData();
-    formData.set('name', name.trim());
-    formData.set('reservationToken', reservationToken);
-    formData.set('password', password);
-    formData.set('mode', mode);
-    formData.set('skipAllowed', String(settings.skipAllowed));
-    formData.set('democraticSkip', String(settings.democraticSkip));
-    formData.set('loopQueue', String(settings.loopQueue));
-    formData.set('removeOnPlay', String(settings.removeOnPlay));
-    formData.set('allowDuplicates', String(settings.allowDuplicates));
-    formData.set('onlyAdminAddSongs', String(settings.onlyAdminAddSongs));
-    settings.enabledSources.forEach((source) => {
-      formData.append('enabledSources', source);
-    });
-    createFetcher.submit(formData, {
-      method: 'post',
-      action: '/rooms/create',
-    });
-  };
 
   // Reset wobble after animation
   useEffect(() => {
@@ -267,9 +248,16 @@ const CreateRoom: React.FC = () => {
     if (pendingCreationNameRef.current === data.checkedName) {
       pendingCreationNameRef.current = '';
       setIsWaitingToCreate(false);
-      submitRoomCreation(data.reservation.token);
+      setIsReadyToSubmit(true);
     }
   }, [availabilityFetcher.data, name]);
+
+  useEffect(() => {
+    if (!isReadyToSubmit || !reservation) return;
+
+    setIsReadyToSubmit(false);
+    createFormRef.current?.requestSubmit();
+  }, [isReadyToSubmit, reservation]);
 
   useEffect(() => {
     const data = suggestionFetcher.data;
@@ -298,35 +286,43 @@ const CreateRoom: React.FC = () => {
     if (isGeneratingName || isLoading) return;
 
     setError(null);
-    const formData = new FormData();
-    formData.set('intent', 'reserveRoomName');
-    void suggestionFetcher.submit(formData, {
-      method: 'post',
-      action: '/rooms/create',
-    });
+    void suggestionFetcher.submit(
+      {
+        intent: 'reserveRoomName',
+      },
+      {
+        method: 'post',
+        action: '/rooms/create',
+      },
+    );
   };
 
-  const handleCreate = () => {
+  const handleCreate = (event: React.FormEvent<HTMLFormElement>) => {
     const trimmedName = name.trim();
     if (!trimmedName) {
+      event.preventDefault();
       setError('Enter a room name before starting the session.');
       return;
     }
 
     if (isCreating) {
+      event.preventDefault();
       return;
     }
 
     if (nameAvailability === 'taken') {
+      event.preventDefault();
       setError('That room name is already in use. Choose another name.');
       return;
     }
 
     if (nameAvailability === 'available' && reservationTokenRef.current) {
-      submitRoomCreation(reservationTokenRef.current);
+      setIsWarping(true);
+      setError(null);
       return;
     }
 
+    event.preventDefault();
     if (availabilityTimerRef.current !== null) {
       window.clearTimeout(availabilityTimerRef.current);
       availabilityTimerRef.current = null;
@@ -379,7 +375,28 @@ const CreateRoom: React.FC = () => {
 
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-start overflow-hidden">
-      <div className="relative z-10 mx-auto mt-24 flex w-full max-w-6xl flex-col px-3 pb-16 sm:mt-[min(26.5vh_,_230px)] sm:px-6 sm:pb-24">
+      <createFetcher.Form
+        ref={createFormRef}
+        method="post"
+        action="/rooms/create"
+        onSubmit={handleCreate}
+        className="relative z-10 mx-auto mt-24 flex w-full max-w-6xl flex-col px-3 pb-16 sm:mt-[min(26.5vh_,_230px)] sm:px-6 sm:pb-24"
+      >
+        <input type="hidden" name="intent" value="createRoom" />
+        <input
+          type="hidden"
+          name="reservationToken"
+          value={reservation?.token ?? ''}
+        />
+        <input type="hidden" name="mode" value={mode} />
+        {settings.enabledSources.map((source) => (
+          <input
+            key={source}
+            type="hidden"
+            name="enabledSources"
+            value={source}
+          />
+        ))}
         <div className="mb-8 flex items-center justify-between">
           <Link
             to="/"
@@ -415,11 +432,11 @@ const CreateRoom: React.FC = () => {
                 </label>
                 <div className="relative">
                   <input
+                    name="name"
                     type="text"
                     placeholder="Friday Night Vibes"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                     className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-24 pl-4 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
                     autoFocus
                   />
@@ -488,6 +505,7 @@ const CreateRoom: React.FC = () => {
                   <span className="ml-2 text-theme-subtle">(optional)</span>
                 </label>
                 <input
+                  name="password"
                   type="password"
                   placeholder="For room control"
                   value={password}
@@ -594,6 +612,7 @@ const CreateRoom: React.FC = () => {
 
                 <div className="space-y-4">
                   <Toggle
+                    name="skipAllowed"
                     label="ALLOW SKIP"
                     description="Anyone can skip songs"
                     checked={settings.skipAllowed}
@@ -603,6 +622,7 @@ const CreateRoom: React.FC = () => {
                   />
 
                   <Toggle
+                    name="democraticSkip"
                     label="DEMOCRATIC SKIP"
                     description="Require votes to skip"
                     checked={settings.democraticSkip}
@@ -612,6 +632,7 @@ const CreateRoom: React.FC = () => {
                   />
 
                   <Toggle
+                    name="loopQueue"
                     label="LOOP QUEUE"
                     description="Restart when queue ends"
                     checked={settings.loopQueue}
@@ -619,6 +640,7 @@ const CreateRoom: React.FC = () => {
                   />
 
                   <Toggle
+                    name="removeOnPlay"
                     label="REMOVE PLAYED"
                     description="Removed after play"
                     checked={settings.removeOnPlay}
@@ -628,6 +650,7 @@ const CreateRoom: React.FC = () => {
                   />
 
                   <Toggle
+                    name="allowDuplicates"
                     label="ALLOW DUPLICATES"
                     description="Same song multiple times"
                     checked={settings.allowDuplicates}
@@ -637,6 +660,7 @@ const CreateRoom: React.FC = () => {
                   />
 
                   <Toggle
+                    name="onlyAdminAddSongs"
                     label="ADMINS ONLY ADD"
                     description="Only admins can add songs"
                     checked={settings.onlyAdminAddSongs}
@@ -670,7 +694,7 @@ const CreateRoom: React.FC = () => {
 
           {/* Create button */}
           <Button
-            onClick={handleCreate}
+            type="submit"
             disabled={!name.trim() || isCreating}
             variant="primary"
             className="mt-8 w-full gap-3 px-6 py-4 font-pixel text-sm"
@@ -695,7 +719,7 @@ const CreateRoom: React.FC = () => {
             )}
           </Button>
         </div>
-      </div>
+      </createFetcher.Form>
     </div>
   );
 };
