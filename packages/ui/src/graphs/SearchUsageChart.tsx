@@ -1,6 +1,6 @@
 import type { AdminSearchUsagePoint } from '@vibes/models';
 import { line, max, scaleLinear, scaleUtc, utcFormat } from 'd3';
-import { type MouseEvent, useMemo, useState } from 'react';
+import { type FocusEvent, type MouseEvent, useMemo, useState } from 'react';
 import { Button } from '../components/Button';
 
 interface SearchUsageChartProps {
@@ -15,12 +15,20 @@ interface SearchUsageBucket {
   total: number;
 }
 
+interface SearchUsageMetric {
+  id: 'cached' | 'live' | 'total';
+  pointClassName: string;
+}
+
 export function SearchUsageChart({
   generatedAt,
   points,
 }: SearchUsageChartProps) {
   const [selectedWindow, setSelectedWindow] = useState('hour');
   const [selectedProvider, setSelectedProvider] = useState(allProviders);
+  const [hoveredBucket, setHoveredBucket] = useState<SearchUsageBucket | null>(
+    null,
+  );
   const providers = useMemo(
     () =>
       Array.from(new Set(points.map((point) => point.provider))).sort(
@@ -66,6 +74,9 @@ export function SearchUsageChart({
   const totalPath = generateSearchUsagePath(buckets, xScale, yScale, 'total');
   const cachedPath = generateSearchUsagePath(buckets, xScale, yScale, 'cached');
   const livePath = generateSearchUsagePath(buckets, xScale, yScale, 'live');
+  const hoveredX = getSearchUsageTooltipX(hoveredBucket, xScale);
+  const bucketHitWidth =
+    (chartRight - chartLeft) / Math.max(buckets.length - 1, 1);
 
   const handleWindowChange = (event: MouseEvent<HTMLButtonElement>) => {
     setSelectedWindow(event.currentTarget.value);
@@ -73,6 +84,24 @@ export function SearchUsageChart({
 
   const handleProviderChange = (event: MouseEvent<HTMLButtonElement>) => {
     setSelectedProvider(event.currentTarget.value);
+  };
+
+  const handleBucketEnter = (
+    event: FocusEvent<SVGRectElement> | MouseEvent<SVGRectElement>,
+  ) => {
+    const timestamp = Number(event.currentTarget.dataset.timestamp);
+    const bucket = buckets.find(
+      (candidate) => candidate.timestamp.getTime() === timestamp,
+    );
+    if (!bucket) {
+      return;
+    }
+
+    setHoveredBucket(bucket);
+  };
+
+  const handleBucketLeave = () => {
+    setHoveredBucket(null);
   };
 
   return (
@@ -221,18 +250,79 @@ export function SearchUsageChart({
               strokeLinejoin="round"
               strokeWidth={totalLineWidth}
             />
+            {searchUsageMetrics.map((metric) =>
+              buckets.map((bucket) => (
+                <circle
+                  className={`${metric.pointClassName} pointer-events-none stroke-theme-surface`}
+                  cx={xScale(bucket.timestamp)}
+                  cy={yScale(bucket[metric.id])}
+                  key={`${metric.id}-${bucket.timestamp.toISOString()}`}
+                  r={pointRadius}
+                  strokeWidth={pointStrokeWidth}
+                />
+              )),
+            )}
             {buckets.map((bucket) => (
-              <circle
-                className="fill-primary stroke-theme-surface"
-                cx={xScale(bucket.timestamp)}
-                cy={yScale(bucket.total)}
+              // biome-ignore lint/a11y/noStaticElementInteractions: SVG buckets expose hover and focus details without an action.
+              <rect
+                aria-label={formatSearchUsagePoint(bucket, selectedWindow)}
+                className="fill-transparent"
+                data-timestamp={bucket.timestamp.getTime()}
+                height={chartBottom - chartTop}
                 key={bucket.timestamp.toISOString()}
-                r={pointRadius}
-                strokeWidth={pointStrokeWidth}
-              >
-                <title>{formatSearchUsagePoint(bucket, selectedWindow)}</title>
-              </circle>
+                onBlur={handleBucketLeave}
+                onFocus={handleBucketEnter}
+                onMouseEnter={handleBucketEnter}
+                onMouseLeave={handleBucketLeave}
+                tabIndex={0}
+                width={bucketHitWidth}
+                x={xScale(bucket.timestamp) - bucketHitWidth / 2}
+                y={chartTop}
+              />
             ))}
+            {hoveredBucket && (
+              <g pointerEvents="none">
+                <rect
+                  className="fill-theme-surface stroke-ink/20 dark:stroke-gray-600"
+                  height={tooltipHeight}
+                  rx={tooltipRadius}
+                  width={tooltipWidth}
+                  x={hoveredX}
+                  y={tooltipTop}
+                />
+                <text
+                  className="fill-ink/60 text-xs dark:fill-gray-400"
+                  x={hoveredX + tooltipPadding}
+                  y={tooltipTop + tooltipTimestampOffset}
+                >
+                  {formatSearchUsageTimestamp(
+                    hoveredBucket.timestamp,
+                    selectedWindow,
+                  )}
+                </text>
+                <text
+                  className="fill-primary font-bold text-xs"
+                  x={hoveredX + tooltipPadding}
+                  y={tooltipTop + tooltipTotalOffset}
+                >
+                  Total {hoveredBucket.total.toLocaleString()}
+                </text>
+                <text
+                  className="fill-cyan-400 text-xs"
+                  x={hoveredX + tooltipPadding}
+                  y={tooltipTop + tooltipLiveOffset}
+                >
+                  Live {hoveredBucket.live.toLocaleString()}
+                </text>
+                <text
+                  className="fill-violet-400 text-xs"
+                  x={hoveredX + tooltipMetricOffset}
+                  y={tooltipTop + tooltipLiveOffset}
+                >
+                  Cached {hoveredBucket.cached.toLocaleString()}
+                </text>
+              </g>
+            )}
           </svg>
         </div>
       )}
@@ -342,17 +432,40 @@ function formatSearchUsageTick(date: Date, window: string) {
 }
 
 function formatSearchUsagePoint(bucket: SearchUsageBucket, window: string) {
-  const timestamp =
-    window === 'hour'
-      ? utcFormat('%d %b %H:00 UTC')(bucket.timestamp)
-      : utcFormat('%d %b %Y')(bucket.timestamp);
+  const timestamp = formatSearchUsageTimestamp(bucket.timestamp, window);
 
   return `${timestamp}: ${bucket.total} total, ${bucket.live} live, ${bucket.cached} cached`;
+}
+
+function formatSearchUsageTimestamp(timestamp: Date, window: string) {
+  if (window === 'hour') {
+    return utcFormat('%d %b %H:00 UTC')(timestamp);
+  }
+
+  return utcFormat('%d %b %Y')(timestamp);
+}
+
+function getSearchUsageTooltipX(
+  bucket: SearchUsageBucket | null,
+  xScale: (timestamp: Date) => number,
+) {
+  if (!bucket) {
+    return chartLeft;
+  }
+
+  const centered = xScale(bucket.timestamp) - tooltipWidth / 2;
+  return Math.min(Math.max(centered, chartLeft), chartRight - tooltipWidth);
 }
 
 const searchUsageWindows = [
   { id: 'hour', label: '24 hours' },
   { id: 'day', label: '30 days' },
+];
+
+const searchUsageMetrics: SearchUsageMetric[] = [
+  { id: 'total', pointClassName: 'fill-primary' },
+  { id: 'live', pointClassName: 'fill-cyan-400' },
+  { id: 'cached', pointClassName: 'fill-violet-400' },
 ];
 
 const providerLabels: Record<string, string> = {
@@ -377,6 +490,15 @@ const totalLineWidth = 4;
 const supportingLineWidth = 2;
 const pointRadius = 3;
 const pointStrokeWidth = 2;
+const tooltipWidth = 178;
+const tooltipHeight = 66;
+const tooltipTop = 34;
+const tooltipRadius = 8;
+const tooltipPadding = 10;
+const tooltipMetricOffset = 88;
+const tooltipTimestampOffset = 16;
+const tooltipTotalOffset = 34;
+const tooltipLiveOffset = 52;
 const minimumSearchDomain = 1;
 const hourlyBucketOffset = 23;
 const dailyBucketOffset = 29;
