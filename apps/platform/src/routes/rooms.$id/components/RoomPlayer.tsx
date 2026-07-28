@@ -18,6 +18,7 @@ import React, {
 } from 'react';
 import { useFetcher } from 'react-router';
 import { useCasting } from '../../../hooks/useCasting';
+import { useMediaSession } from '../../../hooks/useMediaSession';
 import type { RoomActionData } from '../action';
 
 interface RoomPlayerProps {
@@ -261,6 +262,17 @@ export const RoomPlayer = React.memo(
         { encType: 'application/json', method: 'post' },
       );
     }, [playbackFetcher]);
+
+    useMediaSession({
+      canPlay:
+        canControlRoomPlayback && Boolean(currentSong || songs.length > 0),
+      canSkip: canControlRoomPlayback && Boolean(currentSong),
+      currentSong,
+      isPlaying: isPlaying && !isPlaybackBlocked,
+      onPause: pause,
+      onPlay: play,
+      onSkip: skip,
+    });
 
     const requestProviderToken = useCallback(
       (provider: 'spotify', force = false) => {
