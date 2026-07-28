@@ -240,6 +240,12 @@ export const RoomHeader = React.memo(
 
               <RoomGenerationMenu
                 generationCount={displayRoom?.generationCount ?? 0}
+                roomGenerationMaxDailyCount={
+                  displayRoom?.roomGenerationMaxDailyCount ?? 0
+                }
+                roomGenerationMaxExistingSongs={
+                  displayRoom?.roomGenerationMaxExistingSongs ?? 0
+                }
                 hasGenerationPermission={
                   displayRoom ? !displayRoom.hasPassword || isAdmin : false
                 }

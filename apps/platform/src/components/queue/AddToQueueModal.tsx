@@ -435,7 +435,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           searchResults.length > 0 &&
           !isLoading &&
           !justAdded && (
-            <div className="mt-2 max-h-96 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-primary-popover">
+            <div className="mt-2 max-h-128 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-primary-popover">
               {searchResults.map((result) => (
                 <div
                   key={result.id}

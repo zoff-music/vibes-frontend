@@ -31,6 +31,8 @@ export const roomSchema = yup.object({
   activeSources: yup.array(yup.string().required()).optional(),
   isGenerating: yup.boolean().default(false),
   generationCount: yup.number().integer().min(0).default(0),
+  roomGenerationMaxDailyCount: yup.number().integer().min(1).required(),
+  roomGenerationMaxExistingSongs: yup.number().integer().min(0).required(),
   generationError: yup.string().optional(),
 });
 export type Room = yup.InferType<typeof roomSchema>;

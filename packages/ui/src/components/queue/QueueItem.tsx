@@ -36,7 +36,7 @@ export const QueueItem: React.FC<Props> = ({
   };
 
   const cardClass =
-    'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-colors hover:border-theme-strong focus:outline-hidden focus:ring-2 focus:ring-secondary/40 focus:ring-offset-2 focus:ring-offset-transparent';
+    'group block w-full cursor-pointer overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 text-left transition-colors hover:border-theme-strong focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-secondary/40';
 
   const providerUrl = getProviderTrackUrl(
     song.sourceType,
@@ -61,7 +61,7 @@ export const QueueItem: React.FC<Props> = ({
       </div>
 
       {/* Song info */}
-      <div className="min-w-0 flex-1 overflow-hidden">
+      <div className="min-w-0 flex-1 overflow-hidden pr-3">
         <h4 className="mb-1 block max-w-full truncate text-left text-theme text-xs">
           {song.title}
         </h4>

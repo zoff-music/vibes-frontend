@@ -1,13 +1,11 @@
-import {
-  roomGenerationMaxDailyCount,
-  roomGenerationMaxExistingSongs,
-} from '@vibes/models';
 import { Button, SparklesIcon, Tooltip } from '@vibes/ui';
 import { useEffect, useRef, useState } from 'react';
 import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 
 interface RoomGenerationMenuProps {
   generationCount: number;
+  roomGenerationMaxDailyCount: number;
+  roomGenerationMaxExistingSongs: number;
   hasGenerationPermission: boolean;
   isGenerating: boolean;
   onGenerationStarted: () => void;
@@ -17,6 +15,8 @@ interface RoomGenerationMenuProps {
 
 export function RoomGenerationMenu({
   generationCount,
+  roomGenerationMaxDailyCount,
+  roomGenerationMaxExistingSongs,
   hasGenerationPermission,
   isGenerating,
   onGenerationStarted,
