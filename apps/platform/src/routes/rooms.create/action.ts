@@ -66,8 +66,13 @@ export async function clientAction({
   });
   if (err || !room) {
     const rateLimitMessage = err ? getRateLimitMessage(err) : null;
+    const apiErrorMessage = err ? await getAPIErrorMessage(err) : null;
     return {
-      error: rateLimitMessage ?? err?.message ?? 'Failed to create room',
+      error:
+        rateLimitMessage ??
+        apiErrorMessage ??
+        err?.message ??
+        'Failed to create room',
       ...(rateLimitMessage && { rateLimitMessage }),
     };
   }

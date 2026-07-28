@@ -81,9 +81,11 @@ const CreateRoom: React.FC = () => {
     null,
   );
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isWaitingToCreate, setIsWaitingToCreate] = useState(false);
   const [wobblePassword, setWobblePassword] = useState(false);
   const passwordRef = React.useRef<HTMLDivElement>(null);
   const availabilityTimerRef = React.useRef<number | null>(null);
+  const pendingCreationNameRef = React.useRef('');
   const reservationTokenRef = React.useRef('');
   reservationTokenRef.current = reservation?.token ?? '';
   const availabilityFetcherSubmitRef = React.useRef(availabilityFetcher.submit);
@@ -101,6 +103,30 @@ const CreateRoom: React.FC = () => {
       action: '/rooms/create',
     });
   }, []);
+
+  const submitRoomCreation = (reservationToken: string) => {
+    setIsWarping(true);
+    setError(null);
+
+    const formData = new FormData();
+    formData.set('name', name.trim());
+    formData.set('reservationToken', reservationToken);
+    formData.set('password', password);
+    formData.set('mode', mode);
+    formData.set('skipAllowed', String(settings.skipAllowed));
+    formData.set('democraticSkip', String(settings.democraticSkip));
+    formData.set('loopQueue', String(settings.loopQueue));
+    formData.set('removeOnPlay', String(settings.removeOnPlay));
+    formData.set('allowDuplicates', String(settings.allowDuplicates));
+    formData.set('onlyAdminAddSongs', String(settings.onlyAdminAddSongs));
+    settings.enabledSources.forEach((source) => {
+      formData.append('enabledSources', source);
+    });
+    createFetcher.submit(formData, {
+      method: 'post',
+      action: '/rooms/create',
+    });
+  };
 
   // Reset wobble after animation
   useEffect(() => {
@@ -163,6 +189,8 @@ const CreateRoom: React.FC = () => {
 
     const trimmedName = name.trim();
     if (!trimmedName) {
+      pendingCreationNameRef.current = '';
+      setIsWaitingToCreate(false);
       setReservation(null);
       setNameAvailability('idle');
       setNameAvailabilityError(null);
@@ -224,6 +252,11 @@ const CreateRoom: React.FC = () => {
         setNameAvailability('error');
       }
       setNameAvailabilityError(data.error);
+      if (pendingCreationNameRef.current === data.checkedName) {
+        pendingCreationNameRef.current = '';
+        setIsWaitingToCreate(false);
+        setError(data.error);
+      }
       return;
     }
     if (!data.reservation) return;
@@ -231,6 +264,11 @@ const CreateRoom: React.FC = () => {
     setReservation(data.reservation);
     setNameAvailability('available');
     setNameAvailabilityError(null);
+    if (pendingCreationNameRef.current === data.checkedName) {
+      pendingCreationNameRef.current = '';
+      setIsWaitingToCreate(false);
+      submitRoomCreation(data.reservation.token);
+    }
   }, [availabilityFetcher.data, name]);
 
   useEffect(() => {
@@ -253,6 +291,7 @@ const CreateRoom: React.FC = () => {
   }, [suggestionFetcher.data]);
 
   const isLoading = createFetcher.state !== 'idle';
+  const isCreating = isLoading || isWaitingToCreate;
   const isGeneratingName = suggestionFetcher.state !== 'idle';
 
   const handleNameBlur = () => {
@@ -280,31 +319,35 @@ const CreateRoom: React.FC = () => {
   };
 
   const handleCreate = () => {
-    if (!name.trim() || isLoading || nameAvailability !== 'available') {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setError('Enter a room name before starting the session.');
       return;
     }
 
-    setIsWarping(true);
-    setError(null);
+    if (isCreating) {
+      return;
+    }
 
-    const formData = new FormData();
-    formData.set('name', name.trim());
-    formData.set('reservationToken', reservationTokenRef.current);
-    formData.set('password', password);
-    formData.set('mode', mode);
-    formData.set('skipAllowed', String(settings.skipAllowed));
-    formData.set('democraticSkip', String(settings.democraticSkip));
-    formData.set('loopQueue', String(settings.loopQueue));
-    formData.set('removeOnPlay', String(settings.removeOnPlay));
-    formData.set('allowDuplicates', String(settings.allowDuplicates));
-    formData.set('onlyAdminAddSongs', String(settings.onlyAdminAddSongs));
-    settings.enabledSources.forEach((source) => {
-      formData.append('enabledSources', source);
-    });
-    createFetcher.submit(formData, {
-      method: 'post',
-      action: '/rooms/create',
-    });
+    if (nameAvailability === 'taken') {
+      setError('That room name is already in use. Choose another name.');
+      return;
+    }
+
+    if (nameAvailability === 'available' && reservationTokenRef.current) {
+      submitRoomCreation(reservationTokenRef.current);
+      return;
+    }
+
+    if (availabilityTimerRef.current !== null) {
+      window.clearTimeout(availabilityTimerRef.current);
+      availabilityTimerRef.current = null;
+    }
+
+    pendingCreationNameRef.current = trimmedName;
+    setIsWaitingToCreate(true);
+    setError(null);
+    checkRoomNameAvailability(trimmedName);
   };
 
   useEffect(() => {
@@ -641,19 +684,23 @@ const CreateRoom: React.FC = () => {
           {/* Create button */}
           <Button
             onClick={handleCreate}
-            disabled={
-              !name.trim() || isLoading || nameAvailability !== 'available'
-            }
+            disabled={!name.trim() || isCreating}
             variant="primary"
             className="mt-8 w-full gap-3 px-6 py-4 font-pixel text-sm"
           >
+            {isWaitingToCreate && (
+              <>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                <span>Checking name...</span>
+              </>
+            )}
             {isLoading && (
               <>
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 <span>Creating...</span>
               </>
             )}
-            {!isLoading && (
+            {!isCreating && (
               <>
                 <span>Start Session</span>
                 <ArrowRightIcon className="h-5 w-5" />
