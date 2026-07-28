@@ -4,6 +4,7 @@ import type {
   ProviderToken,
   SkipActionResponse,
 } from '@vibes/models';
+import { safeWrap } from '@vibes/shared';
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface EmbedActionData {
@@ -25,9 +26,12 @@ export async function clientAction({
   params,
   request,
 }: ClientActionFunctionArgs): Promise<EmbedActionData> {
-  const roomId = params.roomId;
   const body = (await request.json()) as EmbedActionRequest;
-  if (!roomId) {
+  const encodedRoomId = params['*']?.split('/').at(-1);
+  const [decodeError, roomId] = safeWrap(() =>
+    decodeURIComponent(encodedRoomId ?? ''),
+  );
+  if (!encodedRoomId || encodedRoomId.includes('/') || decodeError || !roomId) {
     return { error: 'Room ID is required', intent: body.intent };
   }
 

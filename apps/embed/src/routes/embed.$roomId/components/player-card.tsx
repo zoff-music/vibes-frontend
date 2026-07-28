@@ -1,5 +1,6 @@
 import type { Song } from '@vibes/models';
 import { resolveSongThumbnail } from '@vibes/shared';
+import { ClickToPlayOverlay } from '@vibes/ui';
 import { EmbedPlayerSource } from './player-source';
 import { EmbedSourceIcon } from './source-icon';
 
@@ -7,8 +8,10 @@ interface Props {
   currentSong: Song | null;
   durationMs: number;
   enabledProviders: string[];
+  hasLocalPlayerInteraction: boolean;
   onLocalAlignmentChange: (isAligned: boolean) => void;
   onLocalInteraction: () => void;
+  onStartPlayback: () => void;
   positionMs: number;
   requestProviderToken: (provider: 'spotify', force?: boolean) => void;
   spotifyTokenLoading: boolean;
@@ -20,8 +23,10 @@ export function EmbedPlayerCard({
   currentSong,
   durationMs,
   enabledProviders,
+  hasLocalPlayerInteraction,
   onLocalAlignmentChange,
   onLocalInteraction,
+  onStartPlayback,
   positionMs,
   requestProviderToken,
   spotifyTokenLoading,
@@ -61,6 +66,11 @@ export function EmbedPlayerCard({
           songs={songs}
           spotifyToken={spotifyToken}
         />
+        {currentSong &&
+          currentSong.sourceType !== 'youtube' &&
+          !hasLocalPlayerInteraction && (
+            <ClickToPlayOverlay onClick={onStartPlayback} />
+          )}
       </div>
 
       <div className="mt-3 min-w-0 shrink-0">

@@ -3,6 +3,7 @@ import {
   classNames,
   safeWrapAsync,
   showToast,
+  useMediaSession,
   usePlaybackStore,
   useQueueStore,
   useRoomStore,
@@ -18,7 +19,6 @@ import React, {
 } from 'react';
 import { useFetcher } from 'react-router';
 import { useCasting } from '../../../hooks/useCasting';
-import { useMediaSession } from '../../../hooks/useMediaSession';
 import type { RoomActionData } from '../action';
 
 interface RoomPlayerProps {

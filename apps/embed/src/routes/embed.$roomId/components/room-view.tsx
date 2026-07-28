@@ -16,11 +16,13 @@ export function EmbedRoomView({ loaderData }: Props) {
     dismissToast,
     handleLocalAlignmentChange,
     handleLocalPlayerInteraction,
+    handlePlay,
     handlePlayPause,
     handleReset,
     handleSkip,
     handleVote,
     hasLocalPlaybackChanges,
+    hasLocalPlayerInteraction,
     isPlaying,
     positionMs,
     requestProviderToken,
@@ -40,8 +42,10 @@ export function EmbedRoomView({ loaderData }: Props) {
       currentSong={currentSong}
       durationMs={durationMs}
       enabledProviders={enabledProviders}
+      hasLocalPlayerInteraction={hasLocalPlayerInteraction}
       onLocalAlignmentChange={handleLocalAlignmentChange}
       onLocalInteraction={handleLocalPlayerInteraction}
+      onStartPlayback={handlePlay}
       positionMs={positionMs}
       requestProviderToken={requestProviderToken}
       spotifyTokenLoading={spotifyTokenLoading}
