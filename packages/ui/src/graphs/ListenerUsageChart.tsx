@@ -1,6 +1,6 @@
 import type { ListenerUsagePoint } from '@vibes/models';
 import { line, max, scaleLinear, scaleUtc, utcFormat } from 'd3';
-import { type MouseEvent, useMemo, useState } from 'react';
+import { type FocusEvent, type MouseEvent, useMemo, useState } from 'react';
 
 interface ListenerUsageChartProps {
   generatedAt: string;
@@ -17,6 +17,8 @@ export function ListenerUsageChart({
   points,
 }: ListenerUsageChartProps) {
   const [selectedWindow, setSelectedWindow] = useState('day');
+  const [hoveredBucket, setHoveredBucket] =
+    useState<ListenerUsageBucket | null>(null);
   const buckets = useMemo(
     () => generateListenerUsageBuckets(points, generatedAt, selectedWindow),
     [generatedAt, points, selectedWindow],
@@ -38,9 +40,30 @@ export function ListenerUsageChart({
     .x((bucket) => xScale(bucket.timestamp))
     .y((bucket) => yScale(bucket.listeners))(buckets);
   const currentListeners = buckets[buckets.length - 1]?.listeners ?? 0;
+  const hoveredX = getListenerUsageTooltipX(hoveredBucket, xScale);
+  const bucketHitWidth =
+    (chartRight - chartLeft) / Math.max(buckets.length - 1, 1);
 
   const handleWindowChange = (event: MouseEvent<HTMLButtonElement>) => {
     setSelectedWindow(event.currentTarget.value);
+  };
+
+  const handleBucketEnter = (
+    event: FocusEvent<SVGRectElement> | MouseEvent<SVGRectElement>,
+  ) => {
+    const timestamp = Number(event.currentTarget.dataset.timestamp);
+    const bucket = buckets.find(
+      (candidate) => candidate.timestamp.getTime() === timestamp,
+    );
+    if (!bucket) {
+      return;
+    }
+
+    setHoveredBucket(bucket);
+  };
+
+  const handleBucketLeave = () => {
+    setHoveredBucket(null);
   };
 
   return (
@@ -137,6 +160,64 @@ export function ListenerUsageChart({
               strokeLinejoin="round"
               strokeWidth={chartLineWidth}
             />
+            {buckets.map((bucket) => (
+              <circle
+                className="pointer-events-none fill-primary stroke-theme-surface"
+                cx={xScale(bucket.timestamp)}
+                cy={yScale(bucket.listeners)}
+                key={bucket.timestamp.toISOString()}
+                r={pointRadius}
+                strokeWidth={pointStrokeWidth}
+              />
+            ))}
+            {buckets.map((bucket) => (
+              // biome-ignore lint/a11y/noStaticElementInteractions: SVG buckets expose hover and focus details without an action.
+              <rect
+                aria-label={formatListenerUsagePoint(bucket, selectedWindow)}
+                className="fill-transparent"
+                data-timestamp={bucket.timestamp.getTime()}
+                height={chartBottom - chartTop}
+                key={bucket.timestamp.toISOString()}
+                onBlur={handleBucketLeave}
+                onFocus={handleBucketEnter}
+                onMouseEnter={handleBucketEnter}
+                onMouseLeave={handleBucketLeave}
+                tabIndex={0}
+                width={bucketHitWidth}
+                x={xScale(bucket.timestamp) - bucketHitWidth / 2}
+                y={chartTop}
+              />
+            ))}
+            {hoveredBucket && (
+              <g pointerEvents="none">
+                <rect
+                  className="fill-theme-surface stroke-ink/20 dark:stroke-gray-600"
+                  height={tooltipHeight}
+                  rx={tooltipRadius}
+                  width={tooltipWidth}
+                  x={hoveredX}
+                  y={tooltipTop}
+                />
+                <text
+                  className="fill-ink/60 text-xs dark:fill-gray-400"
+                  x={hoveredX + tooltipPadding}
+                  y={tooltipTop + tooltipTimestampOffset}
+                >
+                  {formatListenerUsageTimestamp(
+                    hoveredBucket.timestamp,
+                    selectedWindow,
+                  )}
+                </text>
+                <text
+                  className="fill-primary font-bold text-xs"
+                  x={hoveredX + tooltipPadding}
+                  y={tooltipTop + tooltipValueOffset}
+                >
+                  {hoveredBucket.listeners.toLocaleString()}{' '}
+                  {hoveredBucket.listeners === 1 ? 'listener' : 'listeners'}
+                </text>
+              </g>
+            )}
           </svg>
         </div>
       )}
@@ -256,6 +337,36 @@ function formatListenerUsageTick(date: Date, window: string) {
   return utcFormat('%d %b')(date);
 }
 
+function formatListenerUsagePoint(bucket: ListenerUsageBucket, window: string) {
+  const timestamp = formatListenerUsageTimestamp(bucket.timestamp, window);
+  const listenerLabel = bucket.listeners === 1 ? 'listener' : 'listeners';
+
+  return `${timestamp}: ${bucket.listeners} ${listenerLabel}`;
+}
+
+function formatListenerUsageTimestamp(timestamp: Date, window: string) {
+  if (window === 'hour') {
+    return utcFormat('%d %b %H:%M UTC')(timestamp);
+  }
+  if (window === 'day') {
+    return utcFormat('%d %b %H:00 UTC')(timestamp);
+  }
+
+  return utcFormat('%d %b %Y')(timestamp);
+}
+
+function getListenerUsageTooltipX(
+  bucket: ListenerUsageBucket | null,
+  xScale: (timestamp: Date) => number,
+) {
+  if (!bucket) {
+    return chartLeft;
+  }
+
+  const centered = xScale(bucket.timestamp) - tooltipWidth / 2;
+  return Math.min(Math.max(centered, chartLeft), chartRight - tooltipWidth);
+}
+
 const listenerUsageWindows = [
   { id: 'hour', label: 'Hour' },
   { id: 'day', label: 'Day' },
@@ -274,5 +385,14 @@ const chartAxisGap = 10;
 const chartTickOffset = 4;
 const chartLabelGap = 24;
 const chartLineWidth = 4;
+const pointRadius = 3;
+const pointStrokeWidth = 2;
+const tooltipWidth = 156;
+const tooltipHeight = 48;
+const tooltipTop = 34;
+const tooltipRadius = 8;
+const tooltipPadding = 10;
+const tooltipTimestampOffset = 16;
+const tooltipValueOffset = 35;
 const minimumListenerDomain = 1;
 const daysPerWeek = 7;
