@@ -23,9 +23,8 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
 
   const [toast, setToast] = useState<EmbedToast | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
-  const [hasLocalPlayerInteraction, setHasLocalPlayerInteraction] = useState(
-    loaderData.options.autoplay,
-  );
+  const [hasLocalPlayerInteraction, setHasLocalPlayerInteraction] =
+    useState(false);
   const interactionRoomIDRef = useRef(loaderData.roomId);
   const spotifyTokenRequestedRef = useRef(false);
   const room = useRoomStore((state) => state.room) ?? loaderData.room;
@@ -146,15 +145,16 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   useEffect(() => {
     if (interactionRoomIDRef.current === loaderData.roomId) return;
     interactionRoomIDRef.current = loaderData.roomId;
-    setHasLocalPlayerInteraction(loaderData.options.autoplay);
-  }, [loaderData.options.autoplay, loaderData.roomId]);
+    setHasLocalPlayerInteraction(false);
+  }, [loaderData.roomId]);
 
   useEffect(() => {
-    if (loaderData.options.autoplay || !currentSong?.id) return;
+    if (hasLocalPlayerInteraction || !currentSong?.id || !isPlaying) return;
     setLocalPlayingState(false, room.mode);
   }, [
     currentSong?.id,
-    loaderData.options.autoplay,
+    hasLocalPlayerInteraction,
+    isPlaying,
     room.mode,
     setLocalPlayingState,
   ]);

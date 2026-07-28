@@ -3,7 +3,6 @@ import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 
 export interface EmbedOptions {
-  autoplay: boolean;
   player: boolean;
   playlist: boolean;
   skip: boolean;
@@ -64,7 +63,6 @@ export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
     playback: playback ?? undefined,
     providers: providers ?? [],
     options: {
-      autoplay: requestUrl.searchParams.get('autoplay') === 'true',
       player: requestUrl.searchParams.get('player') !== 'false',
       playlist: requestUrl.searchParams.get('playlist') !== 'false',
       skip: requestUrl.searchParams.get('skip') !== 'false',

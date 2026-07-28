@@ -17,7 +17,6 @@ interface Props {
 
 export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const [autoplay, setAutoplay] = useState(false);
   const [player, setPlayer] = useState(true);
   const [playlist, setPlaylist] = useState(true);
   const [skip, setSkip] = useState(true);
@@ -31,14 +30,13 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
     );
     if (err || !embedUrl) return '';
 
-    embedUrl.searchParams.set('autoplay', String(autoplay));
     embedUrl.searchParams.set('player', String(player));
     embedUrl.searchParams.set('playlist', String(playlist));
     embedUrl.searchParams.set('skip', String(skip));
     embedUrl.searchParams.set('vote', String(vote));
 
-    return `<iframe src="${embedUrl.toString()}" title="Zoff room ${roomId}" width="100%" height="480" loading="lazy" allow="autoplay" frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
-  }, [autoplay, embedBasePath, player, playlist, roomId, skip, url, vote]);
+    return `<iframe src="${embedUrl.toString()}" title="Zoff room ${roomId}" width="100%" height="480" loading="lazy" frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  }, [embedBasePath, player, playlist, roomId, skip, url, vote]);
 
   const handleCopyEmbedScript = async () => {
     const selection = window.getSelection();
@@ -133,30 +131,6 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
                 description="Show upcoming songs from the room queue."
               />
             </div>
-          </section>
-
-          <section aria-labelledby="embed-playback-title">
-            <div className="mb-3">
-              <h3
-                id="embed-playback-title"
-                className="font-pixel text-2xs text-theme tracking-display"
-              >
-                Playback
-              </h3>
-              <p className="mt-1 text-theme-muted text-xs">
-                Autoplay applies when the player is visible and the browser
-                permits it.
-              </p>
-            </div>
-            <Toggle
-              checked={autoplay}
-              onChange={(enabled) => {
-                setAutoplay(enabled);
-                setCopied(false);
-              }}
-              label="Autoplay"
-              description="Start room playback as soon as the embed loads."
-            />
           </section>
 
           <section aria-labelledby="embed-controls-title">

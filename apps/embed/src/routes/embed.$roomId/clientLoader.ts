@@ -33,7 +33,6 @@ export async function embedRoomClientLoader({
 
   return {
     options: {
-      autoplay: requestUrl.searchParams.get('autoplay') === 'true',
       player: requestUrl.searchParams.get('player') !== 'false',
       playlist: requestUrl.searchParams.get('playlist') !== 'false',
       skip: requestUrl.searchParams.get('skip') !== 'false',

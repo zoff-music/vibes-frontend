@@ -15,6 +15,7 @@ interface UseRoomSyncProps {
   setRoomMode: (mode: string | null) => void;
   setError: (err: string | null) => void;
   setSpotifyToken: (token: string | null) => void;
+  setEnabledProviders: (providers: string[]) => void;
   updateMediaMetadata: (song: Song) => void;
   debugMode: boolean;
 }
@@ -36,6 +37,7 @@ export function useRoomSync({
   setRoomMode,
   setError,
   setSpotifyToken,
+  setEnabledProviders,
   updateMediaMetadata,
 }: UseRoomSyncProps) {
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
@@ -58,6 +60,7 @@ export function useRoomSync({
 
       // Fetch initial state
       const initialState = await Promise.all([
+        api.get('/rooms/{id}', { id: roomId }, { headers: authHeaders }),
         api.get('/rooms/{id}/songs', { id: roomId }, { headers: authHeaders }),
         api.get(
           '/rooms/{id}/states',
@@ -66,6 +69,7 @@ export function useRoomSync({
             headers: authHeaders,
           },
         ),
+        api.get('/providers', null, { headers: authHeaders }),
         api.get(
           '/tokens/{provider}',
           { provider: 'spotify' },
@@ -74,12 +78,19 @@ export function useRoomSync({
       ]);
       if (!isMounted) return;
 
-      const [queueRes, playbackRes, spotifyTokenRes] = initialState;
+      const [roomRes, queueRes, playbackRes, providersRes, spotifyTokenRes] =
+        initialState;
+      const [, room] = roomRes;
       const [songsErr, songs] = queueRes;
       const [playbackErr, playbackState] = playbackRes;
+      const [, providers] = providersRes;
       const [, spotifyToken] = spotifyTokenRes;
+      const enabledProviders = (providers ?? []).filter((provider) =>
+        room?.settings.enabledSources.includes(provider),
+      );
+      setEnabledProviders(enabledProviders);
 
-      if (spotifyToken) {
+      if (enabledProviders.includes('spotify') && spotifyToken) {
         setSpotifyToken(spotifyToken.accessToken);
       }
 
@@ -153,6 +164,11 @@ export function useRoomSync({
               break;
             case 'settings_update':
               setRoomMode(typedMessage.data.mode);
+              setEnabledProviders(
+                (providers ?? []).filter((provider) =>
+                  typedMessage.data.settings.enabledSources.includes(provider),
+                ),
+              );
               setRoomInfo((current) => ({
                 name: typedMessage.data.name,
                 participantCount: current?.participantCount ?? 0,
@@ -201,6 +217,7 @@ export function useRoomSync({
     updateMediaMetadata,
     setPlaybackState,
     setIsPlaying,
+    setEnabledProviders,
     casterId,
     castToken,
   ]);
