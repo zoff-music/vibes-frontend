@@ -105,6 +105,12 @@
   gap: 1rem;
 }
 
+.cast-queue-card,
+.cast-queue-thumbnail {
+  border-color: rgba(112, 72, 140, 0.25);
+  background-color: #1e1330;
+}
+
 @media (max-aspect-ratio: 4 / 3) {
   .cast-active-layout {
     flex-direction: column;
