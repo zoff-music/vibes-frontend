@@ -24,8 +24,8 @@ export const ActiveView: React.FC = () => {
         </div>
 
         <div className="cast-track-details-panel shrink-0 border-white/10 border-t bg-black/70 px-8 py-5">
-          <div className="flex items-end gap-6">
-            <div className="relative shrink-0">
+          <div className="cast-track-summary flex items-end gap-6">
+            <div className="cast-track-artwork relative shrink-0">
               <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-primary to-secondary opacity-30" />
               <img
                 src={resolveSongThumbnail(currentSong.thumbnailUrl)}
@@ -42,7 +42,7 @@ export const ActiveView: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex shrink-0 items-center justify-center pr-2">
+            <div className="cast-track-provider flex shrink-0 items-center justify-center pr-2">
               {currentSong.sourceType === 'spotify' && (
                 <SpotifyIcon className="h-8 w-8 text-white/50" />
               )}
@@ -56,7 +56,7 @@ export const ActiveView: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="cast-track-progress mt-4">
             <div className="mb-2 flex justify-between font-mono text-sm text-white/60">
               <span>
                 {Math.floor(actualPositionMs / 60000)}:
@@ -87,7 +87,7 @@ export const ActiveView: React.FC = () => {
       </div>
 
       <div className="cast-panel cast-side-panel flex h-full min-w-0 flex-1 flex-col rounded-frame p-7">
-        <div className="mb-5 flex items-center justify-between border-white/10 border-b pb-5">
+        <div className="cast-side-header mb-5 flex items-center justify-between gap-3 border-white/10 border-b pb-5">
           <h2 className="font-display text-sm text-theme-muted uppercase tracking-banner">
             Up Next ({upNext.length})
           </h2>
@@ -118,7 +118,7 @@ export const ActiveView: React.FC = () => {
             <p className="mt-3 truncate font-display text-2xl text-theme">
               {roomName}
             </p>
-            <p className="mt-2 text-sm text-theme-subtle">
+            <p className="cast-room-help mt-2 text-sm text-theme-subtle">
               Add songs and vote from your phone
             </p>
           </div>
