@@ -1,4 +1,5 @@
 import path from 'node:path';
+import postcssCascadeLayers from '@csstools/postcss-cascade-layers';
 import tailwindcss from '@tailwindcss/vite';
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
@@ -16,6 +17,11 @@ const plugins: PluginOption[] = [
 
 export default defineConfig({
   plugins,
+  css: {
+    postcss: {
+      plugins: [postcssCascadeLayers()],
+    },
+  },
   root: '.',
   publicDir: 'public',
   base: '/casting/receiver/',

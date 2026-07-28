@@ -39,7 +39,13 @@ interface YouTubePlayerRef {
   mute: () => void;
   unMute: () => void;
   isMuted: () => boolean;
+  setSize: (width: number, height: number) => void;
   setVolume: (volume: number) => void;
+}
+
+interface PlayerSize {
+  height: number;
+  width: number;
 }
 
 interface ObservedPlayback {
@@ -69,6 +75,7 @@ const VideoPlayerComponent = ({
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
 
   const playerRef = useRef<YouTubePlayerRef | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const lastVideoIdRef = useRef<string | null>(null);
   const lastLoadedVideoIdRef = useRef<string | null>(null);
   const pendingVideoIdRef = useRef<string | null>(null);
@@ -100,6 +107,7 @@ const VideoPlayerComponent = ({
   const [hasUserStartedPlayback, setHasUserStartedPlayback] = useState(false);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
   const [isMutedState, setIsMutedState] = useState(false);
+  const [castPlayerSize, setCastPlayerSize] = useState<PlayerSize | null>(null);
   const origin =
     typeof window === 'undefined' ? undefined : window.location.origin;
   const isCastReceiver = appContext === 'cast';
@@ -507,6 +515,7 @@ const VideoPlayerComponent = ({
 
       const [unmuteErr] = safeWrap(() => {
         player.unMute();
+        player.setVolume(MAX_VOLUME);
         setIsMutedState(false);
       });
       if (unmuteErr && DEBUG) {
@@ -607,8 +616,10 @@ const VideoPlayerComponent = ({
           playerRef.current?.mute();
           muted = true;
         }
-        if (isCastReceiver && muted) {
-          playerRef.current?.unMute?.();
+        if (isCastReceiver) {
+          playerRef.current?.unMute();
+          playerRef.current?.setVolume(MAX_VOLUME);
+          muted = false;
         }
         const resolvedMuted = isCastReceiver
           ? (playerRef.current?.isMuted?.() ?? false)
@@ -699,6 +710,48 @@ const VideoPlayerComponent = ({
   const youtubeVideoIdProp = initialVideoIdRef.current ?? resolvedVideoId;
 
   useEffect(() => {
+    if (!isCastReceiver || !fill || !resolvedVideoId) {
+      setCastPlayerSize(null);
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updatePlayerSize = () => {
+      const bounds = container.getBoundingClientRect();
+      const nextSize = {
+        height: Math.max(1, Math.round(bounds.height)),
+        width: Math.max(1, Math.round(bounds.width)),
+      };
+
+      setCastPlayerSize((currentSize) => {
+        if (
+          currentSize?.height === nextSize.height &&
+          currentSize.width === nextSize.width
+        ) {
+          return currentSize;
+        }
+        return nextSize;
+      });
+
+      const [err] = safeWrap(() => {
+        playerRef.current?.setSize(nextSize.width, nextSize.height);
+      });
+      if (err && DEBUG) {
+        debugLog('resize-error', { error: err.message, ...nextSize });
+      }
+    };
+
+    updatePlayerSize();
+
+    const resizeObserver = new ResizeObserver(updatePlayerSize);
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, [debugLog, fill, isCastReceiver, resolvedVideoId]);
+
+  useEffect(() => {
     if (!videoId) return;
     const player = playerRef.current;
     if (!player) return;
@@ -728,8 +781,8 @@ const VideoPlayerComponent = ({
   // All hooks must be called unconditionally, so define these before early return
   const opts: YouTubeProps['opts'] = useMemo(
     () => ({
-      height: '100%',
-      width: '100%',
+      height: castPlayerSize?.height ?? '100%',
+      width: castPlayerSize?.width ?? '100%',
       playerVars: {
         autoplay: 1,
         controls: isCastReceiver ? 0 : 1,
@@ -742,7 +795,7 @@ const VideoPlayerComponent = ({
         origin,
       },
     }),
-    [isCastReceiver, origin],
+    [castPlayerSize, isCastReceiver, origin],
   );
 
   const showClickToPlay =
@@ -795,13 +848,14 @@ const VideoPlayerComponent = ({
   // Main render logic always includes the container and CRT layers
   return (
     <div
+      ref={containerRef}
       className={classNames(
         containerClass,
         !isVisible && 'pointer-events-none opacity-0',
       )}
     >
       <div className="relative min-h-0 flex-1 bg-black">
-        {youtubeVideoIdProp && (
+        {youtubeVideoIdProp && (!isCastReceiver || castPlayerSize) && (
           <YouTube
             videoId={youtubeVideoIdProp}
             opts={opts}
