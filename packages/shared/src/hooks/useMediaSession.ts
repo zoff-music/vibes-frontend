@@ -1,5 +1,5 @@
 import type { Song } from '@vibes/models';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { safeWrap } from '../utils/wrap';
 
 interface UseMediaSessionProps {
@@ -21,6 +21,16 @@ export function useMediaSession({
   onPlay,
   onSkip,
 }: UseMediaSessionProps) {
+  const pauseRef = useRef(onPause);
+  const playRef = useRef(onPlay);
+  const skipRef = useRef(onSkip);
+
+  useEffect(() => {
+    pauseRef.current = onPause;
+    playRef.current = onPlay;
+    skipRef.current = onSkip;
+  }, [onPause, onPlay, onSkip]);
+
   useEffect(() => {
     if (!('mediaSession' in navigator)) {
       return;
@@ -54,18 +64,21 @@ export function useMediaSession({
     }
 
     safeWrap(() => {
-      navigator.mediaSession.setActionHandler('play', canPlay ? onPlay : null);
+      navigator.mediaSession.setActionHandler(
+        'play',
+        canPlay ? () => playRef.current() : null,
+      );
     });
     safeWrap(() => {
       navigator.mediaSession.setActionHandler(
         'pause',
-        canPlay ? onPause : null,
+        canPlay ? () => pauseRef.current() : null,
       );
     });
     safeWrap(() => {
       navigator.mediaSession.setActionHandler(
         'nexttrack',
-        canSkip ? onSkip : null,
+        canSkip ? () => skipRef.current() : null,
       );
     });
 
@@ -80,5 +93,5 @@ export function useMediaSession({
         navigator.mediaSession.setActionHandler('nexttrack', null);
       });
     };
-  }, [canPlay, canSkip, onPause, onPlay, onSkip]);
+  }, [canPlay, canSkip]);
 }

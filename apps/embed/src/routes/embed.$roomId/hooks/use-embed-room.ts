@@ -101,11 +101,7 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
 
   useMediaSession({
     canPlay: loaderData.options.player && Boolean(currentSong),
-    canSkip:
-      loaderData.options.skip &&
-      Boolean(currentSong) &&
-      room.mode !== 'host' &&
-      room.settings.skipAllowed,
+    canSkip: loaderData.options.skip && Boolean(currentSong),
     currentSong,
     isPlaying,
     onPause: handlePause,

@@ -266,7 +266,7 @@ export const RoomPlayer = React.memo(
     useMediaSession({
       canPlay:
         canControlRoomPlayback && Boolean(currentSong || songs.length > 0),
-      canSkip: canControlRoomPlayback && Boolean(currentSong),
+      canSkip: Boolean(currentSong),
       currentSong,
       isPlaying: isPlaying && !isPlaybackBlocked,
       onPause: pause,
