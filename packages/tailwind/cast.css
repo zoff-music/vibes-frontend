@@ -111,26 +111,49 @@
   background-color: #1e1330;
 }
 
-@media (max-aspect-ratio: 4 / 3) {
+.cast-queue-viewport {
+  --cast-queue-track-height: 96px;
+  --cast-queue-track-gap: 12px;
+}
+
+.cast-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cast-queue-track-gap);
+}
+
+.cast-queue-card {
+  height: var(--cast-queue-track-height);
+}
+
+@media (max-width: 1100px), (max-aspect-ratio: 4 / 3) {
   .cast-active-layout {
     flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem;
   }
 
   .cast-player-panel {
     width: 100%;
-    height: 48%;
+    height: auto;
+    min-height: 0;
+    flex: 11 1 0;
   }
 
   .cast-side-panel {
     width: 100%;
-    height: 52%;
-    padding: 1rem;
+    height: auto;
+    min-height: 0;
+    flex: 9 1 0;
+    padding: 0.75rem;
   }
 
   .cast-track-details-panel {
     padding: 0.75rem 1.25rem;
+  }
+
+  .cast-track-summary {
+    gap: 0.75rem;
   }
 
   .cast-track-thumbnail {
@@ -148,8 +171,29 @@
   }
 
   .cast-listener-badge {
+    flex-shrink: 0;
     padding: 0.375rem 0.75rem;
     font-size: 0.75rem;
+  }
+
+  .cast-side-header {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .cast-queue-viewport {
+    --cast-queue-track-height: 72px;
+    --cast-queue-track-gap: 8px;
+  }
+
+  .cast-queue-card {
+    gap: 0.75rem;
+    padding-inline: 0.75rem;
+  }
+
+  .cast-queue-thumbnail {
+    width: 3rem;
+    height: 3rem;
   }
 
   .cast-room-card {
@@ -162,5 +206,127 @@
   .cast-join-code {
     width: 4.5rem;
     height: 4.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .cast-active-layout {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .cast-player-panel {
+    flex-grow: 6;
+  }
+
+  .cast-side-panel {
+    flex-grow: 5;
+    padding: 0.625rem;
+  }
+
+  .cast-track-details-panel {
+    padding: 0.625rem 0.875rem;
+  }
+
+  .cast-track-thumbnail {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .cast-track-title {
+    font-size: 1rem;
+  }
+
+  .cast-track-artist {
+    font-size: 0.75rem;
+  }
+
+  .cast-track-provider {
+    padding-right: 0;
+  }
+
+  .cast-track-provider svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .cast-track-progress {
+    margin-top: 0.625rem;
+  }
+
+  .cast-side-header {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .cast-queue-viewport {
+    --cast-queue-track-height: 64px;
+    --cast-queue-track-gap: 6px;
+  }
+
+  .cast-queue-card {
+    gap: 0.5rem;
+    padding-inline: 0.5rem;
+  }
+
+  .cast-queue-thumbnail {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .cast-listener-badge {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .cast-room-card {
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .cast-join-code {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .cast-room-help {
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) and (max-height: 560px) {
+  .cast-player-panel {
+    flex-grow: 3;
+  }
+
+  .cast-side-panel {
+    flex-grow: 2;
+  }
+
+  .cast-track-artwork {
+    display: none;
+  }
+
+  .cast-track-details-panel {
+    padding-block: 0.5rem;
+  }
+
+  .cast-track-progress {
+    margin-top: 0.5rem;
+  }
+
+  .cast-room-help {
+    display: none;
+  }
+
+  .cast-join-code {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+}
+
+@media (max-width: 1100px) and (max-height: 400px) {
+  .cast-room-card {
+    display: none;
   }
 }

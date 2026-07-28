@@ -16,11 +16,16 @@ export function CastQueue({ songs }: Props) {
 
     const updateVisibleCount = () => {
       const height = viewport.getBoundingClientRect().height;
+      const styles = window.getComputedStyle(viewport);
+      const trackHeight =
+        Number.parseFloat(
+          styles.getPropertyValue('--cast-queue-track-height'),
+        ) || TRACK_HEIGHT;
+      const trackGap =
+        Number.parseFloat(styles.getPropertyValue('--cast-queue-track-gap')) ||
+        TRACK_GAP;
       setVisibleCount(
-        Math.max(
-          0,
-          Math.floor((height + TRACK_GAP) / (TRACK_HEIGHT + TRACK_GAP)),
-        ),
+        Math.max(0, Math.floor((height + trackGap) / (trackHeight + trackGap))),
       );
     };
 
@@ -34,18 +39,21 @@ export function CastQueue({ songs }: Props) {
   const visibleSongs = songs.slice(0, visibleCount);
 
   return (
-    <div ref={viewportRef} className="min-h-0 flex-1 overflow-hidden">
+    <div
+      ref={viewportRef}
+      className="cast-queue-viewport min-h-0 flex-1 overflow-hidden"
+    >
       {songs.length === 0 && (
         <div className="flex h-full items-center justify-center rounded-2xl border border-theme bg-black/20 text-center text-theme-muted">
           The queue is empty
         </div>
       )}
       {visibleSongs.length > 0 && (
-        <div className="space-y-3">
+        <div className="cast-queue-list">
           {visibleSongs.map((song, index) => (
             <div
               key={song.id}
-              className="cast-queue-card flex h-24 items-center gap-4 rounded-2xl border px-4"
+              className="cast-queue-card flex items-center gap-4 rounded-2xl border px-4"
             >
               <span className="w-7 shrink-0 text-center text-theme-subtle text-xs">
                 {index + 1}
