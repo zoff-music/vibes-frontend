@@ -27,6 +27,7 @@ export function RoomGenerationMenu({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const isAboveSongLimit = songCount > roomGenerationMaxExistingSongs;
+  const songCountCutoff = roomGenerationMaxExistingSongs + 1;
   const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
   const isDisabled =
     !hasGenerationPermission ||
@@ -39,7 +40,7 @@ export function RoomGenerationMenu({
     description = 'Log in as admin to fill this playlist';
   }
   if (hasGenerationPermission && isAboveSongLimit) {
-    description = `Only available when the room has ${roomGenerationMaxExistingSongs} songs or fewer`;
+    description = `Unavailable when the room has ${songCountCutoff} songs or more`;
   }
   if (hasGenerationPermission && !isAboveSongLimit && isGenerating) {
     description = 'A playlist is already being generated';
