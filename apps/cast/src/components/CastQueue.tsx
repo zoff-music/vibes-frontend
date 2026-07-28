@@ -45,7 +45,7 @@ export function CastQueue({ songs }: Props) {
           {visibleSongs.map((song, index) => (
             <div
               key={song.id}
-              className="flex h-24 items-center gap-4 rounded-2xl border border-theme bg-black/20 px-4"
+              className="flex h-24 items-center gap-4 rounded-2xl border border-white/10 bg-black/20 px-4"
             >
               <span className="w-7 shrink-0 text-center text-theme-subtle text-xs">
                 {index + 1}

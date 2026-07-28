@@ -158,9 +158,3 @@
     height: 4.5rem;
   }
 }
-
-@media (max-width: 64rem) {
-  .cast-queue-track-details {
-    display: none;
-  }
-}
