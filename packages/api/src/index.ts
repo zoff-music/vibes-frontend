@@ -25,6 +25,7 @@ import {
   connectedSchema,
   createCastingTokenRequestSchema,
   createRoomRequestSchema,
+  createRoomResponseSchema,
   createSessionRequestSchema,
   emptyObjectSchema,
   generatedPlaylistRequestSchema,
@@ -149,7 +150,7 @@ const endpoints = {
   '/rooms': {
     post: {
       request: createRoomRequestSchema,
-      response: roomSchema,
+      response: createRoomResponseSchema,
     },
   },
   '/rooms/suggestions': {

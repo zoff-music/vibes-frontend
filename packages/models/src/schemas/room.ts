@@ -70,6 +70,11 @@ export const createRoomRequestSchema = yup.object({
 });
 export type CreateRoomRequest = yup.InferType<typeof createRoomRequestSchema>;
 
+export const createRoomResponseSchema = yup.object({
+  id: yup.string().required(),
+});
+export type CreateRoomResponse = yup.InferType<typeof createRoomResponseSchema>;
+
 export const roomUpdateSchema = yup.object({
   name: yup.string().optional(),
   mode: yup.string().oneOf(['server', 'host']).optional(),
