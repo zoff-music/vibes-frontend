@@ -64,15 +64,18 @@ export function EmbedRoomView({ loaderData }: Props) {
     <main className="h-dvh overflow-hidden bg-theme text-theme">
       <section className="panel-strong flex h-full w-full flex-col overflow-hidden">
         <EmbedRoomHeader
+          canControlPlayback={Boolean(currentSong)}
           canSkip={canSkip}
           isPlaying={isPlaying}
-          showPlaybackControls={Boolean(currentSong)}
+          showPlaybackControls={options.player}
           onPlayPause={handlePlayPause}
           onReset={handleReset}
           onSkip={handleSkip}
           room={room}
           roomId={roomId}
-          showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
+          showReset={
+            options.player && Boolean(currentSong) && hasLocalPlaybackChanges
+          }
           showSkip={options.skip}
         />
 
