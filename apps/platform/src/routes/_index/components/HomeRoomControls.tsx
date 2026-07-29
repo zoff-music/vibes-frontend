@@ -1,6 +1,6 @@
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { Button } from '@vibes/ui';
+import { Button, Tooltip } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { PublicRoomDiscovery } from './PublicRoomDiscovery';
@@ -100,13 +100,14 @@ function ModeButton({
   label,
   onClick,
 }: ModeButtonProps) {
-  return (
+  const button = (
     <Button
       aria-pressed={active}
       className={classNames(
-        'relative rounded-xl px-3 py-2 font-pixel text-3xs',
+        'relative w-full rounded-xl px-3 py-2 font-pixel text-3xs',
         active && 'text-secondary',
         !active && 'text-theme-subtle',
+        disabled && 'pointer-events-none',
       )}
       disabled={disabled}
       onClick={onClick}
@@ -125,5 +126,20 @@ function ModeButton({
       )}
       <span className="relative z-10">{label}</span>
     </Button>
+  );
+
+  if (!disabled) {
+    return button;
+  }
+
+  return (
+    <Tooltip
+      align="end"
+      className="block"
+      content="No public rooms have active listeners right now"
+      side="bottom"
+    >
+      {button}
+    </Tooltip>
   );
 }
