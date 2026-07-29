@@ -58,7 +58,7 @@ export function HomeRoomControls({
         />
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={mode}
           animate={{ opacity: 1, x: 0 }}
