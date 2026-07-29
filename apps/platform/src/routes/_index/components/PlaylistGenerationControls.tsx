@@ -1,6 +1,6 @@
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { AlertCircleIcon, Button, SparklesIcon } from '@vibes/ui';
+import { AlertCircleIcon, Button, SparklesIcon, Tooltip } from '@vibes/ui';
 import {
   type ChangeEvent,
   type KeyboardEvent,
@@ -120,18 +120,24 @@ export function PlaylistGenerationControls({
             maxLength={generatedPlaylistPromptMaxLength}
             disabled={isGenerating}
           />
-          <Button
-            onClick={onToggleAIMode}
-            variant="tertiary-active"
-            size="icon"
-            aria-label="Toggle AI playlist generation"
-            aria-pressed
-            title="Generate a music room with AI"
-            disabled={isGenerating}
-            className="absolute top-1/2 right-2 -translate-y-1/2"
-          >
-            <SparklesIcon className="h-5 w-5" />
-          </Button>
+          <span className="absolute top-1/2 right-2 -translate-y-1/2">
+            <Tooltip
+              align="end"
+              className="inline-flex"
+              content="Use a room name instead"
+            >
+              <Button
+                aria-label="Toggle AI playlist generation"
+                aria-pressed
+                disabled={isGenerating}
+                onClick={onToggleAIMode}
+                size="icon"
+                variant="tertiary-active"
+              >
+                <SparklesIcon className="h-5 w-5" />
+              </Button>
+            </Tooltip>
+          </span>
         </div>
         <div className="mt-3 flex justify-between gap-4 text-theme-subtle text-xs">
           <span aria-live="polite">

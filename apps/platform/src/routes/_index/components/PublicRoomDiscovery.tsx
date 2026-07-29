@@ -1,4 +1,5 @@
 import type { PublicRoom } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import { Button } from '@vibes/ui';
 import { motion } from 'framer-motion';
 import type { MouseEvent } from 'react';
@@ -25,7 +26,13 @@ export function PublicRoomDiscovery({
         </span>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div
+        className={classNames(
+          'grid gap-2',
+          rooms.length === 2 && 'sm:grid-cols-2',
+          rooms.length >= 3 && 'sm:grid-cols-3',
+        )}
+      >
         {rooms.map((room, index) => (
           <motion.div
             key={room.id}
