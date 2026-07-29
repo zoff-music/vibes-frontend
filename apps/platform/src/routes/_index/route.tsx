@@ -1,6 +1,6 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
 import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
-import { motion, type Variants } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
 import { SiteFooter } from '../../components/legal/SiteFooter';
@@ -8,10 +8,11 @@ import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
 import { clientAction } from './action';
+import { HomeRoomControls } from './components/HomeRoomControls';
+import { JoiningRoomState } from './components/JoiningRoomState';
 import { LegalAcknowledgement } from './components/LegalAcknowledgement';
 import { PlaylistGenerationControls } from './components/PlaylistGenerationControls';
 import { ProviderAttribution } from './components/ProviderAttribution';
-import { RoomJoinControls } from './components/RoomJoinControls';
 import { loader } from './loader';
 
 export { clientAction, loader };
@@ -66,7 +67,8 @@ const AI_PROMPTS = [
 ];
 
 export default function Home() {
-  const { providers, totalListeners } = useLoaderData<typeof loader>();
+  const { providers, publicRooms, totalListeners } =
+    useLoaderData<typeof loader>();
   const [roomCode, setRoomCode] = useState('');
   const [placeholderText, setPlaceholderText] = useState('');
   const [wordIndex, setWordIndex] = useState(0);
@@ -141,15 +143,12 @@ export default function Home() {
     return () => window.clearInterval(interval);
   }, [isPaused, isTabVisible]);
 
-  const handleJoinRoom = () => {
-    if (!roomCode.trim()) return;
-    const slug = roomCode.trim().toLowerCase().replace(/\s+/g, '-');
+  const handleJoinRoom = (selectedRoomId?: string) => {
+    const requestedRoomId = selectedRoomId ?? roomCode;
+    if (!requestedRoomId.trim()) return;
+    const slug = requestedRoomId.trim().toLowerCase().replace(/\s+/g, '-');
     setPendingRoomSlug(slug);
-  };
-
-  const handleRoomExitComplete = () => {
-    if (!pendingRoomSlug) return;
-    navigate(`/${pendingRoomSlug}`, { viewTransition: true });
+    navigate(`/${slug}`, { viewTransition: true });
   };
 
   const handleToggleAIMode = () => {
@@ -165,19 +164,15 @@ export default function Home() {
     setRoomCode(value);
   };
 
-  const homeAnimationState = pendingRoomSlug ? 'exit' : 'visible';
-
   return (
     <motion.div
-      animate={homeAnimationState}
+      animate={{ opacity: 1 }}
       className={classNames(
         'home-entry relative flex min-h-dvh w-full flex-col items-center overflow-x-hidden',
         shouldFadeIn && 'animate-fade-in',
         pendingRoomSlug && 'pointer-events-none',
       )}
-      initial="visible"
-      onAnimationComplete={handleRoomExitComplete}
-      variants={homeMotionVariants}
+      initial={{ opacity: 1 }}
     >
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6 sm:py-10">
         <div className="crt-frame relative w-full max-w-3xl rounded-frame p-6 sm:p-10">
@@ -217,12 +212,13 @@ export default function Home() {
           </div>
 
           {!isAIMode && (
-            <RoomJoinControls
+            <HomeRoomControls
               onJoinRoom={handleJoinRoom}
               onRoomCodeChange={handleRoomCodeChange}
               onToggleAIMode={handleToggleAIMode}
               placeholder={placeholder}
               roomCode={roomCode}
+              rooms={publicRooms}
             />
           )}
           {isAIMode && (
@@ -238,25 +234,12 @@ export default function Home() {
         </div>
       </div>
       <SiteFooter />
+      <AnimatePresence>
+        {pendingRoomSlug && <JoiningRoomState roomId={pendingRoomSlug} />}
+      </AnimatePresence>
     </motion.div>
   );
 }
-
-const homeMotionVariants: Variants = {
-  exit: {
-    filter: 'blur(5px)',
-    opacity: 0,
-    scale: 0.985,
-    transition: { duration: 0.18, ease: 'easeIn' },
-    y: -8,
-  },
-  visible: {
-    filter: 'blur(0px)',
-    opacity: 1,
-    scale: 1,
-    y: 0,
-  },
-};
 
 const RESERVED_TOP_LEVEL_PATHS = new Set([
   'callback',

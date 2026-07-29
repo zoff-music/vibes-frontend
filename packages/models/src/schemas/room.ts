@@ -10,6 +10,7 @@ export const roomSettingsSchema = yup.object({
   allowDuplicates: yup.boolean().required(),
   enabledSources: yup.array(yup.string().required()).required(),
   onlyAdminAddSongs: yup.boolean().optional(),
+  public: yup.boolean().required(),
 });
 export type RoomSettings = yup.InferType<typeof roomSettingsSchema>;
 
@@ -81,3 +82,13 @@ export const roomUpdateSchema = yup.object({
   settings: roomSettingsSchema.partial().optional(),
 });
 export type RoomUpdate = yup.InferType<typeof roomUpdateSchema>;
+
+export const publicRoomSchema = yup.object({
+  id: yup.string().required(),
+  name: yup.string().required(),
+  listenerCount: yup.number().integer().min(1).required(),
+  songCount: yup.number().integer().min(0).required(),
+});
+export type PublicRoom = yup.InferType<typeof publicRoomSchema>;
+
+export const publicRoomsSchema = yup.array(publicRoomSchema).required();

@@ -34,6 +34,7 @@ import {
   providersSchema,
   providerTokenSchema,
   providerURLQuerySchema,
+  publicRoomsSchema,
   roomActionRequestSchema,
   roomGenerationUpdateSchema,
   roomHostUpdateSchema,
@@ -156,6 +157,11 @@ const endpoints = {
   '/rooms/suggestions': {
     get: {
       response: roomNameReservationSchema,
+    },
+  },
+  '/rooms/public': {
+    get: {
+      response: publicRoomsSchema,
     },
   },
   '/rooms/reservations': {
