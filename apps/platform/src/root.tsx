@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react';
-import type { LoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs, MetaFunction } from 'react-router';
 import {
   Links,
   Meta,
@@ -14,6 +14,14 @@ import { getThemeFromCookies } from './ssr/theme.server';
 interface RootContext {
   cspNonce?: string;
 }
+
+export const meta: MetaFunction = () => [
+  { title: 'ゾフ - Shared Music Queue' },
+  {
+    name: 'description',
+    content: 'Shared music rooms, made for listening together.',
+  },
+];
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get('cookie') ?? null;
@@ -61,7 +69,6 @@ export function Layout({ children }: Props) {
           href="/apple-touch-icon.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
-        <title>ゾフ - Shared Music Queue</title>
         <script defer src="/plausible-init.js" />
         <script
           defer

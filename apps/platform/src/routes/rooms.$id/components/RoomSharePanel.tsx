@@ -1,5 +1,5 @@
 import { safeWrapAsync } from '@vibes/shared';
-import { Button } from '@vibes/ui';
+import { Button, ShareIcon } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
 import { useRouteLoaderData } from 'react-router';
 import type { RootLoaderData } from '../../../root';
@@ -8,10 +8,10 @@ import { EmbedSharePanel } from './EmbedSharePanel';
 interface Props {
   url: string;
   roomId: string;
-  onCopy: () => void;
+  onShare: () => void;
 }
 
-export const RoomSharePanel = ({ url, roomId, onCopy }: Props) => {
+export const RoomSharePanel = ({ url, roomId, onShare }: Props) => {
   const rootLoaderData = useRouteLoaderData('root') as
     | RootLoaderData
     | undefined;
@@ -54,23 +54,14 @@ export const RoomSharePanel = ({ url, roomId, onCopy }: Props) => {
           </div>
         </div>
 
-        <div>
-          <p className="mb-2 font-display text-2xs text-theme-muted tracking-display">
-            Invite Link
-          </p>
-          <div className="flex items-center gap-2 rounded-xl border border-theme bg-theme-surface p-2">
-            <p className="flex-1 truncate text-left font-mono text-2xs text-theme-muted">
-              {url}
-            </p>
-            <Button
-              onClick={onCopy}
-              variant="tertiary"
-              className="px-3 py-1.5 text-2xs"
-            >
-              Copy
-            </Button>
-          </div>
-        </div>
+        <Button
+          onClick={onShare}
+          variant="secondary"
+          className="w-full gap-2 font-pixel text-xs"
+        >
+          <ShareIcon className="h-4 w-4" />
+          Share Room
+        </Button>
 
         <EmbedSharePanel
           url={url}
