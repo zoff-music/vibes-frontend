@@ -25,17 +25,33 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
   const [hasLocalPlayerInteraction, setHasLocalPlayerInteraction] =
     useState(false);
+  const [hydratedRoomId, setHydratedRoomId] = useState<string | null>(null);
   const interactionRoomIDRef = useRef(loaderData.roomId);
   const spotifyTokenRequestedRef = useRef(false);
-  const room = useRoomStore((state) => state.room) ?? loaderData.room;
-  const roomModeRef = useRef(room.mode);
-  const songs = useQueueStore((state) => state.songs);
-  const currentSong = usePlaybackStore((state) => state.currentSong);
-  const isPlaying = usePlaybackStore((state) => state.isPlaying);
-  const hasLocalPlaybackChanges = usePlaybackStore(
+  const storedRoom = useRoomStore((state) => state.room);
+  const storedSongs = useQueueStore((state) => state.songs);
+  const storedCurrentSong = usePlaybackStore((state) => state.currentSong);
+  const storedIsPlaying = usePlaybackStore((state) => state.isPlaying);
+  const storedHasLocalPlaybackChanges = usePlaybackStore(
     (state) => state.hasLocalPlaybackChanges,
   );
-  const positionMs = usePlaybackStore((state) => state.actualPositionMs);
+  const storedPositionMs = usePlaybackStore((state) => state.actualPositionMs);
+  const isRoomHydrated = hydratedRoomId === loaderData.roomId;
+  const room = isRoomHydrated && storedRoom ? storedRoom : loaderData.room;
+  const songs = isRoomHydrated ? storedSongs : loaderData.songs;
+  const currentSong = isRoomHydrated
+    ? storedCurrentSong
+    : (loaderData.playback?.currentSong ?? null);
+  const isPlaying = isRoomHydrated
+    ? storedIsPlaying
+    : (loaderData.playback?.isPlaying ?? false);
+  const hasLocalPlaybackChanges = isRoomHydrated
+    ? storedHasLocalPlaybackChanges
+    : false;
+  const positionMs = isRoomHydrated
+    ? storedPositionMs
+    : (loaderData.playback?.positionMs ?? 0);
+  const roomModeRef = useRef(room.mode);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
@@ -140,6 +156,7 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     if (loaderData.playback) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
+    setHydratedRoomId(loaderData.roomId);
   }, [loaderData, setPlaybackState, setRoom, setSongs]);
 
   useEffect(() => {
