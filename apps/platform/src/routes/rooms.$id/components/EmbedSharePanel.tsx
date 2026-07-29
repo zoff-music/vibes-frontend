@@ -66,7 +66,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
   return (
     <>
       <div className="hidden sm:block">
-        <Button onClick={handleOpen} variant="primary">
+        <Button className="w-full" onClick={handleOpen} variant="primary">
           Embed player
         </Button>
       </div>
