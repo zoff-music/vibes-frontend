@@ -36,8 +36,8 @@ export function PublicRoomDiscovery({
         {rooms.map((room, index) => (
           <motion.div
             key={room.id}
-            animate={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: -8 }}
             transition={{ delay: index * 0.05, duration: 0.18 }}
           >
             <Button
