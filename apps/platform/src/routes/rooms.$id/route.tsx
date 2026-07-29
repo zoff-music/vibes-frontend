@@ -128,7 +128,6 @@ export default function Room() {
   const sharePanelRef = useRef<HTMLDivElement | null>(null);
   const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
   const settingsMenuRef = useRef<HTMLDivElement | null>(null);
-  const originalTitleRef = useRef<string | null>(null);
 
   const { toggleDarkMode } = useThemeStore();
   const room = useRoomStore((state) => state.room);
@@ -139,7 +138,6 @@ export default function Room() {
   const songs = useQueueStore((state) => state.songs);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
-  const currentSongId = usePlaybackStore((state) => state.currentSong?.id);
   const currentSong = usePlaybackStore((state) => state.currentSong);
 
   const [isSSR, setIsSSR] = useState(true);
@@ -384,20 +382,8 @@ export default function Room() {
   }, []);
 
   useEffect(() => {
-    if (!originalTitleRef.current) {
-      originalTitleRef.current = document.title;
-    }
-    const currentSong = usePlaybackStore.getState().currentSong;
-    document.title = currentSong?.title
-      ? `${currentSong.title} · ${displayRoom.name}`
-      : originalTitleRef.current;
-
-    return () => {
-      if (originalTitleRef.current) {
-        document.title = originalTitleRef.current;
-      }
-    };
-  }, [currentSongId, displayRoom.name]);
+    document.title = createRoomShareTitle(displayRoom.name, currentSong);
+  }, [currentSong, displayRoom.name]);
 
   useEffect(() => {
     const handleSongAdded = (event: Event) => {
