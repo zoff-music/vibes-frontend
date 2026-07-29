@@ -46,6 +46,13 @@ export async function clientAction({
   }
 
   const password = String(formData.get('password') ?? '');
+  const isPublic = readBoolean(formData, 'public');
+  if (isPublic && !password) {
+    return {
+      error: 'Add an admin password before making this room public.',
+    };
+  }
+
   const reservationToken = String(
     formData.get('reservationToken') ?? '',
   ).trim();
@@ -63,6 +70,7 @@ export async function clientAction({
       allowDuplicates: readBoolean(formData, 'allowDuplicates'),
       enabledSources: readEnabledSources(formData),
       onlyAdminAddSongs: readBoolean(formData, 'onlyAdminAddSongs'),
+      public: isPublic,
     },
   });
   if (err || !room) {

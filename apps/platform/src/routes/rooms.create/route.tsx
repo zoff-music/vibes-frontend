@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS = {
   allowDuplicates: false,
   enabledSources: ['youtube', 'spotify', 'soundcloud'],
   onlyAdminAddSongs: false,
+  public: false,
 };
 
 type RoomNameAvailabilityState =
@@ -116,13 +117,6 @@ const CreateRoom: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [wobblePassword]);
-
-  // Auto-disable "Only Admin Add" if password is cleared
-  useEffect(() => {
-    if (!password && settings.onlyAdminAddSongs) {
-      updateSetting('onlyAdminAddSongs', false);
-    }
-  }, [password, settings.onlyAdminAddSongs]);
 
   // Handle hydration
   useEffect(() => {
@@ -373,6 +367,32 @@ const CreateRoom: React.FC = () => {
     updateSetting('enabledSources', enabledSources);
   };
 
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextPassword = event.target.value;
+    setPassword(nextPassword);
+    if (nextPassword) {
+      return;
+    }
+
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      onlyAdminAddSongs: false,
+      public: false,
+    }));
+  };
+
+  const handlePublicRoomChange = (checked: boolean) => {
+    if (!password) {
+      return;
+    }
+
+    updateSetting('public', checked);
+  };
+
+  const publicRoomDescription = password
+    ? 'Show under Live now while listeners are active'
+    : 'Add an admin password to make this room public';
+
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-start overflow-hidden">
       <createFetcher.Form
@@ -510,7 +530,7 @@ const CreateRoom: React.FC = () => {
                   type="password"
                   placeholder="For room control"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   className={`w-full rounded-2xl border bg-theme-surface px-4 py-4 text-base text-theme placeholder:text-theme-subtle focus:outline-hidden focus:ring-2 ${wobblePassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500/30' : 'border-theme focus:border-primary focus:ring-primary/30'}`}
                 />
                 <p
@@ -679,6 +699,20 @@ const CreateRoom: React.FC = () => {
                     }}
                   />
                 </div>
+              </div>
+
+              <div className="panel-surface rounded-3xl p-4 sm:p-6">
+                <h2 className="mb-6 font-pixel text-caption text-theme-muted tracking-banner">
+                  VISIBILITY
+                </h2>
+                <Toggle
+                  name="public"
+                  label="PUBLIC ROOM"
+                  description={publicRoomDescription}
+                  disabled={!password}
+                  checked={settings.public}
+                  onChange={handlePublicRoomChange}
+                />
               </div>
             </div>
           </div>
