@@ -23,6 +23,7 @@ export function RoomJoinControls({
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
+      event.preventDefault();
       onJoinRoom();
     }
   };

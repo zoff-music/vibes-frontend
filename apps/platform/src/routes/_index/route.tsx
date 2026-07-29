@@ -1,5 +1,6 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
 import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
+import { motion, type Variants } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
 import { SiteFooter } from '../../components/legal/SiteFooter';
@@ -73,6 +74,7 @@ export default function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
   const [isAIMode, setIsAIMode] = useState(false);
+  const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -142,7 +144,12 @@ export default function Home() {
   const handleJoinRoom = () => {
     if (!roomCode.trim()) return;
     const slug = roomCode.trim().toLowerCase().replace(/\s+/g, '-');
-    navigate(`/${slug}`, { viewTransition: true });
+    setPendingRoomSlug(slug);
+  };
+
+  const handleRoomExitComplete = () => {
+    if (!pendingRoomSlug) return;
+    navigate(`/${pendingRoomSlug}`, { viewTransition: true });
   };
 
   const handleToggleAIMode = () => {
@@ -158,12 +165,19 @@ export default function Home() {
     setRoomCode(value);
   };
 
+  const homeAnimationState = pendingRoomSlug ? 'exit' : 'visible';
+
   return (
-    <div
+    <motion.div
+      animate={homeAnimationState}
       className={classNames(
-        'relative flex min-h-dvh w-full flex-col items-center overflow-x-hidden',
+        'home-entry relative flex min-h-dvh w-full flex-col items-center overflow-x-hidden',
         shouldFadeIn && 'animate-fade-in',
+        pendingRoomSlug && 'pointer-events-none',
       )}
+      initial="visible"
+      onAnimationComplete={handleRoomExitComplete}
+      variants={homeMotionVariants}
     >
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6 sm:py-10">
         <div className="crt-frame relative w-full max-w-3xl rounded-frame p-6 sm:p-10">
@@ -224,9 +238,25 @@ export default function Home() {
         </div>
       </div>
       <SiteFooter />
-    </div>
+    </motion.div>
   );
 }
+
+const homeMotionVariants: Variants = {
+  exit: {
+    filter: 'blur(5px)',
+    opacity: 0,
+    scale: 0.985,
+    transition: { duration: 0.18, ease: 'easeIn' },
+    y: -8,
+  },
+  visible: {
+    filter: 'blur(0px)',
+    opacity: 1,
+    scale: 1,
+    y: 0,
+  },
+};
 
 const RESERVED_TOP_LEVEL_PATHS = new Set([
   'callback',

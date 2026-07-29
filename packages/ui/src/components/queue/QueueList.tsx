@@ -41,7 +41,7 @@ const QueueListComponent: React.FC<Props> = ({
   const queueSongs = songs; // All songs are now in the queue (no position-based filtering)
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <AnimatePresence initial={false} mode="popLayout">
         {queueSongs.map((song, index) => (
           <motion.div
