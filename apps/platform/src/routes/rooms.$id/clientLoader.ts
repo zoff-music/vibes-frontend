@@ -3,6 +3,7 @@ import type { PlaybackState } from '@vibes/shared';
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import { redirect } from 'react-router';
 import type { RoomLoaderData } from './loader';
+import { createRoomPageUrl } from './share';
 
 export async function clientLoader({
   request,
@@ -30,6 +31,7 @@ export async function clientLoader({
   }
 
   return {
+    pageUrl: createRoomPageUrl(request.url, roomId),
     playback: (playback || undefined) as PlaybackState | undefined,
     providers: providers ?? [],
     room,

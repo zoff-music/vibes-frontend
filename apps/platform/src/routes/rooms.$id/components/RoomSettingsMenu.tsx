@@ -22,13 +22,10 @@ import {
   useState,
 } from 'react';
 import type { Theme } from '../../../stores/themeStore';
-import { RoomSharePanel } from './RoomSharePanel';
 
 interface RoomSettingsMenuProps {
   showSettings: boolean;
   onClose: () => void;
-  showShare: boolean;
-  onToggleShare: () => void;
   themeId: string;
   currentTheme: Theme;
   onToggleDarkMode: () => void;
@@ -41,9 +38,7 @@ interface RoomSettingsMenuProps {
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
-  shareUrl: string;
-  onCopyShareLink: () => void;
-  roomId?: string;
+  onShareRoom: () => void;
   settingsMenuRef?: RefObject<HTMLDivElement | null>;
   providers: string[];
 }
@@ -51,8 +46,6 @@ interface RoomSettingsMenuProps {
 export const RoomSettingsMenu = ({
   showSettings,
   onClose,
-  showShare,
-  onToggleShare,
   themeId,
   currentTheme,
   onToggleDarkMode,
@@ -65,9 +58,7 @@ export const RoomSettingsMenu = ({
   onAdminPasswordChange,
   onJoinAdmin,
   isAuthenticating,
-  shareUrl,
-  onCopyShareLink,
-  roomId,
+  onShareRoom,
   settingsMenuRef,
   providers,
 }: RoomSettingsMenuProps) => {
@@ -238,8 +229,8 @@ export const RoomSettingsMenu = ({
             <div className="space-y-3 sm:hidden">
               <div className="flex items-center gap-3">
                 <Button
-                  onClick={onToggleShare}
-                  variant={showShare ? 'tertiary-active' : 'tertiary'}
+                  onClick={onShareRoom}
+                  variant="tertiary"
                   className="flex-1 gap-2 font-pixel text-xs"
                   title="Share Room"
                 >
@@ -263,16 +254,6 @@ export const RoomSettingsMenu = ({
                   {currentTheme.name}
                 </Button>
               </div>
-
-              {showShare && (
-                <div className="rounded-2xl border border-theme bg-theme-surface p-4">
-                  <RoomSharePanel
-                    url={shareUrl}
-                    roomId={roomId || ''}
-                    onCopy={onCopyShareLink}
-                  />
-                </div>
-              )}
             </div>
 
             <h4 className="border-theme border-b pb-2 font-pixel text-2xs text-theme-muted tracking-label">

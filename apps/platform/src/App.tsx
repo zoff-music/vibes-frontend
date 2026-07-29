@@ -1,10 +1,16 @@
 import { isTruthyFlag, safeWrapAsync } from '@vibes/shared';
 import { ToastViewport } from '@vibes/ui';
 import { MotionConfig } from 'framer-motion';
-import { type ComponentType, useEffect, useState } from 'react';
+import {
+  type ComponentType,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import { Outlet, useLocation } from 'react-router';
 
 import { Background } from './components/layout/Background';
+import { useThemeStore } from './stores/themeStore';
 import { updateNavigationHistory } from './utils/navigationHistory';
 
 const debugEnabled = isTruthyFlag(import.meta.env.VITE_DEBUG);
@@ -47,6 +53,11 @@ function DebugConsoleLoader() {
 
 export function App() {
   const location = useLocation();
+  const syncTheme = useThemeStore((state) => state.syncTheme);
+
+  useLayoutEffect(() => {
+    syncTheme();
+  }, [syncTheme]);
 
   useEffect(() => {
     updateNavigationHistory(location.pathname);

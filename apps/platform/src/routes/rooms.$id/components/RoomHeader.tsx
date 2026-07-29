@@ -70,7 +70,7 @@ interface RoomHeaderProps {
   shareButtonRef: RefObject<HTMLButtonElement | null>;
   sharePanelRef: RefObject<HTMLDivElement | null>;
   shareUrl: string;
-  onCopyShareLink: () => void;
+  onShareRoom: () => void;
   themeId: string;
   currentTheme: Theme;
   onToggleDarkMode: () => void;
@@ -100,7 +100,7 @@ export const RoomHeader = React.memo(
     shareButtonRef,
     sharePanelRef,
     shareUrl,
-    onCopyShareLink,
+    onShareRoom,
     themeId,
     currentTheme,
     onToggleDarkMode,
@@ -242,7 +242,7 @@ export const RoomHeader = React.memo(
                         <LazyRoomSharePanel
                           url={shareUrl}
                           roomId={roomId || ''}
-                          onCopy={onCopyShareLink}
+                          onShare={onShareRoom}
                         />
                       </Suspense>
                     </motion.div>
@@ -289,8 +289,6 @@ export const RoomHeader = React.memo(
                     <LazyRoomSettingsMenu
                       showSettings={showSettings}
                       onClose={onCloseSettings}
-                      showShare={showShare}
-                      onToggleShare={onToggleShare}
                       themeId={themeId}
                       currentTheme={currentTheme}
                       onToggleDarkMode={onToggleDarkMode}
@@ -303,9 +301,7 @@ export const RoomHeader = React.memo(
                       onAdminPasswordChange={onAdminPasswordChange}
                       onJoinAdmin={onJoinAdmin}
                       isAuthenticating={isAuthenticating}
-                      shareUrl={shareUrl}
-                      onCopyShareLink={onCopyShareLink}
-                      roomId={roomId}
+                      onShareRoom={onShareRoom}
                       settingsMenuRef={settingsMenuRef}
                       providers={providers}
                     />

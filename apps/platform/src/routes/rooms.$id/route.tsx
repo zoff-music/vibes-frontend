@@ -2,6 +2,7 @@ import { useSSE } from '@vibes/api';
 import type { RoomGenerationUpdate } from '@vibes/models';
 import {
   type Song,
+  safeWrapAsync,
   showToast,
   usePlaybackStore,
   useQueueStore,
@@ -38,9 +39,21 @@ import { RoomPlayer } from './components/RoomPlayer';
 import { RoomQueue } from './components/RoomQueue';
 import type { RoomLoaderData } from './loader';
 import { loader } from './loader';
+import { roomMeta } from './meta';
+import {
+  createRoomShareDescription,
+  createRoomShareTitle,
+  createRoomShareUrl,
+} from './share';
 import { shouldRevalidate } from './shouldRevalidate';
 
-export { clientAction, clientLoader, loader, shouldRevalidate };
+export {
+  clientAction,
+  clientLoader,
+  loader,
+  roomMeta as meta,
+  shouldRevalidate,
+};
 
 const GENERATION_RELOAD_DELAY_MS = 5 * 60 * 1000;
 
@@ -121,10 +134,12 @@ export default function Room() {
   const isAdmin = useRoomStore((state) => state.isAdmin);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setSession = useRoomStore((state) => state.setSession);
+  const usersCount = useRoomStore((state) => state.usersCount);
   const songs = useQueueStore((state) => state.songs);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const currentSongId = usePlaybackStore((state) => state.currentSong?.id);
+  const currentSong = usePlaybackStore((state) => state.currentSong);
 
   const [isSSR, setIsSSR] = useState(true);
   const shouldReduceMotion = useReducedMotion();
@@ -143,10 +158,27 @@ export default function Room() {
     loaderData.room.generationError,
   );
 
-  const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
   const displayRoom = useMemo(
     () => room ?? loaderData.room,
     [loaderData.room, room],
+  );
+  const shareUrl = useMemo(
+    () =>
+      createRoomShareUrl(
+        typeof window === 'undefined'
+          ? loaderData.pageUrl
+          : window.location.href,
+        id,
+        currentSong,
+        usersCount,
+      ),
+    [currentSong, id, loaderData.pageUrl, usersCount],
+  );
+  const shareTitle = createRoomShareTitle(displayRoom.name, currentSong);
+  const shareText = createRoomShareDescription(
+    displayRoom.name,
+    currentSong,
+    usersCount,
   );
   const isAuthenticating = adminFetcher.state !== 'idle';
   const showGenerationProgress =
@@ -222,12 +254,37 @@ export default function Room() {
     }
   }, [displayRoom, setRoom]);
 
-  const handleCopyShareLink = useCallback(() => {
+  const handleShareRoom = useCallback(async () => {
     if (!shareUrl) return;
-    void navigator.clipboard.writeText(shareUrl);
-    showToast('Link copied!', 'success');
+
+    if (navigator.share) {
+      const [err] = await safeWrapAsync(
+        navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        }),
+      );
+      if (!err) {
+        setShowShare(false);
+        setShowSettings(false);
+        return;
+      }
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return;
+      }
+    }
+
+    const [err] = await safeWrapAsync(navigator.clipboard.writeText(shareUrl));
+    if (err) {
+      showToast('Could not share this room. Please try again.', 'error');
+      return;
+    }
+
+    showToast('Share link copied!', 'success');
     setShowShare(false);
-  }, [shareUrl]);
+    setShowSettings(false);
+  }, [shareText, shareTitle, shareUrl]);
 
   const handleJoinAdmin = useCallback(() => {
     if (!adminPassword) return;
@@ -411,7 +468,7 @@ export default function Room() {
           shareButtonRef={shareButtonRef}
           sharePanelRef={sharePanelRef}
           shareUrl={shareUrl}
-          onCopyShareLink={handleCopyShareLink}
+          onShareRoom={handleShareRoom}
           themeId={themeId}
           currentTheme={currentTheme}
           onToggleDarkMode={handleToggleDarkMode}
