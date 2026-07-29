@@ -18,13 +18,10 @@ export function PublicRoomDiscovery({
 
   return (
     <div className="mt-4">
-      <div className="mb-2 flex items-center justify-between gap-3">
+      <div className="mb-2 flex items-center">
         <span className="flex items-center gap-2 font-pixel text-3xs text-secondary tracking-label">
           <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
           Live now
-        </span>
-        <span className="text-right text-3xs text-theme-subtle">
-          Password-protected public rooms
         </span>
       </div>
 
