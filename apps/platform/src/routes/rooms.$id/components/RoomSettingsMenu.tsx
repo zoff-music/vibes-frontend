@@ -75,6 +75,14 @@ export const RoomSettingsMenu = ({
   const [canScrollDown, setCanScrollDown] = useState(false);
   const adminSectionRef = useRef<HTMLDivElement>(null);
   const scrollPanelRef = useRef<HTMLDivElement>(null);
+  const canChangePublicRoom = Boolean(room?.hasPassword && isAdmin);
+
+  let publicRoomDescription = 'Listed only while listeners are active';
+  if (!room?.hasPassword) {
+    publicRoomDescription = 'Add a password before making this room public';
+  } else if (!isAdmin) {
+    publicRoomDescription = 'Admin access is required to change visibility';
+  }
 
   const handleSourceToggle = (event: MouseEvent<HTMLButtonElement>) => {
     if (!room) {
@@ -91,6 +99,17 @@ export const RoomSettingsMenu = ({
     updateRoomSettings({
       ...room.settings,
       enabledSources,
+    });
+  };
+
+  const handlePublicRoomChange = (checked: boolean) => {
+    if (!room) {
+      return;
+    }
+
+    updateRoomSettings({
+      ...room.settings,
+      public: checked,
     });
   };
 
@@ -366,6 +385,23 @@ export const RoomSettingsMenu = ({
                 }}
                 variant="plain-full"
               />
+            </div>
+
+            <div className="rounded-xl border border-secondary/25 bg-secondary/5 p-3">
+              <Toggle
+                label="Public Room"
+                description={publicRoomDescription}
+                disabled={!canChangePublicRoom}
+                checked={room?.settings.public ?? false}
+                onChange={handlePublicRoomChange}
+                variant="plain-full"
+              />
+              {room?.settings.public && (
+                <p className="mt-2 text-3xs text-theme-subtle">
+                  This room can appear under Live now while someone is
+                  listening.
+                </p>
+              )}
             </div>
 
             <div className="border-theme border-t pt-4">

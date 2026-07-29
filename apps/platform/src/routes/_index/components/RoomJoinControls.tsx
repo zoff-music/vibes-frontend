@@ -1,8 +1,10 @@
+import { classNames } from '@vibes/shared';
 import { Button, SparklesIcon } from '@vibes/ui';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { Link } from 'react-router';
 
 interface RoomJoinControlsProps {
+  contained?: boolean;
   onJoinRoom: () => void;
   onRoomCodeChange: (value: string) => void;
   onToggleAIMode: () => void;
@@ -11,6 +13,7 @@ interface RoomJoinControlsProps {
 }
 
 export function RoomJoinControls({
+  contained = true,
   onJoinRoom,
   onRoomCodeChange,
   onToggleAIMode,
@@ -29,8 +32,12 @@ export function RoomJoinControls({
   };
 
   return (
-    <div className="mt-8 space-y-5">
-      <div className="panel-surface rounded-3xl p-4 sm:p-6">
+    <div className={classNames('space-y-5', contained ? 'mt-8' : 'mt-4')}>
+      <div
+        className={classNames(
+          contained && 'panel-surface rounded-3xl p-4 sm:p-6',
+        )}
+      >
         <label
           htmlFor="room-name"
           className="mb-3 block font-pixel text-2xs text-theme-muted tracking-label"
