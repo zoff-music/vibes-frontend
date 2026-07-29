@@ -9,6 +9,7 @@ import { RoomJoinControls } from './RoomJoinControls';
 interface HomeRoomControlsProps {
   onJoinRoom: (roomId?: string) => void;
   onRoomCodeChange: (value: string) => void;
+  onStartSession: () => void;
   onToggleAIMode: () => void;
   placeholder: string;
   roomCode: string;
@@ -20,6 +21,7 @@ type HomeRoomMode = 'browse' | 'join';
 export function HomeRoomControls({
   onJoinRoom,
   onRoomCodeChange,
+  onStartSession,
   onToggleAIMode,
   placeholder,
   roomCode,
@@ -44,18 +46,29 @@ export function HomeRoomControls({
       aria-label="Join a room"
       className="panel-surface mt-8 rounded-3xl p-4 sm:p-6"
     >
-      <div className="grid grid-cols-2 gap-1 rounded-2xl border border-theme bg-theme-surface/80 p-1">
-        <ModeButton
-          active={mode === 'join'}
-          label="Join by name"
-          onClick={handleJoinMode}
+      <div className="grid grid-cols-2 rounded-2xl border border-theme bg-theme-surface/80 p-1">
+        <motion.span
+          animate={{ x: mode === 'join' ? '0%' : '100%' }}
+          aria-hidden
+          className="pointer-events-none col-start-1 row-start-1 rounded-xl border border-secondary/60 bg-secondary/20 shadow-secondary-soft"
+          initial={false}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
         />
-        <ModeButton
-          active={mode === 'browse'}
-          disabled={rooms.length === 0}
-          label="Browse live"
-          onClick={handleBrowseMode}
-        />
+        <div className="relative z-10 col-start-1 row-start-1">
+          <ModeButton
+            active={mode === 'join'}
+            label="Join by name"
+            onClick={handleJoinMode}
+          />
+        </div>
+        <div className="relative z-10 col-start-2 row-start-1">
+          <ModeButton
+            active={mode === 'browse'}
+            disabled={rooms.length === 0}
+            label="Browse live"
+            onClick={handleBrowseMode}
+          />
+        </div>
       </div>
 
       <AnimatePresence mode="popLayout" initial={false}>
@@ -71,6 +84,7 @@ export function HomeRoomControls({
               contained={false}
               onJoinRoom={handleJoinRoom}
               onRoomCodeChange={onRoomCodeChange}
+              onStartSession={onStartSession}
               onToggleAIMode={onToggleAIMode}
               placeholder={placeholder}
               roomCode={roomCode}
@@ -103,6 +117,8 @@ function ModeButton({
       aria-pressed={active}
       className={classNames(
         'w-full rounded-xl px-3 py-2 font-pixel text-2xs',
+        active && 'text-theme',
+        !active && 'text-theme-muted hover:text-theme',
         disabled && 'pointer-events-none',
       )}
       disabled={disabled}
@@ -111,7 +127,7 @@ function ModeButton({
       title={
         disabled ? 'No public rooms have active listeners right now' : label
       }
-      variant={active ? 'tertiary-active' : 'tertiary'}
+      variant="ghost"
     >
       {label}
     </Button>

@@ -151,6 +151,10 @@ export default function Home() {
     navigate(`/${slug}`, { viewTransition: true });
   };
 
+  const handleStartSession = () => {
+    navigate('/rooms/create', { viewTransition: true });
+  };
+
   const handleToggleAIMode = () => {
     setIsAIMode((current) => !current);
     setRoomCode('');
@@ -215,6 +219,7 @@ export default function Home() {
             <HomeRoomControls
               onJoinRoom={handleJoinRoom}
               onRoomCodeChange={handleRoomCodeChange}
+              onStartSession={handleStartSession}
               onToggleAIMode={handleToggleAIMode}
               placeholder={placeholder}
               roomCode={roomCode}
