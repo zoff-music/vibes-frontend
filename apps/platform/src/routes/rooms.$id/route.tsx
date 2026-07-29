@@ -7,6 +7,7 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
+import { motion, type Transition, useReducedMotion } from 'framer-motion';
 import {
   lazy,
   Suspense,
@@ -21,6 +22,7 @@ import {
   useFetcher,
   useLoaderData,
   useNavigate,
+  useNavigationType,
   useParams,
   useRevalidator,
   useRouteError,
@@ -103,6 +105,7 @@ export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const revalidate = useRevalidator().revalidate;
   const adminFetcher = useFetcher<RoomActionData>();
 
@@ -124,6 +127,7 @@ export default function Room() {
   const currentSongId = usePlaybackStore((state) => state.currentSong?.id);
 
   const [isSSR, setIsSSR] = useState(true);
+  const shouldReduceMotion = useReducedMotion();
   const { themeId, currentTheme } = useThemeDisplay();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -385,11 +389,17 @@ export default function Room() {
     };
   }, [showSettings]);
 
+  const roomEntryInitial =
+    navigationType === 'PUSH' && !shouldReduceMotion
+      ? roomEntryInitialState
+      : false;
+
   return (
-    <div
-      className={`relative min-h-screen overflow-x-hidden lg:h-screen lg:overflow-hidden ${
-        !isSSR ? 'animate-fade-in' : ''
-      }`}
+    <motion.div
+      animate={roomEntryVisibleState}
+      className="room-entry relative min-h-screen overflow-x-hidden lg:h-screen lg:overflow-hidden"
+      initial={roomEntryInitial}
+      transition={roomEntryTransition}
     >
       <div className="relative z-10 flex min-h-screen flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
         <RoomHeader
@@ -474,6 +484,27 @@ export default function Room() {
           </Suspense>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
+
+const roomEntryInitialState = {
+  filter: 'blur(6px)',
+  opacity: 0,
+  scale: 1.012,
+  y: 14,
+};
+
+const roomEntryTransition: Transition = {
+  damping: 34,
+  mass: 0.8,
+  stiffness: 270,
+  type: 'spring',
+};
+
+const roomEntryVisibleState = {
+  filter: 'blur(0px)',
+  opacity: 1,
+  scale: 1,
+  y: 0,
+};
