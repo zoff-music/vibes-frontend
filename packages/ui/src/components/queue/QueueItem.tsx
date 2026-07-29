@@ -50,7 +50,7 @@ export const QueueItem: React.FC<Props> = ({
   const voteCount = song.voteCount || 0;
 
   return (
-    <article className="group flex w-full min-w-0 items-center gap-2.5 overflow-hidden rounded-2xl border border-theme bg-theme-surface p-3 transition-colors hover:border-theme-strong sm:gap-3">
+    <article className="group flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface p-3 transition-colors hover:border-theme-strong sm:gap-3">
       <div className="w-5 shrink-0 text-center sm:w-6">
         <span className="text-theme-subtle text-xs">{position}</span>
       </div>
@@ -99,7 +99,11 @@ export const QueueItem: React.FC<Props> = ({
 
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
         {onVote && (
-          <Tooltip className="inline-flex" content="Vote this song up">
+          <Tooltip
+            align="end"
+            className="inline-flex"
+            content="Vote this song up"
+          >
             <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.92 }}>
               <Button
                 onClick={handleVote}
