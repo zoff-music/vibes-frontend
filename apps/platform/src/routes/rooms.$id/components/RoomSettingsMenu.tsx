@@ -151,10 +151,24 @@ export const RoomSettingsMenu = ({
 
   useEffect(() => {
     if (!showSettings) return;
+
+    const scrollPosition = window.scrollY;
     const previousOverflow = document.body.style.overflow;
+    const previousPosition = document.body.style.position;
+    const previousTop = document.body.style.top;
+    const previousWidth = document.body.style.width;
+
     document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollPosition}px`;
+    document.body.style.width = '100%';
+
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.body.style.position = previousPosition;
+      document.body.style.top = previousTop;
+      document.body.style.width = previousWidth;
+      window.scrollTo(0, scrollPosition);
     };
   }, [showSettings]);
 
@@ -172,9 +186,25 @@ export const RoomSettingsMenu = ({
       resizeObserver.observe(panel.firstElementChild);
     }
 
+    const visualViewport = window.visualViewport;
+    const handleViewportResize = () => {
+      const activeElement = document.activeElement;
+      if (
+        activeElement instanceof HTMLElement &&
+        panel.contains(activeElement)
+      ) {
+        activeElement.scrollIntoView({
+          block: 'center',
+        });
+      }
+      updateScrollCue();
+    };
+    visualViewport?.addEventListener('resize', handleViewportResize);
+
     return () => {
       cancelAnimationFrame(animationFrame);
       resizeObserver.disconnect();
+      visualViewport?.removeEventListener('resize', handleViewportResize);
     };
   }, [showSettings, updateScrollCue]);
 
