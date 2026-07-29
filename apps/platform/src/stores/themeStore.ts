@@ -47,6 +47,7 @@ interface ThemeState {
   isDarkMode: boolean;
   isWarping: boolean;
   currentTheme: Theme;
+  syncTheme: () => void;
   setTheme: (themeId: ThemeId) => void;
   toggleDarkMode: () => void; // Convenience method for simple light/dark toggle
   setIsWarping: (warp: boolean) => void;
@@ -93,10 +94,13 @@ function applyTheme(themeId: ThemeId) {
     }
   });
 
-  // Add new theme class
-  const newTheme = themes[themeId];
-  if (newTheme.class) {
-    html.classList.add(newTheme.class);
+  if (themeId === 'light') {
+    html.classList.add(themes.light.class);
+    return;
+  }
+
+  if (resolveTheme(themeId) === 'dark') {
+    html.classList.add(themes.dark.class);
   }
 }
 
@@ -163,7 +167,6 @@ function getStoredPreferences(value: string | null): Preferences | null {
 // Initialize theme immediately - before any React rendering
 const INITIAL_THEME = getInitialThemeSync();
 
-// No need to apply theme here since SSR already set it correctly
 console.log('[Theme] Initial theme detected from DOM:', INITIAL_THEME);
 
 export const useThemeStore = create<ThemeState>((set, get) => {
@@ -176,6 +179,7 @@ export const useThemeStore = create<ThemeState>((set, get) => {
       .addEventListener('change', (e) => {
         if (get().themeId === 'auto') {
           const newResolved = e.matches ? 'dark' : 'light';
+          applyTheme('auto');
           set({
             resolvedTheme: newResolved,
             isDarkMode: newResolved === 'dark',
@@ -208,6 +212,16 @@ export const useThemeStore = create<ThemeState>((set, get) => {
     isDarkMode: initialResolved === 'dark',
     isWarping: false,
     currentTheme: themes[INITIAL_THEME],
+
+    syncTheme: () => {
+      const themeId = get().themeId;
+      const resolved = resolveTheme(themeId);
+      applyTheme(themeId);
+      set({
+        resolvedTheme: resolved,
+        isDarkMode: resolved === 'dark',
+      });
+    },
 
     setTheme: (themeId: ThemeId) => {
       console.log('[Theme] Setting theme to:', themeId);
