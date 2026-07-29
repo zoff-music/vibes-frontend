@@ -12,8 +12,8 @@ export function Background() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
-      <div className="absolute inset-0 bg-[length:180%_180%] bg-[linear-gradient(120deg,#ffc7e8,#e1d5ff,#bfe8ff,#ffd2a9)] md:animate-[gradientShift_12s_ease-in-out_infinite] dark:bg-[linear-gradient(120deg,#2a1b40,#1a102a,#120b1e,#3c2a5c)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,188,210,0.5),transparent_55%),radial-gradient(circle_at_80%_10%,rgba(132,214,255,0.35),transparent_50%)] opacity-65 dark:bg-[radial-gradient(circle_at_50%_30%,rgba(180,80,140,0.25),transparent_55%),radial-gradient(circle_at_80%_10%,rgba(46,20,80,0.4),transparent_50%)]" />
+      <div className="theme-page-gradient absolute inset-0 bg-[length:180%_180%] md:animate-[gradientShift_12s_ease-in-out_infinite]" />
+      <div className="theme-page-glow absolute inset-0 opacity-65" />
       <div className="vhs-scanlines absolute inset-0 hidden md:block" />
 
       {showSun && (

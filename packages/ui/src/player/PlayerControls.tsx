@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { Button } from '../components/Button';
 import { Tooltip } from '../components/Tooltip';
 import {
@@ -29,6 +29,7 @@ interface Props {
   castDeviceName?: string | null;
   showSpotifyConnect?: boolean;
   onConnectSpotify?: () => void;
+  addSongLeadingAction?: ReactNode;
 }
 
 const PlayerControlsComponent: React.FC<Props> = ({
@@ -47,12 +48,13 @@ const PlayerControlsComponent: React.FC<Props> = ({
   castDeviceName,
   showSpotifyConnect,
   onConnectSpotify,
+  addSongLeadingAction,
 }) => {
   const playbackLabel = isPlaying ? 'Pause' : 'Play';
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-start gap-4">
+      <div className="flex items-center justify-start gap-2 sm:gap-4">
         <Tooltip className="inline-flex" content={playbackLabel}>
           <Button
             onClick={isPlaying ? onPause : onPlay}
@@ -144,31 +146,35 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Button>
         </Tooltip>
 
-        {showSpotifyConnect && onConnectSpotify && (
+        <div className="ml-auto flex items-center gap-2">
+          {showSpotifyConnect && onConnectSpotify && (
+            <Button
+              onClick={onConnectSpotify}
+              variant="tertiary"
+              className="h-12 gap-2 px-4"
+              title="Connect Spotify"
+            >
+              <SpotifyIcon className="h-6 w-6" />
+              <span className="whitespace-nowrap font-display text-xs tracking-display">
+                Connect Spotify
+              </span>
+            </Button>
+          )}
+
+          {addSongLeadingAction}
+
           <Button
-            onClick={onConnectSpotify}
-            variant="tertiary"
-            className="ml-auto h-12 gap-2 px-4"
-            title="Connect Spotify"
+            onClick={onAddSong}
+            variant="primary"
+            className="h-12 gap-3 px-4 sm:px-6"
+            title="Add Song"
           >
-            <SpotifyIcon className="h-6 w-6" />
+            <PlusIcon className="h-5 w-5 shrink-0" />
             <span className="whitespace-nowrap font-display text-xs tracking-display">
-              Connect Spotify
+              Add Song
             </span>
           </Button>
-        )}
-
-        <Button
-          onClick={onAddSong}
-          variant="primary"
-          className="ml-auto h-12 gap-2 px-6"
-          title="Add Song"
-        >
-          <PlusIcon className="h-5 w-5 shrink-0" />
-          <span className="whitespace-nowrap font-display text-xs tracking-display">
-            Add Song
-          </span>
-        </Button>
+        </div>
       </div>
     </div>
   );

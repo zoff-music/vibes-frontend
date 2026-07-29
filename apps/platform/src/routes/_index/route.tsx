@@ -191,7 +191,7 @@ export default function Home() {
                 aria-label={`Theme: ${currentTheme.name}`}
                 onClick={handleToggleDarkMode}
                 size="icon"
-                variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
+                variant={themeId === 'auto' ? 'tertiary' : 'secondary'}
               >
                 {themeId === 'light' && <SunIcon className="h-5 w-5" />}
                 {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
