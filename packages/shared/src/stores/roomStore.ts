@@ -27,9 +27,9 @@ export const useRoomStore = create<RoomState>((set) => ({
   usersCount: 0,
 
   setRoom: (room) => {
-    const usersCount = room.userCount !== undefined ? room.userCount : 0;
     set((state) => {
       const isSameRoom = state.room?.id === room.id;
+      const usersCount = room.userCount ?? (isSameRoom ? state.usersCount : 0);
 
       return {
         room: {
