@@ -9,7 +9,8 @@ import {
   ResetIcon,
   SkipIcon,
 } from '@vibes/ui';
-import logoUrl from '../../../assets/logo.png';
+import { useRouteLoaderData } from 'react-router';
+import type { RootLoaderData } from '../../../root';
 
 interface Props {
   canControlPlayback: boolean;
@@ -39,6 +40,7 @@ export function EmbedRoomHeader({
   showSkip,
 }: Props) {
   const roomUrl = `/${encodeURIComponent(roomId)}`;
+  const { logoUrl } = useRouteLoaderData('root') as RootLoaderData;
   const usersCount = useRoomStore((state) => state.usersCount);
 
   return (
