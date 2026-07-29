@@ -33,6 +33,7 @@ import { useThemeStore } from '../../stores/themeStore';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
 import { RoomErrorView } from './components/RoomErrorView';
+import { RoomGenerationMenu } from './components/RoomGenerationMenu';
 import { RoomGenerationProgress } from './components/RoomGenerationProgress';
 import { RoomHeader } from './components/RoomHeader';
 import { RoomPlayer } from './components/RoomPlayer';
@@ -239,6 +240,11 @@ export default function Room() {
 
   const handleCloseSettings = useCallback(() => {
     setShowSettings(false);
+  }, []);
+
+  const handleOpenGenerationMenu = useCallback(() => {
+    setShowSettings(false);
+    setShowShare(false);
   }, []);
 
   const handleGenerationStarted = useCallback(() => {
@@ -481,10 +487,7 @@ export default function Room() {
           onAdminPasswordChange={setAdminPassword}
           onJoinAdmin={handleJoinAdmin}
           isAuthenticating={isAuthenticating}
-          isGenerating={isGenerating}
-          onGenerationStarted={handleGenerationStarted}
           onLeave={handleLeave}
-          songCount={songs.length}
           providers={loaderData.providers}
         />
 
@@ -503,6 +506,25 @@ export default function Room() {
                   displayRoom={displayRoom}
                   onAddSong={handleAddSong}
                   onOpenCast={handleOpenCast}
+                  addSongLeadingAction={
+                    <RoomGenerationMenu
+                      generationCount={displayRoom.generationCount}
+                      roomGenerationMaxDailyCount={
+                        displayRoom.roomGenerationMaxDailyCount
+                      }
+                      roomGenerationMaxExistingSongs={
+                        displayRoom.roomGenerationMaxExistingSongs
+                      }
+                      hasGenerationPermission={
+                        !displayRoom.hasPassword || isAdmin
+                      }
+                      isGenerating={isGenerating}
+                      onGenerationStarted={handleGenerationStarted}
+                      onOpen={handleOpenGenerationMenu}
+                      side="top"
+                      songCount={songs.length}
+                    />
+                  }
                   initialPlayback={loaderData.playback}
                   providers={loaderData.providers}
                 />

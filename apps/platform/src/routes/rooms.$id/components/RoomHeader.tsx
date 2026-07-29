@@ -22,7 +22,6 @@ import { useFetcher } from 'react-router';
 import type { Theme } from '../../../stores/themeStore';
 import type { RoomActionData } from '../action';
 
-import { RoomGenerationMenu } from './RoomGenerationMenu';
 import { UserCount } from './UserCount';
 
 const LazyRoomSettingsMenu = lazy(async () => {
@@ -83,10 +82,7 @@ interface RoomHeaderProps {
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
-  isGenerating: boolean;
-  onGenerationStarted: () => void;
   onLeave: () => void;
-  songCount: number;
   providers: string[];
 }
 
@@ -113,22 +109,12 @@ export const RoomHeader = React.memo(
     onAdminPasswordChange,
     onJoinAdmin,
     isAuthenticating,
-    isGenerating,
-    onGenerationStarted,
     onLeave,
-    songCount,
     providers,
   }: RoomHeaderProps) => {
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = useRoomStore((state) => state.isAdmin);
     const setRoom = useRoomStore((state) => state.setRoom);
-
-    const handleOpenGeneration = useCallback(() => {
-      onCloseSettings();
-      if (showShare) {
-        onToggleShare();
-      }
-    }, [onCloseSettings, onToggleShare, showShare]);
 
     const updateRoom = useCallback(
       (room: RoomUpdate) => {
@@ -181,6 +167,24 @@ export const RoomHeader = React.memo(
             <div className="flex shrink-0 items-center gap-2">
               <UserCount />
 
+              <div className="sm:hidden">
+                <Tooltip
+                  className="inline-flex"
+                  content="Share Room"
+                  side="bottom"
+                  align="end"
+                >
+                  <Button
+                    onClick={onShareRoom}
+                    variant="tertiary"
+                    size="icon"
+                    aria-label="Share Room"
+                  >
+                    <ShareIcon className="h-5 w-5" />
+                  </Button>
+                </Tooltip>
+              </div>
+
               <div className="hidden sm:block">
                 <Tooltip
                   className="inline-flex"
@@ -189,7 +193,7 @@ export const RoomHeader = React.memo(
                 >
                   <Button
                     onClick={onToggleDarkMode}
-                    variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
+                    variant={themeId === 'auto' ? 'tertiary' : 'secondary'}
                     size="icon"
                     aria-label={`Theme: ${currentTheme.name}`}
                   >
@@ -250,23 +254,6 @@ export const RoomHeader = React.memo(
                 </AnimatePresence>
               </div>
 
-              <RoomGenerationMenu
-                generationCount={displayRoom?.generationCount ?? 0}
-                roomGenerationMaxDailyCount={
-                  displayRoom?.roomGenerationMaxDailyCount ?? 0
-                }
-                roomGenerationMaxExistingSongs={
-                  displayRoom?.roomGenerationMaxExistingSongs ?? 0
-                }
-                hasGenerationPermission={
-                  displayRoom ? !displayRoom.hasPassword || isAdmin : false
-                }
-                isGenerating={isGenerating}
-                onGenerationStarted={onGenerationStarted}
-                onOpen={handleOpenGeneration}
-                songCount={songCount}
-              />
-
               <div className="relative ml-1">
                 <Tooltip
                   className="inline-flex"
@@ -301,7 +288,6 @@ export const RoomHeader = React.memo(
                       onAdminPasswordChange={onAdminPasswordChange}
                       onJoinAdmin={onJoinAdmin}
                       isAuthenticating={isAuthenticating}
-                      onShareRoom={onShareRoom}
                       settingsMenuRef={settingsMenuRef}
                       providers={providers}
                     />

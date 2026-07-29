@@ -89,7 +89,7 @@ export function RoomJoinControls({
       </div>
 
       <Button
-        className="h-16 w-full font-pixel"
+        className="h-16 w-full gap-4 font-pixel"
         onClick={handleSubmit}
         size="large"
         variant={hasRoomCode ? 'secondary' : 'primary'}

@@ -62,6 +62,24 @@
     --theme-panel-border-strong: rgba(112, 72, 140, 0.35);
     --theme-crt-bg: rgba(255, 255, 255, 0.85);
     --theme-crt-shadow: rgba(76, 32, 120, 0.25);
+    --theme-page-gradient: linear-gradient(
+      120deg,
+      #ffc7e8,
+      #e1d5ff,
+      #bfe8ff,
+      #ffd2a9
+    );
+    --theme-page-glow:
+      radial-gradient(
+        circle at 50% 30%,
+        rgba(255, 188, 210, 0.5),
+        transparent 55%
+      ),
+      radial-gradient(
+        circle at 80% 10%,
+        rgba(132, 214, 255, 0.35),
+        transparent 50%
+      );
   }
 
   @media (prefers-color-scheme: dark) {
@@ -89,6 +107,24 @@
       --theme-panel-border-strong: rgba(112, 72, 140, 0.45);
       --theme-crt-bg: rgba(18, 11, 30, 0.9);
       --theme-crt-shadow: rgba(0, 0, 0, 0.6);
+      --theme-page-gradient: linear-gradient(
+        120deg,
+        #2a1b40,
+        #1a102a,
+        #120b1e,
+        #3c2a5c
+      );
+      --theme-page-glow:
+        radial-gradient(
+          circle at 50% 30%,
+          rgba(180, 80, 140, 0.25),
+          transparent 55%
+        ),
+        radial-gradient(
+          circle at 80% 10%,
+          rgba(46, 20, 80, 0.4),
+          transparent 50%
+        );
     }
   }
 
@@ -116,6 +152,50 @@
     --theme-panel-border-strong: rgba(112, 72, 140, 0.45);
     --theme-crt-bg: rgba(18, 11, 30, 0.9);
     --theme-crt-shadow: rgba(0, 0, 0, 0.6);
+    --theme-page-gradient: linear-gradient(
+      120deg,
+      #2a1b40,
+      #1a102a,
+      #120b1e,
+      #3c2a5c
+    );
+    --theme-page-glow:
+      radial-gradient(
+        circle at 50% 30%,
+        rgba(180, 80, 140, 0.25),
+        transparent 55%
+      ),
+      radial-gradient(circle at 80% 10%, rgba(46, 20, 80, 0.4), transparent 50%);
+  }
+}
+
+.theme-page-gradient {
+  background-image: var(--theme-page-gradient);
+}
+
+.theme-page-glow {
+  background-image: var(--theme-page-glow);
+}
+
+.provider-mark-dark {
+  display: none;
+}
+
+.dark .provider-mark-light {
+  display: none;
+}
+
+.dark .provider-mark-dark {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) .provider-mark-light {
+    display: none;
+  }
+
+  :root:not(.theme-light) .provider-mark-dark {
+    display: block;
   }
 }
 

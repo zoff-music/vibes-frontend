@@ -5,7 +5,6 @@ import {
   ChevronDownIcon,
   CircleHalfIcon,
   MoonIcon,
-  ShareIcon,
   SoundCloudIcon,
   SpotifyIcon,
   SunIcon,
@@ -38,7 +37,6 @@ interface RoomSettingsMenuProps {
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
-  onShareRoom: () => void;
   settingsMenuRef?: RefObject<HTMLDivElement | null>;
   providers: string[];
 }
@@ -58,7 +56,6 @@ export const RoomSettingsMenu = ({
   onAdminPasswordChange,
   onJoinAdmin,
   isAuthenticating,
-  onShareRoom,
   settingsMenuRef,
   providers,
 }: RoomSettingsMenuProps) => {
@@ -227,21 +224,11 @@ export const RoomSettingsMenu = ({
         >
           <div className="space-y-4">
             <div className="space-y-3 sm:hidden">
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={onShareRoom}
-                  variant="tertiary"
-                  className="flex-1 gap-2 font-pixel text-xs"
-                  title="Share Room"
-                >
-                  <ShareIcon className="h-4 w-4" />
-                  Share
-                </Button>
-
+              <div className="flex items-center">
                 <Button
                   onClick={onToggleDarkMode}
-                  variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
-                  className="flex-1 gap-2 font-pixel text-xs"
+                  variant={themeId === 'auto' ? 'tertiary' : 'secondary'}
+                  className="w-full gap-2 font-pixel text-xs"
                   title={`Theme: ${currentTheme.name}`}
                 >
                   <div className="flex h-4 w-4 items-center justify-center">

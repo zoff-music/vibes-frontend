@@ -1,4 +1,4 @@
-import type { SourceType } from '@vibes/shared';
+import { classNames, type SourceType } from '@vibes/shared';
 import soundCloudDark from '../assets/providers/soundcloud-dark.png';
 import soundCloudLight from '../assets/providers/soundcloud-light.png';
 import spotifyDark from '../assets/providers/spotify-dark.svg';
@@ -21,13 +21,13 @@ export function ProviderMark({
     <>
       <img
         alt={providerNames[provider]}
-        className={`${className} object-contain dark:hidden`}
+        className={classNames('provider-mark-light object-contain', className)}
         src={marks.light}
       />
       <img
         alt=""
         aria-hidden="true"
-        className={`hidden ${className} object-contain dark:block`}
+        className={classNames('provider-mark-dark object-contain', className)}
         src={marks.dark}
       />
     </>
