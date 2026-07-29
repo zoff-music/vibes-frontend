@@ -102,9 +102,9 @@ function ModeButton({
     <Button
       aria-pressed={active}
       className={classNames(
-        'relative w-full rounded-xl px-3 py-2 font-pixel text-3xs',
+        'relative w-full rounded-xl px-3 py-2 font-pixel text-2xs',
         active && 'text-theme',
-        !active && 'text-theme-subtle hover:bg-primary/10 hover:text-theme',
+        !active && 'text-theme-muted hover:bg-primary/15 hover:text-theme',
         disabled && 'pointer-events-none',
       )}
       disabled={disabled}
@@ -117,7 +117,7 @@ function ModeButton({
     >
       {active && (
         <motion.span
-          className="absolute inset-0 rounded-xl border border-primary/50 bg-linear-to-r from-primary/25 to-secondary/20 shadow-primary-soft"
+          className="absolute inset-0 rounded-xl border border-secondary/70 bg-linear-to-r from-primary/45 to-secondary/40 shadow-secondary-soft"
           layoutId="home-room-mode"
           transition={{ type: 'spring', stiffness: 450, damping: 36 }}
         />
