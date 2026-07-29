@@ -25,9 +25,7 @@ export function HomeRoomControls({
   roomCode,
   rooms,
 }: HomeRoomControlsProps) {
-  const [mode, setMode] = useState<HomeRoomMode>(
-    rooms.length > 0 ? 'browse' : 'join',
-  );
+  const [mode, setMode] = useState<HomeRoomMode>('join');
 
   const handleJoinMode = () => {
     setMode('join');
@@ -46,7 +44,7 @@ export function HomeRoomControls({
       aria-label="Join a room"
       className="panel-surface mt-8 rounded-3xl p-4 sm:p-6"
     >
-      <div className="grid grid-cols-2 gap-1 rounded-2xl bg-theme p-1">
+      <div className="grid grid-cols-2 gap-1 rounded-2xl border border-theme bg-theme-surface/80 p-1">
         <ModeButton
           active={mode === 'join'}
           label="Join by name"
@@ -105,8 +103,8 @@ function ModeButton({
       aria-pressed={active}
       className={classNames(
         'relative w-full rounded-xl px-3 py-2 font-pixel text-3xs',
-        active && 'text-secondary',
-        !active && 'text-theme-subtle',
+        active && 'text-theme',
+        !active && 'text-theme-subtle hover:bg-primary/10 hover:text-theme',
         disabled && 'pointer-events-none',
       )}
       disabled={disabled}
@@ -119,7 +117,7 @@ function ModeButton({
     >
       {active && (
         <motion.span
-          className="absolute inset-0 rounded-xl border border-secondary/35 bg-secondary/15"
+          className="absolute inset-0 rounded-xl border border-primary/50 bg-linear-to-r from-primary/25 to-secondary/20 shadow-primary-soft"
           layoutId="home-room-mode"
           transition={{ type: 'spring', stiffness: 450, damping: 36 }}
         />
