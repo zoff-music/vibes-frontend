@@ -21,12 +21,12 @@ export function Tooltip({
   side = 'top',
 }: TooltipProps) {
   return (
-    <span className={`group/tooltip relative ${className}`}>
+    <span className={classNames('group/tooltip relative', className)}>
       {children}
       <span
         aria-hidden="true"
         className={classNames(
-          'pointer-events-none absolute z-100 whitespace-nowrap rounded-lg border border-theme bg-theme-surface px-2.5 py-1.5 font-pixel text-3xs text-theme opacity-0 shadow-xl transition-opacity group-focus-within/tooltip:opacity-100 group-hover/tooltip:opacity-100',
+          'tooltip-content pointer-events-none absolute z-100 whitespace-nowrap rounded-lg border border-theme bg-theme-surface px-2.5 py-1.5 font-pixel text-3xs text-theme opacity-0 shadow-xl transition-opacity group-focus-within/tooltip:opacity-100 group-hover/tooltip:opacity-100',
           tooltipAlignClasses[align],
           tooltipSideClasses[side],
         )}
