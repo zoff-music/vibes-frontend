@@ -1,12 +1,12 @@
 import { classNames } from '@vibes/shared';
 import { Button, SparklesIcon } from '@vibes/ui';
 import type { ChangeEvent, KeyboardEvent } from 'react';
-import { Link } from 'react-router';
 
 interface RoomJoinControlsProps {
   contained?: boolean;
   onJoinRoom: () => void;
   onRoomCodeChange: (value: string) => void;
+  onStartSession: () => void;
   onToggleAIMode: () => void;
   placeholder: string;
   roomCode: string;
@@ -16,18 +16,31 @@ export function RoomJoinControls({
   contained = true,
   onJoinRoom,
   onRoomCodeChange,
+  onStartSession,
   onToggleAIMode,
   placeholder,
   roomCode,
 }: RoomJoinControlsProps) {
+  const hasRoomCode = Boolean(roomCode.trim());
+  const actionLabel = hasRoomCode ? 'Join Room' : 'Start a Session';
+
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onRoomCodeChange(event.target.value.toLowerCase());
+  };
+
+  const handleSubmit = () => {
+    if (hasRoomCode) {
+      onJoinRoom();
+      return;
+    }
+
+    onStartSession();
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      onJoinRoom();
+      handleSubmit();
     }
   };
 
@@ -69,31 +82,19 @@ export function RoomJoinControls({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Link
-          viewTransition
-          to={
-            roomCode.trim()
-              ? `/rooms/create?name=${encodeURIComponent(roomCode.trim())}`
-              : '/rooms/create'
-          }
-          className="group flex h-16 w-full cursor-pointer items-center justify-center gap-3 rounded-2xl border border-primary/50 bg-primary/95 px-6 py-4 font-pixel text-sm text-white shadow-primary-cta transition-all hover:-translate-y-0.5 hover:bg-primary"
-        >
-          Start a Session
+      <Button
+        className="h-16 w-full font-pixel"
+        onClick={handleSubmit}
+        size="large"
+        variant={hasRoomCode ? 'secondary' : 'primary'}
+      >
+        {actionLabel}
+        {!hasRoomCode && (
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white">
             +
           </span>
-        </Link>
-        <Button
-          onClick={onJoinRoom}
-          disabled={!roomCode.trim()}
-          variant="secondary"
-          size="large"
-          className="h-16 w-full font-pixel"
-        >
-          Join Room
-        </Button>
-      </div>
+        )}
+      </Button>
     </div>
   );
 }
