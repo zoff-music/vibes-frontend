@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { Button, SparklesIcon } from '@vibes/ui';
+import { Button, SparklesIcon, Tooltip } from '@vibes/ui';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 
 interface RoomJoinControlsProps {
@@ -68,17 +68,23 @@ export function RoomJoinControls({
             className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-14 pl-4 font-mono text-base text-theme tracking-widest placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
             maxLength={20}
           />
-          <Button
-            onClick={onToggleAIMode}
-            variant="ghost"
-            size="icon"
-            aria-label="Toggle AI playlist generation"
-            aria-pressed={false}
-            title="Generate a music room with AI"
-            className="absolute top-1/2 right-2 -translate-y-1/2"
-          >
-            <SparklesIcon className="h-5 w-5" />
-          </Button>
+          <span className="absolute top-1/2 right-2 -translate-y-1/2">
+            <Tooltip
+              align="end"
+              className="inline-flex"
+              content="Generate a music room with AI"
+            >
+              <Button
+                aria-label="Toggle AI playlist generation"
+                aria-pressed={false}
+                onClick={onToggleAIMode}
+                size="icon"
+                variant="ghost"
+              >
+                <SparklesIcon className="h-5 w-5" />
+              </Button>
+            </Tooltip>
+          </span>
         </div>
       </div>
 

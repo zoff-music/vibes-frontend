@@ -54,6 +54,7 @@ interface ThemeState {
 
 // Cookie utilities
 const COOKIE_NAME = 'preferences';
+const STORAGE_NAME = 'preferences';
 const CURRENT_VERSION = 1;
 
 function setCookie(name: string, value: string, days: number = 365) {
@@ -75,6 +76,9 @@ function savePreferences(preferences: Preferences) {
     .replace(/\//g, '_')
     .replace(/=+$/, '');
   setCookie(COOKIE_NAME, encoded);
+
+  if (typeof window === 'undefined') return;
+  safeWrap(() => window.localStorage.setItem(STORAGE_NAME, json));
 }
 
 // Apply theme class to document
@@ -138,6 +142,24 @@ function resolveTheme(themeId: ThemeId): 'light' | 'dark' {
     : 'light';
 }
 
+function getStoredPreferences(value: string | null): Preferences | null {
+  if (!value) return null;
+
+  const [err, preferences] = safeWrap<unknown>(() => JSON.parse(value));
+  if (err || !preferences || typeof preferences !== 'object') return null;
+
+  const theme = Reflect.get(preferences, 'theme');
+  const version = Reflect.get(preferences, 'version');
+  if (
+    version !== CURRENT_VERSION ||
+    (theme !== 'light' && theme !== 'dark' && theme !== 'auto')
+  ) {
+    return null;
+  }
+
+  return { theme, version };
+}
+
 // Initialize theme immediately - before any React rendering
 const INITIAL_THEME = getInitialThemeSync();
 
@@ -160,6 +182,22 @@ export const useThemeStore = create<ThemeState>((set, get) => {
           });
         }
       });
+
+    window.addEventListener('storage', (event) => {
+      if (event.key !== STORAGE_NAME) return;
+
+      const preferences = getStoredPreferences(event.newValue);
+      if (!preferences || preferences.theme === get().themeId) return;
+
+      applyTheme(preferences.theme);
+      const resolved = resolveTheme(preferences.theme);
+      set({
+        themeId: preferences.theme,
+        resolvedTheme: resolved,
+        isDarkMode: resolved === 'dark',
+        currentTheme: themes[preferences.theme],
+      });
+    });
   }
 
   const initialResolved = resolveTheme(INITIAL_THEME);

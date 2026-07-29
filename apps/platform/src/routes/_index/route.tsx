@@ -1,5 +1,5 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { Button, CircleHalfIcon, MoonIcon, SunIcon } from '@vibes/ui';
+import { Button, CircleHalfIcon, MoonIcon, SunIcon, Tooltip } from '@vibes/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
@@ -181,16 +181,23 @@ export default function Home() {
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6 sm:py-10">
         <div className="crt-frame relative w-full max-w-3xl rounded-frame p-6 sm:p-10">
           <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
-            <Button
-              onClick={handleToggleDarkMode}
-              variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
-              size="icon"
-              title={`Theme: ${currentTheme.name}`}
+            <Tooltip
+              align="end"
+              className="inline-flex"
+              content={`Theme: ${currentTheme.name}`}
+              side="bottom"
             >
-              {themeId === 'light' && <SunIcon className="h-5 w-5" />}
-              {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
-              {themeId === 'auto' && <CircleHalfIcon className="h-5 w-5" />}
-            </Button>
+              <Button
+                aria-label={`Theme: ${currentTheme.name}`}
+                onClick={handleToggleDarkMode}
+                size="icon"
+                variant={themeId !== 'light' ? 'secondary' : 'tertiary'}
+              >
+                {themeId === 'light' && <SunIcon className="h-5 w-5" />}
+                {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
+                {themeId === 'auto' && <CircleHalfIcon className="h-5 w-5" />}
+              </Button>
+            </Tooltip>
           </div>
 
           <div className="text-center">
