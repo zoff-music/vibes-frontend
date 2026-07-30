@@ -54,7 +54,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-start gap-2 sm:gap-4">
+      <div className="flex flex-wrap items-center justify-start gap-2 sm:flex-nowrap sm:gap-4">
         <Tooltip className="inline-flex" content={playbackLabel}>
           <Button
             onClick={isPlaying ? onPause : onPlay}
@@ -146,16 +146,16 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Button>
         </Tooltip>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex w-full min-w-0 items-center gap-2 sm:ml-auto sm:w-auto">
           {showSpotifyConnect && onConnectSpotify && (
             <Button
               onClick={onConnectSpotify}
               variant="tertiary"
-              className="h-12 gap-2 px-4"
+              className="h-12 min-w-0 flex-1 gap-2 px-3 sm:flex-none sm:px-4"
               title="Connect Spotify"
             >
-              <SpotifyIcon className="h-6 w-6" />
-              <span className="whitespace-nowrap font-display text-xs tracking-display">
+              <SpotifyIcon className="h-6 w-6 shrink-0" />
+              <span className="truncate font-display text-xs tracking-display">
                 Connect Spotify
               </span>
             </Button>
@@ -166,7 +166,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
           <Button
             onClick={onAddSong}
             variant="primary"
-            className="h-12 gap-3 px-4 sm:px-6"
+            className="h-12 min-w-0 flex-1 gap-3 px-4 sm:flex-none sm:px-6"
             title="Add Song"
           >
             <PlusIcon className="h-5 w-5 shrink-0" />
