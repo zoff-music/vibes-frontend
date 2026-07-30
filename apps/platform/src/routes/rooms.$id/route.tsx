@@ -507,7 +507,6 @@ export default function Room() {
                       isGenerating={isGenerating}
                       onGenerationStarted={handleGenerationStarted}
                       onOpen={handleOpenGenerationMenu}
-                      side="top"
                       songCount={songs.length}
                     />
                   }

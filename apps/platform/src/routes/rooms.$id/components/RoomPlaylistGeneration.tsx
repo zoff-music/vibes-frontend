@@ -53,7 +53,10 @@ export function RoomPlaylistGeneration({
     <form onSubmit={handleSubmit}>
       <div className="mb-3 flex items-center gap-2">
         <SparklesIcon className="h-4 w-4 text-secondary" />
-        <h5 className="font-pixel text-2xs text-theme-muted tracking-label">
+        <h5
+          id="room-generation-title"
+          className="font-pixel text-2xs text-theme-muted tracking-label"
+        >
           Fill Playlist
         </h5>
       </div>
