@@ -18,7 +18,6 @@ import {
   InfoIcon,
   Modal,
   PlusIcon,
-  ProviderMark,
   SearchIcon,
   SoundCloudIcon,
   SpotifyIcon,
@@ -445,16 +444,16 @@ export const AddToQueueModal: React.FC<Props> = ({
                     onClick={() => handleSelectResult(result)}
                     variant="ghost"
                     size="none"
-                    className="min-w-0 flex-1 justify-start gap-3 p-4 text-left hover:bg-theme"
+                    className="min-w-0 flex-1 justify-start gap-2 p-3 text-left hover:bg-theme sm:gap-3 sm:p-4"
                   >
                     <div className="relative shrink-0">
                       <img
                         src={resolveSongThumbnail(result.thumbnailUrl)}
                         alt={result.title}
-                        className="h-20 w-28 rounded-xl border border-theme bg-theme-surface object-cover"
+                        className="h-16 w-20 rounded-xl border border-theme bg-theme-surface object-cover sm:h-20 sm:w-28"
                       />
                       {result.duration && (
-                        <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
+                        <div className="absolute right-1 bottom-1 rounded-md bg-theme px-1.5 py-0.5 text-2xs text-theme backdrop-blur-sm sm:right-1.5 sm:bottom-1.5 sm:px-2">
                           {formatDuration(parseISODuration(result.duration))}
                         </div>
                       )}
@@ -603,23 +602,23 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
         href={providerUrl}
         target="_blank"
         rel="noreferrer"
-        className="flex shrink-0 cursor-pointer items-center justify-center self-stretch px-4 text-theme-muted transition-colors hover:bg-theme hover:text-theme focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+        className="flex min-w-10 shrink-0 cursor-pointer items-center justify-center self-stretch px-2 text-theme-muted transition-colors hover:bg-theme hover:text-theme focus:outline-hidden focus:ring-2 focus:ring-secondary/40 sm:min-w-14 sm:px-4"
         aria-label={`Open ${result.title} on ${providerNames[result.source]}`}
         title={`Open on ${providerNames[result.source]}`}
       >
-        <ProviderMark className="h-4 w-16" provider={result.source} />
+        <ProviderIcon className="h-4 w-4" provider={result.source} />
       </a>
     );
   }
 
   return (
     <div
-      className="flex shrink-0 items-center justify-center self-stretch px-4 text-theme-muted"
+      className="flex min-w-10 shrink-0 items-center justify-center self-stretch px-2 text-theme-muted sm:min-w-14 sm:px-4"
       role="img"
       aria-label={`${providerNames[result.source]} result`}
       title={`${providerNames[result.source]} result`}
     >
-      <ProviderMark className="h-4 w-16" provider={result.source} />
+      <ProviderIcon className="h-4 w-4" provider={result.source} />
     </div>
   );
 };

@@ -12,7 +12,7 @@ interface Props {
   className?: string;
   isOpen: boolean;
   onClose: () => void;
-  size?: 'lg' | 'md';
+  size?: 'lg' | 'md' | 'sm';
 }
 
 export function Modal({
@@ -121,6 +121,7 @@ export function Modal({
         className={classNames(
           'panel-strong relative w-full rounded-4xl p-7 shadow-primary-panel',
           alignment === 'center' && 'my-auto',
+          size === 'sm' && 'max-w-sm',
           size === 'md' && 'max-w-2xl',
           size === 'lg' && 'max-w-5xl',
           className,
