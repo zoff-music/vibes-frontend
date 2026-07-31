@@ -1,8 +1,20 @@
-import { SoundCloudPlayer } from '@vibes/ui/player/SoundCloudPlayer';
-import { SpotifyPlayer } from '@vibes/ui/player/SpotifyPlayer';
-import { VideoPlayer } from '@vibes/ui/player/VideoPlayer';
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useCast } from './CastProvider';
+
+const LazySoundCloudPlayer = lazy(async () => {
+  const module = await import('@vibes/ui/player/SoundCloudPlayer');
+  return { default: module.SoundCloudPlayer };
+});
+
+const LazySpotifyPlayer = lazy(async () => {
+  const module = await import('@vibes/ui/player/SpotifyPlayer');
+  return { default: module.SpotifyPlayer };
+});
+
+const LazyVideoPlayer = lazy(async () => {
+  const module = await import('@vibes/ui/player/VideoPlayer');
+  return { default: module.VideoPlayer };
+});
 
 export const PlayerLayer: React.FC = () => {
   const { currentSong, enabledProviders, queue, spotifyToken } = useCast();
@@ -25,27 +37,33 @@ export const PlayerLayer: React.FC = () => {
   return (
     <div className="absolute inset-0 h-full w-full">
       {shouldMountYouTube && (
-        <VideoPlayer
-          isVisible={currentSong?.sourceType === 'youtube'}
-          fill
-          appContext="cast"
-          preloadSong={preloadYouTubeSong}
-        />
+        <Suspense fallback={null}>
+          <LazyVideoPlayer
+            isVisible={currentSong?.sourceType === 'youtube'}
+            fill
+            appContext="cast"
+            preloadSong={preloadYouTubeSong}
+          />
+        </Suspense>
       )}
       {shouldMountSpotify && (
-        <SpotifyPlayer
-          isVisible={currentSong?.sourceType === 'spotify'}
-          fill
-          accessToken={spotifyToken}
-          preloadSong={preloadSpotifySong}
-        />
+        <Suspense fallback={null}>
+          <LazySpotifyPlayer
+            isVisible={currentSong?.sourceType === 'spotify'}
+            fill
+            accessToken={spotifyToken}
+            preloadSong={preloadSpotifySong}
+          />
+        </Suspense>
       )}
       {shouldMountSoundCloud && (
-        <SoundCloudPlayer
-          isVisible={currentSong?.sourceType === 'soundcloud'}
-          fill
-          preloadSong={preloadSoundCloudSong}
-        />
+        <Suspense fallback={null}>
+          <LazySoundCloudPlayer
+            isVisible={currentSong?.sourceType === 'soundcloud'}
+            fill
+            preloadSong={preloadSoundCloudSong}
+          />
+        </Suspense>
       )}
     </div>
   );

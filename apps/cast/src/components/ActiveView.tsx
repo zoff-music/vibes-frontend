@@ -4,10 +4,11 @@ import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import { useCast } from './CastProvider';
 import { CastQueue } from './CastQueue';
+import { CastTrackProgress } from './CastTrackProgress';
 import { PlayerLayer } from './PlayerLayer';
 
 export const ActiveView: React.FC = () => {
-  const { currentSong, queue, roomInfo, actualPositionMs, roomId } = useCast();
+  const { currentSong, queue, roomInfo, roomId } = useCast();
 
   if (!currentSong) return null;
 
@@ -26,11 +27,11 @@ export const ActiveView: React.FC = () => {
         <div className="cast-track-details-panel shrink-0 border-white/10 border-t bg-black/70 px-8 py-5">
           <div className="cast-track-summary flex items-end gap-6">
             <div className="cast-track-artwork relative shrink-0">
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-primary to-secondary opacity-30" />
               <img
                 src={resolveSongThumbnail(currentSong.thumbnailUrl)}
                 alt={currentSong.title}
-                className="cast-track-thumbnail relative h-20 w-20 rounded-xl border border-white/20 object-cover"
+                decoding="async"
+                className="cast-track-thumbnail h-20 w-20 rounded-xl border border-white/20 object-cover"
               />
             </div>
             <div className="min-w-0 flex-1">
@@ -56,33 +57,7 @@ export const ActiveView: React.FC = () => {
             </div>
           </div>
 
-          <div className="cast-track-progress mt-4">
-            <div className="mb-2 flex justify-between font-mono text-sm text-white/60">
-              <span>
-                {Math.floor(actualPositionMs / 60000)}:
-                {String(Math.floor((actualPositionMs / 1000) % 60)).padStart(
-                  2,
-                  '0',
-                )}
-              </span>
-              <span>
-                {Math.floor((currentSong.duration || 0) / 60)}:
-                {String(Math.floor((currentSong.duration || 0) % 60)).padStart(
-                  2,
-                  '0',
-                )}
-              </span>
-            </div>
-            <progress
-              aria-label="Playback progress"
-              className="h-2 w-full appearance-none overflow-hidden rounded-full bg-white/20 [&::-moz-progress-bar]:bg-gradient-to-r [&::-moz-progress-bar]:from-primary [&::-moz-progress-bar]:to-secondary [&::-webkit-progress-bar]:bg-white/20 [&::-webkit-progress-value]:bg-gradient-to-r [&::-webkit-progress-value]:from-primary [&::-webkit-progress-value]:to-secondary"
-              max={(currentSong.duration || 1) * 1000}
-              value={Math.min(
-                actualPositionMs,
-                (currentSong.duration || 1) * 1000,
-              )}
-            />
-          </div>
+          <CastTrackProgress song={currentSong} />
         </div>
       </div>
 
@@ -92,7 +67,7 @@ export const ActiveView: React.FC = () => {
             Up Next ({upNext.length})
           </h2>
           <div className="cast-listener-badge flex items-center gap-2 rounded-full border border-secondary/30 bg-black/30 px-4 py-2 text-sm text-theme-muted">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
+            <span className="h-2 w-2 rounded-full bg-secondary" />
             {participantCount}{' '}
             {participantCount === 1 ? 'listener' : 'listeners'}
           </div>
@@ -101,7 +76,7 @@ export const ActiveView: React.FC = () => {
         <CastQueue songs={upNext} />
 
         <div className="cast-room-card mt-5 rounded-3xl border border-primary/30 bg-black/30 p-4">
-          <div className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-white p-2 shadow-lg">
+          <div className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-white p-2">
             <QRCodeSVG
               className="cast-join-code h-24 w-24"
               value={joinUrl}

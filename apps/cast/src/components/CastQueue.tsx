@@ -61,6 +61,7 @@ export function CastQueue({ songs }: Props) {
               <img
                 src={resolveSongThumbnail(song.thumbnailUrl)}
                 alt=""
+                decoding="async"
                 className="cast-queue-thumbnail h-16 w-16 shrink-0 rounded-xl border object-cover"
               />
               <div className="cast-queue-track-details min-w-0 flex-1">
