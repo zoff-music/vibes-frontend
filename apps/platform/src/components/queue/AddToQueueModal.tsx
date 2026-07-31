@@ -23,7 +23,7 @@ import {
   SpotifyIcon,
   YouTubeIcon,
 } from '@vibes/ui';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../../routes/rooms.$id/action';
 
@@ -61,6 +61,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [previewTrack, setPreviewTrack] = useState<SearchResult | null>(null);
   const [justAdded, setJustAdded] = useState(false);
   const [addOutcome, setAddOutcome] = useState<AddSongOutcome | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const { songs } = useQueueStore();
   const { currentSong } = usePlaybackStore();
 
@@ -299,6 +300,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     <Modal
       alignment="top"
       ariaLabelledBy="add-song-title"
+      initialFocusRef={searchInputRef}
       isOpen={isVisible}
       onClose={onClose}
       size="lg"
@@ -390,13 +392,13 @@ export const AddToQueueModal: React.FC<Props> = ({
               {!isSearching && <SearchIcon className="h-5 w-5" />}
             </div>
             <input
+              ref={searchInputRef}
               type="text"
               placeholder={`Search ${selectedProvider}...`}
               value={searchQuery}
               onChange={handleSearchInputChange}
               onKeyDown={handleKeyDown}
               className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
-              autoFocus
             />
             {searchQuery && (
               <Button
