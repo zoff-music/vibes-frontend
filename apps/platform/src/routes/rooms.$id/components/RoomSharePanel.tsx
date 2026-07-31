@@ -17,13 +17,21 @@ export const RoomSharePanel = ({ url, roomId, onShare }: Props) => {
 
   return (
     <div className="space-y-6 text-center">
-      <div className="inline-block rounded-2xl border border-theme bg-theme-surface p-4">
+      <div className="inline-flex rounded-xl border border-theme bg-white p-2">
         <QRCodeSVG
           value={url}
           size={180}
           bgColor="#ffffff"
           fgColor="#2a1840"
           level="H"
+          marginSize={4}
+          title={`Join ${roomId}`}
+          imageSettings={{
+            src: platformLogoUrl,
+            height: 32,
+            width: 32,
+            excavate: true,
+          }}
         />
       </div>
 
@@ -46,3 +54,5 @@ export const RoomSharePanel = ({ url, roomId, onShare }: Props) => {
     </div>
   );
 };
+
+const platformLogoUrl = `${import.meta.env.BASE_URL}logo.png`;
