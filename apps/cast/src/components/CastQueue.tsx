@@ -1,5 +1,5 @@
 import { resolveSongThumbnail, type Song } from '@vibes/shared';
-import { ProviderIcon } from '@vibes/ui';
+import { ProviderIcon, VoteIcon } from '@vibes/ui';
 import { useEffect, useRef, useState } from 'react';
 
 interface Props {
@@ -71,10 +71,18 @@ export function CastQueue({ songs }: Props) {
                   {formatDuration(song.duration)}
                 </p>
               </div>
-              <ProviderIcon
-                className="h-5 w-5 shrink-0 text-white/70"
-                provider={song.sourceType}
-              />
+              <div className="flex shrink-0 items-center gap-3">
+                <div className="flex items-center gap-1 text-secondary">
+                  <VoteIcon className="h-4 w-4" />
+                  <span className="min-w-4 text-center text-xs tabular-nums">
+                    {song.voteCount ?? 0}
+                  </span>
+                </div>
+                <ProviderIcon
+                  className="h-5 w-5 text-white/70"
+                  provider={song.sourceType}
+                />
+              </div>
             </div>
           ))}
         </div>
