@@ -76,14 +76,22 @@ export const ActiveView: React.FC = () => {
         <CastQueue songs={upNext} />
 
         <div className="cast-room-card mt-5 rounded-3xl border border-primary/30 bg-black/30 p-4">
-          <div className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-white p-2">
+          <div className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white p-2">
             <QRCodeSVG
               className="cast-join-code h-24 w-24"
               value={joinUrl}
               size={96}
               bgColor="#ffffff"
               fgColor="#000000"
-              level="M"
+              level="H"
+              marginSize={4}
+              title={`Join ${roomName}`}
+              imageSettings={{
+                src: castLogoUrl,
+                height: 18,
+                width: 18,
+                excavate: true,
+              }}
             />
           </div>
           <div className="min-w-0">
@@ -102,3 +110,5 @@ export const ActiveView: React.FC = () => {
     </div>
   );
 };
+
+const castLogoUrl = `${import.meta.env.BASE_URL}logo.png`;
