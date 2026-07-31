@@ -21,8 +21,6 @@ interface CastContextType {
   statusText: string;
   roomMode: string | null;
   currentSong: Song | null;
-  actualPositionMs: number;
-  updateActualPosition: () => void;
   debugMode: boolean;
   roomId: string | null;
   casterId: string | null;
@@ -76,7 +74,6 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   const updateActualPosition = usePlaybackStore(
     (state) => state.updateActualPosition,
   );
-  const actualPositionMs = usePlaybackStore((state) => state.actualPositionMs);
   const currentSong = usePlaybackStore((state) => state.currentSong);
 
   // --- Hooks ---
@@ -122,7 +119,7 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const interval = setInterval(() => {
       updateActualPosition();
-    }, 500);
+    }, POSITION_UPDATE_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, [updateActualPosition]);
@@ -178,8 +175,6 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
         statusText,
         roomMode,
         currentSong,
-        actualPositionMs,
-        updateActualPosition,
         debugMode,
         roomId: roomId || null,
         casterId: casterId || null,
@@ -202,3 +197,5 @@ export function useCast() {
   }
   return context;
 }
+
+const POSITION_UPDATE_INTERVAL_MS = 1000;
