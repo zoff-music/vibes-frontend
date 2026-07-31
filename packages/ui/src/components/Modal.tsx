@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { motion, useReducedMotion } from 'framer-motion';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
@@ -10,6 +10,7 @@ interface Props {
   ariaLabelledBy: string;
   children: ReactNode;
   className?: string;
+  initialFocusRef?: RefObject<HTMLElement | null>;
   isOpen: boolean;
   onClose: () => void;
   size?: 'lg' | 'md' | 'sm';
@@ -20,6 +21,7 @@ export function Modal({
   ariaLabelledBy,
   children,
   className = '',
+  initialFocusRef,
   isOpen,
   onClose,
   size = 'md',
@@ -67,7 +69,11 @@ export function Modal({
     const firstFocusableElement = panelRef.current?.querySelector<HTMLElement>(
       'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
     );
-    (firstFocusableElement || panelRef.current)?.focus();
+    (
+      initialFocusRef?.current ||
+      firstFocusableElement ||
+      panelRef.current
+    )?.focus();
 
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -76,7 +82,7 @@ export function Modal({
         previousActiveElement.focus();
       }
     };
-  }, [isOpen, onClose]);
+  }, [initialFocusRef, isOpen, onClose]);
 
   if (!isOpen || typeof document === 'undefined') return null;
 
