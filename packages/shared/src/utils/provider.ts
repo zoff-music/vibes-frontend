@@ -6,6 +6,12 @@ export interface ProviderTrackLink {
   sourceId?: string;
 }
 
+export interface ProviderPlaylistLink {
+  provider: SourceType;
+  providerUrl?: string;
+  sourceId?: string;
+}
+
 export const getProviderTrackUrl = (
   provider: SourceType,
   sourceId: string,
@@ -84,6 +90,60 @@ export const parseProviderTrackLink = (
     ((hostname === 'on.soundcloud.com' && pathSegments.length >= 1) ||
       pathSegments.length >= 2);
   if (isSoundCloudTrack) {
+    url.search = '';
+    url.hash = '';
+    return {
+      provider: 'soundcloud',
+      providerUrl: url.toString(),
+    };
+  }
+
+  return null;
+};
+
+export const parseProviderPlaylistLink = (
+  value: string,
+): ProviderPlaylistLink | null => {
+  const trimmedValue = value.trim();
+  if (!URL.canParse(trimmedValue)) {
+    return null;
+  }
+
+  const url = new URL(trimmedValue);
+  const hostname = url.hostname.toLowerCase();
+  const pathSegments = url.pathname.split('/').filter(Boolean);
+  const isYouTubeHost =
+    hostname === 'youtube.com' ||
+    hostname.endsWith('.youtube.com') ||
+    hostname === 'youtu.be' ||
+    hostname.endsWith('.youtu.be');
+  const youtubePlaylistId = url.searchParams.get('list') ?? '';
+  if (isYouTubeHost && /^[A-Za-z0-9_-]+$/.test(youtubePlaylistId)) {
+    return {
+      provider: 'youtube',
+      sourceId: youtubePlaylistId,
+    };
+  }
+
+  if (
+    (hostname === 'open.spotify.com' ||
+      hostname.endsWith('.open.spotify.com')) &&
+    pathSegments[0] === 'playlist' &&
+    /^[A-Za-z0-9]+$/.test(pathSegments[1] ?? '')
+  ) {
+    return {
+      provider: 'spotify',
+      sourceId: pathSegments[1],
+    };
+  }
+
+  const isSoundCloudHost =
+    hostname === 'soundcloud.com' || hostname.endsWith('.soundcloud.com');
+  const isSoundCloudPlaylist =
+    isSoundCloudHost &&
+    ((hostname === 'on.soundcloud.com' && pathSegments.length >= 1) ||
+      (pathSegments.length >= 3 && pathSegments[1] === 'sets'));
+  if (isSoundCloudPlaylist) {
     url.search = '';
     url.hash = '';
     return {

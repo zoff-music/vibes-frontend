@@ -4,6 +4,7 @@ import {
   formatDuration,
   getProviderTrackUrl,
   parseISODuration,
+  parseProviderPlaylistLink,
   parseProviderTrackLink,
   resolveSongThumbnail,
   type SourceType,
@@ -44,6 +45,16 @@ interface SearchResult {
   source: SourceType;
 }
 
+interface PlaylistPreview {
+  title?: string;
+  tracks: PlaylistTrack[];
+  truncated: boolean;
+}
+
+interface PlaylistTrack extends SearchResult {
+  key: string;
+}
+
 export const AddToQueueModal: React.FC<Props> = ({
   room,
   providers,
@@ -59,8 +70,12 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewTrack, setPreviewTrack] = useState<SearchResult | null>(null);
+  const [previewPlaylist, setPreviewPlaylist] =
+    useState<PlaylistPreview | null>(null);
   const [justAdded, setJustAdded] = useState(false);
   const [addOutcome, setAddOutcome] = useState<AddSongOutcome | null>(null);
+  const [addedPlaylistCount, setAddedPlaylistCount] = useState(0);
+  const [existingPlaylistCount, setExistingPlaylistCount] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { songs } = useQueueStore();
   const { currentSong } = usePlaybackStore();
@@ -96,9 +111,12 @@ export const AddToQueueModal: React.FC<Props> = ({
         setSearchResults([]);
         setShowResults(false);
         setPreviewTrack(null);
+        setPreviewPlaylist(null);
         setError(null);
         setJustAdded(false);
         setAddOutcome(null);
+        setAddedPlaylistCount(0);
+        setExistingPlaylistCount(0);
       }, 300);
     }
   }, [isVisible]);
@@ -111,10 +129,34 @@ export const AddToQueueModal: React.FC<Props> = ({
       setError(
         searchFetcher.data.intent === 'providerTrack'
           ? 'Could not load that track'
-          : searchFetcher.data.error,
+          : searchFetcher.data.intent === 'providerPlaylist'
+            ? 'Could not load that playlist'
+            : searchFetcher.data.error,
       );
       setSearchResults([]);
       setShowResults(false);
+      return;
+    }
+
+    if (
+      searchFetcher.data.intent === 'providerPlaylist' &&
+      searchFetcher.data.playlist
+    ) {
+      const playlist = searchFetcher.data.playlist;
+      setPreviewPlaylist({
+        title: playlist.title,
+        tracks: playlist.tracks.map((track) => ({
+          artist: track.channelTitle ?? 'Unknown',
+          duration: track.duration,
+          id: track.id,
+          key: crypto.randomUUID(),
+          providerUrl: track.providerUrl,
+          source: track.source,
+          thumbnailUrl: track.thumbnailUrl ?? '',
+          title: track.title,
+        })),
+        truncated: playlist.truncated,
+      });
       return;
     }
 
@@ -156,11 +198,33 @@ export const AddToQueueModal: React.FC<Props> = ({
 
   useEffect(() => {
     if (songFetcher.state !== 'idle' || !songFetcher.data) return;
-    if (songFetcher.data.intent !== 'addSong') return;
+    if (
+      songFetcher.data.intent !== 'addSong' &&
+      songFetcher.data.intent !== 'addPlaylist'
+    )
+      return;
     setIsLoading(false);
 
+    if (songFetcher.data.intent === 'addPlaylist') {
+      if (songFetcher.data.error || !songFetcher.data.addPlaylist) {
+        setError(songFetcher.data.error ?? 'Failed to add playlist to queue');
+        return;
+      }
+
+      const addedCount = songFetcher.data.addPlaylist.results.filter(
+        (result) => result.outcome === 'added',
+      ).length;
+      setAddedPlaylistCount(addedCount);
+      setExistingPlaylistCount(
+        songFetcher.data.addPlaylist.results.length - addedCount,
+      );
+      setJustAdded(true);
+      const timeout = window.setTimeout(onClose, 1600);
+      return () => window.clearTimeout(timeout);
+    }
+
     if (songFetcher.data.error || !songFetcher.data.addSong) {
-      setError('Failed to add song to queue');
+      setError(songFetcher.data.error ?? 'Failed to add song to queue');
       return;
     }
 
@@ -186,8 +250,36 @@ export const AddToQueueModal: React.FC<Props> = ({
     setIsSearching(true);
     setError(null);
     setPreviewTrack(null);
+    setPreviewPlaylist(null);
     setSearchResults([]);
     setShowResults(false);
+
+    const providerPlaylistLink = parseProviderPlaylistLink(trimmedQuery);
+    if (providerPlaylistLink) {
+      if (!providerList.includes(providerPlaylistLink.provider)) {
+        setIsSearching(false);
+        setError(
+          `${providerNames[providerPlaylistLink.provider]} is not enabled in this room`,
+        );
+        return;
+      }
+
+      setSelectedProvider(providerPlaylistLink.provider);
+      searchFetcher.submit(
+        {
+          intent: 'providerPlaylist',
+          provider: providerPlaylistLink.provider,
+          ...(providerPlaylistLink.sourceId
+            ? { songId: providerPlaylistLink.sourceId }
+            : {}),
+          ...(providerPlaylistLink.providerUrl
+            ? { providerUrl: providerPlaylistLink.providerUrl }
+            : {}),
+        },
+        { encType: 'application/json', method: 'post' },
+      );
+      return;
+    }
 
     const providerTrackLink = parseProviderTrackLink(trimmedQuery);
     if (providerTrackLink) {
@@ -238,6 +330,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     setSearchQuery(query);
     setError(null);
     setPreviewTrack(null);
+    setPreviewPlaylist(null);
     setSearchResults([]);
     setShowResults(false);
 
@@ -279,6 +372,30 @@ export const AddToQueueModal: React.FC<Props> = ({
     handleSelectResult(previewTrack);
   };
 
+  const handleAddPlaylist = () => {
+    if (!previewPlaylist || justAdded || previewPlaylist.tracks.length === 0)
+      return;
+
+    setIsLoading(true);
+    songFetcher.submit(
+      {
+        intent: 'addPlaylist',
+        playlist: {
+          songs: previewPlaylist.tracks.map((track) => ({
+            artist: track.artist,
+            duration: parseISODuration(track.duration),
+            sourceId: track.id,
+            sourceType: track.source,
+            thumbnailUrl: track.thumbnailUrl,
+            title: track.title,
+            ...(track.providerUrl ? { providerUrl: track.providerUrl } : {}),
+          })),
+        },
+      },
+      { encType: 'application/json', method: 'post' },
+    );
+  };
+
   const handleSearchInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -289,10 +406,34 @@ export const AddToQueueModal: React.FC<Props> = ({
     performSearch(searchQuery);
   };
 
+  const providerPlaylistLink = parseProviderPlaylistLink(searchQuery);
   const providerTrackLink = parseProviderTrackLink(searchQuery);
   const canSubmitSearch =
+    Boolean(providerPlaylistLink) ||
     Boolean(providerTrackLink) ||
     searchQuery.trim().length >= MINIMUM_SEARCH_QUERY_LENGTH;
+
+  let successTitle = 'Added to Queue!';
+  let successDescription = 'Everyone will hear it soon';
+  if (addOutcome === 'duplicate_voted') {
+    successTitle = 'Song already exists, voted on song';
+    successDescription = 'Your vote moved it up the queue';
+  }
+  if (addOutcome === 'duplicate_already_voted') {
+    successTitle = 'Song already exists, vote already counted';
+    successDescription = 'Your existing vote is still counted';
+  }
+  if (existingPlaylistCount > 0) {
+    successTitle = 'Playlist songs are already in the queue';
+    successDescription = 'All of these songs were already in the queue';
+  }
+  if (addedPlaylistCount > 0) {
+    successTitle = `Added ${addedPlaylistCount} songs to the queue!`;
+    successDescription = 'The playlist is ready for everyone in the room';
+    if (existingPlaylistCount > 0) {
+      successDescription = `${existingPlaylistCount} songs were already in the queue`;
+    }
+  }
 
   if (!isVisible) return null;
 
@@ -313,7 +454,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               Add a Song
             </h2>
             <p className="mt-1 text-sm text-theme-muted">
-              Search or paste a link
+              Search or paste a song or playlist link
             </p>
           </div>
           <Button
@@ -336,6 +477,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                 setSearchResults([]);
                 setSearchQuery('');
                 setPreviewTrack(null);
+                setPreviewPlaylist(null);
               }}
               variant={selectedProvider === p ? 'tertiary' : 'ghost'}
             >
@@ -477,14 +619,17 @@ export const AddToQueueModal: React.FC<Props> = ({
       </div>
 
       {/* Loading State */}
-      {isSearching && !previewTrack && providerTrackLink && (
-        <div className="animate-scale-in rounded-2xl border border-theme bg-theme-surface p-8 text-center">
-          <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-theme bg-theme">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+      {isSearching &&
+        !previewTrack &&
+        !previewPlaylist &&
+        (providerTrackLink || providerPlaylistLink) && (
+          <div className="animate-scale-in rounded-2xl border border-theme bg-theme-surface p-8 text-center">
+            <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-theme bg-theme">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            </div>
+            <p className="text-sm text-theme-muted">Loading preview...</p>
           </div>
-          <p className="text-sm text-theme-muted">Loading preview...</p>
-        </div>
-      )}
+        )}
 
       {/* Video Preview */}
       {previewTrack && !justAdded && (
@@ -513,26 +658,57 @@ export const AddToQueueModal: React.FC<Props> = ({
         </div>
       )}
 
+      {previewPlaylist && !justAdded && (
+        <div className="mb-6 animate-scale-in overflow-hidden rounded-2xl border border-theme bg-theme-surface">
+          <div className="border-theme border-b p-4">
+            <h3 className="text-sm text-theme">
+              {previewPlaylist.title ?? 'Playlist ready to import'}
+            </h3>
+            <p className="mt-1 text-theme-muted text-xs">
+              {previewPlaylist.tracks.length} songs found
+            </p>
+            {previewPlaylist.truncated && (
+              <p className="mt-2 text-orange-400 text-xs">
+                This playlist is very large. The available songs shown below
+                will be added.
+              </p>
+            )}
+          </div>
+          <div className="max-h-72 overflow-y-auto">
+            {previewPlaylist.tracks.map((track, index) => (
+              <div
+                key={track.key}
+                className="flex items-center gap-3 border-theme border-t px-4 py-3 first:border-t-0"
+              >
+                <span className="w-6 shrink-0 text-right text-theme-subtle text-xs">
+                  {index + 1}
+                </span>
+                <img
+                  src={resolveSongThumbnail(track.thumbnailUrl)}
+                  alt=""
+                  className="h-12 w-12 shrink-0 rounded-lg border border-theme object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-theme text-xs">{track.title}</p>
+                  <p className="mt-1 truncate text-theme-muted text-xs">
+                    {track.artist}
+                  </p>
+                </div>
+                <ProviderAttribution result={track} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Success State */}
       {justAdded && (
         <div className="animate-scale-in rounded-2xl border border-secondary/40 bg-secondary/10 p-10 text-center">
           <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-secondary/40 bg-secondary/20">
             <CheckIcon className="h-10 w-10 text-secondary" />
           </div>
-          <h3 className="mb-2 text-base text-theme">
-            {addOutcome === 'duplicate_voted'
-              ? 'song already exists, voted on song'
-              : addOutcome === 'duplicate_already_voted'
-                ? 'song already exists, vote already counted'
-                : 'Added to Queue!'}
-          </h3>
-          <p className="mb-1 text-sm text-theme-muted">
-            {addOutcome === 'duplicate_voted'
-              ? 'Your vote moved it up the queue'
-              : addOutcome === 'duplicate_already_voted'
-                ? 'Your existing vote is still counted'
-                : 'Everyone will hear it soon'}
-          </p>
+          <h3 className="mb-2 text-base text-theme">{successTitle}</h3>
+          <p className="mb-1 text-sm text-theme-muted">{successDescription}</p>
           <p className="jp-art text-theme-subtle text-xs">追加されました</p>
         </div>
       )}
@@ -561,6 +737,30 @@ export const AddToQueueModal: React.FC<Props> = ({
                 <span>Add to Queue</span>
               </>
             )}
+          </Button>
+        </div>
+      )}
+
+      {previewPlaylist && !justAdded && (
+        <div className="flex gap-3">
+          <Button onClick={onClose} variant="tertiary" className="flex-1">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddPlaylist}
+            disabled={isLoading || previewPlaylist.tracks.length === 0}
+            variant="primary"
+            className="flex-1 gap-2"
+          >
+            {isLoading && (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            )}
+            {!isLoading && <PlusIcon className="h-5 w-5" />}
+            <span>
+              {isLoading
+                ? 'Adding playlist...'
+                : `Add all ${previewPlaylist.tracks.length}`}
+            </span>
           </Button>
         </div>
       )}

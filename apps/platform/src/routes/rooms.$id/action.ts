@@ -5,8 +5,11 @@ import {
   getRateLimitMessage,
 } from '@vibes/api';
 import type {
+  AddPlaylistRequest,
+  AddPlaylistResponse,
   AddSongRequest,
   AddSongResponse,
+  MusicPlaylist,
   PlaybackState,
   ProviderToken,
   Room,
@@ -21,11 +24,13 @@ import type {
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export type RoomActionIntent =
+  | 'addPlaylist'
   | 'addSong'
   | 'generatePlaylist'
   | 'joinRoom'
   | 'playback'
   | 'providerToken'
+  | 'providerPlaylist'
   | 'providerTrack'
   | 'removeSong'
   | 'resetPlayback'
@@ -35,11 +40,13 @@ export type RoomActionIntent =
   | 'voteSong';
 
 export interface RoomActionData {
+  addPlaylist?: AddPlaylistResponse;
   addSong?: AddSongResponse;
   error?: string;
   intent: RoomActionIntent;
   generation?: RoomGenerationUpdate;
   playback?: PlaybackState;
+  playlist?: MusicPlaylist;
   provider?: 'soundcloud' | 'spotify' | 'youtube';
   providerToken?: ProviderToken;
   room?: Room;
@@ -61,6 +68,7 @@ interface RoomActionRequest {
   song?: AddSongRequest;
   songId?: string;
   providerUrl?: string;
+  playlist?: AddPlaylistRequest;
 }
 
 async function createErrorData(intent: RoomActionIntent, error: Error | null) {
@@ -202,6 +210,21 @@ export async function clientAction({
     return { addSong, intent: body.intent };
   }
 
+  if (body.intent === 'addPlaylist') {
+    if (!body.playlist) {
+      return { error: 'Playlist is required', intent: body.intent };
+    }
+    const [error, addPlaylist] = await api.post(
+      '/rooms/{id}/playlists',
+      { id: roomId },
+      body.playlist,
+    );
+    if (error || !addPlaylist) {
+      return createErrorData(body.intent, error);
+    }
+    return { addPlaylist, intent: body.intent };
+  }
+
   if (body.intent === 'removeSong') {
     if (!body.songId) {
       return { error: 'Song ID is required', intent: body.intent };
@@ -291,6 +314,56 @@ export async function clientAction({
       return createErrorData(body.intent, error);
     }
     return { intent: body.intent, track };
+  }
+
+  if (body.intent === 'providerPlaylist') {
+    if (!body.provider) {
+      return { error: 'Provider is required', intent: body.intent };
+    }
+
+    if (body.provider === 'youtube') {
+      if (!body.songId) {
+        return { error: 'Playlist ID is required', intent: body.intent };
+      }
+      const [error, playlist] = await api.get('/youtube/playlists/{id}', {
+        id: body.songId,
+      });
+      if (error || !playlist) {
+        return createErrorData(body.intent, error);
+      }
+      return { intent: body.intent, playlist };
+    }
+
+    if (body.provider === 'spotify') {
+      if (!body.songId) {
+        return { error: 'Playlist ID is required', intent: body.intent };
+      }
+      const [error, playlist] = await api.get('/spotify/playlists/{id}', {
+        id: body.songId,
+      });
+      if (error || !playlist) {
+        return createErrorData(body.intent, error);
+      }
+      return { intent: body.intent, playlist };
+    }
+
+    if (!body.providerUrl) {
+      return { error: 'SoundCloud URL is required', intent: body.intent };
+    }
+    const [error, playlist] = await api.get('/soundcloud/playlists', {
+      $search: { url: body.providerUrl },
+    });
+    if (!error && playlist) {
+      return { intent: body.intent, playlist };
+    }
+
+    const [trackError, track] = await api.get('/soundcloud/tracks', {
+      $search: { url: body.providerUrl },
+    });
+    if (trackError || !track) {
+      return createErrorData(body.intent, trackError ?? error);
+    }
+    return { intent: 'providerTrack', track };
   }
 
   if (body.intent === 'search') {

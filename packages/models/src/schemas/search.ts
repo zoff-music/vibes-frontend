@@ -12,6 +12,15 @@ export const searchResultSchema = yup.object({
 });
 export type SearchResult = yup.InferType<typeof searchResultSchema>;
 
+export const musicPlaylistSchema = yup.object({
+  id: yup.string().required(),
+  source: sourceTypeSchema,
+  title: yup.string().optional(),
+  tracks: yup.array(searchResultSchema).required(),
+  truncated: yup.boolean().required(),
+});
+export type MusicPlaylist = yup.InferType<typeof musicPlaylistSchema>;
+
 export const searchResponseSchema = yup.array(searchResultSchema).required();
 export type SearchResponse = yup.InferType<typeof searchResponseSchema>;
 

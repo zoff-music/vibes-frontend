@@ -7,6 +7,8 @@ declare const process:
   | undefined;
 
 import {
+  addPlaylistRequestSchema,
+  addPlaylistResponseSchema,
   addSongRequestSchema,
   addSongResponseSchema,
   adminCreateUserRequestSchema,
@@ -30,6 +32,7 @@ import {
   emptyObjectSchema,
   generatedPlaylistRequestSchema,
   messageResponseSchema,
+  musicPlaylistSchema,
   playbackStateSchema,
   providersSchema,
   providerTokenSchema,
@@ -223,6 +226,12 @@ const endpoints = {
       response: emptyObjectSchema,
     },
   },
+  '/rooms/{id}/playlists': {
+    post: {
+      request: addPlaylistRequestSchema,
+      response: addPlaylistResponseSchema,
+    },
+  },
   '/rooms/generation': {
     post: {
       request: generatedPlaylistRequestSchema,
@@ -245,6 +254,22 @@ const endpoints = {
   '/youtube/videos/{id}': {
     get: {
       response: youTubeVideoSchema,
+    },
+  },
+  '/youtube/playlists/{id}': {
+    get: {
+      response: musicPlaylistSchema,
+    },
+  },
+  '/soundcloud/playlists': {
+    get: {
+      $search: providerURLQuerySchema,
+      response: musicPlaylistSchema,
+    },
+  },
+  '/spotify/playlists/{id}': {
+    get: {
+      response: musicPlaylistSchema,
     },
   },
   '/rooms/{id}/events': {
