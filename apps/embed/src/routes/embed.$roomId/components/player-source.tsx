@@ -22,6 +22,7 @@ interface Props {
   enabledProviders: string[];
   onLocalAlignmentChange: (isAligned: boolean) => void;
   onLocalInteraction: () => void;
+  onLocalPlay: () => void;
   requestProviderToken: (provider: 'spotify', force?: boolean) => void;
   spotifyTokenLoading: boolean;
   spotifyToken: string | null;
@@ -47,6 +48,7 @@ function EmbedPlayerSourceComponent({
   enabledProviders,
   onLocalAlignmentChange,
   onLocalInteraction,
+  onLocalPlay,
   requestProviderToken,
   spotifyTokenLoading,
   spotifyToken,
@@ -106,7 +108,7 @@ function EmbedPlayerSourceComponent({
               appContext="platform"
               onLocalAlignmentChange={onLocalAlignmentChange}
               onLocalPause={onLocalInteraction}
-              onLocalPlay={onLocalInteraction}
+              onLocalPlay={onLocalPlay}
               onLocalSeek={onLocalInteraction}
               onLocalVolumeChange={onLocalInteraction}
               preloadSong={preloadYouTubeSong}
@@ -171,5 +173,6 @@ export const EmbedPlayerSource = memo(
     previous.spotifyToken === next.spotifyToken &&
     previous.spotifyTokenLoading === next.spotifyTokenLoading &&
     previous.onLocalAlignmentChange === next.onLocalAlignmentChange &&
-    previous.onLocalInteraction === next.onLocalInteraction,
+    previous.onLocalInteraction === next.onLocalInteraction &&
+    previous.onLocalPlay === next.onLocalPlay,
 );
