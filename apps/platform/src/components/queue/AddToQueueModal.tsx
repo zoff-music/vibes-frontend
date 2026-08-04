@@ -453,8 +453,8 @@ export const AddToQueueModal: React.FC<Props> = ({
             <h2 id="add-song-title" className="text-base text-theme">
               Add a Song
             </h2>
-            <p className="mt-1 text-sm text-theme-muted">
-              Search or paste a song or playlist link
+            <p className="mt-1 text-theme-muted text-xs">
+              Search by title, or paste a song or playlist link
             </p>
           </div>
           <Button
