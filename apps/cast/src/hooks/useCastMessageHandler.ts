@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/shared';
+import type { ResolvedColorScheme, Song } from '@vibes/shared';
 import { usePlaybackStore } from '@vibes/shared';
 import { useCallback } from 'react';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
@@ -13,6 +13,7 @@ interface UseCastMessageHandlerProps {
   setStatusText: (text: string) => void;
   updateMediaMetadata: (song: Song) => void;
   roomMode: string | null;
+  setColorScheme: (colorScheme: ResolvedColorScheme) => void;
 }
 
 export const useCastMessageHandler = ({
@@ -24,6 +25,7 @@ export const useCastMessageHandler = ({
   setStatusText,
   updateMediaMetadata,
   roomMode,
+  setColorScheme,
 }: UseCastMessageHandlerProps) => {
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const setIsPlaying = usePlaybackStore((state) => state.setIsPlaying);
@@ -45,12 +47,19 @@ export const useCastMessageHandler = ({
           if ('castToken' in message) {
             setCastToken(message.castToken || null);
           }
+          if (message.theme) {
+            setColorScheme(message.theme);
+          }
           const casterId = message.casterId || message.sessionId || undefined;
           if (casterId !== undefined) {
             setCasterId(casterId || null);
           }
           break;
         }
+
+        case 'updateTheme':
+          setColorScheme(message.theme);
+          break;
 
         case 'updatePlayback':
         case 'syncPlayback': {
@@ -121,6 +130,7 @@ export const useCastMessageHandler = ({
       setRoomInfo,
       setQueue,
       setStatusText,
+      setColorScheme,
     ],
   );
 

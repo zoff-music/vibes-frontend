@@ -1,5 +1,9 @@
 import type { CastDevice, CastSession } from '@vibes/models';
-import { safeWrap, useRoomStore } from '@vibes/shared';
+import {
+  type ResolvedColorScheme,
+  safeWrap,
+  useRoomStore,
+} from '@vibes/shared';
 
 import { CUSTOM_RECEIVER_URL, LOCAL_EMULATOR_DEVICE_ID } from './constants';
 import type { LocalCastMessage } from './types';
@@ -19,15 +23,18 @@ export class LocalEmulator {
   private notifyDeviceAvailable: (device: CastDevice) => void;
   private getDevices: () => CastDevice[];
   private setDevices: (devices: CastDevice[]) => void;
+  private getColorScheme: () => ResolvedColorScheme;
 
   constructor(deps: {
     notifyDeviceAvailable: (device: CastDevice) => void;
     getDevices: () => CastDevice[];
     setDevices: (devices: CastDevice[]) => void;
+    getColorScheme: () => ResolvedColorScheme;
   }) {
     this.notifyDeviceAvailable = deps.notifyDeviceAvailable;
     this.getDevices = deps.getDevices;
     this.setDevices = deps.setDevices;
+    this.getColorScheme = deps.getColorScheme;
 
     if (typeof window !== 'undefined') {
       window.addEventListener(
@@ -157,6 +164,7 @@ export class LocalEmulator {
 
     const params = new URLSearchParams();
     params.set('castReceiver', '1');
+    params.set('theme', this.getColorScheme());
 
     const roomId = this.getRoomIdFromContext();
     if (roomId) {

@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/shared';
+import type { ResolvedColorScheme, Song } from '@vibes/shared';
 
 export interface RoomInfo {
   name: string;
@@ -44,4 +44,9 @@ export type LocalCastMessage =
       castToken?: string;
       casterId?: string;
       sessionId?: string;
+      theme?: ResolvedColorScheme;
+    }
+  | {
+      action: 'updateTheme';
+      theme: ResolvedColorScheme;
     };

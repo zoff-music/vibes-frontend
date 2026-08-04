@@ -1,5 +1,7 @@
 // Cast message types for communication between sender and receiver
 
+import type { ResolvedColorScheme } from '@vibes/shared';
+
 export type LocalCastMessage =
   | {
       action: 'receiverReady';
@@ -39,6 +41,12 @@ export type LocalCastMessage =
       castToken?: string;
       casterId?: string;
       sessionId?: string;
+      theme: ResolvedColorScheme;
+      timestamp: number;
+    }
+  | {
+      action: 'updateTheme';
+      theme: ResolvedColorScheme;
       timestamp: number;
     }
   | {

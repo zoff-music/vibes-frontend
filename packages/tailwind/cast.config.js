@@ -87,16 +87,16 @@ export default {
           textShadow: '0 0 10px rgba(255, 62, 166, 0.6)',
         },
         '.bg-theme': {
-          backgroundColor: '#0b0718',
+          backgroundColor: 'var(--cast-background)',
         },
         '.text-theme': {
-          color: '#f9f3ff',
+          color: 'var(--cast-text)',
         },
         '.text-theme-muted': {
-          color: '#c2b7e8',
+          color: 'var(--cast-text-muted)',
         },
         '.text-theme-subtle': {
-          color: '#8e82b8',
+          color: 'var(--cast-text-subtle)',
         },
         '.vhs-scanlines::before': {
           content: '""',
@@ -109,23 +109,22 @@ export default {
           opacity: '0.8',
         },
         '.panel-surface': {
-          backgroundImage:
-            'linear-gradient(145deg, rgba(26, 12, 50, 0.92), rgba(40, 18, 70, 0.98))',
+          backgroundImage: 'var(--cast-panel-surface)',
           borderRadius: '14px',
           borderWidth: '1px',
-          borderColor: 'rgba(255, 120, 195, 0.2)',
-          boxShadow: '0 5px 15px rgba(0, 0, 0, 0.4)',
+          borderColor: 'var(--cast-border)',
+          boxShadow: 'var(--cast-shadow)',
         },
         '.panel-frame': {
           borderRadius: '22px',
           borderWidth: '1px',
-          borderColor: 'rgba(255, 120, 195, 0.3)',
-          boxShadow: '0 10px 20px rgba(0, 0, 0, 0.5)',
+          borderColor: 'var(--cast-border-strong)',
+          boxShadow: 'var(--cast-shadow)',
         },
         '.cast-queue button': {
-          backgroundColor: 'rgba(40, 18, 70, 0.85)',
-          border: '1px solid rgba(112, 72, 140, 0.3)',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          backgroundColor: 'var(--cast-surface)',
+          border: '1px solid var(--cast-border)',
+          boxShadow: 'var(--cast-shadow)',
           textAlign: 'left',
         },
         '.vhs-tear-strong': {

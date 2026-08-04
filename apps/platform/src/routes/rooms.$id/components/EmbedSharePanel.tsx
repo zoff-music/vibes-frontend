@@ -1,13 +1,21 @@
-import { safeWrap, safeWrapAsync } from '@vibes/shared';
+import {
+  type ColorScheme,
+  parseColorScheme,
+  safeWrap,
+  safeWrapAsync,
+} from '@vibes/shared';
 import {
   Button,
   CheckIcon,
+  CircleHalfIcon,
   CloseIcon,
   CopyIcon,
   Modal,
+  MoonIcon,
+  SunIcon,
   Toggle,
 } from '@vibes/ui';
-import { useMemo, useRef, useState } from 'react';
+import { type MouseEvent, useMemo, useRef, useState } from 'react';
 
 interface Props {
   url: string;
@@ -21,6 +29,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
   const [playlist, setPlaylist] = useState(true);
   const [skip, setSkip] = useState(true);
   const [vote, setVote] = useState(true);
+  const [theme, setTheme] = useState<ColorScheme>('auto');
   const [copied, setCopied] = useState(false);
   const codeRef = useRef<HTMLElement>(null);
 
@@ -34,9 +43,15 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
     embedUrl.searchParams.set('playlist', String(playlist));
     embedUrl.searchParams.set('skip', String(skip));
     embedUrl.searchParams.set('vote', String(vote));
+    embedUrl.searchParams.set('theme', theme);
 
     return `<iframe src="${embedUrl.toString()}" title="Zoff room ${roomId}" width="100%" height="480" loading="lazy" frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
-  }, [embedBasePath, player, playlist, roomId, skip, url, vote]);
+  }, [embedBasePath, player, playlist, roomId, skip, theme, url, vote]);
+
+  const handleThemeChange = (event: MouseEvent<HTMLButtonElement>) => {
+    setTheme(parseColorScheme(event.currentTarget.value));
+    setCopied(false);
+  };
 
   const handleCopyEmbedScript = async () => {
     const selection = window.getSelection();
@@ -164,6 +179,62 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
                 label="Skipping"
                 description="Show the skip control when the room allows skipping."
               />
+            </div>
+          </section>
+
+          <section aria-labelledby="embed-appearance-title">
+            <div className="mb-3">
+              <h3
+                id="embed-appearance-title"
+                className="font-pixel text-2xs text-theme tracking-display"
+              >
+                Appearance
+              </h3>
+              <p className="mt-1 text-theme-muted text-xs">
+                Auto follows the visitor&apos;s device theme.
+              </p>
+            </div>
+            <div
+              className="grid grid-cols-3 gap-2"
+              role="radiogroup"
+              aria-label="Embed color scheme"
+            >
+              <Button
+                aria-checked={theme === 'auto'}
+                onClick={handleThemeChange}
+                role="radio"
+                size="small"
+                value="auto"
+                className="gap-2"
+                variant={theme === 'auto' ? 'tertiary-active' : 'tertiary'}
+              >
+                <CircleHalfIcon className="h-4 w-4" />
+                Auto
+              </Button>
+              <Button
+                aria-checked={theme === 'light'}
+                onClick={handleThemeChange}
+                role="radio"
+                size="small"
+                value="light"
+                className="gap-2"
+                variant={theme === 'light' ? 'tertiary-active' : 'tertiary'}
+              >
+                <SunIcon className="h-4 w-4" />
+                Light
+              </Button>
+              <Button
+                aria-checked={theme === 'dark'}
+                onClick={handleThemeChange}
+                role="radio"
+                size="small"
+                value="dark"
+                className="gap-2"
+                variant={theme === 'dark' ? 'tertiary-active' : 'tertiary'}
+              >
+                <MoonIcon className="h-4 w-4" />
+                Dark
+              </Button>
             </div>
           </section>
         </div>

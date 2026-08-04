@@ -1,16 +1,25 @@
+import { parseColorScheme } from '@vibes/shared';
 import type { ReactNode } from 'react';
-import { Links, Meta, Scripts, useLoaderData } from 'react-router';
+import {
+  Links,
+  type LoaderFunctionArgs,
+  Meta,
+  Scripts,
+  useLoaderData,
+} from 'react-router';
 import { App } from './App';
 import logoUrl from './assets/logo.png';
 import stylesUrl from './index.css?url';
 
-export function loader() {
+export function loader({ request }: LoaderFunctionArgs) {
+  const requestUrl = new URL(request.url);
   const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
   const stylesheetFilename = stylesUrl.slice(stylesUrl.lastIndexOf('/') + 1);
   const logoFilename = logoUrl.slice(logoUrl.lastIndexOf('/') + 1);
   return {
     logoUrl: `${embedBasePath}/assets/${logoFilename}`,
     stylesheetUrl: `${embedBasePath}/assets/${stylesheetFilename}`,
+    colorScheme: parseColorScheme(requestUrl.searchParams.get('theme')),
   };
 }
 
@@ -21,13 +30,16 @@ interface Props {
 }
 
 export function Layout({ children }: Props) {
-  const { stylesheetUrl } = useLoaderData<typeof loader>();
+  const { stylesheetUrl, colorScheme } = useLoaderData<typeof loader>();
+  const className = colorSchemeClasses[colorScheme];
+  const colorSchemeContent =
+    colorScheme === 'auto' ? 'light dark' : colorScheme;
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={className}>
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="color-scheme" content="dark" />
+        <meta name="color-scheme" content={colorSchemeContent} />
         <link
           rel="preload"
           href={stylesheetUrl}
@@ -49,3 +61,9 @@ export function Layout({ children }: Props) {
 export default function Root() {
   return <App />;
 }
+
+const colorSchemeClasses = {
+  auto: '',
+  dark: 'dark',
+  light: 'theme-light',
+} as const;

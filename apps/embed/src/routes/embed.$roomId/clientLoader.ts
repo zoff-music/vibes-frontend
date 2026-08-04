@@ -1,5 +1,5 @@
 import { api } from '@vibes/api';
-import { safeWrap } from '@vibes/shared';
+import { parseColorScheme, safeWrap } from '@vibes/shared';
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import type { EmbedLoaderData } from './loader';
 
@@ -37,6 +37,7 @@ export async function embedRoomClientLoader({
       playlist: requestUrl.searchParams.get('playlist') !== 'false',
       skip: requestUrl.searchParams.get('skip') !== 'false',
       vote: requestUrl.searchParams.get('vote') !== 'false',
+      theme: parseColorScheme(requestUrl.searchParams.get('theme')),
     },
     playback: playback ?? undefined,
     providers: providers ?? [],

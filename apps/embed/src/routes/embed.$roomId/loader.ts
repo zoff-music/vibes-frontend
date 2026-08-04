@@ -1,4 +1,4 @@
-import { safeWrap } from '@vibes/shared';
+import { type ColorScheme, parseColorScheme, safeWrap } from '@vibes/shared';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 
@@ -7,6 +7,7 @@ export interface EmbedOptions {
   playlist: boolean;
   skip: boolean;
   vote: boolean;
+  theme: ColorScheme;
 }
 
 export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
@@ -67,6 +68,7 @@ export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
       playlist: requestUrl.searchParams.get('playlist') !== 'false',
       skip: requestUrl.searchParams.get('skip') !== 'false',
       vote: requestUrl.searchParams.get('vote') !== 'false',
+      theme: parseColorScheme(requestUrl.searchParams.get('theme')),
     },
   };
 }

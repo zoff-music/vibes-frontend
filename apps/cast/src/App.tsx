@@ -8,7 +8,7 @@ const CastAppContent = () => {
 
   return (
     <>
-      <div className="cast-shell relative flex h-screen w-screen items-center justify-center overflow-hidden text-white">
+      <div className="cast-shell relative flex h-screen w-screen items-center justify-center overflow-hidden text-theme">
         <div className="relative z-10 flex h-full w-full items-center justify-center">
           {currentSong && <ActiveView />}
           {!currentSong && <IdleView />}

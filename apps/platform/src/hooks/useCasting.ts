@@ -7,6 +7,7 @@ import {
 } from '@vibes/shared';
 import { useCallback, useEffect, useRef } from 'react';
 import { useCastStore } from '../stores/castStore';
+import { useThemeStore } from '../stores/themeStore';
 
 /**
  * Hook to integrate casting functionality with the existing playback system
@@ -20,6 +21,7 @@ export const useCasting = (_roomId: string) => {
     syncPlaybackState,
     updateQueue,
     updateRoomInfo,
+    updateTheme,
     clearError,
   } = useCastStore();
 
@@ -29,6 +31,7 @@ export const useCasting = (_roomId: string) => {
   const queueSongs = useQueueStore((state) => state.songs);
   const room = useRoomStore((state) => state.room);
   const usersCount = useRoomStore((state) => state.usersCount);
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
 
   const isLocalEmulatorEnabled = (() => {
     if (isTruthyFlag(import.meta.env.VITE_CAST_LOCAL_EMULATOR)) {
@@ -45,6 +48,7 @@ export const useCasting = (_roomId: string) => {
   const stableSyncPlaybackState = useCallback(syncPlaybackState, []);
   const stableUpdateQueue = useCallback(updateQueue, []);
   const stableUpdateRoomInfo = useCallback(updateRoomInfo, []);
+  const stableUpdateTheme = useCallback(updateTheme, []);
 
   useEffect(() => {
     if (!isLocalEmulatorEnabled) return;
@@ -157,6 +161,18 @@ export const useCasting = (_roomId: string) => {
       }
     })();
   }, [currentSession?.deviceId, queueSongs, stableUpdateQueue]);
+
+  useEffect(() => {
+    if (!isConnected || !currentSession) return;
+    if (initializedSessionIdRef.current !== currentSession.id) return;
+
+    void (async () => {
+      const [error] = await safeWrapAsync(stableUpdateTheme(resolvedTheme));
+      if (error) {
+        console.error('Failed to update cast display theme:', error);
+      }
+    })();
+  }, [currentSession?.id, isConnected, resolvedTheme, stableUpdateTheme]);
 
   return {
     // State

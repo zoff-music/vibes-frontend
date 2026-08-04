@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/shared';
+import type { ResolvedColorScheme, Song } from '@vibes/shared';
 import { safeWrap, usePlaybackStore } from '@vibes/shared';
 import type { framework } from 'chromecast-caf-receiver';
 import { useEffect, useRef } from 'react';
@@ -13,6 +13,7 @@ interface CustomLoadData {
   debug?: boolean;
   currentSong?: Song;
   positionMs?: number;
+  theme?: ResolvedColorScheme;
 }
 
 function isCustomLoadData(data: unknown): data is CustomLoadData {
@@ -103,6 +104,7 @@ export const useCastReceiver = ({
                 action: 'joinRoom',
                 roomId: data.roomId,
                 castToken: data.castToken,
+                theme: data.theme,
               });
             }
 
