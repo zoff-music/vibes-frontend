@@ -9,7 +9,13 @@ import type {
   PlaybackState,
   Song,
 } from '@vibes/models';
-import { safeWrap, safeWrapAsync, useRoomStore } from '@vibes/shared';
+import {
+  type ResolvedColorScheme,
+  safeWrap,
+  safeWrapAsync,
+  useRoomStore,
+} from '@vibes/shared';
+import { useThemeStore } from '../../stores/themeStore';
 
 import {
   CAST_APPLICATION_ID,
@@ -50,6 +56,7 @@ class GoogleCastManager implements ICastManager {
       setDevices: (devices) => {
         this.devices = devices;
       },
+      getColorScheme: () => useThemeStore.getState().resolvedTheme,
     });
   }
 
@@ -940,14 +947,14 @@ class GoogleCastManager implements ICastManager {
       return;
     }
 
-    const message = {
+    const message: LocalCastMessage = {
       action: 'updateRoomInfo',
       roomInfo: roomInfo,
       timestamp: Date.now(),
     };
 
     if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
-      this.localEmulator.sendLocalMessage(message as LocalCastMessage);
+      this.localEmulator.sendLocalMessage(message);
       return;
     }
 
@@ -1040,6 +1047,7 @@ class GoogleCastManager implements ICastManager {
       castToken: tokenResp.token,
       casterId,
       sessionId: casterId,
+      theme: useThemeStore.getState().resolvedTheme,
       timestamp: Date.now(),
     };
 
@@ -1066,6 +1074,37 @@ class GoogleCastManager implements ICastManager {
             console.error('Failed to send joinRoom message:', error);
             reject(error);
           },
+        );
+      });
+
+      if (err) reject(err);
+    });
+  }
+
+  async updateTheme(theme: ResolvedColorScheme): Promise<void> {
+    if (!this.currentSession) return;
+
+    const message: LocalCastMessage = {
+      action: 'updateTheme',
+      theme,
+      timestamp: Date.now(),
+    };
+
+    if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
+      this.localEmulator.sendLocalMessage(message);
+      return;
+    }
+
+    const session = this.actualCastSession;
+    if (!session) return;
+
+    return new Promise((resolve, reject) => {
+      const [err] = safeWrap(() => {
+        session.sendMessage(
+          CUSTOM_NAMESPACE,
+          message,
+          resolve,
+          (error: chrome.cast.Error) => reject(error),
         );
       });
 

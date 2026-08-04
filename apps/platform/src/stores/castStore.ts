@@ -5,7 +5,11 @@ import type {
   PlaybackState,
   Song,
 } from '@vibes/models';
-import { safeWrap, safeWrapAsync } from '@vibes/shared';
+import {
+  type ResolvedColorScheme,
+  safeWrap,
+  safeWrapAsync,
+} from '@vibes/shared';
 import { create } from 'zustand';
 
 type CastManagerInstance = typeof import('../services/cast')['castManager'];
@@ -59,6 +63,7 @@ interface CastState {
     participantCount: number;
   }) => Promise<void>;
   joinRoom: (roomId: string) => Promise<void>;
+  updateTheme: (theme: ResolvedColorScheme) => Promise<void>;
   clearError: () => void;
   cleanup: () => void;
 }
@@ -362,6 +367,23 @@ export const useCastStore = create<CastState>((set, get) => ({
         },
       });
     }
+  },
+
+  updateTheme: async (theme: ResolvedColorScheme) => {
+    if (!get().isConnected) return;
+
+    const castManager = await getCastManager();
+    const [error] = await safeWrapAsync(castManager.updateTheme(theme));
+    if (!error) return;
+
+    console.error('Failed to update theme on cast device:', error);
+    set({
+      lastError: {
+        code: 'THEME_UPDATE_FAILED',
+        description: 'Failed to update cast display theme',
+        details: error,
+      },
+    });
   },
 
   clearError: () => {

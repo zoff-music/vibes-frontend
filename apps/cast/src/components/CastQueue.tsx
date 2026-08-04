@@ -44,7 +44,7 @@ export function CastQueue({ songs }: Props) {
       className="cast-queue-viewport min-h-0 flex-1 overflow-hidden"
     >
       {songs.length === 0 && (
-        <div className="flex h-full items-center justify-center rounded-2xl border border-theme bg-black/20 text-center text-theme-muted">
+        <div className="cast-queue-empty flex h-full items-center justify-center rounded-2xl border border-theme text-center text-theme-muted">
           The queue is empty
         </div>
       )}
@@ -79,7 +79,7 @@ export function CastQueue({ songs }: Props) {
                   </span>
                 </div>
                 <ProviderIcon
-                  className="h-5 w-5 text-white/70"
+                  className="h-5 w-5 text-theme-muted"
                   provider={song.sourceType}
                 />
               </div>

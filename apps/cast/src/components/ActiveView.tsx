@@ -24,35 +24,35 @@ export const ActiveView: React.FC = () => {
           <PlayerLayer />
         </div>
 
-        <div className="cast-track-details-panel shrink-0 border-white/10 border-t bg-black/70 px-8 py-5">
+        <div className="cast-track-details-panel shrink-0 border-t px-8 py-5">
           <div className="cast-track-summary flex items-end gap-6">
             <div className="cast-track-artwork relative shrink-0">
               <img
                 src={resolveSongThumbnail(currentSong.thumbnailUrl)}
                 alt={currentSong.title}
                 decoding="async"
-                className="cast-track-thumbnail h-20 w-20 rounded-xl border border-white/20 object-cover"
+                className="cast-track-thumbnail h-20 w-20 rounded-xl border object-cover"
               />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="cast-track-title mb-2 truncate font-display text-2xl text-white leading-tight">
+              <h1 className="cast-track-title mb-2 truncate font-display text-2xl text-theme leading-tight">
                 {currentSong.title}
               </h1>
-              <p className="cast-track-artist truncate font-light font-sans text-lg text-white/80">
+              <p className="cast-track-artist truncate font-light font-sans text-lg text-theme-muted">
                 {currentSong.artist || 'Unknown Artist'}
               </p>
             </div>
 
             <div className="cast-track-provider flex shrink-0 items-center justify-center pr-2">
               {currentSong.sourceType === 'spotify' && (
-                <SpotifyIcon className="h-8 w-8 text-white/50" />
+                <SpotifyIcon className="h-8 w-8 text-theme-muted" />
               )}
               {currentSong.sourceType === 'soundcloud' && (
-                <SoundCloudIcon className="h-8 w-8 text-white/50" />
+                <SoundCloudIcon className="h-8 w-8 text-theme-muted" />
               )}
               {currentSong.sourceType !== 'spotify' &&
                 currentSong.sourceType !== 'soundcloud' && (
-                  <YouTubeIcon className="h-8 w-8 text-white/50" />
+                  <YouTubeIcon className="h-8 w-8 text-theme-muted" />
                 )}
             </div>
           </div>
@@ -62,11 +62,11 @@ export const ActiveView: React.FC = () => {
       </div>
 
       <div className="cast-panel cast-side-panel flex h-full min-w-0 flex-1 flex-col rounded-frame p-7">
-        <div className="cast-side-header mb-5 flex items-center justify-between gap-3 border-white/10 border-b pb-5">
+        <div className="cast-side-header mb-5 flex items-center justify-between gap-3 border-b pb-5">
           <h2 className="font-display text-sm text-theme-muted uppercase tracking-banner">
             Up Next ({upNext.length})
           </h2>
-          <div className="cast-listener-badge flex items-center gap-2 rounded-full border border-secondary/30 bg-black/30 px-4 py-2 text-sm text-theme-muted">
+          <div className="cast-listener-badge flex items-center gap-2 rounded-full border border-secondary/30 px-4 py-2 text-sm text-theme-muted">
             <span className="h-2 w-2 rounded-full bg-secondary" />
             {participantCount}{' '}
             {participantCount === 1 ? 'listener' : 'listeners'}
@@ -75,7 +75,7 @@ export const ActiveView: React.FC = () => {
 
         <CastQueue songs={upNext} />
 
-        <div className="cast-room-card mt-5 rounded-3xl border border-primary/30 bg-black/30 p-4">
+        <div className="cast-room-card mt-5 rounded-3xl border border-primary/30 p-4">
           <div className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white p-2">
             <QRCodeSVG
               className="cast-join-code h-24 w-24"

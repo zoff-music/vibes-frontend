@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '@vibes/api';
-import type { Song } from '@vibes/shared';
+import type { ResolvedColorScheme, Song } from '@vibes/shared';
 import { safeWrap, usePlaybackStore } from '@vibes/shared';
 import React, {
   createContext,
@@ -14,6 +14,7 @@ import { useCastReceiver } from '../hooks/useCastReceiver';
 import { useMediaMetadata } from '../hooks/useMediaMetadata';
 import { useRoomSync } from '../hooks/useRoomSync';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
+import { applyColorScheme, getInitialColorScheme } from '../utils/theme';
 
 interface CastContextType {
   roomInfo: RoomInfo | null;
@@ -42,6 +43,9 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   const [roomMode, setRoomMode] = useState<string | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
   const [enabledProviders, setEnabledProviders] = useState<string[]>([]);
+  const [colorScheme, setColorScheme] = useState<ResolvedColorScheme>(
+    getInitialColorScheme,
+  );
   const [debugMode, setDebugModeState] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('debug') === 'true';
@@ -88,6 +92,7 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
     setStatusText,
     updateMediaMetadata,
     roomMode,
+    setColorScheme,
   });
 
   useCastReceiver({
@@ -114,6 +119,10 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   });
 
   // --- Effects ---
+
+  useEffect(() => {
+    applyColorScheme(colorScheme);
+  }, [colorScheme]);
 
   // Update actual position interval
   useEffect(() => {

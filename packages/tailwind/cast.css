@@ -8,13 +8,44 @@
 @layer base {
   :root {
     @apply font-body;
+    --cast-background: #f7f4ff;
+    --cast-background-gradient: linear-gradient(145deg, #f7f4ff 0%, #eee8fa 55%, #fceff8 100%);
+    --cast-panel: rgba(255, 255, 255, 0.9);
+    --cast-panel-surface: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(246, 238, 255, 0.98));
+    --cast-track-details: #ffffff;
+    --cast-surface: #f2effa;
+    --cast-translucent-surface: rgba(242, 239, 250, 0.88);
+    --cast-text: #281c4b;
+    --cast-text-muted: #6e5f97;
+    --cast-text-subtle: #9a8bc8;
+    --cast-border: rgba(86, 53, 121, 0.18);
+    --cast-border-strong: rgba(255, 62, 166, 0.28);
+    --cast-shadow: 0 10px 20px rgba(50, 26, 82, 0.15);
+    color-scheme: light;
+  }
+
+  .dark {
+    --cast-background: #0b0718;
+    --cast-background-gradient: linear-gradient(145deg, #120820 0%, #090412 55%, #160927 100%);
+    --cast-panel: #160b27;
+    --cast-panel-surface: linear-gradient(145deg, rgba(26, 12, 50, 0.92), rgba(40, 18, 70, 0.98));
+    --cast-track-details: #07030d;
+    --cast-surface: #1e1330;
+    --cast-translucent-surface: rgba(30, 19, 48, 0.88);
+    --cast-text: #f9f3ff;
+    --cast-text-muted: #c2b7e8;
+    --cast-text-subtle: #8e82b8;
+    --cast-border: rgba(112, 72, 140, 0.25);
+    --cast-border-strong: rgba(255, 120, 195, 0.24);
+    --cast-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
     color-scheme: dark;
   }
 
   body {
     margin: 0;
     min-height: 100vh;
-    @apply bg-dark-background text-dark-text;
+    background-color: var(--cast-background);
+    color: var(--cast-text);
   }
 
   *,
@@ -33,7 +64,7 @@
 }
 
 .cast-shell {
-  background: linear-gradient(145deg, #120820 0%, #090412 55%, #160927 100%);
+  background: var(--cast-background-gradient);
 }
 
 .cast-shell *,
@@ -53,13 +84,24 @@
 }
 
 .cast-panel {
-  border: 1px solid rgba(255, 120, 195, 0.24);
-  background: #160b27;
+  border: 1px solid var(--cast-border-strong);
+  background: var(--cast-panel);
   contain: layout paint;
 }
 
 .cast-track-details-panel {
-  background: #07030d;
+  border-color: var(--cast-border);
+  background: var(--cast-track-details);
+}
+
+.cast-side-header {
+  border-color: var(--cast-border);
+}
+
+.cast-listener-badge,
+.cast-room-card,
+.cast-queue-empty {
+  background: var(--cast-translucent-surface);
 }
 
 .cast-room-card {
@@ -71,8 +113,8 @@
 
 .cast-queue-card,
 .cast-queue-thumbnail {
-  border-color: rgba(112, 72, 140, 0.25);
-  background-color: #1e1330;
+  border-color: var(--cast-border);
+  background-color: var(--cast-surface);
 }
 
 .cast-queue-viewport {

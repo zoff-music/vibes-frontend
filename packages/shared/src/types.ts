@@ -20,6 +20,10 @@ export type {
   SourceType,
 };
 
+export type ColorScheme = 'auto' | 'light' | 'dark';
+
+export type ResolvedColorScheme = Exclude<ColorScheme, 'auto'>;
+
 export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   skipAllowed: true,
   democraticSkip: false,
