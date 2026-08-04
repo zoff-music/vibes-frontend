@@ -45,7 +45,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
     embedUrl.searchParams.set('vote', String(vote));
     embedUrl.searchParams.set('theme', theme);
 
-    return `<iframe src="${embedUrl.toString()}" title="Zoff room ${roomId}" width="100%" height="480" loading="lazy" frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    return `<iframe src="${embedUrl.toString()}" title="Zoff room ${roomId}" width="100%" height="480" loading="lazy" frameborder="0" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   }, [embedBasePath, player, playlist, roomId, skip, theme, url, vote]);
 
   const handleThemeChange = (event: MouseEvent<HTMLButtonElement>) => {
