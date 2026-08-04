@@ -45,5 +45,17 @@ export const addSongResponseSchema = yup.object({
 });
 export type AddSongResponse = yup.InferType<typeof addSongResponseSchema>;
 
+export const addPlaylistRequestSchema = yup.object({
+  songs: yup.array(addSongRequestSchema).min(1).required(),
+});
+export type AddPlaylistRequest = yup.InferType<typeof addPlaylistRequestSchema>;
+
+export const addPlaylistResponseSchema = yup.object({
+  results: yup.array(addSongResponseSchema).required(),
+});
+export type AddPlaylistResponse = yup.InferType<
+  typeof addPlaylistResponseSchema
+>;
+
 export const songsListSchema = yup.array(songSchema).required();
 export type SongsList = yup.InferType<typeof songsListSchema>;
