@@ -860,6 +860,7 @@ const VideoPlayerComponent = ({
       if (videoId) {
         lastLoadedVideoIdRef.current = videoId;
       }
+      onLocalPlay?.();
       const playbackState = usePlaybackStore.getState();
       playbackState.updateActualPosition();
       const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
@@ -873,7 +874,7 @@ const VideoPlayerComponent = ({
     if (err && DEBUG) {
       debugLog('user-gesture-error', { error: err.message });
     }
-  }, [debugLog, videoId]);
+  }, [debugLog, onLocalPlay, videoId]);
 
   useEffect(() => {
     onNeedsUserGestureChange?.(showClickToPlay);

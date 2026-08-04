@@ -61,6 +61,7 @@ export function EmbedPlayerCard({
           enabledProviders={enabledProviders}
           onLocalAlignmentChange={onLocalAlignmentChange}
           onLocalInteraction={onLocalInteraction}
+          onLocalPlay={onStartPlayback}
           requestProviderToken={requestProviderToken}
           spotifyTokenLoading={spotifyTokenLoading}
           songs={songs}
