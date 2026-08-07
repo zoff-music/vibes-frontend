@@ -134,23 +134,11 @@
 
 @media (max-width: 1100px), (max-aspect-ratio: 4 / 3) {
   .cast-active-layout {
-    flex-direction: column;
     gap: 0.75rem;
     padding: 0.75rem;
   }
 
-  .cast-player-panel {
-    width: 100%;
-    height: auto;
-    min-height: 0;
-    flex: 11 1 0;
-  }
-
   .cast-side-panel {
-    width: 100%;
-    height: auto;
-    min-height: 0;
-    flex: 9 1 0;
     padding: 0.75rem;
   }
 
@@ -212,6 +200,32 @@
   .cast-join-code {
     width: 4.5rem;
     height: 4.5rem;
+  }
+}
+
+@media (max-aspect-ratio: 4 / 3) {
+  .cast-active-layout {
+    flex-direction: column;
+  }
+
+  .cast-player-panel {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: 11 1 0;
+  }
+
+  .cast-side-panel {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: 9 1 0;
+  }
+}
+
+@media (max-width: 1100px) and (min-aspect-ratio: 4 / 3) {
+  .cast-player-panel {
+    width: 64%;
   }
 }
 
@@ -301,14 +315,6 @@
 }
 
 @media (max-width: 1100px) and (max-height: 560px) {
-  .cast-player-panel {
-    flex-grow: 3;
-  }
-
-  .cast-side-panel {
-    flex-grow: 2;
-  }
-
   .cast-track-artwork {
     display: none;
   }
@@ -331,7 +337,17 @@
   }
 }
 
-@media (max-width: 1100px) and (max-height: 400px) {
+@media (max-width: 1100px) and (max-height: 560px) and (max-aspect-ratio: 4 / 3) {
+  .cast-player-panel {
+    flex-grow: 3;
+  }
+
+  .cast-side-panel {
+    flex-grow: 2;
+  }
+}
+
+@media (max-width: 1100px) and (max-height: 400px) and (max-aspect-ratio: 4 / 3) {
   .cast-room-card {
     display: none;
   }
