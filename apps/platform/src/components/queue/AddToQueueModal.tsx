@@ -862,6 +862,24 @@ const PlaybackRestrictionNotice: React.FC<PlaybackRestrictionNoticeProps> = ({
     );
   }
 
+  if (result.playbackRestriction === 'region') {
+    return (
+      <Tooltip className="mt-1 w-fit" content={message} side="bottom">
+        <span
+          aria-label={message}
+          className="relative flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-orange-400 text-orange-400"
+          role="img"
+        >
+          <span className="relative h-3 w-3 rounded-full border border-orange-400">
+            <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-orange-400" />
+            <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-orange-400" />
+          </span>
+          <span className="absolute h-px w-6 rotate-45 bg-orange-400" />
+        </span>
+      </Tooltip>
+    );
+  }
+
   return (
     <Tooltip className="mt-1 w-fit" content={message} side="bottom">
       <span
@@ -894,11 +912,10 @@ const playbackRestrictionMessages: Record<
 };
 
 const playbackRestrictionLabels: Record<
-  Exclude<PlaybackRestriction, 'age' | undefined>,
+  Exclude<PlaybackRestriction, 'age' | 'region' | undefined>,
   string
 > = {
   embedding: 'Embed',
-  region: 'Region',
 };
 
 const MINIMUM_SEARCH_QUERY_LENGTH = 3;
