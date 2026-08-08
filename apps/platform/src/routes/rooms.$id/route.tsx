@@ -29,6 +29,7 @@ import {
   useRouteError,
 } from 'react-router';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
+import { useCastStore } from '../../stores/castStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
@@ -139,6 +140,8 @@ export default function Room() {
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const currentSong = usePlaybackStore((state) => state.currentSong);
+  const initializeCast = useCastStore((state) => state.initialize);
+  const isCastInitialized = useCastStore((state) => state.isInitialized);
 
   const [isSSR, setIsSSR] = useState(true);
   const shouldReduceMotion = useReducedMotion();
@@ -182,6 +185,12 @@ export default function Room() {
   const isAuthenticating = adminFetcher.state !== 'idle';
   const showGenerationProgress =
     isGenerating && isGenerationProgressVisible && songs.length <= 2;
+
+  useEffect(() => {
+    if (isCastInitialized) return;
+
+    void initializeCast();
+  }, [initializeCast, isCastInitialized]);
 
   const handleGenerationUpdate = useCallback(
     (update: RoomGenerationUpdate) => {

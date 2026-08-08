@@ -15,6 +15,7 @@ import { create } from 'zustand';
 type CastManagerInstance = typeof import('../services/cast')['castManager'];
 
 let loadedCastManager: CastManagerInstance | null = null;
+let isCastInitializationStarted = false;
 
 const getCastManager = async () => {
   if (loadedCastManager) {
@@ -79,6 +80,9 @@ export const useCastStore = create<CastState>((set, get) => ({
 
   // Actions
   initialize: async () => {
+    if (get().isInitialized || isCastInitializationStarted) return;
+
+    isCastInitializationStarted = true;
     console.log('[Cast] store initialize:start');
     set({ lastError: null });
 
@@ -115,6 +119,7 @@ export const useCastStore = create<CastState>((set, get) => ({
     const [error, devices] = await safeWrapAsync(castManager.discoverDevices());
 
     if (error) {
+      isCastInitializationStarted = false;
       console.error('Failed to initialize casting:', error);
       set({
         lastError: {
@@ -131,6 +136,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       isInitialized: true,
       availableDevices: devices || [],
     });
+    isCastInitializationStarted = false;
   },
 
   discoverDevices: async () => {
