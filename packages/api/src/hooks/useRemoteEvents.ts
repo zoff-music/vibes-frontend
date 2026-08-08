@@ -6,18 +6,25 @@ interface Options {
   remoteId?: string;
   controller?: boolean;
   onRoomUpdate: (event: RemoteEvent) => void;
+  onStateUpdate?: (event: RemoteEvent) => void;
 }
 
 export function useRemoteEvents({
   remoteId,
   controller = false,
   onRoomUpdate,
+  onStateUpdate,
 }: Options) {
   const onRoomUpdateRef = useRef(onRoomUpdate);
+  const onStateUpdateRef = useRef(onStateUpdate);
 
   useEffect(() => {
     onRoomUpdateRef.current = onRoomUpdate;
   }, [onRoomUpdate]);
+
+  useEffect(() => {
+    onStateUpdateRef.current = onStateUpdate;
+  }, [onStateUpdate]);
 
   useEffect(() => {
     if (!remoteId) return;
@@ -36,8 +43,12 @@ export function useRemoteEvents({
           if (eventError || !message) return;
           const event = message as {
             data: RemoteEvent;
-            type: 'remote_room_update';
+            type: 'remote_room_update' | 'remote_state_update';
           };
+          if (event.type === 'remote_state_update') {
+            onStateUpdateRef.current?.(event.data);
+            return;
+          }
           onRoomUpdateRef.current(event.data);
         },
       );

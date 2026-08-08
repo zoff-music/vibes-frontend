@@ -1,4 +1,5 @@
 import { usePlaybackStore } from '@vibes/shared';
+import { PlaybackProgress as SharedPlaybackProgress } from '@vibes/ui';
 import React from 'react';
 
 interface PlaybackProgressProps {
@@ -12,26 +13,12 @@ export const PlaybackProgress: React.FC<PlaybackProgressProps> = React.memo(
       (state) => state.actualPositionMs,
     );
 
-    const progress = durationMs > 0 ? actualPositionMs / durationMs : 0;
-
-    const formatTime = (ms: number) => {
-      const seconds = Math.floor(ms / 1000);
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      return `${m}:${s.toString().padStart(2, '0')}`;
-    };
-
     return (
       <div className="mt-3">
-        <progress
-          className="progress-bar h-1 w-full"
-          value={isSSR ? 0 : Math.min(progress, 1)}
-          max={1}
+        <SharedPlaybackProgress
+          durationMs={durationMs}
+          positionMs={isSSR ? 0 : actualPositionMs}
         />
-        <div className="mt-1 flex justify-between font-mono text-2xs text-theme-subtle">
-          <span>{formatTime(actualPositionMs)}</span>
-          <span>{formatTime(durationMs)}</span>
-        </div>
       </div>
     );
   },

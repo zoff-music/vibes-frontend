@@ -16,6 +16,10 @@ export async function clientAction({
   const intent = formData.get('intent');
   const remoteId = String(formData.get('remoteId') ?? '');
   const roomId = String(formData.get('roomId') ?? '');
+  const currentSongId = String(formData.get('currentSongId') ?? '');
+  const playbackPositionMs = Number(formData.get('playbackPositionMs') ?? 0);
+  const playbackIsPlaying =
+    String(formData.get('playbackIsPlaying') ?? 'false') === 'true';
 
   if (intent === 'enable') {
     const [error, pairing] = await api.post('/remotes', null, { roomId });
@@ -32,7 +36,12 @@ export async function clientAction({
     const [error] = await api.patch(
       '/remotes/{id}',
       { id: remoteId },
-      { roomId },
+      {
+        currentSongId,
+        playbackIsPlaying,
+        playbackPositionMs,
+        roomId,
+      },
     );
     if (error) {
       return createErrorData('heartbeat', error);

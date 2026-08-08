@@ -7,15 +7,22 @@ interface Props
   > {
   label?: string;
   error?: string;
+  containerClassName?: string;
 }
 
-export const Input: React.FC<Props> = ({ label, error, id, ...props }) => {
+export const Input: React.FC<Props> = ({
+  label,
+  error,
+  id,
+  containerClassName = '',
+  ...props
+}) => {
   const generatedId = React.useId();
   const inputId = id || generatedId;
   const errorId = `${inputId}-error`;
 
   return (
-    <div className="mb-4 w-full">
+    <div className={`mb-4 w-full ${containerClassName}`}>
       {label && (
         <label
           htmlFor={inputId}
