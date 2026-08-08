@@ -1,5 +1,5 @@
 import { safeWrap } from '@vibes/shared';
-import { Button, Input, RemoteIcon } from '@vibes/ui';
+import { Button, Input } from '@vibes/ui';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useSearchParams } from 'react-router';
 import { clientAction, type PairActionData } from './action';
@@ -96,8 +96,12 @@ export default function PairRemote() {
     <main className="relative z-10 flex min-h-screen items-center justify-center p-4 sm:p-8">
       <section className="panel-strong w-full max-w-lg rounded-4xl p-6 shadow-primary-panel sm:p-9">
         <div className="text-center">
-          <RemoteIcon className="mx-auto h-12 w-12 text-secondary" />
-          <h1 className="mt-5 font-display text-2xl text-theme">Zoff Remote</h1>
+          <img
+            src="/logo.png"
+            alt="Zoff"
+            className="mx-auto h-24 w-24 object-contain"
+          />
+          <h1 className="sr-only">Zoff Remote</h1>
           <p className="mt-3 text-sm text-theme-muted">
             Scan the QR code shown by the browser you want to control, or enter
             its pairing details.

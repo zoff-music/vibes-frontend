@@ -323,19 +323,8 @@ export const CastIcon = ({ showDot, ...props }: CastIconProps) => (
 );
 
 export const RemoteIcon = (props: IconProps) => (
-  <svg
-    {...props}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <rect x="7" y="2" width="10" height="20" rx="2" />
-    <path d="M10 6h4" />
-    <circle cx="12" cy="17" r="1" />
+  <svg {...props} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M8 1h8v2h2v18h-2v2H8v-2H6V3h2V1Zm0 4v14h8V5H8Zm2 2h4v2h-4V7Zm1 7h2v2h-2v-2Z" />
   </svg>
 );
 

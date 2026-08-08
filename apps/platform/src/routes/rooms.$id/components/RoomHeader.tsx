@@ -167,10 +167,6 @@ export const RoomHeader = React.memo(
             <div className="flex shrink-0 items-center gap-2">
               <UserCount />
 
-              <div className="hidden sm:block">
-                <RemoteControlButton />
-              </div>
-
               <div className="sm:hidden">
                 <Tooltip
                   className="inline-flex"
@@ -256,6 +252,10 @@ export const RoomHeader = React.memo(
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </div>
+
+              <div className="hidden sm:block">
+                <RemoteControlButton />
               </div>
 
               <div className="relative ml-1">
