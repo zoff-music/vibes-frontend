@@ -19,9 +19,9 @@ import React, {
   useEffect,
 } from 'react';
 import { useFetcher } from 'react-router';
+import { RemoteControlButton } from '../../../components/remote/RemoteControlProvider';
 import type { Theme } from '../../../stores/themeStore';
 import type { RoomActionData } from '../action';
-
 import { UserCount } from './UserCount';
 
 const LazyRoomSettingsMenu = lazy(async () => {
@@ -166,6 +166,10 @@ export const RoomHeader = React.memo(
 
             <div className="flex shrink-0 items-center gap-2">
               <UserCount />
+
+              <div className="hidden sm:block">
+                <RemoteControlButton />
+              </div>
 
               <div className="sm:hidden">
                 <Tooltip

@@ -7,6 +7,7 @@ export default [
   route('security', './routes/security/route.tsx'),
   route('terms-of-service', './routes/terms-of-service/route.tsx'),
   route('rooms/create', './routes/rooms.create/route.tsx'),
+  route('remote-control', './routes/remote-control/route.tsx'),
   route('rooms/:id', './routes/rooms.alias/route.tsx'),
   route('callback', './routes/callback/route.tsx'),
   route(':id', './routes/rooms.$id/route.tsx'),

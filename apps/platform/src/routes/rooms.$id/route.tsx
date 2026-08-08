@@ -28,6 +28,7 @@ import {
   useRevalidator,
   useRouteError,
 } from 'react-router';
+import { useRemoteControl } from '../../components/remote/RemoteControlProvider';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useCastStore } from '../../stores/castStore';
 import { useThemeStore } from '../../stores/themeStore';
@@ -123,6 +124,7 @@ export default function Room() {
   const navigationType = useNavigationType();
   const revalidate = useRevalidator().revalidate;
   const adminFetcher = useFetcher<RoomActionData>();
+  const { setMachineRoomId } = useRemoteControl();
 
   const headerRef = useRef<HTMLDivElement | null>(null);
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -185,6 +187,11 @@ export default function Room() {
   const isAuthenticating = adminFetcher.state !== 'idle';
   const showGenerationProgress =
     isGenerating && isGenerationProgressVisible && songs.length <= 2;
+
+  useEffect(() => {
+    setMachineRoomId(id);
+    return () => setMachineRoomId('');
+  }, [id, setMachineRoomId]);
 
   useEffect(() => {
     if (isCastInitialized) return;
