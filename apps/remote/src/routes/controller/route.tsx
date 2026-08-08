@@ -300,7 +300,7 @@ export default function RemoteController() {
             value={roomInput}
           />
         </div>
-        <Button type="submit" className="h-full" variant="secondary">
+        <Button type="submit" variant="secondary">
           Go
         </Button>
       </roomFetcher.Form>
