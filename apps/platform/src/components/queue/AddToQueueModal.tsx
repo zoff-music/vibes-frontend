@@ -22,6 +22,7 @@ import {
   SearchIcon,
   SoundCloudIcon,
   SpotifyIcon,
+  Tooltip,
   YouTubeIcon,
 } from '@vibes/ui';
 import React, { useEffect, useRef, useState } from 'react';
@@ -702,7 +703,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   <p className="mt-1 truncate text-theme-muted text-xs">
                     {track.artist}
                   </p>
-                  <PlaybackRestrictionNotice result={track} compact />
+                  <PlaybackRestrictionNotice result={track} />
                 </div>
                 <ProviderAttribution result={track} />
               </div>
@@ -837,26 +838,41 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
 
 interface PlaybackRestrictionNoticeProps {
   result: SearchResult;
-  compact?: boolean;
 }
 
 const PlaybackRestrictionNotice: React.FC<PlaybackRestrictionNoticeProps> = ({
   result,
-  compact = false,
 }) => {
   if (!result.playbackRestriction) return null;
 
   const message = playbackRestrictionMessages[result.playbackRestriction];
+
+  if (result.playbackRestriction === 'age') {
+    return (
+      <Tooltip className="mt-1 w-fit" content={message} side="bottom">
+        <span
+          aria-label={message}
+          className="relative flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-orange-400 font-pixel text-3xs text-orange-400"
+          role="img"
+        >
+          18
+          <span className="absolute h-px w-6 rotate-45 bg-orange-400" />
+        </span>
+      </Tooltip>
+    );
+  }
+
   return (
-    <p
-      className="mt-1 flex items-center gap-1 text-orange-400 text-xs"
-      title={message}
-    >
-      <InfoIcon className="h-3 w-3 shrink-0" />
-      <span className={compact ? 'truncate' : 'line-clamp-2'}>
-        {compact ? 'Playback may be limited' : message}
+    <Tooltip className="mt-1 w-fit" content={message} side="bottom">
+      <span
+        aria-label={message}
+        className="flex h-5 items-center gap-1 rounded-full border border-orange-400 px-1.5 font-pixel text-3xs text-orange-400"
+        role="img"
+      >
+        <InfoIcon className="h-3 w-3 shrink-0" />
+        <span>{playbackRestrictionLabels[result.playbackRestriction]}</span>
       </span>
-    </p>
+    </Tooltip>
   );
 };
 
@@ -875,6 +891,14 @@ const playbackRestrictionMessages: Record<
   age: 'Age-restricted — may not play in Zoff or on Chromecast.',
   embedding: 'YouTube limits embedded playback for this video.',
   region: 'Region-restricted — availability depends on location.',
+};
+
+const playbackRestrictionLabels: Record<
+  Exclude<PlaybackRestriction, 'age' | undefined>,
+  string
+> = {
+  embedding: 'Embed',
+  region: 'Region',
 };
 
 const MINIMUM_SEARCH_QUERY_LENGTH = 3;
