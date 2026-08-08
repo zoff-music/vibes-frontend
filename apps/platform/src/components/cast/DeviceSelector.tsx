@@ -3,6 +3,7 @@ import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
 import { Button, Modal } from '@vibes/ui';
 import React, { useEffect, useState } from 'react';
 import { castManager } from '../../services/cast';
+import { CAST_DEVICE_PICKER_ID } from '../../services/cast/constants';
 import { useCastStore } from '../../stores/castStore';
 import { CastDeviceIcon } from '../icons/CastDeviceIcon';
 import { CheckCircleIcon } from '../icons/CheckCircleIcon';
@@ -127,6 +128,15 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     console.log('Cast Debug Info:', castManager.getDebugInfo());
     await safeWrapAsync(castManager.forceDiscovery());
     await safeWrapAsync(discoverDevices());
+  };
+
+  const handleOpenDevicePicker = async () => {
+    setIsConnecting(CAST_DEVICE_PICKER_ID);
+    const [err] = await safeWrapAsync(connectToDevice(CAST_DEVICE_PICKER_ID));
+    if (err) {
+      console.error('Failed to open cast device picker:', err);
+    }
+    setIsConnecting(null);
   };
 
   return (
@@ -274,8 +284,18 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 <div>• Not being used by another app</div>
               </div>
               <div className="mt-3 text-gray-400 text-xs dark:text-gray-500">
-                Check browser console for debug info
+                Chrome may still find devices while opening its device picker.
               </div>
+              <Button
+                className="mt-4 w-full"
+                disabled={isConnecting === CAST_DEVICE_PICKER_ID}
+                onClick={handleOpenDevicePicker}
+                variant="secondary"
+              >
+                {isConnecting === CAST_DEVICE_PICKER_ID
+                  ? 'Searching...'
+                  : 'Open device picker'}
+              </Button>
             </div>
           )}
           {availableDevices.length > 0 && (

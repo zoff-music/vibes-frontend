@@ -48,6 +48,7 @@ export interface CastManager {
 // Google Cast Web SDK types
 declare global {
   interface Window {
+    __onGCastApiAvailable?: (isAvailable: boolean) => void;
     chrome: {
       cast: {
         isAvailable: boolean;

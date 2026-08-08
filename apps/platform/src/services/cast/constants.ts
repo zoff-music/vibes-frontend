@@ -25,3 +25,5 @@ export const LOCAL_EMULATOR_ENABLED = (() => {
 })();
 
 export const LOCAL_EMULATOR_DEVICE_ID = 'local-cast-emulator';
+
+export const CAST_DEVICE_PICKER_ID = 'chromecast-available';

@@ -19,6 +19,7 @@ import { useThemeStore } from '../../stores/themeStore';
 
 import {
   CAST_APPLICATION_ID,
+  CAST_DEVICE_PICKER_ID,
   CUSTOM_RECEIVER_URL,
   DEVELOPMENT_MODE,
   LOCAL_EMULATOR_ENABLED,
@@ -83,9 +84,32 @@ class GoogleCastManager implements ICastManager {
           }
 
           if (!window.chrome?.cast) {
+            window.__onGCastApiAvailable = (isAvailable) => {
+              if (isAvailable) {
+                resolve();
+                return;
+              }
+
+              reject(new Error('Google Cast API is unavailable'));
+            };
+
+            const existingScript = document.querySelector<HTMLScriptElement>(
+              `script[src="${castSenderScriptUrl}"]`,
+            );
+            if (existingScript) {
+              void (async () => {
+                const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
+                if (waitErr) {
+                  reject(waitErr);
+                  return;
+                }
+                resolve();
+              })();
+              return;
+            }
+
             const script = document.createElement('script');
-            script.src =
-              'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
+            script.src = castSenderScriptUrl;
             script.onload = () => {
               console.log('[Cast] sender SDK script loaded');
               void (async () => {
@@ -126,7 +150,7 @@ class GoogleCastManager implements ICastManager {
         throw loadErr;
       }
 
-      const [setupErr] = safeWrap(() => this.setupCastAPI());
+      const [setupErr] = await safeWrapAsync(this.setupCastAPI());
       if (setupErr) {
         this.initializationPromise = null;
         throw setupErr;
@@ -169,57 +193,62 @@ class GoogleCastManager implements ICastManager {
     });
   }
 
-  private setupCastAPI(): void {
-    const [err] = safeWrap(() => {
-      console.log('Setting up Google Cast API...');
-      console.log('[Cast] setup config', {
-        appId: CAST_APPLICATION_ID,
-        receiverUrl: CUSTOM_RECEIVER_URL,
-        developmentMode: DEVELOPMENT_MODE,
+  private setupCastAPI(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const [err] = safeWrap(() => {
+        console.log('Setting up Google Cast API...');
+        console.log('[Cast] setup config', {
+          appId: CAST_APPLICATION_ID,
+          receiverUrl: CUSTOM_RECEIVER_URL,
+          developmentMode: DEVELOPMENT_MODE,
+        });
+
+        const sessionRequest = new window.chrome.cast.SessionRequest(
+          CAST_APPLICATION_ID,
+        );
+        console.log('Created session request for app ID:', CAST_APPLICATION_ID);
+
+        const apiConfig = new window.chrome.cast.ApiConfig(
+          sessionRequest,
+          this.onSessionListener.bind(this),
+          this.onReceiverListener.bind(this),
+          window.chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED,
+          window.chrome.cast.DefaultActionPolicy.CREATE_SESSION,
+        );
+        console.log('Created API config');
+
+        window.chrome.cast.initialize(
+          apiConfig,
+          () => {
+            console.log('Google Cast API `initialize` call successful.');
+            resolve();
+          },
+          (error: chrome.cast.Error) => {
+            console.error('❌ Google Cast initialization failed:', error);
+            this.notifyError({
+              code: 'INITIALIZATION_FAILED',
+              description: 'Failed to initialize Google Cast',
+              details: error,
+            });
+
+            if (this.reconnectAttempts < this.maxReconnectAttempts) {
+              this.scheduleReconnect();
+            }
+            reject(error);
+          },
+        );
       });
 
-      const sessionRequest = new window.chrome.cast.SessionRequest(
-        CAST_APPLICATION_ID,
-      );
-      console.log('Created session request for app ID:', CAST_APPLICATION_ID);
+      if (!err) return;
 
-      const apiConfig = new window.chrome.cast.ApiConfig(
-        sessionRequest,
-        this.onSessionListener.bind(this),
-        this.onReceiverListener.bind(this),
-        window.chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED,
-        window.chrome.cast.DefaultActionPolicy.CREATE_SESSION,
-      );
-      console.log('Created API config');
-
-      window.chrome.cast.initialize(
-        apiConfig,
-        () => {
-          console.log('Google Cast API `initialize` call successful.');
-        },
-        (error: chrome.cast.Error) => {
-          console.error('❌ Google Cast initialization failed:', error);
-          this.notifyError({
-            code: 'INITIALIZATION_FAILED',
-            description: 'Failed to initialize Google Cast',
-            details: error,
-          });
-
-          if (this.reconnectAttempts < this.maxReconnectAttempts) {
-            this.scheduleReconnect();
-          }
-        },
-      );
-    });
-
-    if (err) {
       console.error('Error setting up Cast API:', err);
       this.notifyError({
         code: 'SETUP_FAILED',
         description: 'Failed to set up Google Cast API',
         details: err,
       });
-    }
+      reject(err);
+    });
   }
 
   private scheduleReconnect(): void {
@@ -360,7 +389,7 @@ class GoogleCastManager implements ICastManager {
 
       console.log('Chromecast devices are available on the network');
       const device: CastDevice = {
-        id: 'chromecast-available',
+        id: CAST_DEVICE_PICKER_ID,
         name: 'Cast to TV',
         type: 'chromecast',
         capabilities: ['video_out', 'audio_out'],
@@ -534,7 +563,9 @@ class GoogleCastManager implements ICastManager {
     if (!this.isInitialized) throw new Error('Cast SDK not initialized');
 
     const device = this.devices.find((d) => d.id === deviceId);
-    if (!device) throw new Error(`Device ${deviceId} not found`);
+    if (!device && deviceId !== CAST_DEVICE_PICKER_ID) {
+      throw new Error(`Device ${deviceId} not found`);
+    }
 
     if (this.currentSession && this.currentSession.deviceId === deviceId) {
       console.log('[Cast] already connected to device', deviceId);
@@ -1241,3 +1272,6 @@ class GoogleCastManager implements ICastManager {
 
 // Export singleton instance
 export const castManager = new GoogleCastManager();
+
+const castSenderScriptUrl =
+  'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
