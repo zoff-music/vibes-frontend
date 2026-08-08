@@ -10,6 +10,7 @@ import {
 import { Outlet, useLocation } from 'react-router';
 
 import { Background } from './components/layout/Background';
+import { RemoteControlProvider } from './components/remote/RemoteControlProvider';
 import { useThemeStore } from './stores/themeStore';
 import { updateNavigationHistory } from './utils/navigationHistory';
 
@@ -68,7 +69,9 @@ export function App() {
       <DebugConsoleLoader />
       <ToastViewport />
       <Background />
-      <Outlet />
+      <RemoteControlProvider>
+        <Outlet />
+      </RemoteControlProvider>
     </MotionConfig>
   );
 }

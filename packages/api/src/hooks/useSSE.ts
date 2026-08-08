@@ -13,6 +13,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useEffect, useRef } from 'react';
+import type { ApiClient } from '../index';
 import { api } from '../index';
 
 const ACTIVE_CONNECTIONS = new Map<
@@ -35,6 +36,7 @@ export interface USE_SSE_CALLBACKS {
 export const useSSE = (
   roomId: string | undefined,
   callbacks?: USE_SSE_CALLBACKS,
+  client: ApiClient = api,
 ) => {
   const setRoom = useRoomStore((state) => state.setRoom);
   const setHost = useRoomStore((state) => state.setHost);
@@ -91,7 +93,7 @@ export const useSSE = (
         // ...
 
         if (!inFlight) {
-          inFlight = api.sse(
+          inFlight = client.sse(
             '/rooms/{id}/events',
             { id: roomId, $search: undefined },
             (result: [Error | null, unknown]) => {
@@ -256,5 +258,6 @@ export const useSSE = (
     setUsersCount,
     setSongs,
     setPlaybackState,
+    client,
   ]);
 };

@@ -39,6 +39,11 @@ import {
   providerTokenSchema,
   providerURLQuerySchema,
   publicRoomsSchema,
+  remoteEventSchema,
+  remotePairingRequestSchema,
+  remotePairingSchema,
+  remoteStatusSchema,
+  remoteUpdateRequestSchema,
   roomActionRequestSchema,
   roomGenerationUpdateSchema,
   roomHostUpdateSchema,
@@ -337,6 +342,40 @@ const endpoints = {
       response: castingTokenResponseSchema,
     },
   },
+  '/remotes': {
+    get: {
+      response: remoteStatusSchema,
+    },
+    post: {
+      request: remoteUpdateRequestSchema,
+      response: remotePairingSchema,
+    },
+  },
+  '/remotes/{id}': {
+    get: {
+      response: remoteStatusSchema,
+    },
+    patch: {
+      request: remoteUpdateRequestSchema,
+      response: emptyObjectSchema,
+    },
+    delete: {
+      response: emptyObjectSchema,
+    },
+  },
+  '/remotes/{id}/sessions': {
+    post: {
+      request: remotePairingRequestSchema,
+      response: remoteStatusSchema,
+    },
+  },
+  '/remotes/{id}/events': {
+    sse: {
+      events: {
+        remote_room_update: remoteEventSchema,
+      },
+    },
+  },
   '/admin/sessions': {
     get: {
       response: adminSessionResponseSchema,
@@ -492,6 +531,7 @@ export const api = createApiClient();
 // Endpoint helpers (mirrors backend handler filenames)
 export * from './casting';
 export * from './hooks/useAdminEvents';
+export * from './hooks/useRemoteEvents';
 // Hooks
 export * from './hooks/useSSE';
 export * from './rateLimit';

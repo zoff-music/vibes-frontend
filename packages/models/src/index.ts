@@ -5,6 +5,7 @@ export * from './schemas/common';
 export * from './schemas/config';
 export * from './schemas/generate';
 export * from './schemas/playback';
+export * from './schemas/remote';
 export * from './schemas/room';
 export * from './schemas/search';
 export * from './schemas/session';
