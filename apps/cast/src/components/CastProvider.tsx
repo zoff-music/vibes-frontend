@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@vibes/api';
+import { API_BASE_URL, createApiClient } from '@vibes/api';
 import type { ResolvedColorScheme, Song } from '@vibes/shared';
 import { safeWrap, usePlaybackStore } from '@vibes/shared';
 import React, {
@@ -30,6 +30,7 @@ interface CastContextType {
   apiUrl: string;
   spotifyToken: string | null;
   enabledProviders: string[];
+  reportPlaybackFailure: (songId: string) => Promise<void>;
 }
 
 const CastContext = createContext<CastContextType | undefined>(undefined);
@@ -176,6 +177,30 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const reportPlaybackFailure = useCallback(
+    async (songId: string) => {
+      if (!roomId || !castToken) return;
+
+      const headers = {
+        Authorization: `Bearer ${castToken}`,
+      };
+      const api = createApiClient(headers);
+      const [requestError] = await api.post(
+        '/rooms/{id}/playbackfailures',
+        { id: roomId },
+        { songId },
+        { headers },
+      );
+      if (requestError) {
+        console.error(
+          '[Cast] Failed to report restricted playback failure:',
+          requestError,
+        );
+      }
+    },
+    [castToken, roomId],
+  );
+
   return (
     <CastContext.Provider
       value={{
@@ -192,6 +217,7 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
         apiUrl: API_BASE_URL,
         spotifyToken,
         enabledProviders,
+        reportPlaybackFailure,
       }}
     >
       {children}

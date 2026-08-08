@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useCallback } from 'react';
 import { useCast } from './CastProvider';
 
 const LazySoundCloudPlayer = lazy(async () => {
@@ -17,7 +17,13 @@ const LazyVideoPlayer = lazy(async () => {
 });
 
 export const PlayerLayer: React.FC = () => {
-  const { currentSong, enabledProviders, queue, spotifyToken } = useCast();
+  const {
+    currentSong,
+    enabledProviders,
+    queue,
+    reportPlaybackFailure,
+    spotifyToken,
+  } = useCast();
   const preloadYouTubeSong =
     queue.find((song) => song.sourceType === 'youtube') ?? null;
   const preloadSpotifySong =
@@ -33,6 +39,12 @@ export const PlayerLayer: React.FC = () => {
   const shouldMountSoundCloud =
     enabledProviders.includes('soundcloud') ||
     currentSong?.sourceType === 'soundcloud';
+  const handlePlaybackError = useCallback(
+    (songId: string) => {
+      void reportPlaybackFailure(songId);
+    },
+    [reportPlaybackFailure],
+  );
 
   return (
     <div className="absolute inset-0 h-full w-full">
@@ -43,6 +55,7 @@ export const PlayerLayer: React.FC = () => {
             fill
             appContext="cast"
             preloadSong={preloadYouTubeSong}
+            onPlaybackError={handlePlaybackError}
           />
         </Suspense>
       )}

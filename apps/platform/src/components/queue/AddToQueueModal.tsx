@@ -1,4 +1,4 @@
-import type { Room } from '@vibes/models';
+import type { PlaybackRestriction, Room } from '@vibes/models';
 import {
   type AddSongOutcome,
   formatDuration,
@@ -43,6 +43,7 @@ interface SearchResult {
   duration?: string;
   providerUrl?: string;
   source: SourceType;
+  playbackRestriction?: PlaybackRestriction;
 }
 
 interface PlaylistPreview {
@@ -151,6 +152,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           id: track.id,
           key: crypto.randomUUID(),
           providerUrl: track.providerUrl,
+          playbackRestriction: track.playbackRestriction,
           source: track.source,
           thumbnailUrl: track.thumbnailUrl ?? '',
           title: track.title,
@@ -170,6 +172,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         duration: track.duration,
         id: track.id,
         providerUrl: track.providerUrl,
+        playbackRestriction: track.playbackRestriction,
         source: track.source,
         thumbnailUrl: track.thumbnailUrl ?? '',
         title: track.title,
@@ -187,6 +190,10 @@ export const AddToQueueModal: React.FC<Props> = ({
           duration: result.duration,
           id: result.id,
           providerUrl: result.providerUrl,
+          playbackRestriction:
+            'playbackRestriction' in result
+              ? result.playbackRestriction
+              : undefined,
           source: 'source' in result ? result.source : 'youtube',
           thumbnailUrl: result.thumbnailUrl ?? '',
           title: result.title,
@@ -609,6 +616,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                       <p className="line-clamp-1 text-theme-muted text-xs">
                         {result.artist}
                       </p>
+                      <PlaybackRestrictionNotice result={result} />
                     </div>
                   </Button>
                   <ProviderAttribution result={result} />
@@ -652,6 +660,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               <p className="line-clamp-1 text-theme-muted text-xs">
                 {previewTrack.artist}
               </p>
+              <PlaybackRestrictionNotice result={previewTrack} />
             </div>
             <ProviderAttribution result={previewTrack} />
           </div>
@@ -693,6 +702,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   <p className="mt-1 truncate text-theme-muted text-xs">
                     {track.artist}
                   </p>
+                  <PlaybackRestrictionNotice result={track} compact />
                 </div>
                 <ProviderAttribution result={track} />
               </div>
@@ -825,12 +835,46 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
   );
 };
 
+interface PlaybackRestrictionNoticeProps {
+  result: SearchResult;
+  compact?: boolean;
+}
+
+const PlaybackRestrictionNotice: React.FC<PlaybackRestrictionNoticeProps> = ({
+  result,
+  compact = false,
+}) => {
+  if (!result.playbackRestriction) return null;
+
+  const message = playbackRestrictionMessages[result.playbackRestriction];
+  return (
+    <p
+      className="mt-1 flex items-center gap-1 text-orange-400 text-xs"
+      title={message}
+    >
+      <InfoIcon className="h-3 w-3 shrink-0" />
+      <span className={compact ? 'truncate' : 'line-clamp-2'}>
+        {compact ? 'Playback may be limited' : message}
+      </span>
+    </p>
+  );
+};
+
 const orderedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];
 
 const providerNames: Record<SourceType, string> = {
   soundcloud: 'SoundCloud',
   spotify: 'Spotify',
   youtube: 'YouTube',
+};
+
+const playbackRestrictionMessages: Record<
+  Exclude<PlaybackRestriction, undefined>,
+  string
+> = {
+  age: 'Age-restricted — may not play in Zoff or on Chromecast.',
+  embedding: 'YouTube limits embedded playback for this video.',
+  region: 'Region-restricted — availability depends on location.',
 };
 
 const MINIMUM_SEARCH_QUERY_LENGTH = 3;

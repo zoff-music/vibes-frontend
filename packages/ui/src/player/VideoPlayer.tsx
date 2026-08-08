@@ -21,6 +21,7 @@ interface Props {
   onLocalSeek?: (positionMs: number) => void;
   onLocalAlignmentChange?: (isAligned: boolean) => void;
   onLocalVolumeChange?: () => void;
+  onPlaybackError?: (songId: string) => void;
 }
 
 interface YouTubeVideoData {
@@ -68,6 +69,7 @@ const VideoPlayerComponent = ({
   onLocalPlay,
   onLocalSeek,
   onLocalVolumeChange,
+  onPlaybackError,
 }: Props) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
@@ -94,6 +96,7 @@ const VideoPlayerComponent = ({
   const lastSynchronizedUpdateRef = useRef<string | null>(null);
   const observedPlaybackRef = useRef<ObservedPlayback | null>(null);
   const lastReportedSeekAtRef = useRef(0);
+  const reportedPlaybackErrorVideoIdRef = useRef<string | null>(null);
   const lastResetVersionRef = useRef(resetVersion);
   const isYouTubeActive =
     isVisible && currentSong?.sourceType === 'youtube' && !!currentSong;
@@ -733,10 +736,25 @@ const VideoPlayerComponent = ({
     onEnded?.();
   }, [isCastReceiver, isVisible, onEnded]);
 
-  const handleError = useCallback((event: unknown) => {
-    console.error('[VideoPlayer] Player error:', event);
-    setError('This video is unavailable in the embedded player.');
-  }, []);
+  const handleError = useCallback(
+    (event: unknown) => {
+      console.error('[VideoPlayer] Player error:', event);
+      setError('This video is unavailable in the embedded player.');
+
+      if (
+        !isCastReceiver ||
+        !isVisible ||
+        !currentSong ||
+        reportedPlaybackErrorVideoIdRef.current === currentSong.sourceId
+      ) {
+        return;
+      }
+
+      reportedPlaybackErrorVideoIdRef.current = currentSong.sourceId;
+      onPlaybackError?.(currentSong.id);
+    },
+    [currentSong, isCastReceiver, isVisible, onPlaybackError],
+  );
 
   if (videoId) {
     lastVideoIdRef.current = videoId;
