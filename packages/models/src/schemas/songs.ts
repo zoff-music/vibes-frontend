@@ -6,6 +6,14 @@ export const sourceTypeSchema = yup
   .required();
 export type SourceType = yup.InferType<typeof sourceTypeSchema>;
 
+export const playbackRestrictionSchema = yup
+  .string()
+  .oneOf(['age', 'region', 'embedding'])
+  .optional();
+export type PlaybackRestriction = yup.InferType<
+  typeof playbackRestrictionSchema
+>;
+
 export const songSchema = yup.object({
   id: yup.string().required(),
   sourceType: sourceTypeSchema,
@@ -19,6 +27,7 @@ export const songSchema = yup.object({
   addedByNickname: yup.string().optional(),
   addedAt: yup.string().required(),
   voteCount: yup.number().optional(),
+  playbackRestriction: playbackRestrictionSchema,
 });
 export type Song = yup.InferType<typeof songSchema>;
 

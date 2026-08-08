@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { sourceTypeSchema } from './songs';
+import { playbackRestrictionSchema, sourceTypeSchema } from './songs';
 
 export const searchResultSchema = yup.object({
   id: yup.string().required(),
@@ -9,6 +9,7 @@ export const searchResultSchema = yup.object({
   channelTitle: yup.string().optional(),
   thumbnailUrl: yup.string().optional(),
   duration: yup.string().optional(),
+  playbackRestriction: playbackRestrictionSchema,
 });
 export type SearchResult = yup.InferType<typeof searchResultSchema>;
 

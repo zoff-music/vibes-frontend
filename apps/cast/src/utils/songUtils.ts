@@ -5,11 +5,13 @@ export const normalizeSong = (song: Song): Song => {
     id: String(song.id), // Ensure ID is always a string
     sourceType: song.sourceType,
     sourceId: song.sourceId,
+    providerUrl: song.providerUrl,
     title: song.title,
     artist: song.artist,
     thumbnailUrl: song.thumbnailUrl || '',
     duration: song.duration,
     voteCount: song.voteCount,
+    playbackRestriction: song.playbackRestriction,
     addedBy: song.addedBy,
     addedAt: song.addedAt || new Date().toISOString(),
   };

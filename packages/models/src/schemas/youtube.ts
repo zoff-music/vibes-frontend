@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { playbackRestrictionSchema } from './songs';
 
 export const youTubeVideoSchema = yup.object({
   id: yup.string().required(),
@@ -7,6 +8,7 @@ export const youTubeVideoSchema = yup.object({
   channelTitle: yup.string().required(),
   thumbnailUrl: yup.string().required(),
   duration: yup.string().optional(), // ISO 8601 duration
+  playbackRestriction: playbackRestrictionSchema,
 });
 export type YouTubeVideo = yup.InferType<typeof youTubeVideoSchema>;
 

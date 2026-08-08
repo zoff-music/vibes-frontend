@@ -19,6 +19,13 @@ export const roomActionRequestSchema = yup.object({
 });
 export type RoomActionRequest = yup.InferType<typeof roomActionRequestSchema>;
 
+export const playbackFailureRequestSchema = yup.object({
+  songId: yup.string().required(),
+});
+export type PlaybackFailureRequest = yup.InferType<
+  typeof playbackFailureRequestSchema
+>;
+
 export const skipActionResponseSchema = yup.object({
   action: yup.string().oneOf(['skip']).required(),
   skipped: yup.boolean().required(),

@@ -33,6 +33,7 @@ import {
   generatedPlaylistRequestSchema,
   messageResponseSchema,
   musicPlaylistSchema,
+  playbackFailureRequestSchema,
   playbackStateSchema,
   providersSchema,
   providerTokenSchema,
@@ -200,6 +201,12 @@ const endpoints = {
     },
     put: {
       request: roomActionRequestSchema,
+      response: playbackStateSchema,
+    },
+  },
+  '/rooms/{id}/playbackfailures': {
+    post: {
+      request: playbackFailureRequestSchema,
       response: playbackStateSchema,
     },
   },
