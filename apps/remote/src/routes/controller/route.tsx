@@ -1,4 +1,5 @@
 import { createApiClient, useRemoteEvents, useSSE } from '@vibes/api';
+import type { RemoteEvent, RemoteStatus } from '@vibes/models';
 import {
   showToast,
   usePlaybackStore,
@@ -10,6 +11,7 @@ import {
   Input,
   ListenerCount,
   PauseIcon,
+  PlaybackProgress,
   PlayIcon,
   PlusIcon,
   QueueList,
@@ -52,6 +54,9 @@ export default function RemoteController() {
   const [roomInput, setRoomInput] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [remoteStatus, setRemoteStatus] = useState<RemoteStatus | undefined>(
+    loaderData.remote,
+  );
   const room = useRoomStore((state) => state.room) ?? loaderData.room;
   const songs = useQueueStore((state) => state.songs);
   const playback = usePlaybackStore();
@@ -61,9 +66,18 @@ export default function RemoteController() {
   const usersCount = useRoomStore((state) => state.usersCount);
   const setSession = useRoomStore((state) => state.setSession);
   const currentSong = playback.currentSong ?? loaderData.playback?.currentSong;
-  const positionMs =
+  const serverPositionMs =
     playback.actualPositionMs ?? loaderData.playback?.positionMs ?? 0;
   const durationMs = (currentSong?.duration ?? 0) * 1000;
+  const isMachineSongCurrent = Boolean(
+    currentSong?.id && remoteStatus?.currentSongId === currentSong.id,
+  );
+  const [machinePositionMs, setMachinePositionMs] = useState(
+    loaderData.remote?.playbackPositionMs ?? serverPositionMs,
+  );
+  const positionMs = isMachineSongCurrent
+    ? machinePositionMs
+    : serverPositionMs;
   const [seekPositionMs, setSeekPositionMs] = useState(positionMs);
   const isSeekingRef = useRef(false);
   const remoteClient = useMemo(
@@ -73,11 +87,41 @@ export default function RemoteController() {
 
   useEffect(() => {
     if (loaderData.room) setRoom(loaderData.room);
+    setRemoteStatus(loaderData.remote);
     setSongs(loaderData.songs);
     if (loaderData.playback && loaderData.room) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
   }, [loaderData, setPlaybackState, setRoom, setSongs]);
+
+  useEffect(() => {
+    if (!isMachineSongCurrent || !remoteStatus) {
+      setMachinePositionMs(serverPositionMs);
+      return;
+    }
+
+    const updateMachinePosition = () => {
+      const observedAt = Date.parse(remoteStatus.playbackObservedAt);
+      const elapsedMs =
+        remoteStatus.playbackIsPlaying && Number.isFinite(observedAt)
+          ? Math.max(0, Date.now() - observedAt)
+          : 0;
+      setMachinePositionMs(
+        Math.min(
+          remoteStatus.playbackPositionMs + elapsedMs,
+          durationMs || Number.POSITIVE_INFINITY,
+        ),
+      );
+    };
+
+    updateMachinePosition();
+    if (!remoteStatus.playbackIsPlaying) return;
+    const interval = window.setInterval(
+      updateMachinePosition,
+      remotePositionUpdateIntervalMs,
+    );
+    return () => window.clearInterval(interval);
+  }, [durationMs, isMachineSongCurrent, remoteStatus, serverPositionMs]);
 
   useEffect(() => {
     if (!isSeekingRef.current) {
@@ -111,13 +155,40 @@ export default function RemoteController() {
     setSession,
   ]);
 
-  const handleRemoteRoomUpdate = useCallback(() => {
-    void revalidator.revalidate();
-  }, [revalidator]);
+  const handleRemoteRoomUpdate = useCallback(
+    (event: RemoteEvent) => {
+      if (event.roomId !== room?.id) {
+        void revalidator.revalidate();
+      }
+    },
+    [revalidator, room?.id],
+  );
+  const handleRemoteStateUpdate = useCallback(
+    (event: RemoteEvent) => {
+      setRemoteStatus((current) => ({
+        currentRoomId: event.roomId,
+        currentSongId: event.currentSongId,
+        enabled: true,
+        id: current?.id ?? remoteId,
+        online: true,
+        playbackIsPlaying: event.playbackIsPlaying,
+        playbackObservedAt: event.playbackObservedAt,
+        playbackPositionMs: event.playbackPositionMs,
+      }));
+      if (
+        event.roomId !== room?.id ||
+        (event.currentSongId && event.currentSongId !== currentSong?.id)
+      ) {
+        void revalidator.revalidate();
+      }
+    },
+    [currentSong?.id, remoteId, revalidator, room?.id],
+  );
   useRemoteEvents({
     controller: true,
     remoteId,
     onRoomUpdate: handleRemoteRoomUpdate,
+    onStateUpdate: handleRemoteStateUpdate,
   });
 
   const callbacks = useMemo(() => ({}), []);
@@ -177,8 +248,9 @@ export default function RemoteController() {
     );
   }
 
-  const isPlaying =
-    playback.isPlaying ?? loaderData.playback?.isPlaying ?? false;
+  const isPlaying = isMachineSongCurrent
+    ? (remoteStatus?.playbackIsPlaying ?? false)
+    : (playback.isPlaying ?? loaderData.playback?.isPlaying ?? false);
   const canSeek =
     room?.mode === 'host' &&
     Boolean(room.hostId && room.hostId === room.userId);
@@ -214,12 +286,13 @@ export default function RemoteController() {
 
       <roomFetcher.Form
         method="post"
-        className="panel-surface mt-4 flex gap-3 rounded-2xl p-3"
+        className="panel-surface mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-2xl p-3"
       >
         <input type="hidden" name="intent" value="changeRoom" />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0">
           <Input
             aria-label="Room name"
+            containerClassName="mb-0 h-full"
             name="nextRoomId"
             onChange={handleRoomInputChange}
             placeholder="Change room"
@@ -227,7 +300,7 @@ export default function RemoteController() {
             value={roomInput}
           />
         </div>
-        <Button type="submit" variant="secondary">
+        <Button type="submit" className="h-full" variant="secondary">
           Go
         </Button>
       </roomFetcher.Form>
@@ -300,15 +373,11 @@ export default function RemoteController() {
             <actionFetcher.Form method="post" className="mt-6">
               <input type="hidden" name="intent" value="seek" />
               <input type="hidden" name="roomId" value={room.id} />
-              <input
-                aria-label="Playback position"
-                className="w-full accent-secondary disabled:opacity-40"
+              <PlaybackProgress
                 disabled={!canSeek || durationMs === 0}
-                max={durationMs}
-                min={0}
+                durationMs={durationMs}
                 name="positionMs"
-                type="range"
-                value={Math.min(seekPositionMs, durationMs)}
+                positionMs={seekPositionMs}
                 onChange={handleSeekChange}
                 onKeyUp={handleSeekCommit}
                 onPointerDown={handleSeekStart}
@@ -359,3 +428,5 @@ export default function RemoteController() {
     </main>
   );
 }
+
+const remotePositionUpdateIntervalMs = 250;

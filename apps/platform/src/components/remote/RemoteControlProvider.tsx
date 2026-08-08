@@ -1,6 +1,6 @@
 import { useRemoteEvents } from '@vibes/api';
 import type { RemotePairing, RemoteStatus } from '@vibes/models';
-import { showToast } from '@vibes/shared';
+import { showToast, usePlaybackStore } from '@vibes/shared';
 import { Button, CloseIcon, Modal, RemoteIcon, Tooltip } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -39,11 +39,22 @@ export function RemoteControlProvider({ children }: Props) {
   const heartbeatSubmitRef = useRef(heartbeatFetcher.submit);
   const [isOpen, setIsOpen] = useState(false);
   const [machineRoomId, setMachineRoomId] = useState('');
+  const currentSongId = usePlaybackStore(
+    (state) => state.currentSong?.id ?? '',
+  );
+  const playbackPositionMs = usePlaybackStore(
+    (state) => state.actualPositionMs,
+  );
+  const playbackIsPlaying = usePlaybackStore((state) => state.isPlaying);
   const [remote, setRemote] = useState<RemoteStatus>({
     currentRoomId: '',
+    currentSongId: '',
     enabled: false,
     id: '',
     online: false,
+    playbackIsPlaying: false,
+    playbackObservedAt: '',
+    playbackPositionMs: 0,
   });
   const [pairing, setPairing] = useState<RemotePairing | null>(null);
 
@@ -71,9 +82,13 @@ export function RemoteControlProvider({ children }: Props) {
       setPairing(nextPairing);
       setRemote({
         currentRoomId: nextPairing.currentRoomId,
+        currentSongId: nextPairing.currentSongId,
         enabled: true,
         id: nextPairing.id,
         online: true,
+        playbackIsPlaying: nextPairing.playbackIsPlaying,
+        playbackObservedAt: nextPairing.playbackObservedAt,
+        playbackPositionMs: nextPairing.playbackPositionMs,
       });
       return;
     }
@@ -81,9 +96,13 @@ export function RemoteControlProvider({ children }: Props) {
       setPairing(null);
       setRemote({
         currentRoomId: '',
+        currentSongId: '',
         enabled: false,
         id: '',
         online: false,
+        playbackIsPlaying: false,
+        playbackObservedAt: '',
+        playbackPositionMs: 0,
       });
       showToast('Remote control disabled', 'success');
     }
@@ -149,6 +168,17 @@ export function RemoteControlProvider({ children }: Props) {
         <input type="hidden" name="intent" value="heartbeat" />
         <input type="hidden" name="remoteId" value={remote.id} />
         <input type="hidden" name="roomId" value={machineRoomId} />
+        <input type="hidden" name="currentSongId" value={currentSongId} />
+        <input
+          type="hidden"
+          name="playbackPositionMs"
+          value={Math.round(playbackPositionMs)}
+        />
+        <input
+          type="hidden"
+          name="playbackIsPlaying"
+          value={String(playbackIsPlaying)}
+        />
       </heartbeatFetcher.Form>
 
       <Modal
@@ -299,4 +329,4 @@ export function RemoteControlButton({
   );
 }
 
-const remoteHeartbeatIntervalMs = 10_000;
+const remoteHeartbeatIntervalMs = 2_000;

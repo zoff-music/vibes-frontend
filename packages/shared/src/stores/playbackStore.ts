@@ -25,6 +25,7 @@ interface PlaybackStoreState extends PlaybackState {
   getAuthoritativePositionMs: () => number;
   setIsPlaying: (isPlaying: boolean) => void;
   setLocalPlayingState: (isPlaying: boolean, roomMode: string) => void;
+  setLocalPlaybackPosition: (positionMs: number) => void;
   updateActualPosition: () => void;
 }
 
@@ -201,6 +202,15 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     } else {
       get().stopAutoUpdate();
     }
+  },
+
+  setLocalPlaybackPosition: (positionMs) => {
+    set({
+      actualPositionMs: positionMs,
+      clientReferenceTime: Date.now(),
+      hasLocalPlaybackChanges: true,
+      positionMs,
+    });
   },
 
   updateActualPosition: () => {

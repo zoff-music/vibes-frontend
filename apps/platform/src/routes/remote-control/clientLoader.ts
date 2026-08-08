@@ -11,9 +11,13 @@ export async function clientLoader(): Promise<RemoteControlLoaderData> {
     return {
       remote: {
         currentRoomId: '',
+        currentSongId: '',
         enabled: false,
         id: '',
         online: false,
+        playbackIsPlaying: false,
+        playbackObservedAt: '',
+        playbackPositionMs: 0,
       },
     };
   }
