@@ -240,11 +240,11 @@ export function SearchSheet({
     >
       <Screen>
         <SafeAreaView
-          className="flex-1 gap-3"
+          className="flex-1"
           edges={['top', 'bottom']}
           style={{ flex: 1, padding: 16 }}
         >
-          <View className="flex-row items-center justify-between gap-3">
+          <View className="mb-4 flex-row items-center justify-between gap-4">
             <View className="min-w-0 flex-1 gap-0.5">
               <Text className="font-heading text-2xl text-mobile-text dark:text-mobile-dark-text">
                 Add music
@@ -262,50 +262,54 @@ export function SearchSheet({
               </Text>
             </Pressable>
           </View>
-          <View className="flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
-            {enabledProviders.map((source) => (
-              <Pressable
-                key={source}
-                className={`min-h-11 flex-1 items-center justify-center rounded-xl px-3 ${
-                  provider === source ? 'bg-accent' : 'bg-transparent'
-                }`}
-                onPress={() => setProvider(source)}
-              >
-                <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
-                  {providerLabels[source]}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-          <View className="flex-row gap-2">
-            <View className="flex-1">
-              <Field
-                ref={inputRef}
-                value={query}
-                onChangeText={(value) => {
-                  setQuery(value);
-                  setError('');
-                  setPlaylist(null);
-                }}
-                onSubmitEditing={() => void search()}
-                placeholder="Search music"
+          <View className="mb-4 gap-4">
+            <View className="flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
+              {enabledProviders.map((source) => (
+                <Pressable
+                  key={source}
+                  className={`min-h-11 flex-1 items-center justify-center rounded-xl px-3 ${
+                    provider === source ? 'bg-accent' : 'bg-transparent'
+                  }`}
+                  onPress={() => setProvider(source)}
+                >
+                  <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
+                    {providerLabels[source]}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <Field
+                  ref={inputRef}
+                  value={query}
+                  onChangeText={(value) => {
+                    setQuery(value);
+                    setError('');
+                    setPlaylist(null);
+                  }}
+                  onSubmitEditing={() => void search()}
+                  placeholder="Search music"
+                />
+              </View>
+              <Button
+                disabled={loading}
+                label={loading ? 'Searching…' : 'Search'}
+                onPress={() => void search()}
               />
             </View>
-            <Button
-              disabled={loading}
-              label={loading ? 'Searching…' : 'Search'}
-              onPress={() => void search()}
-            />
           </View>
           {playlist && (
-            <Button
-              disabled={loading}
-              label={`Add all ${playlist.tracks.length} songs`}
-              onPress={() => void addPlaylist()}
-            />
+            <View className="mb-4">
+              <Button
+                disabled={loading}
+                label={`Add all ${playlist.tracks.length} songs`}
+                onPress={() => void addPlaylist()}
+              />
+            </View>
           )}
           {Boolean(error) && (
-            <Text className="font-mono text-error text-xs">{error}</Text>
+            <Text className="mb-4 font-mono text-error text-xs">{error}</Text>
           )}
           <FlatList
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
@@ -325,7 +329,7 @@ export function SearchSheet({
             renderItem={({ item }) => (
               <Pressable
                 accessibilityLabel={`Add ${item.title}`}
-                className="min-h-19 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
+                className="min-h-19 flex-row items-center gap-4 rounded-2xl border border-mobile-border bg-mobile-card p-4 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
                 onPress={() => void add(item)}
               >
                 <Image
@@ -352,7 +356,7 @@ export function SearchSheet({
                 </View>
               </Pressable>
             )}
-            ItemSeparatorComponent={() => <View className="h-2.5" />}
+            ItemSeparatorComponent={() => <View className="h-4" />}
           />
         </SafeAreaView>
       </Screen>

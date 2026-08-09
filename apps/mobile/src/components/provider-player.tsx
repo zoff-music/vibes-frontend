@@ -32,6 +32,10 @@ export function ProviderPlayer({ playback, song }: ProviderPlayerProps) {
   );
 
   useEffect(() => {
+    setError('');
+  }, [songId]);
+
+  useEffect(() => {
     if (!song || song.sourceType === 'youtube') return;
     webViewRef.current?.injectJavaScript(
       `window.zoffSetPlaying?.(${playback?.isPlaying ? 'true' : 'false'}); true;`,
@@ -118,6 +122,12 @@ export function ProviderPlayer({ playback, song }: ProviderPlayerProps) {
         allowsProtectedMedia
         bounces={false}
         mediaPlaybackRequiresUserAction={false}
+        onError={() =>
+          setError(`Could not load the ${song.sourceType} player.`)
+        }
+        onHttpError={() =>
+          setError(`Could not load the ${song.sourceType} player.`)
+        }
         onLoadEnd={initializePlayback}
         originWhitelist={['https://*']}
         scrollEnabled={false}
@@ -147,20 +157,32 @@ function getPlayerHtml(
         let initialPosition = 0;
         let shouldPlay = false;
         const player = SC.Widget(document.getElementById('player'));
-        player.bind(SC.Widget.Events.READY, () => {
+        let ready = false;
+        const syncPlayback = () => {
+          if (!ready) return;
           player.seekTo(initialPosition);
           if (shouldPlay) player.play();
+          else player.pause();
+        };
+        player.bind(SC.Widget.Events.READY, () => {
+          ready = true;
+          syncPlayback();
         });
         window.zoffInitialize = (position, playing) => {
           initialPosition = position;
           shouldPlay = playing;
+          syncPlayback();
         };
         window.zoffSetPlaying = (playing) => {
           shouldPlay = playing;
-          if (playing) player.play();
+          if (!ready) return;
+          if (shouldPlay) player.play();
           else player.pause();
         };
-        window.zoffSeek = (position) => player.seekTo(position);
+        window.zoffSeek = (position) => {
+          initialPosition = position;
+          if (ready) player.seekTo(position);
+        };
       </script>
     `);
   }
@@ -172,20 +194,26 @@ function getPlayerHtml(
       let controller;
       let initialPosition = 0;
       let shouldPlay = false;
+      const syncPlayback = () => {
+        if (!controller) return;
+        controller.seek(initialPosition);
+        if (shouldPlay) controller.resume();
+        else controller.pause();
+      };
       window.onSpotifyIframeApiReady = (IFrameAPI) => {
         IFrameAPI.createController(
           document.getElementById('player'),
           { uri: 'spotify:track:' + ${serializedSourceId}, height: '100%', width: '100%' },
           (nextController) => {
             controller = nextController;
-            controller.seek(initialPosition);
-            if (shouldPlay) controller.resume();
+            syncPlayback();
           }
         );
       };
       window.zoffInitialize = (position, playing) => {
         initialPosition = position;
         shouldPlay = playing;
+        syncPlayback();
       };
       window.zoffSetPlaying = (playing) => {
         shouldPlay = playing;
@@ -193,7 +221,10 @@ function getPlayerHtml(
         if (playing) controller.resume();
         else controller.pause();
       };
-      window.zoffSeek = (position) => controller?.seek(position);
+      window.zoffSeek = (position) => {
+        initialPosition = position;
+        controller?.seek(position);
+      };
     </script>
   `);
 }
