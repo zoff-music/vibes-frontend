@@ -286,7 +286,7 @@ export default function RemoteController() {
 
       <roomFetcher.Form
         method="post"
-        className="panel-surface mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-2xl p-3"
+        className="panel-surface mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl p-3"
       >
         <input type="hidden" name="intent" value="changeRoom" />
         <div className="min-w-0">
@@ -300,7 +300,11 @@ export default function RemoteController() {
             value={roomInput}
           />
         </div>
-        <Button type="submit" variant="secondary">
+        <Button
+          type="submit"
+          className="border border-transparent py-3"
+          variant="secondary"
+        >
           Go
         </Button>
       </roomFetcher.Form>
