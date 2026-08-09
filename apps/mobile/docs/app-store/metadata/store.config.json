@@ -1,0 +1,29 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "info": {
+      "en-US": {
+        "title": "Zoff",
+        "subtitle": "Shared music rooms",
+        "description": "Listen together with Zoff. Create or join a shared music room, add songs from the enabled music providers, and shape the queue together.\n\nWith Zoff you can:\n• Create a room in seconds or join one by name\n• Search enabled music providers and add songs or playlists\n• Vote on the shared queue and request the next song\n• Keep playback synchronized in server mode\n• Let a host control playback in host mode\n• Cast a room to a larger screen\n• Pair your phone as a remote for another Zoff player\n• Choose light, dark, or automatic appearance\n\nRooms can be public or private, and optional room-admin passwords protect room settings. Provider availability depends on the Zoff service configuration. Music plays through each provider's official embedded player and controls.",
+        "keywords": [
+          "music",
+          "playlist",
+          "queue",
+          "party",
+          "remote",
+          "voting",
+          "shared",
+          "listening",
+          "cast",
+          "rooms"
+        ],
+        "releaseNotes": "Initial Zoff mobile release.",
+        "promoText": "Create a shared room, shape the queue together, cast to a bigger screen, or use your phone as a remote.",
+        "marketingUrl": "https://zoff.me",
+        "supportUrl": "https://github.com/zoff-music/vibes-frontend/issues",
+        "privacyPolicyUrl": "https://zoff.me/privacy-policy"
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import {
   Pressable,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { PixelIcon, type PixelIconName } from '@/components/pixel-icon';
@@ -38,6 +39,18 @@ export function Screen({ children }: PropsWithChildren) {
 export function Card({ children }: PropsWithChildren) {
   return (
     <View className="gap-4 rounded-2xl border border-mobile-border bg-mobile-card/95 p-4 shadow-black/10 shadow-md dark:border-mobile-dark-border dark:bg-mobile-dark-card/95 dark:shadow-black/30">
+      {children}
+    </View>
+  );
+}
+
+export function ContentColumn({ children }: PropsWithChildren) {
+  const { width } = useWindowDimensions();
+  return (
+    <View
+      className="w-full"
+      style={width >= tabletWidth ? tabletContentColumnStyle : undefined}
+    >
       {children}
     </View>
   );
@@ -157,3 +170,8 @@ export function Empty({
 
 const backgroundGridColumns = [12, 25, 38, 50, 62, 75, 88];
 const backgroundGridRows = [18, 30, 42, 54, 66, 78, 90];
+const tabletWidth = 768;
+const tabletContentColumnStyle = {
+  alignSelf: 'center' as const,
+  maxWidth: 760,
+};
