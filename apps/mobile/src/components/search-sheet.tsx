@@ -8,17 +8,11 @@ import {
 import { Image } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
 import type { TextInput } from 'react-native';
-import { FlatList, Modal, Pressable, Text, View } from 'react-native';
+import { FlatList, Keyboard, Modal, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  Button,
-  Card,
-  Copy,
-  Field,
-  Heading,
-  Screen,
-} from '@/components/native';
+import { Button, Copy, Empty, Field, Screen } from '@/components/native';
+import { PixelIcon } from '@/components/pixel-icon';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
@@ -68,6 +62,7 @@ export function SearchSheet({
     setError('');
     setPlaylist(null);
     setLoading(true);
+    Keyboard.dismiss();
 
     if (playlistLink) {
       if (!enabledProviders.includes(playlistLink.provider)) {
@@ -244,25 +239,40 @@ export function SearchSheet({
       onRequestClose={onClose}
     >
       <Screen>
-        <SafeAreaView className="flex-1 gap-3 p-4" edges={['top', 'bottom']}>
-          <View className="flex-row items-center justify-between">
-            <Heading>Add a song</Heading>
-            <Button label="Done" tone="secondary" onPress={onClose} />
+        <SafeAreaView
+          className="flex-1 gap-3"
+          edges={['top', 'bottom']}
+          style={{ flex: 1, padding: 16 }}
+        >
+          <View className="flex-row items-center justify-between gap-3">
+            <View className="min-w-0 flex-1 gap-0.5">
+              <Text className="font-heading text-2xl text-mobile-text dark:text-mobile-dark-text">
+                Add music
+              </Text>
+              <Copy muted>Search or paste a song or playlist link.</Copy>
+            </View>
+            <Pressable
+              accessibilityLabel="Close music search"
+              accessibilityRole="button"
+              className="min-h-11 justify-center rounded-xl border border-mobile-border bg-mobile-surface px-4 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-surface"
+              onPress={onClose}
+            >
+              <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
+                Done
+              </Text>
+            </Pressable>
           </View>
-          <Copy muted>Search by title, or paste a song or playlist link.</Copy>
-          <View className="flex-row gap-2">
+          <View className="flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
             {enabledProviders.map((source) => (
               <Pressable
                 key={source}
-                className={`min-h-10 justify-center rounded-xl px-4 ${
-                  provider === source
-                    ? 'bg-accent'
-                    : 'bg-mobile-surface dark:bg-mobile-dark-surface'
+                className={`min-h-11 flex-1 items-center justify-center rounded-xl px-3 ${
+                  provider === source ? 'bg-accent' : 'bg-transparent'
                 }`}
                 onPress={() => setProvider(source)}
               >
-                <Text className="font-mono text-mobile-text text-xs capitalize dark:text-mobile-dark-text">
-                  {source}
+                <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
+                  {providerLabels[source]}
                 </Text>
               </Pressable>
             ))}
@@ -298,34 +308,60 @@ export function SearchSheet({
             <Text className="font-mono text-error text-xs">{error}</Text>
           )}
           <FlatList
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
             data={results}
+            keyboardShouldPersistTaps="handled"
             keyExtractor={(result) => `${result.source}:${result.id}`}
+            ListEmptyComponent={
+              <View className="flex-1 px-8">
+                {loading && <Empty loading>Searching for music…</Empty>}
+                {!loading && (
+                  <Empty>
+                    Search {providerLabels[provider]} or paste a direct link.
+                  </Empty>
+                )}
+              </View>
+            }
             renderItem={({ item }) => (
-              <Pressable onPress={() => void add(item)}>
-                <Card>
-                  <View className="flex-row items-center gap-3">
-                    <Image
-                      className="h-13 w-17 rounded-xl bg-black"
-                      source={item.thumbnailUrl}
-                    />
-                    <View className="min-w-0 flex-1 gap-1">
-                      <Text
-                        numberOfLines={2}
-                        className="font-bold font-mono text-mobile-text text-sm dark:text-mobile-dark-text"
-                      >
-                        {item.title}
-                      </Text>
-                      <Copy muted>{item.channelTitle ?? item.source}</Copy>
-                    </View>
-                    <Text className="font-mono text-3xl text-accent">＋</Text>
-                  </View>
-                </Card>
+              <Pressable
+                accessibilityLabel={`Add ${item.title}`}
+                className="min-h-19 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
+                onPress={() => void add(item)}
+              >
+                <Image
+                  contentFit="cover"
+                  source={item.thumbnailUrl}
+                  style={{ borderRadius: 12, height: 56, width: 72 }}
+                />
+                <View className="min-w-0 flex-1 gap-1">
+                  <Text
+                    numberOfLines={2}
+                    className="font-bold font-mono text-mobile-text text-sm dark:text-mobile-dark-text"
+                  >
+                    {item.title}
+                  </Text>
+                  <Text
+                    numberOfLines={1}
+                    className="font-mono text-mobile-muted text-xs dark:text-mobile-dark-muted"
+                  >
+                    {item.channelTitle ?? providerLabels[item.source]}
+                  </Text>
+                </View>
+                <View className="size-10 items-center justify-center rounded-xl bg-primary">
+                  <PixelIcon color="#ffffff" name="add" size={16} />
+                </View>
               </Pressable>
             )}
-            ItemSeparatorComponent={() => <View className="h-2" />}
+            ItemSeparatorComponent={() => <View className="h-2.5" />}
           />
         </SafeAreaView>
       </Screen>
     </Modal>
   );
 }
+
+const providerLabels: Record<SourceType, string> = {
+  soundcloud: 'SoundCloud',
+  spotify: 'Spotify',
+  youtube: 'YouTube',
+};

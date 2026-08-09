@@ -1,4 +1,3 @@
-import Slider from '@react-native-community/slider';
 import { useRemoteRequests, useRoomRequests } from '@vibes/api';
 import type { PlaybackState, RemoteStatus, Room, Song } from '@vibes/models';
 import { safeWrap } from '@vibes/shared';
@@ -6,7 +5,7 @@ import type { BarcodeScanningResult } from 'expo-camera';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as SecureStore from 'expo-secure-store';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Modal, Text, View } from 'react-native';
+import { Modal, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -18,11 +17,11 @@ import {
   Heading,
   Screen,
 } from '@/components/native';
+import { PixelIcon } from '@/components/pixel-icon';
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
 import { SearchSheet } from '@/components/search-sheet';
-import { useAppTheme } from '@/hooks/use-app-theme';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
@@ -30,7 +29,6 @@ import { useApp } from '@/providers/app-provider';
 const remoteStorageKey = 'zoff.mobile.remote';
 
 export default function RemoteScreen() {
-  const theme = useAppTheme();
   const { providers } = useApp();
   const [remoteId, setRemoteId] = useState('');
   const [pairingCode, setPairingCode] = useState('');
@@ -53,6 +51,9 @@ export default function RemoteScreen() {
     remote?.playbackIsPlaying ?? false,
     playback?.currentSong?.duration ?? 0,
   );
+  const queuedSongs = playback?.currentSong
+    ? songs.filter((song) => song.id !== playback.currentSong?.id)
+    : songs;
 
   const refresh = useCallback(async () => {
     if (!remoteId) return;
@@ -149,6 +150,20 @@ export default function RemoteScreen() {
     await refresh();
   };
 
+  const remove = async (song: Song) => {
+    if (!remote?.currentRoomId) return;
+    const [requestError] = await roomRequests.removeSong(
+      remote.currentRoomId,
+      song.id,
+    );
+    if (requestError) {
+      setError(
+        await getRequestErrorMessage(requestError, 'Could not remove song.'),
+      );
+    }
+    await refresh();
+  };
+
   const seek = async (positionMs: number) => {
     if (!remote?.currentRoomId) return;
     const [requestError] = await roomRequests.updatePlayback(
@@ -220,44 +235,52 @@ export default function RemoteScreen() {
   if (!remote) {
     return (
       <Screen>
-        <SafeAreaView className="flex-1" edges={['top']}>
-          <View className="flex-1 justify-center gap-4 p-4">
-            <Heading>Pair a remote</Heading>
-            <Copy muted>
-              Scan the QR code on the machine, or enter its remote ID and
-              one-time code.
-            </Copy>
-            {room && (
+        <SafeAreaView className="flex-1" edges={['top']} style={{ flex: 1 }}>
+          <ScrollView
+            contentContainerClassName="flex-grow justify-center gap-5 p-4 pb-28"
+            keyboardShouldPersistTaps="handled"
+          >
+            <View className="items-center gap-2 px-6">
+              <View className="mb-2 size-16 items-center justify-center rounded-3xl border border-accent/40 bg-accent/10">
+                <PixelIcon color="#00b4d4" name="remote" size={30} />
+              </View>
+              <Heading>Pair a remote</Heading>
+              <Text className="text-center font-mono text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                Control another Zoff screen without becoming another listener.
+              </Text>
+            </View>
+            <Card>
+              <Copy muted>PAIR THIS PHONE</Copy>
               <Button
-                label="Room controls"
+                icon="scan"
+                label="Scan remote QR code"
                 tone="secondary"
-                onPress={() => setSettingsVisible(true)}
+                onPress={() => void openScanner()}
               />
-            )}
-            <Button
-              icon="viewfinder"
-              label="Scan QR code"
-              tone="secondary"
-              onPress={() => void openScanner()}
-            />
-            <Field
-              autoCapitalize="none"
-              value={remoteId}
-              onChangeText={setRemoteId}
-              placeholder="Remote ID"
-            />
-            <Field
-              autoCapitalize="none"
-              value={pairingCode}
-              onChangeText={setPairingCode}
-              onSubmitEditing={() => void pair()}
-              placeholder="Pairing code"
-            />
-            <Button label="Pair remote" onPress={() => void pair()} />
-            {Boolean(error) && (
-              <Text className="font-mono text-error text-xs">{error}</Text>
-            )}
-          </View>
+              <View className="flex-row items-center gap-3">
+                <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
+                <Copy muted>OR ENTER A CODE</Copy>
+                <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
+              </View>
+              <Field
+                autoCapitalize="none"
+                value={remoteId}
+                onChangeText={setRemoteId}
+                placeholder="Remote ID"
+              />
+              <Field
+                autoCapitalize="none"
+                value={pairingCode}
+                onChangeText={setPairingCode}
+                onSubmitEditing={() => void pair()}
+                placeholder="Pairing code"
+              />
+              <Button label="Pair remote" onPress={() => void pair()} />
+              {Boolean(error) && (
+                <Text className="font-mono text-error text-xs">{error}</Text>
+              )}
+            </Card>
+          </ScrollView>
           <Modal visible={scannerVisible} animationType="slide">
             <CameraView
               className="flex-1"
@@ -277,88 +300,92 @@ export default function RemoteScreen() {
   }
   return (
     <Screen>
-      <SafeAreaView className="flex-1" edges={['top']}>
-        <View className="gap-3 p-4">
-          <Card>
-            <Copy muted>CONTROLLING MACHINE</Copy>
-            <Heading>{room?.name || remote.currentRoomId || 'No room'}</Heading>
-            <Copy muted>
-              {remote.online ? 'Online' : 'Offline'}
-              {room ? ` · ${room.userCount ?? 0} listeners` : ''}
-            </Copy>
-          </Card>
-          <Card>
-            <Copy muted>CHANGE ROOM</Copy>
-            <View className="flex-row items-stretch gap-2">
-              <View className="flex-1">
-                <Field
-                  autoCapitalize="none"
-                  value={nextRoomId}
-                  onChangeText={setNextRoomId}
-                  onSubmitEditing={() => void changeRoom()}
-                  placeholder="Room name"
-                />
-              </View>
-              <Button
-                disabled={!nextRoomId.trim()}
-                label="Go"
-                onPress={() => void changeRoom()}
-              />
-            </View>
-          </Card>
-          {room && (
-            <Card>
-              <Copy muted>NOW PLAYING</Copy>
-              <Text
-                numberOfLines={1}
-                className="font-extrabold font-mono text-base text-mobile-text dark:text-mobile-dark-text"
-              >
-                {playback?.currentSong?.title ?? 'Nothing playing'}
-              </Text>
-              <Copy muted>{playback?.currentSong?.artist ?? ''}</Copy>
-              <View className="flex-row gap-2">
-                <Button
-                  label={playback?.isPlaying ? 'Pause' : 'Play'}
-                  onPress={() =>
-                    void action(playback?.isPlaying ? 'pause' : 'play')
-                  }
-                />
-                <Button
-                  label="Skip"
-                  tone="secondary"
-                  onPress={() => void action('skip')}
-                />
-                <Button
-                  icon="plus"
-                  label="Add"
-                  onPress={() => setSearchVisible(true)}
-                />
-              </View>
-              <PlaybackProgress
-                duration={playback?.currentSong?.duration ?? 0}
-                position={livePosition}
-              />
-              <Slider
-                accessibilityLabel="Remote playback position"
-                disabled={
-                  room.mode !== 'host' ||
-                  (room.hostId !== room.userId && !room.isAdmin)
-                }
-                maximumValue={(playback?.currentSong?.duration ?? 0) * 1_000}
-                minimumTrackTintColor={theme.accent}
-                maximumTrackTintColor={theme.surface}
-                thumbTintColor={theme.accent}
-                value={livePosition}
-                onSlidingComplete={(position) => void seek(position)}
-              />
-            </Card>
-          )}
-        </View>
+      <SafeAreaView className="flex-1" edges={['top']} style={{ flex: 1 }}>
         {room && (
           <>
-            <View className="flex-1">
-              <Queue songs={songs} onVote={(song) => void vote(song)} />
-            </View>
+            <Queue
+              songs={queuedSongs}
+              onDelete={room.isAdmin ? (song) => void remove(song) : undefined}
+              onVote={(song) => void vote(song)}
+              header={
+                <View className="gap-3 p-4">
+                  <Card>
+                    <Copy muted>CONTROLLING MACHINE</Copy>
+                    <Heading>
+                      {room.name || remote.currentRoomId || 'No room'}
+                    </Heading>
+                    <Copy muted>
+                      {remote.online ? 'Online' : 'Offline'} ·{' '}
+                      {room.userCount ?? 0} listeners
+                    </Copy>
+                  </Card>
+                  <Card>
+                    <Copy muted>CHANGE ROOM</Copy>
+                    <View className="flex-row items-stretch gap-2">
+                      <View className="flex-1">
+                        <Field
+                          autoCapitalize="none"
+                          value={nextRoomId}
+                          onChangeText={setNextRoomId}
+                          onSubmitEditing={() => void changeRoom()}
+                          placeholder="Room name"
+                        />
+                      </View>
+                      <Button
+                        disabled={!nextRoomId.trim()}
+                        label="Go"
+                        onPress={() => void changeRoom()}
+                      />
+                    </View>
+                  </Card>
+                  <Card>
+                    <Copy muted>NOW PLAYING</Copy>
+                    <Text
+                      numberOfLines={1}
+                      className="font-heading text-base text-mobile-text dark:text-mobile-dark-text"
+                    >
+                      {playback?.currentSong?.title ?? 'Nothing playing'}
+                    </Text>
+                    <Copy muted>{playback?.currentSong?.artist ?? ''}</Copy>
+                    <View className="flex-row gap-2">
+                      <View className="flex-1">
+                        <Button
+                          icon={playback?.isPlaying ? 'pause' : 'play'}
+                          label={playback?.isPlaying ? 'Pause' : 'Play'}
+                          onPress={() =>
+                            void action(playback?.isPlaying ? 'pause' : 'play')
+                          }
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <Button
+                          icon="skip"
+                          label="Skip"
+                          tone="secondary"
+                          onPress={() => void action('skip')}
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <Button
+                          icon="add"
+                          label="Add"
+                          onPress={() => setSearchVisible(true)}
+                        />
+                      </View>
+                    </View>
+                    <PlaybackProgress
+                      duration={playback?.currentSong?.duration ?? 0}
+                      onSeek={(position) => void seek(position)}
+                      position={livePosition}
+                      seekable={
+                        room.mode === 'host' &&
+                        (room.hostId === room.userId || room.isAdmin)
+                      }
+                    />
+                  </Card>
+                </View>
+              }
+            />
             <SearchSheet
               client={client}
               roomIdOverride={remote.currentRoomId}

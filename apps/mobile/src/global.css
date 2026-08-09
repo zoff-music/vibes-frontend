@@ -5,6 +5,12 @@
 @import "../../../packages/tailwind/theme.css";
 
 @theme {
+  --font-heading: "Pixelify Sans Bold";
+  --font-mono: "Pixelify Sans";
+  --font-sans: "Pixelify Sans";
+  --color-accent: #00b4d4;
+  --color-error: #d91465;
+  --color-primary: #ff2e97;
   --color-mobile-background: #f6ebff;
   --color-mobile-card: #fdf7ff;
   --color-mobile-surface: #f2ddff;

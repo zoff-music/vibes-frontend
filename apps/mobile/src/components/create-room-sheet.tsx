@@ -2,7 +2,7 @@ import { useRoomRequests } from '@vibes/api';
 import type { Providers } from '@vibes/models';
 import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
 import { useEffect, useState } from 'react';
-import { Modal, Switch, Text, View } from 'react-native';
+import { Modal, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -114,7 +114,10 @@ export function CreateRoomSheet({
             <Heading>Create a room</Heading>
             <Button label="Cancel" tone="secondary" onPress={onClose} />
           </View>
-          <View className="gap-4 px-4">
+          <ScrollView
+            contentContainerClassName="gap-4 px-4 pb-8"
+            keyboardShouldPersistTaps="handled"
+          >
             <Card>
               <Copy muted>ROOM DETAILS</Copy>
               <Field
@@ -177,7 +180,7 @@ export function CreateRoomSheet({
               label={loading ? 'Creating…' : 'Create room'}
               onPress={() => void createRoom()}
             />
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </Screen>
     </Modal>

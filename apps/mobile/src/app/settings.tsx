@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { useState } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, Copy, Heading, Screen } from '@/components/native';
@@ -13,7 +13,7 @@ export default function SettingsScreen() {
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']}>
-        <View className="gap-4 p-4">
+        <ScrollView contentContainerClassName="gap-4 p-4 pb-28">
           <Heading>Settings</Heading>
           <Card>
             <Copy muted>ACTIVE ROOM</Copy>
@@ -72,7 +72,7 @@ export default function SettingsScreen() {
               onUpdated={refresh}
             />
           )}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </Screen>
   );

@@ -29,6 +29,7 @@ export interface RoomRequests {
   fetchPublicRooms: () => ApiResult<PublicRoom[]>;
   fetchSnapshot: (roomId: string) => ApiResult<RoomSnapshot>;
   joinRoom: (roomId: string, password?: string) => ApiResult<SessionResponse>;
+  removeSong: (roomId: string, songId: string) => ApiResult<EmptyObject>;
   reserveRoom: (name: string) => ApiResult<RoomNameReservation>;
   skip: (roomId: string) => ApiResult<SkipActionResponse>;
   updatePlayback: (
@@ -71,6 +72,8 @@ export function useRoomRequests(client: ApiClient): RoomRequests {
         client.post('/rooms/{id}/sessions', { id: roomId }, { password }),
       reserveRoom: (name: string) =>
         client.post('/rooms/reservations', null, { name }),
+      removeSong: (roomId: string, songId: string) =>
+        client.delete('/rooms/{id}/songs/{songId}', { id: roomId, songId }),
       skip: (roomId: string) =>
         client.post('/rooms/{id}/skips', { id: roomId }, {}),
       updatePlayback: (

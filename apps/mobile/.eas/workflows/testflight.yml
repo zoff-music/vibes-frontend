@@ -1,0 +1,25 @@
+name: Build and upload iOS release to TestFlight
+
+on:
+  push:
+    tags:
+      - mobile-v*
+
+jobs:
+  build_ios:
+    name: Build production iOS app
+    type: build
+    environment: production
+    params:
+      platform: ios
+      profile: production
+
+  upload_testflight:
+    name: Upload build to TestFlight
+    needs:
+      - build_ios
+    type: testflight
+    environment: production
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      profile: production

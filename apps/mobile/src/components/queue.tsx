@@ -1,26 +1,38 @@
-import { FlashList } from '@shopify/flash-list';
 import type { Song } from '@vibes/models';
 import { Image } from 'expo-image';
-import { Pressable, Text, View } from 'react-native';
+import type { ReactElement } from 'react';
+import { FlatList, Pressable, Text, View } from 'react-native';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 import { Copy, Empty } from '@/components/native';
+import { PixelIcon } from '@/components/pixel-icon';
+import { useAppTheme } from '@/hooks/use-app-theme';
 
 interface QueueProps {
+  header?: ReactElement;
+  onDelete?: (song: Song) => void;
   onVote: (song: Song) => void;
   songs: Song[];
 }
 
 function QueueItem({
   index,
+  onDelete,
   onVote,
   song,
 }: {
   index: number;
+  onDelete?: () => void;
   onVote: () => void;
   song: Song;
 }) {
-  return (
-    <View className="min-h-19 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
+  const theme = useAppTheme();
+  const row = (
+    <Pressable
+      accessibilityLabel={`Vote for ${song.title}`}
+      className="min-h-18 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
+      onPress={onVote}
+    >
       <Text className="w-5 text-center font-mono text-mobile-muted text-xs dark:text-mobile-dark-muted">
         {index + 1}
       </Text>
@@ -28,6 +40,7 @@ function QueueItem({
         className="size-13 rounded-xl bg-black"
         source={song.thumbnailUrl}
         contentFit="cover"
+        style={{ borderRadius: 12, height: 52, width: 52 }}
       />
       <View className="min-w-0 flex-1 gap-1">
         <Text
@@ -43,39 +56,75 @@ function QueueItem({
           {song.artist ?? song.sourceType}
         </Text>
       </View>
-      <Pressable
-        accessibilityLabel={`Vote for ${song.title}`}
-        className="min-h-10 min-w-14 items-center justify-center rounded-xl border border-mobile-border px-2 active:opacity-60 dark:border-mobile-dark-border"
-        onPress={onVote}
-      >
-        <Text className="font-bold font-mono text-accent text-xs">
-          👍 {song.voteCount ?? 0}
+      <View className="flex-row items-center gap-1.5 rounded-xl bg-accent/10 px-2.5 py-2">
+        <PixelIcon color={theme.accent} name="vote" size={16} />
+        <Text className="font-heading text-accent text-xs">
+          {song.voteCount ?? 0}
         </Text>
-      </Pressable>
-    </View>
+      </View>
+    </Pressable>
+  );
+
+  if (!onDelete) {
+    return row;
+  }
+
+  return (
+    <ReanimatedSwipeable
+      overshootRight={false}
+      renderRightActions={(_progress, _translation, swipeable) => (
+        <Pressable
+          accessibilityLabel={`Delete ${song.title}`}
+          className="ml-2 w-20 items-center justify-center rounded-2xl bg-error"
+          onPress={() => {
+            swipeable.close();
+            onDelete();
+          }}
+        >
+          <PixelIcon color="#ffffff" name="trash" size={20} />
+          <Text className="mt-1 font-heading text-white text-xs">Delete</Text>
+        </Pressable>
+      )}
+    >
+      {row}
+    </ReanimatedSwipeable>
   );
 }
 
-export function Queue({ onVote, songs }: QueueProps) {
-  if (songs.length === 0) {
-    return <Empty>No songs are queued yet.</Empty>;
-  }
+export function Queue({ header, onDelete, onVote, songs }: QueueProps) {
   return (
-    <View className="flex-1 px-4">
-      <FlashList
-        data={songs}
-        keyExtractor={(song) => song.id}
-        renderItem={({ item, index }) => (
-          <QueueItem index={index} onVote={() => onVote(item)} song={item} />
-        )}
-        ItemSeparatorComponent={() => <View className="h-3" />}
-        ListHeaderComponent={
-          <View className="pb-3">
+    <FlatList
+      style={{ flex: 1 }}
+      contentContainerStyle={{ paddingBottom: 112 }}
+      data={songs}
+      initialNumToRender={8}
+      keyExtractor={(song) => song.id}
+      ListEmptyComponent={
+        <View className="px-4">
+          <Empty>No songs are queued yet.</Empty>
+        </View>
+      }
+      ListHeaderComponent={
+        <>
+          {header}
+          <View className="px-4 pt-4 pb-3">
             <Copy muted>UP NEXT ({songs.length})</Copy>
           </View>
-        }
-        ListFooterComponent={<View className="h-28" />}
-      />
-    </View>
+        </>
+      }
+      maxToRenderPerBatch={8}
+      renderItem={({ item, index }) => (
+        <View className="px-4">
+          <QueueItem
+            index={index}
+            onDelete={onDelete ? () => onDelete(item) : undefined}
+            onVote={() => onVote(item)}
+            song={item}
+          />
+        </View>
+      )}
+      ItemSeparatorComponent={() => <View className="h-3" />}
+      windowSize={5}
+    />
   );
 }
