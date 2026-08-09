@@ -1,4 +1,3 @@
-import { SymbolView } from 'expo-symbols';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { forwardRef } from 'react';
 import {
@@ -8,20 +7,37 @@ import {
   TextInput,
   View,
 } from 'react-native';
-
+import { PixelIcon, type PixelIconName } from '@/components/pixel-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 
 export function Screen({ children }: PropsWithChildren) {
   return (
-    <View className="flex-1 bg-mobile-background dark:bg-mobile-dark-background">
-      {children}
+    <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
+      <View className="absolute inset-0 opacity-35" pointerEvents="none">
+        {backgroundGridColumns.map((position) => (
+          <View
+            className="absolute inset-y-0 w-px bg-primary/15 dark:bg-primary/20"
+            key={`column-${position}`}
+            style={{ left: `${position}%` }}
+          />
+        ))}
+        {backgroundGridRows.map((position) => (
+          <View
+            className="absolute inset-x-0 h-px bg-primary/15 dark:bg-primary/20"
+            key={`row-${position}`}
+            style={{ top: `${position}%` }}
+          />
+        ))}
+        <View className="absolute top-0 right-0 left-0 h-40 bg-primary/5" />
+      </View>
+      <View className="flex-1">{children}</View>
     </View>
   );
 }
 
 export function Card({ children }: PropsWithChildren) {
   return (
-    <View className="gap-3 rounded-3xl border border-mobile-border bg-mobile-card p-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
+    <View className="gap-4 rounded-2xl border border-mobile-border bg-mobile-card/95 p-4 shadow-black/10 shadow-md dark:border-mobile-dark-border dark:bg-mobile-dark-card/95 dark:shadow-black/30">
       {children}
     </View>
   );
@@ -29,7 +45,7 @@ export function Card({ children }: PropsWithChildren) {
 
 export function Heading({ children }: PropsWithChildren) {
   return (
-    <Text className="font-extrabold font-mono text-3xl text-mobile-text dark:text-mobile-dark-text">
+    <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
       {children}
     </Text>
   );
@@ -46,19 +62,16 @@ export function Copy({
 }
 
 interface ButtonProps {
+  accessibilityLabel?: string;
   disabled?: boolean;
-  icon?:
-    | 'forward.end.fill'
-    | 'pause.fill'
-    | 'play.fill'
-    | 'plus'
-    | 'viewfinder';
+  icon?: PixelIconName;
   label: string;
   onPress: () => void;
   tone?: 'primary' | 'secondary' | 'danger';
 }
 
 export function Button({
+  accessibilityLabel,
   disabled,
   icon,
   label,
@@ -72,15 +85,29 @@ export function Button({
       : tone === 'danger'
         ? 'border-error bg-mobile-surface dark:bg-mobile-dark-surface'
         : 'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface';
+  const labelClassName =
+    tone === 'primary'
+      ? 'text-white'
+      : tone === 'danger'
+        ? 'text-error'
+        : 'text-mobile-text dark:text-mobile-dark-text';
+  let iconColor: string = theme.text;
+  if (tone === 'primary') {
+    iconColor = '#ffffff';
+  }
+  if (tone === 'danger') {
+    iconColor = theme.danger;
+  }
   return (
     <Pressable
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="button"
-      className={`min-h-12 flex-row items-center justify-center gap-2 rounded-2xl border px-4 active:opacity-70 ${disabled ? 'opacity-45' : ''} ${toneClassName}`}
+      className={`min-h-13 flex-row items-center justify-center gap-2 rounded-xl border px-4 shadow-sm active:opacity-70 ${disabled ? 'opacity-45' : ''} ${toneClassName}`}
       disabled={disabled}
       onPress={onPress}
     >
-      {icon && <SymbolView name={icon} size={18} tintColor={theme.text} />}
-      <Text className="font-bold font-mono text-mobile-text text-sm dark:text-mobile-dark-text">
+      {icon && <PixelIcon color={iconColor} name={icon} size={18} />}
+      <Text className={`font-heading text-base ${labelClassName}`}>
         {label}
       </Text>
     </Pressable>
@@ -104,7 +131,7 @@ export const Field = forwardRef<TextInput, FieldProps>(
         {...props}
         ref={ref}
         autoCorrect={false}
-        className="min-h-13 rounded-2xl border border-mobile-border bg-mobile-surface px-4 font-mono text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text"
+        className="min-h-13 rounded-xl border border-mobile-border bg-mobile-surface px-4 font-mono text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text"
         placeholderTextColor={theme.muted}
         returnKeyType="go"
       />
@@ -127,3 +154,6 @@ export function Empty({
     </View>
   );
 }
+
+const backgroundGridColumns = [12, 25, 38, 50, 62, 75, 88];
+const backgroundGridRows = [18, 30, 42, 54, 66, 78, 90];

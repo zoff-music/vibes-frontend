@@ -64,21 +64,37 @@ export function AppProvider({ children }: PropsWithChildren) {
     async (nextRoomId: string, password = '') => {
       const normalized = nextRoomId.trim().toLowerCase().replace(/\s+/g, '-');
       setLoading(true);
-      const [requestError, session] = await roomRequests.joinRoom(
-        normalized,
-        password,
-      );
+      if (password) {
+        const [requestError] = await roomRequests.joinRoom(
+          normalized,
+          password,
+        );
+        if (requestError) {
+          setLoading(false);
+          setError(
+            await getRequestErrorMessage(
+              requestError,
+              'Could not authenticate with that admin password.',
+            ),
+          );
+          return 'error';
+        }
+      }
+
+      const [requestError, snapshot] =
+        await roomRequests.fetchSnapshot(normalized);
       setLoading(false);
-      if (requestError || !session) {
+      if (requestError || !snapshot) {
         const status = requestError
           ? getHttpError(requestError)?.response.status
           : null;
         setError(await getRequestErrorMessage(requestError, 'Room not found'));
         return status === notFoundStatus ? 'notFound' : 'error';
       }
-
       setRoomIdValue(normalized);
-      setRoom(session.room);
+      setRoom(snapshot.room);
+      setSongs(snapshot.songs);
+      setPlayback(snapshot.playback);
       setError('');
       await SecureStore.setItemAsync(roomStorageKey, normalized);
       return 'joined';

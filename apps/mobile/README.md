@@ -2,8 +2,9 @@
 
 Native Expo app for Zoff rooms and remotes. It uses the same typed `@vibes/api`,
 `@vibes/models`, and shared safety utilities as the web apps, while rendering
-native iOS and Android controls. The queue uses FlashList virtualization, so a
-large room does not mount every song at once.
+native iOS and Android controls. The queue uses React Native's virtualized
+`FlatList` with a bounded render window, so a large room does not mount every
+song at once.
 
 Native colors and spacing mirror the values in `packages/tailwind/theme.css`.
 NativeWind compiles the shared Tailwind 4 theme into React Native styles; no
@@ -15,7 +16,10 @@ DOM-oriented UI components are shipped in the native bundle.
   public rooms.
 - Play, pause, host seek, skip, vote, search, and add songs or provider
   playlists from pasted links.
-- Official embedded players for enabled YouTube, Spotify, and SoundCloud tracks.
+- Official embedded players for enabled YouTube, Spotify, and SoundCloud
+  tracks. YouTube uses `react-native-youtube-iframe`, which wraps the official
+  IFrame Player API and exposes player state, error, and seek controls to the
+  native app.
 - Google Cast discovery and the Zoff custom receiver handshake.
 - Pair a remote by QR code or one-time code and control the paired machine.
 - Authenticate as a room admin and update room mode, queue behavior, public

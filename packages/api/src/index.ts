@@ -127,7 +127,7 @@ function getApiUrl() {
   }
 
   // If in a browser environment
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && window.location) {
     const { protocol, hostname, origin } = window.location;
 
     // Local development
