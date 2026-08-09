@@ -4,8 +4,9 @@ Keep final, unedited simulator captures in this directory. Do not include
 credentials, admin passwords, pairing tokens, or private room names in any
 screenshot.
 
-Capture the 6.9-inch iPhone set at an App Store-supported native resolution and
-include these screens in both light and dark appearance where useful:
+Capture the 6.9-inch iPhone set at one of Apple's supported portrait sizes:
+`1260 x 2736`, `1290 x 2796`, or `1320 x 2868` pixels. Include these screens in
+both light and dark appearance where useful:
 
 1. Rooms and public-room discovery
 2. Room creation sheet
