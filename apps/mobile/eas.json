@@ -17,7 +17,7 @@
   "submit": {
     "production": {
       "ios": {
-        "metadataPath": "./store.config.json"
+        "metadataPath": "./docs/app-store/metadata/store.config.json"
       }
     }
   }

@@ -9,6 +9,7 @@ import { PixelIcon } from '@/components/pixel-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 
 interface QueueProps {
+  contained?: boolean;
   header?: ReactElement;
   onDelete?: (song: Song) => void;
   onVote: (song: Song) => void;
@@ -91,11 +92,17 @@ function QueueItem({
   );
 }
 
-export function Queue({ header, onDelete, onVote, songs }: QueueProps) {
+export function Queue({
+  contained,
+  header,
+  onDelete,
+  onVote,
+  songs,
+}: QueueProps) {
   return (
     <FlatList
       style={{ flex: 1 }}
-      contentContainerStyle={{ paddingBottom: 112 }}
+      contentContainerStyle={contained ? containedQueueStyle : queueStyle}
       data={songs}
       initialNumToRender={8}
       keyExtractor={(song) => song.id}
@@ -128,3 +135,11 @@ export function Queue({ header, onDelete, onVote, songs }: QueueProps) {
     />
   );
 }
+
+const queueStyle = { paddingBottom: 112 };
+const containedQueueStyle = {
+  alignSelf: 'center' as const,
+  maxWidth: 760,
+  paddingBottom: 112,
+  width: '100%' as const,
+};

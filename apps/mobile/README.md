@@ -164,9 +164,9 @@ Before the first store build:
 5. Complete provider-policy review. YouTube, Spotify, and SoundCloud playback is
    intentionally rendered through their official controls; do not replace it
    with extracted media URLs.
-6. Capture the App Store images described in `store-assets/README.md`, review
-   `store.config.json`, and add the remaining App Store Connect privacy, age
-   rating, category, and review-contact fields in App Store Connect.
+6. Review the copy-ready App Store packet in `docs/app-store/`, including its
+   screenshots, metadata, privacy answers, age rating, review notes, and final
+   release checklist.
 
 Create and submit production builds:
 

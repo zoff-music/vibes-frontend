@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
   Card,
+  ContentColumn,
   Copy,
   Empty,
   Field,
@@ -240,46 +241,53 @@ export default function RemoteScreen() {
             contentContainerClassName="flex-grow justify-center gap-5 p-4 pb-28"
             keyboardShouldPersistTaps="handled"
           >
-            <View className="items-center gap-2 px-6">
-              <View className="mb-2 size-16 items-center justify-center rounded-3xl border border-accent/40 bg-accent/10">
-                <PixelIcon color="#00b4d4" name="remote" size={30} />
+            <ContentColumn>
+              <View className="gap-5">
+                <View className="items-center gap-2 px-6">
+                  <View className="mb-2 size-16 items-center justify-center rounded-3xl border border-accent/40 bg-accent/10">
+                    <PixelIcon color="#00b4d4" name="remote" size={30} />
+                  </View>
+                  <Heading>Pair a remote</Heading>
+                  <Text className="text-center font-mono text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                    Control another Zoff screen without becoming another
+                    listener.
+                  </Text>
+                </View>
+                <Card>
+                  <Copy muted>PAIR THIS PHONE</Copy>
+                  <Button
+                    icon="scan"
+                    label="Scan remote QR code"
+                    tone="secondary"
+                    onPress={() => void openScanner()}
+                  />
+                  <View className="flex-row items-center gap-3">
+                    <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
+                    <Copy muted>OR ENTER A CODE</Copy>
+                    <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
+                  </View>
+                  <Field
+                    autoCapitalize="none"
+                    value={remoteId}
+                    onChangeText={setRemoteId}
+                    placeholder="Remote ID"
+                  />
+                  <Field
+                    autoCapitalize="none"
+                    value={pairingCode}
+                    onChangeText={setPairingCode}
+                    onSubmitEditing={() => void pair()}
+                    placeholder="Pairing code"
+                  />
+                  <Button label="Pair remote" onPress={() => void pair()} />
+                  {Boolean(error) && (
+                    <Text className="font-mono text-error text-xs">
+                      {error}
+                    </Text>
+                  )}
+                </Card>
               </View>
-              <Heading>Pair a remote</Heading>
-              <Text className="text-center font-mono text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                Control another Zoff screen without becoming another listener.
-              </Text>
-            </View>
-            <Card>
-              <Copy muted>PAIR THIS PHONE</Copy>
-              <Button
-                icon="scan"
-                label="Scan remote QR code"
-                tone="secondary"
-                onPress={() => void openScanner()}
-              />
-              <View className="flex-row items-center gap-3">
-                <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
-                <Copy muted>OR ENTER A CODE</Copy>
-                <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
-              </View>
-              <Field
-                autoCapitalize="none"
-                value={remoteId}
-                onChangeText={setRemoteId}
-                placeholder="Remote ID"
-              />
-              <Field
-                autoCapitalize="none"
-                value={pairingCode}
-                onChangeText={setPairingCode}
-                onSubmitEditing={() => void pair()}
-                placeholder="Pairing code"
-              />
-              <Button label="Pair remote" onPress={() => void pair()} />
-              {Boolean(error) && (
-                <Text className="font-mono text-error text-xs">{error}</Text>
-              )}
-            </Card>
+            </ContentColumn>
           </ScrollView>
           <Modal visible={scannerVisible} animationType="slide">
             <CameraView
@@ -304,6 +312,7 @@ export default function RemoteScreen() {
         {room && (
           <>
             <Queue
+              contained
               songs={queuedSongs}
               onDelete={room.isAdmin ? (song) => void remove(song) : undefined}
               onVote={(song) => void vote(song)}
