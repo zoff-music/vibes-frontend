@@ -314,8 +314,8 @@ export default function RemoteController() {
       )}
 
       {room && (
-        <div className="mt-4 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
-          <section className="panel-strong rounded-3xl p-5">
+        <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+          <section className="panel-strong min-w-0 rounded-3xl p-5">
             <p className="font-pixel text-2xs text-theme-muted tracking-label">
               Now playing
             </p>
