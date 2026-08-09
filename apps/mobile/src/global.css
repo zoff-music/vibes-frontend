@@ -1,0 +1,20 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+@import "nativewind/theme";
+@import "../../../packages/tailwind/theme.css";
+
+@theme {
+  --color-mobile-background: #f6ebff;
+  --color-mobile-card: #fdf7ff;
+  --color-mobile-surface: #f2ddff;
+  --color-mobile-text: #2a1840;
+  --color-mobile-muted: #5b4276;
+  --color-mobile-border: rgba(112, 72, 140, 0.35);
+  --color-mobile-dark-background: #120b1e;
+  --color-mobile-dark-card: #1a102a;
+  --color-mobile-dark-surface: #1e1330;
+  --color-mobile-dark-text: #e8dff5;
+  --color-mobile-dark-muted: #bfa8d6;
+  --color-mobile-dark-border: rgba(112, 72, 140, 0.4);
+}

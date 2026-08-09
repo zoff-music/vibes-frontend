@@ -24,15 +24,20 @@ export type ColorScheme = 'auto' | 'light' | 'dark';
 
 export type ResolvedColorScheme = Exclude<ColorScheme, 'auto'>;
 
-export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
+type DefaultRoomSettings = Omit<RoomSettings, 'onlyAdminAddSongs'> & {
+  onlyAdminAddSongs: boolean;
+};
+
+export const DEFAULT_ROOM_SETTINGS: DefaultRoomSettings = {
   skipAllowed: true,
-  democraticSkip: false,
+  democraticSkip: true,
   skipVoteThreshold: 0.5,
   maxContinuousAdds: 3,
-  removeOnPlay: true,
-  loopQueue: false,
+  removeOnPlay: false,
+  loopQueue: true,
   allowDuplicates: false,
   enabledSources: ['youtube', 'spotify', 'soundcloud'],
+  onlyAdminAddSongs: false,
   public: false,
 };
 

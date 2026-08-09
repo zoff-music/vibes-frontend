@@ -1,5 +1,6 @@
 import { showRateLimitMessageToast } from '@vibes/api';
 import type { RoomNameReservation } from '@vibes/models';
+import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
 import {
   AlertCircleIcon,
   Button,
@@ -23,17 +24,6 @@ import type { RoomsCreateLoaderData } from './loader';
 
 export { loader } from './loader';
 export { clientAction, clientLoader };
-
-const DEFAULT_SETTINGS = {
-  skipAllowed: true,
-  democraticSkip: true,
-  loopQueue: true,
-  removeOnPlay: false,
-  allowDuplicates: false,
-  enabledSources: ['youtube', 'spotify', 'soundcloud'],
-  onlyAdminAddSongs: false,
-  public: false,
-};
 
 type RoomNameAvailabilityState =
   | 'idle'
@@ -71,7 +61,7 @@ const CreateRoom: React.FC = () => {
 
   const [mode, setMode] = useState<'server' | 'host'>('server');
   const [password, setPassword] = useState('');
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState(DEFAULT_ROOM_SETTINGS);
   const [error, setError] = useState<string | null>(loaderData.error ?? null);
   const [nameAvailability, setNameAvailability] =
     useState<RoomNameAvailabilityState>('idle');
