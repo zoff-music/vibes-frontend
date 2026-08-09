@@ -1,6 +1,6 @@
 import { useRemoteEvents } from '@vibes/api';
 import type { RemotePairing, RemoteStatus } from '@vibes/models';
-import { showToast, usePlaybackStore } from '@vibes/shared';
+import { classNames, showToast, usePlaybackStore } from '@vibes/shared';
 import { Button, CloseIcon, Modal, RemoteIcon, Tooltip } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -253,13 +253,17 @@ export function RemoteControlProvider({ children }: Props) {
           </div>
         )}
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <controlFetcher.Form action="/remote-control" method="post">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <controlFetcher.Form
+            action="/remote-control"
+            method="post"
+            className="flex-1"
+          >
             <input type="hidden" name="intent" value="enable" />
             <input type="hidden" name="roomId" value={machineRoomId} />
             <Button
               type="submit"
-              className="w-full"
+              className="w-full gap-3 whitespace-nowrap"
               variant="secondary"
               disabled={controlFetcher.state !== 'idle'}
             >
@@ -269,7 +273,11 @@ export function RemoteControlProvider({ children }: Props) {
           </controlFetcher.Form>
 
           {remote.enabled && (
-            <controlFetcher.Form action="/remote-control" method="post">
+            <controlFetcher.Form
+              action="/remote-control"
+              method="post"
+              className="flex-1"
+            >
               <input type="hidden" name="intent" value="delete" />
               <input type="hidden" name="remoteId" value={remote.id} />
               <Button
@@ -308,24 +316,58 @@ export function RemoteControlButton({
   showLabel = false,
 }: RemoteControlButtonProps) {
   const { openRemoteControl } = useRemoteControl();
+  const mobileTooltipClassName = classNames(
+    showLabel ? 'flex w-full' : 'inline-flex',
+    'sm:hidden',
+  );
+  const desktopTooltipClassName = classNames(
+    showLabel ? 'w-full sm:flex' : 'sm:inline-flex',
+    'hidden',
+  );
+  const openRemoteApp = () => {
+    window.location.assign('/remotes');
+  };
 
   return (
-    <Tooltip
-      className={showLabel ? 'flex w-full' : 'inline-flex'}
-      content="Use this browser with a remote"
-    >
-      <Button
-        type="button"
-        onClick={openRemoteControl}
-        variant="tertiary"
-        size={showLabel ? 'medium' : 'icon'}
-        className={className}
-        aria-label="Remote control"
+    <>
+      <Tooltip
+        align="end"
+        className={mobileTooltipClassName}
+        content="Join as a remote"
+        side="bottom"
       >
-        <RemoteIcon className="h-5 w-5" />
-        {showLabel && 'Remote control'}
-      </Button>
-    </Tooltip>
+        <Button
+          type="button"
+          onClick={openRemoteApp}
+          variant="tertiary"
+          size={showLabel ? 'medium' : 'icon'}
+          className={className}
+          aria-label="Join as a remote"
+        >
+          <RemoteIcon className="h-5 w-5" />
+          {showLabel && 'Join as remote'}
+        </Button>
+      </Tooltip>
+
+      <Tooltip
+        align="end"
+        className={desktopTooltipClassName}
+        content="Use this browser with a remote"
+        side="bottom"
+      >
+        <Button
+          type="button"
+          onClick={openRemoteControl}
+          variant="tertiary"
+          size={showLabel ? 'medium' : 'icon'}
+          className={className}
+          aria-label="Remote control"
+        >
+          <RemoteIcon className="h-5 w-5" />
+          {showLabel && 'Remote control'}
+        </Button>
+      </Tooltip>
+    </>
   );
 }
 
