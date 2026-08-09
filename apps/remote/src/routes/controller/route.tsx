@@ -292,7 +292,7 @@ export default function RemoteController() {
         <div className="min-w-0">
           <Input
             aria-label="Room name"
-            containerClassName="mb-0 h-full"
+            containerClassName="mb-0"
             name="nextRoomId"
             onChange={handleRoomInputChange}
             placeholder="Change room"
