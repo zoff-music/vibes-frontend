@@ -118,6 +118,7 @@ export default function AddSongScreen() {
       </SafeAreaView>
       <SearchSheet
         client={client}
+        providersOverride={targetRoom?.settings.enabledSources ?? []}
         roomIdOverride={roomId}
         visible={action === 'search'}
         onAdded={refreshSession}

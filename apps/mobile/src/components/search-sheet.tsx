@@ -1,5 +1,10 @@
 import { type ApiClient, useProviderRequests } from '@vibes/api';
-import type { MusicPlaylist, SearchResult, SourceType } from '@vibes/models';
+import type {
+  MusicPlaylist,
+  Providers,
+  SearchResult,
+  SourceType,
+} from '@vibes/models';
 import {
   classNames,
   parseISODuration,
@@ -29,6 +34,7 @@ interface SearchSheetProps {
   client?: ApiClient;
   onAdded?: () => Promise<void>;
   onClose: () => void;
+  providersOverride?: Providers;
   roomIdOverride?: string;
   visible: boolean;
 }
@@ -37,6 +43,7 @@ export function SearchSheet({
   client = mobileApi,
   onAdded,
   onClose,
+  providersOverride,
   roomIdOverride,
   visible,
 }: SearchSheetProps) {
@@ -50,8 +57,9 @@ export function SearchSheet({
   const [error, setError] = useState('');
   const inputRef = useRef<TextInput>(null);
   const targetRoomId = roomIdOverride ?? roomId;
-  const enabledProviders = supportedProviders.filter((source) =>
-    providers.includes(source),
+  const roomProviders = providersOverride ?? providers;
+  const enabledProviders = supportedProviders.filter(
+    (source) => providers.includes(source) && roomProviders.includes(source),
   );
 
   useEffect(() => {
