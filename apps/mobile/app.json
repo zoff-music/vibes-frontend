@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Zoff",
-    "slug": "zoff-mobile",
+    "slug": "vibes-mobile",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -68,9 +68,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "92df11ac-445b-4441-bdcb-6ffa8cedb20b"
+        "projectId": "546beb78-7b2b-46ff-9ff4-864835e1a4f5"
       }
     },
-    "owner": "kasperrt"
+    "owner": "zoff-music"
   }
 }
