@@ -102,6 +102,49 @@ Internal release-candidate builds use the `preview` profile:
 pnpm dlx eas-cli build --profile preview --platform all
 ```
 
+## Initialize Expo and App Store Connect
+
+The Expo project and Apple credentials must be created by an authenticated
+project owner. None of these credentials belong in this public repository.
+
+From `apps/mobile`:
+
+```sh
+pnpm dlx eas-cli login
+pnpm dlx eas-cli init
+pnpm dlx eas-cli credentials --platform ios
+```
+
+During credential setup, configure an App Store Connect API key for EAS Submit.
+Store the key in EAS credentials, not in Git, `.env`, `app.json`, `eas.json`, or
+the workflow file. Once the App Store Connect app record exists, add its public
+Apple ID as `submit.production.ios.ascAppId` in `eas.json`.
+
+Link the GitHub repository from the Expo project dashboard before enabling the
+tag-triggered workflow.
+
+## Automated TestFlight releases
+
+`apps/mobile/.eas/workflows/testflight.yml` builds an iOS production binary and
+uploads it to TestFlight when a matching release tag is pushed:
+
+```sh
+git tag mobile-v0.1.0
+git push origin mobile-v0.1.0
+```
+
+Do not push a matching tag until Apple credentials, the App Store Connect app
+record, TestFlight information, and internal tester groups have been verified.
+The workflow uploads to TestFlight only. It does not submit a version for public
+App Store review.
+
+For a dry run that creates no build and performs no submission, validate the
+workflow after logging in:
+
+```sh
+pnpm dlx eas-cli workflow:validate .eas/workflows/testflight.yml
+```
+
 ## Publish to Apple and Google
 
 Before the first store build:
@@ -117,6 +160,9 @@ Before the first store build:
 5. Complete provider-policy review. YouTube, Spotify, and SoundCloud playback is
    intentionally rendered through their official controls; do not replace it
    with extracted media URLs.
+6. Capture the App Store images described in `store-assets/README.md`, review
+   `store.config.json`, and add the remaining App Store Connect privacy, age
+   rating, category, and review-contact fields in App Store Connect.
 
 Create and submit production builds:
 

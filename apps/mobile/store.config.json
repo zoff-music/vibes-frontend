@@ -1,0 +1,26 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "info": {
+      "en-US": {
+        "title": "Zoff",
+        "subtitle": "Shared music rooms",
+        "description": "Create or join a shared music room and listen together. Add songs from enabled music providers, vote on what should play next, control playback, cast to a larger screen, or pair your phone as a remote for another Zoff player.\n\nZoff keeps the room queue and playback state synchronized while each provider plays through its official embedded player and controls.",
+        "keywords": [
+          "music",
+          "playlist",
+          "queue",
+          "party",
+          "remote",
+          "youtube",
+          "soundcloud"
+        ],
+        "releaseNotes": "Initial Zoff mobile release.",
+        "promoText": "Shared music rooms, made for listening together.",
+        "marketingUrl": "https://zoff.me",
+        "supportUrl": "https://github.com/zoff-music/vibes-frontend/issues",
+        "privacyPolicyUrl": "https://zoff.me/privacy-policy"
+      }
+    }
+  }
+}

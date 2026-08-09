@@ -11,6 +11,7 @@
       "bundleIdentifier": "me.zoff.mobile",
       "icon": "./assets/images/icon.png",
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Zoff uses the camera only to scan remote-pairing QR codes."
       },
       "supportsTablet": true
@@ -35,7 +36,14 @@
     },
     "plugins": [
       "expo-router",
-      "expo-camera",
+      [
+        "expo-camera",
+        {
+          "barcodeScannerEnabled": true,
+          "cameraPermission": "Zoff uses the camera only to scan remote-pairing QR codes.",
+          "recordAudioAndroid": false
+        }
+      ],
       [
         "react-native-google-cast",
         {
