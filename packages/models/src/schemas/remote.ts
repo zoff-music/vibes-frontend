@@ -13,6 +13,13 @@ export const remoteStatusSchema = yup.object({
 });
 export type RemoteStatus = yup.InferType<typeof remoteStatusSchema>;
 
+export const remoteSessionSchema = remoteStatusSchema.concat(
+  yup.object({
+    controllerToken: yup.string().required(),
+  }),
+);
+export type RemoteSession = yup.InferType<typeof remoteSessionSchema>;
+
 export const remotePairingSchema = yup.object({
   id: yup.string().required(),
   currentRoomId: yup.string().default(''),
@@ -36,7 +43,7 @@ export type RemotePairingRequest = yup.InferType<
 >;
 
 export const remoteUpdateRequestSchema = yup.object({
-  roomId: yup.string().default(''),
+  roomId: yup.string().optional(),
   currentSongId: yup.string().optional(),
   playbackPositionMs: yup.number().optional(),
   playbackIsPlaying: yup.boolean().optional(),

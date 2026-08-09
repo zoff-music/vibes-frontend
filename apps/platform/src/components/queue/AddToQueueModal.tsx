@@ -1,4 +1,4 @@
-import type { PlaybackRestriction, Room } from '@vibes/models';
+import type { PlaybackRestriction, Providers, Room } from '@vibes/models';
 import {
   type AddSongOutcome,
   formatDuration,
@@ -31,7 +31,7 @@ import type { RoomActionData } from '../../routes/rooms.$id/action';
 
 interface Props {
   room: Room;
-  providers: string[];
+  providers: Providers;
   isVisible: boolean;
   onClose: () => void;
 }

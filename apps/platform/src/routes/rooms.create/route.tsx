@@ -1,5 +1,9 @@
 import { showRateLimitMessageToast } from '@vibes/api';
-import type { RoomNameReservation } from '@vibes/models';
+import {
+  isSourceType,
+  type RoomNameReservation,
+  type SourceType,
+} from '@vibes/models';
 import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
 import {
   AlertCircleIcon,
@@ -345,6 +349,9 @@ const CreateRoom: React.FC = () => {
 
   const handleSourceToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
     const source = event.currentTarget.value;
+    if (!isSourceType(source)) {
+      return;
+    }
     if (!loaderData.providers?.includes(source)) {
       return;
     }
@@ -538,23 +545,7 @@ const CreateRoom: React.FC = () => {
                   ALLOWED SOURCES
                 </label>
                 <div className="flex gap-2">
-                  {[
-                    {
-                      id: 'youtube',
-                      Icon: YouTubeIcon,
-                      variant: 'red' as const,
-                    },
-                    {
-                      id: 'spotify',
-                      Icon: SpotifyIcon,
-                      variant: 'green' as const,
-                    },
-                    {
-                      id: 'soundcloud',
-                      Icon: SoundCloudIcon,
-                      variant: 'orange' as const,
-                    },
-                  ]
+                  {providerOptions
                     .filter(({ id }) => loaderData.providers?.includes(id))
                     .map(({ id, Icon, variant }) => {
                       const isEnabled = settings.enabledSources.includes(id);
@@ -758,3 +749,15 @@ function slugifyRoomName(name: string) {
 }
 
 export default CreateRoom;
+
+interface ProviderOption {
+  Icon: React.ComponentType<{ className?: string }>;
+  id: SourceType;
+  variant: 'green' | 'orange' | 'red';
+}
+
+const providerOptions: ProviderOption[] = [
+  { id: 'youtube', Icon: YouTubeIcon, variant: 'red' },
+  { id: 'spotify', Icon: SpotifyIcon, variant: 'green' },
+  { id: 'soundcloud', Icon: SoundCloudIcon, variant: 'orange' },
+];

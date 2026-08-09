@@ -120,7 +120,7 @@ function SettingsRow({
         {description ? <Copy muted>{description}</Copy> : null}
       </View>
       {!disabled ? (
-        <Text className="font-mono text-2xl text-accent">›</Text>
+        <Text className="font-heading text-2xl text-accent">›</Text>
       ) : null}
     </Pressable>
   );

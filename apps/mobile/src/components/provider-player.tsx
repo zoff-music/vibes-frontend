@@ -8,11 +8,18 @@ import { Copy } from '@/components/native';
 import { YouTubePlayer } from '@/components/youtube-player';
 
 interface ProviderPlayerProps {
+  onLocalPlayingChange: (isPlaying: boolean) => void;
   playback: PlaybackState | null;
   song: Song | null;
+  synchronizePosition: boolean;
 }
 
-export function ProviderPlayer({ playback, song }: ProviderPlayerProps) {
+export function ProviderPlayer({
+  onLocalPlayingChange,
+  playback,
+  song,
+  synchronizePosition,
+}: ProviderPlayerProps) {
   const { width: windowWidth } = useWindowDimensions();
   const webViewRef = useRef<WebViewType>(null);
   const previousPosition = useRef(playback?.positionMs ?? 0);
@@ -49,13 +56,14 @@ export function ProviderPlayer({ playback, song }: ProviderPlayerProps) {
     if (
       !song ||
       song.sourceType === 'youtube' ||
+      !synchronizePosition ||
       positionChanged < seekChangeThreshold
     )
       return;
     webViewRef.current?.injectJavaScript(
       `window.zoffSeek?.(${Math.max(0, position)}); true;`,
     );
-  }, [playback?.positionMs, songId]);
+  }, [playback?.positionMs, songId, synchronizePosition]);
 
   if (!song) {
     return (
@@ -85,8 +93,10 @@ export function ProviderPlayer({ playback, song }: ProviderPlayerProps) {
             key={song.id}
             height={playerHeight}
             onError={setError}
+            onPlayingChange={onLocalPlayingChange}
             playback={playback}
             sourceId={song.sourceId}
+            synchronizePosition={synchronizePosition}
             width={playerWidth}
           />
         </View>

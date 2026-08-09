@@ -5,7 +5,7 @@ import { FlatList, Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 import { Copy, Empty } from '@/components/native';
-import { PixelIcon } from '@/components/pixel-icon';
+import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 
 interface QueueProps {
@@ -34,7 +34,7 @@ function QueueItem({
       className="min-h-18 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
       onPress={onVote}
     >
-      <Text className="w-5 text-center font-mono text-mobile-muted text-xs dark:text-mobile-dark-muted">
+      <Text className="w-5 text-center font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
         {index + 1}
       </Text>
       <Image
@@ -46,19 +46,19 @@ function QueueItem({
       <View className="min-w-0 flex-1 gap-1">
         <Text
           numberOfLines={1}
-          className="font-bold font-mono text-mobile-text text-sm dark:text-mobile-dark-text"
+          className="font-bold font-heading text-mobile-text text-sm dark:text-mobile-dark-text"
         >
           {song.title}
         </Text>
         <Text
           numberOfLines={1}
-          className="font-mono text-mobile-muted text-xs dark:text-mobile-dark-muted"
+          className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted"
         >
           {song.artist ?? song.sourceType}
         </Text>
       </View>
       <View className="flex-row items-center gap-1.5 rounded-xl bg-accent/10 px-2.5 py-2">
-        <PixelIcon color={theme.accent} name="vote" size={16} />
+        <ZoffIcon color={theme.accent} name="vote" size={16} />
         <Text className="font-heading text-accent text-xs">
           {song.voteCount ?? 0}
         </Text>
@@ -82,7 +82,7 @@ function QueueItem({
             onDelete();
           }}
         >
-          <PixelIcon color="#ffffff" name="trash" size={20} />
+          <ZoffIcon color="#ffffff" name="trash" size={20} />
           <Text className="mt-1 font-heading text-white text-xs">Delete</Text>
         </Pressable>
       )}

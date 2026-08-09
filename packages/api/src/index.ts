@@ -42,6 +42,7 @@ import {
   remoteEventSchema,
   remotePairingRequestSchema,
   remotePairingSchema,
+  remoteSessionSchema,
   remoteStatusSchema,
   remoteUpdateRequestSchema,
   roomActionRequestSchema,
@@ -366,7 +367,7 @@ const endpoints = {
   '/remotes/{id}/sessions': {
     post: {
       request: remotePairingRequestSchema,
-      response: remoteStatusSchema,
+      response: remoteSessionSchema,
     },
   },
   '/remotes/{id}/events': {

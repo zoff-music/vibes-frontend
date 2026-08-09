@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@vibes/api": "workspace:*",
+    "@vibes/iconography": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/shared": "workspace:*",
     "d3": "^7.9.0",

@@ -1,4 +1,9 @@
-import { type PlaybackState, type Room, type Song } from '@vibes/models';
+import {
+  type PlaybackState,
+  type Providers,
+  type Room,
+  type Song,
+} from '@vibes/models';
 import {
   classNames,
   safeWrapAsync,
@@ -29,7 +34,7 @@ interface RoomPlayerProps {
   onOpenCast: () => void;
   addSongLeadingAction?: ReactNode;
   initialPlayback?: PlaybackState;
-  providers: string[];
+  providers: Providers;
 }
 
 interface PlayerProps {

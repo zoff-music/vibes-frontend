@@ -1,10 +1,12 @@
 import {
-  PixelifySans_400Regular,
   PixelifySans_700Bold,
   useFonts,
 } from '@expo-google-fonts/pixelify-sans';
+import { safeWrapAsync } from '@vibes/shared';
+import { setAudioModeAsync } from 'expo-audio';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -19,9 +21,22 @@ export default function RootLayout() {
   const scheme = useColorScheme();
   const theme = palette[scheme === 'light' ? 'light' : 'dark'];
   const [fontsLoaded] = useFonts({
-    'Pixelify Sans': PixelifySans_400Regular,
     'Pixelify Sans Bold': PixelifySans_700Bold,
   });
+
+  useEffect(() => {
+    const configureAudio = async () => {
+      const [error] = await safeWrapAsync(
+        setAudioModeAsync({
+          interruptionMode: 'doNotMix',
+          playsInSilentMode: true,
+          shouldPlayInBackground: true,
+        }),
+      );
+      if (error) return;
+    };
+    void configureAudio();
+  }, []);
 
   if (!fontsLoaded) {
     return null;

@@ -1,8 +1,9 @@
 import type { RemoteEvent } from '@vibes/models';
 import { useEffect, useRef } from 'react';
-import { api, createApiClient } from '../index';
+import { type ApiClient, api, createApiClient } from '../index';
 
 interface Options {
+  client?: ApiClient;
   remoteId?: string;
   controller?: boolean;
   onRoomUpdate: (event: RemoteEvent) => void;
@@ -10,6 +11,7 @@ interface Options {
 }
 
 export function useRemoteEvents({
+  client: eventClient,
   remoteId,
   controller = false,
   onRoomUpdate,
@@ -29,9 +31,9 @@ export function useRemoteEvents({
   useEffect(() => {
     if (!remoteId) return;
 
-    const client = controller
-      ? createApiClient({ 'X-Zoff-Remote-ID': remoteId })
-      : api;
+    const client =
+      eventClient ??
+      (controller ? createApiClient({ 'X-Zoff-Remote-ID': remoteId }) : api);
     let unsubscribe: (() => void) | null = null;
     let active = true;
 
@@ -67,5 +69,5 @@ export function useRemoteEvents({
       active = false;
       unsubscribe?.();
     };
-  }, [controller, remoteId]);
+  }, [controller, eventClient, remoteId]);
 }

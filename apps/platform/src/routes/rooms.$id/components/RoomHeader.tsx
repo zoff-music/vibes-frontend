@@ -1,4 +1,4 @@
-import type { Room, RoomSettings, RoomUpdate } from '@vibes/models';
+import type { Providers, Room, RoomSettings, RoomUpdate } from '@vibes/models';
 import { useRoomStore } from '@vibes/shared';
 import {
   ArrowLeftIcon,
@@ -83,7 +83,7 @@ interface RoomHeaderProps {
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
   onLeave: () => void;
-  providers: string[];
+  providers: Providers;
 }
 
 export const RoomHeader = React.memo(

@@ -1,6 +1,11 @@
 import { useRemoteEvents } from '@vibes/api';
-import type { RemotePairing, RemoteStatus } from '@vibes/models';
-import { classNames, showToast, usePlaybackStore } from '@vibes/shared';
+import type { RemoteEvent, RemotePairing, RemoteStatus } from '@vibes/models';
+import {
+  classNames,
+  showToast,
+  usePlaybackStore,
+  useRoomStore,
+} from '@vibes/shared';
 import { Button, CloseIcon, Modal, RemoteIcon, Tooltip } from '@vibes/ui';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -46,6 +51,13 @@ export function RemoteControlProvider({ children }: Props) {
     (state) => state.actualPositionMs,
   );
   const playbackIsPlaying = usePlaybackStore((state) => state.isPlaying);
+  const roomMode = useRoomStore((state) => state.room?.mode);
+  const setLocalPlaybackPosition = usePlaybackStore(
+    (state) => state.setLocalPlaybackPosition,
+  );
+  const setLocalPlayingState = usePlaybackStore(
+    (state) => state.setLocalPlayingState,
+  );
   const [remote, setRemote] = useState<RemoteStatus>({
     currentRoomId: '',
     currentSongId: '',
@@ -135,9 +147,32 @@ export function RemoteControlProvider({ children }: Props) {
     [navigate],
   );
 
+  const handleRemoteStateUpdate = useCallback(
+    (event: RemoteEvent) => {
+      if (
+        event.origin !== 'controller' ||
+        event.roomId !== machineRoomId ||
+        roomMode !== 'server' ||
+        (event.currentSongId && event.currentSongId !== currentSongId)
+      ) {
+        return;
+      }
+      setLocalPlaybackPosition(event.playbackPositionMs);
+      setLocalPlayingState(event.playbackIsPlaying, 'server');
+    },
+    [
+      currentSongId,
+      machineRoomId,
+      roomMode,
+      setLocalPlaybackPosition,
+      setLocalPlayingState,
+    ],
+  );
+
   useRemoteEvents({
     remoteId: remote.enabled ? remote.id : undefined,
     onRoomUpdate: handleRemoteRoomUpdate,
+    onStateUpdate: handleRemoteStateUpdate,
   });
 
   useEffect(() => {
@@ -213,8 +248,8 @@ export function RemoteControlProvider({ children }: Props) {
               Remote Control
             </h2>
             <p className="mt-2 text-sm text-theme-muted">
-              Pair one phone to control this browser. Disabling remote control
-              revokes access immediately.
+              Pair another device to control this browser. Disabling remote
+              control revokes access immediately.
             </p>
           </div>
           <Button
@@ -273,8 +308,9 @@ export function RemoteControlProvider({ children }: Props) {
                   Remote paired
                 </p>
                 <p className="mt-2 text-theme-muted text-xs">
-                  The one-time pairing has been used. This phone can now control
-                  the browser until remote control is disabled or replaced.
+                  The one-time pairing has been used. The paired device can now
+                  control this browser until remote control is disabled or
+                  replaced.
                 </p>
               </>
             )}
@@ -284,7 +320,7 @@ export function RemoteControlProvider({ children }: Props) {
                   Remote control enabled
                 </p>
                 <p className="mt-2 text-theme-muted text-xs">
-                  Create a new one-time pairing to connect a phone.
+                  Create a new one-time pairing to connect another device.
                 </p>
               </>
             )}
@@ -329,6 +365,20 @@ export function RemoteControlProvider({ children }: Props) {
             </controlFetcher.Form>
           )}
         </div>
+        <div className="mt-3 border-theme border-t pt-3">
+          <Button
+            type="button"
+            className="w-full gap-3"
+            onClick={() => {
+              setIsOpen(false);
+              navigate('/remotes');
+            }}
+            variant="tertiary"
+          >
+            <RemoteIcon className="h-5 w-5" />
+            Connect as a Remote
+          </Button>
+        </div>
       </Modal>
     </RemoteControlContext.Provider>
   );
@@ -354,58 +404,29 @@ export function RemoteControlButton({
   showLabel = false,
 }: RemoteControlButtonProps) {
   const { openRemoteControl } = useRemoteControl();
-  const mobileTooltipClassName = classNames(
+  const tooltipClassName = classNames(
     showLabel ? 'flex w-full' : 'inline-flex',
-    'sm:hidden',
   );
-  const desktopTooltipClassName = classNames(
-    showLabel ? 'w-full sm:flex' : 'sm:inline-flex',
-    'hidden',
-  );
-  const openRemoteApp = () => {
-    window.location.assign('/remotes');
-  };
 
   return (
-    <>
-      <Tooltip
-        align="end"
-        className={mobileTooltipClassName}
-        content="Join as a remote"
-        side="bottom"
+    <Tooltip
+      align="end"
+      className={tooltipClassName}
+      content="Remote control"
+      side="bottom"
+    >
+      <Button
+        type="button"
+        onClick={openRemoteControl}
+        variant="tertiary"
+        size={showLabel ? 'medium' : 'icon'}
+        className={className}
+        aria-label="Remote control"
       >
-        <Button
-          type="button"
-          onClick={openRemoteApp}
-          variant="tertiary"
-          size={showLabel ? 'medium' : 'icon'}
-          className={className}
-          aria-label="Join as a remote"
-        >
-          <RemoteIcon className="h-5 w-5" />
-          {showLabel && 'Join as remote'}
-        </Button>
-      </Tooltip>
-
-      <Tooltip
-        align="end"
-        className={desktopTooltipClassName}
-        content="Use this browser with a remote"
-        side="bottom"
-      >
-        <Button
-          type="button"
-          onClick={openRemoteControl}
-          variant="tertiary"
-          size={showLabel ? 'medium' : 'icon'}
-          className={className}
-          aria-label="Remote control"
-        >
-          <RemoteIcon className="h-5 w-5" />
-          {showLabel && 'Remote control'}
-        </Button>
-      </Tooltip>
-    </>
+        <RemoteIcon className="h-5 w-5" />
+        {showLabel && 'Remote control'}
+      </Button>
+    </Tooltip>
   );
 }
 

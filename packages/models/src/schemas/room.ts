@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { sourceTypeSchema } from './songs';
 
 export const roomSettingsSchema = yup.object({
   skipAllowed: yup.boolean().required(),
@@ -8,7 +9,7 @@ export const roomSettingsSchema = yup.object({
   removeOnPlay: yup.boolean().required(),
   loopQueue: yup.boolean().required(),
   allowDuplicates: yup.boolean().required(),
-  enabledSources: yup.array(yup.string().required()).required(),
+  enabledSources: yup.array(sourceTypeSchema.required()).required(),
   onlyAdminAddSongs: yup.boolean().optional(),
   public: yup.boolean().required(),
 });
@@ -29,7 +30,7 @@ export const roomSchema = yup.object({
   userCount: yup.number().optional(),
   userId: yup.string().optional(),
   isAdmin: yup.boolean().optional(),
-  activeSources: yup.array(yup.string().required()).optional(),
+  activeSources: yup.array(sourceTypeSchema.required()).optional(),
   isGenerating: yup.boolean().default(false),
   generationCount: yup.number().integer().min(0).default(0),
   roomGenerationMaxDailyCount: yup.number().integer().min(1).required(),
