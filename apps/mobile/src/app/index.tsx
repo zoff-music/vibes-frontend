@@ -20,10 +20,10 @@ import { useApp } from '@/providers/app-provider';
 
 export default function RoomsScreen() {
   const roomRequests = useRoomRequests(mobileApi);
-  const { error, loading, providers, room, roomId, setRoomId } = useApp();
+  const { error, loading, providers, room, roomId, setError, setRoomId } =
+    useApp();
   const router = useRouter();
   const [value, setValue] = useState(roomId);
-  const [password, setPassword] = useState('');
   const [publicRooms, setPublicRooms] = useState<PublicRoom[]>([]);
   const [createVisible, setCreateVisible] = useState(false);
 
@@ -37,15 +37,24 @@ export default function RoomsScreen() {
   }, [roomRequests]);
 
   const joinRoom = async (roomName: string) => {
-    const result = await setRoomId(roomName, password);
+    const result = await setRoomId(roomName);
     if (result === 'joined') {
       router.navigate('/player');
       return;
     }
-    if (result === 'notFound') setCreateVisible(true);
+    if (result === 'notFound') {
+      setError('');
+      setCreateVisible(true);
+    }
   };
 
-  const join = () => void joinRoom(value);
+  const submitRoom = () => {
+    if (!value.trim()) {
+      setCreateVisible(true);
+      return;
+    }
+    void joinRoom(value);
+  };
 
   const handleCreated = async (roomName: string, roomPassword: string) => {
     const result = await setRoomId(roomName, roomPassword);
@@ -53,6 +62,11 @@ export default function RoomsScreen() {
     router.navigate('/player');
     return true;
   };
+
+  let submitLabel = value.trim() ? 'Join room' : 'Start a session';
+  if (loading) {
+    submitLabel = 'Checking room…';
+  }
 
   return (
     <Screen>
@@ -69,7 +83,7 @@ export default function RoomsScreen() {
                   <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
                     Listen together
                   </Text>
-                  <Text className="px-5 text-center font-mono text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                  <Text className="px-5 text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
                     Shared rooms, synchronized playback, and a queue everyone
                     can shape.
                   </Text>
@@ -84,30 +98,18 @@ export default function RoomsScreen() {
                   autoCapitalize="none"
                   value={value}
                   onChangeText={setValue}
-                  onSubmitEditing={join}
+                  onSubmitEditing={submitRoom}
                   placeholder="Room name"
-                />
-                <Field
-                  autoCapitalize="none"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
-                  onSubmitEditing={join}
-                  placeholder="Admin password (optional)"
-                />
-                <Button
-                  disabled={loading || !value.trim()}
-                  label={loading ? 'Joining…' : 'Join room'}
-                  onPress={join}
                 />
                 <Button
                   disabled={loading}
-                  label="Create a new room"
-                  tone="secondary"
-                  onPress={() => setCreateVisible(true)}
+                  label={submitLabel}
+                  onPress={submitRoom}
                 />
                 {Boolean(error) && (
-                  <Text className="font-mono text-error text-xs">{error}</Text>
+                  <Text className="font-heading text-error text-xs">
+                    {error}
+                  </Text>
                 )}
                 {room && <Copy muted>Currently in {room.name}</Copy>}
               </Card>

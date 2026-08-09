@@ -12,7 +12,7 @@ import { FlatList, Keyboard, Modal, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Copy, Empty, Field, Screen } from '@/components/native';
-import { PixelIcon } from '@/components/pixel-icon';
+import { ZoffIcon } from '@/components/zoff-icon';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
@@ -309,7 +309,9 @@ export function SearchSheet({
             </View>
           )}
           {Boolean(error) && (
-            <Text className="mb-4 font-mono text-error text-xs">{error}</Text>
+            <Text className="mb-4 font-heading text-error text-xs">
+              {error}
+            </Text>
           )}
           <FlatList
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
@@ -340,19 +342,19 @@ export function SearchSheet({
                 <View className="min-w-0 flex-1 gap-1">
                   <Text
                     numberOfLines={2}
-                    className="font-bold font-mono text-mobile-text text-sm dark:text-mobile-dark-text"
+                    className="font-bold font-heading text-mobile-text text-sm dark:text-mobile-dark-text"
                   >
                     {item.title}
                   </Text>
                   <Text
                     numberOfLines={1}
-                    className="font-mono text-mobile-muted text-xs dark:text-mobile-dark-muted"
+                    className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted"
                   >
                     {item.channelTitle ?? providerLabels[item.source]}
                   </Text>
                 </View>
                 <View className="size-10 items-center justify-center rounded-xl bg-primary">
-                  <PixelIcon color="#ffffff" name="add" size={16} />
+                  <ZoffIcon color="#ffffff" name="add" size={16} />
                 </View>
               </Pressable>
             )}

@@ -10,6 +10,7 @@ import type {
   SessionResponse,
   YouTubeSearchResponse,
 } from '@vibes/models';
+import { isSourceType } from '@vibes/models';
 import { parseISODuration } from '@vibes/shared';
 import type { ClientActionFunctionArgs } from 'react-router';
 
@@ -170,7 +171,10 @@ export async function clientAction({
   }
 
   if (intent === 'updateSources') {
-    const enabledSources = formData.getAll('enabledSources').map(String);
+    const enabledSources = formData
+      .getAll('enabledSources')
+      .map(String)
+      .filter(isSourceType);
     const [error, room] = await client.patch(
       '/rooms/{id}/settings',
       { id: roomId },

@@ -1,4 +1,4 @@
-import type { Room as RoomModel, Song } from '@vibes/models';
+import type { Providers, Room as RoomModel, Song } from '@vibes/models';
 import type { PlaybackState } from '@vibes/shared';
 import type { LoaderFunctionArgs } from 'react-router';
 import { redirect } from 'react-router';
@@ -9,7 +9,7 @@ export interface RoomLoaderData {
   room: RoomModel;
   songs: Song[];
   playback?: PlaybackState;
-  providers: string[];
+  providers: Providers;
   pageUrl: string;
 }
 

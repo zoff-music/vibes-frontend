@@ -1,7 +1,14 @@
 import { type ApiClient, useRemoteRequests, useRoomRequests } from '@vibes/api';
-import type { Providers, Room, RoomSettings, SourceType } from '@vibes/models';
+import type { Providers, Room } from '@vibes/models';
 import { useEffect, useState } from 'react';
-import { Modal, ScrollView, Switch, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -12,7 +19,7 @@ import {
   Heading,
   Screen,
 } from '@/components/native';
-import { useAppTheme } from '@/hooks/use-app-theme';
+import { RoomConfiguration } from '@/components/room-configuration';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface RoomSettingsSheetProps {
@@ -23,39 +30,6 @@ interface RoomSettingsSheetProps {
   remoteId?: string;
   room: Room;
   visible: boolean;
-}
-
-interface SettingsSwitchProps {
-  description: string;
-  disabled?: boolean;
-  label: string;
-  onValueChange: (value: boolean) => void;
-  value: boolean;
-}
-
-function SettingsSwitch({
-  description,
-  disabled,
-  label,
-  onValueChange,
-  value,
-}: SettingsSwitchProps) {
-  const theme = useAppTheme();
-  return (
-    <View className="flex-row items-center justify-between gap-4">
-      <View className="flex-1 gap-1">
-        <Copy>{label}</Copy>
-        <Copy muted>{description}</Copy>
-      </View>
-      <Switch
-        disabled={disabled}
-        ios_backgroundColor={theme.surface}
-        trackColor={{ false: theme.surface, true: theme.accent }}
-        value={value}
-        onValueChange={onValueChange}
-      />
-    </View>
-  );
 }
 
 export function RoomSettingsSheet({
@@ -84,11 +58,6 @@ export function RoomSettingsSheet({
     setPassword('');
     setError('');
   }, [room, visible]);
-
-  const updateSetting = <Key extends keyof RoomSettings>(
-    key: Key,
-    value: RoomSettings[Key],
-  ) => setSettings((current) => ({ ...current, [key]: value }));
 
   const authenticate = async () => {
     setLoading(true);
@@ -147,16 +116,7 @@ export function RoomSettingsSheet({
     onClose();
   };
 
-  const toggleProvider = (provider: SourceType, enabled: boolean) => {
-    const enabledSources = enabled
-      ? [...settings.enabledSources, provider]
-      : settings.enabledSources.filter((source) => source !== provider);
-    updateSetting('enabledSources', [...new Set(enabledSources)]);
-  };
-
-  const enabledProviders = supportedProviders.filter((provider) =>
-    providers.includes(provider),
-  );
+  const canEdit = Boolean(activeRoom.isAdmin) || !activeRoom.hasPassword;
 
   return (
     <Modal
@@ -167,18 +127,27 @@ export function RoomSettingsSheet({
     >
       <Screen>
         <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
-          <View className="flex-row items-center justify-between p-4">
-            <Heading>Room settings</Heading>
-            <Button label="Done" tone="secondary" onPress={onClose} />
-          </View>
-          <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
-            {!activeRoom.isAdmin && (
-              <View className="gap-4 px-4 pb-8">
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            className="flex-1"
+          >
+            <View className="flex-row items-center justify-between gap-4 px-5 py-4">
+              <Heading>Room settings</Heading>
+              <Button label="Done" tone="secondary" onPress={onClose} />
+            </View>
+            <ScrollView
+              className="flex-1"
+              contentContainerClassName="gap-5 px-5 pb-10"
+              automaticallyAdjustKeyboardInsets
+              keyboardDismissMode="interactive"
+              keyboardShouldPersistTaps="handled"
+            >
+              {!canEdit && activeRoom.hasPassword && (
                 <Card>
                   <Copy muted>ADMIN ACCESS</Copy>
                   <Copy muted>
-                    Authenticate here to control this room from the phone or
-                    paired machine.
+                    Enter the room password to unlock changes. You can still
+                    review every setting below before authenticating.
                   </Copy>
                   <Field
                     autoCapitalize="none"
@@ -194,109 +163,30 @@ export function RoomSettingsSheet({
                     onPress={() => void authenticate()}
                   />
                 </Card>
-                {Boolean(error) && (
-                  <Text className="font-mono text-error text-xs">{error}</Text>
-                )}
-              </View>
-            )}
-            {activeRoom.isAdmin && (
-              <View className="gap-4 px-4 pb-8">
-                <Card>
-                  <SettingsSwitch
-                    description="The host controls synchronized playback."
-                    label="Host mode"
-                    value={mode === 'host'}
-                    onValueChange={(enabled) =>
-                      setMode(enabled ? 'host' : 'server')
-                    }
-                  />
-                  <SettingsSwitch
-                    description="Anyone can request the next song."
-                    label="Allow skip"
-                    value={settings.skipAllowed}
-                    onValueChange={(value) =>
-                      updateSetting('skipAllowed', value)
-                    }
-                  />
-                  <SettingsSwitch
-                    description="Require votes before skipping."
-                    label="Democratic skip"
-                    value={settings.democraticSkip}
-                    onValueChange={(value) =>
-                      updateSetting('democraticSkip', value)
-                    }
-                  />
-                  <SettingsSwitch
-                    description="Restart the queue when it ends."
-                    label="Loop queue"
-                    value={settings.loopQueue}
-                    onValueChange={(value) => updateSetting('loopQueue', value)}
-                  />
-                  <SettingsSwitch
-                    description="Remove each song after playback."
-                    label="Remove played"
-                    value={settings.removeOnPlay}
-                    onValueChange={(value) =>
-                      updateSetting('removeOnPlay', value)
-                    }
-                  />
-                  <SettingsSwitch
-                    description="Allow the same song more than once."
-                    label="Allow duplicates"
-                    value={settings.allowDuplicates}
-                    onValueChange={(value) =>
-                      updateSetting('allowDuplicates', value)
-                    }
-                  />
-                  <SettingsSwitch
-                    description="Only room admins may add songs."
-                    label="Admins only add"
-                    value={settings.onlyAdminAddSongs ?? false}
-                    onValueChange={(value) =>
-                      updateSetting('onlyAdminAddSongs', value)
-                    }
-                  />
-                  <SettingsSwitch
-                    description={
-                      activeRoom.hasPassword
-                        ? 'Show while listeners are active.'
-                        : 'Requires an admin password.'
-                    }
-                    disabled={!activeRoom.hasPassword}
-                    label="Public while active"
-                    value={settings.public}
-                    onValueChange={(value) => updateSetting('public', value)}
-                  />
-                </Card>
-                <Card>
-                  <Copy muted>PROVIDERS</Copy>
-                  {enabledProviders.map((provider) => (
-                    <SettingsSwitch
-                      key={provider}
-                      description={`Allow ${provider} songs in this room.`}
-                      label={provider}
-                      value={settings.enabledSources.includes(provider)}
-                      onValueChange={(enabled) =>
-                        toggleProvider(provider, enabled)
-                      }
-                    />
-                  ))}
-                </Card>
-                {Boolean(error) && (
-                  <Text className="font-mono text-error text-xs">{error}</Text>
-                )}
+              )}
+              <RoomConfiguration
+                disabled={!canEdit}
+                hasPassword={activeRoom.hasPassword}
+                mode={mode}
+                providers={providers}
+                settings={settings}
+                onModeChange={setMode}
+                onSettingsChange={setSettings}
+              />
+              {Boolean(error) && (
+                <Text className="font-heading text-error text-xs">{error}</Text>
+              )}
+              {canEdit && (
                 <Button
                   disabled={loading || settings.enabledSources.length === 0}
                   label={loading ? 'Saving…' : 'Save settings'}
                   onPress={() => void save()}
                 />
-              </View>
-            )}
-          </ScrollView>
+              )}
+            </ScrollView>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </Screen>
     </Modal>
   );
 }
-
-const supportedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];

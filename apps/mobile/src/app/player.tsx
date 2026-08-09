@@ -1,6 +1,6 @@
 import { useRoomRequests } from '@vibes/api';
 import type { Song } from '@vibes/models';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,8 +16,25 @@ import { useApp } from '@/providers/app-provider';
 
 export default function PlayerScreen() {
   const roomRequests = useRoomRequests(mobileApi);
-  const { error, playback, refresh, room, roomId, setError, songs } = useApp();
+  const {
+    addSongRequest,
+    error,
+    playback,
+    refresh,
+    room,
+    roomId,
+    setError,
+    setLocalPlaying,
+    songs,
+  } = useApp();
   const [searchVisible, setSearchVisible] = useState(false);
+  const handledAddSongRequest = useRef(addSongRequest);
+
+  useEffect(() => {
+    if (addSongRequest === handledAddSongRequest.current) return;
+    handledAddSongRequest.current = addSongRequest;
+    setSearchVisible(true);
+  }, [addSongRequest]);
   const current = playback?.currentSong ?? null;
   const queuedSongs = current
     ? songs.filter((song) => song.id !== current.id)
@@ -36,7 +53,17 @@ export default function PlayerScreen() {
     );
   }
 
+  const hasHostPlaybackAuthority =
+    room.mode === 'host' &&
+    (room.isAdmin || (Boolean(room.userId) && room.hostId === room.userId));
+  const canControlPlayback = room.mode === 'server' || hasHostPlaybackAuthority;
+
   const sendAction = async (action: 'play' | 'pause') => {
+    if (room.mode === 'server') {
+      setLocalPlaying(action === 'play', livePosition);
+      return;
+    }
+    if (!hasHostPlaybackAuthority) return;
     const [requestError] = await roomRequests.updatePlayback(roomId, action);
     if (requestError) {
       setError(
@@ -47,6 +74,11 @@ export default function PlayerScreen() {
       );
     }
     await refresh();
+  };
+
+  const handlePlayerPlayingChange = (isPlaying: boolean) => {
+    if (playback?.isPlaying === isPlaying) return;
+    void sendAction(isPlaying ? 'play' : 'pause');
   };
 
   const skip = async () => {
@@ -112,7 +144,12 @@ export default function PlayerScreen() {
             <CastButton />
           </View>
         </View>
-        <ProviderPlayer playback={playback} song={current} />
+        <ProviderPlayer
+          playback={playback}
+          song={current}
+          synchronizePosition={room.mode === 'host'}
+          onLocalPlayingChange={handlePlayerPlayingChange}
+        />
         <Queue
           songs={queuedSongs}
           onDelete={room.isAdmin ? (song) => void remove(song) : undefined}
@@ -133,6 +170,7 @@ export default function PlayerScreen() {
                 <View className="flex-row gap-2">
                   <View className="flex-1">
                     <Button
+                      disabled={!canControlPlayback}
                       icon={playback?.isPlaying ? 'pause' : 'play'}
                       label={playback?.isPlaying ? 'Pause' : 'Play'}
                       tone="secondary"
@@ -149,13 +187,6 @@ export default function PlayerScreen() {
                       onPress={() => void skip()}
                     />
                   </View>
-                  <View className="flex-1">
-                    <Button
-                      icon="add"
-                      label="Add"
-                      onPress={() => setSearchVisible(true)}
-                    />
-                  </View>
                 </View>
                 <PlaybackProgress
                   duration={current?.duration ?? 0}
@@ -168,7 +199,9 @@ export default function PlayerScreen() {
                   }
                 />
                 {Boolean(error) && (
-                  <Text className="font-mono text-error text-xs">{error}</Text>
+                  <Text className="font-heading text-error text-xs">
+                    {error}
+                  </Text>
                 )}
               </Card>
             </View>

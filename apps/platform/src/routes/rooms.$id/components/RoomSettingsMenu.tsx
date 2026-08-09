@@ -1,4 +1,11 @@
-import type { Room, RoomSettings, RoomUpdate } from '@vibes/models';
+import {
+  isSourceType,
+  type Providers,
+  type Room,
+  type RoomSettings,
+  type RoomUpdate,
+  type SourceType,
+} from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import {
   Button,
@@ -13,6 +20,7 @@ import {
 } from '@vibes/ui';
 import { motion } from 'framer-motion';
 import {
+  type ComponentType,
   type MouseEvent,
   type RefObject,
   useCallback,
@@ -39,7 +47,7 @@ interface RoomSettingsMenuProps {
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
   settingsMenuRef?: RefObject<HTMLDivElement | null>;
-  providers: string[];
+  providers: Providers;
 }
 
 export const RoomSettingsMenu = ({
@@ -79,6 +87,9 @@ export const RoomSettingsMenu = ({
     }
 
     const source = event.currentTarget.value;
+    if (!isSourceType(source)) {
+      return;
+    }
     const isEnabled = room.settings.enabledSources.includes(source);
     const enabledSources = isEnabled
       ? room.settings.enabledSources.filter(
@@ -418,23 +429,7 @@ export const RoomSettingsMenu = ({
                   providers.length >= 3 && 'grid-cols-3',
                 )}
               >
-                {[
-                  {
-                    id: 'youtube',
-                    Icon: YouTubeIcon,
-                    variant: 'red' as const,
-                  },
-                  {
-                    id: 'spotify',
-                    Icon: SpotifyIcon,
-                    variant: 'green' as const,
-                  },
-                  {
-                    id: 'soundcloud',
-                    Icon: SoundCloudIcon,
-                    variant: 'orange' as const,
-                  },
-                ]
+                {providerOptions
                   .filter(({ id }) => providers.includes(id))
                   .map(({ id, Icon, variant }) => {
                     const isEnabled =
@@ -567,3 +562,15 @@ export const RoomSettingsMenu = ({
     </div>
   );
 };
+
+interface ProviderOption {
+  Icon: ComponentType<{ className?: string }>;
+  id: SourceType;
+  variant: 'green' | 'orange' | 'red';
+}
+
+const providerOptions: ProviderOption[] = [
+  { id: 'youtube', Icon: YouTubeIcon, variant: 'red' },
+  { id: 'spotify', Icon: SpotifyIcon, variant: 'green' },
+  { id: 'soundcloud', Icon: SoundCloudIcon, variant: 'orange' },
+];

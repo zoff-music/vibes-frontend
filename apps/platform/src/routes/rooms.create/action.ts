@@ -4,7 +4,7 @@ import {
   getHttpError,
   getRateLimitMessage,
 } from '@vibes/api';
-import type { RoomNameReservation } from '@vibes/models';
+import { isSourceType, type RoomNameReservation } from '@vibes/models';
 import { type ClientActionFunctionArgs, redirect } from 'react-router';
 
 export interface RoomsCreateActionData {
@@ -26,7 +26,7 @@ function readEnabledSources(formData: FormData) {
   return formData
     .getAll('enabledSources')
     .map((source) => String(source))
-    .filter(Boolean);
+    .filter(isSourceType);
 }
 
 export async function clientAction({

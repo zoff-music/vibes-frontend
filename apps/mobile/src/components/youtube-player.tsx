@@ -1,5 +1,6 @@
 import type { PlaybackState } from '@vibes/models';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import YoutubeIframe, {
   PLAYER_STATES,
   type YoutubeIframeRef,
@@ -8,34 +9,58 @@ import YoutubeIframe, {
 interface YouTubePlayerProps {
   height: number;
   onError: (message: string) => void;
+  onPlayingChange: (isPlaying: boolean) => void;
   playback: PlaybackState | null;
   sourceId: string;
+  synchronizePosition: boolean;
   width: number;
 }
 
 export function YouTubePlayer({
   height,
   onError,
+  onPlayingChange,
   playback,
   sourceId,
+  synchronizePosition,
   width,
 }: YouTubePlayerProps) {
   const playerRef = useRef<YoutubeIframeRef>(null);
   const previousPosition = useRef(playback?.positionMs ?? 0);
-  const [playing, setPlaying] = useState(playback?.isPlaying ?? false);
+  const appState = useRef(AppState.currentState);
+  const desiredPlaying = useRef(playback?.isPlaying ?? false);
+  const resumeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [ready, setReady] = useState(false);
+  const [shouldPlay, setShouldPlay] = useState(playback?.isPlaying ?? false);
 
   useEffect(() => {
-    setPlaying(playback?.isPlaying ?? false);
-  }, [playback?.isPlaying, sourceId]);
+    const isPlaying = playback?.isPlaying ?? false;
+    desiredPlaying.current = isPlaying;
+    setShouldPlay(isPlaying);
+  }, [playback?.isPlaying]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      appState.current = nextState;
+      if (nextState !== 'active' || !desiredPlaying.current) return;
+      setShouldPlay(false);
+      if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+      resumeTimeout.current = setTimeout(() => setShouldPlay(true), 0);
+    });
+    return () => {
+      subscription.remove();
+      if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    };
+  }, []);
 
   useEffect(() => {
     const position = playback?.positionMs ?? 0;
     const positionChanged = Math.abs(position - previousPosition.current);
     previousPosition.current = position;
-    if (!ready || positionChanged < seekChangeThreshold) return;
+    if (!ready || !synchronizePosition || positionChanged < seekChangeThreshold)
+      return;
     playerRef.current?.seekTo(Math.max(0, position) / 1000, true);
-  }, [playback?.positionMs, ready, sourceId]);
+  }, [playback?.positionMs, ready, sourceId, synchronizePosition]);
 
   const handleReady = useCallback(() => {
     setReady(true);
@@ -45,15 +70,18 @@ export function YouTubePlayer({
     }
   }, [playback?.positionMs]);
 
-  const handleStateChange = useCallback((state: PLAYER_STATES) => {
-    if (state === PLAYER_STATES.PLAYING) {
-      setPlaying(true);
-      return;
-    }
-    if (state === PLAYER_STATES.PAUSED || state === PLAYER_STATES.ENDED) {
-      setPlaying(false);
-    }
-  }, []);
+  const handleStateChange = useCallback(
+    (state: PLAYER_STATES) => {
+      if (state === PLAYER_STATES.PLAYING) {
+        onPlayingChange(true);
+        return;
+      }
+      if (state === PLAYER_STATES.PAUSED && appState.current === 'active') {
+        onPlayingChange(false);
+      }
+    },
+    [onPlayingChange],
+  );
 
   return (
     <YoutubeIframe
@@ -71,7 +99,7 @@ export function YouTubePlayer({
         onError(`YouTube could not play this video: ${error}`)
       }
       onReady={handleReady}
-      play={playing}
+      play={shouldPlay}
       useLocalHTML
       videoId={sourceId}
       webViewProps={{

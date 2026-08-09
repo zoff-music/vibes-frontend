@@ -12,7 +12,8 @@
       "icon": "./assets/images/icon.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "Zoff uses the camera only to scan remote-pairing QR codes."
+        "NSCameraUsageDescription": "Zoff uses the camera only to scan remote-pairing QR codes.",
+        "UIBackgroundModes": ["audio"]
       },
       "supportsTablet": true
     },
@@ -26,7 +27,9 @@
         "android.permission.CAMERA",
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
-        "android.permission.ACCESS_WIFI_STATE"
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ],
       "predictiveBackGestureEnabled": true
     },
@@ -36,6 +39,13 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-audio",
+        {
+          "enableBackgroundPlayback": true,
+          "recordAudioAndroid": false
+        }
+      ],
       [
         "expo-camera",
         {

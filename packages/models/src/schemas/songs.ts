@@ -6,6 +6,10 @@ export const sourceTypeSchema = yup
   .required();
 export type SourceType = yup.InferType<typeof sourceTypeSchema>;
 
+export function isSourceType(value: string): value is SourceType {
+  return value === 'youtube' || value === 'spotify' || value === 'soundcloud';
+}
+
 export const playbackRestrictionSchema = yup
   .string()
   .oneOf(['age', 'region', 'embedding'])

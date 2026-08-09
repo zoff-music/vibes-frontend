@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { PixelIcon, type PixelIconName } from '@/components/pixel-icon';
+import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 
 export function Screen({ children }: PropsWithChildren) {
@@ -69,15 +69,15 @@ export function Copy({
   muted = false,
 }: PropsWithChildren<{ muted?: boolean }>) {
   const className = muted
-    ? 'font-mono text-sm leading-5 text-mobile-muted dark:text-mobile-dark-muted'
-    : 'font-mono text-sm leading-5 text-mobile-text dark:text-mobile-dark-text';
+    ? 'font-heading text-sm leading-5 text-mobile-muted dark:text-mobile-dark-muted'
+    : 'font-heading text-sm leading-5 text-mobile-text dark:text-mobile-dark-text';
   return <Text className={className}>{children}</Text>;
 }
 
 interface ButtonProps {
   accessibilityLabel?: string;
   disabled?: boolean;
-  icon?: PixelIconName;
+  icon?: ZoffIconName;
   label: string;
   onPress: () => void;
   tone?: 'primary' | 'secondary' | 'danger';
@@ -119,7 +119,7 @@ export function Button({
       disabled={disabled}
       onPress={onPress}
     >
-      {icon && <PixelIcon color={iconColor} name={icon} size={18} />}
+      {icon && <ZoffIcon color={iconColor} name={icon} size={18} />}
       <Text className={`font-heading text-base ${labelClassName}`}>
         {label}
       </Text>
@@ -144,7 +144,7 @@ export const Field = forwardRef<TextInput, FieldProps>(
         {...props}
         ref={ref}
         autoCorrect={false}
-        className="min-h-13 rounded-xl border border-mobile-border bg-mobile-surface px-4 font-mono text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text"
+        className="min-h-13 rounded-xl border border-mobile-border bg-mobile-surface px-4 font-heading text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text"
         placeholderTextColor={theme.muted}
         returnKeyType="go"
       />
