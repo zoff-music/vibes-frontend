@@ -22,8 +22,12 @@ import {
   trashIcon,
   voteIcon,
 } from '@vibes/iconography';
-import type { ImageSourcePropType } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+
+import addTabIcon from '@/assets/icons/add.png';
+import homeTabIcon from '@/assets/icons/home.png';
+import remoteTabIcon from '@/assets/icons/remote.png';
+import settingsTabIcon from '@/assets/icons/settings.png';
 
 export type ZoffIconName = keyof typeof iconDefinitions;
 
@@ -44,20 +48,11 @@ export function ZoffIcon({ color, name, size = 20 }: ZoffIconProps) {
   );
 }
 
-function createImageSource(definition: IconDefinition): ImageSourcePropType {
-  const paths = definition.paths
-    .map((path) => `<path fill="#000" d="${path}"/>`)
-    .join('');
-  const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${definition.viewBox}">${paths}</svg>`;
-  return { uri: `data:image/svg+xml,${encodeURIComponent(markup)}` };
-}
-
 export const zoffIconSources = {
-  add: createImageSource(plusIcon),
-  home: createImageSource(queueIcon),
-  player: createImageSource(playIcon),
-  remote: createImageSource(remoteIcon),
-  settings: createImageSource(settingsIcon),
+  add: addTabIcon,
+  home: homeTabIcon,
+  remote: remoteTabIcon,
+  settings: settingsTabIcon,
 };
 
 const iconDefinitions = {

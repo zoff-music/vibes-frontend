@@ -203,10 +203,7 @@ function ModeButton({
   let className =
     'min-h-24 flex-1 gap-2 rounded-2xl border border-mobile-border bg-mobile-card p-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card';
   if (active) {
-    className = `${className} border-accent bg-accent/10 dark:border-accent dark:bg-accent/10`;
-  }
-  if (disabled) {
-    className = `${className} opacity-55`;
+    className = `${className} border-accent bg-accent dark:border-accent dark:bg-accent`;
   }
   return (
     <Pressable
@@ -216,10 +213,24 @@ function ModeButton({
       disabled={disabled}
       onPress={onPress}
     >
-      <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
+      <Text
+        className={`font-heading text-base ${
+          active
+            ? 'text-mobile-dark-background'
+            : 'text-mobile-text dark:text-mobile-dark-text'
+        }`}
+      >
         {label}
       </Text>
-      <Copy muted>{description}</Copy>
+      <Text
+        className={`font-heading text-sm leading-5 ${
+          active
+            ? 'text-mobile-dark-background/75'
+            : 'text-mobile-muted dark:text-mobile-dark-muted'
+        }`}
+      >
+        {description}
+      </Text>
     </Pressable>
   );
 }

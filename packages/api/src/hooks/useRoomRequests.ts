@@ -3,10 +3,12 @@ import type {
   CreateRoomRequest,
   CreateRoomResponse,
   EmptyObject,
+  GeneratedPlaylistRequest,
   PlaybackState,
   Providers,
   PublicRoom,
   Room,
+  RoomGenerationUpdate,
   RoomNameReservation,
   RoomUpdate,
   SessionResponse,
@@ -25,12 +27,19 @@ export interface RoomSnapshot {
 export interface RoomRequests {
   createCastingToken: (roomId: string) => ApiResult<CastingTokenResponse>;
   createRoom: (request: CreateRoomRequest) => ApiResult<CreateRoomResponse>;
+  createGeneratedRoom: (
+    request: GeneratedPlaylistRequest,
+  ) => ApiResult<CreateRoomResponse>;
   fetchProviders: () => ApiResult<Providers>;
   fetchPublicRooms: () => ApiResult<PublicRoom[]>;
   fetchSnapshot: (roomId: string) => ApiResult<RoomSnapshot>;
   joinRoom: (roomId: string, password?: string) => ApiResult<SessionResponse>;
   removeSong: (roomId: string, songId: string) => ApiResult<EmptyObject>;
-  reserveRoom: (name: string) => ApiResult<RoomNameReservation>;
+  generatePlaylist: (
+    roomId: string,
+    request: GeneratedPlaylistRequest,
+  ) => ApiResult<RoomGenerationUpdate>;
+  reserveRoom: (name?: string) => ApiResult<RoomNameReservation>;
   skip: (roomId: string) => ApiResult<SkipActionResponse>;
   updatePlayback: (
     roomId: string,
@@ -46,6 +55,8 @@ export function useRoomRequests(client: ApiClient): RoomRequests {
     () => ({
       createRoom: (request: CreateRoomRequest) =>
         client.post('/rooms', null, request),
+      createGeneratedRoom: (request: GeneratedPlaylistRequest) =>
+        client.post('/rooms/generation', null, request),
       fetchProviders: () => client.get('/providers', null),
       fetchPublicRooms: () => client.get('/rooms/public', null),
       fetchSnapshot: async (roomId: string) => {
@@ -70,8 +81,10 @@ export function useRoomRequests(client: ApiClient): RoomRequests {
       },
       joinRoom: (roomId: string, password = '') =>
         client.post('/rooms/{id}/sessions', { id: roomId }, { password }),
-      reserveRoom: (name: string) =>
-        client.post('/rooms/reservations', null, { name }),
+      generatePlaylist: (roomId: string, request: GeneratedPlaylistRequest) =>
+        client.post('/rooms/{id}/generations', { id: roomId }, request),
+      reserveRoom: (name?: string) =>
+        client.post('/rooms/reservations', null, name ? { name } : {}),
       removeSong: (roomId: string, songId: string) =>
         client.delete('/rooms/{id}/songs/{songId}', { id: roomId, songId }),
       skip: (roomId: string) =>

@@ -1,24 +1,22 @@
 import { useRoomRequests } from '@vibes/api';
 import type { Song } from '@vibes/models';
-import { useEffect, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CastButton } from '@/components/cast-button';
 import { Button, Card, Copy, Empty, Screen } from '@/components/native';
 import { PlaybackProgress } from '@/components/playback-progress';
-import { ProviderPlayer } from '@/components/provider-player';
 import { Queue } from '@/components/queue';
-import { SearchSheet } from '@/components/search-sheet';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
-export default function PlayerScreen() {
+export function RoomScreen() {
   const roomRequests = useRoomRequests(mobileApi);
   const {
-    addSongRequest,
     error,
+    leaveRoom,
     playback,
     refresh,
     room,
@@ -27,14 +25,9 @@ export default function PlayerScreen() {
     setLocalPlaying,
     songs,
   } = useApp();
-  const [searchVisible, setSearchVisible] = useState(false);
-  const handledAddSongRequest = useRef(addSongRequest);
+  const router = useRouter();
+  const { width } = useWindowDimensions();
 
-  useEffect(() => {
-    if (addSongRequest === handledAddSongRequest.current) return;
-    handledAddSongRequest.current = addSongRequest;
-    setSearchVisible(true);
-  }, [addSongRequest]);
   const current = playback?.currentSong ?? null;
   const queuedSongs = current
     ? songs.filter((song) => song.id !== current.id)
@@ -48,7 +41,7 @@ export default function PlayerScreen() {
   if (!roomId || !room) {
     return (
       <Screen>
-        <Empty>Join a room from the Rooms tab first.</Empty>
+        <Empty>Join or create a room to start listening.</Empty>
       </Screen>
     );
   }
@@ -74,11 +67,6 @@ export default function PlayerScreen() {
       );
     }
     await refresh();
-  };
-
-  const handlePlayerPlayingChange = (isPlaying: boolean) => {
-    if (playback?.isPlaying === isPlaying) return;
-    void sendAction(isPlaying ? 'play' : 'pause');
   };
 
   const skip = async () => {
@@ -123,6 +111,11 @@ export default function PlayerScreen() {
     await refresh();
   };
 
+  const leave = async () => {
+    await leaveRoom();
+    router.replace('/');
+  };
+
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']} style={{ flex: 1 }}>
@@ -136,24 +129,26 @@ export default function PlayerScreen() {
               {room.name}
             </Text>
           </View>
-          <View className="flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card/90 px-3 py-2 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
-            <View className="flex-row items-center gap-2">
+          <View className="flex-row items-center gap-2">
+            <Button
+              label="Leave"
+              tone="secondary"
+              onPress={() => void leave()}
+            />
+            <View className="h-12 flex-row items-center gap-2 rounded-2xl border border-mobile-border bg-mobile-card/90 px-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
               <View className="size-2 rounded-full bg-accent" />
               <Copy>{room.userCount ?? 0}</Copy>
             </View>
             <CastButton />
           </View>
         </View>
-        <ProviderPlayer
-          playback={playback}
-          song={current}
-          synchronizePosition={room.mode === 'host'}
-          onLocalPlayingChange={handlePlayerPlayingChange}
-        />
+        <View style={{ height: Math.max(200, (width - 32) / (16 / 9)) }} />
         <Queue
           songs={queuedSongs}
-          onDelete={room.isAdmin ? (song) => void remove(song) : undefined}
           onVote={(song) => void vote(song)}
+          {...(room.isAdmin
+            ? { onDelete: (song: Song) => void remove(song) }
+            : {})}
           header={
             <View className="p-4">
               <Card>
@@ -206,10 +201,6 @@ export default function PlayerScreen() {
               </Card>
             </View>
           }
-        />
-        <SearchSheet
-          visible={searchVisible}
-          onClose={() => setSearchVisible(false)}
         />
       </SafeAreaView>
     </Screen>

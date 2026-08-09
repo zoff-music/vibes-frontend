@@ -49,7 +49,7 @@ export function ContentColumn({ children }: PropsWithChildren) {
   return (
     <View
       className="w-full"
-      style={width >= tabletWidth ? tabletContentColumnStyle : undefined}
+      style={width >= tabletWidth ? tabletContentColumnStyle : null}
     >
       {children}
     </View>
@@ -81,6 +81,33 @@ interface ButtonProps {
   label: string;
   onPress: () => void;
   tone?: 'primary' | 'secondary' | 'danger';
+}
+
+interface IconButtonProps {
+  accessibilityLabel: string;
+  disabled?: boolean;
+  icon: ZoffIconName;
+  onPress: () => void;
+}
+
+export function IconButton({
+  accessibilityLabel,
+  disabled,
+  icon,
+  onPress,
+}: IconButtonProps) {
+  const theme = useAppTheme();
+  return (
+    <Pressable
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole="button"
+      className={`size-12 items-center justify-center rounded-xl border border-mobile-border bg-mobile-surface active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-surface ${disabled ? 'opacity-45' : ''}`}
+      disabled={disabled}
+      onPress={onPress}
+    >
+      <ZoffIcon color={theme.text} name={icon} size={20} />
+    </Pressable>
+  );
 }
 
 export function Button({
@@ -128,29 +155,40 @@ export function Button({
 }
 
 interface FieldProps {
+  accessibilityLabel?: string;
   autoCapitalize?: 'none' | 'sentences';
   onChangeText: (value: string) => void;
   onSubmitEditing?: () => void;
   placeholder: string;
   secureTextEntry?: boolean;
+  trailingAction?: ReactNode;
+  testID?: string;
   value: string;
 }
 
-export const Field = forwardRef<TextInput, FieldProps>(
-  function Field(props, ref) {
-    const theme = useAppTheme();
-    return (
+export const Field = forwardRef<TextInput, FieldProps>(function Field(
+  { trailingAction, ...props },
+  ref,
+) {
+  const theme = useAppTheme();
+  return (
+    <View className="relative">
       <TextInput
         {...props}
         ref={ref}
         autoCorrect={false}
-        className="min-h-13 rounded-xl border border-mobile-border bg-mobile-surface px-4 font-heading text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text"
+        className={`min-h-13 rounded-xl border border-mobile-border bg-mobile-surface px-4 font-heading text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text ${trailingAction ? 'pr-16' : ''}`}
         placeholderTextColor={theme.muted}
         returnKeyType="go"
       />
-    );
-  },
-);
+      {trailingAction && (
+        <View className="absolute top-0 right-1 bottom-0 justify-center">
+          {trailingAction}
+        </View>
+      )}
+    </View>
+  );
+});
 
 export function Empty({
   children,
@@ -162,7 +200,7 @@ export function Empty({
   const theme = useAppTheme();
   return (
     <View className="flex-1 items-center justify-center gap-3">
-      {loading ? <ActivityIndicator color={theme.accent} /> : null}
+      {loading && <ActivityIndicator color={theme.accent} />}
       <Copy muted>{children}</Copy>
     </View>
   );

@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import { useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { DeviceRemoteSettings } from '@/components/device-remote-settings';
 import {
   Card,
   ContentColumn,
@@ -11,11 +11,15 @@ import {
   Screen,
 } from '@/components/native';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
+import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
+import { useAppTheme } from '@/hooks/use-app-theme';
 import { useApp } from '@/providers/app-provider';
+import { useThemePreference } from '@/providers/theme-provider';
 
 export default function SettingsScreen() {
   const { providers, refresh, room } = useApp();
   const [roomSettingsVisible, setRoomSettingsVisible] = useState(false);
+  const { preference, setPreference } = useThemePreference();
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']}>
@@ -23,6 +27,39 @@ export default function SettingsScreen() {
           <ContentColumn>
             <View className="gap-4">
               <Heading>Settings</Heading>
+              <View className="gap-2">
+                <Copy muted>DEVICE</Copy>
+                <Card>
+                  <Copy muted>APPEARANCE</Copy>
+                  <View className="flex-row gap-2">
+                    <View className="flex-1">
+                      <ThemeButton
+                        active={preference === 'auto'}
+                        icon="auto"
+                        label="Auto"
+                        onPress={() => void setPreference('auto')}
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <ThemeButton
+                        active={preference === 'light'}
+                        icon="sun"
+                        label="Light"
+                        onPress={() => void setPreference('light')}
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <ThemeButton
+                        active={preference === 'dark'}
+                        icon="moon"
+                        label="Dark"
+                        onPress={() => void setPreference('dark')}
+                      />
+                    </View>
+                  </View>
+                </Card>
+              </View>
+              <DeviceRemoteSettings />
               <View className="gap-2">
                 <Copy muted>ROOM</Copy>
                 <Card>
@@ -93,6 +130,41 @@ export default function SettingsScreen() {
   );
 }
 
+function ThemeButton({
+  active,
+  icon,
+  label,
+  onPress,
+}: {
+  active: boolean;
+  icon: ZoffIconName;
+  label: string;
+  onPress: () => void;
+}) {
+  const theme = useAppTheme();
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ checked: active }}
+      className={`min-h-12 flex-row items-center justify-center gap-2 rounded-xl border px-2 ${
+        active
+          ? 'border-accent bg-accent/15'
+          : 'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface'
+      }`}
+      onPress={onPress}
+    >
+      <ZoffIcon
+        color={active ? theme.accent : theme.text}
+        name={icon}
+        size={16}
+      />
+      <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 interface SettingsRowProps {
   description?: string;
   disabled?: boolean;
@@ -117,11 +189,11 @@ function SettingsRow({
         <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
           {label}
         </Text>
-        {description ? <Copy muted>{description}</Copy> : null}
+        {description && <Copy muted>{description}</Copy>}
       </View>
-      {!disabled ? (
+      {!disabled && (
         <Text className="font-heading text-2xl text-accent">›</Text>
-      ) : null}
+      )}
     </Pressable>
   );
 }

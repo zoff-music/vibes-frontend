@@ -1,15 +1,12 @@
 import { useRoomRequests } from '@vibes/api';
-import type { Providers, RoomSettings } from '@vibes/models';
+import type {
+  Providers,
+  RoomNameReservation,
+  RoomSettings,
+} from '@vibes/models';
 import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
 import { useEffect, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -18,6 +15,7 @@ import {
   Copy,
   Field,
   Heading,
+  IconButton,
   Screen,
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
@@ -48,6 +46,9 @@ export function CreateRoomSheet({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [reservation, setReservation] = useState<RoomNameReservation | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!visible) return;
@@ -59,7 +60,40 @@ export function CreateRoomSheet({
       enabledSources: providers,
     });
     setError('');
-  }, [initialName, providers, visible]);
+    setReservation(null);
+    if (initialName.trim()) return;
+    const generateName = async () => {
+      const [requestError, nextReservation] = await roomRequests.reserveRoom();
+      if (requestError || !nextReservation) {
+        setError(
+          await getRequestErrorMessage(
+            requestError,
+            'Could not generate a room name.',
+          ),
+        );
+        return;
+      }
+      setName(nextReservation.name);
+      setReservation(nextReservation);
+    };
+    void generateName();
+  }, [initialName, providers, roomRequests, visible]);
+
+  const generateName = async () => {
+    const [requestError, nextReservation] = await roomRequests.reserveRoom();
+    if (requestError || !nextReservation) {
+      setError(
+        await getRequestErrorMessage(
+          requestError,
+          'Could not generate a room name.',
+        ),
+      );
+      return;
+    }
+    setName(nextReservation.name);
+    setReservation(nextReservation);
+    setError('');
+  };
 
   const createRoom = async () => {
     const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
@@ -77,25 +111,34 @@ export function CreateRoomSheet({
     }
 
     setLoading(true);
-    const [reservationError, reservation] =
-      await roomRequests.reserveRoom(normalizedName);
-    if (reservationError || !reservation) {
+    let roomReservation = reservation;
+    if (!roomReservation || roomReservation.name !== normalizedName) {
+      const [reservationError, nextReservation] =
+        await roomRequests.reserveRoom(normalizedName);
+      if (reservationError || !nextReservation) {
+        setLoading(false);
+        setError(
+          await getRequestErrorMessage(
+            reservationError,
+            'Could not reserve this room name.',
+          ),
+        );
+        return;
+      }
+      roomReservation = nextReservation;
+    }
+    if (!roomReservation) {
       setLoading(false);
-      setError(
-        await getRequestErrorMessage(
-          reservationError,
-          'Could not reserve this room name.',
-        ),
-      );
+      setError('Could not reserve this room name.');
       return;
     }
 
     const [requestError, room] = await roomRequests.createRoom({
       name: normalizedName,
       mode,
-      password: password || undefined,
-      reservationToken: reservation.token,
+      reservationToken: roomReservation.token,
       settings,
+      ...(password ? { password } : {}),
     });
     setLoading(false);
     if (requestError || !room) {
@@ -112,6 +155,69 @@ export function CreateRoomSheet({
     if (joined) onClose();
   };
 
+  const renderSettings = () => (
+    <View className="gap-5">
+      <Card>
+        <Copy muted>ROOM DETAILS</Copy>
+        <Field
+          autoCapitalize="none"
+          value={name}
+          onChangeText={(value) => {
+            setName(value);
+            setReservation(null);
+          }}
+          placeholder="Room name"
+        />
+        <Button
+          icon="reset"
+          label="Generate another name"
+          tone="secondary"
+          onPress={() => void generateName()}
+        />
+        <Field
+          autoCapitalize="none"
+          secureTextEntry
+          value={password}
+          onChangeText={(value) => {
+            setPassword(value);
+            if (!value) {
+              setSettings((current) => ({
+                ...current,
+                public: false,
+              }));
+            }
+          }}
+          placeholder="Admin password (optional)"
+        />
+        <Copy muted>
+          The admin password protects room controls and can also be added later
+          from room settings.
+        </Copy>
+      </Card>
+      <RoomConfiguration
+        hasPassword={Boolean(password)}
+        mode={mode}
+        providers={providers}
+        settings={settings}
+        onModeChange={setMode}
+        onSettingsChange={setSettings}
+      />
+      {Boolean(error) && (
+        <Text className="font-heading text-error text-xs">{error}</Text>
+      )}
+      <Button
+        disabled={
+          loading ||
+          !name.trim() ||
+          providers.length === 0 ||
+          settings.enabledSources.length === 0
+        }
+        label={loading ? 'Creating…' : 'Create room'}
+        onPress={() => void createRoom()}
+      />
+    </View>
+  );
+
   return (
     <Modal
       animationType="slide"
@@ -121,71 +227,31 @@ export function CreateRoomSheet({
     >
       <Screen>
         <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            className="flex-1"
-          >
-            <View className="flex-row items-center justify-between gap-4 px-5 py-4">
-              <Heading>Create a room</Heading>
-              <Button label="Cancel" tone="secondary" onPress={onClose} />
-            </View>
-            <ScrollView
-              contentContainerClassName="gap-5 px-5 pb-10"
-              keyboardShouldPersistTaps="handled"
-            >
-              <Card>
-                <Copy muted>ROOM DETAILS</Copy>
-                <Field
-                  autoCapitalize="none"
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Room name"
-                />
-                <Field
-                  autoCapitalize="none"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={(value) => {
-                    setPassword(value);
-                    if (!value) {
-                      setSettings((current) => ({
-                        ...current,
-                        public: false,
-                      }));
-                    }
-                  }}
-                  placeholder="Admin password (optional)"
-                />
-                <Copy muted>
-                  The admin password is only used for room controls and can be
-                  entered later from room settings.
-                </Copy>
-              </Card>
-              <RoomConfiguration
-                hasPassword={Boolean(password)}
-                mode={mode}
-                providers={providers}
-                settings={settings}
-                onModeChange={setMode}
-                onSettingsChange={setSettings}
-              />
-              {Boolean(error) && (
-                <Text className="font-heading text-error text-xs">{error}</Text>
-              )}
-              <Button
-                disabled={
-                  loading ||
-                  !name.trim() ||
-                  providers.length === 0 ||
-                  settings.enabledSources.length === 0
-                }
-                label={loading ? 'Creating…' : 'Create room'}
-                onPress={() => void createRoom()}
-              />
-            </ScrollView>
-          </KeyboardAvoidingView>
+          <View className="flex-row items-center justify-between gap-4 px-5 py-4">
+            <Heading>Create a room</Heading>
+            <IconButton
+              accessibilityLabel="Close create room"
+              icon="close"
+              onPress={onClose}
+            />
+          </View>
+          <FlatList
+            contentContainerStyle={sheetContentStyle}
+            data={sheetItems}
+            keyExtractor={(item) => item}
+            keyboardDismissMode="interactive"
+            keyboardShouldPersistTaps="handled"
+            renderItem={renderSettings}
+          />
         </SafeAreaView>
       </Screen>
     </Modal>
   );
 }
+
+const sheetContentStyle = {
+  paddingBottom: 40,
+  paddingHorizontal: 20,
+};
+
+const sheetItems = ['create-room'];

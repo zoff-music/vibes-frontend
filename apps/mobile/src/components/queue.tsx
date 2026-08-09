@@ -1,8 +1,13 @@
 import type { Song } from '@vibes/models';
 import { Image } from 'expo-image';
 import type { ReactElement } from 'react';
+import type { ListRenderItemInfo } from 'react-native';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Animated, {
+  FadeInDown,
+  LinearTransition,
+} from 'react-native-reanimated';
 
 import { Copy, Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
@@ -99,6 +104,21 @@ export function Queue({
   onVote,
   songs,
 }: QueueProps) {
+  const renderSong = ({ item, index }: ListRenderItemInfo<Song>) => (
+    <Animated.View
+      className="px-4"
+      entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
+      layout={LinearTransition.duration(180)}
+    >
+      <QueueItem
+        index={index}
+        onVote={() => onVote(item)}
+        song={item}
+        {...(onDelete ? { onDelete: () => onDelete(item) } : {})}
+      />
+    </Animated.View>
+  );
+
   return (
     <FlatList
       style={{ flex: 1 }}
@@ -120,20 +140,15 @@ export function Queue({
         </>
       }
       maxToRenderPerBatch={8}
-      renderItem={({ item, index }) => (
-        <View className="px-4">
-          <QueueItem
-            index={index}
-            onDelete={onDelete ? () => onDelete(item) : undefined}
-            onVote={() => onVote(item)}
-            song={item}
-          />
-        </View>
-      )}
-      ItemSeparatorComponent={() => <View className="h-3" />}
+      renderItem={renderSong}
+      ItemSeparatorComponent={QueueSeparator}
       windowSize={5}
     />
   );
+}
+
+function QueueSeparator() {
+  return <View className="h-3" />;
 }
 
 const queueStyle = { paddingBottom: 112 };

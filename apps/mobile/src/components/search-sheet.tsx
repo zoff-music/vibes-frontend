@@ -7,16 +7,22 @@ import {
 } from '@vibes/shared';
 import { Image } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
-import type { TextInput } from 'react-native';
+import type { ListRenderItemInfo, TextInput } from 'react-native';
 import { FlatList, Keyboard, Modal, Pressable, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Copy, Empty, Field, Screen } from '@/components/native';
+import {
+  Button,
+  Copy,
+  Empty,
+  Field,
+  IconButton,
+  Screen,
+} from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
-
-const supportedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];
 
 interface SearchSheetProps {
   client?: ApiClient;
@@ -231,6 +237,41 @@ export function SearchSheet({
     onClose();
   };
 
+  const renderResult = ({ item, index }: ListRenderItemInfo<SearchResult>) => (
+    <Animated.View
+      entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
+    >
+      <Pressable
+        accessibilityLabel={`Add ${item.title}`}
+        className="min-h-19 flex-row items-center gap-4 rounded-2xl border border-mobile-border bg-mobile-card p-4 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
+        onPress={() => void add(item)}
+      >
+        <Image
+          contentFit="cover"
+          source={item.thumbnailUrl}
+          style={{ borderRadius: 12, height: 56, width: 72 }}
+        />
+        <View className="min-w-0 flex-1 gap-1">
+          <Text
+            numberOfLines={2}
+            className="font-bold font-heading text-mobile-text text-sm dark:text-mobile-dark-text"
+          >
+            {item.title}
+          </Text>
+          <Text
+            numberOfLines={1}
+            className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted"
+          >
+            {item.channelTitle ?? providerLabels[item.source]}
+          </Text>
+        </View>
+        <View className="size-10 items-center justify-center rounded-xl bg-primary">
+          <ZoffIcon color="#ffffff" name="add" size={16} />
+        </View>
+      </Pressable>
+    </Animated.View>
+  );
+
   return (
     <Modal
       animationType="slide"
@@ -245,27 +286,24 @@ export function SearchSheet({
           style={{ flex: 1, padding: 16 }}
         >
           <View className="mb-4 flex-row items-center justify-between gap-4">
+            <IconButton
+              accessibilityLabel="Close music search"
+              icon="close"
+              onPress={onClose}
+            />
             <View className="min-w-0 flex-1 gap-0.5">
               <Text className="font-heading text-2xl text-mobile-text dark:text-mobile-dark-text">
                 Add music
               </Text>
               <Copy muted>Search or paste a song or playlist link.</Copy>
             </View>
-            <Pressable
-              accessibilityLabel="Close music search"
-              accessibilityRole="button"
-              className="min-h-11 justify-center rounded-xl border border-mobile-border bg-mobile-surface px-4 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-surface"
-              onPress={onClose}
-            >
-              <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
-                Done
-              </Text>
-            </Pressable>
           </View>
           <View className="mb-4 gap-4">
             <View className="flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
               {enabledProviders.map((source) => (
                 <Pressable
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: provider === source }}
                   key={source}
                   className={`min-h-11 flex-1 items-center justify-center rounded-xl px-3 ${
                     provider === source ? 'bg-accent' : 'bg-transparent'
@@ -328,37 +366,8 @@ export function SearchSheet({
                 )}
               </View>
             }
-            renderItem={({ item }) => (
-              <Pressable
-                accessibilityLabel={`Add ${item.title}`}
-                className="min-h-19 flex-row items-center gap-4 rounded-2xl border border-mobile-border bg-mobile-card p-4 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
-                onPress={() => void add(item)}
-              >
-                <Image
-                  contentFit="cover"
-                  source={item.thumbnailUrl}
-                  style={{ borderRadius: 12, height: 56, width: 72 }}
-                />
-                <View className="min-w-0 flex-1 gap-1">
-                  <Text
-                    numberOfLines={2}
-                    className="font-bold font-heading text-mobile-text text-sm dark:text-mobile-dark-text"
-                  >
-                    {item.title}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted"
-                  >
-                    {item.channelTitle ?? providerLabels[item.source]}
-                  </Text>
-                </View>
-                <View className="size-10 items-center justify-center rounded-xl bg-primary">
-                  <ZoffIcon color="#ffffff" name="add" size={16} />
-                </View>
-              </Pressable>
-            )}
-            ItemSeparatorComponent={() => <View className="h-4" />}
+            renderItem={renderResult}
+            ItemSeparatorComponent={ResultSeparator}
           />
         </SafeAreaView>
       </Screen>
@@ -366,8 +375,14 @@ export function SearchSheet({
   );
 }
 
+function ResultSeparator() {
+  return <View className="h-4" />;
+}
+
 const providerLabels: Record<SourceType, string> = {
   soundcloud: 'SoundCloud',
   spotify: 'Spotify',
   youtube: 'YouTube',
 };
+
+const supportedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];

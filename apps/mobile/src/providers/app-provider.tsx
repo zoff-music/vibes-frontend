@@ -28,16 +28,22 @@ import {
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface AppState {
-  addSongRequest: number;
+  activateControllerRemote: (
+    remoteId: string,
+    controllerToken: string,
+    roomId: string,
+  ) => Promise<void>;
+  clearControllerRemote: () => Promise<void>;
+  controllerRemote: ControllerRemoteSession | null;
   error: string;
   loading: boolean;
   machinePairing: RemotePairing | null;
   machineRemote: RemoteStatus | null;
+  leaveRoom: () => Promise<void>;
   playback: PlaybackState | null;
   providers: Providers;
   refresh: () => Promise<void>;
   refreshMachineRemote: () => Promise<void>;
-  requestAddSong: () => void;
   room: Room | null;
   roomId: string;
   setError: (message: string) => void;
@@ -50,8 +56,16 @@ interface AppState {
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
 
+export interface ControllerRemoteSession {
+  controllerToken: string;
+  id: string;
+  roomId: string;
+}
+
 const AppContext = createContext<AppState | null>(null);
 const roomStorageKey = 'zoff.mobile.room';
+const remoteStorageKey = 'zoff.mobile.remote';
+const remoteTokenStorageKey = 'zoff.mobile.remote-token';
 
 export function AppProvider({ children }: PropsWithChildren) {
   const roomRequests = useRoomRequests(mobileApi);
@@ -63,7 +77,8 @@ export function AppProvider({ children }: PropsWithChildren) {
   const [providers, setProviders] = useState<Providers>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [addSongRequest, setAddSongRequest] = useState(0);
+  const [controllerRemote, setControllerRemote] =
+    useState<ControllerRemoteSession | null>(null);
   const [machinePairing, setMachinePairing] = useState<RemotePairing | null>(
     null,
   );
@@ -87,9 +102,43 @@ export function AppProvider({ children }: PropsWithChildren) {
     [],
   );
 
-  const requestAddSong = useCallback(() => {
-    setAddSongRequest((current) => current + 1);
+  const leaveRoom = useCallback(async () => {
+    setRoomIdValue('');
+    setRoom(null);
+    setSongs([]);
+    setPlayback(null);
+    playbackRef.current = null;
+    localPlayingRef.current = null;
+    setError('');
+    await SecureStore.deleteItemAsync(roomStorageKey);
   }, []);
+
+  const clearControllerRemote = useCallback(async () => {
+    setControllerRemote(null);
+    await SecureStore.deleteItemAsync(remoteStorageKey);
+    await SecureStore.deleteItemAsync(remoteTokenStorageKey);
+  }, []);
+
+  const activateControllerRemote = useCallback(
+    async (remoteId: string, controllerToken: string, remoteRoomId: string) => {
+      setRoomIdValue('');
+      setRoom(null);
+      setSongs([]);
+      setPlayback(null);
+      playbackRef.current = null;
+      localPlayingRef.current = null;
+      setControllerRemote({
+        controllerToken,
+        id: remoteId,
+        roomId: remoteRoomId,
+      });
+      setError('');
+      await SecureStore.deleteItemAsync(roomStorageKey);
+      await SecureStore.setItemAsync(remoteStorageKey, remoteId);
+      await SecureStore.setItemAsync(remoteTokenStorageKey, controllerToken);
+    },
+    [],
+  );
 
   const refresh = useCallback(async () => {
     if (!roomId) {
@@ -165,10 +214,11 @@ export function AppProvider({ children }: PropsWithChildren) {
       setSongs(snapshot.songs);
       setPlayback(snapshot.playback);
       setError('');
+      await clearControllerRemote();
       await SecureStore.setItemAsync(roomStorageKey, normalized);
       return 'joined';
     },
-    [roomRequests],
+    [clearControllerRemote, roomRequests],
   );
 
   const refreshMachineRemote = useCallback(async () => {
@@ -263,20 +313,44 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   useRemoteEvents({
     client: mobileApi,
-    remoteId: machineRemote?.enabled ? machineRemote.id : undefined,
     onRoomUpdate: handleRemoteRoomUpdate,
     onStateUpdate: handleRemoteStateUpdate,
+    ...(machineRemote?.enabled ? { remoteId: machineRemote.id } : {}),
   });
 
   useEffect(() => {
+    const loadStoredControllerRemote = async () => {
+      const storedRemoteId = await SecureStore.getItemAsync(remoteStorageKey);
+      const storedControllerToken = await SecureStore.getItemAsync(
+        remoteTokenStorageKey,
+      );
+      if (!storedRemoteId || !storedControllerToken) return;
+      setControllerRemote({
+        controllerToken: storedControllerToken,
+        id: storedRemoteId,
+        roomId: '',
+      });
+    };
+    void loadStoredControllerRemote();
+  }, []);
+
+  useEffect(() => {
     const loadStoredRoom = async () => {
+      const storedRemoteId = await SecureStore.getItemAsync(remoteStorageKey);
+      const storedControllerToken = await SecureStore.getItemAsync(
+        remoteTokenStorageKey,
+      );
+      if (storedRemoteId && storedControllerToken) return;
       const storedRoom = await SecureStore.getItemAsync(roomStorageKey);
       if (storedRoom) {
-        await setRoomId(storedRoom);
+        const result = await setRoomId(storedRoom);
+        if (result !== 'joined') {
+          await leaveRoom();
+        }
       }
     };
     void loadStoredRoom();
-  }, [setRoomId]);
+  }, [leaveRoom, setRoomId]);
 
   useEffect(() => {
     const loadProviders = async () => {
@@ -343,10 +417,13 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   const value = useMemo<AppState>(
     () => ({
-      addSongRequest,
+      activateControllerRemote,
+      clearControllerRemote,
+      controllerRemote,
       error,
       disableMachineRemote,
       enableMachineRemote,
+      leaveRoom,
       loading,
       machinePairing,
       machineRemote,
@@ -354,7 +431,6 @@ export function AppProvider({ children }: PropsWithChildren) {
       providers,
       refresh,
       refreshMachineRemote,
-      requestAddSong,
       room,
       roomId,
       setError,
@@ -363,10 +439,13 @@ export function AppProvider({ children }: PropsWithChildren) {
       songs,
     }),
     [
-      addSongRequest,
+      activateControllerRemote,
+      clearControllerRemote,
+      controllerRemote,
       error,
       disableMachineRemote,
       enableMachineRemote,
+      leaveRoom,
       loading,
       machinePairing,
       machineRemote,
@@ -374,7 +453,6 @@ export function AppProvider({ children }: PropsWithChildren) {
       providers,
       refresh,
       refreshMachineRemote,
-      requestAddSong,
       room,
       roomId,
       setRoomId,

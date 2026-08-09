@@ -7,19 +7,24 @@ import { setAudioModeAsync } from 'expo-audio';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import '@/global.css';
 
 import AppTabs from '@/components/app-tabs';
+import {
+  ActiveRoomKeepAwake,
+  PersistentRoomPlayer,
+} from '@/components/persistent-room-player';
 import { palette } from '@/constants/theme';
-import { AppProvider } from '@/providers/app-provider';
+import { AppProvider, useApp } from '@/providers/app-provider';
+import {
+  AppThemeProvider,
+  useThemePreference,
+} from '@/providers/theme-provider';
 
 export default function RootLayout() {
-  const scheme = useColorScheme();
-  const theme = palette[scheme === 'light' ? 'light' : 'dark'];
   const [fontsLoaded] = useFonts({
     'Pixelify Sans Bold': PixelifySans_700Bold,
   });
@@ -43,17 +48,42 @@ export default function RootLayout() {
   }
 
   return (
+    <AppThemeProvider>
+      <RootContent />
+    </AppThemeProvider>
+  );
+}
+
+function RootContent() {
+  const { resolvedScheme } = useThemePreference();
+  const theme = palette[resolvedScheme];
+
+  return (
     <GestureHandlerRootView
       style={{ backgroundColor: theme.background, flex: 1 }}
     >
       <SafeAreaProvider>
-        <ThemeProvider value={scheme === 'light' ? DefaultTheme : DarkTheme}>
+        <ThemeProvider
+          value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
+        >
           <AppProvider>
-            <StatusBar style={scheme === 'light' ? 'dark' : 'light'} />
-            <AppTabs />
+            <StatusBar style={resolvedScheme === 'light' ? 'dark' : 'light'} />
+            <RoomRuntime />
           </AppProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function RoomRuntime() {
+  const { controllerRemote, room } = useApp();
+  const hasActiveSession = Boolean(room || controllerRemote?.roomId);
+  return (
+    <>
+      {hasActiveSession && <ActiveRoomKeepAwake />}
+      <AppTabs />
+      <PersistentRoomPlayer />
+    </>
   );
 }

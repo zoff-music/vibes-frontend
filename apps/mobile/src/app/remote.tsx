@@ -1,21 +1,11 @@
-import { useRemoteRequests, useRoomRequests } from '@vibes/api';
-import type {
-  PlaybackState,
-  RemotePairing,
-  RemoteStatus,
-  Room,
-  Song,
-} from '@vibes/models';
+import { getHttpError, useRemoteRequests, useRoomRequests } from '@vibes/api';
+import type { PlaybackState, RemoteStatus, Room, Song } from '@vibes/models';
 import { safeWrap } from '@vibes/shared';
 import type { BarcodeScanningResult } from 'expo-camera';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as SecureStore from 'expo-secure-store';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import zoffLogo from '@/assets/images/icon.png';
 import {
   Button,
   Card,
@@ -29,27 +19,22 @@ import {
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
-import { SearchSheet } from '@/components/search-sheet';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
-const remoteStorageKey = 'zoff.mobile.remote';
-const remoteTokenStorageKey = 'zoff.mobile.remote-token';
-
 export default function RemoteScreen() {
   const {
-    disableMachineRemote,
-    enableMachineRemote,
-    error: appError,
-    machinePairing,
-    machineRemote,
+    activateControllerRemote,
+    clearControllerRemote,
+    controllerRemote,
     providers,
   } = useApp();
-  const [remoteRole, setRemoteRole] = useState<RemoteRole>('controller');
-  const [remoteId, setRemoteId] = useState('');
-  const [controllerToken, setControllerToken] = useState('');
+  const [remoteId, setRemoteId] = useState(controllerRemote?.id ?? '');
+  const [controllerToken, setControllerToken] = useState(
+    controllerRemote?.controllerToken ?? '',
+  );
   const [pairingCode, setPairingCode] = useState('');
   const [remote, setRemote] = useState<RemoteStatus | null>(null);
   const [room, setRoom] = useState<Room | null>(null);
@@ -57,7 +42,6 @@ export default function RemoteScreen() {
   const [playback, setPlayback] = useState<PlaybackState | null>(null);
   const [error, setError] = useState('');
   const [scannerVisible, setScannerVisible] = useState(false);
-  const [searchVisible, setSearchVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [nextRoomId, setNextRoomId] = useState('');
   const [permission, requestPermission] = useCameraPermissions();
@@ -76,18 +60,36 @@ export default function RemoteScreen() {
   const queuedSongs = playback?.currentSong
     ? songs.filter((song) => song.id !== playback.currentSong?.id)
     : songs;
-
   const refresh = useCallback(async () => {
     if (!remoteId || !controllerToken) return;
     const [remoteError, nextRemote] =
       await remoteRequests.fetchRemote(remoteId);
     if (remoteError || !nextRemote) {
+      const status = remoteError
+        ? getHttpError(remoteError)?.response.status
+        : null;
+      if (status && invalidRemoteStatuses.includes(status)) {
+        setRemoteId('');
+        setControllerToken('');
+        setRemote(null);
+        setRoom(null);
+        setSongs([]);
+        setPlayback(null);
+        await clearControllerRemote();
+      }
       setError(
         await getRequestErrorMessage(remoteError, 'Remote is unavailable.'),
       );
       return;
     }
     setRemote(nextRemote);
+    if (controllerRemote?.roomId !== nextRemote.currentRoomId) {
+      await activateControllerRemote(
+        remoteId,
+        controllerToken,
+        nextRemote.currentRoomId,
+      );
+    }
     if (!nextRemote.currentRoomId) {
       setRoom(null);
       setSongs([]);
@@ -111,17 +113,21 @@ export default function RemoteScreen() {
     setSongs(snapshot.songs);
     setPlayback(snapshot.playback);
     setError('');
-  }, [controllerToken, remoteId, remoteRequests, roomRequests]);
+  }, [
+    activateControllerRemote,
+    clearControllerRemote,
+    controllerRemote?.roomId,
+    controllerToken,
+    remoteId,
+    remoteRequests,
+    roomRequests,
+  ]);
 
   useEffect(() => {
-    const restore = async () => {
-      const stored = await SecureStore.getItemAsync(remoteStorageKey);
-      const storedToken = await SecureStore.getItemAsync(remoteTokenStorageKey);
-      if (stored) setRemoteId(stored);
-      if (storedToken) setControllerToken(storedToken);
-    };
-    void restore();
-  }, []);
+    if (!controllerRemote) return;
+    setRemoteId(controllerRemote.id);
+    setControllerToken(controllerRemote.controllerToken);
+  }, [controllerRemote]);
 
   useEffect(() => {
     void refresh();
@@ -140,10 +146,10 @@ export default function RemoteScreen() {
     }
     setRemote(status);
     setControllerToken(status.controllerToken);
-    await SecureStore.setItemAsync(remoteStorageKey, remoteId.trim());
-    await SecureStore.setItemAsync(
-      remoteTokenStorageKey,
+    await activateControllerRemote(
+      remoteId.trim(),
       status.controllerToken,
+      status.currentRoomId,
     );
     setError('');
   };
@@ -285,10 +291,10 @@ export default function RemoteScreen() {
       }
       setRemote(status);
       setControllerToken(status.controllerToken);
-      await SecureStore.setItemAsync(remoteStorageKey, scannedRemoteId);
-      await SecureStore.setItemAsync(
-        remoteTokenStorageKey,
+      await activateControllerRemote(
+        scannedRemoteId,
         status.controllerToken,
+        status.currentRoomId,
       );
     };
     void submitPairing();
@@ -311,18 +317,15 @@ export default function RemoteScreen() {
     await refresh();
   };
 
-  if (remoteRole === 'machine') {
-    return (
-      <MachineRemoteView
-        pairing={machinePairing}
-        remote={machineRemote}
-        error={appError}
-        onDisable={() => void disableMachineRemote()}
-        onEnable={() => void enableMachineRemote()}
-        onRoleChange={setRemoteRole}
-      />
-    );
-  }
+  const disconnect = async () => {
+    setRemote(null);
+    setRemoteId('');
+    setControllerToken('');
+    setRoom(null);
+    setSongs([]);
+    setPlayback(null);
+    await clearControllerRemote();
+  };
 
   if (!remote) {
     return (
@@ -334,10 +337,6 @@ export default function RemoteScreen() {
           >
             <ContentColumn>
               <View className="gap-5">
-                <RemoteRoleControl
-                  value={remoteRole}
-                  onChange={setRemoteRole}
-                />
                 <View className="items-center gap-2 px-6">
                   <View className="mb-2 size-16 items-center justify-center rounded-3xl border border-accent/40 bg-accent/10">
                     <ZoffIcon color="#00b4d4" name="remote" size={30} />
@@ -362,17 +361,21 @@ export default function RemoteScreen() {
                     <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
                   </View>
                   <Field
+                    accessibilityLabel="Remote ID"
                     autoCapitalize="none"
                     value={remoteId}
                     onChangeText={setRemoteId}
                     placeholder="Remote ID"
+                    testID="remote-id"
                   />
                   <Field
+                    accessibilityLabel="Pairing code"
                     autoCapitalize="none"
                     value={pairingCode}
                     onChangeText={setPairingCode}
                     onSubmitEditing={() => void pair()}
                     placeholder="Pairing code"
+                    testID="remote-pairing-code"
                   />
                   <Button label="Pair remote" onPress={() => void pair()} />
                   {Boolean(error) && (
@@ -429,14 +432,12 @@ export default function RemoteScreen() {
             <Queue
               contained
               songs={queuedSongs}
-              onDelete={room.isAdmin ? (song) => void remove(song) : undefined}
               onVote={(song) => void vote(song)}
+              {...(room.isAdmin
+                ? { onDelete: (song: Song) => void remove(song) }
+                : {})}
               header={
                 <View className="gap-3 p-4">
-                  <RemoteRoleControl
-                    value={remoteRole}
-                    onChange={setRemoteRole}
-                  />
                   <Card>
                     <Copy muted>CONTROLLING MACHINE</Copy>
                     <Heading>
@@ -451,6 +452,11 @@ export default function RemoteScreen() {
                       label="Room settings"
                       tone="secondary"
                       onPress={() => setSettingsVisible(true)}
+                    />
+                    <Button
+                      label="Disconnect remote"
+                      tone="danger"
+                      onPress={() => void disconnect()}
                     />
                   </Card>
                   <Card>
@@ -499,13 +505,6 @@ export default function RemoteScreen() {
                           onPress={() => void action('skip')}
                         />
                       </View>
-                      <View className="flex-1">
-                        <Button
-                          icon="add"
-                          label="Add"
-                          onPress={() => setSearchVisible(true)}
-                        />
-                      </View>
                     </View>
                     <PlaybackProgress
                       duration={playback?.currentSong?.duration ?? 0}
@@ -519,13 +518,6 @@ export default function RemoteScreen() {
                   </Card>
                 </View>
               }
-            />
-            <SearchSheet
-              client={client}
-              roomIdOverride={remote.currentRoomId}
-              visible={searchVisible}
-              onAdded={refresh}
-              onClose={() => setSearchVisible(false)}
             />
             <RoomSettingsSheet
               client={client}
@@ -541,167 +533,6 @@ export default function RemoteScreen() {
         {!room && <Empty>Choose a room for the controlled machine.</Empty>}
       </SafeAreaView>
     </Screen>
-  );
-}
-
-interface MachineRemoteViewProps {
-  error: string;
-  onDisable: () => void;
-  onEnable: () => void;
-  onRoleChange: (role: RemoteRole) => void;
-  pairing: RemotePairing | null;
-  remote: RemoteStatus | null;
-}
-
-function MachineRemoteView({
-  onDisable,
-  onEnable,
-  onRoleChange,
-  pairing,
-  remote,
-  error,
-}: MachineRemoteViewProps) {
-  const pairingUrl = pairing
-    ? `https://zoff.me/remotes?remoteId=${encodeURIComponent(pairing.id)}&pair=${encodeURIComponent(pairing.pairingToken)}`
-    : '';
-  let statusTitle = 'Allow Remote Control';
-  let statusCopy =
-    'Create a single-use pairing so another device can control this app.';
-  if (remote?.enabled && remote.paired) {
-    statusTitle = 'Remote Paired';
-    statusCopy =
-      'A controller is connected. Disable remote control to revoke it immediately.';
-  }
-  if (remote?.enabled && !remote.paired) {
-    statusTitle = 'Remote Control Enabled';
-    statusCopy =
-      'Create a new single-use pairing when you are ready to connect.';
-  }
-
-  return (
-    <Screen>
-      <SafeAreaView className="flex-1" edges={['top']}>
-        <ScrollView
-          contentContainerClassName="flex-grow gap-5 p-4 pb-28"
-          keyboardShouldPersistTaps="handled"
-        >
-          <ContentColumn>
-            <View className="gap-5">
-              <RemoteRoleControl value="machine" onChange={onRoleChange} />
-              <View className="items-center gap-2 px-6">
-                <View className="mb-2 size-16 items-center justify-center rounded-3xl border border-accent/40 bg-accent/10">
-                  <ZoffIcon color="#00b4d4" name="remote" size={30} />
-                </View>
-                <Heading>{statusTitle}</Heading>
-                <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                  {statusCopy}
-                </Text>
-              </View>
-              {Boolean(pairing) && (
-                <Card>
-                  <Copy muted>SCAN TO CONNECT</Copy>
-                  <View className="items-center">
-                    <View className="rounded-3xl bg-white p-3">
-                      <QRCode
-                        backgroundColor="#ffffff"
-                        color="#2a1840"
-                        logo={zoffLogo}
-                        logoBackgroundColor="#ffffff"
-                        logoBorderRadius={10}
-                        logoMargin={4}
-                        logoSize={42}
-                        quietZone={10}
-                        size={230}
-                        value={pairingUrl}
-                      />
-                    </View>
-                  </View>
-                  <View className="gap-2 rounded-xl border border-mobile-border bg-mobile-surface p-4 dark:border-mobile-dark-border dark:bg-mobile-dark-surface">
-                    <Copy muted>REMOTE ID</Copy>
-                    <Copy>{pairing?.id ?? ''}</Copy>
-                    <Copy muted>PAIRING CODE</Copy>
-                    <Text className="text-center font-heading text-2xl text-accent tracking-widest">
-                      {pairing?.pairingCode ?? ''}
-                    </Text>
-                  </View>
-                  <Copy muted>
-                    This pairing expires shortly and can only be used once.
-                  </Copy>
-                </Card>
-              )}
-              {remote?.enabled && !pairing && (
-                <Card>
-                  <Copy muted>REMOTE STATUS</Copy>
-                  <Text className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text">
-                    {remote.paired ? 'Connected' : 'Waiting for a new pairing'}
-                  </Text>
-                  <Copy muted>
-                    {remote.online ? 'This device is online.' : 'Reconnecting…'}
-                  </Copy>
-                </Card>
-              )}
-              <View className="gap-3">
-                <Button
-                  icon="remote"
-                  label={remote?.enabled ? 'New pairing' : 'Enable remote'}
-                  onPress={onEnable}
-                />
-                {remote?.enabled && (
-                  <Button
-                    label="Disable remote"
-                    tone="danger"
-                    onPress={onDisable}
-                  />
-                )}
-              </View>
-              {Boolean(error) && (
-                <Text className="font-heading text-error text-xs">{error}</Text>
-              )}
-            </View>
-          </ContentColumn>
-        </ScrollView>
-      </SafeAreaView>
-    </Screen>
-  );
-}
-
-interface RemoteRoleControlProps {
-  onChange: (role: RemoteRole) => void;
-  value: RemoteRole;
-}
-
-function RemoteRoleControl({ onChange, value }: RemoteRoleControlProps) {
-  return (
-    <View className="flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
-      <RemoteRoleButton
-        active={value === 'controller'}
-        label="Control another"
-        onPress={() => onChange('controller')}
-      />
-      <RemoteRoleButton
-        active={value === 'machine'}
-        label="Control this device"
-        onPress={() => onChange('machine')}
-      />
-    </View>
-  );
-}
-
-interface RemoteRoleButtonProps {
-  active: boolean;
-  label: string;
-  onPress: () => void;
-}
-
-function RemoteRoleButton({ active, label, onPress }: RemoteRoleButtonProps) {
-  return (
-    <View className="flex-1">
-      <Button
-        label={label}
-        tone={active ? 'primary' : 'secondary'}
-        onPress={onPress}
-      />
-    </View>
   );
 }
 
@@ -725,4 +556,4 @@ const styles = StyleSheet.create({
   },
 });
 
-type RemoteRole = 'controller' | 'machine';
+const invalidRemoteStatuses = [401, 403, 404, 410];

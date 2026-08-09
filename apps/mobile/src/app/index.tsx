@@ -1,8 +1,9 @@
 import { useRoomRequests } from '@vibes/api';
 import type { PublicRoom } from '@vibes/models';
-import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import type { ListRenderItemInfo } from 'react-native';
 import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AnimatedLogo } from '@/components/animated-logo';
 import { CreateRoomSheet } from '@/components/create-room-sheet';
@@ -15,17 +16,22 @@ import {
   Heading,
   Screen,
 } from '@/components/native';
-import { mobileApi } from '@/lib/api';
+import { RoomScreen } from '@/components/room-screen';
+import { ZoffIcon } from '@/components/zoff-icon';
+import { useAppTheme } from '@/hooks/use-app-theme';
+import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
 export default function RoomsScreen() {
+  const theme = useAppTheme();
   const roomRequests = useRoomRequests(mobileApi);
   const { error, loading, providers, room, roomId, setError, setRoomId } =
     useApp();
-  const router = useRouter();
   const [value, setValue] = useState(roomId);
   const [publicRooms, setPublicRooms] = useState<PublicRoom[]>([]);
   const [createVisible, setCreateVisible] = useState(false);
+  const [isAIMode, setIsAIMode] = useState(false);
+  const [generationLoading, setGenerationLoading] = useState(false);
 
   useEffect(() => setValue(roomId), [roomId]);
   useEffect(() => {
@@ -39,7 +45,6 @@ export default function RoomsScreen() {
   const joinRoom = async (roomName: string) => {
     const result = await setRoomId(roomName);
     if (result === 'joined') {
-      router.navigate('/player');
       return;
     }
     if (result === 'notFound') {
@@ -49,6 +54,10 @@ export default function RoomsScreen() {
   };
 
   const submitRoom = () => {
+    if (isAIMode) {
+      void generateRoom();
+      return;
+    }
     if (!value.trim()) {
       setCreateVisible(true);
       return;
@@ -56,14 +65,77 @@ export default function RoomsScreen() {
     void joinRoom(value);
   };
 
+  const generateRoom = async () => {
+    const prompt = value.trim();
+    if (!prompt) {
+      setError('Describe the playlist you want.');
+      return;
+    }
+    setGenerationLoading(true);
+    const [requestError, generatedRoom] =
+      await roomRequests.createGeneratedRoom({ prompt });
+    setGenerationLoading(false);
+    if (requestError || !generatedRoom) {
+      setError(
+        await getRequestErrorMessage(
+          requestError,
+          'Could not start playlist generation.',
+        ),
+      );
+      return;
+    }
+    await setRoomId(generatedRoom.id);
+  };
+
+  const toggleAIMode = () => {
+    setIsAIMode((current) => !current);
+    setValue('');
+    setError('');
+  };
+
   const handleCreated = async (roomName: string, roomPassword: string) => {
     const result = await setRoomId(roomName, roomPassword);
     if (result !== 'joined') return false;
-    router.navigate('/player');
     return true;
   };
 
+  const renderPublicRoom = ({
+    item,
+    index,
+  }: ListRenderItemInfo<PublicRoom>) => (
+    <Animated.View entering={FadeInDown.duration(180).delay(index * 35)}>
+      <Pressable
+        className="w-64 gap-3 rounded-3xl border border-mobile-border bg-mobile-card/95 p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card/95"
+        onPress={() => {
+          setValue(item.id);
+          void joinRoom(item.id);
+        }}
+      >
+        <Text
+          numberOfLines={1}
+          className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+        >
+          {item.name}
+        </Text>
+        <View className="flex-row items-center justify-between">
+          <Copy muted>{item.listenerCount} listening</Copy>
+          <Copy muted>{item.songCount} songs</Copy>
+        </View>
+        <Text className="font-heading text-accent text-sm">Join room →</Text>
+      </Pressable>
+    </Animated.View>
+  );
+
+  if (room && roomId) {
+    return <RoomScreen />;
+  }
+
   let submitLabel = value.trim() ? 'Join room' : 'Start a session';
+  if (isAIMode) {
+    submitLabel = generationLoading
+      ? 'Generating playlist…'
+      : 'Generate playlist';
+  }
   if (loading) {
     submitLabel = 'Checking room…';
   }
@@ -76,7 +148,7 @@ export default function RoomsScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <ContentColumn>
-            <View className="gap-5">
+            <Animated.View className="gap-5" entering={FadeIn.duration(180)}>
               <View className="items-center gap-3 py-3">
                 <AnimatedLogo />
                 <View className="items-center gap-1">
@@ -91,18 +163,50 @@ export default function RoomsScreen() {
               </View>
               <Card>
                 <View className="gap-1">
-                  <Copy muted>FIND YOUR SIGNAL</Copy>
-                  <Heading>Join a room</Heading>
+                  <Copy muted>
+                    {isAIMode ? 'BUILD YOUR SIGNAL' : 'FIND YOUR SIGNAL'}
+                  </Copy>
+                  <Heading>
+                    {isAIMode ? 'Generate a room' : 'Join a room'}
+                  </Heading>
                 </View>
                 <Field
                   autoCapitalize="none"
                   value={value}
-                  onChangeText={setValue}
+                  onChangeText={(nextValue) => {
+                    setValue(nextValue);
+                    setError('');
+                  }}
                   onSubmitEditing={submitRoom}
-                  placeholder="Room name"
+                  placeholder={
+                    isAIMode
+                      ? 'Late-night synthwave for a rainy drive'
+                      : 'Room name'
+                  }
+                  trailingAction={
+                    <Pressable
+                      accessibilityLabel={
+                        isAIMode ? 'Turn off AI mode' : 'Generate with AI'
+                      }
+                      accessibilityRole="switch"
+                      accessibilityState={{ checked: isAIMode }}
+                      className={`size-11 items-center justify-center rounded-xl border active:opacity-70 ${
+                        isAIMode
+                          ? 'border-accent bg-accent'
+                          : 'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card'
+                      }`}
+                      onPress={toggleAIMode}
+                    >
+                      <ZoffIcon
+                        color={isAIMode ? '#ffffff' : theme.text}
+                        name="sparkles"
+                        size={22}
+                      />
+                    </Pressable>
+                  }
                 />
                 <Button
-                  disabled={loading}
+                  disabled={loading || generationLoading}
                   label={submitLabel}
                   onPress={submitRoom}
                 />
@@ -123,30 +227,8 @@ export default function RoomsScreen() {
                   keyExtractor={(item) => item.id}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  ItemSeparatorComponent={() => <View className="w-3" />}
-                  renderItem={({ item }) => (
-                    <Pressable
-                      className="w-64 gap-3 rounded-3xl border border-mobile-border bg-mobile-card/95 p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card/95"
-                      onPress={() => {
-                        setValue(item.id);
-                        void joinRoom(item.id);
-                      }}
-                    >
-                      <Text
-                        numberOfLines={1}
-                        className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
-                      >
-                        {item.name}
-                      </Text>
-                      <View className="flex-row items-center justify-between">
-                        <Copy muted>{item.listenerCount} listening</Copy>
-                        <Copy muted>{item.songCount} songs</Copy>
-                      </View>
-                      <Text className="font-heading text-accent text-sm">
-                        Join room →
-                      </Text>
-                    </Pressable>
-                  )}
+                  ItemSeparatorComponent={HorizontalSeparator}
+                  renderItem={renderPublicRoom}
                   ListEmptyComponent={
                     <View className="rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
                       <Copy muted>
@@ -156,7 +238,7 @@ export default function RoomsScreen() {
                   }
                 />
               </View>
-            </View>
+            </Animated.View>
           </ContentColumn>
         </ScrollView>
         <CreateRoomSheet
@@ -169,4 +251,8 @@ export default function RoomsScreen() {
       </SafeAreaView>
     </Screen>
   );
+}
+
+function HorizontalSeparator() {
+  return <View className="w-3" />;
 }

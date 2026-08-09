@@ -1,17 +1,21 @@
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { Platform, useColorScheme } from 'react-native';
+import { Platform } from 'react-native';
 import { zoffIconSources } from '@/components/zoff-icon';
-import { palette } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-app-theme';
 import { useApp } from '@/providers/app-provider';
+import { useThemePreference } from '@/providers/theme-provider';
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const theme = palette[scheme === 'light' ? 'light' : 'dark'];
-  const { room } = useApp();
+  const { resolvedScheme } = useThemePreference();
+  const theme = useAppTheme();
+  const { controllerRemote, room } = useApp();
+  const canAddSongs = Boolean(room || controllerRemote?.roomId);
   return (
     <NativeTabs
       blurEffect={
-        scheme === 'light' ? 'systemMaterialLight' : 'systemMaterialDark'
+        resolvedScheme === 'light'
+          ? 'systemMaterialLight'
+          : 'systemMaterialDark'
       }
       iconColor={{ default: theme.muted, selected: theme.pink }}
       minimizeBehavior="onScrollDown"
@@ -31,17 +35,12 @@ export default function AppTabs() {
       shadowColor="transparent"
     >
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Rooms</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>
+          {room ? 'Room' : 'Rooms'}
+        </NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           renderingMode="template"
           src={zoffIconSources.home}
-        />
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="player">
-        <NativeTabs.Trigger.Label>Player</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          renderingMode="template"
-          src={zoffIconSources.player}
         />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="remote">
@@ -59,9 +58,9 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
-        hidden={!room}
+        hidden={!canAddSongs}
         name="add"
-        role={Platform.OS === 'ios' ? 'search' : undefined}
+        {...(Platform.OS === 'ios' ? { role: 'search' as const } : {})}
       >
         <NativeTabs.Trigger.Label>Add song</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

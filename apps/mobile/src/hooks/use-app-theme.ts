@@ -1,8 +1,7 @@
-import { useColorScheme } from 'react-native';
-
 import { palette } from '@/constants/theme';
+import { useThemePreference } from '@/providers/theme-provider';
 
 export function useAppTheme() {
-  const scheme = useColorScheme();
-  return palette[scheme === 'light' ? 'light' : 'dark'];
+  const { resolvedScheme } = useThemePreference();
+  return palette[resolvedScheme];
 }
