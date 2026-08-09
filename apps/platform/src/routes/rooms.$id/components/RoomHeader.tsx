@@ -254,9 +254,7 @@ export const RoomHeader = React.memo(
                 </AnimatePresence>
               </div>
 
-              <div className="hidden sm:block">
-                <RemoteControlButton />
-              </div>
+              <RemoteControlButton />
 
               <div className="relative ml-1">
                 <Tooltip
