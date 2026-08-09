@@ -1,0 +1,62 @@
+{
+  "name": "mobile",
+  "main": "expo-router/entry",
+  "version": "0.1.0",
+  "dependencies": {
+    "@react-native-community/slider": "5.2.0",
+    "@shopify/flash-list": "2.0.2",
+    "@vibes/api": "workspace:*",
+    "@vibes/models": "workspace:*",
+    "@vibes/shared": "workspace:*",
+    "expo": "~57.0.11",
+    "expo-camera": "~57.0.3",
+    "expo-constants": "~57.0.9",
+    "expo-font": "~57.0.1",
+    "expo-image": "~57.0.2",
+    "expo-linking": "~57.0.5",
+    "expo-router": "~57.0.11",
+    "expo-secure-store": "~57.0.1",
+    "expo-splash-screen": "~57.0.5",
+    "expo-status-bar": "~57.0.1",
+    "expo-symbols": "~57.0.2",
+    "expo-system-ui": "~57.0.2",
+    "nativewind": "5.0.0-preview.4",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "react-native": "0.86.2",
+    "react-native-css": "3.0.7",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-google-cast": "4.9.1",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-web": "~0.21.0",
+    "react-native-webview": "13.16.1",
+    "react-native-worklets": "0.10.1",
+    "tailwindcss": "catalog:"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "react",
+        "react-dom"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/react": "~19.2.16",
+    "postcss": "8.5.18",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "lint": "biome check src app.json eas.json",
+    "typecheck": "tsc --noEmit",
+    "validate": "expo config --type public && tsc --noEmit"
+  },
+  "private": true
+}

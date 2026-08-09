@@ -1,0 +1,24 @@
+export const palette = {
+  dark: {
+    accent: '#00d9ff',
+    background: '#120b1e',
+    border: 'rgba(112, 72, 140, 0.4)',
+    card: '#1a102a',
+    danger: '#ff2e63',
+    muted: '#bfa8d6',
+    pink: '#ff2e97',
+    surface: '#1e1330',
+    text: '#e8dff5',
+  },
+  light: {
+    accent: '#00b4d4',
+    background: '#f6ebff',
+    border: 'rgba(112, 72, 140, 0.35)',
+    card: '#fdf7ff',
+    danger: '#d91465',
+    muted: '#5b4276',
+    pink: '#ff3fa4',
+    surface: '#f2ddff',
+    text: '#2a1840',
+  },
+} as const;

@@ -471,6 +471,10 @@ export interface ApiClientOptions {
 
 export type RoomExistsOptions = ApiHeadOptions;
 
+export type ApiResult<Data> = Promise<
+  [error: Error, data: null] | [error: null, data: Data]
+>;
+
 export type ApiClient = RequestClient<typeof endpoints> & {
   roomExists: (
     roomID: string,
@@ -531,7 +535,10 @@ export const api = createApiClient();
 // Endpoint helpers (mirrors backend handler filenames)
 export * from './casting';
 export * from './hooks/useAdminEvents';
+export * from './hooks/useProviderRequests';
 export * from './hooks/useRemoteEvents';
+export * from './hooks/useRemoteRequests';
+export * from './hooks/useRoomRequests';
 // Hooks
 export * from './hooks/useSSE';
 export * from './rateLimit';

@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "Zoff",
+    "slug": "zoff-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "zoff",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "me.zoff.mobile",
+      "icon": "./assets/images/icon.png",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Zoff uses the camera only to scan remote-pairing QR codes."
+      },
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "me.zoff.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#120b1e",
+        "foregroundImage": "./assets/images/icon.png"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE"
+      ],
+      "predictiveBackGestureEnabled": true
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-camera",
+      [
+        "react-native-google-cast",
+        {
+          "receiverAppId": "1FAF5D9F",
+          "startDiscoveryAfterFirstTapOnCastButton": false,
+          "suspendSessionsWhenBackgrounded": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#120b1e",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 160
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
