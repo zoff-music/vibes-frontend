@@ -1,6 +1,7 @@
 import { type ApiClient, useProviderRequests } from '@vibes/api';
 import type { MusicPlaylist, SearchResult, SourceType } from '@vibes/models';
 import {
+  classNames,
   parseISODuration,
   parseProviderPlaylistLink,
   parseProviderTrackLink,
@@ -305,9 +306,11 @@ export function SearchSheet({
                   accessibilityRole="tab"
                   accessibilityState={{ selected: provider === source }}
                   key={source}
-                  className={`min-h-11 flex-1 items-center justify-center rounded-xl px-3 ${
-                    provider === source ? 'bg-accent' : 'bg-transparent'
-                  }`}
+                  className={classNames(
+                    'min-h-11 flex-1 items-center justify-center rounded-xl px-3',
+                    provider === source && 'bg-accent',
+                    provider !== source && 'bg-transparent',
+                  )}
                   onPress={() => setProvider(source)}
                 >
                   <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">

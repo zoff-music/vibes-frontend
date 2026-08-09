@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { forwardRef } from 'react';
 import {
@@ -68,10 +69,17 @@ export function Copy({
   children,
   muted = false,
 }: PropsWithChildren<{ muted?: boolean }>) {
-  const className = muted
-    ? 'font-heading text-sm leading-5 text-mobile-muted dark:text-mobile-dark-muted'
-    : 'font-heading text-sm leading-5 text-mobile-text dark:text-mobile-dark-text';
-  return <Text className={className}>{children}</Text>;
+  return (
+    <Text
+      className={classNames(
+        'font-heading text-sm leading-5',
+        muted && 'text-mobile-muted dark:text-mobile-dark-muted',
+        !muted && 'text-mobile-text dark:text-mobile-dark-text',
+      )}
+    >
+      {children}
+    </Text>
+  );
 }
 
 interface ButtonProps {
@@ -101,7 +109,10 @@ export function IconButton({
     <Pressable
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
-      className={`size-12 items-center justify-center rounded-xl border border-mobile-border bg-mobile-surface active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-surface ${disabled ? 'opacity-45' : ''}`}
+      className={classNames(
+        'size-12 items-center justify-center rounded-xl border border-mobile-border bg-mobile-surface active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
+        disabled && 'opacity-45',
+      )}
       disabled={disabled}
       onPress={onPress}
     >
@@ -119,18 +130,6 @@ export function Button({
   tone = 'primary',
 }: ButtonProps) {
   const theme = useAppTheme();
-  const toneClassName =
-    tone === 'primary'
-      ? 'border-primary bg-primary'
-      : tone === 'danger'
-        ? 'border-error bg-mobile-surface dark:bg-mobile-dark-surface'
-        : 'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface';
-  const labelClassName =
-    tone === 'primary'
-      ? 'text-white'
-      : tone === 'danger'
-        ? 'text-error'
-        : 'text-mobile-text dark:text-mobile-dark-text';
   let iconColor: string = theme.text;
   if (tone === 'primary') {
     iconColor = '#ffffff';
@@ -142,12 +141,27 @@ export function Button({
     <Pressable
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="button"
-      className={`min-h-13 flex-row items-center justify-center gap-2 rounded-xl border px-4 shadow-sm active:opacity-70 ${disabled ? 'opacity-45' : ''} ${toneClassName}`}
+      className={classNames(
+        'min-h-13 flex-row items-center justify-center gap-2 rounded-xl border px-4 shadow-sm active:opacity-70',
+        tone === 'primary' && 'border-primary bg-primary',
+        tone === 'danger' &&
+          'border-error bg-mobile-surface dark:bg-mobile-dark-surface',
+        tone === 'secondary' &&
+          'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
+        disabled && 'opacity-45',
+      )}
       disabled={disabled}
       onPress={onPress}
     >
       {icon && <ZoffIcon color={iconColor} name={icon} size={18} />}
-      <Text className={`font-heading text-base ${labelClassName}`}>
+      <Text
+        className={classNames(
+          'font-heading text-base',
+          tone === 'primary' && 'text-white',
+          tone === 'danger' && 'text-error',
+          tone === 'secondary' && 'text-mobile-text dark:text-mobile-dark-text',
+        )}
+      >
         {label}
       </Text>
     </Pressable>
@@ -177,7 +191,10 @@ export const Field = forwardRef<TextInput, FieldProps>(function Field(
         {...props}
         ref={ref}
         autoCorrect={false}
-        className={`min-h-13 rounded-xl border border-mobile-border bg-mobile-surface px-4 font-heading text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text ${trailingAction ? 'pr-16' : ''}`}
+        className={classNames(
+          'min-h-13 rounded-xl border border-mobile-border bg-mobile-surface px-4 font-heading text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text',
+          Boolean(trailingAction) && 'pr-16',
+        )}
         placeholderTextColor={theme.muted}
         returnKeyType="go"
       />
@@ -190,13 +207,12 @@ export const Field = forwardRef<TextInput, FieldProps>(function Field(
   );
 });
 
-export function Empty({
-  children,
-  loading,
-}: {
+interface EmptyProps {
   children: ReactNode;
   loading?: boolean;
-}) {
+}
+
+export function Empty({ children, loading }: EmptyProps) {
   const theme = useAppTheme();
   return (
     <View className="flex-1 items-center justify-center gap-3">

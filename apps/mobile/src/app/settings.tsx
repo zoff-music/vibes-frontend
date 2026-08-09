@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import Constants from 'expo-constants';
 import { useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
@@ -130,27 +131,25 @@ export default function SettingsScreen() {
   );
 }
 
-function ThemeButton({
-  active,
-  icon,
-  label,
-  onPress,
-}: {
+interface ThemeButtonProps {
   active: boolean;
   icon: ZoffIconName;
   label: string;
   onPress: () => void;
-}) {
+}
+
+function ThemeButton({ active, icon, label, onPress }: ThemeButtonProps) {
   const theme = useAppTheme();
   return (
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ checked: active }}
-      className={`min-h-12 flex-row items-center justify-center gap-2 rounded-xl border px-2 ${
-        active
-          ? 'border-accent bg-accent/15'
-          : 'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface'
-      }`}
+      className={classNames(
+        'min-h-12 flex-row items-center justify-center gap-2 rounded-xl border px-2',
+        active && 'border-accent bg-accent/15',
+        !active &&
+          'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
+      )}
       onPress={onPress}
     >
       <ZoffIcon
@@ -181,7 +180,11 @@ function SettingsRow({
   return (
     <Pressable
       accessibilityRole={disabled ? 'text' : 'button'}
-      className={`min-h-14 flex-row items-center justify-between gap-4 will-change-pressable ${disabled ? 'opacity-70' : 'active:opacity-60'}`}
+      className={classNames(
+        'min-h-14 flex-row items-center justify-between gap-4 will-change-pressable',
+        disabled && 'opacity-70',
+        !disabled && 'active:opacity-60',
+      )}
       disabled={disabled}
       onPress={onPress}
     >

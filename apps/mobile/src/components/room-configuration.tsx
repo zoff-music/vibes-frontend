@@ -1,4 +1,5 @@
 import type { Providers, RoomSettings, SourceType } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import { Pressable, Switch, Text, View } from 'react-native';
 
 import { Card, Copy } from '@/components/native';
@@ -200,34 +201,32 @@ function ModeButton({
   label,
   onPress,
 }: ModeButtonProps) {
-  let className =
-    'min-h-24 flex-1 gap-2 rounded-2xl border border-mobile-border bg-mobile-card p-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card';
-  if (active) {
-    className = `${className} border-accent bg-accent dark:border-accent dark:bg-accent`;
-  }
   return (
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ checked: active, disabled }}
-      className={className}
+      className={classNames(
+        'min-h-24 flex-1 gap-2 rounded-2xl border border-mobile-border bg-mobile-card p-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+        active && 'border-accent bg-accent dark:border-accent dark:bg-accent',
+      )}
       disabled={disabled}
       onPress={onPress}
     >
       <Text
-        className={`font-heading text-base ${
-          active
-            ? 'text-mobile-dark-background'
-            : 'text-mobile-text dark:text-mobile-dark-text'
-        }`}
+        className={classNames(
+          'font-heading text-base',
+          active && 'text-mobile-dark-background',
+          !active && 'text-mobile-text dark:text-mobile-dark-text',
+        )}
       >
         {label}
       </Text>
       <Text
-        className={`font-heading text-sm leading-5 ${
-          active
-            ? 'text-mobile-dark-background/75'
-            : 'text-mobile-muted dark:text-mobile-dark-muted'
-        }`}
+        className={classNames(
+          'font-heading text-sm leading-5',
+          active && 'text-mobile-dark-background/75',
+          !active && 'text-mobile-muted dark:text-mobile-dark-muted',
+        )}
       >
         {description}
       </Text>

@@ -1,5 +1,6 @@
 import { useRoomRequests } from '@vibes/api';
 import type { PublicRoom } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import { useEffect, useState } from 'react';
 import type { ListRenderItemInfo } from 'react-native';
 import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
@@ -190,11 +191,12 @@ export default function RoomsScreen() {
                       }
                       accessibilityRole="switch"
                       accessibilityState={{ checked: isAIMode }}
-                      className={`size-11 items-center justify-center rounded-xl border active:opacity-70 ${
-                        isAIMode
-                          ? 'border-accent bg-accent'
-                          : 'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card'
-                      }`}
+                      className={classNames(
+                        'size-11 items-center justify-center rounded-xl border active:opacity-70',
+                        isAIMode && 'border-accent bg-accent',
+                        !isAIMode &&
+                          'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                      )}
                       onPress={toggleAIMode}
                     >
                       <ZoffIcon
