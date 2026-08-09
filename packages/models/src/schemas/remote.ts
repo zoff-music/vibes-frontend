@@ -9,6 +9,7 @@ export const remoteStatusSchema = yup.object({
   playbackIsPlaying: yup.boolean().default(false),
   playbackObservedAt: yup.string().default(''),
   online: yup.boolean().required(),
+  paired: yup.boolean().default(false),
 });
 export type RemoteStatus = yup.InferType<typeof remoteStatusSchema>;
 

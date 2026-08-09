@@ -52,6 +52,7 @@ export function RemoteControlProvider({ children }: Props) {
     enabled: false,
     id: '',
     online: false,
+    paired: false,
     playbackIsPlaying: false,
     playbackObservedAt: '',
     playbackPositionMs: 0,
@@ -65,8 +66,22 @@ export function RemoteControlProvider({ children }: Props) {
   useEffect(() => {
     if (statusFetcher.data?.remote) {
       setRemote(statusFetcher.data.remote);
+      if (statusFetcher.data.remote.paired && pairing) {
+        setPairing(null);
+        showToast('Remote paired successfully', 'success');
+      }
     }
-  }, [statusFetcher.data]);
+  }, [pairing, statusFetcher.data]);
+
+  useEffect(() => {
+    if (!isOpen || !pairing) return;
+
+    const interval = window.setInterval(() => {
+      statusFetcher.load('/remote-control');
+    }, remotePairingStatusIntervalMs);
+
+    return () => window.clearInterval(interval);
+  }, [isOpen, pairing, statusFetcher.load]);
 
   useEffect(() => {
     if (controlFetcher.state !== 'idle' || !controlFetcher.data) return;
@@ -86,6 +101,7 @@ export function RemoteControlProvider({ children }: Props) {
         enabled: true,
         id: nextPairing.id,
         online: true,
+        paired: false,
         playbackIsPlaying: nextPairing.playbackIsPlaying,
         playbackObservedAt: nextPairing.playbackObservedAt,
         playbackPositionMs: nextPairing.playbackPositionMs,
@@ -100,6 +116,7 @@ export function RemoteControlProvider({ children }: Props) {
         enabled: false,
         id: '',
         online: false,
+        paired: false,
         playbackIsPlaying: false,
         playbackObservedAt: '',
         playbackPositionMs: 0,
@@ -222,6 +239,12 @@ export function RemoteControlProvider({ children }: Props) {
                 level="H"
                 marginSize={3}
                 title="Pair Zoff remote"
+                imageSettings={{
+                  src: platformLogoUrl,
+                  height: 40,
+                  width: 40,
+                  excavate: true,
+                }}
               />
             </div>
             <div className="rounded-2xl border border-theme bg-theme-surface p-4">
@@ -244,12 +267,27 @@ export function RemoteControlProvider({ children }: Props) {
         {!pairing && remote.enabled && (
           <div className="rounded-2xl border border-theme bg-theme-surface p-5 text-center">
             <RemoteIcon className="mx-auto h-10 w-10 text-secondary" />
-            <p className="mt-3 text-sm text-theme">
-              Remote control is enabled.
-            </p>
-            <p className="mt-2 text-theme-muted text-xs">
-              Create a new pairing to replace the currently paired phone.
-            </p>
+            {remote.paired && (
+              <>
+                <p className="mt-3 font-display text-sm text-theme">
+                  Remote paired
+                </p>
+                <p className="mt-2 text-theme-muted text-xs">
+                  The one-time pairing has been used. This phone can now control
+                  the browser until remote control is disabled or replaced.
+                </p>
+              </>
+            )}
+            {!remote.paired && (
+              <>
+                <p className="mt-3 font-display text-sm text-theme">
+                  Remote control enabled
+                </p>
+                <p className="mt-2 text-theme-muted text-xs">
+                  Create a new one-time pairing to connect a phone.
+                </p>
+              </>
+            )}
           </div>
         )}
 
@@ -372,3 +410,7 @@ export function RemoteControlButton({
 }
 
 const remoteHeartbeatIntervalMs = 2_000;
+
+const remotePairingStatusIntervalMs = 1_500;
+
+const platformLogoUrl = `${import.meta.env.BASE_URL}logo.png`;

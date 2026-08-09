@@ -15,6 +15,7 @@ export async function clientLoader(): Promise<RemoteControlLoaderData> {
         enabled: false,
         id: '',
         online: false,
+        paired: false,
         playbackIsPlaying: false,
         playbackObservedAt: '',
         playbackPositionMs: 0,

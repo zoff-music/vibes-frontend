@@ -171,6 +171,7 @@ export default function RemoteController() {
         enabled: true,
         id: current?.id ?? remoteId,
         online: true,
+        paired: true,
         playbackIsPlaying: event.playbackIsPlaying,
         playbackObservedAt: event.playbackObservedAt,
         playbackPositionMs: event.playbackPositionMs,
@@ -399,15 +400,13 @@ export default function RemoteController() {
             <h2 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
               Up next ({queuedSongs.length})
             </h2>
-            <div className="max-h-[60vh] overflow-y-auto">
-              <QueueList
-                songs={queuedSongs}
-                roomId={room.id}
-                onVote={handleVote}
-                onRemove={room.isAdmin ? handleRemove : undefined}
-                isAdmin={room.isAdmin}
-              />
-            </div>
+            <QueueList
+              songs={queuedSongs}
+              roomId={room.id}
+              onVote={handleVote}
+              onRemove={room.isAdmin ? handleRemove : undefined}
+              isAdmin={room.isAdmin}
+            />
           </section>
         </div>
       )}
