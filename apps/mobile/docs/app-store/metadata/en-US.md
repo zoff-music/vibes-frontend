@@ -4,10 +4,10 @@ Copy these values into the English (U.S.) localization in App Store Connect.
 
 ## App information
 
-**Name** — 4 of 30 characters
+**Name** — 25 of 30 characters
 
 ```text
-Zoff
+Zoff - Shared Music Queue
 ```
 
 **Subtitle** — 18 of 30 characters
