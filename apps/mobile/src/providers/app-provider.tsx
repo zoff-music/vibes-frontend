@@ -280,6 +280,10 @@ export function AppProvider({ children }: PropsWithChildren) {
   const setRoomId = useCallback(
     async (nextRoomId: string, password = '') => {
       const normalized = nextRoomId.trim().toLowerCase().replace(/\s+/g, '-');
+      if (!normalized) {
+        setError('Enter a room name.');
+        return 'error';
+      }
       if (
         pendingGeneratedRoomRef.current &&
         pendingGeneratedRoomRef.current !== normalized
@@ -322,7 +326,12 @@ export function AppProvider({ children }: PropsWithChildren) {
         const status = requestError
           ? getHttpError(requestError)?.response.status
           : null;
-        setError(await getRequestErrorMessage(requestError, 'Room not found'));
+        setError(
+          await getRequestErrorMessage(
+            requestError,
+            'Could not open that room. Check the room name and try again.',
+          ),
+        );
         return status === notFoundStatus ? 'notFound' : 'error';
       }
       setRoomIdValue(normalized);
@@ -619,7 +628,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         setError(
           await getRequestErrorMessage(
             requestError,
-            'Remote control heartbeat failed.',
+            'The remote control connection was interrupted. Reconnect the remote and try again.',
           ),
         );
       }

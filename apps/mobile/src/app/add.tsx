@@ -58,12 +58,43 @@ export default function AddSongScreen() {
     );
   }
 
-  const canGenerate =
-    Boolean(targetRoom?.isAdmin) &&
-    !targetRoom?.isGenerating &&
-    targetSongCount < (targetRoom?.roomGenerationMaxExistingSongs ?? 0) &&
-    (targetRoom?.generationCount ?? 0) <
-      (targetRoom?.roomGenerationMaxDailyCount ?? 0);
+  const hasGenerationPermission =
+    Boolean(targetRoom) &&
+    (!targetRoom?.hasPassword || Boolean(targetRoom.isAdmin));
+  const songCountCutoff = (targetRoom?.roomGenerationMaxExistingSongs ?? 0) + 1;
+  const isAboveSongLimit = targetSongCount >= songCountCutoff;
+  const isAboveDailyLimit =
+    (targetRoom?.generationCount ?? 0) >=
+    (targetRoom?.roomGenerationMaxDailyCount ?? 0);
+  let generationUnavailableReason = '';
+  if (!targetRoom) {
+    generationUnavailableReason =
+      'Room details are still loading. Try again in a moment.';
+  }
+  if (targetRoom && !hasGenerationPermission) {
+    generationUnavailableReason = 'Log in as room admin to fill this playlist.';
+  }
+  if (targetRoom && hasGenerationPermission && isAboveSongLimit) {
+    generationUnavailableReason = `AI fill is unavailable when the room has ${songCountCutoff} songs or more.`;
+  }
+  if (
+    targetRoom &&
+    hasGenerationPermission &&
+    !isAboveSongLimit &&
+    targetRoom.isGenerating
+  ) {
+    generationUnavailableReason = 'A playlist is already being generated.';
+  }
+  if (
+    targetRoom &&
+    hasGenerationPermission &&
+    !isAboveSongLimit &&
+    !targetRoom.isGenerating &&
+    isAboveDailyLimit
+  ) {
+    generationUnavailableReason = `This room has used its ${targetRoom.roomGenerationMaxDailyCount} playlist generations for the day.`;
+  }
+  const canGenerate = Boolean(targetRoom) && !generationUnavailableReason;
   const close = () => {
     setVisible(false);
     router.replace(controllerRemote ? '/remote' : '/');
@@ -78,6 +109,7 @@ export default function AddSongScreen() {
     <SearchSheet
       canGenerate={canGenerate}
       client={client}
+      generationUnavailableReason={generationUnavailableReason}
       providersOverride={targetRoom?.settings.enabledSources ?? []}
       roomIdOverride={roomId}
       visible={visible}

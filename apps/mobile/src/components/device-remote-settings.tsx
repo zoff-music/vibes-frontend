@@ -3,6 +3,7 @@ import QRCode from 'react-native-qrcode-svg';
 
 import zoffLogo from '@/assets/images/icon.png';
 import { Button, Card, Copy } from '@/components/native';
+import { Toast } from '@/components/toast';
 import { useApp } from '@/providers/app-provider';
 
 export function DeviceRemoteSettings() {
@@ -74,9 +75,7 @@ export function DeviceRemoteSettings() {
             onPress={() => void disableMachineRemote()}
           />
         )}
-        {Boolean(error) && (
-          <Text className="font-heading text-error text-xs">{error}</Text>
-        )}
+        <Toast message={error} />
       </Card>
     </View>
   );

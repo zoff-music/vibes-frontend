@@ -1,7 +1,7 @@
 import { type ApiClient, useRemoteRequests, useRoomRequests } from '@vibes/api';
 import type { Providers, Room, RoomSettings } from '@vibes/models';
 import { useEffect, useRef, useState } from 'react';
-import { FlatList, Modal, Text, View } from 'react-native';
+import { FlatList, Modal, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -14,6 +14,7 @@ import {
   Screen,
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
+import { Toast, ToastViewport } from '@/components/toast';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface RoomSettingsSheetProps {
@@ -59,6 +60,14 @@ export function RoomSettingsSheet({
   }, [room, visible]);
 
   const authenticate = async () => {
+    if (!password.trim()) {
+      setError(
+        activeRoom.hasPassword
+          ? 'Enter the room admin password.'
+          : 'Enter a new admin password.',
+      );
+      return;
+    }
     setLoading(true);
     const [requestError, session] = await roomRequests.joinRoom(
       activeRoom.id,
@@ -67,7 +76,10 @@ export function RoomSettingsSheet({
     if (requestError || !session) {
       setLoading(false);
       setError(
-        await getRequestErrorMessage(requestError, 'Authentication failed.'),
+        await getRequestErrorMessage(
+          requestError,
+          'The admin password was not accepted. Check it and try again.',
+        ),
       );
       return;
     }
@@ -178,9 +190,7 @@ export function RoomSettingsSheet({
         onSettingsChange={changeSettings}
       />
       {loading && <Copy muted>Saving change…</Copy>}
-      {Boolean(error) && (
-        <Text className="font-heading text-error text-xs">{error}</Text>
-      )}
+      <Toast message={error} />
     </View>
   );
 
@@ -210,6 +220,7 @@ export function RoomSettingsSheet({
             renderItem={renderSettings}
           />
         </SafeAreaView>
+        <ToastViewport />
       </Screen>
     </Modal>
   );

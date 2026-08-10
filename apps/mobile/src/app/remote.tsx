@@ -19,6 +19,7 @@ import {
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
+import { Toast, ToastViewport } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
@@ -136,18 +137,33 @@ export default function RemoteScreen() {
   }, [refresh]);
 
   const pair = async () => {
+    const normalizedRemoteId = remoteId.trim();
+    const normalizedPairingCode = pairingCode.trim();
+    if (!normalizedRemoteId) {
+      setError('Enter the remote ID.');
+      return;
+    }
+    if (!normalizedPairingCode) {
+      setError('Enter the pairing code.');
+      return;
+    }
     const [requestError, status] = await mobileRemoteRequests.pairRemote(
-      remoteId.trim(),
-      { pairingCode: pairingCode.trim() },
+      normalizedRemoteId,
+      { pairingCode: normalizedPairingCode },
     );
     if (requestError || !status) {
-      setError(await getRequestErrorMessage(requestError, 'Pairing failed.'));
+      setError(
+        await getRequestErrorMessage(
+          requestError,
+          'Could not pair this remote. Check the remote ID and pairing code, then try again.',
+        ),
+      );
       return;
     }
     setRemote(status);
     setControllerToken(status.controllerToken);
     await activateControllerRemote(
-      remoteId.trim(),
+      normalizedRemoteId,
       status.controllerToken,
       status.currentRoomId,
     );
@@ -272,10 +288,16 @@ export default function RemoteScreen() {
 
   const handleScan = ({ data }: BarcodeScanningResult) => {
     const [urlError, url] = safeWrap(() => new URL(data));
-    if (urlError || !url) return;
+    if (urlError || !url) {
+      setError('That QR code is not a valid Zoff remote pairing code.');
+      return;
+    }
     const scannedRemoteId = url.searchParams.get('remoteId') ?? '';
     const pairingToken = url.searchParams.get('pair') ?? '';
-    if (!scannedRemoteId || !pairingToken) return;
+    if (!scannedRemoteId || !pairingToken) {
+      setError('That QR code is missing its remote pairing details.');
+      return;
+    }
     setRemoteId(scannedRemoteId);
     setScannerVisible(false);
     const submitPairing = async () => {
@@ -286,7 +308,12 @@ export default function RemoteScreen() {
         },
       );
       if (requestError || !status) {
-        setError(await getRequestErrorMessage(requestError, 'Pairing failed.'));
+        setError(
+          await getRequestErrorMessage(
+            requestError,
+            'Could not pair this remote. Generate a new QR code and try again.',
+          ),
+        );
         return;
       }
       setRemote(status);
@@ -301,8 +328,13 @@ export default function RemoteScreen() {
   };
 
   const changeRoom = async () => {
+    const normalizedRoomId = nextRoomId.trim().toLowerCase();
+    if (!normalizedRoomId) {
+      setError('Enter the room name to control.');
+      return;
+    }
     const [requestError] = await remoteRequests.updateRemote(remoteId, {
-      roomId: nextRoomId.trim().toLowerCase(),
+      roomId: normalizedRoomId,
     });
     if (requestError) {
       setError(
@@ -378,11 +410,7 @@ export default function RemoteScreen() {
                     testID="remote-pairing-code"
                   />
                   <Button label="Pair remote" onPress={() => void pair()} />
-                  {Boolean(error) && (
-                    <Text className="font-heading text-error text-xs">
-                      {error}
-                    </Text>
-                  )}
+                  <Toast message={error} />
                 </Card>
               </View>
             </ContentColumn>
@@ -414,6 +442,7 @@ export default function RemoteScreen() {
                   />
                 </View>
               </SafeAreaView>
+              <ToastViewport />
             </View>
           </Modal>
         </SafeAreaView>

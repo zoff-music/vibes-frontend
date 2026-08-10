@@ -17,6 +17,7 @@ import {
   Screen,
 } from '@/components/native';
 import { RoomScreen } from '@/components/room-screen';
+import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
@@ -52,6 +53,10 @@ export default function RoomsScreen() {
   }, [roomRequests]);
 
   const joinRoom = async (roomName: string) => {
+    if (!roomName.trim()) {
+      setError('Enter a room name.');
+      return;
+    }
     if (controllerRemote) {
       setError(
         'Disconnect the active remote before joining a room on this device.',
@@ -249,11 +254,7 @@ export default function RoomsScreen() {
                   label={submitLabel}
                   onPress={submitRoom}
                 />
-                {Boolean(error) && (
-                  <Text className="font-heading text-error text-xs">
-                    {error}
-                  </Text>
-                )}
+                <Toast message={error} />
                 {room && <Copy muted>Currently in {room.name}</Copy>}
               </Card>
               <View className="gap-3">

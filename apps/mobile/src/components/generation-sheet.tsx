@@ -2,7 +2,7 @@ import { type ApiClient, useRoomRequests } from '@vibes/api';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { useEffect, useRef, useState } from 'react';
 import type { TextInput } from 'react-native';
-import { Modal, Text, View } from 'react-native';
+import { Modal, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -14,6 +14,7 @@ import {
   IconButton,
   Screen,
 } from '@/components/native';
+import { Toast, ToastViewport } from '@/components/toast';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface GenerationSheetProps {
@@ -106,9 +107,7 @@ export function GenerationSheet({
             <Copy muted>
               {prompt.length}/{generatedPlaylistPromptMaxLength}
             </Copy>
-            {Boolean(error) && (
-              <Text className="font-heading text-error text-xs">{error}</Text>
-            )}
+            <Toast message={error} />
             <Button
               disabled={loading || !prompt.trim()}
               icon="sparkles"
@@ -117,6 +116,7 @@ export function GenerationSheet({
             />
           </Card>
         </SafeAreaView>
+        <ToastViewport />
       </Screen>
     </Modal>
   );

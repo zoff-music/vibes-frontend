@@ -7,9 +7,9 @@ import type {
   WebView as WebViewType,
 } from 'react-native-webview';
 import { WebView } from 'react-native-webview';
-
 import { Copy } from '@/components/native';
 import { RoomGenerationProgress } from '@/components/room-generation-progress';
+import { Toast } from '@/components/toast';
 import { YouTubePlayer } from '@/components/youtube-player';
 
 interface ProviderPlayerProps {
@@ -133,11 +133,7 @@ export function ProviderPlayer({
             width={playerWidth}
           />
         </View>
-        {Boolean(error) && (
-          <View className="px-4">
-            <Copy muted>{error}</Copy>
-          </View>
-        )}
+        <Toast message={error} />
       </View>
     );
   }

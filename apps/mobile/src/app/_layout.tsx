@@ -17,6 +17,7 @@ import {
   ActiveRoomKeepAwake,
   PersistentRoomPlayer,
 } from '@/components/persistent-room-player';
+import { ToastProvider } from '@/components/toast';
 import { palette } from '@/constants/theme';
 import { AppProvider, useApp } from '@/providers/app-provider';
 import {
@@ -66,10 +67,14 @@ function RootContent() {
         <ThemeProvider
           value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
         >
-          <AppProvider>
-            <StatusBar style={resolvedScheme === 'light' ? 'dark' : 'light'} />
-            <RoomRuntime />
-          </AppProvider>
+          <ToastProvider>
+            <AppProvider>
+              <StatusBar
+                style={resolvedScheme === 'light' ? 'dark' : 'light'}
+              />
+              <RoomRuntime />
+            </AppProvider>
+          </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

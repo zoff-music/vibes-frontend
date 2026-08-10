@@ -6,7 +6,7 @@ import type {
 } from '@vibes/models';
 import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
 import { useEffect, useState } from 'react';
-import { FlatList, Modal, Text, View } from 'react-native';
+import { FlatList, Modal, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -19,6 +19,7 @@ import {
   Screen,
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
+import { Toast, ToastViewport } from '@/components/toast';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface CreateRoomSheetProps {
@@ -107,6 +108,10 @@ export function CreateRoomSheet({
     }
     if (providers.length === 0) {
       setError('Music providers are still loading. Try again in a moment.');
+      return;
+    }
+    if (settings.enabledSources.length === 0) {
+      setError('Enable at least one music provider.');
       return;
     }
 
@@ -202,9 +207,7 @@ export function CreateRoomSheet({
         onModeChange={setMode}
         onSettingsChange={setSettings}
       />
-      {Boolean(error) && (
-        <Text className="font-heading text-error text-xs">{error}</Text>
-      )}
+      <Toast message={error} />
       <Button
         disabled={
           loading ||
@@ -244,6 +247,7 @@ export function CreateRoomSheet({
             renderItem={renderSettings}
           />
         </SafeAreaView>
+        <ToastViewport />
       </Screen>
     </Modal>
   );

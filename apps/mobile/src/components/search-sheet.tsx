@@ -17,7 +17,7 @@ import {
   parseProviderTrackLink,
 } from '@vibes/shared';
 import { Image } from 'expo-image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,6 +30,7 @@ import {
   IconButton,
   Screen,
 } from '@/components/native';
+import { Toast, useToast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
@@ -38,6 +39,7 @@ import { useApp } from '@/providers/app-provider';
 interface SearchSheetProps {
   canGenerate: boolean;
   client?: ApiClient;
+  generationUnavailableReason: string;
   onAdded?: () => Promise<void>;
   onClose: () => void;
   onGenerated: () => Promise<void>;
@@ -49,6 +51,7 @@ interface SearchSheetProps {
 export function SearchSheet({
   canGenerate,
   client = mobileApi,
+  generationUnavailableReason,
   onAdded,
   onClose,
   onGenerated,
@@ -57,6 +60,7 @@ export function SearchSheet({
   visible,
 }: SearchSheetProps) {
   const theme = useAppTheme();
+  const { showToast } = useToast();
   const { providers, refresh, roomId } = useApp();
   const providerRequests = useProviderRequests(client);
   const roomRequests = useRoomRequests(client);
@@ -73,8 +77,18 @@ export function SearchSheet({
     (source) => providers.includes(source) && roomProviders.includes(source),
   );
 
+  useEffect(() => {
+    if (enabledProviders.length === 0 || enabledProviders.includes(provider)) {
+      return;
+    }
+    setProvider(enabledProviders[0]);
+  }, [enabledProviders, provider]);
+
   const toggleAIMode = () => {
-    if (!canGenerate) return;
+    if (!canGenerate) {
+      showToast(generationUnavailableReason);
+      return;
+    }
     setIsAIMode((current) => !current);
     setQuery('');
     setResults([]);
@@ -83,6 +97,14 @@ export function SearchSheet({
   };
 
   const generate = async () => {
+    if (!targetRoomId) {
+      setError('Join a room before generating a playlist.');
+      return;
+    }
+    if (!canGenerate) {
+      setError(generationUnavailableReason);
+      return;
+    }
     const prompt = query.trim();
     if (!prompt) {
       setError('Describe the playlist you want.');
@@ -115,6 +137,10 @@ export function SearchSheet({
       return;
     }
     const trimmedQuery = query.trim();
+    if (enabledProviders.length === 0) {
+      setError('This room has no enabled music providers.');
+      return;
+    }
     const playlistLink = parseProviderPlaylistLink(trimmedQuery);
     const trackLink = parseProviderTrackLink(trimmedQuery);
     if (!playlistLink && !trackLink && trimmedQuery.length < 3) {
@@ -219,7 +245,12 @@ export function SearchSheet({
         await providerRequests.searchYouTube(trimmedQuery);
       setLoading(false);
       if (requestError || !videos) {
-        setError(await getRequestErrorMessage(requestError, 'Search failed.'));
+        setError(
+          await getRequestErrorMessage(
+            requestError,
+            'Could not search YouTube. Check your connection and try again.',
+          ),
+        );
         return;
       }
       setResults(videos.map((video) => ({ ...video, source: 'youtube' })));
@@ -231,13 +262,22 @@ export function SearchSheet({
         : await providerRequests.searchSoundCloud(trimmedQuery);
     setLoading(false);
     if (requestError || !nextResults) {
-      setError(await getRequestErrorMessage(requestError, 'Search failed.'));
+      setError(
+        await getRequestErrorMessage(
+          requestError,
+          `Could not search ${providerLabels[provider]}. Check your connection and try again.`,
+        ),
+      );
       return;
     }
     setResults(nextResults);
   };
 
   const add = async (result: SearchResult) => {
+    if (!targetRoomId) {
+      setError('Join a room before adding music.');
+      return;
+    }
     const [requestError] = await providerRequests.addSong(targetRoomId, {
       sourceType: result.source,
       sourceId: result.id,
@@ -262,6 +302,10 @@ export function SearchSheet({
   };
 
   const addPlaylist = async () => {
+    if (!targetRoomId) {
+      setError('Join a room before adding a playlist.');
+      return;
+    }
     if (!playlist || playlist.tracks.length === 0) return;
     setLoading(true);
     const [requestError] = await providerRequests.addPlaylist(targetRoomId, {
@@ -407,7 +451,6 @@ export function SearchSheet({
                 accessibilityRole="switch"
                 accessibilityState={{
                   checked: isAIMode,
-                  disabled: !canGenerate,
                 }}
                 className={classNames(
                   'size-13 items-center justify-center rounded-xl border active:opacity-70',
@@ -416,7 +459,6 @@ export function SearchSheet({
                     'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
                   !canGenerate && 'opacity-45',
                 )}
-                disabled={!canGenerate}
                 onPress={toggleAIMode}
               >
                 <ZoffIcon
@@ -436,14 +478,14 @@ export function SearchSheet({
           )}
           {!canGenerate && (
             <View className="mb-4">
-              <Copy muted>
-                AI fill requires room admin access and an eligible playlist.
-              </Copy>
+              <Copy muted>{generationUnavailableReason}</Copy>
             </View>
           )}
           <View className="mb-4">
             <Button
-              disabled={loading || (isAIMode && !query.trim())}
+              disabled={
+                loading || (isAIMode && (!canGenerate || !query.trim()))
+              }
               icon={isAIMode ? 'sparkles' : 'search'}
               label={
                 loading
@@ -466,11 +508,7 @@ export function SearchSheet({
               />
             </View>
           )}
-          {Boolean(error) && (
-            <Text className="mb-4 font-heading text-error text-xs">
-              {error}
-            </Text>
-          )}
+          <Toast message={error} />
           {!isAIMode && (
             <View>
               {results.map((result, index) => (

@@ -1,4 +1,8 @@
-import { createApiClientWithBaseUrl, getAPIErrorMessage } from '@vibes/api';
+import {
+  createApiClientWithBaseUrl,
+  getAPIErrorMessage,
+  getRateLimitMessage,
+} from '@vibes/api';
 import { fetch as expoFetch } from 'expo/fetch';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? 'https://zoff.me';
@@ -21,6 +25,8 @@ export async function getRequestErrorMessage(
   error: Error | null,
   fallback: string,
 ) {
-  const apiMessage = error ? await getAPIErrorMessage(error) : null;
-  return apiMessage ?? error?.message ?? fallback;
+  if (!error) return fallback;
+  return (
+    getRateLimitMessage(error) ?? (await getAPIErrorMessage(error)) ?? fallback
+  );
 }

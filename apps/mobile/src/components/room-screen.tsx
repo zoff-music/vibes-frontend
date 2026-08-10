@@ -18,6 +18,7 @@ import {
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { RoomGenerationProgress } from '@/components/room-generation-progress';
+import { Toast } from '@/components/toast';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
@@ -271,21 +272,10 @@ export function RoomScreen() {
                       (room.hostId === room.userId || room.isAdmin)
                     }
                   />
-                  {Boolean(error) && (
-                    <Text className="font-heading text-error text-xs">
-                      {error}
-                    </Text>
-                  )}
-                  {Boolean(room.generationError) && !error && (
-                    <Text className="font-heading text-error text-xs">
-                      {room.generationError}
-                    </Text>
-                  )}
-                  {Boolean(notice) && !error && (
-                    <Text className="font-heading text-accent text-xs">
-                      {notice}
-                    </Text>
-                  )}
+                  <Toast
+                    message={error || room.generationError || notice}
+                    tone={!error && !room.generationError ? 'info' : 'error'}
+                  />
                 </Card>
               )}
             </View>
