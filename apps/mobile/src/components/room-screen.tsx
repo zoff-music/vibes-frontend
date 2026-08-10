@@ -260,18 +260,17 @@ export function RoomScreen() {
                       />
                     </View>
                   </View>
-                  {playerEnabled && (
-                    <PlaybackProgress
-                      duration={current?.duration ?? 0}
-                      onSeek={(position) => void seek(position)}
-                      position={livePosition}
-                      seekable={
-                        Boolean(current) &&
-                        room.mode === 'host' &&
-                        (room.hostId === room.userId || room.isAdmin)
-                      }
-                    />
-                  )}
+                  <PlaybackProgress
+                    duration={current?.duration ?? 0}
+                    onSeek={(position) => void seek(position)}
+                    position={livePosition}
+                    seekable={
+                      playerEnabled &&
+                      Boolean(current) &&
+                      room.mode === 'host' &&
+                      (room.hostId === room.userId || room.isAdmin)
+                    }
+                  />
                   {Boolean(error) && (
                     <Text className="font-heading text-error text-xs">
                       {error}
