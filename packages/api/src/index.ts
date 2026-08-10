@@ -78,6 +78,7 @@ import {
 } from 'wiretyped';
 
 import {
+  type ApiFetch,
   type ApiFetchLifecycle,
   type ApiHeadOptions,
   createApiFetchProvider,
@@ -467,6 +468,7 @@ const endpoints = {
 
 export interface ApiClientOptions {
   customHeaders?: Record<string, string>;
+  fetcher?: ApiFetch;
   fetchLifecycle?: ApiFetchLifecycle;
 }
 
@@ -494,10 +496,10 @@ export function createApiClientWithBaseUrl(
   baseUrl: string,
   options: ApiClientOptions = {},
 ): ApiClient {
-  const { customHeaders = {}, fetchLifecycle } = options;
+  const { customHeaders = {}, fetcher, fetchLifecycle } = options;
   const resolvedBaseUrl = resolveApiBaseUrl(baseUrl);
   const requestClient = new RequestClient({
-    fetchProvider: createApiFetchProvider(fetchLifecycle),
+    fetchProvider: createApiFetchProvider(fetchLifecycle, fetcher),
     hostname: resolvedBaseUrl,
     baseUrl: resolvedBaseUrl,
     endpoints,
@@ -522,6 +524,7 @@ export function createApiClientWithBaseUrl(
           },
         },
         fetchLifecycle,
+        fetcher,
       );
     },
   });

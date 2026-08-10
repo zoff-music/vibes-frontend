@@ -205,9 +205,9 @@ export const RoomPlayer = React.memo(
     /* 3. Handlers */
     const performPlaybackAction = useCallback(
       (action: 'pause' | 'play') => {
-        if (displayRoom?.mode) {
-          setLocalPlayingState(action === 'play', displayRoom.mode);
-        }
+        if (!displayRoom?.mode) return;
+        setLocalPlayingState(action === 'play', displayRoom.mode);
+        if (displayRoom.mode === 'server') return;
         playbackFetcher.submit(
           { action, intent: 'playback' },
           { encType: 'application/json', method: 'post' },

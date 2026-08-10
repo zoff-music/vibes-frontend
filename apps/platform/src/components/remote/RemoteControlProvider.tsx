@@ -152,12 +152,13 @@ export function RemoteControlProvider({ children }: Props) {
       if (
         event.origin !== 'controller' ||
         event.roomId !== machineRoomId ||
-        roomMode !== 'server' ||
-        (event.currentSongId && event.currentSongId !== currentSongId)
+        roomMode !== 'server'
       ) {
         return;
       }
-      setLocalPlaybackPosition(event.playbackPositionMs);
+      if (!event.currentSongId || event.currentSongId === currentSongId) {
+        setLocalPlaybackPosition(event.playbackPositionMs);
+      }
       setLocalPlayingState(event.playbackIsPlaying, 'server');
     },
     [

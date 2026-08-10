@@ -31,6 +31,7 @@ export interface USE_SSE_CALLBACKS {
   onGenerationUpdate?: (update: RoomGenerationUpdate) => void;
   onSongAdded?: (song: Song) => void;
   onToast?: (message: string, type: 'success' | 'error' | 'info') => void;
+  onUsersUpdate?: (count: number) => void;
 }
 
 export const useSSE = (
@@ -163,6 +164,10 @@ export const useSSE = (
                 case 'users_update': {
                   const [error] = safeWrap(() => {
                     setUsersCount(message.data);
+                    const roomCallbacks = ROOM_CALLBACKS.get(roomId);
+                    for (const roomCallback of roomCallbacks ?? []) {
+                      roomCallback.onUsersUpdate?.(message.data);
+                    }
                   });
                   if (error)
                     console.error('Failed to parse users_update', error);

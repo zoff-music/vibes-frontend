@@ -34,7 +34,11 @@ export const moonIcon = {
 export const shareIcon = {
   viewBox: squareViewBox,
   paths: [
-    'M16 2h5v5h-2v2h-5V7h-4v2H8v2H7v2h1v2h2v2h4v-2h5v2h2v5h-5v-2h-2v-1h-4v-2H8v-2H3v-2H1V9h2V7h5V5h2V3h4v1h2z',
+    'M16 2h6v6h-6z',
+    'M2 9h6v6H2z',
+    'M16 16h6v6h-6z',
+    'M8 10h3V8h2V6h3v3h-2v2h-3v2H8z',
+    'M8 13h3v2h3v2h2v3h-3v-2h-2v-2H8z',
   ],
 } satisfies IconDefinition;
 

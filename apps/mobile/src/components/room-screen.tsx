@@ -1,11 +1,20 @@
 import { useRoomRequests } from '@vibes/api';
 import type { Song } from '@vibes/models';
+import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useRouter } from 'expo-router';
-import { Text, useWindowDimensions, View } from 'react-native';
+import { useState } from 'react';
+import { Share, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CastButton } from '@/components/cast-button';
-import { Button, Card, Copy, Empty, Screen } from '@/components/native';
+import {
+  Button,
+  Card,
+  Copy,
+  Empty,
+  IconButton,
+  Screen,
+} from '@/components/native';
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { useLivePosition } from '@/hooks/use-live-position';
@@ -27,6 +36,7 @@ export function RoomScreen() {
   } = useApp();
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const [notice, setNotice] = useState('');
 
   const current = playback?.currentSong ?? null;
   const queuedSongs = current
@@ -70,9 +80,21 @@ export function RoomScreen() {
   };
 
   const skip = async () => {
-    const [requestError] = await roomRequests.skip(roomId);
+    const [requestError, response] = await roomRequests.skip(roomId);
     if (requestError) {
       setError(await getRequestErrorMessage(requestError, 'Could not skip.'));
+      return;
+    }
+    if (response?.skipped) {
+      setNotice('Song skipped.');
+    } else if (response?.alreadyVoted) {
+      setNotice(
+        `Skip vote already counted (${response.currentVotes}/${response.requiredVotes}).`,
+      );
+    } else if (response?.voted) {
+      setNotice(
+        `Skip vote added (${response.currentVotes}/${response.requiredVotes}).`,
+      );
     }
     await refresh();
   };
@@ -116,10 +138,31 @@ export function RoomScreen() {
     router.replace('/');
   };
 
+  const share = async () => {
+    const shareUrl = `https://zoff.me/${encodeURIComponent(room.id)}`;
+    const [shareError] = await safeWrapAsync(
+      Share.share({
+        message: `Join ${room.name} on Zoff: ${shareUrl}`,
+        title: `Join ${room.name} on Zoff`,
+        url: shareUrl,
+      }),
+    );
+    if (shareError) {
+      setError('Could not open the share menu.');
+    }
+  };
+
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']} style={{ flex: 1 }}>
-        <View className="flex-row items-center justify-between px-4 py-3">
+        <View
+          className={classNames(
+            'px-4 py-3',
+            width < roomHeaderBreakpoint && 'gap-3',
+            width >= roomHeaderBreakpoint &&
+              'flex-row items-center justify-between gap-4',
+          )}
+        >
           <View className="min-w-0 flex-1">
             <Copy muted>NOW IN</Copy>
             <Text
@@ -129,7 +172,7 @@ export function RoomScreen() {
               {room.name}
             </Text>
           </View>
-          <View className="flex-row items-center gap-2">
+          <View className="flex-row items-center justify-end gap-2">
             <Button
               label="Leave"
               tone="secondary"
@@ -139,6 +182,11 @@ export function RoomScreen() {
               <View className="size-2 rounded-full bg-accent" />
               <Copy>{room.userCount ?? 0}</Copy>
             </View>
+            <IconButton
+              accessibilityLabel="Share room"
+              icon="share"
+              onPress={() => void share()}
+            />
             <CastButton />
           </View>
         </View>
@@ -198,6 +246,11 @@ export function RoomScreen() {
                     {error}
                   </Text>
                 )}
+                {Boolean(notice) && !error && (
+                  <Text className="font-heading text-accent text-xs">
+                    {notice}
+                  </Text>
+                )}
               </Card>
             </View>
           }
@@ -206,3 +259,5 @@ export function RoomScreen() {
     </Screen>
   );
 }
+
+const roomHeaderBreakpoint = 600;

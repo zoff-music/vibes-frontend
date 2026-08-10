@@ -3,6 +3,7 @@ import {
   useRemoteEvents,
   useRemoteRequests,
   useRoomRequests,
+  useSSE,
 } from '@vibes/api';
 import type {
   PlaybackState,
@@ -300,16 +301,34 @@ export function AppProvider({ children }: PropsWithChildren) {
       if (
         event.origin !== 'controller' ||
         event.roomId !== roomId ||
-        room?.mode !== 'server' ||
-        (event.currentSongId &&
-          event.currentSongId !== playbackRef.current?.currentSong?.id)
+        room?.mode !== 'server'
       ) {
         return;
       }
-      setLocalPlaying(event.playbackIsPlaying, event.playbackPositionMs);
+      const isCurrentSong =
+        !event.currentSongId ||
+        event.currentSongId === playbackRef.current?.currentSong?.id;
+      setLocalPlaying(
+        event.playbackIsPlaying,
+        isCurrentSong ? event.playbackPositionMs : undefined,
+      );
     },
     [room?.mode, roomId, setLocalPlaying],
   );
+
+  const handleUsersUpdate = useCallback((count: number) => {
+    setRoom((currentRoom) => {
+      if (!currentRoom) return currentRoom;
+      return { ...currentRoom, userCount: count };
+    });
+  }, []);
+
+  const roomEventCallbacks = useMemo(
+    () => ({ onUsersUpdate: handleUsersUpdate }),
+    [handleUsersUpdate],
+  );
+
+  useSSE(roomId || undefined, roomEventCallbacks, mobileApi);
 
   useRemoteEvents({
     client: mobileApi,

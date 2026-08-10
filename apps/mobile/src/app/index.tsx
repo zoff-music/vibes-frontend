@@ -26,8 +26,16 @@ import { useApp } from '@/providers/app-provider';
 export default function RoomsScreen() {
   const theme = useAppTheme();
   const roomRequests = useRoomRequests(mobileApi);
-  const { error, loading, providers, room, roomId, setError, setRoomId } =
-    useApp();
+  const {
+    controllerRemote,
+    error,
+    loading,
+    providers,
+    room,
+    roomId,
+    setError,
+    setRoomId,
+  } = useApp();
   const [value, setValue] = useState(roomId);
   const [publicRooms, setPublicRooms] = useState<PublicRoom[]>([]);
   const [createVisible, setCreateVisible] = useState(false);
@@ -44,6 +52,12 @@ export default function RoomsScreen() {
   }, [roomRequests]);
 
   const joinRoom = async (roomName: string) => {
+    if (controllerRemote) {
+      setError(
+        'Disconnect the active remote before joining a room on this device.',
+      );
+      return;
+    }
     const result = await setRoomId(roomName);
     if (result === 'joined') {
       return;
@@ -55,6 +69,12 @@ export default function RoomsScreen() {
   };
 
   const submitRoom = () => {
+    if (controllerRemote) {
+      setError(
+        'Disconnect the active remote before joining or creating a room.',
+      );
+      return;
+    }
     if (isAIMode) {
       void generateRoom();
       return;
@@ -67,6 +87,12 @@ export default function RoomsScreen() {
   };
 
   const generateRoom = async () => {
+    if (controllerRemote) {
+      setError(
+        'Disconnect the active remote before generating a room on this device.',
+      );
+      return;
+    }
     const prompt = value.trim();
     if (!prompt) {
       setError('Describe the playlist you want.');

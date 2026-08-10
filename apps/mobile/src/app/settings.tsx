@@ -181,9 +181,8 @@ function SettingsRow({
     <Pressable
       accessibilityRole={disabled ? 'text' : 'button'}
       className={classNames(
-        'min-h-14 flex-row items-center justify-between gap-4 will-change-pressable',
+        'min-h-14 flex-row items-center justify-between gap-4 will-change-pressable active:opacity-60',
         disabled && 'opacity-70',
-        !disabled && 'active:opacity-60',
       )}
       disabled={disabled}
       onPress={onPress}

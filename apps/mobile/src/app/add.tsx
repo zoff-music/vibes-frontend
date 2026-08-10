@@ -2,7 +2,7 @@ import { useRoomRequests } from '@vibes/api';
 import type { Room } from '@vibes/models';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Modal, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GenerationSheet } from '@/components/generation-sheet';
@@ -77,61 +77,68 @@ export default function AddSongScreen() {
   };
 
   return (
-    <Screen>
-      <SafeAreaView className="flex-1 p-4" edges={['top', 'bottom']}>
-        <ContentColumn>
-          <View className="gap-5">
-            <View className="flex-row items-center justify-between gap-4">
-              <IconButton
-                accessibilityLabel="Close add music"
-                icon="close"
-                onPress={close}
-              />
-              <View className="min-w-0 flex-1 gap-1">
-                <Heading>Add music</Heading>
-                <Copy muted>
-                  Choose how to add music to {targetRoom?.name}.
-                </Copy>
+    <Modal
+      animationType="slide"
+      presentationStyle="pageSheet"
+      visible
+      onRequestClose={close}
+    >
+      <Screen>
+        <SafeAreaView className="flex-1 p-4" edges={['top', 'bottom']}>
+          <ContentColumn>
+            <View className="gap-5">
+              <View className="flex-row items-center justify-between gap-4">
+                <IconButton
+                  accessibilityLabel="Close add music"
+                  icon="close"
+                  onPress={close}
+                />
+                <View className="min-w-0 flex-1 gap-1">
+                  <Heading>Add music</Heading>
+                  <Copy muted>
+                    Choose how to add music to {targetRoom?.name}.
+                  </Copy>
+                </View>
               </View>
+              <Card>
+                <Button
+                  icon="add"
+                  label="Search or paste a link"
+                  onPress={() => setAction('search')}
+                />
+                <Button
+                  disabled={!canGenerate}
+                  icon="sparkles"
+                  label="Fill playlist with AI"
+                  tone="secondary"
+                  onPress={() => setAction('generate')}
+                />
+                {!canGenerate && (
+                  <Text className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
+                    AI fill requires room admin access and an eligible playlist.
+                  </Text>
+                )}
+              </Card>
             </View>
-            <Card>
-              <Button
-                icon="add"
-                label="Search or paste a link"
-                onPress={() => setAction('search')}
-              />
-              <Button
-                disabled={!canGenerate}
-                icon="sparkles"
-                label="Fill playlist with AI"
-                tone="secondary"
-                onPress={() => setAction('generate')}
-              />
-              {!canGenerate && (
-                <Text className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
-                  AI fill requires room admin access and an eligible playlist.
-                </Text>
-              )}
-            </Card>
-          </View>
-        </ContentColumn>
-      </SafeAreaView>
-      <SearchSheet
-        client={client}
-        providersOverride={targetRoom?.settings.enabledSources ?? []}
-        roomIdOverride={roomId}
-        visible={action === 'search'}
-        onAdded={refreshSession}
-        onClose={() => setAction(null)}
-      />
-      <GenerationSheet
-        client={client}
-        roomId={roomId}
-        visible={action === 'generate'}
-        onClose={() => setAction(null)}
-        onGenerated={refreshSession}
-      />
-    </Screen>
+          </ContentColumn>
+        </SafeAreaView>
+        <SearchSheet
+          client={client}
+          providersOverride={targetRoom?.settings.enabledSources ?? []}
+          roomIdOverride={roomId}
+          visible={action === 'search'}
+          onAdded={refreshSession}
+          onClose={() => setAction(null)}
+        />
+        <GenerationSheet
+          client={client}
+          roomId={roomId}
+          visible={action === 'generate'}
+          onClose={() => setAction(null)}
+          onGenerated={refreshSession}
+        />
+      </Screen>
+    </Modal>
   );
 }
 

@@ -32,6 +32,8 @@ export interface ApiFetchLifecycle {
   afterRequest?: (request: Request) => void;
 }
 
+export type ApiFetch = (request: Request) => Promise<Response>;
+
 export interface ApiHeadOptions {
   headers?: Record<string, string>;
   signal?: AbortSignal;
@@ -72,6 +74,7 @@ function createFetchError(method: string, err: Error) {
 
 export function createApiFetchProvider(
   lifecycle: ApiFetchLifecycle = {},
+  fetcher: ApiFetch = fetch,
 ): ApiFetchProvider {
   return class ApiFetchProviderClient implements ApiFetchClient {
     private baseUrl: string;
@@ -161,7 +164,7 @@ export function createApiFetchProvider(
       });
       const lifecycleRequest = lifecycle.beforeRequest?.(request) ?? request;
 
-      const [err, response] = await safeWrapAsync(fetch(lifecycleRequest));
+      const [err, response] = await safeWrapAsync(fetcher(lifecycleRequest));
       if (err || !response) {
         const normalizedErr = err ?? new Error('error fetching response');
         lifecycle.afterError?.(lifecycleRequest, normalizedErr);
@@ -192,6 +195,7 @@ export async function headApiUrl(
   url: string,
   options: ApiHeadOptions = {},
   lifecycle: ApiFetchLifecycle = {},
+  fetcher: ApiFetch = fetch,
 ): Promise<[Error | null, boolean | null]> {
   const request = new Request(url, {
     credentials: 'include',
@@ -200,7 +204,7 @@ export async function headApiUrl(
     ...(options.signal && { signal: options.signal }),
   });
   const lifecycleRequest = lifecycle.beforeRequest?.(request) ?? request;
-  const [err, response] = await safeWrapAsync(fetch(lifecycleRequest));
+  const [err, response] = await safeWrapAsync(fetcher(lifecycleRequest));
   if (err || !response) {
     const normalizedErr = err ?? new Error('error fetching HEAD response');
     lifecycle.afterError?.(lifecycleRequest, normalizedErr);

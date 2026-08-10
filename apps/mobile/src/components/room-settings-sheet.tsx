@@ -1,6 +1,6 @@
 import { type ApiClient, useRemoteRequests, useRoomRequests } from '@vibes/api';
 import type { Providers, Room } from '@vibes/models';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FlatList, Modal, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -43,9 +43,12 @@ export function RoomSettingsSheet({
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const wasVisible = useRef(false);
 
   useEffect(() => {
-    if (!visible) return;
+    const opened = visible && !wasVisible.current;
+    wasVisible.current = visible;
+    if (!opened) return;
     setActiveRoom(room);
     setSettings(room.settings);
     setMode(room.mode);
