@@ -64,9 +64,10 @@ export default function AddSongScreen() {
     targetSongCount < (targetRoom?.roomGenerationMaxExistingSongs ?? 0) &&
     (targetRoom?.generationCount ?? 0) <
       (targetRoom?.roomGenerationMaxDailyCount ?? 0);
-  const close = () => setVisible(false);
-  const leaveAddRoute = () =>
+  const close = () => {
+    setVisible(false);
     router.replace(controllerRemote ? '/remote' : '/');
+  };
   const refreshSession = async () => {
     if (!controllerRemote) {
       await refresh();
@@ -82,7 +83,6 @@ export default function AddSongScreen() {
       visible={visible}
       onAdded={refreshSession}
       onClose={close}
-      onDismiss={leaveAddRoute}
       onGenerated={refreshSession}
     />
   );

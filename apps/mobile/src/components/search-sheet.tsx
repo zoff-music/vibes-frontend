@@ -18,8 +18,7 @@ import {
 } from '@vibes/shared';
 import { Image } from 'expo-image';
 import { useState } from 'react';
-import type { ListRenderItemInfo } from 'react-native';
-import { FlatList, Keyboard, Modal, Pressable, Text, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -41,7 +40,6 @@ interface SearchSheetProps {
   client?: ApiClient;
   onAdded?: () => Promise<void>;
   onClose: () => void;
-  onDismiss: () => void;
   onGenerated: () => Promise<void>;
   providersOverride?: Providers;
   roomIdOverride?: string;
@@ -53,7 +51,6 @@ export function SearchSheet({
   client = mobileApi,
   onAdded,
   onClose,
-  onDismiss,
   onGenerated,
   providersOverride,
   roomIdOverride,
@@ -296,7 +293,7 @@ export function SearchSheet({
     onClose();
   };
 
-  const renderResult = ({ item, index }: ListRenderItemInfo<SearchResult>) => (
+  const renderResult = (item: SearchResult, index: number) => (
     <Animated.View
       entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
     >
@@ -331,175 +328,175 @@ export function SearchSheet({
     </Animated.View>
   );
 
+  if (!visible) return null;
+
   return (
-    <Modal
-      animationType="slide"
-      onDismiss={onDismiss}
-      presentationStyle="pageSheet"
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <Screen>
-        <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
-          <View className="flex-1 px-5 pt-5 pb-10">
-            <View className="mb-6 gap-2">
-              <View className="min-h-12 flex-row items-center justify-between gap-4">
-                <Text className="font-heading text-2xl text-mobile-text dark:text-mobile-dark-text">
-                  {isAIMode ? 'Fill playlist' : 'Add music'}
-                </Text>
-                <IconButton
-                  accessibilityLabel="Close add music"
-                  icon="close"
-                  onPress={onClose}
-                />
-              </View>
+    <Screen>
+      <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
+        <ScrollView
+          contentContainerClassName="px-5 pt-4 pb-32"
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="mb-6">
+            <View className="min-h-13 flex-row items-center justify-between">
+              <Text className="font-heading text-2xl text-mobile-text dark:text-mobile-dark-text">
+                {isAIMode ? 'Fill playlist' : 'Add music'}
+              </Text>
+              <IconButton
+                accessibilityLabel="Close add music"
+                icon="close"
+                onPress={onClose}
+              />
+            </View>
+            <View className="mt-2">
               <Copy muted>
                 {isAIMode
                   ? 'Describe the playlist you want AI to build.'
                   : 'Search or paste a song or playlist link.'}
               </Copy>
             </View>
-            <View className="mb-4 gap-4">
-              {!isAIMode && (
-                <View className="flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
-                  {enabledProviders.map((source) => (
-                    <Pressable
-                      accessibilityRole="tab"
-                      accessibilityState={{ selected: provider === source }}
-                      key={source}
-                      className={classNames(
-                        'min-h-11 flex-1 items-center justify-center rounded-xl px-3',
-                        provider === source && 'bg-accent',
-                        provider !== source && 'bg-transparent',
-                      )}
-                      onPress={() => setProvider(source)}
-                    >
-                      <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
-                        {providerLabels[source]}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              )}
-              <View className="flex-row items-center gap-3">
-                <View className="min-w-0 flex-1">
-                  <Field
-                    autoCapitalize={isAIMode ? 'sentences' : 'none'}
-                    value={query}
-                    onChangeText={(value) => {
-                      setQuery(
-                        isAIMode
-                          ? value.slice(0, generatedPlaylistPromptMaxLength)
-                          : value,
-                      );
-                      setError('');
-                      setPlaylist(null);
-                    }}
-                    onSubmitEditing={() => void search()}
-                    placeholder={
-                      isAIMode
-                        ? 'Late-night synthwave for a rainy drive'
-                        : 'Search music or paste a link'
-                    }
-                  />
-                </View>
-                <View className="size-13">
-                  <Pressable
-                    accessibilityLabel={
-                      isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'
-                    }
-                    accessibilityRole="switch"
-                    accessibilityState={{
-                      checked: isAIMode,
-                      disabled: !canGenerate,
-                    }}
-                    className={classNames(
-                      'size-13 items-center justify-center rounded-xl border active:opacity-70',
-                      isAIMode && 'border-accent bg-accent',
-                      !isAIMode &&
-                        'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-                      !canGenerate && 'opacity-45',
-                    )}
-                    disabled={!canGenerate}
-                    onPress={toggleAIMode}
-                  >
-                    <ZoffIcon
-                      color={isAIMode ? '#ffffff' : theme.text}
-                      name="sparkles"
-                      size={22}
-                    />
-                  </Pressable>
-                </View>
-              </View>
-              {isAIMode && (
-                <Copy muted>
-                  {query.length}/{generatedPlaylistPromptMaxLength}
-                </Copy>
-              )}
-              {!canGenerate && (
-                <Copy muted>
-                  AI fill requires room admin access and an eligible playlist.
-                </Copy>
-              )}
-              <Button
-                disabled={loading || (isAIMode && !query.trim())}
-                icon={isAIMode ? 'sparkles' : 'search'}
-                label={
-                  loading
-                    ? isAIMode
-                      ? 'Starting generation…'
-                      : 'Searching…'
-                    : isAIMode
-                      ? 'Generate playlist'
-                      : 'Search'
+          </View>
+          {!isAIMode && (
+            <View className="mb-4 flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
+              {enabledProviders.map((source) => (
+                <Pressable
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: provider === source }}
+                  key={source}
+                  className={classNames(
+                    'min-h-11 flex-1 items-center justify-center rounded-xl px-3',
+                    provider === source && 'bg-accent',
+                    provider !== source && 'bg-transparent',
+                  )}
+                  onPress={() => setProvider(source)}
+                >
+                  <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
+                    {providerLabels[source]}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+          <View className="mb-4 flex-row items-center gap-3">
+            <View className="min-w-0 flex-1">
+              <Field
+                autoCapitalize={isAIMode ? 'sentences' : 'none'}
+                value={query}
+                onChangeText={(value) => {
+                  setQuery(
+                    isAIMode
+                      ? value.slice(0, generatedPlaylistPromptMaxLength)
+                      : value,
+                  );
+                  setError('');
+                  setPlaylist(null);
+                }}
+                onSubmitEditing={() => void search()}
+                placeholder={
+                  isAIMode
+                    ? 'Late-night synthwave for a rainy drive'
+                    : 'Search music or paste a link'
                 }
-                onPress={() => void search()}
               />
             </View>
-            {playlist && !isAIMode && (
-              <View className="mb-4">
-                <Button
-                  disabled={loading}
-                  label={`Add all ${playlist.tracks.length} songs`}
-                  onPress={() => void addPlaylist()}
-                />
-              </View>
-            )}
-            {Boolean(error) && (
-              <Text className="mb-4 font-heading text-error text-xs">
-                {error}
-              </Text>
-            )}
-            {!isAIMode && (
-              <FlatList
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
-                data={results}
-                keyboardShouldPersistTaps="handled"
-                keyExtractor={(result) => `${result.source}:${result.id}`}
-                ListEmptyComponent={
-                  <View className="flex-1 px-8">
-                    {loading && <Empty loading>Searching for music…</Empty>}
-                    {!loading && (
-                      <Empty>
-                        Search {providerLabels[provider]} or paste a direct
-                        link.
-                      </Empty>
-                    )}
-                  </View>
+            <View className="size-13">
+              <Pressable
+                accessibilityLabel={
+                  isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'
                 }
-                renderItem={renderResult}
-                ItemSeparatorComponent={ResultSeparator}
-              />
-            )}
+                accessibilityRole="switch"
+                accessibilityState={{
+                  checked: isAIMode,
+                  disabled: !canGenerate,
+                }}
+                className={classNames(
+                  'size-13 items-center justify-center rounded-xl border active:opacity-70',
+                  isAIMode && 'border-accent bg-accent',
+                  !isAIMode &&
+                    'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                  !canGenerate && 'opacity-45',
+                )}
+                disabled={!canGenerate}
+                onPress={toggleAIMode}
+              >
+                <ZoffIcon
+                  color={isAIMode ? '#ffffff' : theme.text}
+                  name="sparkles"
+                  size={22}
+                />
+              </Pressable>
+            </View>
           </View>
-        </SafeAreaView>
-      </Screen>
-    </Modal>
+          {isAIMode && (
+            <View className="mb-4">
+              <Copy muted>
+                {query.length}/{generatedPlaylistPromptMaxLength}
+              </Copy>
+            </View>
+          )}
+          {!canGenerate && (
+            <View className="mb-4">
+              <Copy muted>
+                AI fill requires room admin access and an eligible playlist.
+              </Copy>
+            </View>
+          )}
+          <View className="mb-4">
+            <Button
+              disabled={loading || (isAIMode && !query.trim())}
+              icon={isAIMode ? 'sparkles' : 'search'}
+              label={
+                loading
+                  ? isAIMode
+                    ? 'Starting generation…'
+                    : 'Searching…'
+                  : isAIMode
+                    ? 'Generate playlist'
+                    : 'Search'
+              }
+              onPress={() => void search()}
+            />
+          </View>
+          {playlist && !isAIMode && (
+            <View className="mb-4">
+              <Button
+                disabled={loading}
+                label={`Add all ${playlist.tracks.length} songs`}
+                onPress={() => void addPlaylist()}
+              />
+            </View>
+          )}
+          {Boolean(error) && (
+            <Text className="mb-4 font-heading text-error text-xs">
+              {error}
+            </Text>
+          )}
+          {!isAIMode && (
+            <View>
+              {results.map((result, index) => (
+                <View
+                  className={classNames(index > 0 && 'mt-4')}
+                  key={`${result.source}:${result.id}`}
+                >
+                  {renderResult(result, index)}
+                </View>
+              ))}
+              {results.length === 0 && (
+                <View className="min-h-64 px-8">
+                  {loading && <Empty loading>Searching for music…</Empty>}
+                  {!loading && (
+                    <Empty>
+                      Search {providerLabels[provider]} or paste a direct link.
+                    </Empty>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </Screen>
   );
-}
-
-function ResultSeparator() {
-  return <View className="h-4" />;
 }
 
 const providerLabels: Record<SourceType, string> = {

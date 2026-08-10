@@ -28,7 +28,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { RemoteControlButton } from '../../../components/remote/RemoteControlProvider';
 import type { Theme } from '../../../stores/themeStore';
 
 interface RoomSettingsMenuProps {
@@ -252,9 +251,6 @@ export const RoomSettingsMenu = ({
                   </div>
                   {currentTheme.name}
                 </Button>
-              </div>
-              <div className="flex items-center">
-                <RemoteControlButton className="w-full" showLabel />
               </div>
             </div>
 
