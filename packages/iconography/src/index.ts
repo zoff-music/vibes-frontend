@@ -150,7 +150,7 @@ export const remoteIcon = {
 
 export const plusIcon = {
   viewBox: squareViewBox,
-  paths: ['M9 2h6v7h7v6h-7v7H9v-7H2V9h7z'],
+  paths: ['M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z'],
 } satisfies IconDefinition;
 
 export const autoThemeIcon = {

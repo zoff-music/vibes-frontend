@@ -1,6 +1,9 @@
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { Platform } from 'react-native';
-import { zoffIconSources } from '@/components/zoff-icon';
+import {
+  zoffAndroidIconSources,
+  zoffIconSources,
+} from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useApp } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
@@ -10,6 +13,8 @@ export default function AppTabs() {
   const theme = useAppTheme();
   const { controllerRemote, room } = useApp();
   const canAddSongs = Boolean(room || controllerRemote?.roomId);
+  const iconSources =
+    Platform.OS === 'android' ? zoffAndroidIconSources : zoffIconSources;
   return (
     <NativeTabs
       blurEffect={
@@ -40,21 +45,21 @@ export default function AppTabs() {
         </NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           renderingMode="template"
-          src={zoffIconSources.home}
+          src={iconSources.home}
         />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="remote">
         <NativeTabs.Trigger.Label>Remote</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           renderingMode="template"
-          src={zoffIconSources.remote}
+          src={iconSources.remote}
         />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           renderingMode="template"
-          src={zoffIconSources.settings}
+          src={iconSources.settings}
         />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
@@ -65,7 +70,7 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>Add song</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           renderingMode="template"
-          src={zoffIconSources.add}
+          src={iconSources.add}
         />
       </NativeTabs.Trigger>
     </NativeTabs>
