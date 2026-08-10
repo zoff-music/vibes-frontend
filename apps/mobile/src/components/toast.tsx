@@ -65,7 +65,7 @@ export function ToastViewport() {
   if (!activeToast) return null;
   return (
     <SafeAreaView
-      className="px-4 pt-3"
+      className="items-center px-5 pt-3"
       edges={['top']}
       pointerEvents="none"
       style={toastViewportStyle}
@@ -74,16 +74,19 @@ export function ToastViewport() {
         entering={FadeInDown.duration(180)}
         exiting={FadeOutUp.duration(180)}
         className={classNames(
-          'rounded-2xl border bg-mobile-card px-4 py-3 shadow-black/20 shadow-lg dark:bg-mobile-dark-card',
-          activeToast.tone === 'error' &&
-            'border-error/50 dark:border-error/60',
-          activeToast.tone === 'info' &&
-            'border-accent/50 dark:border-accent/60',
-          activeToast.tone === 'success' &&
-            'border-success/50 dark:border-success/60',
+          'max-w-80 self-center rounded-xl border-2 px-4 py-3 shadow-black/30 shadow-lg',
+          activeToast.tone === 'error' && 'border-error bg-error',
+          activeToast.tone === 'info' && 'border-accent bg-accent',
+          activeToast.tone === 'success' && 'border-success bg-success',
         )}
       >
-        <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
+        <Text
+          className={classNames(
+            'font-heading text-sm leading-5',
+            activeToast.tone === 'info' && 'text-mobile-dark-background',
+            activeToast.tone !== 'info' && 'text-white',
+          )}
+        >
           {activeToast.message}
         </Text>
       </Animated.View>
