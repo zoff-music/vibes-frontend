@@ -41,7 +41,7 @@ export function CastButton() {
     <Pressable
       accessibilityLabel="Cast room"
       accessibilityRole="button"
-      className="size-12 items-center justify-center rounded-2xl border border-mobile-border bg-mobile-card/90 active:opacity-65 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90"
+      className="size-13 items-center justify-center rounded-xl border border-mobile-border bg-mobile-card/90 active:opacity-65 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90"
       onPress={() => void GoogleCast.showCastDialog()}
     >
       <ZoffIcon color={theme.text} name="cast" size={castIconSize} />
@@ -49,4 +49,4 @@ export function CastButton() {
   );
 }
 
-const castIconSize = 30;
+const castIconSize = 20;

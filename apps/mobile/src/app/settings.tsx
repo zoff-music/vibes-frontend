@@ -1,7 +1,14 @@
 import { classNames } from '@vibes/shared';
 import Constants from 'expo-constants';
 import { useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Linking,
+  Pressable,
+  ScrollView,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DeviceRemoteSettings } from '@/components/device-remote-settings';
 import {
@@ -18,9 +25,18 @@ import { useApp } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 export default function SettingsScreen() {
-  const { providers, refresh, room } = useApp();
+  const {
+    playerEnabled,
+    playerPreferenceLoaded,
+    providers,
+    refresh,
+    rememberRoomAdminPassword,
+    room,
+    setPlayerEnabled,
+  } = useApp();
   const [roomSettingsVisible, setRoomSettingsVisible] = useState(false);
   const { preference, setPreference } = useThemePreference();
+  const theme = useAppTheme();
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']}>
@@ -57,6 +73,30 @@ export default function SettingsScreen() {
                         onPress={() => void setPreference('dark')}
                       />
                     </View>
+                  </View>
+                  <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                  <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
+                    <View className="min-w-0 flex-1 gap-1">
+                      <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
+                        Player enabled
+                      </Text>
+                      <Copy muted>
+                        Load music and video players on this device while in a
+                        room.
+                      </Copy>
+                    </View>
+                    <Switch
+                      disabled={!playerPreferenceLoaded}
+                      ios_backgroundColor={theme.surface}
+                      trackColor={{
+                        false: theme.surface,
+                        true: theme.accent,
+                      }}
+                      value={playerEnabled}
+                      onValueChange={(enabled) =>
+                        void setPlayerEnabled(enabled)
+                      }
+                    />
                   </View>
                 </Card>
               </View>
@@ -119,6 +159,7 @@ export default function SettingsScreen() {
                   providers={providers}
                   room={room}
                   visible={roomSettingsVisible}
+                  onAuthenticated={rememberRoomAdminPassword}
                   onClose={() => setRoomSettingsVisible(false)}
                   onUpdated={refresh}
                 />
@@ -152,11 +193,13 @@ function ThemeButton({ active, icon, label, onPress }: ThemeButtonProps) {
       )}
       onPress={onPress}
     >
-      <ZoffIcon
-        color={active ? theme.accent : theme.text}
-        name={icon}
-        size={16}
-      />
+      <View className="size-5 items-center justify-center">
+        <ZoffIcon
+          color={active ? theme.accent : theme.text}
+          name={icon}
+          size={18}
+        />
+      </View>
       <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
         {label}
       </Text>

@@ -1,5 +1,5 @@
 import { type ApiClient, useRemoteRequests, useRoomRequests } from '@vibes/api';
-import type { Providers, Room } from '@vibes/models';
+import type { Providers, Room, RoomSettings } from '@vibes/models';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, Modal, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +18,7 @@ import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface RoomSettingsSheetProps {
   client?: ApiClient;
+  onAuthenticated?: (roomId: string, password: string) => Promise<void>;
   onClose: () => void;
   onUpdated: () => Promise<void>;
   providers: Providers;
@@ -28,6 +29,7 @@ interface RoomSettingsSheetProps {
 
 export function RoomSettingsSheet({
   client = mobileApi,
+  onAuthenticated,
   onClose,
   onUpdated,
   providers,
@@ -88,18 +90,24 @@ export function RoomSettingsSheet({
     setActiveRoom(session.room);
     setSettings(session.room.settings);
     setMode(session.room.mode);
+    if (onAuthenticated) {
+      await onAuthenticated(activeRoom.id, password);
+    }
     setPassword('');
     await onUpdated();
   };
 
-  const save = async () => {
+  const save = async (nextMode: Room['mode'], nextSettings: RoomSettings) => {
     setLoading(true);
+    setError('');
     const [requestError, updatedRoom] = await roomRequests.updateRoom(
       activeRoom.id,
-      { mode, settings },
+      { mode: nextMode, settings: nextSettings },
     );
     setLoading(false);
     if (requestError || !updatedRoom) {
+      setMode(activeRoom.mode);
+      setSettings(activeRoom.settings);
       setError(
         await getRequestErrorMessage(
           requestError,
@@ -109,8 +117,19 @@ export function RoomSettingsSheet({
       return;
     }
     setActiveRoom(updatedRoom);
+    setMode(updatedRoom.mode);
+    setSettings(updatedRoom.settings);
     await onUpdated();
-    onClose();
+  };
+
+  const changeMode = (nextMode: Room['mode']) => {
+    setMode(nextMode);
+    void save(nextMode, settings);
+  };
+
+  const changeSettings = (nextSettings: RoomSettings) => {
+    setSettings(nextSettings);
+    void save(mode, nextSettings);
   };
 
   const canEdit = Boolean(activeRoom.isAdmin) || !activeRoom.hasPassword;
@@ -150,23 +169,17 @@ export function RoomSettingsSheet({
         </Card>
       )}
       <RoomConfiguration
-        disabled={!canEdit}
+        disabled={!canEdit || loading}
         hasPassword={activeRoom.hasPassword}
         mode={mode}
         providers={providers}
         settings={settings}
-        onModeChange={setMode}
-        onSettingsChange={setSettings}
+        onModeChange={changeMode}
+        onSettingsChange={changeSettings}
       />
+      {loading && <Copy muted>Saving change…</Copy>}
       {Boolean(error) && (
         <Text className="font-heading text-error text-xs">{error}</Text>
-      )}
-      {canEdit && (
-        <Button
-          disabled={loading || settings.enabledSources.length === 0}
-          label={loading ? 'Saving…' : 'Save settings'}
-          onPress={() => void save()}
-        />
       )}
     </View>
   );

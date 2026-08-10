@@ -101,7 +101,6 @@ export function AnimatedLogo() {
       >
         ゾフ
       </Animated.Text>
-      <View style={[styles.signal, { backgroundColor: theme.accent }]} />
     </View>
   );
 }
@@ -117,16 +116,9 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: 'center',
-    height: 72,
+    height: 76,
     justifyContent: 'center',
     width: 150,
-  },
-  signal: {
-    borderRadius: 2,
-    bottom: 0,
-    height: 4,
-    position: 'absolute',
-    width: 48,
   },
   text: {
     fontFamily: 'Pixelify Sans Bold',

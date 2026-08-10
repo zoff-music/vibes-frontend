@@ -77,13 +77,16 @@ function RootContent() {
 }
 
 function RoomRuntime() {
-  const { controllerRemote, room } = useApp();
+  const { controllerRemote, playerEnabled, playerPreferenceLoaded, room } =
+    useApp();
   const hasActiveSession = Boolean(room || controllerRemote?.roomId);
   return (
     <>
-      {hasActiveSession && <ActiveRoomKeepAwake />}
+      {hasActiveSession && playerPreferenceLoaded && playerEnabled && (
+        <ActiveRoomKeepAwake />
+      )}
       <AppTabs />
-      <PersistentRoomPlayer />
+      {playerPreferenceLoaded && playerEnabled && <PersistentRoomPlayer />}
     </>
   );
 }

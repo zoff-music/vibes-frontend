@@ -89,6 +89,7 @@ export function RoomConfiguration({
             description="Automatic shared playback"
             disabled={disabled}
             label="Server mode"
+            mode="server"
             onPress={() => onModeChange('server')}
           />
           <ModeButton
@@ -96,6 +97,7 @@ export function RoomConfiguration({
             description="One host controls playback"
             disabled={disabled}
             label="Host mode"
+            mode="host"
             onPress={() => onModeChange('host')}
           />
         </View>
@@ -191,6 +193,7 @@ interface ModeButtonProps {
   description: string;
   disabled: boolean;
   label: string;
+  mode: 'host' | 'server';
   onPress: () => void;
 }
 
@@ -199,6 +202,7 @@ function ModeButton({
   description,
   disabled,
   label,
+  mode,
   onPress,
 }: ModeButtonProps) {
   return (
@@ -206,8 +210,12 @@ function ModeButton({
       accessibilityRole="radio"
       accessibilityState={{ checked: active, disabled }}
       className={classNames(
-        'min-h-24 flex-1 gap-2 rounded-2xl border border-mobile-border bg-mobile-card p-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-        active && 'border-accent bg-accent dark:border-accent dark:bg-accent',
+        'min-h-24 flex-1 gap-2 rounded-2xl border p-4',
+        !active &&
+          'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+        active && mode === 'server' && 'border-accent bg-accent',
+        active && mode === 'host' && 'border-primary bg-primary',
+        disabled && 'opacity-75',
       )}
       disabled={disabled}
       onPress={onPress}
@@ -215,7 +223,8 @@ function ModeButton({
       <Text
         className={classNames(
           'font-heading text-base',
-          active && 'text-mobile-dark-background',
+          active && mode === 'server' && 'text-mobile-dark-background',
+          active && mode === 'host' && 'text-white',
           !active && 'text-mobile-text dark:text-mobile-dark-text',
         )}
       >
@@ -224,7 +233,8 @@ function ModeButton({
       <Text
         className={classNames(
           'font-heading text-sm leading-5',
-          active && 'text-mobile-dark-background/75',
+          active && mode === 'server' && 'text-mobile-dark-background/75',
+          active && mode === 'host' && 'text-white/75',
           !active && 'text-mobile-muted dark:text-mobile-dark-muted',
         )}
       >

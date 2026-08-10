@@ -2,8 +2,7 @@ import { useRoomRequests } from '@vibes/api';
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useEffect, useState } from 'react';
-import type { ListRenderItemInfo } from 'react-native';
-import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AnimatedLogo } from '@/components/animated-logo';
@@ -35,6 +34,7 @@ export default function RoomsScreen() {
     roomId,
     setError,
     setRoomId,
+    startGeneratedRoom,
   } = useApp();
   const [value, setValue] = useState(roomId);
   const [publicRooms, setPublicRooms] = useState<PublicRoom[]>([]);
@@ -111,7 +111,7 @@ export default function RoomsScreen() {
       );
       return;
     }
-    await setRoomId(generatedRoom.id);
+    await startGeneratedRoom(generatedRoom.id);
   };
 
   const toggleAIMode = () => {
@@ -126,32 +126,43 @@ export default function RoomsScreen() {
     return true;
   };
 
-  const renderPublicRoom = ({
-    item,
-    index,
-  }: ListRenderItemInfo<PublicRoom>) => (
-    <Animated.View entering={FadeInDown.duration(180).delay(index * 35)}>
-      <Pressable
-        className="w-64 gap-3 rounded-3xl border border-mobile-border bg-mobile-card/95 p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card/95"
-        onPress={() => {
-          setValue(item.id);
-          void joinRoom(item.id);
-        }}
+  const renderPublicRoom = (item: PublicRoom, index: number) => {
+    const isOddFinalRoom =
+      publicRooms.length % roomsPerRow === 1 &&
+      index === publicRooms.length - 1;
+
+    return (
+      <Animated.View
+        className={classNames(
+          'min-w-0',
+          isOddFinalRoom && 'w-full',
+          !isOddFinalRoom && 'flex-1 basis-[45%]',
+        )}
+        entering={FadeInDown.duration(180).delay(index * 35)}
+        key={item.id}
       >
-        <Text
-          numberOfLines={1}
-          className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+        <Pressable
+          className="w-full gap-3 rounded-3xl border border-mobile-border bg-mobile-card/95 p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card/95"
+          onPress={() => {
+            setValue(item.id);
+            void joinRoom(item.id);
+          }}
         >
-          {item.name}
-        </Text>
-        <View className="flex-row items-center justify-between">
-          <Copy muted>{item.listenerCount} listening</Copy>
-          <Copy muted>{item.songCount} songs</Copy>
-        </View>
-        <Text className="font-heading text-accent text-sm">Join room →</Text>
-      </Pressable>
-    </Animated.View>
-  );
+          <Text
+            numberOfLines={1}
+            className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+          >
+            {item.name}
+          </Text>
+          <View className="flex-row items-center justify-between">
+            <Copy muted>{item.listenerCount} listening</Copy>
+            <Copy muted>{item.songCount} songs</Copy>
+          </View>
+          <Text className="font-heading text-accent text-sm">Join room →</Text>
+        </Pressable>
+      </Animated.View>
+    );
+  };
 
   if (room && roomId) {
     return <RoomScreen />;
@@ -250,21 +261,16 @@ export default function RoomsScreen() {
                   <View className="size-2 rounded-full bg-accent" />
                   <Copy muted>LIVE NOW</Copy>
                 </View>
-                <FlatList
-                  data={publicRooms}
-                  keyExtractor={(item) => item.id}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  ItemSeparatorComponent={HorizontalSeparator}
-                  renderItem={renderPublicRoom}
-                  ListEmptyComponent={
-                    <View className="rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
+                <View className="flex-row flex-wrap gap-3">
+                  {publicRooms.map(renderPublicRoom)}
+                  {publicRooms.length === 0 && (
+                    <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
                       <Copy muted>
                         No public rooms are live. Start one and set the signal.
                       </Copy>
                     </View>
-                  }
-                />
+                  )}
+                </View>
               </View>
             </Animated.View>
           </ContentColumn>
@@ -281,6 +287,4 @@ export default function RoomsScreen() {
   );
 }
 
-function HorizontalSeparator() {
-  return <View className="w-3" />;
-}
+const roomsPerRow = 2;

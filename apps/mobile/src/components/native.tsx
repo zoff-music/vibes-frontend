@@ -95,6 +95,7 @@ interface IconButtonProps {
   accessibilityLabel: string;
   disabled?: boolean;
   icon: ZoffIconName;
+  size?: 'default' | 'large';
   onPress: () => void;
 }
 
@@ -102,6 +103,7 @@ export function IconButton({
   accessibilityLabel,
   disabled,
   icon,
+  size = 'default',
   onPress,
 }: IconButtonProps) {
   const theme = useAppTheme();
@@ -110,7 +112,9 @@ export function IconButton({
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
       className={classNames(
-        'size-12 items-center justify-center rounded-xl border border-mobile-border bg-mobile-surface active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
+        'items-center justify-center rounded-xl border border-mobile-border bg-mobile-surface active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
+        size === 'default' && 'size-12',
+        size === 'large' && 'size-13',
         disabled && 'opacity-45',
       )}
       disabled={disabled}

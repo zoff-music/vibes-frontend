@@ -15,6 +15,7 @@ import { useAppTheme } from '@/hooks/use-app-theme';
 
 interface QueueProps {
   contained?: boolean;
+  emptyMessage?: string;
   header?: ReactElement;
   onDelete?: (song: Song) => void;
   onVote: (song: Song) => void;
@@ -99,6 +100,7 @@ function QueueItem({
 
 export function Queue({
   contained,
+  emptyMessage = 'No songs are queued yet.',
   header,
   onDelete,
   onVote,
@@ -128,7 +130,7 @@ export function Queue({
       keyExtractor={(song) => song.id}
       ListEmptyComponent={
         <View className="px-4">
-          <Empty>No songs are queued yet.</Empty>
+          <Empty>{emptyMessage}</Empty>
         </View>
       }
       ListHeaderComponent={

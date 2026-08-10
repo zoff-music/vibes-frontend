@@ -9,8 +9,17 @@ import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
 export function PersistentRoomPlayer() {
-  const { playback, refresh, room, roomId, setError, setLocalPlaying } =
-    useApp();
+  const {
+    observeLocalPlaybackPosition,
+    playback,
+    playbackResetVersion,
+    refresh,
+    room,
+    roomId,
+    setError,
+    setLocalPlaybackPosition,
+    setLocalPlaying,
+  } = useApp();
   const roomRequests = useRoomRequests(mobileApi);
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
@@ -31,7 +40,11 @@ export function PersistentRoomPlayer() {
       }}
     >
       <ProviderPlayer
+        isGenerating={room.isGenerating}
+        onLocalPositionObserved={observeLocalPlaybackPosition}
+        onLocalSeek={setLocalPlaybackPosition}
         playback={playback}
+        resetVersion={playbackResetVersion}
         song={playback?.currentSong ?? null}
         synchronizePosition={room.mode === 'host'}
         onLocalPlayingChange={(isPlaying) => {

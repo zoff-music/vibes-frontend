@@ -1,21 +1,9 @@
 import { useRoomRequests } from '@vibes/api';
 import type { Room } from '@vibes/models';
-import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { Modal, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { GenerationSheet } from '@/components/generation-sheet';
-import {
-  Button,
-  Card,
-  ContentColumn,
-  Copy,
-  Empty,
-  Heading,
-  IconButton,
-  Screen,
-} from '@/components/native';
+import { Empty, Screen } from '@/components/native';
 import { SearchSheet } from '@/components/search-sheet';
 import { createRemoteApi, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
@@ -34,9 +22,16 @@ export default function AddSongScreen() {
   const client = controllerRemote ? remoteClient : mobileApi;
   const roomRequests = useRoomRequests(client);
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
-  const [action, setAction] = useState<AddAction>(null);
+  const [visible, setVisible] = useState(false);
   const [targetRoom, setTargetRoom] = useState<Room | null>(room);
   const [targetSongCount, setTargetSongCount] = useState(songs.length);
+
+  useFocusEffect(
+    useCallback(() => {
+      setVisible(true);
+      return () => setVisible(false);
+    }, []),
+  );
 
   useEffect(() => {
     if (!controllerRemote?.roomId) {
@@ -69,7 +64,9 @@ export default function AddSongScreen() {
     targetSongCount < (targetRoom?.roomGenerationMaxExistingSongs ?? 0) &&
     (targetRoom?.generationCount ?? 0) <
       (targetRoom?.roomGenerationMaxDailyCount ?? 0);
-  const close = () => router.replace(controllerRemote ? '/remote' : '/');
+  const close = () => setVisible(false);
+  const leaveAddRoute = () =>
+    router.replace(controllerRemote ? '/remote' : '/');
   const refreshSession = async () => {
     if (!controllerRemote) {
       await refresh();
@@ -77,69 +74,16 @@ export default function AddSongScreen() {
   };
 
   return (
-    <Modal
-      animationType="slide"
-      presentationStyle="pageSheet"
-      visible
-      onRequestClose={close}
-    >
-      <Screen>
-        <SafeAreaView className="flex-1 p-4" edges={['top', 'bottom']}>
-          <ContentColumn>
-            <View className="gap-5">
-              <View className="flex-row items-center justify-between gap-4">
-                <IconButton
-                  accessibilityLabel="Close add music"
-                  icon="close"
-                  onPress={close}
-                />
-                <View className="min-w-0 flex-1 gap-1">
-                  <Heading>Add music</Heading>
-                  <Copy muted>
-                    Choose how to add music to {targetRoom?.name}.
-                  </Copy>
-                </View>
-              </View>
-              <Card>
-                <Button
-                  icon="add"
-                  label="Search or paste a link"
-                  onPress={() => setAction('search')}
-                />
-                <Button
-                  disabled={!canGenerate}
-                  icon="sparkles"
-                  label="Fill playlist with AI"
-                  tone="secondary"
-                  onPress={() => setAction('generate')}
-                />
-                {!canGenerate && (
-                  <Text className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
-                    AI fill requires room admin access and an eligible playlist.
-                  </Text>
-                )}
-              </Card>
-            </View>
-          </ContentColumn>
-        </SafeAreaView>
-        <SearchSheet
-          client={client}
-          providersOverride={targetRoom?.settings.enabledSources ?? []}
-          roomIdOverride={roomId}
-          visible={action === 'search'}
-          onAdded={refreshSession}
-          onClose={() => setAction(null)}
-        />
-        <GenerationSheet
-          client={client}
-          roomId={roomId}
-          visible={action === 'generate'}
-          onClose={() => setAction(null)}
-          onGenerated={refreshSession}
-        />
-      </Screen>
-    </Modal>
+    <SearchSheet
+      canGenerate={canGenerate}
+      client={client}
+      providersOverride={targetRoom?.settings.enabledSources ?? []}
+      roomIdOverride={roomId}
+      visible={visible}
+      onAdded={refreshSession}
+      onClose={close}
+      onDismiss={leaveAddRoute}
+      onGenerated={refreshSession}
+    />
   );
 }
-
-type AddAction = 'generate' | 'search' | null;

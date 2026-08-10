@@ -1,28 +1,42 @@
 import type { PlaybackState, Song } from '@vibes/models';
+import { safeWrap } from '@vibes/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import type { WebView as WebViewType } from 'react-native-webview';
+import type {
+  WebViewMessageEvent,
+  WebView as WebViewType,
+} from 'react-native-webview';
 import { WebView } from 'react-native-webview';
 
 import { Copy } from '@/components/native';
+import { RoomGenerationProgress } from '@/components/room-generation-progress';
 import { YouTubePlayer } from '@/components/youtube-player';
 
 interface ProviderPlayerProps {
+  isGenerating: boolean;
   onLocalPlayingChange: (isPlaying: boolean) => void;
+  onLocalPositionObserved: (positionMs: number) => void;
+  onLocalSeek: (positionMs: number) => void;
   playback: PlaybackState | null;
+  resetVersion: number;
   song: Song | null;
   synchronizePosition: boolean;
 }
 
 export function ProviderPlayer({
+  isGenerating,
   onLocalPlayingChange,
+  onLocalPositionObserved,
+  onLocalSeek,
   playback,
+  resetVersion,
   song,
   synchronizePosition,
 }: ProviderPlayerProps) {
   const { width: windowWidth } = useWindowDimensions();
   const webViewRef = useRef<WebViewType>(null);
   const previousPosition = useRef(playback?.positionMs ?? 0);
+  const previousResetVersion = useRef(resetVersion);
   const [error, setError] = useState('');
   const songId = song?.id;
   const playerWidth = Math.max(0, windowWidth - playerHorizontalMargin * 2);
@@ -53,17 +67,33 @@ export function ProviderPlayer({
     const position = playback?.positionMs ?? 0;
     const positionChanged = Math.abs(position - previousPosition.current);
     previousPosition.current = position;
+    const shouldReset = previousResetVersion.current !== resetVersion;
+    previousResetVersion.current = resetVersion;
     if (
       !song ||
       song.sourceType === 'youtube' ||
-      !synchronizePosition ||
-      positionChanged < seekChangeThreshold
+      (!shouldReset &&
+        (!synchronizePosition || positionChanged < seekChangeThreshold))
     )
       return;
     webViewRef.current?.injectJavaScript(
       `window.zoffSeek?.(${Math.max(0, position)}); true;`,
     );
-  }, [playback?.positionMs, songId, synchronizePosition]);
+  }, [playback?.positionMs, resetVersion, songId, synchronizePosition]);
+
+  if (!song && isGenerating) {
+    return (
+      <View
+        className="overflow-hidden rounded-2xl border border-accent/60 bg-mobile-card dark:bg-mobile-dark-card"
+        style={{
+          height: playerHeight,
+          marginHorizontal: playerHorizontalMargin,
+        }}
+      >
+        <RoomGenerationProgress />
+      </View>
+    );
+  }
 
   if (!song) {
     return (
@@ -93,8 +123,11 @@ export function ProviderPlayer({
             key={song.id}
             height={playerHeight}
             onError={setError}
+            onLocalPositionObserved={onLocalPositionObserved}
             onPlayingChange={onLocalPlayingChange}
+            onLocalSeek={onLocalSeek}
             playback={playback}
+            resetVersion={resetVersion}
             sourceId={song.sourceId}
             synchronizePosition={synchronizePosition}
             width={playerWidth}
@@ -114,6 +147,35 @@ export function ProviderPlayer({
     webViewRef.current?.injectJavaScript(
       `window.zoffInitialize?.(${position}, ${playback?.isPlaying ? 'true' : 'false'}); true;`,
     );
+  };
+
+  const handlePlayerMessage = (event: WebViewMessageEvent) => {
+    const [messageError, message] = safeWrap<unknown>(() =>
+      JSON.parse(event.nativeEvent.data),
+    );
+    if (
+      messageError ||
+      !message ||
+      typeof message !== 'object' ||
+      !('type' in message)
+    ) {
+      return;
+    }
+    if (
+      message.type === 'position' &&
+      'positionMs' in message &&
+      typeof message.positionMs === 'number'
+    ) {
+      onLocalPositionObserved(message.positionMs);
+      return;
+    }
+    if (
+      message.type === 'playing' &&
+      'isPlaying' in message &&
+      typeof message.isPlaying === 'boolean'
+    ) {
+      onLocalPlayingChange(message.isPlaying);
+    }
   };
 
   return (
@@ -139,6 +201,7 @@ export function ProviderPlayer({
           setError(`Could not load the ${song.sourceType} player.`)
         }
         onLoadEnd={initializePlayback}
+        onMessage={handlePlayerMessage}
         originWhitelist={['https://*']}
         scrollEnabled={false}
         setSupportMultipleWindows={false}
@@ -178,6 +241,15 @@ function getPlayerHtml(
           ready = true;
           syncPlayback();
         });
+        player.bind(SC.Widget.Events.PLAY, () => {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'playing', isPlaying: true }));
+        });
+        player.bind(SC.Widget.Events.PAUSE, () => {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'playing', isPlaying: false }));
+        });
+        player.bind(SC.Widget.Events.PLAY_PROGRESS, (event) => {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'position', positionMs: event.currentPosition }));
+        });
         window.zoffInitialize = (position, playing) => {
           initialPosition = position;
           shouldPlay = playing;
@@ -216,6 +288,10 @@ function getPlayerHtml(
           { uri: 'spotify:track:' + ${serializedSourceId}, height: '100%', width: '100%' },
           (nextController) => {
             controller = nextController;
+            controller.addListener('playback_update', (event) => {
+              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'position', positionMs: event.data.position }));
+              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'playing', isPlaying: !event.data.isPaused }));
+            });
             syncPlayback();
           }
         );

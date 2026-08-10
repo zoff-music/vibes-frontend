@@ -17,6 +17,7 @@ import {
 } from '@/components/native';
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
+import { RoomGenerationProgress } from '@/components/room-generation-progress';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
@@ -25,9 +26,13 @@ export function RoomScreen() {
   const roomRequests = useRoomRequests(mobileApi);
   const {
     error,
+    hasLocalPlaybackChanges,
     leaveRoom,
     playback,
+    playerEnabled,
+    playerPreferenceLoaded,
     refresh,
+    resetLocalPlayback,
     room,
     roomId,
     setError,
@@ -155,43 +160,47 @@ export function RoomScreen() {
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']} style={{ flex: 1 }}>
-        <View
-          className={classNames(
-            'px-4 py-3',
-            width < roomHeaderBreakpoint && 'gap-3',
-            width >= roomHeaderBreakpoint &&
-              'flex-row items-center justify-between gap-4',
-          )}
-        >
+        <View className="flex-row items-center justify-between gap-3 px-4 py-3">
           <View className="min-w-0 flex-1">
             <Copy muted>NOW IN</Copy>
             <Text
-              className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text"
+              className={classNames(
+                'font-heading text-mobile-text text-xl dark:text-mobile-dark-text',
+                width >= roomHeaderBreakpoint && 'text-3xl',
+              )}
               numberOfLines={1}
             >
               {room.name}
             </Text>
           </View>
-          <View className="flex-row items-center justify-end gap-2">
+          <View className="shrink-0 flex-row items-center justify-end gap-2">
             <Button
               label="Leave"
               tone="secondary"
               onPress={() => void leave()}
             />
-            <View className="h-12 flex-row items-center gap-2 rounded-2xl border border-mobile-border bg-mobile-card/90 px-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
+            <View className="h-13 flex-row items-center gap-2 rounded-xl border border-mobile-border bg-mobile-card/90 px-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
               <View className="size-2 rounded-full bg-accent" />
               <Copy>{room.userCount ?? 0}</Copy>
             </View>
             <IconButton
               accessibilityLabel="Share room"
               icon="share"
+              size="large"
               onPress={() => void share()}
             />
             <CastButton />
           </View>
         </View>
-        <View style={{ height: Math.max(200, (width - 32) / (16 / 9)) }} />
+        {playerPreferenceLoaded && playerEnabled && (
+          <View style={{ height: Math.max(200, (width - 32) / (16 / 9)) }} />
+        )}
         <Queue
+          emptyMessage={
+            room.isGenerating
+              ? 'Songs will appear here as the playlist is generated.'
+              : 'No songs are queued yet.'
+          }
           songs={queuedSongs}
           onVote={(song) => void vote(song)}
           {...(room.isAdmin
@@ -199,59 +208,87 @@ export function RoomScreen() {
             : {})}
           header={
             <View className="p-4">
-              <Card>
-                <View className="gap-1">
-                  <Copy muted>NOW PLAYING</Copy>
-                  <Text
-                    numberOfLines={1}
-                    className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
-                  >
-                    {current?.title ?? 'Nothing playing'}
-                  </Text>
-                  <Copy muted>{current?.artist ?? ''}</Copy>
+              {room.isGenerating && !playerEnabled && (
+                <View className="h-56 overflow-hidden rounded-2xl border border-accent/60 bg-mobile-card dark:bg-mobile-dark-card">
+                  <RoomGenerationProgress />
                 </View>
-                <View className="flex-row gap-2">
-                  <View className="flex-1">
-                    <Button
-                      disabled={!canControlPlayback}
-                      icon={playback?.isPlaying ? 'pause' : 'play'}
-                      label={playback?.isPlaying ? 'Pause' : 'Play'}
-                      tone="secondary"
-                      onPress={() =>
-                        void sendAction(playback?.isPlaying ? 'pause' : 'play')
+              )}
+              {!room.isGenerating && (
+                <Card>
+                  <View className="flex-row items-center justify-between gap-3">
+                    <View className="min-w-0 flex-1 gap-1">
+                      <Copy muted>NOW PLAYING</Copy>
+                      <Text
+                        numberOfLines={1}
+                        className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+                      >
+                        {current?.title ?? 'Nothing playing'}
+                      </Text>
+                      <Copy muted>{current?.artist ?? ''}</Copy>
+                    </View>
+                    {playerEnabled && current && hasLocalPlaybackChanges && (
+                      <IconButton
+                        accessibilityLabel="Reset playback"
+                        icon="reset"
+                        size="large"
+                        onPress={() => void resetLocalPlayback()}
+                      />
+                    )}
+                  </View>
+                  <View className="flex-row gap-2">
+                    {playerEnabled && (
+                      <View className="flex-1">
+                        <Button
+                          disabled={!canControlPlayback}
+                          icon={playback?.isPlaying ? 'pause' : 'play'}
+                          label={playback?.isPlaying ? 'Pause' : 'Play'}
+                          tone="secondary"
+                          onPress={() =>
+                            void sendAction(
+                              playback?.isPlaying ? 'pause' : 'play',
+                            )
+                          }
+                        />
+                      </View>
+                    )}
+                    <View className="flex-1">
+                      <Button
+                        icon="skip"
+                        label="Skip"
+                        tone="secondary"
+                        onPress={() => void skip()}
+                      />
+                    </View>
+                  </View>
+                  {playerEnabled && (
+                    <PlaybackProgress
+                      duration={current?.duration ?? 0}
+                      onSeek={(position) => void seek(position)}
+                      position={livePosition}
+                      seekable={
+                        Boolean(current) &&
+                        room.mode === 'host' &&
+                        (room.hostId === room.userId || room.isAdmin)
                       }
                     />
-                  </View>
-                  <View className="flex-1">
-                    <Button
-                      icon="skip"
-                      label="Skip"
-                      tone="secondary"
-                      onPress={() => void skip()}
-                    />
-                  </View>
-                </View>
-                <PlaybackProgress
-                  duration={current?.duration ?? 0}
-                  onSeek={(position) => void seek(position)}
-                  position={livePosition}
-                  seekable={
-                    Boolean(current) &&
-                    room.mode === 'host' &&
-                    (room.hostId === room.userId || room.isAdmin)
-                  }
-                />
-                {Boolean(error) && (
-                  <Text className="font-heading text-error text-xs">
-                    {error}
-                  </Text>
-                )}
-                {Boolean(notice) && !error && (
-                  <Text className="font-heading text-accent text-xs">
-                    {notice}
-                  </Text>
-                )}
-              </Card>
+                  )}
+                  {Boolean(error) && (
+                    <Text className="font-heading text-error text-xs">
+                      {error}
+                    </Text>
+                  )}
+                  {Boolean(room.generationError) && !error && (
+                    <Text className="font-heading text-error text-xs">
+                      {room.generationError}
+                    </Text>
+                  )}
+                  {Boolean(notice) && !error && (
+                    <Text className="font-heading text-accent text-xs">
+                      {notice}
+                    </Text>
+                  )}
+                </Card>
+              )}
             </View>
           }
         />

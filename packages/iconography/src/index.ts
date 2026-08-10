@@ -160,7 +160,7 @@ export const plusIcon = {
 export const autoThemeIcon = {
   viewBox: squareViewBox,
   paths: [
-    'M8 2h8v2h3v3h2v10h-2v3h-3v2H8v-2H5v-3H3V7h2V4h3zm4 4H8v2H6v8h2v2h4z',
+    'M8 2h8v2h3v3h3v10h-3v3h-3v2H8v-2H5v-3H2V7h3V4h3zm4 4H8v2H6v8h2v2h4z',
   ],
 } satisfies IconDefinition;
 

@@ -31,6 +31,7 @@ export interface RoomRequests {
     request: GeneratedPlaylistRequest,
   ) => ApiResult<CreateRoomResponse>;
   fetchProviders: () => ApiResult<Providers>;
+  fetchPlayback: (roomId: string) => ApiResult<PlaybackState>;
   fetchPublicRooms: () => ApiResult<PublicRoom[]>;
   fetchSnapshot: (roomId: string) => ApiResult<RoomSnapshot>;
   joinRoom: (roomId: string, password?: string) => ApiResult<SessionResponse>;
@@ -58,6 +59,8 @@ export function useRoomRequests(client: ApiClient): RoomRequests {
       createGeneratedRoom: (request: GeneratedPlaylistRequest) =>
         client.post('/rooms/generation', null, request),
       fetchProviders: () => client.get('/providers', null),
+      fetchPlayback: (roomId: string) =>
+        client.get('/rooms/{id}/states', { id: roomId }),
       fetchPublicRooms: () => client.get('/rooms/public', null),
       fetchSnapshot: async (roomId: string) => {
         const [
