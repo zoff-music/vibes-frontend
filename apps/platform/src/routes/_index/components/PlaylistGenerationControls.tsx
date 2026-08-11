@@ -1,6 +1,10 @@
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { AlertCircleIcon, Button, SparklesIcon, Tooltip } from '@vibes/ui';
+import {
+  playlistGenerationMessageIntervalMs,
+  playlistGenerationMessages,
+} from '@vibes/ui/shared';
+import { AlertCircleIcon, Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
 import {
   type ChangeEvent,
   type KeyboardEvent,
@@ -9,33 +13,6 @@ import {
 } from 'react';
 import { useFetcher } from 'react-router';
 import type { HomeActionData } from '../action';
-
-const GENERATION_MESSAGES = [
-  'Generating your playlist',
-  'Finding songs that fit the vibe',
-  'Digging through hidden gems',
-  'Looking for the perfect opener',
-  'Balancing familiar favorites',
-  'Adding a few surprises',
-  'Checking every track on YouTube',
-  'Avoiding suspiciously long videos',
-  'Keeping the energy flowing',
-  'Making sure the artists fit',
-  'Putting the songs in order',
-  'Giving the queue a final polish',
-  'Building your music room',
-  'Almost ready to press play',
-  'Reading between the lines',
-  'Matching the mood to the moment',
-  'Following the musical thread',
-  'Chasing the right kind of energy',
-  'Mixing classics with discoveries',
-  'Trimming anything that breaks the flow',
-  'Hunting down official uploads',
-  'Double-checking the song choices',
-  'Shaping the middle of the playlist',
-  'Saving the best finish for last',
-];
 
 interface PlaylistGenerationControlsProps {
   onPromptChange: (value: string) => void;
@@ -54,7 +31,7 @@ export function PlaylistGenerationControls({
   const isTabVisible = usePageVisibility();
   const isGenerating = fetcher.state !== 'idle';
   const [generationMessageIndex, setGenerationMessageIndex] = useState(0);
-  const generationMessage = GENERATION_MESSAGES[generationMessageIndex];
+  const generationMessage = playlistGenerationMessages[generationMessageIndex];
 
   useEffect(() => {
     if (!isGenerating || !isTabVisible) {
@@ -63,9 +40,9 @@ export function PlaylistGenerationControls({
 
     const interval = window.setInterval(() => {
       setGenerationMessageIndex(
-        (current) => (current + 1) % GENERATION_MESSAGES.length,
+        (current) => (current + 1) % playlistGenerationMessages.length,
       );
-    }, 1800);
+    }, playlistGenerationMessageIntervalMs);
 
     return () => window.clearInterval(interval);
   }, [isGenerating, isTabVisible]);

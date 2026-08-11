@@ -18,7 +18,7 @@ import {
   RemoteIcon,
   SettingsIcon,
   SkipIcon,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import {
   type ChangeEvent,
   type KeyboardEvent,

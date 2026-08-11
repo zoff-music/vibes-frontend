@@ -1,5 +1,5 @@
 import { getHttpError } from '@vibes/api';
-import { AlertCircleIcon, Button } from '@vibes/ui';
+import { AlertCircleIcon, Button } from '@vibes/ui/web';
 import React from 'react';
 import { useNavigate } from 'react-router';
 

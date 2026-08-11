@@ -1,28 +1,6 @@
-import type { IconDefinition } from '@vibes/iconography';
-import {
-  autoThemeIcon,
-  caretIcon,
-  castIcon,
-  checkIcon,
-  closeIcon,
-  externalLinkIcon,
-  moonIcon,
-  pauseIcon,
-  playIcon,
-  plusIcon,
-  queueIcon,
-  remoteIcon,
-  resetIcon,
-  searchIcon,
-  settingsIcon,
-  shareIcon,
-  skipIcon,
-  sparklesIcon,
-  sunIcon,
-  trashIcon,
-  voteIcon,
-} from '@vibes/iconography';
-import Svg, { Path } from 'react-native-svg';
+import { NativeIcon } from '@vibes/ui/native';
+import type { ZoffIconName } from '@vibes/ui/shared';
+import { zoffIconDefinitions } from '@vibes/ui/shared';
 
 import addTabIcon from '@/assets/icons/add.png';
 import addTabIconAndroid from '@/assets/icons/add-android.png';
@@ -33,7 +11,7 @@ import remoteTabIconAndroid from '@/assets/icons/remote-android.png';
 import settingsTabIcon from '@/assets/icons/settings.png';
 import settingsTabIconAndroid from '@/assets/icons/settings-android.png';
 
-export type ZoffIconName = keyof typeof iconDefinitions;
+export type { ZoffIconName };
 
 interface ZoffIconProps {
   color: string;
@@ -42,13 +20,12 @@ interface ZoffIconProps {
 }
 
 export function ZoffIcon({ color, name, size = 20 }: ZoffIconProps) {
-  const definition = iconDefinitions[name];
   return (
-    <Svg height={size} viewBox={definition.viewBox} width={size}>
-      {definition.paths.map((path) => (
-        <Path d={path} fill={color} key={path} />
-      ))}
-    </Svg>
+    <NativeIcon
+      color={color}
+      definition={zoffIconDefinitions[name]}
+      size={size}
+    />
   );
 }
 
@@ -65,29 +42,3 @@ export const zoffAndroidIconSources = {
   remote: remoteTabIconAndroid,
   settings: settingsTabIconAndroid,
 };
-
-const iconDefinitions = {
-  add: plusIcon,
-  auto: autoThemeIcon,
-  caret: caretIcon,
-  cast: castIcon,
-  check: checkIcon,
-  close: closeIcon,
-  external: externalLinkIcon,
-  home: queueIcon,
-  moon: moonIcon,
-  pause: pauseIcon,
-  play: playIcon,
-  player: playIcon,
-  remote: remoteIcon,
-  reset: resetIcon,
-  scan: searchIcon,
-  search: searchIcon,
-  settings: settingsIcon,
-  share: shareIcon,
-  skip: skipIcon,
-  sparkles: sparklesIcon,
-  sun: sunIcon,
-  trash: trashIcon,
-  vote: voteIcon,
-} satisfies Record<string, IconDefinition>;

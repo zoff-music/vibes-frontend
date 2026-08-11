@@ -1,8 +1,7 @@
 import { safeWrapAsync } from '@vibes/shared';
-import { Button } from '@vibes/ui';
+import { Button, CastIcon } from '@vibes/ui/web';
 import React, { useEffect } from 'react';
 import { useCastStore } from '../../stores/castStore';
-import { CastIcon } from '../icons/CastIcon';
 
 interface CastButtonProps {
   onDeviceSelect?: () => void;
@@ -65,7 +64,7 @@ export const CastButton: React.FC<CastButtonProps> = ({ onDeviceSelect }) => {
       : 'w-6 h-6 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200';
 
     if (isConnected) {
-      return <CastIcon className={iconClasses} isActive={true} />;
+      return <CastIcon className={iconClasses} showDot />;
     }
 
     return <CastIcon className={iconClasses} />;

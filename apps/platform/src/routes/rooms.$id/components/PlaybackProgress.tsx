@@ -1,5 +1,5 @@
 import { usePlaybackStore } from '@vibes/shared';
-import { PlaybackProgress as SharedPlaybackProgress } from '@vibes/ui';
+import { PlaybackProgress as SharedPlaybackProgress } from '@vibes/ui/web';
 import React from 'react';
 
 interface PlaybackProgressProps {

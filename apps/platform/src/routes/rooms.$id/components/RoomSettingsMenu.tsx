@@ -17,7 +17,7 @@ import {
   SunIcon,
   Toggle,
   YouTubeIcon,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import { motion } from 'framer-motion';
 import {
   type ComponentType,

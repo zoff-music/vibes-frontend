@@ -1,5 +1,5 @@
 import { showRateLimitMessageToast } from '@vibes/api';
-import { Button } from '@vibes/ui';
+import { Button } from '@vibes/ui/web';
 import {
   type ChangeEvent,
   type MouseEvent,

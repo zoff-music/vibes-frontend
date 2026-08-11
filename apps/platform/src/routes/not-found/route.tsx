@@ -1,4 +1,4 @@
-import { NotFoundView } from '@vibes/ui';
+import { NotFoundView } from '@vibes/ui/web';
 import { notFoundLoader } from './loader';
 import { notFoundMeta } from './meta';
 

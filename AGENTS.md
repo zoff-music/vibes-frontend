@@ -53,7 +53,7 @@ packages/
 │   ├── src/stores/        # Shared Zustand stores (playbackStore)
 │   ├── src/hooks/         # Shared hooks (useProviderToken)
 │   └── src/constants.ts   # Shared constants
-└── ui/                    # Shared UI + player components (PlayerControls, SpotifyPlayer, VideoPlayer)
+└── ui/                    # Shared UI with web, native, and shared subpath boundaries
 ```
 
 ## Packages
@@ -61,7 +61,9 @@ packages/
 - `@vibes/api`: API client (`import { api } from '@vibes/api'`)
 - `@vibes/models`: Shared types and schemas (`import { Room, Song, PlaybackState } from '@vibes/models'`)
 - `@vibes/shared`: Shared utilities (`import { safeWrap, usePlaybackStore, SourceType } from '@vibes/shared'`)
-- `@vibes/ui`: Shared UI + player components (`import { SpotifyPlayer, VideoPlayer, Toast } from '@vibes/ui'`)
+- `@vibes/ui/web`: DOM UI and player components (`import { VideoPlayer, Toast } from '@vibes/ui/web'`)
+- `@vibes/ui/native`: React Native controls and official native provider-player wrappers
+- `@vibes/ui/shared`: Platform-neutral icons, formatting, playback calculations, and presentation helpers
 
 ## Error Handling
 

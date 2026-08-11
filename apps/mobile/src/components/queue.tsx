@@ -121,10 +121,13 @@ export function Queue({
     </Animated.View>
   );
 
-  return (
+  const list = (
     <FlatList
+      automaticallyAdjustContentInsets={false}
+      automaticallyAdjustsScrollIndicatorInsets={false}
+      contentInsetAdjustmentBehavior="never"
       style={{ flex: 1 }}
-      contentContainerStyle={contained ? containedQueueStyle : queueStyle}
+      contentContainerStyle={contained ? undefined : queueStyle}
       data={songs}
       initialNumToRender={8}
       keyExtractor={(song) => song.id}
@@ -134,18 +137,32 @@ export function Queue({
         </View>
       }
       ListHeaderComponent={
-        <>
-          {header}
-          <View className="px-4 pt-4 pb-3">
-            <Copy muted>UP NEXT ({songs.length})</Copy>
-          </View>
-        </>
+        contained ? null : (
+          <>
+            {header}
+            <View className="px-4 pt-4 pb-3">
+              <Copy muted>UP NEXT ({songs.length})</Copy>
+            </View>
+          </>
+        )
       }
       maxToRenderPerBatch={8}
       renderItem={renderSong}
       ItemSeparatorComponent={QueueSeparator}
       windowSize={5}
     />
+  );
+
+  if (!contained) return list;
+
+  return (
+    <View className="min-h-0 flex-1">
+      {header}
+      <View className="px-4 pt-4 pb-3">
+        <Copy muted>UP NEXT ({songs.length})</Copy>
+      </View>
+      {list}
+    </View>
   );
 }
 
@@ -154,9 +171,3 @@ function QueueSeparator() {
 }
 
 const queueStyle = { paddingBottom: 112 };
-const containedQueueStyle = {
-  alignSelf: 'center' as const,
-  maxWidth: 760,
-  paddingBottom: 112,
-  width: '100%' as const,
-};

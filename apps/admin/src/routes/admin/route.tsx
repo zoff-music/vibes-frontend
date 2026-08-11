@@ -1,6 +1,6 @@
 import { showRateLimitMessageToast } from '@vibes/api';
 import type { AdminUser } from '@vibes/models';
-import { Button } from '@vibes/ui';
+import { Button } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import {
   isRouteErrorResponse,

@@ -1,5 +1,11 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { Button, CircleHalfIcon, MoonIcon, SunIcon, Tooltip } from '@vibes/ui';
+import {
+  Button,
+  CircleHalfIcon,
+  MoonIcon,
+  SunIcon,
+  Tooltip,
+} from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useNavigationType } from 'react-router';

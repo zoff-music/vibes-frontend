@@ -1,6 +1,6 @@
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { Button, Tooltip } from '@vibes/ui';
+import { Button, Tooltip } from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { PublicRoomDiscovery } from './PublicRoomDiscovery';

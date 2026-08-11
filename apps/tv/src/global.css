@@ -1,0 +1,31 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+@import "nativewind/theme";
+@import "../../../packages/tailwind/theme.css";
+@source "../../../packages/ui/src/native";
+
+@theme {
+  --font-heading: "Pixelify Sans Bold";
+  --font-sans: "Pixelify Sans Bold";
+  --color-tv-background: #120b1e;
+  --color-tv-card: #1a102a;
+  --color-tv-surface: #211435;
+  --color-tv-text: #e8dff5;
+  --color-tv-muted: #bfa8d6;
+  --color-tv-border: rgba(112, 72, 140, 0.55);
+  --color-accent: #00d9ff;
+  --color-primary: #ff2e97;
+  --color-native-background: #120b1e;
+  --color-native-card: #1a102a;
+  --color-native-surface: #211435;
+  --color-native-text: #e8dff5;
+  --color-native-muted: #bfa8d6;
+  --color-native-border: rgba(112, 72, 140, 0.55);
+  --color-native-dark-background: #120b1e;
+  --color-native-dark-card: #1a102a;
+  --color-native-dark-surface: #211435;
+  --color-native-dark-text: #e8dff5;
+  --color-native-dark-muted: #bfa8d6;
+  --color-native-dark-border: rgba(112, 72, 140, 0.55);
+}

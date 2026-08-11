@@ -13,7 +13,7 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { PlayerControls } from '@vibes/ui';
+import { PlayerControls } from '@vibes/ui/web';
 import React, {
   type ComponentType,
   type ReactNode,
@@ -425,7 +425,7 @@ export const RoomPlayer = React.memo(
       let isMounted = true;
       const loadSpotifyPlayer = async () => {
         const [loadErr, module] = await safeWrapAsync(
-          import('@vibes/ui/player/SpotifyPlayer'),
+          import('@vibes/ui/web/player/SpotifyPlayer'),
         );
         const resolvedComponent = module?.SpotifyPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
@@ -459,7 +459,7 @@ export const RoomPlayer = React.memo(
       let isMounted = true;
       const loadSoundCloudPlayer = async () => {
         const [loadErr, module] = await safeWrapAsync(
-          import('@vibes/ui/player/SoundCloudPlayer'),
+          import('@vibes/ui/web/player/SoundCloudPlayer'),
         );
         const resolvedComponent = module?.SoundCloudPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
@@ -496,7 +496,7 @@ export const RoomPlayer = React.memo(
       let isMounted = true;
       const loadVideoPlayer = async () => {
         const [loadErr, module] = await safeWrapAsync(
-          import('@vibes/ui/player/VideoPlayer'),
+          import('@vibes/ui/web/player/VideoPlayer'),
         );
         const resolvedComponent = module?.VideoPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {

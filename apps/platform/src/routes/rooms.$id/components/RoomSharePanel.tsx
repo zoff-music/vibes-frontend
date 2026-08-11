@@ -1,4 +1,4 @@
-import { Button, ShareIcon } from '@vibes/ui';
+import { Button, ShareIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import { useRouteLoaderData } from 'react-router';
 import type { RootLoaderData } from '../../../root';

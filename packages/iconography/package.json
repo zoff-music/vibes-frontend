@@ -12,6 +12,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check ."
   },
+  "dependencies": {
+    "@vibes/ui": "workspace:*"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.3.13",
     "typescript": "5.9.3"

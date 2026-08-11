@@ -1,6 +1,6 @@
 import type { Providers } from '@vibes/models';
 import type { SourceType } from '@vibes/shared';
-import { ProviderMark } from '@vibes/ui';
+import { ProviderMark } from '@vibes/ui/web';
 
 interface ProviderAttributionProps {
   providers: Providers;

@@ -1,3 +1,7 @@
+import {
+  playlistGenerationMessageIntervalMs,
+  playlistGenerationMessages,
+} from '@vibes/ui/shared';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -11,8 +15,10 @@ export function RoomGenerationProgress() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setMessageIndex((current) => (current + 1) % generationMessages.length);
-    }, generationMessageIntervalMs);
+      setMessageIndex(
+        (current) => (current + 1) % playlistGenerationMessages.length,
+      );
+    }, playlistGenerationMessageIntervalMs);
     return () => clearInterval(interval);
   }, []);
 
@@ -26,19 +32,10 @@ export function RoomGenerationProgress() {
       </View>
       <View className="items-center gap-2">
         <Text className="text-center font-heading text-mobile-text text-xl dark:text-mobile-dark-text">
-          {generationMessages[messageIndex]}
+          {playlistGenerationMessages[messageIndex]}
         </Text>
         <Copy muted>Your playlist will appear here automatically.</Copy>
       </View>
     </Animated.View>
   );
 }
-
-const generationMessages = [
-  'Generating your playlist...',
-  'Finding songs for your vibe...',
-  'Building the perfect queue...',
-  'Almost ready to listen...',
-];
-
-const generationMessageIntervalMs = 1_800;

@@ -1,4 +1,4 @@
-import { ToastViewport } from '@vibes/ui';
+import { ToastViewport } from '@vibes/ui/web';
 import { Outlet } from 'react-router';
 
 export function App() {

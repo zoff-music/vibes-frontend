@@ -1,5 +1,10 @@
 import type { AdminRoomSummary } from '@vibes/models';
-import { Button, SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
+import {
+  Button,
+  SoundCloudIcon,
+  SpotifyIcon,
+  YouTubeIcon,
+} from '@vibes/ui/web';
 import type { ChangeEvent, JSX, KeyboardEvent, MouseEvent } from 'react';
 
 interface AdminRoomCardProps {

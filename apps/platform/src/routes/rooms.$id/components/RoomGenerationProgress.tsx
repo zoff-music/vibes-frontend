@@ -1,33 +1,10 @@
 import { classNames } from '@vibes/shared';
-import { AlertCircleIcon, SparklesIcon } from '@vibes/ui';
+import {
+  playlistGenerationMessageIntervalMs,
+  playlistGenerationMessages,
+} from '@vibes/ui/shared';
+import { AlertCircleIcon, SparklesIcon } from '@vibes/ui/web';
 import { useEffect, useState } from 'react';
-
-const GENERATION_MESSAGES = [
-  'Generating your playlist',
-  'Finding songs that fit the vibe',
-  'Digging through hidden gems',
-  'Looking for the perfect opener',
-  'Balancing familiar favorites',
-  'Adding a few surprises',
-  'Checking tracks on YouTube',
-  'Avoiding suspiciously long videos',
-  'Keeping the energy flowing',
-  'Making sure the artists fit',
-  'Putting the songs in order',
-  'Giving the queue a final polish',
-  'Adding songs to your room',
-  'Almost ready to press play',
-  'Reading between the lines',
-  'Matching the mood to the moment',
-  'Following the musical thread',
-  'Chasing the right kind of energy',
-  'Mixing classics with discoveries',
-  'Trimming anything that breaks the flow',
-  'Hunting down official uploads',
-  'Double-checking the song choices',
-  'Shaping the middle of the playlist',
-  'Saving the best finish for last',
-];
 
 const TAKING_LONGER_DELAY_MS = 2.5 * 60 * 1000;
 
@@ -49,8 +26,10 @@ export function RoomGenerationProgress({
     }
 
     const interval = window.setInterval(() => {
-      setMessageIndex((current) => (current + 1) % GENERATION_MESSAGES.length);
-    }, 1800);
+      setMessageIndex(
+        (current) => (current + 1) % playlistGenerationMessages.length,
+      );
+    }, playlistGenerationMessageIntervalMs);
 
     return () => window.clearInterval(interval);
   }, [isFailed]);
@@ -89,7 +68,7 @@ export function RoomGenerationProgress({
         )}
 
         <h2 className="font-pixel text-lg text-theme sm:text-xl">
-          {!isFailed && GENERATION_MESSAGES[messageIndex]}
+          {!isFailed && playlistGenerationMessages[messageIndex]}
           {isFailed && 'Playlist generation stopped'}
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-sm text-theme-muted sm:text-base">

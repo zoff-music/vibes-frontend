@@ -1,17 +1,20 @@
 import type { CastDevice, Song } from '@vibes/models';
 import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
-import { Button, Modal } from '@vibes/ui';
+import {
+  Button,
+  CastIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  CloseIcon,
+  InfoIcon,
+  Modal,
+  PlayIcon,
+  SpinnerIcon,
+} from '@vibes/ui/web';
 import React, { useEffect, useState } from 'react';
 import { castManager } from '../../services/cast';
 import { CAST_DEVICE_PICKER_ID } from '../../services/cast/constants';
 import { useCastStore } from '../../stores/castStore';
-import { CastDeviceIcon } from '../icons/CastDeviceIcon';
-import { CheckCircleIcon } from '../icons/CheckCircleIcon';
-import { CheckIcon } from '../icons/CheckIcon';
-import { CloseIcon } from '../icons/CloseIcon';
-import { InfoCircleIcon } from '../icons/InfoCircleIcon';
-import { PlayIcon } from '../icons/PlayIcon';
-import { SpinnerIcon } from '../icons/SpinnerIcon';
 
 interface DeviceSelectorProps {
   isOpen: boolean;
@@ -209,7 +212,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
               {currentSong.sourceType === 'youtube' && (
                 <div className="mt-2 rounded border border-blue-300 bg-blue-100 p-3 text-blue-800 text-xs transition-colors duration-200 dark:border-blue-700/30 dark:bg-blue-900/20 dark:text-blue-400">
                   <div className="flex items-start gap-2">
-                    <InfoCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                    <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
                     <div>
                       <div className="font-medium">Custom Receiver Ready</div>
                       <div className="mt-1">
@@ -273,7 +276,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
           {availableDevices.length === 0 && (
             <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-              <CastDeviceIcon className="mx-auto mb-2 h-12 w-12 text-gray-300 dark:text-gray-600" />
+              <CastIcon className="mx-auto mb-2 h-12 w-12 text-gray-300 dark:text-gray-600" />
               <div className="font-medium text-gray-500 dark:text-gray-400">
                 No Chromecast devices found
               </div>
@@ -315,7 +318,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                   <div className="flex items-center space-x-3">
                     <div className="shrink-0">
                       {device.type === 'chromecast' && (
-                        <CastDeviceIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                        <CastIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
                       )}
                       {device.type !== 'chromecast' && (
                         <CheckCircleIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />

@@ -133,8 +133,8 @@ tag-triggered workflow.
 uploads it to TestFlight when a matching release tag is pushed:
 
 ```sh
-git tag mobile-v0.1.0
-git push origin mobile-v0.1.0
+git tag mobile-v0.2.0
+git push origin mobile-v0.2.0
 ```
 
 Do not push a matching tag until Apple credentials, the App Store Connect app

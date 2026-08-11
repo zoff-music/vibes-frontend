@@ -3,7 +3,7 @@ import type { Song } from '@vibes/models';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Share, Text, useWindowDimensions, View } from 'react-native';
+import { Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CastButton } from '@/components/cast-button';
@@ -20,6 +20,7 @@ import { Queue } from '@/components/queue';
 import { RoomGenerationProgress } from '@/components/room-generation-progress';
 import { Toast } from '@/components/toast';
 import { useLivePosition } from '@/hooks/use-live-position';
+import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
@@ -41,7 +42,8 @@ export function RoomScreen() {
     songs,
   } = useApp();
   const router = useRouter();
-  const { width } = useWindowDimensions();
+  const tabletLayout = useTabletLandscapeLayout();
+  const { width } = tabletLayout;
   const [notice, setNotice] = useState('');
 
   const current = playback?.currentSong ?? null;
@@ -158,10 +160,156 @@ export function RoomScreen() {
     }
   };
 
+  let playerSpacer = null;
+  if (playerPreferenceLoaded && playerEnabled) {
+    let height = Math.max(200, (width - 32) / (16 / 9));
+    if (tabletLayout.isTabletLandscape) {
+      height = tabletLayout.playerHeight;
+    }
+    playerSpacer = (
+      <View
+        style={{
+          height,
+        }}
+      />
+    );
+  }
+
+  let roomDetails = null;
+  if (room.isGenerating && !playerEnabled) {
+    roomDetails = (
+      <View className="h-56 overflow-hidden rounded-2xl border border-accent/60 bg-mobile-card dark:bg-mobile-dark-card">
+        <RoomGenerationProgress />
+      </View>
+    );
+  }
+  if (!room.isGenerating) {
+    roomDetails = (
+      <Card
+        className={
+          tabletLayout.isTabletLandscape ? 'flex-1 justify-between' : undefined
+        }
+      >
+        <View className="flex-row items-center justify-between gap-3">
+          <View className="min-w-0 flex-1 gap-1">
+            <Copy muted>NOW PLAYING</Copy>
+            <Text
+              numberOfLines={1}
+              className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+            >
+              {current?.title ?? 'Nothing playing'}
+            </Text>
+            <Copy muted>{current?.artist ?? ''}</Copy>
+          </View>
+          {playerEnabled && current && hasLocalPlaybackChanges && (
+            <IconButton
+              accessibilityLabel="Reset playback"
+              icon="reset"
+              onPress={() => void resetLocalPlayback()}
+            />
+          )}
+        </View>
+        <View className="flex-row gap-2">
+          {playerEnabled && (
+            <View className="flex-1">
+              <Button
+                disabled={!canControlPlayback}
+                icon={playback?.isPlaying ? 'pause' : 'play'}
+                label={playback?.isPlaying ? 'Pause' : 'Play'}
+                tone="secondary"
+                onPress={() =>
+                  void sendAction(playback?.isPlaying ? 'pause' : 'play')
+                }
+              />
+            </View>
+          )}
+          <View className="flex-1">
+            <Button
+              icon="skip"
+              label="Skip"
+              tone="secondary"
+              onPress={() => void skip()}
+            />
+          </View>
+        </View>
+        <PlaybackProgress
+          duration={current?.duration ?? 0}
+          onSeek={(position) => void seek(position)}
+          position={livePosition}
+          seekable={
+            playerEnabled &&
+            Boolean(current) &&
+            room.mode === 'host' &&
+            (room.hostId === room.userId || room.isAdmin)
+          }
+        />
+        <Toast
+          message={error || room.generationError || notice}
+          tone={!error && !room.generationError ? 'info' : 'error'}
+        />
+      </Card>
+    );
+  }
+
+  let content = (
+    <>
+      {playerSpacer}
+      <Queue
+        emptyMessage={
+          room.isGenerating
+            ? 'Songs will appear here as the playlist is generated.'
+            : 'No songs are queued yet.'
+        }
+        songs={queuedSongs}
+        onVote={(song) => void vote(song)}
+        {...(room.isAdmin
+          ? { onDelete: (song: Song) => void remove(song) }
+          : {})}
+        header={<View className="p-4">{roomDetails}</View>}
+      />
+    </>
+  );
+  if (tabletLayout.isTabletLandscape) {
+    content = (
+      <View className="min-h-0 flex-1 flex-row gap-4 px-4 pb-4">
+        <View
+          className="min-h-0 gap-4"
+          style={{ width: tabletLayout.playerPaneWidth }}
+        >
+          {playerSpacer}
+          {roomDetails}
+        </View>
+        <View
+          className="min-h-0 overflow-hidden rounded-2xl border border-mobile-border bg-mobile-card/80 dark:border-mobile-dark-border dark:bg-mobile-dark-card/80"
+          style={{ width: tabletLayout.playlistPaneWidth }}
+        >
+          <Queue
+            contained
+            emptyMessage={
+              room.isGenerating
+                ? 'Songs will appear here as the playlist is generated.'
+                : 'No songs are queued yet.'
+            }
+            songs={queuedSongs}
+            onVote={(song) => void vote(song)}
+            {...(room.isAdmin
+              ? { onDelete: (song: Song) => void remove(song) }
+              : {})}
+          />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']} style={{ flex: 1 }}>
-        <View className="flex-row items-center justify-between gap-3 px-4 py-3">
+        <View
+          className={classNames(
+            'flex-row items-center justify-between gap-3 px-4 py-3',
+            tabletLayout.isTabletLandscape && 'h-20 py-0',
+          )}
+        >
           <View className="min-w-0 flex-1">
             <Copy muted>NOW IN</Copy>
             <Text
@@ -187,100 +335,12 @@ export function RoomScreen() {
             <IconButton
               accessibilityLabel="Share room"
               icon="share"
-              size="large"
               onPress={() => void share()}
             />
             <CastButton />
           </View>
         </View>
-        {playerPreferenceLoaded && playerEnabled && (
-          <View style={{ height: Math.max(200, (width - 32) / (16 / 9)) }} />
-        )}
-        <Queue
-          emptyMessage={
-            room.isGenerating
-              ? 'Songs will appear here as the playlist is generated.'
-              : 'No songs are queued yet.'
-          }
-          songs={queuedSongs}
-          onVote={(song) => void vote(song)}
-          {...(room.isAdmin
-            ? { onDelete: (song: Song) => void remove(song) }
-            : {})}
-          header={
-            <View className="p-4">
-              {room.isGenerating && !playerEnabled && (
-                <View className="h-56 overflow-hidden rounded-2xl border border-accent/60 bg-mobile-card dark:bg-mobile-dark-card">
-                  <RoomGenerationProgress />
-                </View>
-              )}
-              {!room.isGenerating && (
-                <Card>
-                  <View className="flex-row items-center justify-between gap-3">
-                    <View className="min-w-0 flex-1 gap-1">
-                      <Copy muted>NOW PLAYING</Copy>
-                      <Text
-                        numberOfLines={1}
-                        className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
-                      >
-                        {current?.title ?? 'Nothing playing'}
-                      </Text>
-                      <Copy muted>{current?.artist ?? ''}</Copy>
-                    </View>
-                    {playerEnabled && current && hasLocalPlaybackChanges && (
-                      <IconButton
-                        accessibilityLabel="Reset playback"
-                        icon="reset"
-                        size="large"
-                        onPress={() => void resetLocalPlayback()}
-                      />
-                    )}
-                  </View>
-                  <View className="flex-row gap-2">
-                    {playerEnabled && (
-                      <View className="flex-1">
-                        <Button
-                          disabled={!canControlPlayback}
-                          icon={playback?.isPlaying ? 'pause' : 'play'}
-                          label={playback?.isPlaying ? 'Pause' : 'Play'}
-                          tone="secondary"
-                          onPress={() =>
-                            void sendAction(
-                              playback?.isPlaying ? 'pause' : 'play',
-                            )
-                          }
-                        />
-                      </View>
-                    )}
-                    <View className="flex-1">
-                      <Button
-                        icon="skip"
-                        label="Skip"
-                        tone="secondary"
-                        onPress={() => void skip()}
-                      />
-                    </View>
-                  </View>
-                  <PlaybackProgress
-                    duration={current?.duration ?? 0}
-                    onSeek={(position) => void seek(position)}
-                    position={livePosition}
-                    seekable={
-                      playerEnabled &&
-                      Boolean(current) &&
-                      room.mode === 'host' &&
-                      (room.hostId === room.userId || room.isAdmin)
-                    }
-                  />
-                  <Toast
-                    message={error || room.generationError || notice}
-                    tone={!error && !room.generationError ? 'info' : 'error'}
-                  />
-                </Card>
-              )}
-            </View>
-          }
-        />
+        {content}
       </SafeAreaView>
     </Screen>
   );

@@ -3,3 +3,7 @@
 The App Store submission packet lives in [`app-store/`](./app-store/README.md).
 It contains the final screenshots, app icon, metadata, review notes, privacy
 answers, and release checklist needed for App Store Connect.
+
+Tablet screenshots captured from the real iPad simulator and Android tablet
+emulator live in [`tablet/`](./tablet/). They verify the landscape room layout
+with the wider player pane on the left and the queue on the right.

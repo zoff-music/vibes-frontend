@@ -5,6 +5,14 @@
 @source "../";
 @source inline("hidden inline sm:hidden sm:inline md:hidden md:inline lg:hidden lg:inline xl:hidden xl:inline space-y-3");
 
+@font-face {
+  font-family: "Pixelify Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  src: url("@expo-google-fonts/pixelify-sans/700Bold/PixelifySans_700Bold.ttf")
+    format("truetype");
+}
+
 @layer base {
   :root {
     @apply font-body;

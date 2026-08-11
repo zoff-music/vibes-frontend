@@ -1,4 +1,4 @@
-import { ListenerUsageChart, SearchUsageChart } from '@vibes/ui';
+import { ListenerUsageChart, SearchUsageChart } from '@vibes/ui/web';
 import { useLoaderData } from 'react-router';
 import type { AdminOverviewLoaderData } from './loader';
 import { loader } from './loader';

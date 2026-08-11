@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { Button, Modal, SparklesIcon, Tooltip } from '@vibes/ui';
+import { Button, Modal, SparklesIcon, Tooltip } from '@vibes/ui/web';
 import { useState } from 'react';
 import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 

@@ -1,6 +1,6 @@
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { Button } from '@vibes/ui';
+import { Button } from '@vibes/ui/web';
 import { motion } from 'framer-motion';
 import type { MouseEvent } from 'react';
 

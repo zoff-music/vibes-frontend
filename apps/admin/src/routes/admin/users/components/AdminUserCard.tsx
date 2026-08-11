@@ -1,5 +1,5 @@
 import type { AdminUser } from '@vibes/models';
-import { Button } from '@vibes/ui';
+import { Button } from '@vibes/ui/web';
 import type { ChangeEvent, MouseEvent, SubmitEvent } from 'react';
 
 interface AdminUserCardProps {
