@@ -38,6 +38,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "./plugins/with-react-native-svg-node-modules.cjs",
       "expo-router",
       [
         "expo-audio",
