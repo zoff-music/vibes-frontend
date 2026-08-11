@@ -24,7 +24,7 @@ import {
   SpotifyIcon,
   Tooltip,
   YouTubeIcon,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import React, { useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../../routes/rooms.$id/action';

@@ -1,4 +1,8 @@
 import Slider from '@react-native-community/slider';
+import {
+  formatPlaybackMilliseconds,
+  getPlaybackPresentation,
+} from '@vibes/ui/shared';
 import { Text, View } from 'react-native';
 
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -18,8 +22,10 @@ export function PlaybackProgress({
 }: PlaybackProgressProps) {
   const theme = useAppTheme();
   const durationMs = duration * 1_000;
-  const boundedPosition = Math.min(Math.max(position, 0), durationMs);
-  const progress = durationMs > 0 ? boundedPosition / durationMs : 0;
+  const { boundedPositionMs, progress } = getPlaybackPresentation(
+    position,
+    durationMs,
+  );
 
   return (
     <View className="gap-1">
@@ -36,7 +42,7 @@ export function PlaybackProgress({
           onSlidingComplete={onSeek}
           tapToSeek
           thumbTintColor={theme.accent}
-          value={boundedPosition}
+          value={boundedPositionMs}
         />
       )}
       {(!seekable || durationMs === 0) && (
@@ -46,7 +52,7 @@ export function PlaybackProgress({
           accessibilityValue={{
             max: durationMs,
             min: 0,
-            now: boundedPosition,
+            now: boundedPositionMs,
           }}
           className="my-3 h-1.5 overflow-hidden rounded-full bg-mobile-surface dark:bg-mobile-dark-surface"
         >
@@ -58,18 +64,12 @@ export function PlaybackProgress({
       )}
       <View className="flex-row justify-between">
         <Text className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
-          {formatTime(boundedPosition)}
+          {formatPlaybackMilliseconds(boundedPositionMs)}
         </Text>
         <Text className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
-          {formatTime(durationMs)}
+          {formatPlaybackMilliseconds(durationMs)}
         </Text>
       </View>
     </View>
   );
-}
-
-function formatTime(milliseconds: number) {
-  const seconds = Math.max(0, Math.floor(milliseconds / 1_000));
-  const minutes = Math.floor(seconds / 60);
-  return `${minutes}:${String(seconds % 60).padStart(2, '0')}`;
 }

@@ -5,6 +5,12 @@ import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProviderPlayer } from '@/components/provider-player';
+import {
+  tabletLandscapePagePadding,
+  tabletPlayerTopOffset,
+  tabletRoomHeaderHeight,
+  useTabletLandscapeLayout,
+} from '@/hooks/use-tablet-landscape-layout';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
@@ -23,7 +29,21 @@ export function PersistentRoomPlayer() {
   const roomRequests = useRoomRequests(mobileApi);
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
+  const tabletLayout = useTabletLandscapeLayout();
   const visible = pathname === '/' && Boolean(room && roomId);
+
+  let availableWidth: number | undefined;
+  let horizontalMargin = playerHorizontalMargin;
+  let left = 0;
+  let right: number | undefined = 0;
+  let width: number | undefined;
+  if (tabletLayout.isTabletLandscape) {
+    availableWidth = tabletLayout.playerPaneWidth;
+    horizontalMargin = 0;
+    left = tabletLandscapePagePadding;
+    right = undefined;
+    width = tabletLayout.playerPaneWidth;
+  }
 
   if (!room || !roomId) return null;
 
@@ -31,15 +51,26 @@ export function PersistentRoomPlayer() {
     <View
       pointerEvents={visible ? 'auto' : 'none'}
       style={{
-        left: 0,
+        left,
         opacity: visible ? 1 : 0,
         position: 'absolute',
-        right: 0,
-        top: visible ? insets.top + playerHeaderHeight : 0,
+        right,
+        top: visible
+          ? insets.top +
+            (tabletLayout.isTabletLandscape
+              ? tabletRoomHeaderHeight + tabletPlayerTopOffset
+              : playerHeaderHeight)
+          : 0,
+        width,
         zIndex: visible ? playerZIndex : 0,
       }}
     >
       <ProviderPlayer
+        availableHeight={
+          tabletLayout.isTabletLandscape ? tabletLayout.playerHeight : undefined
+        }
+        availableWidth={availableWidth}
+        horizontalMargin={horizontalMargin}
         isGenerating={room.isGenerating}
         onLocalPositionObserved={observeLocalPlaybackPosition}
         onLocalSeek={setLocalPlaybackPosition}
@@ -87,3 +118,4 @@ export function ActiveRoomKeepAwake() {
 export const playerHeaderHeight = 76;
 
 const playerZIndex = 20;
+const playerHorizontalMargin = 16;

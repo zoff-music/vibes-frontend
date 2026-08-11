@@ -1,6 +1,10 @@
 import type { Song } from '@vibes/models';
 import { resolveSongThumbnail } from '@vibes/shared';
-import { ClickToPlayOverlay } from '@vibes/ui';
+import {
+  formatPlaybackMilliseconds,
+  getPlaybackPresentation,
+} from '@vibes/ui/shared';
+import { ClickToPlayOverlay } from '@vibes/ui/web';
 import { EmbedPlayerSource } from './player-source';
 import { EmbedSourceIcon } from './source-icon';
 
@@ -33,13 +37,10 @@ export function EmbedPlayerCard({
   spotifyToken,
   songs,
 }: Props) {
-  const progress = durationMs > 0 ? positionMs / durationMs : 0;
-  const formatTime = (milliseconds: number) => {
-    const seconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainder = seconds % 60;
-    return `${minutes}:${remainder.toString().padStart(2, '0')}`;
-  };
+  const { boundedPositionMs, progress } = getPlaybackPresentation(
+    positionMs,
+    durationMs,
+  );
 
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
@@ -93,8 +94,8 @@ export function EmbedPlayerCard({
           value={Math.min(progress, 1)}
         />
         <div className="mt-1 flex justify-between font-mono text-2xs text-theme-subtle">
-          <span>{formatTime(positionMs)}</span>
-          <span>{formatTime(durationMs)}</span>
+          <span>{formatPlaybackMilliseconds(boundedPositionMs)}</span>
+          <span>{formatPlaybackMilliseconds(durationMs)}</span>
         </div>
       </div>
     </div>

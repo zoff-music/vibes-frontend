@@ -1,4 +1,4 @@
-import { Button } from '@vibes/ui';
+import { Button } from '@vibes/ui/web';
 import { type ChangeEvent, type SubmitEvent, useEffect, useState } from 'react';
 import type { AdminRoomSearch } from '../rooms/loader';
 

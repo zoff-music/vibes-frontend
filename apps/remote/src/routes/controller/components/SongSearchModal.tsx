@@ -6,7 +6,7 @@ import {
   Modal,
   PlusIcon,
   ProviderIcon,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import { useState } from 'react';
 import type { useFetcher } from 'react-router';
 import type { ControllerActionData } from '../action';

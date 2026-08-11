@@ -10,6 +10,11 @@ Required captures:
 - `samsung-tv-landing.png` — Tizen landing state at 1920×1080.
 - `samsung-tv-room.png` — Tizen room state at 1920×1080.
 
+Release copy and platform-specific checklists are in:
+
+- [`google-play.md`](./google-play.md)
+- [`samsung-store.md`](./samsung-store.md)
+
 Before replacing a capture, verify:
 
 1. No text or card is clipped at the 5% television safe-area boundary.

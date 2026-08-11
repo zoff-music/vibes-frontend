@@ -28,6 +28,9 @@ export function useTvSession(client: ApiClient) {
   const positionMs = usePlaybackStore((state) => state.actualPositionMs);
   const serverTimeMs = usePlaybackStore((state) => state.serverTimeMs);
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
+  const updateActualPosition = usePlaybackStore(
+    (state) => state.updateActualPosition,
+  );
   const playback = useMemo(
     () => ({ currentSong, isPlaying, positionMs, serverTimeMs, updatedAt }),
     [currentSong, isPlaying, positionMs, serverTimeMs, updatedAt],
@@ -48,13 +51,22 @@ export function useTvSession(client: ApiClient) {
   );
   useSSE(roomId || undefined, callbacks, client);
 
+  useEffect(() => {
+    if (!roomId) return;
+    const interval = setInterval(
+      updateActualPosition,
+      playbackPositionIntervalMs,
+    );
+    return () => clearInterval(interval);
+  }, [roomId, updateActualPosition]);
+
   const applySnapshot = useCallback(
     (snapshot: { playback: PlaybackState; room: Room; songs: Song[] }) => {
       useRoomStore.getState().setRoom(snapshot.room);
       useQueueStore.getState().setSongs(snapshot.songs);
       usePlaybackStore
         .getState()
-        .setPlaybackState(snapshot.playback, snapshot.room.mode);
+        .resetPlaybackState(snapshot.playback, snapshot.room.mode);
     },
     [],
   );
@@ -82,16 +94,6 @@ export function useTvSession(client: ApiClient) {
           await getRequestErrorMessage(
             requestError,
             'Could not find that room.',
-          ),
-        );
-        return 'error';
-      }
-      const [sessionError] = await requests.joinRoom(normalizedRoomId);
-      if (sessionError) {
-        setError(
-          await getRequestErrorMessage(
-            sessionError,
-            'Could not join that room.',
           ),
         );
         return 'error';
@@ -192,6 +194,7 @@ export function useTvSession(client: ApiClient) {
     setError('');
     useRoomStore.getState().reset();
     useQueueStore.getState().setSongs([]);
+    usePlaybackStore.getState().resetPlaybackState(emptyPlaybackState);
   }, []);
 
   useEffect(() => {
@@ -231,3 +234,12 @@ async function getRequestErrorMessage(error: Error | null, fallback: string) {
 }
 
 const notFoundStatus = 404;
+const playbackPositionIntervalMs = 1000;
+
+const emptyPlaybackState: PlaybackState = {
+  currentSong: null,
+  isPlaying: false,
+  positionMs: 0,
+  serverTimeMs: 0,
+  updatedAt: '',
+};

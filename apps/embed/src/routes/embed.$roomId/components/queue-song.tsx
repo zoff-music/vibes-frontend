@@ -1,17 +1,12 @@
 import type { Song } from '@vibes/models';
 import { resolveSongThumbnail } from '@vibes/shared';
-import { Button, VoteIcon } from '@vibes/ui';
+import { formatPlaybackSeconds } from '@vibes/ui/shared';
+import { Button, VoteIcon } from '@vibes/ui/web';
 
 interface Props {
   song: Song;
   votingEnabled: boolean;
   onVote: (songId: string) => void;
-}
-
-function formatDuration(seconds: number) {
-  const minutes = Math.floor(seconds / 60);
-  const remainder = seconds % 60;
-  return `${minutes}:${remainder.toString().padStart(2, '0')}`;
 }
 
 export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
@@ -26,7 +21,8 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
       <span className="min-w-0 flex-1 text-left">
         <span className="block truncate text-theme text-xs">{song.title}</span>
         <span className="mt-0.5 block truncate text-theme-muted text-xs">
-          {song.artist || 'Unknown artist'} · {formatDuration(song.duration)}
+          {song.artist || 'Unknown artist'} ·{' '}
+          {formatPlaybackSeconds(song.duration)}
         </span>
       </span>
       {votingEnabled && (song.voteCount ?? 0) > 0 && (

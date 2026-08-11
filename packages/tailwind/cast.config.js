@@ -32,9 +32,9 @@ export default {
         'text-inverse': '#ffffff',
       },
       fontFamily: {
-        body: ['"Space Grotesk"', '"Noto Sans JP"', 'system-ui', 'sans-serif'],
-        heading: ['"Orbitron"', '"Noto Sans JP"', 'system-ui', 'sans-serif'],
-        mono: ['"Space Mono"', 'monospace'],
+        body: ['"Pixelify Sans"', 'monospace'],
+        heading: ['"Pixelify Sans"', 'monospace'],
+        mono: ['"Pixelify Sans"', 'monospace'],
       },
       borderRadius: {
         sm: '6px',

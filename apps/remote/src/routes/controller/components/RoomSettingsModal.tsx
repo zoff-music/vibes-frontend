@@ -5,7 +5,7 @@ import {
   Modal,
   ProviderIcon,
   Toggle,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import type { useFetcher } from 'react-router';
 import type { ControllerActionData } from '../action';
 import type { ControllerLoaderData } from '../loadController';

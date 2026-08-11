@@ -1,5 +1,5 @@
 import { useRoomStore } from '@vibes/shared';
-import { ListenerCount } from '@vibes/ui';
+import { ListenerCount } from '@vibes/ui/web';
 
 export const UserCount = () => {
   const usersCount = useRoomStore((state) => state.usersCount);

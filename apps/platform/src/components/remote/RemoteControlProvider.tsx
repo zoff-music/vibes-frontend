@@ -6,7 +6,7 @@ import {
   usePlaybackStore,
   useRoomStore,
 } from '@vibes/shared';
-import { Button, CloseIcon, Modal, RemoteIcon, Tooltip } from '@vibes/ui';
+import { Button, CloseIcon, Modal, RemoteIcon, Tooltip } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   createContext,

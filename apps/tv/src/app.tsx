@@ -2,8 +2,8 @@ import {
   PixelifySans_700Bold,
   useFonts,
 } from '@expo-google-fonts/pixelify-sans';
-import { useState } from 'react';
-import { StatusBar, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { BackHandler, StatusBar, View } from 'react-native';
 import { useTvSession } from '@/hooks/use-tv-session';
 import { tvApi } from '@/lib/api';
 import { LandingScreen } from '@/screens/landing-screen';
@@ -16,6 +16,18 @@ export function App() {
   });
   const session = useTvSession(tvApi);
   const [isAIMode, setIsAIMode] = useState(false);
+
+  useEffect(() => {
+    if (!session.roomId) return;
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        session.leaveRoom();
+        return true;
+      },
+    );
+    return () => subscription.remove();
+  }, [session.leaveRoom, session.roomId]);
 
   if (!fontsLoaded) return null;
 

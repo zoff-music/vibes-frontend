@@ -1,5 +1,5 @@
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
-import { AlertCircleIcon, Button, SparklesIcon } from '@vibes/ui';
+import { AlertCircleIcon, Button, SparklesIcon } from '@vibes/ui/web';
 import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../action';

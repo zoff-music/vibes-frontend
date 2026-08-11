@@ -1,7 +1,15 @@
+import { classNames } from '@vibes/shared';
+import {
+  NativeButton,
+  NativeCard,
+  NativeCopy,
+  NativeField,
+  NativeHeading,
+} from '@vibes/ui/native';
+import { chunkItems } from '@vibes/ui/shared';
 import { useState } from 'react';
-import { ScrollView, Text, TextInput, View } from 'react-native';
-import { FocusButton } from '@/components/focus-button';
-import { TvIcon } from '@/components/tv-icon';
+import { ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { useGenerationMessage } from '@/hooks/use-generation-message';
 import type { useTvSession } from '@/hooks/use-tv-session';
 
 interface LandingScreenProps {
@@ -15,7 +23,14 @@ export function LandingScreen({
   onToggleAIMode,
   session,
 }: LandingScreenProps) {
+  const { height, width } = useWindowDimensions();
+  const compact = width <= compactScreenWidth || height <= compactScreenHeight;
   const [value, setValue] = useState('');
+  const publicRoomRows = chunkItems(
+    session.publicRooms.slice(0, publicRoomLimit),
+    compact ? compactPublicRoomColumns : publicRoomColumns,
+  );
+  const generationMessage = useGenerationMessage(isAIMode && session.loading);
   const submit = () => {
     if (isAIMode) {
       void session.generateRoom(value);
@@ -31,62 +46,109 @@ export function LandingScreen({
   let buttonLabel = 'Enter a room name';
   if (value.trim()) buttonLabel = 'Join or create room';
   if (isAIMode) buttonLabel = 'Generate playlist';
-  if (session.loading) buttonLabel = 'Tuning the signal…';
+  if (session.loading && !isAIMode) buttonLabel = 'Tuning the signal…';
+  if (session.loading && isAIMode) buttonLabel = generationMessage;
   let placeholder = 'Room name';
   let aiTone: 'primary' | 'secondary' = 'secondary';
-  let aiIconColor = '#e8dff5';
   if (isAIMode) {
     placeholder = 'Late-night synthwave for a rainy drive';
     aiTone = 'primary';
-    aiIconColor = '#ffffff';
   }
 
   return (
-    <ScrollView contentContainerClassName="min-h-full px-20 py-12">
-      <View className="mx-auto w-full max-w-6xl gap-10">
-        <View className="items-center gap-2">
-          <Text className="font-heading text-8xl text-primary">ゾフ</Text>
-          <Text className="font-heading text-5xl text-tv-text">Zoff TV</Text>
-          <Text className="font-heading text-2xl text-tv-muted">
-            Shared music rooms, made for the biggest screen.
+    <ScrollView
+      contentContainerClassName={classNames(
+        'min-h-full',
+        compact ? 'px-10 py-6' : 'px-20 py-12',
+      )}
+    >
+      <View
+        className={classNames(
+          'mx-auto',
+          compact ? 'w-2/3' : 'w-2/5',
+          compact ? 'gap-5' : 'gap-10',
+        )}
+      >
+        <View className="items-center gap-3">
+          <Text
+            className={classNames(
+              'font-heading text-primary',
+              compact ? 'text-4xl' : 'text-6xl',
+            )}
+          >
+            ゾフ
           </Text>
+          <NativeCopy muted>
+            Shared music rooms, made for the biggest screen.
+          </NativeCopy>
         </View>
 
-        <View className="gap-7 rounded-[2rem] border-2 border-tv-border bg-tv-card/95 p-10">
-          <View className="flex-row items-center gap-5">
-            <TextInput
+        <NativeCard className="gap-6 rounded-3xl border-2 p-8">
+          <View
+            className={classNames(
+              'flex-row items-center',
+              compact ? 'gap-4' : 'gap-6',
+            )}
+          >
+            <NativeField
               autoCapitalize="none"
-              className="min-h-20 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-7 font-heading text-3xl text-tv-text"
               onChangeText={setValue}
               onSubmitEditing={submit}
               placeholder={placeholder}
-              placeholderTextColor="#826b9a"
+              inputClassName="h-16 min-h-0 px-6 text-xl"
               value={value}
+              wrapperClassName="min-w-0 flex-1"
             />
-            <FocusButton onPress={onToggleAIMode} tone={aiTone}>
-              <TvIcon color={aiIconColor} name="sparkles" size={30} />
-            </FocusButton>
-            <FocusButton
-              disabled={session.loading || !value.trim()}
-              label={buttonLabel}
-              onPress={submit}
-              preferred
-              tone="primary"
+            <NativeButton
+              accessibilityLabel={
+                isAIMode ? 'Disable AI mode' : 'Enable AI mode'
+              }
+              icon="sparkles"
+              className="h-16 min-h-0 w-16 px-0"
+              onPress={onToggleAIMode}
+              tone={aiTone}
             />
           </View>
+          <NativeButton
+            disabled={session.loading || !value.trim()}
+            className="h-16 min-h-0 px-6"
+            label={buttonLabel}
+            onPress={submit}
+            preferred
+            tone="primary"
+          />
+          {isAIMode && session.loading && (
+            <View className="flex-row items-center justify-center gap-4">
+              <View className="h-3 w-3 rounded-full bg-accent" />
+              <Text
+                className={classNames(
+                  'font-heading text-accent',
+                  compact ? 'text-sm' : 'text-xl',
+                )}
+              >
+                {generationMessage}
+              </Text>
+            </View>
+          )}
           {session.error && (
-            <Text className="font-heading text-primary text-xl">
+            <Text
+              className={classNames(
+                'font-heading text-primary',
+                compact ? 'text-sm' : 'text-xl',
+              )}
+            >
               {session.error}
             </Text>
           )}
-        </View>
+        </NativeCard>
 
-        <View className="gap-5">
+        <View className={compact ? 'gap-3' : 'gap-5'}>
           <View className="flex-row items-center justify-between">
-            <Text className="font-heading text-3xl text-tv-text">Live now</Text>
-            <Text className="font-heading text-tv-muted text-xl">
-              {session.publicRooms.length} public rooms
-            </Text>
+            <NativeHeading>Live now</NativeHeading>
+            <NativeCopy muted>
+              {session.publicRooms.length} public{' '}
+              {session.publicRooms.length === 1 ? 'room' : 'rooms'}
+            </NativeCopy>
           </View>
           {session.publicRooms.length === 0 && (
             <View className="rounded-2xl border-2 border-tv-border bg-tv-card p-8">
@@ -95,24 +157,72 @@ export function LandingScreen({
               </Text>
             </View>
           )}
-          <View className="flex-row flex-wrap gap-5">
-            {session.publicRooms.slice(0, publicRoomLimit).map((room) => (
-              <View className="w-[31%]" key={room.id}>
-                <FocusButton
-                  label={`${room.name} · ${room.listenerCount} listening · ${room.songCount} songs`}
-                  onPress={() => void session.loadRoom(room.id)}
-                />
+          <View className={compact ? 'gap-3' : 'gap-5'}>
+            {publicRoomRows.map((rooms) => (
+              <View
+                className={classNames('flex-row', compact ? 'gap-3' : 'gap-5')}
+                key={rooms.map((room) => room.id).join(':')}
+              >
+                {rooms.map((room) => (
+                  <View className="min-w-0 flex-1" key={room.id}>
+                    <NativeButton
+                      className={compact ? 'px-8 py-6' : 'px-12 py-8'}
+                      onPress={() => void session.loadRoom(room.id)}
+                      tone="secondary"
+                    >
+                      <View className="min-w-0 flex-1 flex-row items-center justify-between gap-5">
+                        <View className="min-w-0 flex-1 gap-1">
+                          <Text
+                            className={classNames(
+                              'font-heading text-tv-text',
+                              compact ? 'text-lg' : 'text-2xl',
+                            )}
+                            numberOfLines={1}
+                          >
+                            {room.name}
+                          </Text>
+                          <Text
+                            className={classNames(
+                              'font-heading text-tv-muted',
+                              compact ? 'text-xs' : 'text-lg',
+                            )}
+                            numberOfLines={1}
+                          >
+                            {room.listenerCount} listening · {room.songCount}{' '}
+                            songs
+                          </Text>
+                        </View>
+                        <Text
+                          className={classNames(
+                            'shrink-0 font-heading text-accent',
+                            compact ? 'text-xs' : 'text-lg',
+                          )}
+                        >
+                          Join →
+                        </Text>
+                      </View>
+                    </NativeButton>
+                  </View>
+                ))}
               </View>
             ))}
           </View>
         </View>
 
-        <Text className="text-center font-heading text-lg text-tv-muted">
+        <NativeCopy muted>
           Music from {session.providers.join(' · ') || 'enabled providers'}
-        </Text>
+        </NativeCopy>
       </View>
     </ScrollView>
   );
 }
 
 const publicRoomLimit = 6;
+
+const publicRoomColumns = 3;
+
+const compactPublicRoomColumns = 2;
+
+const compactScreenWidth = 1100;
+
+const compactScreenHeight = 560;

@@ -26,7 +26,10 @@ Use these rules for frontend work in this repository.
 - `packages/api` owns backend API/SSE wiring and exported API hooks.
 - `packages/models` owns shared types and Yup schemas.
 - `packages/shared` owns utilities, hooks, stores, and constants such as `safeWrap`, `safeWrapAsync`, and playback state.
-- `packages/ui` owns shared UI and player components.
+- `packages/ui` owns shared UI and player components through explicit platform
+  boundaries: import DOM renderers from `@vibes/ui/web`, React Native renderers
+  from `@vibes/ui/native`, and platform-neutral definitions and behavior from
+  `@vibes/ui/shared`. Never import a renderer from the wrong platform boundary.
 - `packages/serve` owns shared TypeScript server, metrics, and tracing utilities.
 - Dependencies used across multiple workspaces should be workspace dependencies where appropriate.
 
@@ -43,6 +46,12 @@ Use these rules for frontend work in this repository.
   focus rings, bounded queue rows, and no interaction that requires touch.
 - Provider playback must use official provider players or SDKs. Never extract
   direct music/video streams to work around a platform limitation.
+- Native controls shared by mobile and Android TV belong in `@vibes/ui/native`.
+  Keep their spacing, typography, cards, fields, buttons, focus behavior, and QR
+  presentation unified there; apps may supply theme tokens and dynamic layout.
+- Put reusable icons, playback calculations, provider metadata, formatting, and
+  presentation-state helpers in `@vibes/ui/shared`. Do not duplicate semantic
+  icon maps or cross-platform behavior in individual applications.
 
 ## API Package
 

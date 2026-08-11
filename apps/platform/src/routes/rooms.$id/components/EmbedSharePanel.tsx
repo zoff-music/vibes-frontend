@@ -14,7 +14,7 @@ import {
   MoonIcon,
   SunIcon,
   Toggle,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import { type MouseEvent, useMemo, useRef, useState } from 'react';
 
 interface Props {

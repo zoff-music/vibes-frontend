@@ -36,6 +36,11 @@
     "experiments": {
       "reactCompiler": true
     },
-    "owner": "zoff-music"
+    "owner": "zoff-music",
+    "extra": {
+      "eas": {
+        "projectId": "7225f468-bfdd-491b-8369-8f0b2ccf4bbc"
+      }
+    }
   }
 }

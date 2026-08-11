@@ -16,6 +16,7 @@ import {
   parseProviderPlaylistLink,
   parseProviderTrackLink,
 } from '@vibes/shared';
+import { getProviderDisplayName } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
@@ -265,7 +266,7 @@ export function SearchSheet({
       setError(
         await getRequestErrorMessage(
           requestError,
-          `Could not search ${providerLabels[provider]}. Check your connection and try again.`,
+          `Could not search ${getProviderDisplayName(provider)}. Check your connection and try again.`,
         ),
       );
       return;
@@ -362,7 +363,7 @@ export function SearchSheet({
             numberOfLines={1}
             className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted"
           >
-            {item.channelTitle ?? providerLabels[item.source]}
+            {item.channelTitle ?? getProviderDisplayName(item.source)}
           </Text>
         </View>
         <View className="size-10 items-center justify-center rounded-xl bg-primary">
@@ -415,7 +416,7 @@ export function SearchSheet({
                   onPress={() => setProvider(source)}
                 >
                   <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
-                    {providerLabels[source]}
+                    {getProviderDisplayName(source)}
                   </Text>
                 </Pressable>
               ))}
@@ -524,7 +525,8 @@ export function SearchSheet({
                   {loading && <Empty loading>Searching for music…</Empty>}
                   {!loading && (
                     <Empty>
-                      Search {providerLabels[provider]} or paste a direct link.
+                      Search {getProviderDisplayName(provider)} or paste a
+                      direct link.
                     </Empty>
                   )}
                 </View>
@@ -536,11 +538,5 @@ export function SearchSheet({
     </Screen>
   );
 }
-
-const providerLabels: Record<SourceType, string> = {
-  soundcloud: 'SoundCloud',
-  spotify: 'Spotify',
-  youtube: 'YouTube',
-};
 
 const supportedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];

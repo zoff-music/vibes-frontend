@@ -1,5 +1,5 @@
 import { resolveSongThumbnail } from '@vibes/shared';
-import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
+import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import { useCast } from './CastProvider';

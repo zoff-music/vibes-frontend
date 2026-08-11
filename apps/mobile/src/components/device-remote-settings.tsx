@@ -1,5 +1,5 @@
+import { NativeQrCode } from '@vibes/ui/native';
 import { Text, View } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 
 import zoffLogo from '@/assets/images/icon.png';
 import { Button, Card, Copy } from '@/components/native';
@@ -38,19 +38,8 @@ export function DeviceRemoteSettings() {
         )}
         {machinePairing && (
           <View className="items-center gap-3">
-            <View className="rounded-3xl bg-white p-3">
-              <QRCode
-                backgroundColor="#ffffff"
-                color="#2a1840"
-                logo={zoffLogo}
-                logoBackgroundColor="#ffffff"
-                logoBorderRadius={10}
-                logoMargin={4}
-                logoSize={42}
-                quietZone={10}
-                size={220}
-                value={pairingUrl}
-              />
+            <View className="items-center">
+              <NativeQrCode logo={zoffLogo} size={220} value={pairingUrl} />
             </View>
             <Copy muted>REMOTE ID</Copy>
             <Copy>{machinePairing.id}</Copy>

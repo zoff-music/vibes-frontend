@@ -9,7 +9,7 @@ import {
   ShareIcon,
   SunIcon,
   Tooltip,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, {
   lazy,

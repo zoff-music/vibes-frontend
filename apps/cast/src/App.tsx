@@ -1,4 +1,4 @@
-import { DebugConsole, ToastViewport } from '@vibes/ui';
+import { DebugConsole, ToastViewport } from '@vibes/ui/web';
 import { ActiveView } from './components/ActiveView';
 import { CastProvider, useCast } from './components/CastProvider';
 import { IdleView } from './components/IdleView';

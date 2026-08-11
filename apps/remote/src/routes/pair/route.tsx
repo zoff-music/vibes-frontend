@@ -1,5 +1,5 @@
 import { safeWrap } from '@vibes/shared';
-import { Button, Input } from '@vibes/ui';
+import { Button, Input } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useSearchParams } from 'react-router';
 import { clientAction, type PairActionData } from './action';

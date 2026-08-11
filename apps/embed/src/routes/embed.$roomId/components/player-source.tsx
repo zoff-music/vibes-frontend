@@ -3,17 +3,17 @@ import { classNames } from '@vibes/shared';
 import { lazy, memo, Suspense, useEffect, useState } from 'react';
 
 const LazySoundCloudPlayer = lazy(async () => {
-  const module = await import('@vibes/ui/player/SoundCloudPlayer');
+  const module = await import('@vibes/ui/web/player/SoundCloudPlayer');
   return { default: module.SoundCloudPlayer };
 });
 
 const LazySpotifyPlayer = lazy(async () => {
-  const module = await import('@vibes/ui/player/SpotifyPlayer');
+  const module = await import('@vibes/ui/web/player/SpotifyPlayer');
   return { default: module.SpotifyPlayer };
 });
 
 const LazyVideoPlayer = lazy(async () => {
-  const module = await import('@vibes/ui/player/VideoPlayer');
+  const module = await import('@vibes/ui/web/player/VideoPlayer');
   return { default: module.VideoPlayer };
 });
 

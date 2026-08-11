@@ -1,28 +1,60 @@
+import {
+  formatPlaybackSeconds,
+  getPlaybackPresentation,
+  getProviderDisplayName,
+  getQueueRemainderLabel,
+} from '@vibes/ui/shared';
+import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
+import { useEffect, useRef, useState } from 'react';
+import { useGenerationMessage } from '@/hooks/use-generation-message';
 import type { useTvSession } from '@/hooks/use-tv-session';
 import { QrCode } from '@/tizen/qr-code';
+import { YouTubeIframePlayer } from '@/tizen/youtube-iframe-player';
 
 interface TizenRoomProps {
   session: ReturnType<typeof useTvSession>;
 }
 
 export function TizenRoom({ session }: TizenRoomProps) {
+  const queueRef = useRef<HTMLDivElement>(null);
+  const [visibleQueueLength, setVisibleQueueLength] = useState(0);
+  const isGenerating = Boolean(session.room?.isGenerating);
+  const generationMessage = useGenerationMessage(isGenerating);
   const current = session.playback.currentSong;
   const queued = current
     ? session.songs.filter((song) => song.id !== current.id)
     : session.songs;
   const joinUrl = `https://zoff.me/${encodeURIComponent(session.roomId)}`;
+  useEffect(() => {
+    const queue = queueRef.current;
+    if (!queue) return;
+    const updateVisibleQueueLength = () => {
+      const height = queue.getBoundingClientRect().height;
+      setVisibleQueueLength(
+        Math.max(
+          0,
+          Math.floor(
+            (height + queueTrackGap) / (queueTrackHeight + queueTrackGap),
+          ),
+        ),
+      );
+    };
+    updateVisibleQueueLength();
+    const observer = new ResizeObserver(updateVisibleQueueLength);
+    observer.observe(queue);
+    return () => observer.disconnect();
+  }, []);
   let player = (
     <div className="flex h-full items-center justify-center bg-black text-4xl text-tv-muted">
-      Add songs from your phone to begin
+      No song is playing
     </div>
   );
   if (current?.sourceType === 'youtube') {
-    const src = `https://www.youtube.com/embed/${encodeURIComponent(current.sourceId)}?autoplay=1&enablejsapi=1&playsinline=1&rel=0`;
     player = (
-      <iframe
-        allow="autoplay; encrypted-media"
-        className="h-full w-full border-0"
-        src={src}
+      <YouTubeIframePlayer
+        key={`${current.sourceId}:${session.playback.updatedAt}`}
+        positionMs={session.playback.positionMs}
+        sourceId={current.sourceId}
         title={current.title}
       />
     );
@@ -70,87 +102,156 @@ export function TizenRoom({ session }: TizenRoomProps) {
       </div>
     );
   }
-  return (
-    <div className="relative grid h-full grid-cols-[1.65fr_1fr] gap-8 p-8">
-      <section className="flex min-w-0 flex-col gap-5">
-        <header className="flex items-center justify-between gap-5">
-          <div className="min-w-0">
-            <div className="text-accent text-xl">NOW PLAYING</div>
-            <h1 className="truncate text-4xl">
-              {current?.title ?? 'Waiting for music'}
-            </h1>
-          </div>
-          <button
-            className="rounded-2xl border-2 border-tv-border bg-tv-surface px-8 py-4 text-xl"
-            onClick={session.leaveRoom}
-            type="button"
-          >
-            ← Leave
-          </button>
-        </header>
-        <div className="min-h-0 flex-1 overflow-hidden rounded-[2rem] border-2 border-tv-border bg-black">
-          {player}
+  if (isGenerating && !current) {
+    player = (
+      <div className="flex h-full flex-col items-center justify-center gap-6 bg-tv-surface">
+        <div className="size-14 animate-spin rounded-full border-4 border-tv-border border-t-accent" />
+        <div className="animate-pulse text-3xl">{generationMessage}</div>
+        <div className="text-tv-muted text-xl">
+          Songs will appear here automatically.
         </div>
-        <div className="flex items-center gap-5 rounded-3xl border-2 border-tv-border bg-tv-card p-5">
-          {current?.thumbnailUrl && (
-            <img
-              alt=""
-              className="size-24 rounded-2xl object-cover"
-              src={current.thumbnailUrl}
+      </div>
+    );
+  }
+  const listenerCount = session.listenerCount || session.room?.userCount || 0;
+  const progress = getPlaybackPresentation(
+    session.playback.positionMs,
+    (current?.duration ?? 0) * millisecondsPerSecond,
+  ).progress;
+  const queueRemainderLabel = getQueueRemainderLabel(
+    queued.length,
+    visibleQueueLength,
+  );
+  return (
+    <div className="relative flex h-full gap-6 overflow-hidden p-6">
+      <section className="flex h-full w-[65%] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-primary/30 bg-tv-card">
+        <div className="min-h-0 flex-1 bg-black">{player}</div>
+        <div className="shrink-0 border-tv-border border-t bg-black px-8 py-5">
+          <div className="flex items-end gap-6">
+            {current?.thumbnailUrl && (
+              <img
+                alt=""
+                className="size-20 shrink-0 rounded-xl border border-tv-border object-cover"
+                src={current.thumbnailUrl}
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <h1 className="mb-2 truncate text-2xl">
+                {current?.title ?? 'No song is playing'}
+              </h1>
+              <p className="truncate text-lg text-tv-muted">
+                {current?.artist ?? 'Waiting for the room queue'}
+              </p>
+            </div>
+            <span className="shrink-0 text-tv-muted text-xl">
+              {current ? getProviderDisplayName(current.sourceType) : ''}
+            </span>
+          </div>
+          <div className="mt-4 flex justify-between text-sm text-white/60">
+            <span>
+              {formatPlaybackSeconds(
+                session.playback.positionMs / millisecondsPerSecond,
+              )}
+            </span>
+            <span>{formatPlaybackSeconds(current?.duration ?? 0)}</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/20">
+            <div
+              className="h-full bg-accent"
+              style={{ width: `${progress * percentageMultiplier}%` }}
             />
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-3xl">
-              {current?.title ?? 'Add songs to play'}
-            </div>
-            <div className="text-tv-muted text-xl">
-              {current?.artist ?? session.room?.name}
-            </div>
           </div>
         </div>
       </section>
-      <aside className="flex min-w-0 flex-col gap-5">
-        <header>
-          <h2 className="text-4xl">Up next ({queued.length})</h2>
-          <p className="text-tv-muted text-xl">
-            {session.listenerCount || session.room?.userCount || 0} listening
-          </p>
-        </header>
-        <div className="min-h-0 flex-1 overflow-hidden rounded-[2rem] border-2 border-tv-border bg-tv-card p-5">
-          <div className="space-y-3">
-            {queued.slice(0, 5).map((song, index) => (
-              <div
-                className="flex items-center gap-4 rounded-2xl border border-tv-border bg-tv-surface p-4"
-                key={song.id}
-              >
-                <span className="w-8 text-tv-muted text-xl">{index + 1}</span>
-                <img
-                  alt=""
-                  className="size-16 rounded-xl object-cover"
-                  src={song.thumbnailUrl}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-xl">{song.title}</div>
-                  <div className="truncate text-lg text-tv-muted">
-                    {song.artist ?? song.sourceType} · {song.voteCount ?? 0}{' '}
-                    votes
-                  </div>
-                </div>
-              </div>
-            ))}
+
+      <aside className="flex h-full min-w-0 flex-1 flex-col rounded-[2rem] border border-primary/30 bg-tv-card p-7">
+        <header className="mb-5 flex items-center justify-between gap-3 border-tv-border border-b pb-5">
+          <h2 className="text-sm text-tv-muted uppercase tracking-[0.2em]">
+            Up Next ({queued.length})
+          </h2>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 rounded-full border border-accent/30 px-4 py-2 text-sm text-tv-muted">
+              <span className="size-2 rounded-full bg-accent" />
+              {listenerCount} {listenerCount === 1 ? 'listener' : 'listeners'}
+            </div>
+            <button
+              className="rounded-xl border border-tv-border bg-tv-surface px-4 py-2 text-sm"
+              onClick={session.leaveRoom}
+              type="button"
+            >
+              Leave
+            </button>
           </div>
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-hidden" ref={queueRef}>
+          {queued.length === 0 ? (
+            <div className="flex h-full items-center justify-center rounded-2xl border border-tv-border text-center text-tv-muted">
+              The queue is empty
+            </div>
+          ) : (
+            <div className="flex h-full flex-col">
+              <div className="flex shrink-0 flex-col gap-3">
+                {queued.slice(0, visibleQueueLength).map((song, index) => (
+                  <div
+                    className="flex h-24 items-center gap-4 rounded-2xl border border-tv-border bg-tv-surface px-4"
+                    key={song.id}
+                  >
+                    <span className="w-7 shrink-0 text-center text-tv-muted text-xs">
+                      {index + 1}
+                    </span>
+                    <img
+                      alt=""
+                      className="size-16 shrink-0 rounded-xl border border-tv-border object-cover"
+                      src={song.thumbnailUrl}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs">{song.title}</p>
+                      <p className="mt-1 truncate text-tv-muted text-xs">
+                        {song.artist ?? 'Unknown Artist'} ·{' '}
+                        {formatPlaybackSeconds(song.duration)}
+                      </p>
+                    </div>
+                    <span className="flex shrink-0 items-center gap-1 text-accent text-xs">
+                      <VoteIcon className="size-4" />
+                      {song.voteCount ?? 0}
+                    </span>
+                    <span className="shrink-0 text-tv-muted">
+                      <ProviderIcon
+                        className="size-[1.125rem]"
+                        provider={song.sourceType}
+                      />
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {queueRemainderLabel && (
+                <div className="flex min-h-7 flex-1 items-center justify-center text-tv-muted text-xs">
+                  {queueRemainderLabel}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-5 rounded-[2rem] border-2 border-primary/60 bg-tv-card p-5">
+
+        <div className="mt-5 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-3xl border border-primary/30 bg-tv-surface p-4">
           <QrCode value={joinUrl} />
           <div className="min-w-0">
-            <div className="text-accent text-xl">SCAN TO JOIN</div>
-            <div className="truncate text-4xl">{session.room?.name}</div>
-            <div className="text-lg text-tv-muted">
+            <p className="text-accent text-xs uppercase tracking-[0.2em]">
+              Scan to join
+            </p>
+            <p className="mt-3 truncate text-2xl">{session.room?.name}</p>
+            <p className="mt-2 text-sm text-tv-muted">
               Add songs and vote from your phone
-            </div>
+            </p>
           </div>
         </div>
       </aside>
     </div>
   );
 }
+
+const millisecondsPerSecond = 1000;
+const percentageMultiplier = 100;
+const queueTrackHeight = 96;
+const queueTrackGap = 12;

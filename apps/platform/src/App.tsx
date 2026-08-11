@@ -1,5 +1,5 @@
 import { isTruthyFlag, safeWrapAsync } from '@vibes/shared';
-import { ToastViewport } from '@vibes/ui';
+import { ToastViewport } from '@vibes/ui/web';
 import { MotionConfig } from 'framer-motion';
 import {
   type ComponentType,
@@ -29,7 +29,7 @@ function DebugConsoleLoader() {
 
     const loadDebugConsole = async () => {
       const [loadErr, module] = await safeWrapAsync(
-        import('@vibes/ui/components/DebugConsole'),
+        import('@vibes/ui/web/components/DebugConsole'),
       );
       if (!isMounted || loadErr || !module?.DebugConsole) {
         if (loadErr) {

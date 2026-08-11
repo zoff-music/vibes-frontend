@@ -3,6 +3,7 @@
 @import "tailwindcss/utilities.css";
 @import "nativewind/theme";
 @import "../../../packages/tailwind/theme.css";
+@source "../../../packages/ui/src/native";
 
 @theme {
   --font-heading: "Pixelify Sans Bold";
@@ -24,4 +25,16 @@
   --color-mobile-dark-text: #e8dff5;
   --color-mobile-dark-muted: #bfa8d6;
   --color-mobile-dark-border: rgba(112, 72, 140, 0.4);
+  --color-native-background: #f6ebff;
+  --color-native-card: #fdf7ff;
+  --color-native-surface: #f2ddff;
+  --color-native-text: #2a1840;
+  --color-native-muted: #5b4276;
+  --color-native-border: rgba(112, 72, 140, 0.35);
+  --color-native-dark-background: #120b1e;
+  --color-native-dark-card: #1a102a;
+  --color-native-dark-surface: #1e1330;
+  --color-native-dark-text: #e8dff5;
+  --color-native-dark-muted: #bfa8d6;
+  --color-native-dark-border: rgba(112, 72, 140, 0.4);
 }

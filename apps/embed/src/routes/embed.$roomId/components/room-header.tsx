@@ -8,7 +8,7 @@ import {
   PlayIcon,
   ResetIcon,
   SkipIcon,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import { useRouteLoaderData } from 'react-router';
 import type { RootLoaderData } from '../../../root';
 

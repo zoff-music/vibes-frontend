@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from '@vibes/ui';
+import { ExternalLinkIcon } from '@vibes/ui/web';
 import { Link } from 'react-router';
 
 export function SiteFooter() {

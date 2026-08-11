@@ -1,5 +1,5 @@
 import type { Song } from '@vibes/models';
-import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui';
+import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui/web';
 
 interface Props {
   currentSong: Song | null;

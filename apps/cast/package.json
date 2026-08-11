@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@expo-google-fonts/pixelify-sans": "^0.4.2",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/serve": "workspace:*",

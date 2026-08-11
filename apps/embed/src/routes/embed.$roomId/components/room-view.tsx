@@ -1,4 +1,4 @@
-import { Toast } from '@vibes/ui';
+import { Toast } from '@vibes/ui/web';
 import { useEmbedRoom } from '../hooks/use-embed-room';
 import type { EmbedLoaderData } from '../loader';
 import { EmbedPlayerCard } from './player-card';

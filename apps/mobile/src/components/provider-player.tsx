@@ -1,5 +1,6 @@
 import type { PlaybackState, Song } from '@vibes/models';
 import { safeWrap } from '@vibes/shared';
+import { NativeYouTubePlayer } from '@vibes/ui/native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import type {
@@ -10,9 +11,11 @@ import { WebView } from 'react-native-webview';
 import { Copy } from '@/components/native';
 import { RoomGenerationProgress } from '@/components/room-generation-progress';
 import { Toast } from '@/components/toast';
-import { YouTubePlayer } from '@/components/youtube-player';
 
 interface ProviderPlayerProps {
+  availableHeight?: number;
+  availableWidth?: number;
+  horizontalMargin?: number;
   isGenerating: boolean;
   onLocalPlayingChange: (isPlaying: boolean) => void;
   onLocalPositionObserved: (positionMs: number) => void;
@@ -24,6 +27,9 @@ interface ProviderPlayerProps {
 }
 
 export function ProviderPlayer({
+  availableHeight,
+  availableWidth,
+  horizontalMargin = playerHorizontalMargin,
   isGenerating,
   onLocalPlayingChange,
   onLocalPositionObserved,
@@ -39,9 +45,16 @@ export function ProviderPlayer({
   const previousResetVersion = useRef(resetVersion);
   const [error, setError] = useState('');
   const songId = song?.id;
-  const playerWidth = Math.max(0, windowWidth - playerHorizontalMargin * 2);
+  const playerWidth = Math.max(
+    0,
+    (availableWidth ?? windowWidth) - horizontalMargin * 2,
+  );
   const playerHeight = Math.max(
     minimumPlayerHeight,
+    availableHeight ?? playerWidth / playerAspectRatio,
+  );
+  const embeddedPlayerHeight = Math.min(
+    playerHeight,
     playerWidth / playerAspectRatio,
   );
   const playerHtml = useMemo(
@@ -87,7 +100,7 @@ export function ProviderPlayer({
         className="overflow-hidden rounded-2xl border border-accent/60 bg-mobile-card dark:bg-mobile-dark-card"
         style={{
           height: playerHeight,
-          marginHorizontal: playerHorizontalMargin,
+          marginHorizontal: horizontalMargin,
         }}
       >
         <RoomGenerationProgress />
@@ -101,7 +114,7 @@ export function ProviderPlayer({
         className="items-center justify-center overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
         style={{
           height: playerHeight,
-          marginHorizontal: playerHorizontalMargin,
+          marginHorizontal: horizontalMargin,
         }}
       >
         <Copy muted>Add a song to start listening.</Copy>
@@ -113,20 +126,21 @@ export function ProviderPlayer({
     return (
       <View className="gap-2">
         <View
-          className="overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
+          className="items-center justify-center overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
           style={{
             height: playerHeight,
-            marginHorizontal: playerHorizontalMargin,
+            marginHorizontal: horizontalMargin,
           }}
         >
-          <YouTubePlayer
+          <NativeYouTubePlayer
             key={song.id}
-            height={playerHeight}
+            height={embeddedPlayerHeight}
+            isPlaying={playback?.isPlaying ?? false}
             onError={setError}
             onLocalPositionObserved={onLocalPositionObserved}
             onPlayingChange={onLocalPlayingChange}
             onLocalSeek={onLocalSeek}
-            playback={playback}
+            positionMs={playback?.positionMs ?? 0}
             resetVersion={resetVersion}
             sourceId={song.sourceId}
             synchronizePosition={synchronizePosition}
@@ -179,7 +193,7 @@ export function ProviderPlayer({
       className="overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
       style={{
         height: playerHeight,
-        marginHorizontal: playerHorizontalMargin,
+        marginHorizontal: horizontalMargin,
       }}
     >
       <WebView

@@ -62,6 +62,37 @@ The config plugin marks Leanback as required, disables the touchscreen
 requirement, installs the 320×180 TV banner, and registers the Leanback launcher
 activity. Use an Android TV emulator or physical Android/Google TV device.
 
+### Expo Application Services
+
+The Expo project is
+[`@zoff-music/vibes-tv`](https://expo.dev/accounts/zoff-music/projects/vibes-tv).
+Its EAS project ID and Android TV build profiles are committed without any
+credentials or account secrets.
+
+Create an installable development build or internal preview APK:
+
+```sh
+pnpm --filter @vibes/tv android:build:development
+pnpm --filter @vibes/tv android:build:preview
+```
+
+Create the Google Play App Bundle only when preparing a release:
+
+```sh
+pnpm --filter @vibes/tv android:build:production
+```
+
+After the first App Bundle has been uploaded manually and Google Play API
+credentials have been configured privately in EAS, submit the latest production
+build to the internal track with:
+
+```sh
+pnpm --filter @vibes/tv android:submit
+```
+
+Never commit a Google service-account key. Samsung Tizen certificates are also
+managed outside the repository and are not handled by EAS.
+
 ## Samsung Tizen
 
 Build the self-contained Tizen web package:

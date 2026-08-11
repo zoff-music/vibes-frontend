@@ -7,6 +7,8 @@ import {
 import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
 import {
   AlertCircleIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
   Button,
   CheckIcon,
   CloseIcon,
@@ -15,11 +17,9 @@ import {
   SpotifyIcon,
   Toggle,
   YouTubeIcon,
-} from '@vibes/ui';
+} from '@vibes/ui/web';
 import React, { useEffect, useState } from 'react';
 import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
-import { ArrowLeftIcon } from '../../components/icons/ArrowLeftIcon';
-import { ArrowRightIcon } from '../../components/icons/ArrowRightIcon';
 import { useThemeStore } from '../../stores/themeStore';
 import type { RoomsCreateActionData } from './action';
 import { clientAction } from './action';

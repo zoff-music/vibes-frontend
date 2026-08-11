@@ -1,15 +1,14 @@
-import { classNames } from '@vibes/shared';
-import type { PropsWithChildren, ReactNode } from 'react';
-import { forwardRef } from 'react';
 import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  TextInput,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
+  NativeButton,
+  NativeCard,
+  NativeCopy,
+  NativeField,
+  NativeHeading,
+  NativeIconButton,
+} from '@vibes/ui/native';
+import type { PropsWithChildren, ReactNode } from 'react';
+import { ActivityIndicator, useWindowDimensions, View } from 'react-native';
+import type { ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 
 export function Screen({ children }: PropsWithChildren) {
@@ -37,13 +36,7 @@ export function Screen({ children }: PropsWithChildren) {
   );
 }
 
-export function Card({ children }: PropsWithChildren) {
-  return (
-    <View className="gap-4 rounded-2xl border border-mobile-border bg-mobile-card/95 p-4 shadow-black/10 shadow-md dark:border-mobile-dark-border dark:bg-mobile-dark-card/95 dark:shadow-black/30">
-      {children}
-    </View>
-  );
-}
+export const Card = NativeCard;
 
 export function ContentColumn({ children }: PropsWithChildren) {
   const { width } = useWindowDimensions();
@@ -57,30 +50,9 @@ export function ContentColumn({ children }: PropsWithChildren) {
   );
 }
 
-export function Heading({ children }: PropsWithChildren) {
-  return (
-    <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
-      {children}
-    </Text>
-  );
-}
+export const Heading = NativeHeading;
 
-export function Copy({
-  children,
-  muted = false,
-}: PropsWithChildren<{ muted?: boolean }>) {
-  return (
-    <Text
-      className={classNames(
-        'font-heading text-sm leading-5',
-        muted && 'text-mobile-muted dark:text-mobile-dark-muted',
-        !muted && 'text-mobile-text dark:text-mobile-dark-text',
-      )}
-    >
-      {children}
-    </Text>
-  );
-}
+export const Copy = NativeCopy;
 
 interface ButtonProps {
   accessibilityLabel?: string;
@@ -108,20 +80,14 @@ export function IconButton({
 }: IconButtonProps) {
   const theme = useAppTheme();
   return (
-    <Pressable
+    <NativeIconButton
       accessibilityLabel={accessibilityLabel}
-      accessibilityRole="button"
-      className={classNames(
-        'items-center justify-center rounded-xl border border-mobile-border bg-mobile-surface active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
-        size === 'default' && 'size-12',
-        size === 'large' && 'size-13',
-        disabled && 'opacity-45',
-      )}
       disabled={disabled}
+      icon={icon}
+      iconColor={theme.text}
       onPress={onPress}
-    >
-      <ZoffIcon color={theme.text} name={icon} size={20} />
-    </Pressable>
+      size={size}
+    />
   );
 }
 
@@ -142,74 +108,19 @@ export function Button({
     iconColor = theme.danger;
   }
   return (
-    <Pressable
+    <NativeButton
       accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityRole="button"
-      className={classNames(
-        'min-h-13 flex-row items-center justify-center gap-2 rounded-xl border px-4 shadow-sm active:opacity-70',
-        tone === 'primary' && 'border-primary bg-primary',
-        tone === 'danger' &&
-          'border-error bg-mobile-surface dark:bg-mobile-dark-surface',
-        tone === 'secondary' &&
-          'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
-        disabled && 'opacity-45',
-      )}
       disabled={disabled}
+      icon={icon}
+      iconColor={iconColor}
+      label={label}
       onPress={onPress}
-    >
-      {icon && <ZoffIcon color={iconColor} name={icon} size={18} />}
-      <Text
-        className={classNames(
-          'font-heading text-base',
-          tone === 'primary' && 'text-white',
-          tone === 'danger' && 'text-error',
-          tone === 'secondary' && 'text-mobile-text dark:text-mobile-dark-text',
-        )}
-      >
-        {label}
-      </Text>
-    </Pressable>
+      tone={tone}
+    />
   );
 }
 
-interface FieldProps {
-  accessibilityLabel?: string;
-  autoCapitalize?: 'none' | 'sentences';
-  onChangeText: (value: string) => void;
-  onSubmitEditing?: () => void;
-  placeholder: string;
-  secureTextEntry?: boolean;
-  trailingAction?: ReactNode;
-  testID?: string;
-  value: string;
-}
-
-export const Field = forwardRef<TextInput, FieldProps>(function Field(
-  { trailingAction, ...props },
-  ref,
-) {
-  const theme = useAppTheme();
-  return (
-    <View className="relative">
-      <TextInput
-        {...props}
-        ref={ref}
-        autoCorrect={false}
-        className={classNames(
-          'min-h-13 rounded-xl border border-mobile-border bg-mobile-surface px-4 font-heading text-base text-mobile-text dark:border-mobile-dark-border dark:bg-mobile-dark-surface dark:text-mobile-dark-text',
-          Boolean(trailingAction) && 'pr-16',
-        )}
-        placeholderTextColor={theme.muted}
-        returnKeyType="go"
-      />
-      {trailingAction && (
-        <View className="absolute top-0 right-1 bottom-0 justify-center">
-          {trailingAction}
-        </View>
-      )}
-    </View>
-  );
-});
+export const Field = NativeField;
 
 interface EmptyProps {
   children: ReactNode;

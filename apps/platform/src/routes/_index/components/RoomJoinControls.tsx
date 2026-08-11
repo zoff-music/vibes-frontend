@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { Button, SparklesIcon, Tooltip } from '@vibes/ui';
+import { Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 
 interface RoomJoinControlsProps {

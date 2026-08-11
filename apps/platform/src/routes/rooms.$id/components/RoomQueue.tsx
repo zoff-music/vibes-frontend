@@ -6,7 +6,7 @@ import {
   usePlaybackStore,
   useQueueStore,
 } from '@vibes/shared';
-import { ProviderIcon, QueueList, Tooltip } from '@vibes/ui';
+import { ProviderIcon, QueueList, Tooltip } from '@vibes/ui/web';
 import React, { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../action';
