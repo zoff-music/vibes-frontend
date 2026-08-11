@@ -1,0 +1,39 @@
+@import "tailwindcss";
+@import "../../../../packages/tailwind/theme.css";
+
+@theme {
+  --font-heading: "Pixelify Sans", monospace;
+  --font-sans: "Pixelify Sans", monospace;
+  --color-tv-background: #120b1e;
+  --color-tv-card: #1a102a;
+  --color-tv-surface: #211435;
+  --color-tv-text: #e8dff5;
+  --color-tv-muted: #bfa8d6;
+  --color-tv-border: rgba(112, 72, 140, 0.55);
+  --color-accent: #00d9ff;
+  --color-primary: #ff2e97;
+}
+
+@font-face {
+  font-family: "Pixelify Sans";
+  font-style: normal;
+  font-weight: 700;
+  src: url("@expo-google-fonts/pixelify-sans/700Bold/PixelifySans_700Bold.ttf")
+    format("truetype");
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+button:focus-visible,
+input:focus-visible {
+  border-color: #00d9ff;
+  box-shadow: 0 0 0 0.25rem rgba(0, 217, 255, 0.35);
+  outline: none;
+  transform: scale(1.025);
+}

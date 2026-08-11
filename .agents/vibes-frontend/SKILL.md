@@ -19,12 +19,30 @@ Use these rules for frontend work in this repository.
 - `apps/platform` is the React Router/Vite platform app.
 - `apps/admin` is the React Router/Vite admin app.
 - `apps/cast` is the cast receiver app.
+- `apps/mobile` is the Expo iOS/Android app and must render native components.
+- `apps/tv` owns the Android TV Expo app and Samsung Tizen web package. Its
+  native and DOM renderers may share API/domain hooks, but must not import UI
+  components from one another or from another app.
 - `packages/api` owns backend API/SSE wiring and exported API hooks.
 - `packages/models` owns shared types and Yup schemas.
 - `packages/shared` owns utilities, hooks, stores, and constants such as `safeWrap`, `safeWrapAsync`, and playback state.
 - `packages/ui` owns shared UI and player components.
 - `packages/serve` owns shared TypeScript server, metrics, and tracing utilities.
 - Dependencies used across multiple workspaces should be workspace dependencies where appropriate.
+
+## Native and TV Applications
+
+- Expo applications inject `expo/fetch` into `createApiClientWithBaseUrl` so
+  REST and SSE remain behind `@vibes/api` while retaining streaming support.
+- Android TV uses `react-native-tvos` and `@react-native-tvos/config-tv`; verify
+  Leanback launcher metadata, optional touchscreen support, TV banner assets,
+  and directional focus after prebuild.
+- Samsung TV is a Tizen web package. Keep its `config.xml`, bundled fonts,
+  directional focus behavior, and official provider embeds inside `apps/tv`.
+- TV UI must be designed for a ten-foot viewing distance: large type, strong
+  focus rings, bounded queue rows, and no interaction that requires touch.
+- Provider playback must use official provider players or SDKs. Never extract
+  direct music/video streams to work around a platform limitation.
 
 ## API Package
 

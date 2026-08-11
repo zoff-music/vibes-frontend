@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Zoff TV",
+    "slug": "vibes-tv",
+    "version": "0.1.0",
+    "orientation": "landscape",
+    "icon": "./assets/icon.png",
+    "scheme": "zoff-tv",
+    "userInterfaceStyle": "dark",
+    "platforms": ["android"],
+    "android": {
+      "package": "me.zoff.tv",
+      "icon": "./assets/icon.png",
+      "adaptiveIcon": {
+        "backgroundColor": "#120b1e",
+        "foregroundImage": "./assets/icon.png"
+      },
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
+    },
+    "plugins": [
+      [
+        "@react-native-tvos/config-tv",
+        {
+          "isTV": true,
+          "androidTVRequired": true,
+          "androidTVBanner": "assets/android-tv-banner.png",
+          "androidTVIcon": "assets/icon.png",
+          "removeFlipperOnAndroid": true
+        }
+      ],
+      "expo-asset"
+    ],
+    "experiments": {
+      "reactCompiler": true
+    },
+    "owner": "zoff-music"
+  }
+}

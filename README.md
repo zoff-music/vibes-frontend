@@ -22,6 +22,9 @@ A React Router + Vite + TypeScript monorepo using pnpm workspaces.
 - **`apps/admin`**: Admin application served separately while preserving the admin route surface
 - **`apps/cast`**: A standalone Chromecast Receiver application for synchronized playback on Google Cast devices (SSR-enabled)
 - **`apps/embed`**: A standalone SSR embed player served at `/embed/:roomName` by default
+- **`apps/mobile`**: Native Expo application for iOS and Android
+- **`apps/remote`**: Lightweight web remote for controlling a paired Zoff screen
+- **`apps/tv`**: Android TV Expo application and Samsung Tizen TV web package
 
 ## Shared Packages
 
@@ -44,6 +47,12 @@ pnpm --recursive dev
 
 # Run the embed app (port 3006)
 pnpm --filter @vibes/embed dev
+
+# Run the Android TV development server
+pnpm --filter @vibes/tv start
+
+# Run the Samsung Tizen TV preview
+pnpm --filter @vibes/tv tizen:dev
 ```
 
 Set `EMBED_BASE_PATH` in both `apps/platform/.env` and `apps/embed/.env` to
