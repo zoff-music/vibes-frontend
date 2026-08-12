@@ -2,15 +2,24 @@
 
 The primary web application for the Vibes ecosystem. It serves as the main interface for users to create rooms, manage queues, and control synchronized playback across devices with full server-side rendering support.
 
+## Visual preview
+
+### Landing page
+
+![Zoff landing page in dark mode](../../docs/screenshots/frontpage.png)
+
+### Active room
+
+![Zoff room with its player and queue](../../docs/screenshots/playlist.png)
+
 ## 🚀 Getting Started
 
 ### Local Development
 The platform app runs on port 3001 with SSR support.
 
-```bash
-cd apps/platform
+```sh
 pnpm install
-pnpm dev
+pnpm --filter @vibes/platform dev
 ```
 
 **App URL**: `http://localhost:3001`
@@ -73,17 +82,17 @@ The platform app includes comprehensive SSR support via `server.tsx`:
 - **State Management**: Zustand for high-performance, selective store subscriptions (playback, UI, auth)
 - **Styling**: Tailwind CSS v4 with custom "retro-futuristic" design system and enhanced dark mode
 - **API Engine**: `@vibes/api` for type-safe, validated request/response handling
-- **Real-time**: EventSource (SSE) for low-latency state updates from the backend
+- **Real-time**: Typed SSE subscriptions through `@vibes/api`
 - **Build Tool**: Vite with React 19 optimizations and SSR support
 
 ## 📁 Source Structure
 
-- `/src/components`: UI library, separated into `ui` (primitives), `player` (playback logic), and `queue` (list management)
-- `/src/stores`: Zustand global stores with SSR-safe initialization
-- `/src/hooks`: Shared logic for authentication, casting, and room events
-- `/src/pages`: Route components with SSR data requirements
-- `/src/api`: Auto-generated and custom API clients with Yup validation
-- `/server.tsx`: SSR server with intelligent data prefetching
+- `src/routes`: React Router route modules and colocated route workflows
+- `src/components`: Platform-specific room, queue, casting, and layout components
+- `src/hooks`: Platform workflows built on the shared typed API
+- `server`: Production server entrypoint and SSR asset handling
+- `@vibes/ui/web`: Shared DOM controls and provider players
+- `@vibes/api`: Typed REST and SSE boundary
 
 ## 🔧 Environment Configuration
 

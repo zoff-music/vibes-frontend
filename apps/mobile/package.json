@@ -1,5 +1,5 @@
 {
-  "name": "mobile",
+  "name": "@vibes/mobile",
   "main": "expo-router/entry",
   "version": "0.2.0",
   "dependencies": {

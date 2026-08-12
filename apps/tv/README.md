@@ -1,14 +1,24 @@
 # Zoff TV
 
-Zoff TV provides the Cast-style Zoff room experience as a dedicated television
-application for Android TV and Samsung Tizen TVs. The two targets share the
-typed room/session hook, `@vibes/api`, `@vibes/models`, and Zustand room stores,
-but render with target-appropriate UI primitives:
+Zoff TV is one television application delivered to Android TV and Samsung TVs.
+Both builds share the typed room/session hook, `@vibes/api`, `@vibes/models`,
+and Zustand room stores. Only the renderer and packaging differ because the two
+TV platforms run different application technologies:
 
 - Android TV uses Expo, NativeWind, React Native TV focus handling, and official
   provider WebViews.
-- Samsung TV uses a Tizen web package with Tailwind, spatial remote navigation,
-  and official provider iframes.
+- Samsung TV requires a browser-based application package, so that target uses
+  Tailwind, spatial remote navigation, and official provider iframes.
+
+## Visual preview
+
+### Android TV
+
+![Zoff TV room on Android TV](./docs/android-tv-room.png)
+
+### Samsung TV
+
+![Zoff TV room on a Samsung TV](./docs/samsung-tv-room.png)
 
 The queue is intentionally bounded to five visible rows. Viewers scan the QR
 code to add songs and vote from another device rather than manipulating a long
@@ -93,9 +103,9 @@ pnpm --filter @vibes/tv android:submit
 Never commit a Google service-account key. Samsung Tizen certificates are also
 managed outside the repository and are not handled by EAS.
 
-## Samsung Tizen
+## Samsung TV
 
-Build the self-contained Tizen web package:
+Build the self-contained Samsung TV web package:
 
 ```sh
 pnpm --filter @vibes/tv tizen:build

@@ -25,7 +25,7 @@ remote-control clients, built with pnpm workspaces.
 - **`apps/embed`**: A standalone SSR embed player served at `/embed/:roomName` by default
 - **`apps/mobile`**: Native Expo application for iOS and Android
 - **`apps/remote`**: Lightweight web remote for controlling a paired Zoff screen
-- **`apps/tv`**: Android TV Expo application and Samsung Tizen TV web package
+- **`apps/tv`**: Zoff TV, delivered as native Android TV and Samsung TV builds
 
 ## Shared Packages
 
@@ -52,12 +52,12 @@ pnpm --recursive dev
 pnpm --filter @vibes/embed dev
 
 # Run the native iOS/Android development server
-pnpm --filter mobile start
+pnpm --filter @vibes/mobile start
 
 # Run the Android TV development server
 pnpm --filter @vibes/tv start
 
-# Run the Samsung Tizen TV preview
+# Run the Samsung TV browser-runtime preview
 pnpm --filter @vibes/tv tizen:dev
 ```
 
@@ -72,8 +72,9 @@ Redis instance, see [Local Cast development](docs/local-cast-development.md).
 ## Server-Side Rendering (SSR)
 
 The React Router web applications support SSR for improved performance and SEO.
-Mobile and Android TV are native Expo applications; Samsung Tizen is a separate
-DOM build:
+Mobile is a native Expo application. Zoff TV shares its room/session behavior
+across two delivery targets: a native Android TV build and the browser runtime
+required by Samsung TVs.
 
 - **Platform App**: SSR with room data prefetching
 - **Admin App**: SSR for admin views
@@ -81,7 +82,8 @@ DOM build:
 - **Development**: Hot module replacement with SSR
 - **Production**: Optimized SSR builds
 - **Native**: Expo Router on mobile and an Expo Android TV entrypoint
-- **Tizen**: Vite-built Samsung TV package
+- **Samsung TV**: Vite packages the same TV product for Samsung's browser-based
+  application runtime
 
 ## Tooling
 

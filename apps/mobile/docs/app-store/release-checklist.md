@@ -26,10 +26,10 @@ From the repository root:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm --filter mobile lint
-pnpm --filter mobile typecheck
+pnpm --filter @vibes/mobile lint
+pnpm --filter @vibes/mobile typecheck
 pnpm dlx expo-doctor@latest apps/mobile
-pnpm --filter mobile exec expo export --platform ios --output-dir /tmp/zoff-ios-export
+pnpm --filter @vibes/mobile exec expo export --platform ios --output-dir /tmp/zoff-ios-export
 ```
 
 - [ ] Test room creation, join, search, add, vote, skip, pause/play, and settings.

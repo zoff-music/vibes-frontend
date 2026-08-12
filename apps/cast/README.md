@@ -2,15 +2,18 @@
 
 The standalone Chromecast Receiver application for the Vibes ecosystem. It handles synchronized playback of multiple music providers on Google Cast devices with server-side rendering for optimal performance.
 
+## Visual preview
+
+![Zoff Cast receiver waiting for playback](./docs/receiver-idle.png)
+
 ## 🚀 Getting Started
 
 ### Local Development
 The receiver runs on port 3003.
 
-```bash
-cd apps/cast
+```sh
 pnpm install
-pnpm dev
+pnpm --filter @vibes/cast dev
 ```
 
 **Receiver URL**: `http://localhost:3003`
@@ -105,7 +108,7 @@ The build script includes intelligent file watching:
 This app is built with:
 - **React 19**: Modern component architecture with SSR streaming
 - **pnpm**: Workspace package manager
-- **Tailwind CSS v3**: Theme-driven styling with legacy browser support
+- **Tailwind CSS**: Theme-driven styling with legacy browser support
 - **Legacy Transpilers**: Ensures compatibility with all Chromecast generations
 - **@vibes/shared**: Shared hooks, stores, and utilities
 - **@vibes/models**: Type-safe API schemas and validation
