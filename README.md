@@ -4,7 +4,8 @@
 
 # Vibes Frontend
 
-A React Router + Vite + TypeScript monorepo using pnpm workspaces.
+A TypeScript monorepo for the Zoff web, native mobile, Cast, admin, and embed
+clients, built with pnpm workspaces.
 
 ## Screenshots
 
@@ -22,6 +23,10 @@ A React Router + Vite + TypeScript monorepo using pnpm workspaces.
 - **`apps/admin`**: Admin application served separately while preserving the admin route surface
 - **`apps/cast`**: A standalone Chromecast Receiver application for synchronized playback on Google Cast devices (SSR-enabled)
 - **`apps/embed`**: A standalone SSR embed player served at `/embed/:roomName` by default
+- **`apps/mobile`**: The native iOS and Android app built with Expo Router and React Native
+
+The ordered Android store-listing captures live under
+`apps/mobile/docs/google-play/screenshots/phone`.
 
 ## Shared Packages
 
@@ -29,6 +34,7 @@ A React Router + Vite + TypeScript monorepo using pnpm workspaces.
 - **`packages/models`**: Shared domain types, interfaces, and validation schemas
 - **`packages/shared`**: Shared React hooks, utilities, and Zustand stores (includes safeWrap error handling)
 - **`packages/serve`**: Shared TypeScript server, metrics, and tracing utilities
+- **`packages/ui`**: Shared DOM UI and player components for the web applications
 
 ## Development
 
@@ -44,6 +50,13 @@ pnpm --recursive dev
 
 # Run the embed app (port 3006)
 pnpm --filter @vibes/embed dev
+
+# Run the native mobile app
+pnpm --filter mobile start
+
+# Build and launch a native development client
+pnpm --filter mobile android
+pnpm --filter mobile ios
 ```
 
 Set `EMBED_BASE_PATH` in both `apps/platform/.env` and `apps/embed/.env` to
@@ -56,13 +69,15 @@ Redis instance, see [Local Cast development](docs/local-cast-development.md).
 
 ## Server-Side Rendering (SSR)
 
-The web applications support SSR for improved performance and SEO:
+The web applications support SSR for improved performance and SEO. The mobile
+app is a native Expo application and is not built for web:
 
 - **Platform App**: SSR with room data prefetching
 - **Admin App**: SSR for admin views
 - **Cast App**: SSR for faster Chromecast loading
 - **Development**: Hot module replacement with SSR
 - **Production**: Optimized SSR builds
+- **Mobile**: Native Android and iOS routes with Expo Router
 
 ## Tooling
 
@@ -70,7 +85,7 @@ The web applications support SSR for improved performance and SEO:
 - **Type Checking**: TypeScript (`pnpm typecheck`)
 - **Testing**: Vitest
 - **Error Handling**: `safeWrap`/`safeWrapAsync` utilities (no try/catch)
-- **Styling**: Tailwind CSS v4 with dark mode support
+- **Styling**: Tailwind CSS v4 on web and NativeWind on mobile, both with dark mode support
 
 ## Key Features
 
@@ -78,7 +93,7 @@ The web applications support SSR for improved performance and SEO:
 - **Error Handling**: Safe error handling with `safeWrap` utilities
 - **Type Safety**: Full TypeScript with `@vibes/api`
 - **Real-time**: SSE integration for live updates
-- **Responsive**: Mobile-first design with Tailwind CSS v4
+- **Responsive**: Responsive web layouts and dedicated native mobile screens
 
 ## Rules
 

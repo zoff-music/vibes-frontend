@@ -1,4 +1,9 @@
-# Frontend Skill
+---
+name: vibes-frontend
+description: Build, refactor, review, or debug the Vibes frontend monorepo, including React Router web apps, the native Expo mobile app, shared TypeScript packages, API boundaries, Biome, Tailwind, and NativeWind.
+---
+
+# Vibes Frontend
 
 Use these rules for frontend work in this repository.
 
@@ -19,6 +24,8 @@ Use these rules for frontend work in this repository.
 - `apps/platform` is the React Router/Vite platform app.
 - `apps/admin` is the React Router/Vite admin app.
 - `apps/cast` is the cast receiver app.
+- `apps/embed` is the standalone SSR embed player.
+- `apps/mobile` is the native-only Expo Router app for Android and iOS. It has no web target.
 - `packages/api` owns backend API/SSE wiring and exported API hooks.
 - `packages/models` owns shared types and Yup schemas.
 - `packages/shared` owns utilities, hooks, stores, and constants such as `safeWrap`, `safeWrapAsync`, and playback state.
@@ -51,6 +58,17 @@ Use these rules for frontend work in this repository.
 - The platform app uses React Router with SSR and a custom TypeScript server. Server loaders/actions are allowed and should use `getServerApi()` so backend calls still go through `@vibes/api`.
 - Avoid hydration mismatches and keep browser-only APIs behind client-side guards.
 
+## Native Mobile
+
+- Keep Expo Router route files under `apps/mobile/src/app` thin. Routes may use the default exports Expo Router requires; move stateful workflows into hooks and substantial UI into components.
+- Put native components in `apps/mobile/src/components`, app hooks in `apps/mobile/src/hooks`, and native infrastructure in `apps/mobile/src/lib` or providers.
+- Do not import DOM-based `@vibes/ui` components into the mobile app. Reuse models, API clients, and non-DOM helpers from the shared packages.
+- Consume backend operations through hooks from `@vibes/api`. The native transport may inject `expo/fetch` only when constructing the shared API client; screens and components must never call endpoints with `fetch` directly.
+- Keep authentication and persisted native preferences in Expo SecureStore rather than browser storage.
+- Keep room-wide state in `AppProvider`, but extract self-contained workflows such as controller remotes and machine pairing into focused hooks.
+- Keep provider playback and remote synchronization behind dedicated components/hooks; do not duplicate timing or API behavior in routes.
+- The app is Android/iOS only. Do not add Expo web configuration, `react-native-web`, `react-dom`, web scripts, or browser favicon assets.
+
 ## Code Style
 
 - Use Biome only.
@@ -72,3 +90,5 @@ Use these rules for frontend work in this repository.
 - Ensure interactive elements have `cursor-pointer` and visible hover/loading states.
 - Keep Tailwind classes statically discoverable.
 - Avoid arbitrary Tailwind values when built-in utilities are enough.
+- In `apps/mobile`, use NativeWind `className` utilities for all static layout, spacing, sizing, color, and typography. Inline React Native styles are reserved for runtime-calculated geometry or values required by a native API.
+- Preserve native accessibility roles, labels, focus behavior, safe areas, and platform interaction conventions.
