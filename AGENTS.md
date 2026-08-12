@@ -5,7 +5,7 @@ Non-negotiable conventions. Follow strictly.
 ## Required Skill Check
 
 - Before making changes or reviewing code, check the repository's `.agents/` directory for applicable skills.
-- Frontend work in this repository requires reading `.agents/vibes-frontend/SKILL.md` in full before acting.
+- Frontend work in this repository requires reading `.agents/skills/vibes-frontend/SKILL.md` in full before acting.
 - Treat the skill and this `AGENTS.md` as cumulative, mandatory guidance. If additional applicable skills are added under `.agents/`, read those in full as well.
 
 ## Critical Rules
@@ -18,7 +18,7 @@ Non-negotiable conventions. Follow strictly.
 - **Run `pnpm lint`** to check both format and lint rules before committing.
 - **Run `pnpm typecheck`** to verify TypeScript compilation before committing.
 - **Use `@vibes/api`** for ALL API calls / SSE.
-- **NEVER use `fetch()` or `new EventSource()`**. Only `@vibes/api` clients.
+- **NEVER use `fetch()` or `new EventSource()`** in app code. Only `@vibes/api` clients; native API construction may inject `expo/fetch`.
 - **Unified Build System** - Apps build through the pnpm workspace
 - **Content Hashing** - All assets use content-based hashing for cache busting
 
@@ -277,7 +277,7 @@ const [error, results] = await api.get('/soundcloud/search', {}, { q: 'never gon
 
 ## Styling
 
-Use Tailwind CSS v4 with dark mode support. No inline styles or CSS-in-JS.
+Use Tailwind CSS v4 or NativeWind with dark mode support. Static presentation must not use inline styles or CSS-in-JS. React Native may use inline styles only for measured/runtime geometry, progress, or required native API style objects.
 Use `classNames` from `@vibes/shared` for conditional or composed class names. Do not interpolate class names with template strings.
 
 ```tsx
@@ -298,7 +298,7 @@ Use `classNames` from `@vibes/shared` for conditional or composed class names. D
 
 - Props interfaces defined above component
 - Destructure props in function signature
-- Export named components (not default)
+- Export named components; framework route and entrypoint files may use required default exports
 - Support dark mode
 - Include proper focus states for accessibility
 - Do not use ternaries to render JSX or DOM element branches. Use explicit `&&` conditions for each branch. Ternaries are allowed for scalar props, labels, and computed values.

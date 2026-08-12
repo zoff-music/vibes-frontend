@@ -1,41 +1,18 @@
-import {
-  type ApiClient,
-  useProviderRequests,
-  useRoomRequests,
-} from '@vibes/api';
-import type {
-  MusicPlaylist,
-  Providers,
-  SearchResult,
-  SourceType,
-} from '@vibes/models';
+import type { ApiClient } from '@vibes/api';
+import type { Providers } from '@vibes/models';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
-import {
-  classNames,
-  parseISODuration,
-  parseProviderPlaylistLink,
-  parseProviderTrackLink,
-} from '@vibes/shared';
+import { classNames } from '@vibes/shared';
 import { getProviderDisplayName } from '@vibes/ui/shared';
-import { Image } from 'expo-image';
-import { useEffect, useState } from 'react';
-import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  Button,
-  Copy,
-  Empty,
-  Field,
-  IconButton,
-  Screen,
-} from '@/components/native';
-import { Toast, useToast } from '@/components/toast';
+import { Button, Copy, Field, IconButton, Screen } from '@/components/native';
+import { SearchResults } from '@/components/search-results';
+import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { getRequestErrorMessage, mobileApi } from '@/lib/api';
-import { useApp } from '@/providers/app-provider';
+import { useMusicSearch } from '@/hooks/use-music-search';
+import { mobileApi } from '@/lib/api';
 
 interface SearchSheetProps {
   canGenerate: boolean;
@@ -61,317 +38,31 @@ export function SearchSheet({
   visible,
 }: SearchSheetProps) {
   const theme = useAppTheme();
-  const { showToast } = useToast();
-  const { providers, refresh, roomId } = useApp();
-  const providerRequests = useProviderRequests(client);
-  const roomRequests = useRoomRequests(client);
-  const [provider, setProvider] = useState<SourceType>('youtube');
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [playlist, setPlaylist] = useState<MusicPlaylist | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [isAIMode, setIsAIMode] = useState(false);
-  const targetRoomId = roomIdOverride ?? roomId;
-  const roomProviders = providersOverride ?? providers;
-  const enabledProviders = supportedProviders.filter(
-    (source) => providers.includes(source) && roomProviders.includes(source),
-  );
-
-  useEffect(() => {
-    if (enabledProviders.length === 0 || enabledProviders.includes(provider)) {
-      return;
-    }
-    setProvider(enabledProviders[0]);
-  }, [enabledProviders, provider]);
-
-  const toggleAIMode = () => {
-    if (!canGenerate) {
-      showToast(generationUnavailableReason);
-      return;
-    }
-    setIsAIMode((current) => !current);
-    setQuery('');
-    setResults([]);
-    setPlaylist(null);
-    setError('');
-  };
-
-  const generate = async () => {
-    if (!targetRoomId) {
-      setError('Join a room before generating a playlist.');
-      return;
-    }
-    if (!canGenerate) {
-      setError(generationUnavailableReason);
-      return;
-    }
-    const prompt = query.trim();
-    if (!prompt) {
-      setError('Describe the playlist you want.');
-      return;
-    }
-    setLoading(true);
-    const [requestError, result] = await roomRequests.generatePlaylist(
-      targetRoomId,
-      { prompt },
-    );
-    setLoading(false);
-    if (requestError || !result) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not start playlist generation.',
-        ),
-      );
-      return;
-    }
-    await onGenerated();
-    setQuery('');
-    setError('');
-    onClose();
-  };
-
-  const search = async () => {
-    if (isAIMode) {
-      await generate();
-      return;
-    }
-    const trimmedQuery = query.trim();
-    if (enabledProviders.length === 0) {
-      setError('This room has no enabled music providers.');
-      return;
-    }
-    const playlistLink = parseProviderPlaylistLink(trimmedQuery);
-    const trackLink = parseProviderTrackLink(trimmedQuery);
-    if (!playlistLink && !trackLink && trimmedQuery.length < 3) {
-      setError('Search needs at least 3 characters.');
-      return;
-    }
-    setError('');
-    setPlaylist(null);
-    setLoading(true);
-    Keyboard.dismiss();
-
-    if (playlistLink) {
-      if (!enabledProviders.includes(playlistLink.provider)) {
-        setLoading(false);
-        setError(`${playlistLink.provider} is not enabled in this room.`);
-        return;
-      }
-      setProvider(playlistLink.provider);
-      const [requestError, nextPlaylist] =
-        playlistLink.provider === 'youtube' && playlistLink.sourceId
-          ? await providerRequests.fetchYouTubePlaylist(playlistLink.sourceId)
-          : playlistLink.provider === 'spotify' && playlistLink.sourceId
-            ? await providerRequests.fetchSpotifyPlaylist(playlistLink.sourceId)
-            : await providerRequests.fetchSoundCloudPlaylist(
-                playlistLink.providerUrl ?? '',
-              );
-      setLoading(false);
-      if (requestError || !nextPlaylist) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not load this playlist.',
-          ),
-        );
-        return;
-      }
-      setPlaylist(nextPlaylist);
-      setResults(nextPlaylist.tracks);
-      return;
-    }
-
-    if (trackLink) {
-      if (!enabledProviders.includes(trackLink.provider)) {
-        setLoading(false);
-        setError(`${trackLink.provider} is not enabled in this room.`);
-        return;
-      }
-      setProvider(trackLink.provider);
-      if (trackLink.provider === 'youtube' && trackLink.sourceId) {
-        const [requestError, track] = await providerRequests.fetchYouTubeTrack(
-          trackLink.sourceId,
-        );
-        setLoading(false);
-        if (requestError || !track) {
-          setError(
-            await getRequestErrorMessage(
-              requestError,
-              'Could not load this song.',
-            ),
-          );
-          return;
-        }
-        setResults([{ ...track, source: 'youtube' }]);
-        return;
-      }
-      if (trackLink.provider === 'spotify' && trackLink.sourceId) {
-        const [requestError, track] = await providerRequests.fetchSpotifyTrack(
-          trackLink.sourceId,
-        );
-        setLoading(false);
-        if (requestError || !track) {
-          setError(
-            await getRequestErrorMessage(
-              requestError,
-              'Could not load this song.',
-            ),
-          );
-          return;
-        }
-        setResults([track]);
-        return;
-      }
-      const [requestError, track] = await providerRequests.fetchSoundCloudTrack(
-        trackLink.providerUrl ?? '',
-      );
-      setLoading(false);
-      if (requestError || !track) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not load this song.',
-          ),
-        );
-        return;
-      }
-      setResults([track]);
-      return;
-    }
-
-    if (provider === 'youtube') {
-      const [requestError, videos] =
-        await providerRequests.searchYouTube(trimmedQuery);
-      setLoading(false);
-      if (requestError || !videos) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not search YouTube. Check your connection and try again.',
-          ),
-        );
-        return;
-      }
-      setResults(videos.map((video) => ({ ...video, source: 'youtube' })));
-      return;
-    }
-    const [requestError, nextResults] =
-      provider === 'spotify'
-        ? await providerRequests.searchSpotify(trimmedQuery)
-        : await providerRequests.searchSoundCloud(trimmedQuery);
-    setLoading(false);
-    if (requestError || !nextResults) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          `Could not search ${getProviderDisplayName(provider)}. Check your connection and try again.`,
-        ),
-      );
-      return;
-    }
-    setResults(nextResults);
-  };
-
-  const add = async (result: SearchResult) => {
-    if (!targetRoomId) {
-      setError('Join a room before adding music.');
-      return;
-    }
-    const [requestError] = await providerRequests.addSong(targetRoomId, {
-      sourceType: result.source,
-      sourceId: result.id,
-      providerUrl: result.providerUrl,
-      title: result.title,
-      artist: result.channelTitle,
-      thumbnailUrl: result.thumbnailUrl ?? '',
-      duration: parseISODuration(result.duration),
-    });
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(requestError, 'Could not add this song.'),
-      );
-      return;
-    }
-    if (onAdded) {
-      await onAdded();
-    } else {
-      await refresh();
-    }
-    onClose();
-  };
-
-  const addPlaylist = async () => {
-    if (!targetRoomId) {
-      setError('Join a room before adding a playlist.');
-      return;
-    }
-    if (!playlist || playlist.tracks.length === 0) return;
-    setLoading(true);
-    const [requestError] = await providerRequests.addPlaylist(targetRoomId, {
-      songs: playlist.tracks.map((track) => ({
-        artist: track.channelTitle,
-        duration: parseISODuration(track.duration),
-        providerUrl: track.providerUrl,
-        sourceId: track.id,
-        sourceType: track.source,
-        thumbnailUrl: track.thumbnailUrl ?? '',
-        title: track.title,
-      })),
-    });
-    setLoading(false);
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not add this playlist.',
-        ),
-      );
-      return;
-    }
-    if (onAdded) {
-      await onAdded();
-    } else {
-      await refresh();
-    }
-    onClose();
-  };
-
-  const renderResult = (item: SearchResult, index: number) => (
-    <Animated.View
-      entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
-    >
-      <Pressable
-        accessibilityLabel={`Add ${item.title}`}
-        className="min-h-19 flex-row items-center gap-4 rounded-2xl border border-mobile-border bg-mobile-card p-4 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
-        onPress={() => void add(item)}
-      >
-        <Image
-          contentFit="cover"
-          source={item.thumbnailUrl}
-          style={{ borderRadius: 12, height: 56, width: 72 }}
-        />
-        <View className="min-w-0 flex-1 gap-1">
-          <Text
-            numberOfLines={2}
-            className="font-bold font-heading text-mobile-text text-sm dark:text-mobile-dark-text"
-          >
-            {item.title}
-          </Text>
-          <Text
-            numberOfLines={1}
-            className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted"
-          >
-            {item.channelTitle ?? getProviderDisplayName(item.source)}
-          </Text>
-        </View>
-        <View className="size-10 items-center justify-center rounded-xl bg-primary">
-          <ZoffIcon color="#ffffff" name="add" size={16} />
-        </View>
-      </Pressable>
-    </Animated.View>
-  );
+  const {
+    add,
+    addPlaylist,
+    enabledProviders,
+    error,
+    isAIMode,
+    loading,
+    playlist,
+    provider,
+    query,
+    results,
+    search,
+    setProvider,
+    toggleAIMode,
+    updateQuery,
+  } = useMusicSearch({
+    canGenerate,
+    client,
+    generationUnavailableReason,
+    onClose,
+    onGenerated,
+    ...(onAdded ? { onAdded } : {}),
+    ...(providersOverride ? { providersOverride } : {}),
+    ...(roomIdOverride ? { roomIdOverride } : {}),
+  });
 
   if (!visible) return null;
 
@@ -427,15 +118,7 @@ export function SearchSheet({
               <Field
                 autoCapitalize={isAIMode ? 'sentences' : 'none'}
                 value={query}
-                onChangeText={(value) => {
-                  setQuery(
-                    isAIMode
-                      ? value.slice(0, generatedPlaylistPromptMaxLength)
-                      : value,
-                  );
-                  setError('');
-                  setPlaylist(null);
-                }}
+                onChangeText={updateQuery}
                 onSubmitEditing={() => void search()}
                 placeholder={
                   isAIMode
@@ -511,32 +194,15 @@ export function SearchSheet({
           )}
           <Toast message={error} />
           {!isAIMode && (
-            <View>
-              {results.map((result, index) => (
-                <View
-                  className={classNames(index > 0 && 'mt-4')}
-                  key={`${result.source}:${result.id}`}
-                >
-                  {renderResult(result, index)}
-                </View>
-              ))}
-              {results.length === 0 && (
-                <View className="min-h-64 px-8">
-                  {loading && <Empty loading>Searching for music…</Empty>}
-                  {!loading && (
-                    <Empty>
-                      Search {getProviderDisplayName(provider)} or paste a
-                      direct link.
-                    </Empty>
-                  )}
-                </View>
-              )}
-            </View>
+            <SearchResults
+              loading={loading}
+              onAdd={add}
+              provider={provider}
+              results={results}
+            />
           )}
         </ScrollView>
       </SafeAreaView>
     </Screen>
   );
 }
-
-const supportedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];

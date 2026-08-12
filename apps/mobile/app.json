@@ -6,6 +6,7 @@
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "zoff",
+    "platforms": ["ios", "android"],
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "me.zoff.mobile",
@@ -32,10 +33,6 @@
         "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ],
       "predictiveBackGestureEnabled": true
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "./plugins/with-react-native-svg-node-modules.cjs",

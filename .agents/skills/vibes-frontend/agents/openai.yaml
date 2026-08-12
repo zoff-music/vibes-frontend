@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibes Frontend"
+  short_description: "Build and review every Vibes frontend target"
+  default_prompt: "Use $vibes-frontend to implement or review this change using the repository's web, native, TV, and shared-package boundaries."

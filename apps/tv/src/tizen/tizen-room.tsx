@@ -6,20 +6,18 @@ import {
 } from '@vibes/ui/shared';
 import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'react';
-import { useGenerationMessage } from '@/hooks/use-generation-message';
-import type { useTvSession } from '@/hooks/use-tv-session';
+import type { TvSession } from '@/hooks/use-tv-session';
 import { QrCode } from '@/tizen/qr-code';
-import { YouTubeIframePlayer } from '@/tizen/youtube-iframe-player';
+import { TizenProviderSurface } from '@/tizen/tizen-provider-surface';
 
 interface TizenRoomProps {
-  session: ReturnType<typeof useTvSession>;
+  session: TvSession;
 }
 
 export function TizenRoom({ session }: TizenRoomProps) {
   const queueRef = useRef<HTMLDivElement>(null);
   const [visibleQueueLength, setVisibleQueueLength] = useState(0);
   const isGenerating = Boolean(session.room?.isGenerating);
-  const generationMessage = useGenerationMessage(isGenerating);
   const current = session.playback.currentSong;
   const queued = current
     ? session.songs.filter((song) => song.id !== current.id)
@@ -44,75 +42,6 @@ export function TizenRoom({ session }: TizenRoomProps) {
     observer.observe(queue);
     return () => observer.disconnect();
   }, []);
-  let player = (
-    <div className="flex h-full items-center justify-center bg-black text-4xl text-tv-muted">
-      No song is playing
-    </div>
-  );
-  if (current?.sourceType === 'youtube') {
-    player = (
-      <YouTubeIframePlayer
-        key={`${current.sourceId}:${session.playback.updatedAt}`}
-        positionMs={session.playback.positionMs}
-        sourceId={current.sourceId}
-        title={current.title}
-      />
-    );
-  }
-  if (current?.sourceType === 'soundcloud' && current.providerUrl) {
-    const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(current.providerUrl)}&auto_play=${String(session.playback.isPlaying)}&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true`;
-    player = (
-      <iframe
-        allow="autoplay"
-        className="h-full w-full border-0"
-        src={src}
-        title={current.title}
-      />
-    );
-  }
-  if (current?.sourceType === 'spotify') {
-    const src = `https://open.spotify.com/embed/track/${encodeURIComponent(current.sourceId)}?utm_source=zoff`;
-    player = (
-      <iframe
-        allow="autoplay; encrypted-media"
-        className="h-full w-full border-0"
-        src={src}
-        title={current.title}
-      />
-    );
-  }
-  if (
-    current &&
-    current.sourceType !== 'youtube' &&
-    current.sourceType !== 'soundcloud' &&
-    current.sourceType !== 'spotify'
-  ) {
-    player = (
-      <div className="relative flex h-full items-center justify-center overflow-hidden bg-black">
-        <img
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-40"
-          src={current.thumbnailUrl}
-        />
-        <img
-          alt=""
-          className="relative size-80 rounded-3xl object-cover"
-          src={current.thumbnailUrl}
-        />
-      </div>
-    );
-  }
-  if (isGenerating && !current) {
-    player = (
-      <div className="flex h-full flex-col items-center justify-center gap-6 bg-tv-surface">
-        <div className="size-14 animate-spin rounded-full border-4 border-tv-border border-t-accent" />
-        <div className="animate-pulse text-3xl">{generationMessage}</div>
-        <div className="text-tv-muted text-xl">
-          Songs will appear here automatically.
-        </div>
-      </div>
-    );
-  }
   const listenerCount = session.listenerCount || session.room?.userCount || 0;
   const progress = getPlaybackPresentation(
     session.playback.positionMs,
@@ -125,7 +54,12 @@ export function TizenRoom({ session }: TizenRoomProps) {
   return (
     <div className="relative flex h-full gap-6 overflow-hidden p-6">
       <section className="flex h-full w-[65%] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-primary/30 bg-tv-card">
-        <div className="min-h-0 flex-1 bg-black">{player}</div>
+        <div className="min-h-0 flex-1 bg-black">
+          <TizenProviderSurface
+            isGenerating={isGenerating}
+            playback={session.playback}
+          />
+        </div>
         <div className="shrink-0 border-tv-border border-t bg-black px-8 py-5">
           <div className="flex items-end gap-6">
             {current?.thumbnailUrl && (
@@ -185,11 +119,12 @@ export function TizenRoom({ session }: TizenRoomProps) {
         </header>
 
         <div className="min-h-0 flex-1 overflow-hidden" ref={queueRef}>
-          {queued.length === 0 ? (
+          {queued.length === 0 && (
             <div className="flex h-full items-center justify-center rounded-2xl border border-tv-border text-center text-tv-muted">
               The queue is empty
             </div>
-          ) : (
+          )}
+          {queued.length > 0 && (
             <div className="flex h-full flex-col">
               <div className="flex shrink-0 flex-col gap-3">
                 {queued.slice(0, visibleQueueLength).map((song, index) => (

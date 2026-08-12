@@ -1,8 +1,7 @@
 import {
   type ApiClient,
-  getAPIErrorMessage,
   getHttpError,
-  getRateLimitMessage,
+  getRequestErrorMessage,
   useRoomRequests,
   useSSE,
 } from '@vibes/api';
@@ -18,7 +17,23 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
 
-export function useTvSession(client: ApiClient) {
+export interface TvSession {
+  createRoom: (name: string) => Promise<void>;
+  error: string;
+  generateRoom: (prompt: string) => Promise<void>;
+  leaveRoom: () => void;
+  listenerCount: number;
+  loading: boolean;
+  loadRoom: (roomId: string) => Promise<RoomJoinResult>;
+  playback: PlaybackState;
+  providers: Providers;
+  publicRooms: PublicRoom[];
+  room: Room | null;
+  roomId: string;
+  songs: Song[];
+}
+
+export function useTvSession(client: ApiClient): TvSession {
   const requests = useRoomRequests(client);
   const room = useRoomStore((state) => state.room);
   const listenerCount = useRoomStore((state) => state.usersCount);
@@ -31,7 +46,7 @@ export function useTvSession(client: ApiClient) {
   const updateActualPosition = usePlaybackStore(
     (state) => state.updateActualPosition,
   );
-  const playback = useMemo(
+  const playback = useMemo<PlaybackState>(
     () => ({ currentSong, isPlaying, positionMs, serverTimeMs, updatedAt }),
     [currentSong, isPlaying, positionMs, serverTimeMs, updatedAt],
   );
@@ -224,13 +239,6 @@ export function useTvSession(client: ApiClient) {
     roomId,
     songs,
   };
-}
-
-async function getRequestErrorMessage(error: Error | null, fallback: string) {
-  if (!error) return fallback;
-  return (
-    getRateLimitMessage(error) ?? (await getAPIErrorMessage(error)) ?? fallback
-  );
 }
 
 const notFoundStatus = 404;

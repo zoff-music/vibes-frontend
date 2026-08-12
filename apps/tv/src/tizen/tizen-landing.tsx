@@ -1,12 +1,12 @@
 import { chunkItems } from '@vibes/ui/shared';
 import { useState } from 'react';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
-import type { useTvSession } from '@/hooks/use-tv-session';
+import type { TvSession } from '@/hooks/use-tv-session';
 
 interface TizenLandingProps {
   isAIMode: boolean;
   onToggleAIMode: () => void;
-  session: ReturnType<typeof useTvSession>;
+  session: TvSession;
 }
 
 export function TizenLanding({

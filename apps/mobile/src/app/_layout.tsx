@@ -18,7 +18,6 @@ import {
   PersistentRoomPlayer,
 } from '@/components/persistent-room-player';
 import { ToastProvider } from '@/components/toast';
-import { palette } from '@/constants/theme';
 import { AppProvider, useApp } from '@/providers/app-provider';
 import {
   AppThemeProvider,
@@ -57,12 +56,8 @@ export default function RootLayout() {
 
 function RootContent() {
   const { resolvedScheme } = useThemePreference();
-  const theme = palette[resolvedScheme];
-
   return (
-    <GestureHandlerRootView
-      style={{ backgroundColor: theme.background, flex: 1 }}
-    >
+    <GestureHandlerRootView className="flex-1 bg-mobile-background dark:bg-mobile-dark-background">
       <SafeAreaProvider>
         <ThemeProvider
           value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}

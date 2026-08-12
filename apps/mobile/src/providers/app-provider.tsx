@@ -26,7 +26,10 @@ import {
   useRef,
   useState,
 } from 'react';
-
+import {
+  getObservedPosition,
+  useMachineRemote,
+} from '@/hooks/use-machine-remote';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface AppState {
@@ -101,14 +104,17 @@ export function AppProvider({ children }: PropsWithChildren) {
   const [playbackResetVersion, setPlaybackResetVersion] = useState(0);
   const [controllerRemote, setControllerRemote] =
     useState<ControllerRemoteSession | null>(null);
-  const [machinePairing, setMachinePairing] = useState<RemotePairing | null>(
-    null,
-  );
-  const [machineRemote, setMachineRemote] = useState<RemoteStatus | null>(null);
   const playbackRef = useRef<PlaybackState | null>(null);
   const authoritativePlaybackRef = useRef<PlaybackState | null>(null);
   const localPlayingRef = useRef<boolean | null>(null);
   const pendingGeneratedRoomRef = useRef('');
+  const {
+    disableMachineRemote,
+    enableMachineRemote,
+    machinePairing,
+    machineRemote,
+    refreshMachineRemote,
+  } = useMachineRemote({ playbackRef, remoteRequests, roomId, setError });
 
   const setLocalPlaying = useCallback(
     (isPlaying: boolean, positionMs?: number) => {
@@ -392,72 +398,6 @@ export function AppProvider({ children }: PropsWithChildren) {
     setError('');
   }, [roomId, roomRequests]);
 
-  const refreshMachineRemote = useCallback(async () => {
-    const [requestError, nextRemote] = await remoteRequests.fetchOwnedRemote();
-    if (requestError || !nextRemote) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not load remote control status.',
-        ),
-      );
-      return;
-    }
-    setMachineRemote(nextRemote);
-    if (nextRemote.paired) {
-      setMachinePairing(null);
-    }
-  }, [remoteRequests]);
-
-  const enableMachineRemote = useCallback(async () => {
-    const observedPosition = getObservedPosition(playbackRef.current);
-    const [requestError, pairing] = await remoteRequests.createRemote({
-      currentSongId: playbackRef.current?.currentSong?.id ?? '',
-      playbackIsPlaying: playbackRef.current?.isPlaying ?? false,
-      playbackPositionMs: observedPosition,
-      roomId,
-    });
-    if (requestError || !pairing) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not enable remote control.',
-        ),
-      );
-      return;
-    }
-    setMachinePairing(pairing);
-    setMachineRemote({
-      currentRoomId: pairing.currentRoomId,
-      currentSongId: pairing.currentSongId,
-      enabled: true,
-      id: pairing.id,
-      online: true,
-      paired: false,
-      playbackIsPlaying: pairing.playbackIsPlaying,
-      playbackObservedAt: pairing.playbackObservedAt,
-      playbackPositionMs: pairing.playbackPositionMs,
-    });
-    setError('');
-  }, [remoteRequests, roomId]);
-
-  const disableMachineRemote = useCallback(async () => {
-    if (!machineRemote?.id) return;
-    const [requestError] = await remoteRequests.deleteRemote(machineRemote.id);
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not disable remote control.',
-        ),
-      );
-      return;
-    }
-    setMachinePairing(null);
-    setMachineRemote(null);
-    setError('');
-  }, [machineRemote?.id, remoteRequests]);
-
   const handleRemoteRoomUpdate = useCallback(
     (event: RemoteEvent) => {
       if (event.origin !== 'controller' || !event.roomId) return;
@@ -608,46 +548,6 @@ export function AppProvider({ children }: PropsWithChildren) {
   }, [roomRequests]);
 
   useEffect(() => {
-    void refreshMachineRemote();
-  }, [refreshMachineRemote]);
-
-  useEffect(() => {
-    if (!machineRemote?.enabled) return;
-    const heartbeat = async () => {
-      const currentPlayback = playbackRef.current;
-      const [requestError] = await remoteRequests.updateRemote(
-        machineRemote.id,
-        {
-          currentSongId: currentPlayback?.currentSong?.id ?? '',
-          playbackIsPlaying: currentPlayback?.isPlaying ?? false,
-          playbackPositionMs: getObservedPosition(currentPlayback),
-          roomId,
-        },
-      );
-      if (requestError) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'The remote control connection was interrupted. Reconnect the remote and try again.',
-          ),
-        );
-      }
-    };
-    void heartbeat();
-    const interval = setInterval(() => void heartbeat(), remoteHeartbeatMs);
-    return () => clearInterval(interval);
-  }, [machineRemote?.enabled, machineRemote?.id, remoteRequests, roomId]);
-
-  useEffect(() => {
-    if (!machinePairing) return;
-    const interval = setInterval(
-      () => void refreshMachineRemote(),
-      remotePairingStatusMs,
-    );
-    return () => clearInterval(interval);
-  }, [machinePairing, refreshMachineRemote]);
-
-  useEffect(() => {
     void refresh();
     const interval = setInterval(() => void refresh(), 3_000);
     return () => clearInterval(interval);
@@ -726,10 +626,6 @@ export function AppProvider({ children }: PropsWithChildren) {
 
 const notFoundStatus = 404;
 
-const remoteHeartbeatMs = 5_000;
-
-const remotePairingStatusMs = 2_000;
-
 const alignedPositionToleranceMs = 2_000;
 
 function getRoomAdminPasswordStorageKey(roomId: string) {
@@ -737,14 +633,6 @@ function getRoomAdminPasswordStorageKey(roomId: string) {
     character.codePointAt(0)?.toString(16),
   ).join('-');
   return `${roomAdminPasswordStoragePrefix}.${encodedRoomId}`;
-}
-
-function getObservedPosition(playback: PlaybackState | null) {
-  if (!playback) return 0;
-  if (!playback.isPlaying) return playback.positionMs;
-  const elapsed = Math.max(Date.now() - playback.serverTimeMs, 0);
-  const duration = (playback.currentSong?.duration ?? 0) * 1_000;
-  return Math.min(playback.positionMs + elapsed, duration || Number.MAX_VALUE);
 }
 
 export function useApp() {

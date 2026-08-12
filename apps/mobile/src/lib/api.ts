@@ -1,8 +1,4 @@
-import {
-  createApiClientWithBaseUrl,
-  getAPIErrorMessage,
-  getRateLimitMessage,
-} from '@vibes/api';
+import { createApiClientWithBaseUrl } from '@vibes/api';
 import { fetch as expoFetch } from 'expo/fetch';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? 'https://zoff.me';
@@ -21,12 +17,4 @@ export function createRemoteApi(remoteId: string, controllerToken: string) {
   });
 }
 
-export async function getRequestErrorMessage(
-  error: Error | null,
-  fallback: string,
-) {
-  if (!error) return fallback;
-  return (
-    getRateLimitMessage(error) ?? (await getAPIErrorMessage(error)) ?? fallback
-  );
-}
+export { getRequestErrorMessage } from '@vibes/api';

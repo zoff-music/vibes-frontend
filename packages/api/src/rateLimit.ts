@@ -69,6 +69,16 @@ export async function getAPIErrorMessage(error: Error) {
   return parsedBody.message;
 }
 
+export async function getRequestErrorMessage(
+  error: Error | null,
+  fallback: string,
+) {
+  if (!error) return fallback;
+  return (
+    getRateLimitMessage(error) ?? (await getAPIErrorMessage(error)) ?? fallback
+  );
+}
+
 export function showRateLimitToast(response: Response) {
   const message = getRateLimitMessageFromResponse(response);
   if (!message) {

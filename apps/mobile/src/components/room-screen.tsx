@@ -303,7 +303,7 @@ export function RoomScreen() {
 
   return (
     <Screen>
-      <SafeAreaView className="flex-1" edges={['top']} style={{ flex: 1 }}>
+      <SafeAreaView className="flex-1" edges={['top']}>
         <View
           className={classNames(
             'flex-row items-center justify-between gap-3 px-4 py-3',
