@@ -7,6 +7,11 @@ description: Build, refactor, review, or debug the Vibes TypeScript frontend mon
 
 Apply these repository-specific rules together with `AGENTS.md`.
 
+## Public Repository References
+
+- Keep documentation and skill guidance portable: identify related repositories by their GitHub owner/name, never by a contributor's local filesystem path.
+- Do not mention private repositories, private deployment configuration, or private checkout layouts in this public repository.
+
 ## Workflow
 
 1. Identify the target runtime before editing: DOM web, native mobile, Android TV, Tizen TV, or Cast.
@@ -23,7 +28,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 - `apps/remote`: lightweight React Router SSR paired-controller web app.
 - `apps/cast`: Chromecast receiver.
 - `apps/mobile`: native-only Expo Router app for iOS and Android phones/tablets.
-- `apps/tv`: Expo Android TV app plus a separate Samsung Tizen DOM renderer.
+- `apps/tv`: one TV product with a shared session layer, delivered through an Expo Android TV renderer and a Samsung TV DOM renderer.
 - `packages/api`: the only package that owns `wiretyped`, backend REST calls, and SSE wiring.
 - `packages/models`: shared Yup schemas and derived domain types.
 - `packages/shared`: platform-neutral utilities, hooks, stores, constants, and safe wrappers.
@@ -55,7 +60,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 ## TV
 
 - Android TV uses Expo, `react-native-tvos`, NativeWind, directional focus, and `@vibes/ui/native`.
-- Tizen is a DOM build with its own entrypoint, CSS, spatial navigation, `config.xml`, and store packaging under `apps/tv`.
+- Samsung TVs require a DOM runtime with its own entrypoint, CSS, spatial navigation, `config.xml`, and store packaging under `apps/tv`; this is a delivery boundary within the same TV app, not a separate product.
 - Share API/domain hooks between the TV renderers, not UI trees.
 - Keep the cross-renderer room lifecycle in `useTvSession` with an exported `TvSession` contract. Keep provider surfaces, queue measurement, and focus/navigation in renderer-specific components.
 - Design TV screens for ten-foot viewing: large type, strong focus feedback, bounded queues, and no touch-only interaction.
@@ -106,6 +111,6 @@ pnpm typecheck
 Also run the target validation command, for example:
 
 ```sh
-pnpm --filter mobile validate
+pnpm --filter @vibes/mobile validate
 pnpm --filter @vibes/tv validate
 ```

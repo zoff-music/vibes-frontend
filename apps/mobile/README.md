@@ -13,6 +13,14 @@ Shared controls and the native YouTube wrapper come from `@vibes/ui/native`,
 while platform-neutral presentation helpers come from `@vibes/ui/shared`.
 The app deliberately has no Expo web target.
 
+## Visual preview
+
+<p>
+  <img src="./docs/app-store/screenshots/iphone-6.9/01-rooms.jpg" alt="Zoff mobile room browser" width="30%">
+  <img src="./docs/app-store/screenshots/iphone-6.9/02-player.jpg" alt="Zoff mobile room and player" width="30%">
+  <img src="./docs/app-store/screenshots/iphone-6.9/04-search.jpg" alt="Zoff mobile song search" width="30%">
+</p>
+
 ## Included flows
 
 - Join, create, and change rooms, including protected rooms and currently active
@@ -50,15 +58,15 @@ From the repository root:
 
 ```sh
 pnpm install
-pnpm --filter mobile typecheck
-pnpm --filter mobile lint
+pnpm --filter @vibes/mobile typecheck
+pnpm --filter @vibes/mobile lint
 ```
 
 The app uses `https://zoff.me` by default. To use a local backend, expose the Go
 API on an address reachable by the simulator or phone and set:
 
 ```sh
-EXPO_PUBLIC_API_URL=http://192.168.1.20:8080 pnpm --filter mobile start
+EXPO_PUBLIC_API_URL=http://192.168.1.20:8080 pnpm --filter @vibes/mobile start
 ```
 
 Do not use `localhost` for a physical phone; it refers to the phone itself.
@@ -68,10 +76,10 @@ Do not use `localhost` for a physical phone; it refers to the phone itself.
 Generate native projects and launch locally:
 
 ```sh
-pnpm --filter mobile exec expo prebuild --clean
-pnpm --filter mobile exec expo run:ios
+pnpm --filter @vibes/mobile exec expo prebuild --clean
+pnpm --filter @vibes/mobile exec expo run:ios
 # or
-pnpm --filter mobile exec expo run:android
+pnpm --filter @vibes/mobile exec expo run:android
 ```
 
 Native-project changes belong in an Expo config plugin under `plugins/`; do not
@@ -80,7 +88,7 @@ commit generated `ios` or `android` directories or a root-level `app.json`.
 After the first native build, start Metro with:
 
 ```sh
-pnpm --filter mobile start -- --dev-client
+pnpm --filter @vibes/mobile start -- --dev-client
 ```
 
 Test at least these flows before publishing:

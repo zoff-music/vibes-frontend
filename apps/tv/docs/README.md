@@ -1,14 +1,14 @@
 # Zoff TV screenshots
 
-This directory contains the visual review and store-submission images for the
-Android TV and Samsung TV applications.
+This directory contains visual-review and store-submission images for the two
+delivery targets of the Zoff TV application: Android TV and Samsung TV.
 
 Required captures:
 
 - `android-tv-landing.png` — room input, AI toggle, and public rooms.
 - `android-tv-room.png` — provider player, current track, queue, and QR code.
-- `samsung-tv-landing.png` — Tizen landing state at 1920×1080.
-- `samsung-tv-room.png` — Tizen room state at 1920×1080.
+- `samsung-tv-landing.png` — Samsung TV landing state at 1920×1080.
+- `samsung-tv-room.png` — Samsung TV room state at 1920×1080.
 
 Release copy and platform-specific checklists are in:
 
