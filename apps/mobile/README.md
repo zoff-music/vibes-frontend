@@ -9,6 +9,9 @@ song at once.
 Native colors and spacing mirror the values in `packages/tailwind/theme.css`.
 NativeWind compiles the shared Tailwind 4 theme into React Native styles; no
 DOM-oriented UI components are shipped in the native bundle.
+Shared controls and the native YouTube wrapper come from `@vibes/ui/native`,
+while platform-neutral presentation helpers come from `@vibes/ui/shared`.
+The app deliberately has no Expo web target.
 
 ## Included flows
 
@@ -70,6 +73,9 @@ pnpm --filter mobile exec expo run:ios
 # or
 pnpm --filter mobile exec expo run:android
 ```
+
+Native-project changes belong in an Expo config plugin under `plugins/`; do not
+commit generated `ios` or `android` directories or a root-level `app.json`.
 
 After the first native build, start Metro with:
 

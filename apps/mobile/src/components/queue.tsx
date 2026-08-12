@@ -47,7 +47,6 @@ function QueueItem({
         className="size-13 rounded-xl bg-black"
         source={song.thumbnailUrl}
         contentFit="cover"
-        style={{ borderRadius: 12, height: 52, width: 52 }}
       />
       <View className="min-w-0 flex-1 gap-1">
         <Text
@@ -126,7 +125,7 @@ export function Queue({
       automaticallyAdjustContentInsets={false}
       automaticallyAdjustsScrollIndicatorInsets={false}
       contentInsetAdjustmentBehavior="never"
-      style={{ flex: 1 }}
+      className="flex-1"
       contentContainerStyle={contained ? undefined : queueStyle}
       data={songs}
       initialNumToRender={8}

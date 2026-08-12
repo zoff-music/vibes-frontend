@@ -4,7 +4,8 @@
 
 # Vibes Frontend
 
-A React Router + Vite + TypeScript monorepo using pnpm workspaces.
+A TypeScript monorepo for Zoff's SSR web, native mobile, television, Cast, and
+remote-control clients, built with pnpm workspaces.
 
 ## Screenshots
 
@@ -50,6 +51,9 @@ pnpm --recursive dev
 # Run the embed app (port 3006)
 pnpm --filter @vibes/embed dev
 
+# Run the native iOS/Android development server
+pnpm --filter mobile start
+
 # Run the Android TV development server
 pnpm --filter @vibes/tv start
 
@@ -67,13 +71,17 @@ Redis instance, see [Local Cast development](docs/local-cast-development.md).
 
 ## Server-Side Rendering (SSR)
 
-The web applications support SSR for improved performance and SEO:
+The React Router web applications support SSR for improved performance and SEO.
+Mobile and Android TV are native Expo applications; Samsung Tizen is a separate
+DOM build:
 
 - **Platform App**: SSR with room data prefetching
 - **Admin App**: SSR for admin views
 - **Cast App**: SSR for faster Chromecast loading
 - **Development**: Hot module replacement with SSR
 - **Production**: Optimized SSR builds
+- **Native**: Expo Router on mobile and an Expo Android TV entrypoint
+- **Tizen**: Vite-built Samsung TV package
 
 ## Tooling
 
@@ -81,7 +89,7 @@ The web applications support SSR for improved performance and SEO:
 - **Type Checking**: TypeScript (`pnpm typecheck`)
 - **Testing**: Vitest
 - **Error Handling**: `safeWrap`/`safeWrapAsync` utilities (no try/catch)
-- **Styling**: Tailwind CSS v4 with dark mode support
+- **Styling**: Tailwind CSS v4 for DOM targets and NativeWind for React Native
 
 ## Key Features
 
@@ -89,7 +97,7 @@ The web applications support SSR for improved performance and SEO:
 - **Error Handling**: Safe error handling with `safeWrap` utilities
 - **Type Safety**: Full TypeScript with `@vibes/api`
 - **Real-time**: SSE integration for live updates
-- **Responsive**: Mobile-first design with Tailwind CSS v4
+- **Cross-platform UI**: Explicit web, native, and renderer-neutral package boundaries
 
 ## Rules
 
