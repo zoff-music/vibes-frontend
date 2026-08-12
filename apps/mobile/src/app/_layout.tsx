@@ -17,6 +17,7 @@ import {
   ActiveRoomKeepAwake,
   PersistentRoomPlayer,
 } from '@/components/persistent-room-player';
+import { TabletAddSongButton } from '@/components/tablet-add-song-button';
 import { ToastProvider } from '@/components/toast';
 import { AppProvider, useApp } from '@/providers/app-provider';
 import {
@@ -87,6 +88,7 @@ function RoomRuntime() {
       )}
       <AppTabs />
       {playerPreferenceLoaded && playerEnabled && <PersistentRoomPlayer />}
+      <TabletAddSongButton />
     </>
   );
 }
