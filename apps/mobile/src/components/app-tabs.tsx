@@ -13,6 +13,7 @@ export default function AppTabs() {
   const theme = useAppTheme();
   const { controllerRemote, room } = useApp();
   const canAddSongs = Boolean(room || controllerRemote?.roomId);
+  const showsFloatingAddButton = Platform.OS === 'ios' && Platform.isPad;
   const iconSources =
     Platform.OS === 'android' ? zoffAndroidIconSources : zoffIconSources;
   return (
@@ -63,7 +64,7 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
-        hidden={!canAddSongs}
+        hidden={!canAddSongs || showsFloatingAddButton}
         name="add"
         {...(Platform.OS === 'ios' ? { role: 'search' as const } : {})}
       >
