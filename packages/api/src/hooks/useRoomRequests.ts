@@ -35,6 +35,7 @@ export interface RoomRequests {
   fetchPublicRooms: () => ApiResult<PublicRoom[]>;
   fetchSnapshot: (roomId: string) => ApiResult<RoomSnapshot>;
   joinRoom: (roomId: string, password?: string) => ApiResult<SessionResponse>;
+  logOutRoomAdmin: (roomId: string) => ApiResult<SessionResponse>;
   removeSong: (roomId: string, songId: string) => ApiResult<EmptyObject>;
   generatePlaylist: (
     roomId: string,
@@ -84,6 +85,8 @@ export function useRoomRequests(client: ApiClient): RoomRequests {
       },
       joinRoom: (roomId: string, password = '') =>
         client.post('/rooms/{id}/sessions', { id: roomId }, { password }),
+      logOutRoomAdmin: (roomId: string) =>
+        client.delete('/rooms/{id}/sessions', { id: roomId }),
       generatePlaylist: (roomId: string, request: GeneratedPlaylistRequest) =>
         client.post('/rooms/{id}/generations', { id: roomId }, request),
       reserveRoom: (name?: string) =>

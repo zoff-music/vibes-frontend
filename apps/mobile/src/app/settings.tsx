@@ -31,6 +31,7 @@ export default function SettingsScreen() {
     providers,
     refresh,
     rememberRoomAdminPassword,
+    forgetRoomAdminPassword,
     room,
     setPlayerEnabled,
   } = useApp();
@@ -161,6 +162,7 @@ export default function SettingsScreen() {
                   visible={roomSettingsVisible}
                   onAuthenticated={rememberRoomAdminPassword}
                   onClose={() => setRoomSettingsVisible(false)}
+                  onLoggedOut={forgetRoomAdminPassword}
                   onUpdated={refresh}
                 />
               )}

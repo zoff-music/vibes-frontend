@@ -222,6 +222,9 @@ const endpoints = {
       request: createSessionRequestSchema,
       response: sessionResponseSchema,
     },
+    delete: {
+      response: sessionResponseSchema,
+    },
   },
   '/rooms/{id}/songs': {
     get: {

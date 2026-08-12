@@ -17,7 +17,6 @@ import {
   Screen,
 } from '@/components/native';
 import { RoomScreen } from '@/components/room-screen';
-import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
@@ -28,7 +27,6 @@ export default function RoomsScreen() {
   const roomRequests = useRoomRequests(mobileApi);
   const {
     controllerRemote,
-    error,
     loading,
     providers,
     room,
@@ -254,7 +252,6 @@ export default function RoomsScreen() {
                   label={submitLabel}
                   onPress={submitRoom}
                 />
-                <Toast message={error} />
                 {room && <Copy muted>Currently in {room.name}</Copy>}
               </Card>
               <View className="gap-3">

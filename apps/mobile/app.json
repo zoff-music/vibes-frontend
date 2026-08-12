@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zoff",
     "slug": "vibes-mobile",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "zoff",
@@ -14,7 +14,14 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Zoff uses the camera only to scan remote-pairing QR codes.",
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": ["audio"],
+        "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ]
       },
       "supportsTablet": true
     },

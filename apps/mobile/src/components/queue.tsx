@@ -1,8 +1,9 @@
 import type { Song } from '@vibes/models';
+import { getProviderTrackUrl, safeWrapAsync } from '@vibes/shared';
 import { Image } from 'expo-image';
 import type { ReactElement } from 'react';
 import type { ListRenderItemInfo } from 'react-native';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { FlatList, Linking, Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, {
   FadeInDown,
@@ -34,6 +35,15 @@ function QueueItem({
   song: Song;
 }) {
   const theme = useAppTheme();
+  const providerUrl = getProviderTrackUrl(
+    song.sourceType,
+    song.sourceId,
+    song.providerUrl,
+  );
+  const openExternally = async () => {
+    if (!providerUrl) return;
+    await safeWrapAsync(Linking.openURL(providerUrl));
+  };
   const row = (
     <Pressable
       accessibilityLabel={`Vote for ${song.title}`}
@@ -43,11 +53,13 @@ function QueueItem({
       <Text className="w-5 text-center font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
         {index + 1}
       </Text>
-      <Image
-        className="size-13 rounded-xl bg-black"
-        source={song.thumbnailUrl}
-        contentFit="cover"
-      />
+      <View className="size-13 overflow-hidden rounded-xl bg-black">
+        <Image
+          contentFit="cover"
+          source={song.thumbnailUrl}
+          style={thumbnailImageStyle}
+        />
+      </View>
       <View className="min-w-0 flex-1 gap-1">
         <Text
           numberOfLines={1}
@@ -71,25 +83,45 @@ function QueueItem({
     </Pressable>
   );
 
-  if (!onDelete) {
+  if (!providerUrl && !onDelete) {
     return row;
   }
 
   return (
     <ReanimatedSwipeable
+      enableTrackpadTwoFingerGesture
       overshootRight={false}
       renderRightActions={(_progress, _translation, swipeable) => (
-        <Pressable
-          accessibilityLabel={`Delete ${song.title}`}
-          className="ml-2 w-20 items-center justify-center rounded-2xl bg-error"
-          onPress={() => {
-            swipeable.close();
-            onDelete();
-          }}
-        >
-          <ZoffIcon color="#ffffff" name="trash" size={20} />
-          <Text className="mt-1 font-heading text-white text-xs">Delete</Text>
-        </Pressable>
+        <View className="ml-2 flex-row gap-2">
+          {onDelete && (
+            <Pressable
+              accessibilityLabel={`Delete ${song.title}`}
+              className="w-20 items-center justify-center rounded-2xl border-2 border-error bg-error active:opacity-70"
+              onPress={() => {
+                swipeable.close();
+                onDelete();
+              }}
+            >
+              <ZoffIcon color="#ffffff" name="trash" size={20} />
+              <Text className="mt-1 font-heading text-white text-xs">
+                Delete
+              </Text>
+            </Pressable>
+          )}
+          {providerUrl && (
+            <Pressable
+              accessibilityLabel={`Open ${song.title} externally`}
+              className="w-20 items-center justify-center rounded-2xl border-2 border-accent bg-accent active:opacity-70"
+              onPress={() => {
+                swipeable.close();
+                void openExternally();
+              }}
+            >
+              <ZoffIcon color="#ffffff" name="external" size={20} />
+              <Text className="mt-1 font-heading text-white text-xs">Open</Text>
+            </Pressable>
+          )}
+        </View>
       )}
     >
       {row}
@@ -170,3 +202,4 @@ function QueueSeparator() {
 }
 
 const queueStyle = { paddingBottom: 112 };
+const thumbnailImageStyle = { height: '100%' as const, width: '100%' as const };

@@ -3,14 +3,12 @@ import { Text, View } from 'react-native';
 
 import zoffLogo from '@/assets/images/icon.png';
 import { Button, Card, Copy } from '@/components/native';
-import { Toast } from '@/components/toast';
 import { useApp } from '@/providers/app-provider';
 
 export function DeviceRemoteSettings() {
   const {
     disableMachineRemote,
     enableMachineRemote,
-    error,
     machinePairing,
     machineRemote,
   } = useApp();
@@ -64,7 +62,6 @@ export function DeviceRemoteSettings() {
             onPress={() => void disableMachineRemote()}
           />
         )}
-        <Toast message={error} />
       </Card>
     </View>
   );

@@ -15,7 +15,6 @@ import type {
   RoomGenerationUpdate,
   Song,
 } from '@vibes/models';
-import * as SecureStore from 'expo-secure-store';
 import type { PropsWithChildren } from 'react';
 import {
   createContext,
@@ -26,11 +25,17 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useToast } from '@/components/toast';
 import {
   getObservedPosition,
   useMachineRemote,
 } from '@/hooks/use-machine-remote';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
+import {
+  deleteSecureValue,
+  getSecureValue,
+  setSecureValue,
+} from '@/lib/secure-storage';
 
 interface AppState {
   activateControllerRemote: (
@@ -40,7 +45,6 @@ interface AppState {
   ) => Promise<void>;
   clearControllerRemote: () => Promise<void>;
   controllerRemote: ControllerRemoteSession | null;
-  error: string;
   hasLocalPlaybackChanges: boolean;
   loading: boolean;
   machinePairing: RemotePairing | null;
@@ -64,6 +68,7 @@ interface AppState {
   setError: (message: string) => void;
   disableMachineRemote: () => Promise<void>;
   enableMachineRemote: () => Promise<void>;
+  forgetRoomAdminPassword: (roomId: string) => Promise<void>;
   setLocalPlaying: (isPlaying: boolean, positionMs?: number) => void;
   setLocalPlaybackAligned: (isAligned: boolean) => void;
   setLocalPlaybackPosition: (positionMs: number) => void;
@@ -82,13 +87,13 @@ export interface ControllerRemoteSession {
 }
 
 const AppContext = createContext<AppState | null>(null);
-const roomStorageKey = 'zoff.mobile.room';
 const remoteStorageKey = 'zoff.mobile.remote';
 const remoteTokenStorageKey = 'zoff.mobile.remote-token';
 const playerEnabledStorageKey = 'zoff.mobile.player-enabled';
 const roomAdminPasswordStoragePrefix = 'zoff.mobile.room-admin';
 
 export function AppProvider({ children }: PropsWithChildren) {
+  const { showToast } = useToast();
   const roomRequests = useRoomRequests(mobileApi);
   const remoteRequests = useRemoteRequests(mobileApi);
   const [roomId, setRoomIdValue] = useState('');
@@ -108,6 +113,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   const authoritativePlaybackRef = useRef<PlaybackState | null>(null);
   const localPlayingRef = useRef<boolean | null>(null);
   const pendingGeneratedRoomRef = useRef('');
+  const authenticatedRoomIdsRef = useRef(new Set<string>());
   const {
     disableMachineRemote,
     enableMachineRemote,
@@ -115,6 +121,10 @@ export function AppProvider({ children }: PropsWithChildren) {
     machineRemote,
     refreshMachineRemote,
   } = useMachineRemote({ playbackRef, remoteRequests, roomId, setError });
+
+  useEffect(() => {
+    showToast(error);
+  }, [error, showToast]);
 
   const setLocalPlaying = useCallback(
     (isPlaying: boolean, positionMs?: number) => {
@@ -173,21 +183,32 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   const setPlayerEnabled = useCallback(async (enabled: boolean) => {
     setPlayerEnabledValue(enabled);
-    await SecureStore.setItemAsync(
-      playerEnabledStorageKey,
-      enabled ? 'true' : 'false',
-    );
+    await setSecureValue(playerEnabledStorageKey, enabled ? 'true' : 'false');
   }, []);
 
   const rememberRoomAdminPassword = useCallback(
     async (adminRoomId: string, password: string) => {
-      await SecureStore.setItemAsync(
+      authenticatedRoomIdsRef.current.add(adminRoomId);
+      setRoom((currentRoom) => {
+        if (currentRoom?.id !== adminRoomId) return currentRoom;
+        return { ...currentRoom, isAdmin: true };
+      });
+      await setSecureValue(
         getRoomAdminPasswordStorageKey(adminRoomId),
         password,
       );
     },
     [],
   );
+
+  const forgetRoomAdminPassword = useCallback(async (adminRoomId: string) => {
+    authenticatedRoomIdsRef.current.delete(adminRoomId);
+    setRoom((currentRoom) => {
+      if (currentRoom?.id !== adminRoomId) return currentRoom;
+      return { ...currentRoom, isAdmin: false };
+    });
+    await deleteSecureValue(getRoomAdminPasswordStorageKey(adminRoomId));
+  }, []);
 
   const leaveRoom = useCallback(async () => {
     pendingGeneratedRoomRef.current = '';
@@ -200,13 +221,14 @@ export function AppProvider({ children }: PropsWithChildren) {
     localPlayingRef.current = null;
     setHasLocalPlaybackChanges(false);
     setError('');
-    await SecureStore.deleteItemAsync(roomStorageKey);
   }, []);
 
   const clearControllerRemote = useCallback(async () => {
     setControllerRemote(null);
-    await SecureStore.deleteItemAsync(remoteStorageKey);
-    await SecureStore.deleteItemAsync(remoteTokenStorageKey);
+    await Promise.all([
+      deleteSecureValue(remoteStorageKey),
+      deleteSecureValue(remoteTokenStorageKey),
+    ]);
   }, []);
 
   const activateControllerRemote = useCallback(
@@ -226,9 +248,10 @@ export function AppProvider({ children }: PropsWithChildren) {
         roomId: remoteRoomId,
       });
       setError('');
-      await SecureStore.deleteItemAsync(roomStorageKey);
-      await SecureStore.setItemAsync(remoteStorageKey, remoteId);
-      await SecureStore.setItemAsync(remoteTokenStorageKey, controllerToken);
+      await Promise.all([
+        setSecureValue(remoteStorageKey, remoteId),
+        setSecureValue(remoteTokenStorageKey, controllerToken),
+      ]);
     },
     [],
   );
@@ -273,11 +296,14 @@ export function AppProvider({ children }: PropsWithChildren) {
     ) {
       pendingGeneratedRoomRef.current = '';
     }
-    setRoom(
-      pendingGeneratedRoomRef.current === roomId
-        ? { ...snapshot.room, isGenerating: true }
-        : snapshot.room,
+    let nextRoom = getLocallyAuthorizedRoom(
+      snapshot.room,
+      authenticatedRoomIdsRef.current.has(roomId),
     );
+    if (pendingGeneratedRoomRef.current === roomId) {
+      nextRoom = { ...nextRoom, isGenerating: true };
+    }
+    setRoom(nextRoom);
     setSongs(snapshot.songs);
     setPlayback(nextPlayback);
     setError('');
@@ -297,10 +323,11 @@ export function AppProvider({ children }: PropsWithChildren) {
         pendingGeneratedRoomRef.current = '';
       }
       setLoading(true);
-      const storedPassword = await SecureStore.getItemAsync(
+      const [storageError, storedPassword] = await getSecureValue(
         getRoomAdminPasswordStorageKey(normalized),
       );
       const adminPassword = password || storedPassword || '';
+      let savedPasswordAuthenticationFailed = false;
       if (adminPassword) {
         const [requestError] = await roomRequests.joinRoom(
           normalized,
@@ -317,9 +344,8 @@ export function AppProvider({ children }: PropsWithChildren) {
             );
             return 'error';
           }
-          await SecureStore.deleteItemAsync(
-            getRoomAdminPasswordStorageKey(normalized),
-          );
+          authenticatedRoomIdsRef.current.delete(normalized);
+          savedPasswordAuthenticationFailed = true;
         } else {
           await rememberRoomAdminPassword(normalized, adminPassword);
         }
@@ -345,19 +371,31 @@ export function AppProvider({ children }: PropsWithChildren) {
       authoritativePlaybackRef.current = snapshot.playback;
       playbackRef.current = snapshot.playback;
       setHasLocalPlaybackChanges(false);
-      setRoom(
-        pendingGeneratedRoomRef.current === normalized
-          ? { ...snapshot.room, isGenerating: true }
-          : snapshot.room,
+      let nextRoom = getLocallyAuthorizedRoom(
+        snapshot.room,
+        authenticatedRoomIdsRef.current.has(normalized),
       );
+      if (pendingGeneratedRoomRef.current === normalized) {
+        nextRoom = { ...nextRoom, isGenerating: true };
+      }
+      setRoom(nextRoom);
       setSongs(snapshot.songs);
       setPlayback(snapshot.playback);
-      setError('');
-      await clearControllerRemote();
-      await SecureStore.setItemAsync(roomStorageKey, normalized);
+      setError(
+        storageError
+          ? 'Room opened, but the saved admin password could not be read.'
+          : savedPasswordAuthenticationFailed
+            ? 'Room opened, but the saved admin password was not accepted.'
+            : '',
+      );
+      setControllerRemote(null);
+      void Promise.all([
+        deleteSecureValue(remoteStorageKey),
+        deleteSecureValue(remoteTokenStorageKey),
+      ]);
       return 'joined';
     },
-    [clearControllerRemote, rememberRoomAdminPassword, roomRequests],
+    [rememberRoomAdminPassword, roomRequests],
   );
 
   const startGeneratedRoom = useCallback(
@@ -485,7 +523,7 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     const loadPlayerPreference = async () => {
-      const storedPreference = await SecureStore.getItemAsync(
+      const [, storedPreference] = await getSecureValue(
         playerEnabledStorageKey,
       );
       if (storedPreference === 'false') {
@@ -498,8 +536,8 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     const loadStoredControllerRemote = async () => {
-      const storedRemoteId = await SecureStore.getItemAsync(remoteStorageKey);
-      const storedControllerToken = await SecureStore.getItemAsync(
+      const [, storedRemoteId] = await getSecureValue(remoteStorageKey);
+      const [, storedControllerToken] = await getSecureValue(
         remoteTokenStorageKey,
       );
       if (!storedRemoteId || !storedControllerToken) return;
@@ -511,24 +549,6 @@ export function AppProvider({ children }: PropsWithChildren) {
     };
     void loadStoredControllerRemote();
   }, []);
-
-  useEffect(() => {
-    const loadStoredRoom = async () => {
-      const storedRemoteId = await SecureStore.getItemAsync(remoteStorageKey);
-      const storedControllerToken = await SecureStore.getItemAsync(
-        remoteTokenStorageKey,
-      );
-      if (storedRemoteId && storedControllerToken) return;
-      const storedRoom = await SecureStore.getItemAsync(roomStorageKey);
-      if (storedRoom) {
-        const result = await setRoomId(storedRoom);
-        if (result !== 'joined') {
-          await leaveRoom();
-        }
-      }
-    };
-    void loadStoredRoom();
-  }, [leaveRoom, setRoomId]);
 
   useEffect(() => {
     const loadProviders = async () => {
@@ -558,10 +578,10 @@ export function AppProvider({ children }: PropsWithChildren) {
       activateControllerRemote,
       clearControllerRemote,
       controllerRemote,
-      error,
       hasLocalPlaybackChanges,
       disableMachineRemote,
       enableMachineRemote,
+      forgetRoomAdminPassword,
       leaveRoom,
       loading,
       machinePairing,
@@ -591,10 +611,10 @@ export function AppProvider({ children }: PropsWithChildren) {
       activateControllerRemote,
       clearControllerRemote,
       controllerRemote,
-      error,
       hasLocalPlaybackChanges,
       disableMachineRemote,
       enableMachineRemote,
+      forgetRoomAdminPassword,
       leaveRoom,
       loading,
       machinePairing,
@@ -625,6 +645,11 @@ export function AppProvider({ children }: PropsWithChildren) {
 }
 
 const notFoundStatus = 404;
+
+function getLocallyAuthorizedRoom(room: Room, isAuthenticated: boolean) {
+  if (!room.hasPassword) return room;
+  return { ...room, isAdmin: isAuthenticated };
+}
 
 const alignedPositionToleranceMs = 2_000;
 

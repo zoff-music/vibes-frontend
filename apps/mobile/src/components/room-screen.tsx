@@ -27,7 +27,6 @@ import { useApp } from '@/providers/app-provider';
 export function RoomScreen() {
   const roomRequests = useRoomRequests(mobileApi);
   const {
-    error,
     hasLocalPlaybackChanges,
     leaveRoom,
     playback,
@@ -162,7 +161,10 @@ export function RoomScreen() {
 
   let playerSpacer = null;
   if (playerPreferenceLoaded && playerEnabled) {
-    let height = Math.max(200, (width - 32) / (16 / 9));
+    const playerWidth = tabletLayout.isTabletPortrait
+      ? tabletLayout.portraitPlayerWidth
+      : width - 32;
+    let height = Math.max(200, playerWidth / (16 / 9));
     if (tabletLayout.isTabletLandscape) {
       height = tabletLayout.playerHeight;
     }
@@ -244,8 +246,8 @@ export function RoomScreen() {
           }
         />
         <Toast
-          message={error || room.generationError || notice}
-          tone={!error && !room.generationError ? 'info' : 'error'}
+          message={room.generationError || notice}
+          tone={!room.generationError ? 'info' : 'error'}
         />
       </Card>
     );
@@ -300,15 +302,28 @@ export function RoomScreen() {
       </View>
     );
   }
+  if (tabletLayout.isTabletPortrait) {
+    content = (
+      <View
+        className="min-h-0 flex-1 self-center"
+        style={{ width: tabletLayout.portraitContentWidth }}
+      >
+        {content}
+      </View>
+    );
+  }
 
   return (
     <Screen>
-      <SafeAreaView className="flex-1" edges={['top']}>
+      <SafeAreaView edges={['top']}>
         <View
           className={classNames(
-            'flex-row items-center justify-between gap-3 px-4 py-3',
+            'w-full flex-row items-center justify-between gap-3 self-center px-4 py-3',
             tabletLayout.isTabletLandscape && 'h-20 py-0',
           )}
+          {...(tabletLayout.isTabletPortrait
+            ? { style: { width: tabletLayout.portraitContentWidth } }
+            : {})}
         >
           <View className="min-w-0 flex-1">
             <Copy muted>NOW IN</Copy>
@@ -340,8 +355,8 @@ export function RoomScreen() {
             <CastButton />
           </View>
         </View>
-        {content}
       </SafeAreaView>
+      <View className="min-h-0 flex-1">{content}</View>
     </Screen>
   );
 }

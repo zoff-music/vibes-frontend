@@ -120,6 +120,13 @@ export const voteIcon = {
   paths: ['M2 10h4v11H2zm6-2h2V3h4v2h2v5h5v3h-2v6h-2v2H8z'],
 } satisfies IconDefinition;
 
+export const homeIcon = {
+  viewBox: squareViewBox,
+  paths: [
+    'M10 2h4v2h2v2h2v2h2v14h-7v-6h-2v6H4V8h2V6h2V4h2zm0 5H8v2H6v10h3v-6h6v6h3V9h-2V7h-2V5h-4z',
+  ],
+} satisfies IconDefinition;
+
 export const queueIcon = {
   viewBox: squareViewBox,
   paths: ['M3 3h18v5H3zm0 7h18v5H3zm0 7h12v5H3zm14 0h4v5h-4z'],
@@ -222,7 +229,7 @@ export const zoffIconDefinitions = {
   check: checkIcon,
   close: closeIcon,
   external: externalLinkIcon,
-  home: queueIcon,
+  home: homeIcon,
   moon: moonIcon,
   pause: pauseIcon,
   play: playIcon,

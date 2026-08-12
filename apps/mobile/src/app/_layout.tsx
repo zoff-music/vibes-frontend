@@ -12,12 +12,15 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import '@/global.css';
 
+import { AndroidFloatingNavigation } from '@/components/android-floating-navigation';
 import AppTabs from '@/components/app-tabs';
+import { DeviceOrientationLock } from '@/components/device-orientation-lock';
 import {
   ActiveRoomKeepAwake,
   PersistentRoomPlayer,
 } from '@/components/persistent-room-player';
 import { TabletAddSongButton } from '@/components/tablet-add-song-button';
+import { TabletTopNavigation } from '@/components/tablet-top-navigation';
 import { ToastProvider } from '@/components/toast';
 import { AppProvider, useApp } from '@/providers/app-provider';
 import {
@@ -86,7 +89,10 @@ function RoomRuntime() {
       {hasActiveSession && playerPreferenceLoaded && playerEnabled && (
         <ActiveRoomKeepAwake />
       )}
+      <DeviceOrientationLock />
       <AppTabs />
+      <AndroidFloatingNavigation />
+      <TabletTopNavigation />
       {playerPreferenceLoaded && playerEnabled && <PersistentRoomPlayer />}
       <TabletAddSongButton />
     </>

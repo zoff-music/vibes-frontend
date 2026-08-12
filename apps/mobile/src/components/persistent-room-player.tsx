@@ -1,7 +1,7 @@
 import { useRoomRequests } from '@vibes/api';
 import { useKeepAwake } from 'expo-keep-awake';
 import { usePathname } from 'expo-router';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProviderPlayer } from '@/components/provider-player';
@@ -31,6 +31,10 @@ export function PersistentRoomPlayer() {
   const insets = useSafeAreaInsets();
   const tabletLayout = useTabletLandscapeLayout();
   const visible = pathname === '/' && Boolean(room && roomId);
+  const topInset =
+    Platform.OS === 'android' && tabletLayout.isTabletLandscape
+      ? androidTabletPlayerTopInset
+      : insets.top;
 
   let availableWidth: number | undefined;
   let horizontalMargin = playerHorizontalMargin;
@@ -44,6 +48,13 @@ export function PersistentRoomPlayer() {
     right = undefined;
     width = tabletLayout.playerPaneWidth;
   }
+  if (tabletLayout.isTabletPortrait) {
+    availableWidth = tabletLayout.portraitPlayerWidth;
+    horizontalMargin = 0;
+    left = (tabletLayout.width - tabletLayout.portraitPlayerWidth) / 2;
+    right = undefined;
+    width = tabletLayout.portraitPlayerWidth;
+  }
 
   if (!room || !roomId) return null;
 
@@ -56,8 +67,8 @@ export function PersistentRoomPlayer() {
         position: 'absolute',
         right,
         top: visible
-          ? insets.top +
-            (tabletLayout.isTabletLandscape
+          ? topInset +
+            (tabletLayout.isTablet
               ? tabletRoomHeaderHeight + tabletPlayerTopOffset
               : playerHeaderHeight)
           : 0,
@@ -66,10 +77,6 @@ export function PersistentRoomPlayer() {
       }}
     >
       <ProviderPlayer
-        availableHeight={
-          tabletLayout.isTabletLandscape ? tabletLayout.playerHeight : undefined
-        }
-        availableWidth={availableWidth}
         horizontalMargin={horizontalMargin}
         isGenerating={room.isGenerating}
         onLocalPositionObserved={observeLocalPlaybackPosition}
@@ -78,6 +85,16 @@ export function PersistentRoomPlayer() {
         resetVersion={playbackResetVersion}
         song={playback?.currentSong ?? null}
         synchronizePosition={room.mode === 'host'}
+        {...(availableWidth ? { availableWidth } : {})}
+        {...(tabletLayout.isTabletLandscape
+          ? { availableHeight: tabletLayout.playerHeight }
+          : {})}
+        {...(tabletLayout.isTabletPortrait
+          ? {
+              availableHeight:
+                tabletLayout.portraitPlayerWidth / playerAspectRatio,
+            }
+          : {})}
         onLocalPlayingChange={(isPlaying) => {
           if (room.mode === 'server') {
             setLocalPlaying(isPlaying);
@@ -119,3 +136,5 @@ export const playerHeaderHeight = 76;
 
 const playerZIndex = 20;
 const playerHorizontalMargin = 16;
+const androidTabletPlayerTopInset = 27;
+const playerAspectRatio = 16 / 9;

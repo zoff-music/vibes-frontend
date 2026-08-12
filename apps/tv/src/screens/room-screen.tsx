@@ -86,11 +86,13 @@ export function RoomScreen({ session }: RoomScreenProps) {
         <View className="border-tv-border border-t bg-black px-5 py-3">
           <View className="flex-row items-end gap-3">
             {!compact && currentSong?.thumbnailUrl && (
-              <Image
-                className="h-14 w-14 rounded-xl border border-tv-border"
-                contentFit="cover"
-                source={{ uri: currentSong.thumbnailUrl }}
-              />
+              <View className="h-14 w-14 overflow-hidden rounded-xl border border-tv-border bg-black">
+                <Image
+                  contentFit="cover"
+                  source={currentSong.thumbnailUrl}
+                  style={thumbnailImageStyle}
+                />
+              </View>
             )}
             <View className="min-w-0 flex-1">
               <Text
@@ -186,11 +188,13 @@ export function RoomScreen({ session }: RoomScreenProps) {
                     <Text className="w-6 text-center font-heading text-tv-muted text-xs">
                       {index + 1}
                     </Text>
-                    <Image
-                      className="size-12 rounded-lg border border-tv-border"
-                      contentFit="cover"
-                      source={{ uri: song.thumbnailUrl }}
-                    />
+                    <View className="size-12 overflow-hidden rounded-lg border border-tv-border bg-black">
+                      <Image
+                        contentFit="cover"
+                        source={song.thumbnailUrl}
+                        style={thumbnailImageStyle}
+                      />
+                    </View>
                     <View className="min-w-0 flex-1">
                       <Text
                         className="font-heading text-tv-text text-xs"
@@ -270,3 +274,7 @@ const compactQueueTrackHeight = 64;
 const defaultQueueTrackHeight = 96;
 const compactQueueTrackGap = 6;
 const defaultQueueTrackGap = 12;
+const thumbnailImageStyle = {
+  height: '100%' as const,
+  width: '100%' as const,
+};

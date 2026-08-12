@@ -99,7 +99,7 @@ export const QueueItem: React.FC<Props> = ({
             className="inline-flex"
             content="Vote this song up"
           >
-            <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.92 }}>
+            <motion.div whileTap={{ scale: 0.92 }}>
               <Button
                 onClick={handleVote}
                 disabled={isVoting}

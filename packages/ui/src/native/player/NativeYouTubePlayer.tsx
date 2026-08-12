@@ -1,11 +1,11 @@
-import { safeWrapAsync } from '@vibes/shared';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Linking } from 'react-native';
-import type { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
-import YoutubeIframe, {
-  PLAYER_STATES,
-  type YoutubeIframeRef,
-} from 'react-native-youtube-iframe';
+import { safeWrap, safeWrapAsync } from '@vibes/shared';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, Linking, View } from 'react-native';
+import {
+  WebView,
+  type WebViewMessageEvent,
+  type WebViewNavigation,
+} from 'react-native-webview';
 
 export interface NativeYouTubePlayerProps {
   height: number;
@@ -34,77 +34,86 @@ export function NativeYouTubePlayer({
   synchronizePosition,
   width,
 }: NativeYouTubePlayerProps) {
-  const playerRef = useRef<YoutubeIframeRef>(null);
+  const playerRef = useRef<WebView>(null);
   const previousPosition = useRef(positionMs);
   const previousObservedPosition = useRef<ObservedPosition | null>(null);
   const lastReportedSeekAt = useRef(0);
   const lastResetVersion = useRef<number | string>(resetVersion);
   const appState = useRef(AppState.currentState);
   const desiredPlaying = useRef(isPlaying);
-  const resumeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingPlayingCommand = useRef<boolean | null>(null);
   const [ready, setReady] = useState(false);
-  const [shouldPlay, setShouldPlay] = useState(false);
+  const playerHtml = useMemo(() => getPlayerHtml(sourceId), [sourceId]);
+
+  const setPlayerPlaying = useCallback((playing: boolean) => {
+    pendingPlayingCommand.current = playing;
+    playerRef.current?.injectJavaScript(
+      `window.zoffSetPlaying?.(${playing ? 'true' : 'false'}); true;`,
+    );
+  }, []);
 
   useEffect(() => {
     desiredPlaying.current = isPlaying;
     if (!ready) return;
-    setShouldPlay(isPlaying);
-  }, [isPlaying, ready]);
+    setPlayerPlaying(isPlaying);
+  }, [isPlaying, ready, setPlayerPlaying]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
       appState.current = nextState;
       if (nextState !== 'active' || !desiredPlaying.current) return;
-      setShouldPlay(false);
-      if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
-      resumeTimeout.current = setTimeout(() => setShouldPlay(true), 0);
+      setPlayerPlaying(true);
     });
-    return () => {
-      subscription.remove();
-      if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
-    };
-  }, []);
+    return () => subscription.remove();
+  }, [setPlayerPlaying]);
 
   useEffect(() => {
     const positionChanged = Math.abs(positionMs - previousPosition.current);
     previousPosition.current = positionMs;
     if (!ready || !synchronizePosition || positionChanged < seekChangeThreshold)
       return;
-    playerRef.current?.seekTo(
-      Math.max(0, positionMs) / millisecondsPerSecond,
-      true,
-    );
-  }, [positionMs, ready, sourceId, synchronizePosition]);
+    seekPlayer(playerRef.current, positionMs);
+  }, [positionMs, ready, synchronizePosition]);
 
   useEffect(() => {
     if (!ready || lastResetVersion.current === resetVersion) return;
     lastResetVersion.current = resetVersion;
     previousObservedPosition.current = null;
-    playerRef.current?.seekTo(
-      Math.max(0, positionMs) / millisecondsPerSecond,
-      true,
-    );
+    seekPlayer(playerRef.current, positionMs);
   }, [positionMs, ready, resetVersion]);
 
-  useEffect(() => {
-    if (!ready || (!onLocalPositionObserved && !onLocalSeek)) return;
-    previousObservedPosition.current = null;
-    const samplePosition = async () => {
-      const player = playerRef.current;
-      if (!player) return;
-      const [error, positionSeconds] = await safeWrapAsync(
-        player.getCurrentTime(),
-      );
-      if (error || positionSeconds === null) return;
-      const observedAt = Date.now();
-      const observedPositionMs = Math.round(
-        positionSeconds * millisecondsPerSecond,
-      );
+  const handleReady = useCallback(() => {
+    setReady(true);
+    seekPlayer(playerRef.current, positionMs);
+    setPlayerPlaying(desiredPlaying.current);
+  }, [positionMs, setPlayerPlaying]);
+
+  const handlePlayingChange = useCallback(
+    (playing: boolean) => {
+      const pendingCommand = pendingPlayingCommand.current;
+      if (pendingCommand !== null) {
+        if (playing !== pendingCommand) {
+          setPlayerPlaying(pendingCommand);
+          return;
+        }
+        pendingPlayingCommand.current = null;
+      }
+
+      if (playing !== desiredPlaying.current) {
+        onPlayingChange?.(playing);
+      }
+    },
+    [onPlayingChange, setPlayerPlaying],
+  );
+
+  const handleObservedPosition = useCallback(
+    (observedPositionMs: number, observedAt: number) => {
       onLocalPositionObserved?.(observedPositionMs);
+      const positionSeconds = observedPositionMs / millisecondsPerSecond;
       const previous = previousObservedPosition.current;
       previousObservedPosition.current = { observedAt, positionSeconds };
       if (!previous || !onLocalSeek) return;
-      const elapsedSeconds = shouldPlay
+      const elapsedSeconds = desiredPlaying.current
         ? (observedAt - previous.observedAt) / millisecondsPerSecond
         : 0;
       const expectedPosition = previous.positionSeconds + elapsedSeconds;
@@ -117,43 +126,39 @@ export function NativeYouTubePlayer({
       }
       lastReportedSeekAt.current = observedAt;
       onLocalSeek(observedPositionMs);
-    };
-    void samplePosition();
-    const interval = setInterval(
-      () => void samplePosition(),
-      localSeekSampleMs,
-    );
-    return () => clearInterval(interval);
-  }, [onLocalPositionObserved, onLocalSeek, ready, shouldPlay]);
+    },
+    [onLocalPositionObserved, onLocalSeek],
+  );
 
-  const handleReady = useCallback(() => {
-    setReady(true);
-    if (positionMs > 0) {
-      playerRef.current?.seekTo(
-        Math.max(0, positionMs) / millisecondsPerSecond,
-        true,
+  const handlePlayerMessage = useCallback(
+    (event: WebViewMessageEvent) => {
+      const [messageError, message] = safeWrap<unknown>(() =>
+        JSON.parse(event.nativeEvent.data),
       );
-    }
-  }, [positionMs]);
-
-  const handleStateChange = useCallback(
-    (state: PLAYER_STATES) => {
-      if (state === PLAYER_STATES.PLAYING) {
-        onPlayingChange?.(true);
+      if (messageError || !isPlayerMessage(message)) return;
+      if (message.type === 'ready') {
+        handleReady();
         return;
       }
-      if (state === PLAYER_STATES.PAUSED && appState.current === 'active') {
-        onPlayingChange?.(false);
+      if (message.type === 'playing') {
+        handlePlayingChange(message.isPlaying);
+        return;
       }
+      if (message.type === 'position') {
+        handleObservedPosition(message.positionMs, Date.now());
+        return;
+      }
+      onError?.(`YouTube could not play this video: ${message.code}`);
     },
-    [onPlayingChange],
+    [handleObservedPosition, handlePlayingChange, handleReady, onError],
   );
 
   const handleNavigationRequest = useCallback(
-    (request: ShouldStartLoadRequest) => {
-      if (isPlayerNavigation(request.url)) return true;
+    (request: WebViewNavigation) => {
+      const url = request.mainDocumentURL || request.url;
+      if (isPlayerNavigation(url)) return true;
       const openExternal = async () => {
-        const [openError] = await safeWrapAsync(Linking.openURL(request.url));
+        const [openError] = await safeWrapAsync(Linking.openURL(url));
         if (openError) {
           onError?.('This YouTube link could not be opened on this device.');
         }
@@ -165,36 +170,23 @@ export function NativeYouTubePlayer({
   );
 
   return (
-    <YoutubeIframe
-      ref={playerRef}
-      baseUrlOverride={platformUrl}
-      forceAndroidAutoplay
-      height={height}
-      initialPlayerParams={{
-        controls: true,
-        preventFullScreen: false,
-        rel: false,
-      }}
-      onChangeState={handleStateChange}
-      onError={(error: string) =>
-        onError?.(`YouTube could not play this video: ${error}`)
-      }
-      onReady={handleReady}
-      play={shouldPlay}
-      useLocalHTML
-      videoId={sourceId}
-      webViewProps={{
-        allowsInlineMediaPlayback: true,
-        allowsLinkPreview: false,
-        bounces: false,
-        mediaPlaybackRequiresUserAction: false,
-        onShouldStartLoadWithRequest: handleNavigationRequest,
-        scrollEnabled: false,
-        setSupportMultipleWindows: false,
-      }}
-      webViewStyle={{ backgroundColor: '#000000' }}
-      width={width}
-    />
+    <View style={{ height, width }}>
+      <WebView
+        ref={playerRef}
+        allowsFullscreenVideo
+        allowsInlineMediaPlayback
+        allowsLinkPreview={false}
+        bounces={false}
+        mediaPlaybackRequiresUserAction={false}
+        onMessage={handlePlayerMessage}
+        onShouldStartLoadWithRequest={handleNavigationRequest}
+        originWhitelist={['https://*']}
+        scrollEnabled={false}
+        setSupportMultipleWindows={false}
+        source={{ baseUrl: platformUrl, html: playerHtml }}
+        style={{ backgroundColor: '#000000' }}
+      />
+    </View>
   );
 }
 
@@ -203,17 +195,68 @@ interface ObservedPosition {
   positionSeconds: number;
 }
 
+interface ReadyMessage {
+  type: 'ready';
+}
+
+interface PlayingMessage {
+  isPlaying: boolean;
+  type: 'playing';
+}
+
+interface PositionMessage {
+  positionMs: number;
+  type: 'position';
+}
+
+interface ErrorMessage {
+  code: string;
+  type: 'error';
+}
+
+type PlayerMessage =
+  | ErrorMessage
+  | PlayingMessage
+  | PositionMessage
+  | ReadyMessage;
+
 const platformUrl = 'https://zoff.me';
-
 const millisecondsPerSecond = 1_000;
-
 const seekChangeThreshold = 5_000;
-
-const localSeekSampleMs = 500;
-
 const localSeekThresholdSeconds = 2;
-
 const localSeekDebounceMs = 1_000;
+
+function seekPlayer(player: WebView | null, positionMs: number) {
+  player?.injectJavaScript(
+    `window.zoffSeek?.(${Math.max(0, positionMs)}); true;`,
+  );
+}
+
+function isPlayerMessage(message: unknown): message is PlayerMessage {
+  if (!message || typeof message !== 'object' || !('type' in message)) {
+    return false;
+  }
+  if (message.type === 'ready') return true;
+  if (
+    message.type === 'playing' &&
+    'isPlaying' in message &&
+    typeof message.isPlaying === 'boolean'
+  ) {
+    return true;
+  }
+  if (
+    message.type === 'position' &&
+    'positionMs' in message &&
+    typeof message.positionMs === 'number'
+  ) {
+    return true;
+  }
+  return (
+    message.type === 'error' &&
+    'code' in message &&
+    typeof message.code === 'string'
+  );
+}
 
 function isPlayerNavigation(url: string) {
   return allowedPlayerUrls.some((allowedUrl) => url.startsWith(allowedUrl));
@@ -222,6 +265,81 @@ function isPlayerNavigation(url: string) {
 const allowedPlayerUrls = [
   'about:blank',
   platformUrl,
-  'https://www.youtube.com/embed/',
-  'https://www.youtube-nocookie.com/embed/',
+  'https://www.youtube.com/',
+  'https://www.youtube-nocookie.com/',
+  'https://googleads.g.doubleclick.net/',
+  'https://static.doubleclick.net/',
 ];
+
+function getPlayerHtml(sourceId: string) {
+  const serializedSourceId = JSON.stringify(sourceId);
+  const serializedOrigin = JSON.stringify(platformUrl);
+  return `<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <style>
+      html, body, #player { background: #000; height: 100%; margin: 0; overflow: hidden; padding: 0; width: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="player"></div>
+    <script>
+      let player;
+      let ready = false;
+      let shouldPlay = false;
+      let initialPositionSeconds = 0;
+      const post = (message) => window.ReactNativeWebView.postMessage(JSON.stringify(message));
+      const syncPlayback = () => {
+        if (!ready || !player) return;
+        const state = player.getPlayerState();
+        if (shouldPlay && state !== YT.PlayerState.PLAYING) player.playVideo();
+        if (!shouldPlay && state === YT.PlayerState.PLAYING) player.pauseVideo();
+      };
+      window.zoffSetPlaying = (playing) => {
+        shouldPlay = playing;
+        syncPlayback();
+      };
+      window.zoffSeek = (positionMs) => {
+        initialPositionSeconds = Math.max(0, positionMs) / 1000;
+        if (ready && player) player.seekTo(initialPositionSeconds, true);
+      };
+      window.onYouTubeIframeAPIReady = () => {
+        player = new YT.Player('player', {
+          height: '100%',
+          width: '100%',
+          videoId: ${serializedSourceId},
+          playerVars: {
+            autoplay: 0,
+            controls: 1,
+            enablejsapi: 1,
+            fs: 1,
+            origin: ${serializedOrigin},
+            playsinline: 1,
+            rel: 0
+          },
+          events: {
+            onReady: () => {
+              ready = true;
+              if (initialPositionSeconds > 0) player.seekTo(initialPositionSeconds, true);
+              syncPlayback();
+              post({ type: 'ready' });
+            },
+            onStateChange: (event) => {
+              if (event.data === YT.PlayerState.PLAYING) post({ type: 'playing', isPlaying: true });
+              if (event.data === YT.PlayerState.PAUSED) post({ type: 'playing', isPlaying: false });
+            },
+            onError: (event) => post({ type: 'error', code: String(event.data) })
+          }
+        });
+      };
+      setInterval(() => {
+        if (!ready || !player) return;
+        const position = player.getCurrentTime();
+        if (Number.isFinite(position)) post({ type: 'position', positionMs: Math.round(position * 1000) });
+      }, 500);
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+  </body>
+</html>`;
+}

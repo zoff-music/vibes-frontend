@@ -37,7 +37,10 @@ export function ToastProvider({ children }: PropsWithChildren) {
   const nextId = useRef(0);
   const showToast = useCallback(
     (message: string, tone: ToastTone = 'error') => {
-      if (!message) return;
+      if (!message) {
+        setActiveToast(null);
+        return;
+      }
       nextId.current += 1;
       setActiveToast({ id: nextId.current, message, tone });
     },

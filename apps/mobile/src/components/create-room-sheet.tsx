@@ -239,7 +239,7 @@ export function CreateRoomSheet({
             />
           </View>
           <FlatList
-            contentContainerStyle={sheetContentStyle}
+            contentContainerClassName="px-5 pb-10"
             data={sheetItems}
             keyExtractor={(item) => item}
             keyboardDismissMode="interactive"
@@ -252,10 +252,5 @@ export function CreateRoomSheet({
     </Modal>
   );
 }
-
-const sheetContentStyle = {
-  paddingBottom: 40,
-  paddingHorizontal: 20,
-};
 
 const sheetItems = ['create-room'];

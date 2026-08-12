@@ -36,11 +36,13 @@ export function SearchResults({
               className="min-h-19 flex-row items-center gap-4 rounded-2xl border border-mobile-border bg-mobile-card p-4 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
               onPress={() => void onAdd(result)}
             >
-              <Image
-                className="h-14 w-18 rounded-xl"
-                contentFit="cover"
-                source={result.thumbnailUrl}
-              />
+              <View className="h-14 w-18 overflow-hidden rounded-xl bg-black">
+                <Image
+                  contentFit="cover"
+                  source={result.thumbnailUrl}
+                  style={thumbnailImageStyle}
+                />
+              </View>
               <View className="min-w-0 flex-1 gap-1">
                 <Text
                   numberOfLines={2}
@@ -75,3 +77,5 @@ export function SearchResults({
     </View>
   );
 }
+
+const thumbnailImageStyle = { height: '100%' as const, width: '100%' as const };

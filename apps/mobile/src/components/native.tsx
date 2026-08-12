@@ -7,11 +7,23 @@ import {
   NativeIconButton,
 } from '@vibes/ui/native';
 import type { PropsWithChildren, ReactNode } from 'react';
-import { ActivityIndicator, useWindowDimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import type { ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import {
+  tabletNavigationHeight,
+  useTabletLandscapeLayout,
+} from '@/hooks/use-tablet-landscape-layout';
 
 export function Screen({ children }: PropsWithChildren) {
+  const tabletLayout = useTabletLandscapeLayout();
+  const reservesTabletNavigation =
+    Platform.OS === 'android' && tabletLayout.isTablet;
   return (
     <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
       <View className="absolute inset-0 opacity-35" pointerEvents="none">
@@ -31,7 +43,16 @@ export function Screen({ children }: PropsWithChildren) {
         ))}
         <View className="absolute top-0 right-0 left-0 h-40 bg-primary/5" />
       </View>
-      <View className="flex-1">{children}</View>
+      <View
+        className="flex-1"
+        style={
+          reservesTabletNavigation
+            ? { paddingTop: tabletNavigationHeight }
+            : undefined
+        }
+      >
+        {children}
+      </View>
     </View>
   );
 }

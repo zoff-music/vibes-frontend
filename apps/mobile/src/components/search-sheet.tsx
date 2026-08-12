@@ -70,7 +70,7 @@ export function SearchSheet({
     <Screen>
       <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
         <ScrollView
-          contentContainerClassName="px-5 pt-4 pb-32"
+          contentContainerClassName="w-full max-w-3xl self-center px-5 pt-4 pb-32"
           keyboardShouldPersistTaps="handled"
         >
           <View className="mb-6">

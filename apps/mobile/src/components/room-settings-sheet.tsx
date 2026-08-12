@@ -1,4 +1,9 @@
-import { type ApiClient, useRemoteRequests, useRoomRequests } from '@vibes/api';
+import {
+  type ApiClient,
+  getHttpError,
+  useRemoteRequests,
+  useRoomRequests,
+} from '@vibes/api';
 import type { Providers, Room, RoomSettings } from '@vibes/models';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, Modal, View } from 'react-native';
@@ -21,6 +26,7 @@ interface RoomSettingsSheetProps {
   client?: ApiClient;
   onAuthenticated?: (roomId: string, password: string) => Promise<void>;
   onClose: () => void;
+  onLoggedOut?: (roomId: string) => Promise<void>;
   onUpdated: () => Promise<void>;
   providers: Providers;
   remoteId?: string;
@@ -32,6 +38,7 @@ export function RoomSettingsSheet({
   client = mobileApi,
   onAuthenticated,
   onClose,
+  onLoggedOut,
   onUpdated,
   providers,
   remoteId,
@@ -60,7 +67,8 @@ export function RoomSettingsSheet({
   }, [room, visible]);
 
   const authenticate = async () => {
-    if (!password.trim()) {
+    const submittedPassword = password.trim();
+    if (!submittedPassword) {
       setError(
         activeRoom.hasPassword
           ? 'Enter the room admin password.'
@@ -71,7 +79,7 @@ export function RoomSettingsSheet({
     setLoading(true);
     const [requestError, session] = await roomRequests.joinRoom(
       activeRoom.id,
-      password,
+      submittedPassword,
     );
     if (requestError || !session) {
       setLoading(false);
@@ -102,11 +110,11 @@ export function RoomSettingsSheet({
     setActiveRoom(session.room);
     setSettings(session.room.settings);
     setMode(session.room.mode);
-    if (onAuthenticated) {
-      await onAuthenticated(activeRoom.id, password);
-    }
     setPassword('');
     await onUpdated();
+    if (onAuthenticated) {
+      await onAuthenticated(activeRoom.id, submittedPassword);
+    }
   };
 
   const save = async (nextMode: Room['mode'], nextSettings: RoomSettings) => {
@@ -131,6 +139,45 @@ export function RoomSettingsSheet({
     setActiveRoom(updatedRoom);
     setMode(updatedRoom.mode);
     setSettings(updatedRoom.settings);
+    await onUpdated();
+  };
+
+  const logOut = async () => {
+    setLoading(true);
+    setError('');
+    const [requestError, session] = await roomRequests.logOutRoomAdmin(
+      activeRoom.id,
+    );
+    const responseStatus = requestError
+      ? getHttpError(requestError)?.response.status
+      : null;
+    const serverDoesNotSupportLogout =
+      responseStatus === notFoundStatus ||
+      responseStatus === methodNotAllowedStatus;
+    if (
+      (requestError && !serverDoesNotSupportLogout) ||
+      (!session && !serverDoesNotSupportLogout)
+    ) {
+      setLoading(false);
+      setError(
+        await getRequestErrorMessage(
+          requestError,
+          'Could not log out of this room.',
+        ),
+      );
+      return;
+    }
+    if (onLoggedOut) {
+      await onLoggedOut(activeRoom.id);
+    }
+    const guestRoom = {
+      ...(session?.room ?? activeRoom),
+      isAdmin: false,
+    };
+    setActiveRoom(guestRoom);
+    setSettings(guestRoom.settings);
+    setMode(guestRoom.mode);
+    setLoading(false);
     await onUpdated();
   };
 
@@ -180,6 +227,21 @@ export function RoomSettingsSheet({
           />
         </Card>
       )}
+      {activeRoom.isAdmin && (
+        <Card>
+          <Copy muted>ADMIN ACCESS</Copy>
+          <Copy muted>
+            You are authenticated as this room&apos;s admin. Logging out removes
+            the saved password from this device.
+          </Copy>
+          <Button
+            disabled={loading}
+            label={loading ? 'Logging out…' : 'Log out'}
+            tone="danger"
+            onPress={() => void logOut()}
+          />
+        </Card>
+      )}
       <RoomConfiguration
         disabled={!canEdit || loading}
         hasPassword={activeRoom.hasPassword}
@@ -212,7 +274,7 @@ export function RoomSettingsSheet({
             />
           </View>
           <FlatList
-            contentContainerStyle={sheetContentStyle}
+            contentContainerClassName="px-5 pb-10"
             data={sheetItems}
             keyExtractor={(item) => item}
             keyboardDismissMode="interactive"
@@ -226,9 +288,7 @@ export function RoomSettingsSheet({
   );
 }
 
-const sheetContentStyle = {
-  paddingBottom: 40,
-  paddingHorizontal: 20,
-};
+const notFoundStatus = 404;
+const methodNotAllowedStatus = 405;
 
 const sheetItems = ['room-settings'];

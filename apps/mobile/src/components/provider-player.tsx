@@ -57,6 +57,10 @@ export function ProviderPlayer({
     playerHeight,
     playerWidth / playerAspectRatio,
   );
+  const embeddedPlayerWidth = Math.min(
+    playerWidth,
+    embeddedPlayerHeight * playerAspectRatio,
+  );
   const playerHtml = useMemo(
     () =>
       song && song.sourceType !== 'youtube'
@@ -144,7 +148,7 @@ export function ProviderPlayer({
             resetVersion={resetVersion}
             sourceId={song.sourceId}
             synchronizePosition={synchronizePosition}
-            width={playerWidth}
+            width={embeddedPlayerWidth}
           />
         </View>
         <Toast message={error} />
