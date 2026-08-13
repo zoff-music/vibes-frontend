@@ -128,6 +128,7 @@ const VideoPlayerComponent = ({
   );
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
   const [isMutedState, setIsMutedState] = useState(false);
+  const [playerState, setPlayerState] = useState(YOUTUBE_STATE_UNSTARTED);
   const [castPlayerSize, setCastPlayerSize] = useState<PlayerSize | null>(null);
   const origin =
     typeof window === 'undefined' ? undefined : window.location.origin;
@@ -139,7 +140,10 @@ const VideoPlayerComponent = ({
         playerRef.current?.mute();
         playerRef.current?.pauseVideo();
       });
-      if (!error) setIsMutedState(true);
+      if (!error) {
+        setIsMutedState(true);
+        setPlayerState(YOUTUBE_STATE_PAUSED);
+      }
     });
   }, []);
 
@@ -148,7 +152,13 @@ const VideoPlayerComponent = ({
       const playbackState = usePlaybackStore.getState();
       const [error] = safeWrap(() => {
         if (playbackState.currentSong?.sourceType !== 'youtube') {
-          silenceProviderPlayback('youtube');
+          const player = playerRef.current;
+          if (!player) return;
+          player.mute();
+          setIsMutedState(true);
+          player.playVideo();
+          player.pauseVideo();
+          setPlayerState(YOUTUBE_STATE_PAUSED);
           return;
         }
         claimProviderPlayback('youtube');
@@ -277,6 +287,11 @@ const VideoPlayerComponent = ({
       const state = player.getPlayerState();
       if (shouldPlay && state !== YOUTUBE_STATE_PLAYING) {
         claimProviderPlayback('youtube');
+        if (isCastReceiver || hasUserStartedPlayback) {
+          player.unMute();
+          player.setVolume(MAX_VOLUME);
+          setIsMutedState(false);
+        }
         if (isCastReceiver) {
           if (castAutoplayAttemptedVideoIdRef.current === videoId) {
             return;
@@ -300,6 +315,7 @@ const VideoPlayerComponent = ({
     isCastReceiver,
     isReady,
     isYouTubeActive,
+    hasUserStartedPlayback,
     resetVersion,
     shouldPlay,
     updatedAt,
@@ -480,6 +496,11 @@ const VideoPlayerComponent = ({
 
       const [err] = safeWrap(() => {
         claimProviderPlayback('youtube');
+        if (isCastReceiver || isPlaybackGestureUnlocked()) {
+          player.unMute();
+          player.setVolume(MAX_VOLUME);
+          setIsMutedState(false);
+        }
         if (isCastReceiver) {
           castAutoplayAttemptedVideoIdRef.current = videoId;
           player.setVolume(MAX_VOLUME);
@@ -667,6 +688,10 @@ const VideoPlayerComponent = ({
           if (!hasUserStartedPlayback) {
             event.target.mute();
             setIsMutedState(true);
+          } else {
+            event.target.unMute();
+            event.target.setVolume(MAX_VOLUME);
+            setIsMutedState(false);
           }
           event.target.playVideo();
         });
@@ -681,6 +706,7 @@ const VideoPlayerComponent = ({
   const handleStateChange = useCallback(
     (event: { data: number }) => {
       const state = event.data;
+      setPlayerState(state);
       debugLog('state', { state });
 
       const playbackState = usePlaybackStore.getState();
@@ -695,6 +721,16 @@ const VideoPlayerComponent = ({
       }
       if (state === YOUTUBE_STATE_PLAYING) {
         claimProviderPlayback('youtube');
+        if (
+          playbackState.currentSong?.sourceType === 'youtube' &&
+          (isCastReceiver || isPlaybackGestureUnlocked())
+        ) {
+          const [unmuteError] = safeWrap(() => {
+            playerRef.current?.unMute();
+            playerRef.current?.setVolume(MAX_VOLUME);
+          });
+          if (!unmuteError) setIsMutedState(false);
+        }
       }
 
       if (state === 1 && pauseAfterLoadVideoIdRef.current === videoId) {
@@ -1012,6 +1048,11 @@ const VideoPlayerComponent = ({
   return (
     <div
       ref={containerRef}
+      data-provider-muted={isMutedState ? 'true' : 'false'}
+      data-provider-playing={
+        playerState === YOUTUBE_STATE_PLAYING ? 'true' : 'false'
+      }
+      data-provider="youtube"
       className={classNames(
         containerClass,
         !isVisible && 'pointer-events-none opacity-0',
@@ -1088,3 +1129,5 @@ const YOUTUBE_STATE_PAUSED = 2;
 const YOUTUBE_STATE_PLAYING = 1;
 
 const YOUTUBE_STATE_BUFFERING = 3;
+
+const YOUTUBE_STATE_UNSTARTED = -1;
