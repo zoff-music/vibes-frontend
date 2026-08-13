@@ -16,10 +16,6 @@ TV platforms run different application technologies:
 
 ![Zoff TV room on Android TV](./docs/android-tv-room.png)
 
-### Samsung TV
-
-![Zoff TV room on a Samsung TV](./docs/samsung-tv-room.png)
-
 The queue is intentionally bounded to five visible rows. Viewers scan the QR
 code to add songs and vote from another device rather than manipulating a long
 queue with the television remote.
