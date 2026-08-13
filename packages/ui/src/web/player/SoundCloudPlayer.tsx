@@ -11,6 +11,11 @@ import {
   markPlaybackGestureUnlocked,
   subscribeToPlaybackGestureUnlock,
 } from './playbackGesture';
+import {
+  claimProviderPlayback,
+  registerProviderPlayback,
+  silenceProviderPlayback,
+} from './providerPlaybackCoordinator';
 
 // Declare SC global on window
 declare global {
@@ -109,8 +114,22 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   }, [onEnded, onLocalAlignmentChange, onLocalVolumeChange]);
 
   useEffect(() => {
+    return registerProviderPlayback('soundcloud', () => {
+      const widget = widgetRef.current;
+      if (!widget) return;
+      widget.setVolume(MIN_VOLUME);
+      widget.pause();
+    });
+  }, []);
+
+  useEffect(() => {
     return subscribeToPlaybackGestureUnlock(() => {
       setIsPlaybackUnlocked(true);
+      if (
+        usePlaybackStore.getState().currentSong?.sourceType !== 'soundcloud'
+      ) {
+        silenceProviderPlayback('soundcloud');
+      }
     });
   }, []);
 
@@ -159,11 +178,13 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         playbackState.isPlaying &&
         (!showInitialPlaybackOverlay || isPlaybackGestureUnlocked());
       if (shouldPlay) {
+        claimProviderPlayback('soundcloud');
+        widget.setVolume(MAX_VOLUME);
         expectedPlayingStateRef.current = true;
         widget.play();
       } else {
         expectedPlayingStateRef.current = false;
-        widget.pause();
+        silenceProviderPlayback('soundcloud');
       }
     });
 
@@ -192,6 +213,14 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     });
 
     widget.bind(soundCloud.Widget.Events.PLAY, () => {
+      if (
+        usePlaybackStore.getState().currentSong?.sourceType !== 'soundcloud'
+      ) {
+        expectedPlayingStateRef.current = false;
+        silenceProviderPlayback('soundcloud');
+        return;
+      }
+      claimProviderPlayback('soundcloud');
       if (expectedPlayingStateRef.current === true) {
         expectedPlayingStateRef.current = null;
         return;
@@ -242,6 +271,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
     const shouldReset = lastResetVersionRef.current !== resetVersion;
     if (shouldReset) {
+      claimProviderPlayback('soundcloud');
       widgetRef.current.setVolume(MAX_VOLUME);
       lastResetVersionRef.current = resetVersion;
     }
@@ -271,11 +301,13 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       isPlaying &&
       (!showInitialPlaybackOverlay || isPlaybackUnlocked);
     if (shouldPlay) {
+      claimProviderPlayback('soundcloud');
+      widgetRef.current.setVolume(MAX_VOLUME);
       expectedPlayingStateRef.current = true;
       widgetRef.current.play();
     } else {
       expectedPlayingStateRef.current = false;
-      widgetRef.current.pause();
+      silenceProviderPlayback('soundcloud');
     }
   }, [
     isActive,
@@ -295,8 +327,19 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       const widget = widgetRef.current;
       if (!widget) return;
 
+      const playbackState = usePlaybackStore.getState();
+      if (
+        playbackState.currentSong?.sourceType !== 'soundcloud' ||
+        !playbackState.isPlaying
+      ) {
+        expectedPlayingStateRef.current = false;
+        silenceProviderPlayback('soundcloud');
+        return;
+      }
+
       widget.isPaused((isPaused) => {
         if (!isPaused) return;
+        claimProviderPlayback('soundcloud');
         widget.setVolume(MAX_VOLUME);
         widget.play();
       });
@@ -366,6 +409,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     playbackState.updateActualPosition();
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
     expectedSeekPositionRef.current = actualPositionMs;
+    claimProviderPlayback('soundcloud');
     widget.setVolume(MAX_VOLUME);
     widget.seekTo(actualPositionMs);
     widget.play();
@@ -482,6 +526,8 @@ const ALIGNED_POSITION_TOLERANCE_MS = 2000;
 const SYNCHRONIZATION_TOLERANCE_MS = 5000;
 
 const MAX_VOLUME = 100;
+
+const MIN_VOLUME = 0;
 
 const CAST_AUTOPLAY_RETRY_MS = 500;
 

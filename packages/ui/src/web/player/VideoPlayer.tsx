@@ -13,6 +13,11 @@ import {
   markPlaybackGestureUnlocked,
   subscribeToPlaybackGestureUnlock,
 } from './playbackGesture';
+import {
+  claimProviderPlayback,
+  registerProviderPlayback,
+  silenceProviderPlayback,
+} from './providerPlaybackCoordinator';
 
 interface Props {
   isVisible?: boolean;
@@ -129,12 +134,30 @@ const VideoPlayerComponent = ({
   const isCastReceiver = appContext === 'cast';
 
   useEffect(() => {
-    return subscribeToPlaybackGestureUnlock(() => {
+    return registerProviderPlayback('youtube', () => {
       const [error] = safeWrap(() => {
+        playerRef.current?.mute();
+        playerRef.current?.pauseVideo();
+      });
+      if (!error) setIsMutedState(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    return subscribeToPlaybackGestureUnlock(() => {
+      const playbackState = usePlaybackStore.getState();
+      const [error] = safeWrap(() => {
+        if (playbackState.currentSong?.sourceType !== 'youtube') {
+          silenceProviderPlayback('youtube');
+          return;
+        }
+        claimProviderPlayback('youtube');
         playerRef.current?.unMute();
         playerRef.current?.setVolume(MAX_VOLUME);
       });
-      if (!error) setIsMutedState(false);
+      if (!error && playbackState.currentSong?.sourceType === 'youtube') {
+        setIsMutedState(false);
+      }
       setHasUserStartedPlayback(true);
       setNeedsUserGesture(false);
     });
@@ -216,6 +239,7 @@ const VideoPlayerComponent = ({
       lastSynchronizedUpdateRef.current !== updatedAt || shouldReset;
     const [err] = safeWrap(() => {
       if (shouldReset) {
+        claimProviderPlayback('youtube');
         player.unMute();
         player.setVolume(MAX_VOLUME);
         lastResetVersionRef.current = resetVersion;
@@ -252,6 +276,7 @@ const VideoPlayerComponent = ({
 
       const state = player.getPlayerState();
       if (shouldPlay && state !== YOUTUBE_STATE_PLAYING) {
+        claimProviderPlayback('youtube');
         if (isCastReceiver) {
           if (castAutoplayAttemptedVideoIdRef.current === videoId) {
             return;
@@ -382,11 +407,8 @@ const VideoPlayerComponent = ({
 
   useEffect(() => {
     if (isYouTubeActive || !playerRef.current) return;
-    const [err] = safeWrap(() => playerRef.current?.pauseVideo());
-    if (err && DEBUG) {
-      debugLog('pause-error', { error: err.message });
-    }
-  }, [isYouTubeActive]);
+    silenceProviderPlayback('youtube');
+  }, [isReady, isYouTubeActive, videoId]);
 
   useEffect(() => {
     if (!isCastReceiver || isYouTubeActive) return;
@@ -457,6 +479,7 @@ const VideoPlayerComponent = ({
       autoPlayKickCountRef.current += 1;
 
       const [err] = safeWrap(() => {
+        claimProviderPlayback('youtube');
         if (isCastReceiver) {
           castAutoplayAttemptedVideoIdRef.current = videoId;
           player.setVolume(MAX_VOLUME);
@@ -567,12 +590,22 @@ const VideoPlayerComponent = ({
 
   const forceAutoplay = useCallback(
     (label: string) => {
-      if (!isCastReceiver) return;
+      const playbackState = usePlaybackStore.getState();
+      if (
+        !isCastReceiver ||
+        !isYouTubeActive ||
+        !shouldPlay ||
+        playbackState.currentSong?.sourceType !== 'youtube' ||
+        !playbackState.isPlaying
+      ) {
+        return;
+      }
       const player = playerRef.current;
       if (!player) return;
       if (castAutoplayAttemptedVideoIdRef.current === videoId) return;
 
       const [prepareErr] = safeWrap(() => {
+        claimProviderPlayback('youtube');
         castAutoplayAttemptedVideoIdRef.current = videoId;
         player.setVolume(MAX_VOLUME);
         player.playVideo();
@@ -586,7 +619,7 @@ const VideoPlayerComponent = ({
       setNeedsUserGesture(false);
       debugLog('force-autoplay', { label });
     },
-    [debugLog, isCastReceiver, videoId],
+    [debugLog, isCastReceiver, isYouTubeActive, shouldPlay, videoId],
   );
 
   const handleReady = useCallback(
@@ -597,6 +630,15 @@ const VideoPlayerComponent = ({
       debugLog('ready');
 
       const playbackState = usePlaybackStore.getState();
+      const loadedVideoId = event.target.getVideoData().video_id;
+      if (loadedVideoId) {
+        lastLoadedVideoIdRef.current = loadedVideoId;
+      }
+      if (playbackState.currentSong?.sourceType !== 'youtube') {
+        expectedPlayingStateRef.current = false;
+        silenceProviderPlayback('youtube');
+        return;
+      }
       playbackState.updateActualPosition();
       const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
       if (actualPositionMs > 0) {
@@ -621,6 +663,7 @@ const VideoPlayerComponent = ({
 
       if (usePlaybackStore.getState().isPlaying) {
         const [err] = safeWrap(() => {
+          claimProviderPlayback('youtube');
           if (!hasUserStartedPlayback) {
             event.target.mute();
             setIsMutedState(true);
@@ -639,6 +682,20 @@ const VideoPlayerComponent = ({
     (event: { data: number }) => {
       const state = event.data;
       debugLog('state', { state });
+
+      const playbackState = usePlaybackStore.getState();
+      if (
+        (state === YOUTUBE_STATE_PLAYING ||
+          state === YOUTUBE_STATE_BUFFERING) &&
+        playbackState.currentSong?.sourceType !== 'youtube'
+      ) {
+        expectedPlayingStateRef.current = false;
+        silenceProviderPlayback('youtube');
+        return;
+      }
+      if (state === YOUTUBE_STATE_PLAYING) {
+        claimProviderPlayback('youtube');
+      }
 
       if (state === 1 && pauseAfterLoadVideoIdRef.current === videoId) {
         pauseAfterLoadVideoIdRef.current = null;
@@ -670,6 +727,7 @@ const VideoPlayerComponent = ({
         let muted = playerRef.current?.isMuted?.() ?? false;
         if (isCastReceiver && state === YOUTUBE_STATE_PLAYING && muted) {
           const [unmuteErr] = safeWrap(() => {
+            claimProviderPlayback('youtube');
             playerRef.current?.unMute();
             playerRef.current?.setVolume(MAX_VOLUME);
           });
@@ -735,6 +793,7 @@ const VideoPlayerComponent = ({
           return;
         }
         const [err] = safeWrap(() => {
+          claimProviderPlayback('youtube');
           castAutoplayAttemptedVideoIdRef.current = videoId;
           playerRef.current?.setVolume(MAX_VOLUME);
           playerRef.current?.playVideo();
@@ -852,12 +911,14 @@ const VideoPlayerComponent = ({
     if (!player) return;
     if (lastLoadedVideoIdRef.current === videoId) return;
 
-    const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
+    const playbackState = usePlaybackStore.getState();
+    const isActiveYouTube = playbackState.currentSong?.sourceType === 'youtube';
+    const actualPositionMs = playbackState.actualPositionMs;
     const startSeconds = actualPositionMs > 0 ? actualPositionMs / 1000 : 0;
     const shouldPauseAfterLoad =
-      !isCastReceiver && !usePlaybackStore.getState().isPlaying;
+      !isActiveYouTube || (!isCastReceiver && !playbackState.isPlaying);
     const [err] = safeWrap(() => {
-      if (isCastReceiver) {
+      if (isCastReceiver && isActiveYouTube) {
         castAutoplayAttemptedVideoIdRef.current = null;
         player.setVolume(MAX_VOLUME);
       }
@@ -872,7 +933,7 @@ const VideoPlayerComponent = ({
     if (err && DEBUG) {
       debugLog('load-video-error', { error: err.message });
     }
-    if (isCastReceiver) {
+    if (isCastReceiver && isActiveYouTube) {
       forceAutoplay('load-video');
     }
   }, [videoId, isReady, debugLog, forceAutoplay, isCastReceiver]);
@@ -883,7 +944,7 @@ const VideoPlayerComponent = ({
       height: castPlayerSize?.height ?? '100%',
       width: castPlayerSize?.width ?? '100%',
       playerVars: {
-        autoplay: 1,
+        autoplay: 0,
         controls: isCastReceiver ? 0 : 1,
         disablekb: isCastReceiver ? 1 : 0,
         enablejsapi: 1,
@@ -910,6 +971,7 @@ const VideoPlayerComponent = ({
     if (!player) return;
 
     const [err] = safeWrap(() => {
+      claimProviderPlayback('youtube');
       player.unMute();
       setIsMutedState(false);
       suppressLoadUntilRef.current = Date.now() + 2000;
