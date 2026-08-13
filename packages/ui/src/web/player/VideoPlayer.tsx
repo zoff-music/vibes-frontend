@@ -130,6 +130,11 @@ const VideoPlayerComponent = ({
 
   useEffect(() => {
     return subscribeToPlaybackGestureUnlock(() => {
+      const [error] = safeWrap(() => {
+        playerRef.current?.unMute();
+        playerRef.current?.setVolume(MAX_VOLUME);
+      });
+      if (!error) setIsMutedState(false);
       setHasUserStartedPlayback(true);
       setNeedsUserGesture(false);
     });
