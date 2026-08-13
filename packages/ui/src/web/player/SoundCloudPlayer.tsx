@@ -107,6 +107,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     isPlaybackGestureUnlocked,
   );
   const [isWidgetPlaying, setIsWidgetPlaying] = useState(false);
+  const [isWidgetMuted, setIsWidgetMuted] = useState(true);
 
   useEffect(() => {
     onEndedRef.current = onEnded;
@@ -121,6 +122,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       widget.setVolume(MIN_VOLUME);
       widget.pause();
       setIsWidgetPlaying(false);
+      setIsWidgetMuted(true);
     });
   }, []);
 
@@ -136,6 +138,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         widget.play();
         widget.pause();
         setIsWidgetPlaying(false);
+        setIsWidgetMuted(true);
       }
     });
   }, []);
@@ -186,7 +189,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         (!showInitialPlaybackOverlay || isPlaybackGestureUnlocked());
       if (shouldPlay) {
         claimProviderPlayback('soundcloud');
-        widget.setVolume(MAX_VOLUME);
+        widget.setVolume(appContext === 'cast' ? MIN_VOLUME : MAX_VOLUME);
+        setIsWidgetMuted(appContext === 'cast');
         expectedPlayingStateRef.current = true;
         widget.play();
       } else {
@@ -233,6 +237,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         return;
       }
       claimProviderPlayback('soundcloud');
+      if (appContext === 'cast') {
+        widget.setVolume(MAX_VOLUME);
+      }
+      setIsWidgetMuted(false);
       if (expectedPlayingStateRef.current === true) {
         expectedPlayingStateRef.current = null;
         return;
@@ -286,6 +294,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     if (shouldReset) {
       claimProviderPlayback('soundcloud');
       widgetRef.current.setVolume(MAX_VOLUME);
+      setIsWidgetMuted(false);
       lastResetVersionRef.current = resetVersion;
     }
     if (lastSynchronizedUpdateRef.current !== updatedAt || shouldReset) {
@@ -315,7 +324,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       (!showInitialPlaybackOverlay || isPlaybackUnlocked);
     if (shouldPlay) {
       claimProviderPlayback('soundcloud');
-      widgetRef.current.setVolume(MAX_VOLUME);
+      widgetRef.current.setVolume(
+        appContext === 'cast' ? MIN_VOLUME : MAX_VOLUME,
+      );
+      setIsWidgetMuted(appContext === 'cast');
       expectedPlayingStateRef.current = true;
       widgetRef.current.play();
     } else {
@@ -353,7 +365,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       widget.isPaused((isPaused) => {
         if (!isPaused) return;
         claimProviderPlayback('soundcloud');
-        widget.setVolume(MAX_VOLUME);
+        widget.setVolume(MIN_VOLUME);
+        setIsWidgetMuted(true);
         widget.play();
       });
     };
@@ -425,6 +438,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     expectedSeekPositionRef.current = actualPositionMs;
     claimProviderPlayback('soundcloud');
     widget.setVolume(MAX_VOLUME);
+    setIsWidgetMuted(false);
     widget.seekTo(actualPositionMs);
     widget.play();
     setIsPlaybackUnlocked(true);
@@ -459,6 +473,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
   return (
     <div
+      data-provider-muted={isWidgetMuted ? 'true' : 'false'}
       data-provider-playing={isWidgetPlaying ? 'true' : 'false'}
       data-provider="soundcloud"
       className={classNames(

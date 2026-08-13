@@ -206,44 +206,29 @@ export class LocalEmulator {
 
     this.localReceiverOrigin = parsedUrl.origin;
 
-    const existingWindow =
-      this.localReceiverWindow && !this.localReceiverWindow.closed
-        ? this.localReceiverWindow
+    const existingFrame =
+      this.localReceiverFrame?.isConnected === true
+        ? this.localReceiverFrame
         : null;
-    const popup =
-      existingWindow ||
-      (() => {
-        const width = Math.min(960, window.screen.availWidth);
-        const height = Math.min(540, window.screen.availHeight);
-        const left = Math.max(0, window.screen.width / 2 - width / 2);
-        const top = Math.max(0, window.screen.height / 2 - height / 2);
-        const features = [
-          `width=${width}`,
-          `height=${height}`,
-          `left=${left}`,
-          `top=${top}`,
-          'resizable=yes',
-          'scrollbars=no',
-        ].join(',');
-        return window.open(receiverUrl, 'vibez-cast-receiver', features);
-      })();
-
-    if (existingWindow && popup) {
-      const [navErr] = safeWrap(() => {
-        popup.location.href = receiverUrl;
-      });
-      if (navErr) {
-        console.error('Failed to update local receiver URL:', navErr);
-      }
+    const receiverFrame = existingFrame || document.createElement('iframe');
+    receiverFrame.allow = 'autoplay; encrypted-media';
+    receiverFrame.className =
+      'fixed right-4 bottom-4 z-50 aspect-video w-3/5 max-w-4xl border-2 border-primary bg-black shadow-2xl';
+    receiverFrame.src = receiverUrl;
+    receiverFrame.title = 'Local Cast Receiver';
+    if (!existingFrame) {
+      document.body.appendChild(receiverFrame);
     }
 
-    if (!popup) {
-      console.error('Local cast receiver window was blocked or failed to open');
+    const receiverWindow = receiverFrame.contentWindow;
+    if (!receiverWindow) {
+      receiverFrame.remove();
+      console.error('Local cast receiver frame failed to initialize');
       return null;
     }
 
-    this.localReceiverFrame = null;
-    this.localReceiverWindow = popup;
+    this.localReceiverFrame = receiverFrame;
+    this.localReceiverWindow = receiverWindow;
     this.localReadyTimeout = setTimeout(() => {
       if (!this.localReceiverReady) {
         this.localReceiverReady = true;
@@ -252,7 +237,7 @@ export class LocalEmulator {
       this.localReadyTimeout = null;
     }, 1500);
     this.flushLocalMessageQueue();
-    return popup;
+    return receiverWindow;
   }
 
   sendLocalMessage(message: LocalCastMessage): void {
@@ -302,7 +287,11 @@ export class LocalEmulator {
   }
 
   disconnectLocal(): void {
-    if (this.localReceiverWindow && !this.localReceiverWindow.closed) {
+    if (
+      !this.localReceiverFrame &&
+      this.localReceiverWindow &&
+      !this.localReceiverWindow.closed
+    ) {
       this.localReceiverWindow.close();
     }
     this.localReceiverWindow = null;

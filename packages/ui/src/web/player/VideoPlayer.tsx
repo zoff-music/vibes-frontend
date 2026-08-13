@@ -100,7 +100,6 @@ const VideoPlayerComponent = ({
   const autoPlayKickCountRef = useRef(0);
   const autoPlayKickLastAtRef = useRef(0);
   const autoPlayKickVideoIdRef = useRef<string | null>(null);
-  const castAutoplayAttemptedVideoIdRef = useRef<string | null>(null);
   const suppressLoadUntilRef = useRef(0);
   const expectedPlayingStateRef = useRef<boolean | null>(null);
   const lastSynchronizedUpdateRef = useRef<string | null>(null);
@@ -260,7 +259,6 @@ const VideoPlayerComponent = ({
         const loadedVideoID = player.getVideoData().video_id;
         if (loadedVideoID !== videoId) {
           if (isCastReceiver) {
-            castAutoplayAttemptedVideoIdRef.current = null;
             player.setVolume(MAX_VOLUME);
           }
           const shouldPauseAfterLoad = !isCastReceiver && !shouldPlay;
@@ -287,17 +285,14 @@ const VideoPlayerComponent = ({
       const state = player.getPlayerState();
       if (shouldPlay && state !== YOUTUBE_STATE_PLAYING) {
         claimProviderPlayback('youtube');
-        if (isCastReceiver || hasUserStartedPlayback) {
+        if (isCastReceiver) {
+          player.mute();
+          player.setVolume(MAX_VOLUME);
+          setIsMutedState(true);
+        } else if (hasUserStartedPlayback) {
           player.unMute();
           player.setVolume(MAX_VOLUME);
           setIsMutedState(false);
-        }
-        if (isCastReceiver) {
-          if (castAutoplayAttemptedVideoIdRef.current === videoId) {
-            return;
-          }
-          castAutoplayAttemptedVideoIdRef.current = videoId;
-          player.setVolume(MAX_VOLUME);
         }
         expectedPlayingStateRef.current = true;
         player.playVideo();
@@ -427,11 +422,6 @@ const VideoPlayerComponent = ({
   }, [isReady, isYouTubeActive, videoId]);
 
   useEffect(() => {
-    if (!isCastReceiver || isYouTubeActive) return;
-    castAutoplayAttemptedVideoIdRef.current = null;
-  }, [isCastReceiver, isYouTubeActive]);
-
-  useEffect(() => {
     if (
       !isReady ||
       !isYouTubeActive ||
@@ -466,18 +456,38 @@ const VideoPlayerComponent = ({
     isYouTubeActive,
   ]);
 
+  useEffect(() => {
+    if (!isCastReceiver || !isReady || !isYouTubeActive || !shouldPlay) {
+      return;
+    }
+
+    const enforcePlayingVolume = () => {
+      const player = playerRef.current;
+      if (!player || player.getPlayerState() !== YOUTUBE_STATE_PLAYING) return;
+      const [err] = safeWrap(() => {
+        claimProviderPlayback('youtube');
+        player.unMute();
+        player.setVolume(MAX_VOLUME);
+        setIsMutedState(false);
+      });
+      if (err && DEBUG) {
+        debugLog('cast-playing-volume-error', { error: err.message });
+      }
+    };
+
+    enforcePlayingVolume();
+    const interval = setInterval(
+      enforcePlayingVolume,
+      MUTE_ENFORCEMENT_INTERVAL_MS,
+    );
+    return () => clearInterval(interval);
+  }, [debugLog, isCastReceiver, isReady, isYouTubeActive, shouldPlay]);
+
   const kickAutoplay = useCallback(
     (reason: 'state' | 'hidden' | 'retry') => {
       if (!videoId || !shouldPlay) return;
       const player = playerRef.current;
       if (!player) return;
-      if (
-        isCastReceiver &&
-        castAutoplayAttemptedVideoIdRef.current === videoId
-      ) {
-        return;
-      }
-
       if (autoPlayKickVideoIdRef.current !== videoId) {
         autoPlayKickVideoIdRef.current = videoId;
         autoPlayKickCountRef.current = 0;
@@ -496,14 +506,14 @@ const VideoPlayerComponent = ({
 
       const [err] = safeWrap(() => {
         claimProviderPlayback('youtube');
-        if (isCastReceiver || isPlaybackGestureUnlocked()) {
+        if (isCastReceiver) {
+          player.mute();
+          player.setVolume(MAX_VOLUME);
+          setIsMutedState(true);
+        } else if (isPlaybackGestureUnlocked()) {
           player.unMute();
           player.setVolume(MAX_VOLUME);
           setIsMutedState(false);
-        }
-        if (isCastReceiver) {
-          castAutoplayAttemptedVideoIdRef.current = videoId;
-          player.setVolume(MAX_VOLUME);
         }
         const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
         const startSeconds = actualPositionMs > 0 ? actualPositionMs / 1000 : 0;
@@ -623,12 +633,18 @@ const VideoPlayerComponent = ({
       }
       const player = playerRef.current;
       if (!player) return;
-      if (castAutoplayAttemptedVideoIdRef.current === videoId) return;
 
       const [prepareErr] = safeWrap(() => {
         claimProviderPlayback('youtube');
-        castAutoplayAttemptedVideoIdRef.current = videoId;
+        if (player.getPlayerState() === YOUTUBE_STATE_PLAYING) {
+          player.unMute();
+          player.setVolume(MAX_VOLUME);
+          setIsMutedState(false);
+          return;
+        }
+        player.mute();
         player.setVolume(MAX_VOLUME);
+        setIsMutedState(true);
         player.playVideo();
       });
       if (prepareErr && DEBUG) {
@@ -678,6 +694,9 @@ const VideoPlayerComponent = ({
       }
 
       if (isCastReceiver) {
+        event.target.mute();
+        event.target.setVolume(MAX_VOLUME);
+        setIsMutedState(true);
         forceAutoplay('ready');
         return;
       }
@@ -776,14 +795,6 @@ const VideoPlayerComponent = ({
           playerRef.current?.mute();
           muted = true;
         }
-        if (
-          isCastReceiver &&
-          state === YOUTUBE_STATE_PLAYING &&
-          castAutoplayAttemptedVideoIdRef.current !== videoId
-        ) {
-          castAutoplayAttemptedVideoIdRef.current = videoId;
-          playerRef.current?.setVolume(MAX_VOLUME);
-        }
         const resolvedMuted = isCastReceiver
           ? (playerRef.current?.isMuted?.() ?? false)
           : muted;
@@ -825,13 +836,11 @@ const VideoPlayerComponent = ({
         isCastReceiver &&
         shouldPlay
       ) {
-        if (castAutoplayAttemptedVideoIdRef.current === videoId) {
-          return;
-        }
         const [err] = safeWrap(() => {
           claimProviderPlayback('youtube');
-          castAutoplayAttemptedVideoIdRef.current = videoId;
+          playerRef.current?.mute();
           playerRef.current?.setVolume(MAX_VOLUME);
+          setIsMutedState(true);
           playerRef.current?.playVideo();
         });
         if (err && DEBUG) {
@@ -955,7 +964,6 @@ const VideoPlayerComponent = ({
       !isActiveYouTube || (!isCastReceiver && !playbackState.isPlaying);
     const [err] = safeWrap(() => {
       if (isCastReceiver && isActiveYouTube) {
-        castAutoplayAttemptedVideoIdRef.current = null;
         player.setVolume(MAX_VOLUME);
       }
       pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad ? videoId : null;
@@ -980,7 +988,7 @@ const VideoPlayerComponent = ({
       height: castPlayerSize?.height ?? '100%',
       width: castPlayerSize?.width ?? '100%',
       playerVars: {
-        autoplay: 0,
+        autoplay: isCastReceiver ? 1 : 0,
         controls: isCastReceiver ? 0 : 1,
         disablekb: isCastReceiver ? 1 : 0,
         enablejsapi: 1,
