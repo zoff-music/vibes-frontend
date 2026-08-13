@@ -1,7 +1,8 @@
 import type { Song } from '@vibes/models';
 import { NativeYouTubePlayer } from '@vibes/ui/native';
 import { Image } from 'expo-image';
-import { Text, useWindowDimensions, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { type LayoutChangeEvent, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 interface ProviderSurfaceProps {
@@ -17,7 +18,21 @@ export function ProviderSurface({
   positionMs,
   song,
 }: ProviderSurfaceProps) {
-  const { height, width } = useWindowDimensions();
+  const [surfaceSize, setSurfaceSize] = useState(initialSurfaceSize);
+  const handleSurfaceLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height, width } = event.nativeEvent.layout;
+    setSurfaceSize((currentSize) => {
+      if (currentSize.height === height && currentSize.width === width) {
+        return currentSize;
+      }
+      return { height, width };
+    });
+  }, []);
+  const playerWidth = Math.min(
+    surfaceSize.width,
+    surfaceSize.height * youtubeAspectRatio,
+  );
+  const playerHeight = playerWidth / youtubeAspectRatio;
   if (!song) {
     return (
       <View className="h-full items-center justify-center rounded-[2rem] bg-black">
@@ -30,16 +45,19 @@ export function ProviderSurface({
 
   if (song.sourceType === 'youtube') {
     return (
-      <View className="h-full overflow-hidden rounded-[2rem] bg-black">
+      <View
+        className="h-full items-center justify-center overflow-hidden rounded-[2rem] bg-black"
+        onLayout={handleSurfaceLayout}
+      >
         <NativeYouTubePlayer
-          height={Math.max(360, height * 0.62)}
+          height={playerHeight}
           isPlaying={isPlaying}
           key={song.sourceId}
           positionMs={positionMs}
           resetVersion={playbackKey}
           sourceId={song.sourceId}
           synchronizePosition={false}
-          width={Math.max(640, width * 0.61)}
+          width={playerWidth}
         />
       </View>
     );
@@ -88,3 +106,6 @@ export function ProviderSurface({
     </View>
   );
 }
+
+const youtubeAspectRatio = 16 / 9;
+const initialSurfaceSize = { height: 360, width: 640 };
