@@ -13,7 +13,7 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { PlayerControls } from '@vibes/ui/web';
+import { markPlaybackGestureUnlocked, PlayerControls } from '@vibes/ui/web';
 import React, {
   type ComponentType,
   type ReactNode,
@@ -218,6 +218,7 @@ export const RoomPlayer = React.memo(
     );
 
     const play = useCallback(() => {
+      markPlaybackGestureUnlocked();
       performPlaybackAction('play');
     }, [performPlaybackAction]);
 
