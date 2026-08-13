@@ -52,6 +52,7 @@ interface PlayerProps {
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
   onLocalAlignmentChange?: (isAligned: boolean) => void;
+  showInitialPlaybackOverlay?: boolean;
 }
 
 type PlayerComponent = ComponentType<PlayerProps>;
@@ -656,21 +657,16 @@ export const RoomPlayer = React.memo(
               )}
             >
               <SoundCloudPlayerComponent
+                fill
                 onLocalAlignmentChange={setLocalPlaybackAligned}
-                {...((hasHostPlaybackAuthority ||
-                  displayRoom?.mode === 'server') && {
-                  onLocalPause: handleLocalPause,
-                  onLocalPlay: handleLocalPlay,
-                })}
-                {...((hasHostPlaybackAuthority ||
-                  displayRoom?.mode === 'server') && {
-                  onLocalSeek: handleLocalSeek,
-                })}
+                onLocalPlay={handleLocalPlay}
+                onNeedsUserGestureChange={setIsPlaybackBlocked}
                 {...(hasHostPlaybackAuthority && {
                   onEnded: handleEnded,
                 })}
                 isVisible={!isConnected && isSoundCloudTrack}
                 preloadSong={preloadSoundCloudSong}
+                showInitialPlaybackOverlay
               />
             </div>
           )}

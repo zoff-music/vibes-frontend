@@ -1,5 +1,12 @@
 import { safeWrap, safeWrapAsync } from '@vibes/shared';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { AppState, Linking, View } from 'react-native';
 import {
   WebView,
@@ -37,6 +44,7 @@ export function NativeYouTubePlayer({
   const playerRef = useRef<WebView>(null);
   const previousPosition = useRef(positionMs);
   const previousObservedPosition = useRef<ObservedPosition | null>(null);
+  const expectedPosition = useRef<ExpectedPosition | null>(null);
   const lastReportedSeekAt = useRef(0);
   const lastResetVersion = useRef<number | string>(resetVersion);
   const appState = useRef(AppState.currentState);
@@ -50,6 +58,15 @@ export function NativeYouTubePlayer({
     playerRef.current?.injectJavaScript(
       `window.zoffSetPlaying?.(${playing ? 'true' : 'false'}); true;`,
     );
+  }, []);
+
+  const seekToPosition = useCallback((nextPositionMs: number) => {
+    expectedPosition.current = {
+      commandedAt: Date.now(),
+      positionMs: nextPositionMs,
+    };
+    previousObservedPosition.current = null;
+    seekPlayer(playerRef.current, nextPositionMs);
   }, []);
 
   useEffect(() => {
@@ -72,21 +89,25 @@ export function NativeYouTubePlayer({
     previousPosition.current = positionMs;
     if (!ready || !synchronizePosition || positionChanged < seekChangeThreshold)
       return;
-    seekPlayer(playerRef.current, positionMs);
-  }, [positionMs, ready, synchronizePosition]);
+    seekToPosition(positionMs);
+  }, [positionMs, ready, seekToPosition, synchronizePosition]);
 
   useEffect(() => {
     if (!ready || lastResetVersion.current === resetVersion) return;
     lastResetVersion.current = resetVersion;
+    expectedPosition.current = {
+      commandedAt: Date.now(),
+      positionMs,
+    };
     previousObservedPosition.current = null;
-    seekPlayer(playerRef.current, positionMs);
+    resetPlayer(playerRef.current, positionMs);
   }, [positionMs, ready, resetVersion]);
 
   const handleReady = useCallback(() => {
     setReady(true);
-    seekPlayer(playerRef.current, positionMs);
+    seekToPosition(positionMs);
     setPlayerPlaying(desiredPlaying.current);
-  }, [positionMs, setPlayerPlaying]);
+  }, [positionMs, seekToPosition, setPlayerPlaying]);
 
   const handlePlayingChange = useCallback(
     (playing: boolean) => {
@@ -108,6 +129,15 @@ export function NativeYouTubePlayer({
 
   const handleObservedPosition = useCallback(
     (observedPositionMs: number, observedAt: number) => {
+      if (
+        shouldSuppressExpectedPosition(
+          expectedPosition,
+          observedPositionMs,
+          observedAt,
+        )
+      ) {
+        return;
+      }
       onLocalPositionObserved?.(observedPositionMs);
       const positionSeconds = observedPositionMs / millisecondsPerSecond;
       const previous = previousObservedPosition.current;
@@ -116,8 +146,9 @@ export function NativeYouTubePlayer({
       const elapsedSeconds = desiredPlaying.current
         ? (observedAt - previous.observedAt) / millisecondsPerSecond
         : 0;
-      const expectedPosition = previous.positionSeconds + elapsedSeconds;
-      const seekDistance = Math.abs(positionSeconds - expectedPosition);
+      const expectedObservedPosition =
+        previous.positionSeconds + elapsedSeconds;
+      const seekDistance = Math.abs(positionSeconds - expectedObservedPosition);
       if (
         seekDistance < localSeekThresholdSeconds ||
         observedAt - lastReportedSeekAt.current < localSeekDebounceMs
@@ -195,6 +226,11 @@ interface ObservedPosition {
   positionSeconds: number;
 }
 
+interface ExpectedPosition {
+  commandedAt: number;
+  positionMs: number;
+}
+
 interface ReadyMessage {
   type: 'ready';
 }
@@ -230,6 +266,31 @@ function seekPlayer(player: WebView | null, positionMs: number) {
   player?.injectJavaScript(
     `window.zoffSeek?.(${Math.max(0, positionMs)}); true;`,
   );
+}
+
+function resetPlayer(player: WebView | null, positionMs: number) {
+  player?.injectJavaScript(
+    `window.zoffReset?.(${Math.max(0, positionMs)}); true;`,
+  );
+}
+
+function shouldSuppressExpectedPosition(
+  expectedPosition: RefObject<ExpectedPosition | null>,
+  observedPositionMs: number,
+  observedAt: number,
+) {
+  const expected = expectedPosition.current;
+  if (!expected) return false;
+  const isAligned =
+    Math.abs(observedPositionMs - expected.positionMs) <=
+    expectedPositionToleranceMs;
+  const didTimeOut =
+    observedAt - expected.commandedAt >= expectedPositionTimeoutMs;
+  if (isAligned || didTimeOut) {
+    expectedPosition.current = null;
+    return false;
+  }
+  return true;
 }
 
 function isPlayerMessage(message: unknown): message is PlayerMessage {
@@ -304,6 +365,14 @@ function getPlayerHtml(sourceId: string) {
         initialPositionSeconds = Math.max(0, positionMs) / 1000;
         if (ready && player) player.seekTo(initialPositionSeconds, true);
       };
+      window.zoffReset = (positionMs) => {
+        initialPositionSeconds = Math.max(0, positionMs) / 1000;
+        if (!ready || !player) return;
+        player.unMute();
+        player.setVolume(100);
+        player.seekTo(initialPositionSeconds, true);
+        syncPlayback();
+      };
       window.onYouTubeIframeAPIReady = () => {
         player = new YT.Player('player', {
           height: '100%',
@@ -343,3 +412,6 @@ function getPlayerHtml(sourceId: string) {
   </body>
 </html>`;
 }
+
+const expectedPositionToleranceMs = 5_000;
+const expectedPositionTimeoutMs = 8_000;

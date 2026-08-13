@@ -1,5 +1,5 @@
 import type { Song } from '@vibes/models';
-import { NativeYouTubePlayer } from '@vibes/ui/native';
+import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
 import { Image } from 'expo-image';
 import { useCallback, useState } from 'react';
 import { type LayoutChangeEvent, Text, View } from 'react-native';
@@ -63,14 +63,23 @@ export function ProviderSurface({
     );
   }
 
-  if (song.sourceType === 'soundcloud' && song.providerUrl) {
-    const uri = `https://w.soundcloud.com/player/?url=${encodeURIComponent(song.providerUrl)}&auto_play=${String(isPlaying)}&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true`;
+  if (song.sourceType === 'soundcloud') {
     return (
-      <View className="h-full overflow-hidden rounded-[2rem] bg-black">
-        <WebView
-          allowsFullscreenVideo
-          mediaPlaybackRequiresUserAction={false}
-          source={{ uri }}
+      <View
+        className="h-full items-center justify-center overflow-hidden rounded-[2rem] bg-black"
+        onLayout={handleSurfaceLayout}
+      >
+        <NativeSoundCloudPlayer
+          artworkUrl={song.thumbnailUrl}
+          height={surfaceSize.height}
+          isPlaying={isPlaying}
+          key={song.id}
+          positionMs={positionMs}
+          resetVersion={playbackKey}
+          sourceId={song.sourceId}
+          synchronizePosition
+          width={surfaceSize.width}
+          {...(song.providerUrl ? { providerUrl: song.providerUrl } : {})}
         />
       </View>
     );

@@ -8,6 +8,11 @@ import {
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import YouTube, { type YouTubeProps } from 'react-youtube';
 import { ClickToPlayOverlay } from './ClickToPlayOverlay';
+import {
+  isPlaybackGestureUnlocked,
+  markPlaybackGestureUnlocked,
+  subscribeToPlaybackGestureUnlock,
+} from './playbackGesture';
 
 interface Props {
   isVisible?: boolean;
@@ -101,20 +106,34 @@ const VideoPlayerComponent = ({
   const isYouTubeActive =
     isVisible && currentSong?.sourceType === 'youtube' && !!currentSong;
   const shouldPlay = isYouTubeActive && isPlaying;
-  const videoId =
+  const candidateVideoId =
     currentSong?.sourceType === 'youtube'
       ? currentSong.sourceId
       : preloadSong?.sourceType === 'youtube'
         ? preloadSong.sourceId
         : null;
+  const retainedVideoIdRef = useRef<string | null>(null);
+  if (candidateVideoId) {
+    retainedVideoIdRef.current = candidateVideoId;
+  }
+  const videoId = candidateVideoId ?? retainedVideoIdRef.current;
   const debugLastRef = useRef(0);
-  const [hasUserStartedPlayback, setHasUserStartedPlayback] = useState(false);
+  const [hasUserStartedPlayback, setHasUserStartedPlayback] = useState(
+    isPlaybackGestureUnlocked,
+  );
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
   const [isMutedState, setIsMutedState] = useState(false);
   const [castPlayerSize, setCastPlayerSize] = useState<PlayerSize | null>(null);
   const origin =
     typeof window === 'undefined' ? undefined : window.location.origin;
   const isCastReceiver = appContext === 'cast';
+
+  useEffect(() => {
+    return subscribeToPlaybackGestureUnlock(() => {
+      setHasUserStartedPlayback(true);
+      setNeedsUserGesture(false);
+    });
+  }, []);
 
   const debugLog = useCallback(
     (label: string, extra?: Record<string, unknown>) => {
@@ -365,6 +384,11 @@ const VideoPlayerComponent = ({
   }, [isYouTubeActive]);
 
   useEffect(() => {
+    if (!isCastReceiver || isYouTubeActive) return;
+    castAutoplayAttemptedVideoIdRef.current = null;
+  }, [isCastReceiver, isYouTubeActive]);
+
+  useEffect(() => {
     if (
       !isReady ||
       !isYouTubeActive ||
@@ -456,7 +480,6 @@ const VideoPlayerComponent = ({
   );
 
   useEffect(() => {
-    if (isCastReceiver) return;
     if (!videoId || !shouldPlay) {
       if (autoPlayRetryRef.current) {
         clearInterval(autoPlayRetryRef.current);
@@ -640,6 +663,16 @@ const VideoPlayerComponent = ({
         }
         setIsReady(true);
         let muted = playerRef.current?.isMuted?.() ?? false;
+        if (isCastReceiver && state === YOUTUBE_STATE_PLAYING && muted) {
+          const [unmuteErr] = safeWrap(() => {
+            playerRef.current?.unMute();
+            playerRef.current?.setVolume(MAX_VOLUME);
+          });
+          if (unmuteErr && DEBUG) {
+            debugLog('cast-unmute-error', { error: unmuteErr.message });
+          }
+          muted = playerRef.current?.isMuted?.() ?? false;
+        }
         if (!isCastReceiver && !hasUserStartedPlayback && !muted) {
           playerRef.current?.mute();
           muted = true;
@@ -887,6 +920,7 @@ const VideoPlayerComponent = ({
       player.playVideo();
       setHasUserStartedPlayback(true);
       setNeedsUserGesture(false);
+      markPlaybackGestureUnlocked();
       debugLog('user-gesture-play');
     });
     if (err && DEBUG) {

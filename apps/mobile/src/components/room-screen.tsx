@@ -27,6 +27,7 @@ import { useApp } from '@/providers/app-provider';
 export function RoomScreen() {
   const roomRequests = useRoomRequests(mobileApi);
   const {
+    authoritativePlayback,
     hasLocalPlaybackChanges,
     leaveRoom,
     playback,
@@ -53,6 +54,13 @@ export function RoomScreen() {
     playback?.positionMs ?? 0,
     playback?.isPlaying ?? false,
     current?.duration ?? 0,
+    playback?.serverTimeMs,
+  );
+  const authoritativePosition = useLivePosition(
+    authoritativePlayback?.positionMs ?? 0,
+    authoritativePlayback?.isPlaying ?? false,
+    authoritativePlayback?.currentSong?.duration ?? 0,
+    authoritativePlayback?.serverTimeMs,
   );
 
   if (!roomId || !room) {
@@ -237,7 +245,7 @@ export function RoomScreen() {
         <PlaybackProgress
           duration={current?.duration ?? 0}
           onSeek={(position) => void seek(position)}
-          position={livePosition}
+          position={authoritativePosition}
           seekable={
             playerEnabled &&
             Boolean(current) &&

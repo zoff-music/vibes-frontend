@@ -1,6 +1,6 @@
 import type { PlaybackState, Song } from '@vibes/models';
 import { safeWrap } from '@vibes/shared';
-import { NativeYouTubePlayer } from '@vibes/ui/native';
+import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import type {
@@ -21,6 +21,7 @@ interface ProviderPlayerProps {
   onLocalPositionObserved: (positionMs: number) => void;
   onLocalSeek: (positionMs: number) => void;
   playback: PlaybackState | null;
+  positionMs: number;
   resetVersion: number;
   song: Song | null;
   synchronizePosition: boolean;
@@ -35,13 +36,14 @@ export function ProviderPlayer({
   onLocalPositionObserved,
   onLocalSeek,
   playback,
+  positionMs,
   resetVersion,
   song,
   synchronizePosition,
 }: ProviderPlayerProps) {
   const { width: windowWidth } = useWindowDimensions();
   const webViewRef = useRef<WebViewType>(null);
-  const previousPosition = useRef(playback?.positionMs ?? 0);
+  const previousPosition = useRef(positionMs);
   const previousResetVersion = useRef(resetVersion);
   const [error, setError] = useState('');
   const songId = song?.id;
@@ -63,10 +65,8 @@ export function ProviderPlayer({
   );
   const playerHtml = useMemo(
     () =>
-      song && song.sourceType !== 'youtube'
-        ? getPlayerHtml(song.sourceId, song.sourceType, song.providerUrl)
-        : '',
-    [song?.providerUrl, song?.sourceId, song?.sourceType],
+      song?.sourceType === 'spotify' ? getSpotifyPlayerHtml(song.sourceId) : '',
+    [song?.sourceId, song?.sourceType],
   );
 
   useEffect(() => {
@@ -74,29 +74,27 @@ export function ProviderPlayer({
   }, [songId]);
 
   useEffect(() => {
-    if (!song || song.sourceType === 'youtube') return;
+    if (song?.sourceType !== 'spotify') return;
     webViewRef.current?.injectJavaScript(
       `window.zoffSetPlaying?.(${playback?.isPlaying ? 'true' : 'false'}); true;`,
     );
   }, [playback?.isPlaying, songId]);
 
   useEffect(() => {
-    const position = playback?.positionMs ?? 0;
-    const positionChanged = Math.abs(position - previousPosition.current);
-    previousPosition.current = position;
+    const positionChanged = Math.abs(positionMs - previousPosition.current);
+    previousPosition.current = positionMs;
     const shouldReset = previousResetVersion.current !== resetVersion;
     previousResetVersion.current = resetVersion;
     if (
-      !song ||
-      song.sourceType === 'youtube' ||
+      song?.sourceType !== 'spotify' ||
       (!shouldReset &&
         (!synchronizePosition || positionChanged < seekChangeThreshold))
     )
       return;
     webViewRef.current?.injectJavaScript(
-      `window.zoffSeek?.(${Math.max(0, position)}); true;`,
+      `window.zoffSeek?.(${Math.max(0, positionMs)}); true;`,
     );
-  }, [playback?.positionMs, resetVersion, songId, synchronizePosition]);
+  }, [positionMs, resetVersion, songId, synchronizePosition]);
 
   if (!song && isGenerating) {
     return (
@@ -144,7 +142,7 @@ export function ProviderPlayer({
             onLocalPositionObserved={onLocalPositionObserved}
             onPlayingChange={onLocalPlayingChange}
             onLocalSeek={onLocalSeek}
-            positionMs={playback?.positionMs ?? 0}
+            positionMs={positionMs}
             resetVersion={resetVersion}
             sourceId={song.sourceId}
             synchronizePosition={synchronizePosition}
@@ -156,8 +154,38 @@ export function ProviderPlayer({
     );
   }
 
+  if (song.sourceType === 'soundcloud') {
+    return (
+      <View className="gap-2">
+        <View
+          className="items-center justify-center overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
+          style={{
+            height: playerHeight,
+            marginHorizontal: horizontalMargin,
+          }}
+        >
+          <NativeSoundCloudPlayer
+            artworkUrl={song.thumbnailUrl}
+            key={song.id}
+            height={embeddedPlayerHeight}
+            isPlaying={playback?.isPlaying ?? false}
+            onError={setError}
+            onLocalPositionObserved={onLocalPositionObserved}
+            positionMs={positionMs}
+            resetVersion={resetVersion}
+            sourceId={song.sourceId}
+            synchronizePosition={synchronizePosition}
+            width={embeddedPlayerWidth}
+            {...(song.providerUrl ? { providerUrl: song.providerUrl } : {})}
+          />
+        </View>
+        <Toast message={error} />
+      </View>
+    );
+  }
+
   const initializePlayback = () => {
-    const position = Math.max(0, playback?.positionMs ?? 0);
+    const position = Math.max(0, positionMs);
     webViewRef.current?.injectJavaScript(
       `window.zoffInitialize?.(${position}, ${playback?.isPlaying ? 'true' : 'false'}); true;`,
     );
@@ -226,63 +254,8 @@ export function ProviderPlayer({
   );
 }
 
-function getPlayerHtml(
-  sourceId: string,
-  sourceType: Exclude<Song['sourceType'], 'youtube'>,
-  providerUrl?: string,
-) {
+function getSpotifyPlayerHtml(sourceId: string) {
   const serializedSourceId = JSON.stringify(sourceId);
-
-  if (sourceType === 'soundcloud') {
-    const trackUrl =
-      providerUrl ?? `https://api.soundcloud.com/tracks/${sourceId}`;
-    const widgetUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}&auto_play=false&show_artwork=true&show_comments=false&show_reposts=false`;
-    return getDocument(`
-      <iframe id="player" allow="autoplay" src="${widgetUrl}"></iframe>
-      <script src="https://w.soundcloud.com/player/api.js"></script>
-      <script>
-        let initialPosition = 0;
-        let shouldPlay = false;
-        const player = SC.Widget(document.getElementById('player'));
-        let ready = false;
-        const syncPlayback = () => {
-          if (!ready) return;
-          player.seekTo(initialPosition);
-          if (shouldPlay) player.play();
-          else player.pause();
-        };
-        player.bind(SC.Widget.Events.READY, () => {
-          ready = true;
-          syncPlayback();
-        });
-        player.bind(SC.Widget.Events.PLAY, () => {
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'playing', isPlaying: true }));
-        });
-        player.bind(SC.Widget.Events.PAUSE, () => {
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'playing', isPlaying: false }));
-        });
-        player.bind(SC.Widget.Events.PLAY_PROGRESS, (event) => {
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'position', positionMs: event.currentPosition }));
-        });
-        window.zoffInitialize = (position, playing) => {
-          initialPosition = position;
-          shouldPlay = playing;
-          syncPlayback();
-        };
-        window.zoffSetPlaying = (playing) => {
-          shouldPlay = playing;
-          if (!ready) return;
-          if (shouldPlay) player.play();
-          else player.pause();
-        };
-        window.zoffSeek = (position) => {
-          initialPosition = position;
-          if (ready) player.seekTo(position);
-        };
-      </script>
-    `);
-  }
-
   return getDocument(`
     <div id="player"></div>
     <script src="https://open.spotify.com/embed/iframe-api/v1"></script>
