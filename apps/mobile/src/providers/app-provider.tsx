@@ -45,6 +45,7 @@ interface AppState {
   ) => Promise<void>;
   clearControllerRemote: () => Promise<void>;
   controllerRemote: ControllerRemoteSession | null;
+  authoritativePlayback: PlaybackState | null;
   hasLocalPlaybackChanges: boolean;
   loading: boolean;
   machinePairing: RemotePairing | null;
@@ -100,6 +101,8 @@ export function AppProvider({ children }: PropsWithChildren) {
   const [room, setRoom] = useState<Room | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [playback, setPlayback] = useState<PlaybackState | null>(null);
+  const [authoritativePlayback, setAuthoritativePlayback] =
+    useState<PlaybackState | null>(null);
   const [providers, setProviders] = useState<Providers>([]);
   const [playerEnabled, setPlayerEnabledValue] = useState(true);
   const [playerPreferenceLoaded, setPlayerPreferenceLoaded] = useState(false);
@@ -138,6 +141,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         ...currentPlayback,
         isPlaying,
         positionMs: positionMs ?? currentPlayback.positionMs,
+        serverTimeMs: Date.now(),
       };
       playbackRef.current = nextPlayback;
       setPlayback(nextPlayback);
@@ -148,7 +152,11 @@ export function AppProvider({ children }: PropsWithChildren) {
   const setLocalPlaybackPosition = useCallback((positionMs: number) => {
     const currentPlayback = playbackRef.current;
     if (!currentPlayback) return;
-    const nextPlayback = { ...currentPlayback, positionMs };
+    const nextPlayback = {
+      ...currentPlayback,
+      positionMs,
+      serverTimeMs: Date.now(),
+    };
     playbackRef.current = nextPlayback;
     setPlayback(nextPlayback);
     setHasLocalPlaybackChanges(true);
@@ -216,6 +224,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     setRoom(null);
     setSongs([]);
     setPlayback(null);
+    setAuthoritativePlayback(null);
     playbackRef.current = null;
     authoritativePlaybackRef.current = null;
     localPlayingRef.current = null;
@@ -238,6 +247,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       setRoom(null);
       setSongs([]);
       setPlayback(null);
+      setAuthoritativePlayback(null);
       playbackRef.current = null;
       authoritativePlaybackRef.current = null;
       localPlayingRef.current = null;
@@ -274,6 +284,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       previousPlayback?.currentSong?.id === snapshot.playback.currentSong?.id;
     let nextPlayback = snapshot.playback;
     authoritativePlaybackRef.current = snapshot.playback;
+    setAuthoritativePlayback(snapshot.playback);
     if (snapshot.room.mode === 'server' && localPlayingRef.current !== null) {
       nextPlayback = {
         ...snapshot.playback,
@@ -369,6 +380,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       setRoomIdValue(normalized);
       localPlayingRef.current = null;
       authoritativePlaybackRef.current = snapshot.playback;
+      setAuthoritativePlayback(snapshot.playback);
       playbackRef.current = snapshot.playback;
       setHasLocalPlaybackChanges(false);
       let nextRoom = getLocallyAuthorizedRoom(
@@ -428,6 +440,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       return;
     }
     authoritativePlaybackRef.current = authoritativePlayback;
+    setAuthoritativePlayback(authoritativePlayback);
     playbackRef.current = authoritativePlayback;
     localPlayingRef.current = null;
     setPlayback(authoritativePlayback);
@@ -576,6 +589,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   const value = useMemo<AppState>(
     () => ({
       activateControllerRemote,
+      authoritativePlayback,
       clearControllerRemote,
       controllerRemote,
       hasLocalPlaybackChanges,
@@ -609,6 +623,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     }),
     [
       activateControllerRemote,
+      authoritativePlayback,
       clearControllerRemote,
       controllerRemote,
       hasLocalPlaybackChanges,

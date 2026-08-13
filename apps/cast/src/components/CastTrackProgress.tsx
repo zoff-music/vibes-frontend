@@ -4,18 +4,37 @@ import {
   formatPlaybackMilliseconds,
   getPlaybackPresentation,
 } from '@vibes/ui/shared';
+import { useEffect, useState } from 'react';
 
 interface Props {
   song: Song;
 }
 
 export function CastTrackProgress({ song }: Props) {
-  const actualPositionMs = usePlaybackStore((state) => state.actualPositionMs);
+  const authoritativePlayback = usePlaybackStore(
+    (state) => state.authoritativePlayback,
+  );
+  const getAuthoritativePositionMs = usePlaybackStore(
+    (state) => state.getAuthoritativePositionMs,
+  );
+  const [authoritativePositionMs, setAuthoritativePositionMs] = useState(
+    authoritativePlayback.positionMs,
+  );
   const durationMs = (song.duration || 0) * millisecondsPerSecond;
   const { boundedPositionMs } = getPlaybackPresentation(
-    actualPositionMs,
+    authoritativePositionMs,
     durationMs,
   );
+
+  useEffect(() => {
+    const updatePosition = () => {
+      setAuthoritativePositionMs(getAuthoritativePositionMs());
+    };
+    updatePosition();
+    if (!authoritativePlayback.isPlaying) return;
+    const interval = setInterval(updatePosition, playbackPositionIntervalMs);
+    return () => clearInterval(interval);
+  }, [authoritativePlayback, getAuthoritativePositionMs]);
 
   return (
     <div className="cast-track-progress mt-4">
@@ -34,3 +53,5 @@ export function CastTrackProgress({ song }: Props) {
 }
 
 const millisecondsPerSecond = 1_000;
+
+const playbackPositionIntervalMs = 250;

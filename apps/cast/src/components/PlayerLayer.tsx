@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useCast } from './CastProvider';
 
 const LazySoundCloudPlayer = lazy(async () => {
@@ -39,6 +39,19 @@ export const PlayerLayer: React.FC = () => {
   const shouldMountSoundCloud =
     enabledProviders.includes('soundcloud') ||
     currentSong?.sourceType === 'soundcloud';
+  const [hasMountedYouTube, setHasMountedYouTube] =
+    useState(shouldMountYouTube);
+  const [hasMountedSpotify, setHasMountedSpotify] =
+    useState(shouldMountSpotify);
+  const [hasMountedSoundCloud, setHasMountedSoundCloud] = useState(
+    shouldMountSoundCloud,
+  );
+
+  useEffect(() => {
+    if (shouldMountYouTube) setHasMountedYouTube(true);
+    if (shouldMountSpotify) setHasMountedSpotify(true);
+    if (shouldMountSoundCloud) setHasMountedSoundCloud(true);
+  }, [shouldMountSoundCloud, shouldMountSpotify, shouldMountYouTube]);
   const handlePlaybackError = useCallback(
     (songId: string) => {
       void reportPlaybackFailure(songId);
@@ -48,7 +61,7 @@ export const PlayerLayer: React.FC = () => {
 
   return (
     <div className="absolute inset-0 h-full w-full">
-      {shouldMountYouTube && (
+      {hasMountedYouTube && (
         <Suspense fallback={null}>
           <LazyVideoPlayer
             isVisible={currentSong?.sourceType === 'youtube'}
@@ -59,7 +72,7 @@ export const PlayerLayer: React.FC = () => {
           />
         </Suspense>
       )}
-      {shouldMountSpotify && (
+      {hasMountedSpotify && (
         <Suspense fallback={null}>
           <LazySpotifyPlayer
             isVisible={currentSong?.sourceType === 'spotify'}
@@ -69,9 +82,10 @@ export const PlayerLayer: React.FC = () => {
           />
         </Suspense>
       )}
-      {shouldMountSoundCloud && (
+      {hasMountedSoundCloud && (
         <Suspense fallback={null}>
           <LazySoundCloudPlayer
+            appContext="cast"
             isVisible={currentSong?.sourceType === 'soundcloud'}
             fill
             preloadSong={preloadSoundCloudSong}

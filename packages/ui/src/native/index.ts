@@ -12,5 +12,7 @@ export {
   NativeQrCode,
 } from './components/NativePrimitives';
 export { NativeIcon } from './icons/NativeIcon';
+export type { NativeSoundCloudPlayerProps } from './player/NativeSoundCloudPlayer';
+export { NativeSoundCloudPlayer } from './player/NativeSoundCloudPlayer';
 export type { NativeYouTubePlayerProps } from './player/NativeYouTubePlayer';
 export { NativeYouTubePlayer } from './player/NativeYouTubePlayer';

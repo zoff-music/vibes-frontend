@@ -5,6 +5,7 @@ import { Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProviderPlayer } from '@/components/provider-player';
+import { useLivePosition } from '@/hooks/use-live-position';
 import {
   tabletLandscapePagePadding,
   tabletPlayerTopOffset,
@@ -35,6 +36,12 @@ export function PersistentRoomPlayer() {
     Platform.OS === 'android' && tabletLayout.isTabletLandscape
       ? androidTabletPlayerTopInset
       : insets.top;
+  const livePositionMs = useLivePosition(
+    playback?.positionMs ?? 0,
+    playback?.isPlaying ?? false,
+    playback?.currentSong?.duration ?? 0,
+    playback?.serverTimeMs,
+  );
 
   let availableWidth: number | undefined;
   let horizontalMargin = playerHorizontalMargin;
@@ -80,8 +87,39 @@ export function PersistentRoomPlayer() {
         horizontalMargin={horizontalMargin}
         isGenerating={room.isGenerating}
         onLocalPositionObserved={observeLocalPlaybackPosition}
-        onLocalSeek={setLocalPlaybackPosition}
+        onLocalSeek={(positionMs) => {
+          if (
+            playback?.currentSong?.sourceType !== 'soundcloud' ||
+            room.mode === 'server'
+          ) {
+            setLocalPlaybackPosition(positionMs);
+            return;
+          }
+          const hasAuthority =
+            Boolean(room.isAdmin) ||
+            (Boolean(room.userId) && room.hostId === room.userId);
+          if (!hasAuthority) return;
+          const update = async () => {
+            const [requestError] = await roomRequests.updatePlayback(
+              roomId,
+              'seek',
+              positionMs,
+            );
+            if (requestError) {
+              setError(
+                await getRequestErrorMessage(
+                  requestError,
+                  'Could not seek playback.',
+                ),
+              );
+              return;
+            }
+            await refresh();
+          };
+          void update();
+        }}
         playback={playback}
+        positionMs={livePositionMs}
         resetVersion={playbackResetVersion}
         song={playback?.currentSong ?? null}
         synchronizePosition={room.mode === 'host'}
