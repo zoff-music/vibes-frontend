@@ -338,6 +338,10 @@ const VideoPlayerComponent = ({
       const [err] = safeWrap(() => {
         const now = Date.now();
         const positionSeconds = player.getCurrentTime();
+        containerRef.current?.setAttribute(
+          'data-provider-position-ms',
+          String(Math.round(positionSeconds * 1000)),
+        );
         const state = player.getPlayerState();
         const isMuted = player.isMuted();
         const volume = player.getVolume();
@@ -1014,6 +1018,9 @@ const VideoPlayerComponent = ({
     const player = playerRef.current;
     if (!player) return;
 
+    setHasUserStartedPlayback(true);
+    setNeedsUserGesture(false);
+    markPlaybackGestureUnlocked();
     const [err] = safeWrap(() => {
       claimProviderPlayback('youtube');
       player.unMute();
@@ -1029,9 +1036,6 @@ const VideoPlayerComponent = ({
       player.seekTo(actualPositionMs / 1000, true);
       observedPlaybackRef.current = null;
       player.playVideo();
-      setHasUserStartedPlayback(true);
-      setNeedsUserGesture(false);
-      markPlaybackGestureUnlocked();
       debugLog('user-gesture-play');
     });
     if (err && DEBUG) {
