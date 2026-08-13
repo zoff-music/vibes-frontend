@@ -6,11 +6,11 @@ The primary web application for the Vibes ecosystem. It serves as the main inter
 
 ### Landing page
 
-![Zoff landing page in dark mode](../../docs/screenshots/frontpage.png)
+![Zoff landing page](./docs/screenshots/frontpage.png)
 
 ### Active room
 
-![Zoff room with its player and queue](../../docs/screenshots/playlist.png)
+![Zoff room with its player and queue](./docs/screenshots/playlist.png)
 
 ## 🚀 Getting Started
 

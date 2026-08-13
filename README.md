@@ -7,16 +7,6 @@
 A TypeScript monorepo for Zoff's SSR web, native mobile, television, Cast, and
 remote-control clients, built with pnpm workspaces.
 
-## Screenshots
-
-### Front page
-
-![Zoff front page in dark mode](docs/screenshots/frontpage.png)
-
-### Playlist room
-
-![Zoff electro playlist room](docs/screenshots/playlist.png)
-
 ## Applications
 
 - **`apps/platform`**: The main web application for room management, queueing, and social interaction (SSR-enabled)
