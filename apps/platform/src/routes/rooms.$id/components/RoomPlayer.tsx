@@ -46,6 +46,7 @@ interface PlayerProps {
   accessToken?: string | null;
   isFetchingToken?: boolean;
   onRequestToken?: (provider: 'spotify', force?: boolean) => void;
+  fixedSong?: Song | null;
   preloadSong?: Song | null;
   tokenError?: string | null;
   onLocalPause?: () => void;
@@ -180,8 +181,18 @@ export const RoomPlayer = React.memo(
       (providers.includes('youtube') && enabledSources.includes('youtube'));
     const preloadSpotifySong =
       songs.find((song) => song.sourceType === 'spotify') ?? null;
-    const preloadSoundCloudSong =
-      songs.find((song) => song.sourceType === 'soundcloud') ?? null;
+    const soundCloudPlayerSongs = useMemo(() => {
+      const candidates = [
+        ...(currentSong?.sourceType === 'soundcloud' ? [currentSong] : []),
+        ...songs.filter((song) => song.sourceType === 'soundcloud'),
+      ];
+      return candidates.filter(
+        (song, index) =>
+          candidates.findIndex(
+            (candidate) => candidate.sourceId === song.sourceId,
+          ) === index,
+      );
+    }, [currentSong, songs]);
     const preloadVideoSong =
       songs.find((song) => song.sourceType === 'youtube') ?? null;
 
@@ -649,28 +660,35 @@ export const RoomPlayer = React.memo(
               />
             </div>
           )}
-          {SoundCloudPlayerComponent && (
-            <div
-              className={classNames(
-                'absolute inset-0',
-                (!isSoundCloudTrack || isConnected) &&
-                  'pointer-events-none opacity-0',
-              )}
-            >
-              <SoundCloudPlayerComponent
-                fill
-                onLocalAlignmentChange={setLocalPlaybackAligned}
-                onLocalPlay={handleLocalPlay}
-                onNeedsUserGestureChange={setIsPlaybackBlocked}
-                {...(hasHostPlaybackAuthority && {
-                  onEnded: handleEnded,
-                })}
-                isVisible={!isConnected && isSoundCloudTrack}
-                preloadSong={preloadSoundCloudSong}
-                showInitialPlaybackOverlay
-              />
-            </div>
-          )}
+          {SoundCloudPlayerComponent &&
+            soundCloudPlayerSongs.map((soundCloudSong) => {
+              const isActiveSoundCloudSong =
+                isSoundCloudTrack &&
+                currentSong?.sourceId === soundCloudSong.sourceId;
+              return (
+                <div
+                  key={soundCloudSong.sourceId}
+                  className={classNames(
+                    'absolute inset-0',
+                    (!isActiveSoundCloudSong || isConnected) &&
+                      'pointer-events-none opacity-0',
+                  )}
+                >
+                  <SoundCloudPlayerComponent
+                    fill
+                    fixedSong={soundCloudSong}
+                    onLocalAlignmentChange={setLocalPlaybackAligned}
+                    onLocalPlay={handleLocalPlay}
+                    onNeedsUserGestureChange={setIsPlaybackBlocked}
+                    {...(hasHostPlaybackAuthority && {
+                      onEnded: handleEnded,
+                    })}
+                    isVisible={!isConnected && isActiveSoundCloudSong}
+                    showInitialPlaybackOverlay
+                  />
+                </div>
+              );
+            })}
           {!currentSong && songs.length > 0 && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               {/* SIGNAL CRT */}
