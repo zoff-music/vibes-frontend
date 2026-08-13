@@ -106,6 +106,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const [isPlaybackUnlocked, setIsPlaybackUnlocked] = useState(
     isPlaybackGestureUnlocked,
   );
+  const [isWidgetPlaying, setIsWidgetPlaying] = useState(false);
 
   useEffect(() => {
     onEndedRef.current = onEnded;
@@ -119,6 +120,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       if (!widget) return;
       widget.setVolume(MIN_VOLUME);
       widget.pause();
+      setIsWidgetPlaying(false);
     });
   }, []);
 
@@ -128,7 +130,12 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       if (
         usePlaybackStore.getState().currentSong?.sourceType !== 'soundcloud'
       ) {
-        silenceProviderPlayback('soundcloud');
+        const widget = widgetRef.current;
+        if (!widget) return;
+        widget.setVolume(MIN_VOLUME);
+        widget.play();
+        widget.pause();
+        setIsWidgetPlaying(false);
       }
     });
   }, []);
@@ -213,11 +220,16 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     });
 
     widget.bind(soundCloud.Widget.Events.PLAY, () => {
-      if (
-        usePlaybackStore.getState().currentSong?.sourceType !== 'soundcloud'
-      ) {
+      setIsWidgetPlaying(true);
+      const playbackState = usePlaybackStore.getState();
+      const isPlaybackAllowed =
+        playbackState.currentSong?.sourceType === 'soundcloud' &&
+        playbackState.isPlaying &&
+        (!showInitialPlaybackOverlay || isPlaybackGestureUnlocked());
+      if (!isPlaybackAllowed) {
         expectedPlayingStateRef.current = false;
         silenceProviderPlayback('soundcloud');
+        setIsWidgetPlaying(false);
         return;
       }
       claimProviderPlayback('soundcloud');
@@ -232,6 +244,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     });
 
     widget.bind(soundCloud.Widget.Events.PAUSE, () => {
+      setIsWidgetPlaying(false);
       if (expectedPlayingStateRef.current === false) {
         expectedPlayingStateRef.current = null;
         return;
@@ -370,6 +383,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       widget.getVolume((volume) => {
         widget.isPaused((isPaused) => {
           if (cancelled) return;
+          setIsWidgetPlaying(!isPaused);
 
           const previousVolume = lastObservedVolumeRef.current;
           lastObservedVolumeRef.current = volume;
@@ -437,7 +451,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     ? providerSong.sourceId
     : `https://api.soundcloud.com/tracks/${providerSong.sourceId}`;
 
-  const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudUrl)}&auto_play=false&visual=false&show_artwork=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
+  const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudUrl)}&auto_play=false&visual=false&show_artwork=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`;
 
   const containerClass = fill
     ? 'relative h-full w-full overflow-hidden'
@@ -445,6 +459,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
   return (
     <div
+      data-provider-playing={isWidgetPlaying ? 'true' : 'false'}
+      data-provider="soundcloud"
       className={classNames(
         containerClass,
         'bg-black',
@@ -471,26 +487,26 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         </div>
       )}
 
-      <iframe
-        ref={iframeRef}
-        id="sc-widget"
-        src={src}
-        onLoad={initializeWidget}
-        width="100%"
-        height="100%"
-        scrolling="no"
-        frameBorder="0"
-        allow="autoplay; encrypted-media"
-        className="pointer-events-none absolute inset-0 h-full w-full opacity-0"
-        title={providerSong.title}
-      />
-      {isReady && (
+      <div className="flex h-full w-full flex-col bg-black">
         <img
           alt={`${providerSong.title} artwork`}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          className="pointer-events-none min-h-0 w-full flex-1 object-contain object-center"
           src={providerSong.thumbnailUrl}
         />
-      )}
+        <iframe
+          ref={iframeRef}
+          id="sc-widget"
+          src={src}
+          onLoad={initializeWidget}
+          width="100%"
+          height="166"
+          scrolling="no"
+          frameBorder="0"
+          allow="autoplay; encrypted-media"
+          className="h-40 w-full shrink-0 border-0"
+          title={providerSong.title}
+        />
+      </div>
       {showClickToPlay && (
         <ClickToPlayOverlay onClick={handleUserGesturePlay} />
       )}
