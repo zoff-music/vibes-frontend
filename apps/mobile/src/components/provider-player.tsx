@@ -42,11 +42,23 @@ export function ProviderPlayer({
   synchronizePosition,
 }: ProviderPlayerProps) {
   const { width: windowWidth } = useWindowDimensions();
+  const isPhoneLayout = availableWidth === undefined && windowWidth < 600;
   const webViewRef = useRef<WebViewType>(null);
   const previousPosition = useRef(positionMs);
   const previousResetVersion = useRef(resetVersion);
   const [error, setError] = useState('');
+  const [retainedYouTubeSong, setRetainedYouTubeSong] = useState<Song | null>(
+    song?.sourceType === 'youtube' ? song : null,
+  );
+  const [retainedSoundCloudSong, setRetainedSoundCloudSong] =
+    useState<Song | null>(song?.sourceType === 'soundcloud' ? song : null);
   const songId = song?.id;
+  const youtubeSong =
+    song?.sourceType === 'youtube' ? song : retainedYouTubeSong;
+  const soundCloudSong =
+    song?.sourceType === 'soundcloud' ? song : retainedSoundCloudSong;
+  const isYouTubeActive = song?.sourceType === 'youtube';
+  const isSoundCloudActive = song?.sourceType === 'soundcloud';
   const playerWidth = Math.max(
     0,
     (availableWidth ?? windowWidth) - horizontalMargin * 2,
@@ -74,6 +86,11 @@ export function ProviderPlayer({
   }, [songId]);
 
   useEffect(() => {
+    if (song?.sourceType === 'youtube') setRetainedYouTubeSong(song);
+    if (song?.sourceType === 'soundcloud') setRetainedSoundCloudSong(song);
+  }, [song]);
+
+  useEffect(() => {
     if (song?.sourceType !== 'spotify') return;
     webViewRef.current?.injectJavaScript(
       `window.zoffSetPlaying?.(${playback?.isPlaying ? 'true' : 'false'}); true;`,
@@ -95,94 +112,6 @@ export function ProviderPlayer({
       `window.zoffSeek?.(${Math.max(0, positionMs)}); true;`,
     );
   }, [positionMs, resetVersion, songId, synchronizePosition]);
-
-  if (!song && isGenerating) {
-    return (
-      <View
-        className="overflow-hidden rounded-2xl border border-accent/60 bg-mobile-card dark:bg-mobile-dark-card"
-        style={{
-          height: playerHeight,
-          marginHorizontal: horizontalMargin,
-        }}
-      >
-        <RoomGenerationProgress />
-      </View>
-    );
-  }
-
-  if (!song) {
-    return (
-      <View
-        className="items-center justify-center overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
-        style={{
-          height: playerHeight,
-          marginHorizontal: horizontalMargin,
-        }}
-      >
-        <Copy muted>Add a song to start listening.</Copy>
-      </View>
-    );
-  }
-
-  if (song.sourceType === 'youtube') {
-    return (
-      <View className="gap-2">
-        <View
-          className="items-center justify-center overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
-          style={{
-            height: playerHeight,
-            marginHorizontal: horizontalMargin,
-          }}
-        >
-          <NativeYouTubePlayer
-            key={song.id}
-            height={embeddedPlayerHeight}
-            isPlaying={playback?.isPlaying ?? false}
-            onError={setError}
-            onLocalPositionObserved={onLocalPositionObserved}
-            onPlayingChange={onLocalPlayingChange}
-            onLocalSeek={onLocalSeek}
-            positionMs={positionMs}
-            resetVersion={resetVersion}
-            sourceId={song.sourceId}
-            synchronizePosition={synchronizePosition}
-            width={embeddedPlayerWidth}
-          />
-        </View>
-        <Toast message={error} />
-      </View>
-    );
-  }
-
-  if (song.sourceType === 'soundcloud') {
-    return (
-      <View className="gap-2">
-        <View
-          className="items-center justify-center overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
-          style={{
-            height: playerHeight,
-            marginHorizontal: horizontalMargin,
-          }}
-        >
-          <NativeSoundCloudPlayer
-            artworkUrl={song.thumbnailUrl}
-            key={song.id}
-            height={embeddedPlayerHeight}
-            isPlaying={playback?.isPlaying ?? false}
-            onError={setError}
-            onLocalPositionObserved={onLocalPositionObserved}
-            positionMs={positionMs}
-            resetVersion={resetVersion}
-            sourceId={song.sourceId}
-            synchronizePosition={synchronizePosition}
-            width={embeddedPlayerWidth}
-            {...(song.providerUrl ? { providerUrl: song.providerUrl } : {})}
-          />
-        </View>
-        <Toast message={error} />
-      </View>
-    );
-  }
 
   const initializePlayback = () => {
     const position = Math.max(0, positionMs);
@@ -221,35 +150,114 @@ export function ProviderPlayer({
   };
 
   return (
-    <View
-      className="overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
-      style={{
-        height: playerHeight,
-        marginHorizontal: horizontalMargin,
-      }}
-    >
-      <WebView
-        ref={webViewRef}
-        key={song.id}
-        allowsFullscreenVideo
-        allowsInlineMediaPlayback
-        allowsProtectedMedia
-        bounces={false}
-        mediaPlaybackRequiresUserAction={false}
-        onError={() =>
-          setError(`Could not load the ${song.sourceType} player.`)
-        }
-        onHttpError={() =>
-          setError(`Could not load the ${song.sourceType} player.`)
-        }
-        onLoadEnd={initializePlayback}
-        onMessage={handlePlayerMessage}
-        originWhitelist={['https://*']}
-        scrollEnabled={false}
-        setSupportMultipleWindows={false}
-        source={{ baseUrl: platformUrl, html: playerHtml }}
-        style={StyleSheet.absoluteFill}
-      />
+    <View className="gap-2">
+      <View
+        className="items-center justify-center overflow-hidden rounded-2xl border border-mobile-border bg-black dark:border-mobile-dark-border"
+        style={{
+          height: playerHeight,
+          marginHorizontal: horizontalMargin,
+        }}
+      >
+        {youtubeSong && (
+          <View
+            pointerEvents={isYouTubeActive ? 'auto' : 'none'}
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: isYouTubeActive ? 1 : 0,
+                zIndex: isYouTubeActive ? 2 : 0,
+              },
+            ]}
+          >
+            <NativeYouTubePlayer
+              height={embeddedPlayerHeight}
+              isPlaying={isYouTubeActive && (playback?.isPlaying ?? false)}
+              onError={setError}
+              positionMs={isYouTubeActive ? positionMs : 0}
+              resetVersion={resetVersion}
+              sourceId={youtubeSong.sourceId}
+              synchronizePosition={isYouTubeActive && synchronizePosition}
+              width={embeddedPlayerWidth}
+              {...(isYouTubeActive
+                ? {
+                    onLocalPositionObserved,
+                    onLocalSeek,
+                    onPlayingChange: onLocalPlayingChange,
+                  }
+                : {})}
+            />
+          </View>
+        )}
+        {soundCloudSong && (
+          <View
+            pointerEvents={isSoundCloudActive ? 'auto' : 'none'}
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: isSoundCloudActive ? 1 : 0,
+                zIndex: isSoundCloudActive ? 2 : 0,
+              },
+            ]}
+          >
+            <NativeSoundCloudPlayer
+              artworkUrl={soundCloudSong.thumbnailUrl}
+              blankArtworkColor={isPhoneLayout ? '#f5f5f5' : '#000000'}
+              height={embeddedPlayerHeight}
+              interactive={isSoundCloudActive}
+              isPlaying={isSoundCloudActive && (playback?.isPlaying ?? false)}
+              onError={setError}
+              positionMs={isSoundCloudActive ? positionMs : 0}
+              resetVersion={resetVersion}
+              sourceId={soundCloudSong.sourceId}
+              synchronizePosition={isSoundCloudActive && synchronizePosition}
+              width={embeddedPlayerWidth}
+              {...(isSoundCloudActive
+                ? {
+                    onLocalPositionObserved,
+                    onLocalSeek,
+                    onPlayingChange: onLocalPlayingChange,
+                  }
+                : {})}
+              {...(soundCloudSong.providerUrl
+                ? { providerUrl: soundCloudSong.providerUrl }
+                : {})}
+            />
+          </View>
+        )}
+        {!song && isGenerating && <RoomGenerationProgress />}
+        {!song && !isGenerating && (
+          <Copy muted>Add a song to start listening.</Copy>
+        )}
+        {song?.sourceType === 'spotify' && (
+          <WebView
+            ref={webViewRef}
+            key={song.id}
+            allowsFullscreenVideo
+            allowsInlineMediaPlayback
+            allowsProtectedMedia
+            bounces={false}
+            mediaPlaybackRequiresUserAction={false}
+            onError={() =>
+              setError(`Could not load the ${song.sourceType} player.`)
+            }
+            onHttpError={() =>
+              setError(`Could not load the ${song.sourceType} player.`)
+            }
+            onLoadEnd={initializePlayback}
+            onMessage={handlePlayerMessage}
+            originWhitelist={['https://*']}
+            scrollEnabled={false}
+            setSupportMultipleWindows={false}
+            source={{ baseUrl: platformUrl, html: playerHtml }}
+            style={StyleSheet.absoluteFill}
+          />
+        )}
+      </View>
+      <Toast message={error} />
     </View>
   );
 }

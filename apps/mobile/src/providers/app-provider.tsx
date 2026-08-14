@@ -47,6 +47,7 @@ interface AppState {
   controllerRemote: ControllerRemoteSession | null;
   authoritativePlayback: PlaybackState | null;
   hasLocalPlaybackChanges: boolean;
+  hasLocalPlaybackPositionDrift: boolean;
   loading: boolean;
   machinePairing: RemotePairing | null;
   machineRemote: RemoteStatus | null;
@@ -109,6 +110,8 @@ export function AppProvider({ children }: PropsWithChildren) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [hasLocalPlaybackChanges, setHasLocalPlaybackChanges] = useState(false);
+  const [hasLocalPlaybackPositionDrift, setHasLocalPlaybackPositionDrift] =
+    useState(false);
   const [playbackResetVersion, setPlaybackResetVersion] = useState(0);
   const [controllerRemote, setControllerRemote] =
     useState<ControllerRemoteSession | null>(null);
@@ -160,6 +163,12 @@ export function AppProvider({ children }: PropsWithChildren) {
     playbackRef.current = nextPlayback;
     setPlayback(nextPlayback);
     setHasLocalPlaybackChanges(true);
+    const authoritativePlayback = authoritativePlaybackRef.current;
+    if (!authoritativePlayback) return;
+    setHasLocalPlaybackPositionDrift(
+      Math.abs(positionMs - getObservedPosition(authoritativePlayback)) >
+        alignedPositionToleranceMs,
+    );
   }, []);
 
   const setLocalPlaybackAligned = useCallback((isAligned: boolean) => {
@@ -180,6 +189,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     const positionIsAligned =
       Math.abs(positionMs - authoritativePosition) <=
       alignedPositionToleranceMs;
+    setHasLocalPlaybackPositionDrift(!positionIsAligned);
     const localPlaying = localPlayingRef.current;
     const playingIsAligned =
       localPlaying === null || localPlaying === authoritativePlayback.isPlaying;
@@ -229,6 +239,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     authoritativePlaybackRef.current = null;
     localPlayingRef.current = null;
     setHasLocalPlaybackChanges(false);
+    setHasLocalPlaybackPositionDrift(false);
     setError('');
   }, []);
 
@@ -252,6 +263,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       authoritativePlaybackRef.current = null;
       localPlayingRef.current = null;
       setHasLocalPlaybackChanges(false);
+      setHasLocalPlaybackPositionDrift(false);
       setControllerRemote({
         controllerToken,
         id: remoteId,
@@ -297,6 +309,10 @@ export function AppProvider({ children }: PropsWithChildren) {
     if (snapshot.room.mode === 'host') {
       localPlayingRef.current = null;
       setHasLocalPlaybackChanges(false);
+      setHasLocalPlaybackPositionDrift(false);
+    }
+    if (!isSameSong) {
+      setHasLocalPlaybackPositionDrift(false);
     }
     playbackRef.current = nextPlayback;
     const generationPending = pendingGeneratedRoomRef.current === roomId;
@@ -383,6 +399,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       setAuthoritativePlayback(snapshot.playback);
       playbackRef.current = snapshot.playback;
       setHasLocalPlaybackChanges(false);
+      setHasLocalPlaybackPositionDrift(false);
       let nextRoom = getLocallyAuthorizedRoom(
         snapshot.room,
         authenticatedRoomIdsRef.current.has(normalized),
@@ -445,6 +462,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     localPlayingRef.current = null;
     setPlayback(authoritativePlayback);
     setHasLocalPlaybackChanges(false);
+    setHasLocalPlaybackPositionDrift(false);
     setPlaybackResetVersion((version) => version + 1);
     setError('');
   }, [roomId, roomRequests]);
@@ -593,6 +611,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       clearControllerRemote,
       controllerRemote,
       hasLocalPlaybackChanges,
+      hasLocalPlaybackPositionDrift,
       disableMachineRemote,
       enableMachineRemote,
       forgetRoomAdminPassword,
@@ -627,6 +646,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       clearControllerRemote,
       controllerRemote,
       hasLocalPlaybackChanges,
+      hasLocalPlaybackPositionDrift,
       disableMachineRemote,
       enableMachineRemote,
       forgetRoomAdminPassword,
@@ -666,7 +686,7 @@ function getLocallyAuthorizedRoom(room: Room, isAuthenticated: boolean) {
   return { ...room, isAdmin: isAuthenticated };
 }
 
-const alignedPositionToleranceMs = 2_000;
+const alignedPositionToleranceMs = 5_000;
 
 function getRoomAdminPasswordStorageKey(roomId: string) {
   const encodedRoomId = Array.from(roomId, (character) =>

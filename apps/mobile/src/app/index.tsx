@@ -200,6 +200,9 @@ export default function RoomsScreen() {
                     Shared rooms, synchronized playback, and a queue everyone
                     can shape.
                   </Text>
+                  <Text className="font-heading text-mobile-muted/70 text-xs tracking-widest dark:text-mobile-dark-muted/70">
+                    音楽は共有するもの
+                  </Text>
                 </View>
               </View>
               <Card>

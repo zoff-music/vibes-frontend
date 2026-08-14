@@ -1,7 +1,7 @@
 import type { Song } from '@vibes/models';
 import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
 import { Image } from 'expo-image';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { type LayoutChangeEvent, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
@@ -19,6 +19,11 @@ export function ProviderSurface({
   song,
 }: ProviderSurfaceProps) {
   const [surfaceSize, setSurfaceSize] = useState(initialSurfaceSize);
+  const [retainedYouTubeSong, setRetainedYouTubeSong] = useState<Song | null>(
+    song?.sourceType === 'youtube' ? song : null,
+  );
+  const [retainedSoundCloudSong, setRetainedSoundCloudSong] =
+    useState<Song | null>(song?.sourceType === 'soundcloud' ? song : null);
   const handleSurfaceLayout = useCallback((event: LayoutChangeEvent) => {
     const { height, width } = event.nativeEvent.layout;
     setSurfaceSize((currentSize) => {
@@ -33,6 +38,17 @@ export function ProviderSurface({
     surfaceSize.height * youtubeAspectRatio,
   );
   const playerHeight = playerWidth / youtubeAspectRatio;
+  const youtubeSong =
+    song?.sourceType === 'youtube' ? song : retainedYouTubeSong;
+  const soundCloudSong =
+    song?.sourceType === 'soundcloud' ? song : retainedSoundCloudSong;
+  const isYouTubeActive = song?.sourceType === 'youtube';
+  const isSoundCloudActive = song?.sourceType === 'soundcloud';
+
+  useEffect(() => {
+    if (song?.sourceType === 'youtube') setRetainedYouTubeSong(song);
+    if (song?.sourceType === 'soundcloud') setRetainedSoundCloudSong(song);
+  }, [song]);
   if (!song) {
     return (
       <View className="h-full items-center justify-center rounded-[2rem] bg-black">
@@ -43,75 +59,84 @@ export function ProviderSurface({
     );
   }
 
-  if (song.sourceType === 'youtube') {
-    return (
-      <View
-        className="h-full items-center justify-center overflow-hidden rounded-[2rem] bg-black"
-        onLayout={handleSurfaceLayout}
-      >
-        <NativeYouTubePlayer
-          height={playerHeight}
-          isPlaying={isPlaying}
-          key={song.sourceId}
-          positionMs={positionMs}
-          resetVersion={playbackKey}
-          sourceId={song.sourceId}
-          synchronizePosition={false}
-          width={playerWidth}
-        />
-      </View>
-    );
-  }
-
-  if (song.sourceType === 'soundcloud') {
-    return (
-      <View
-        className="h-full items-center justify-center overflow-hidden rounded-[2rem] bg-black"
-        onLayout={handleSurfaceLayout}
-      >
-        <NativeSoundCloudPlayer
-          artworkUrl={song.thumbnailUrl}
-          height={surfaceSize.height}
-          isPlaying={isPlaying}
-          key={song.id}
-          positionMs={positionMs}
-          resetVersion={playbackKey}
-          sourceId={song.sourceId}
-          synchronizePosition
-          width={surfaceSize.width}
-          {...(song.providerUrl ? { providerUrl: song.providerUrl } : {})}
-        />
-      </View>
-    );
-  }
-
-  if (song.sourceType === 'spotify') {
-    const uri = `https://open.spotify.com/embed/track/${encodeURIComponent(song.sourceId)}?utm_source=zoff`;
-    return (
-      <View className="h-full overflow-hidden rounded-[2rem] bg-black">
+  return (
+    <View
+      className="h-full items-center justify-center overflow-hidden rounded-[2rem] bg-black"
+      onLayout={handleSurfaceLayout}
+    >
+      {youtubeSong && (
+        <View
+          className="absolute inset-0 items-center justify-center"
+          pointerEvents={isYouTubeActive ? 'auto' : 'none'}
+          style={{
+            opacity: isYouTubeActive ? 1 : 0,
+            zIndex: isYouTubeActive ? 2 : 0,
+          }}
+        >
+          <NativeYouTubePlayer
+            height={playerHeight}
+            isPlaying={isYouTubeActive && isPlaying}
+            positionMs={isYouTubeActive ? positionMs : 0}
+            resetVersion={playbackKey}
+            sourceId={youtubeSong.sourceId}
+            synchronizePosition={false}
+            width={playerWidth}
+          />
+        </View>
+      )}
+      {soundCloudSong && (
+        <View
+          className="absolute inset-0 items-center justify-center"
+          pointerEvents="none"
+          style={{
+            opacity: isSoundCloudActive ? 1 : 0,
+            zIndex: isSoundCloudActive ? 2 : 0,
+          }}
+        >
+          <NativeSoundCloudPlayer
+            artworkUrl={soundCloudSong.thumbnailUrl}
+            height={surfaceSize.height}
+            interactive={false}
+            isPlaying={isSoundCloudActive && isPlaying}
+            positionMs={isSoundCloudActive ? positionMs : 0}
+            resetVersion={playbackKey}
+            sourceId={soundCloudSong.sourceId}
+            synchronizePosition={isSoundCloudActive}
+            width={surfaceSize.width}
+            {...(soundCloudSong.providerUrl
+              ? { providerUrl: soundCloudSong.providerUrl }
+              : {})}
+          />
+        </View>
+      )}
+      {song.sourceType === 'spotify' && (
         <WebView
           allowsFullscreenVideo
           mediaPlaybackRequiresUserAction={false}
-          source={{ uri }}
+          source={{
+            uri: `https://open.spotify.com/embed/track/${encodeURIComponent(song.sourceId)}?utm_source=zoff`,
+          }}
+          style={{ zIndex: 3 }}
         />
-      </View>
-    );
-  }
-
-  return (
-    <View className="h-full overflow-hidden rounded-[2rem] bg-black">
-      <Image
-        className="absolute inset-0 h-full w-full opacity-45"
-        contentFit="cover"
-        source={{ uri: song.thumbnailUrl }}
-      />
-      <View className="absolute inset-0 items-center justify-center bg-black/45">
-        <Image
-          className="h-72 w-72 rounded-3xl"
-          contentFit="cover"
-          source={{ uri: song.thumbnailUrl }}
-        />
-      </View>
+      )}
+      {song.sourceType !== 'youtube' &&
+        song.sourceType !== 'soundcloud' &&
+        song.sourceType !== 'spotify' && (
+          <>
+            <Image
+              className="absolute inset-0 h-full w-full opacity-45"
+              contentFit="cover"
+              source={{ uri: song.thumbnailUrl }}
+            />
+            <View className="absolute inset-0 items-center justify-center bg-black/45">
+              <Image
+                className="h-72 w-72 rounded-3xl"
+                contentFit="cover"
+                source={{ uri: song.thumbnailUrl }}
+              />
+            </View>
+          </>
+        )}
     </View>
   );
 }

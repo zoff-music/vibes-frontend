@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Modal, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AddSongSheet } from '@/components/add-song-sheet';
 import { IconButton } from '@/components/native';
@@ -8,7 +7,6 @@ import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useApp } from '@/providers/app-provider';
 
 export function TabletAddSongButton() {
-  const insets = useSafeAreaInsets();
   const tabletLayout = useTabletLandscapeLayout();
   const { controllerRemote, room } = useApp();
   const [addSongVisible, setAddSongVisible] = useState(false);
@@ -18,10 +16,7 @@ export function TabletAddSongButton() {
 
   return (
     <>
-      <View
-        className="absolute right-6 z-50"
-        style={{ bottom: insets.bottom + floatingButtonBottomOffset }}
-      >
+      <View className="absolute right-6 bottom-6 z-50">
         <IconButton
           accessibilityLabel="Add song"
           icon="add"
@@ -49,5 +44,3 @@ export function TabletAddSongButton() {
     </>
   );
 }
-
-const floatingButtonBottomOffset = 24;

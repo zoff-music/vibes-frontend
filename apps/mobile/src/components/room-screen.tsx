@@ -28,7 +28,7 @@ export function RoomScreen() {
   const roomRequests = useRoomRequests(mobileApi);
   const {
     authoritativePlayback,
-    hasLocalPlaybackChanges,
+    hasLocalPlaybackPositionDrift,
     leaveRoom,
     playback,
     playerEnabled,
@@ -62,6 +62,10 @@ export function RoomScreen() {
     authoritativePlayback?.currentSong?.duration ?? 0,
     authoritativePlayback?.serverTimeMs,
   );
+  const showsPlaybackReset =
+    hasLocalPlaybackPositionDrift ||
+    Math.abs(livePosition - authoritativePosition) >
+      playbackResetPositionThresholdMs;
 
   if (!roomId || !room) {
     return (
@@ -211,7 +215,7 @@ export function RoomScreen() {
             </Text>
             <Copy muted>{current?.artist ?? ''}</Copy>
           </View>
-          {playerEnabled && current && hasLocalPlaybackChanges && (
+          {playerEnabled && current && showsPlaybackReset && (
             <IconButton
               accessibilityLabel="Reset playback"
               icon="reset"
@@ -322,7 +326,7 @@ export function RoomScreen() {
   }
 
   return (
-    <Screen>
+    <Screen gridPaused={playback?.isPlaying === false}>
       <SafeAreaView edges={['top']}>
         <View
           className={classNames(
@@ -370,3 +374,4 @@ export function RoomScreen() {
 }
 
 const roomHeaderBreakpoint = 600;
+const playbackResetPositionThresholdMs = 5_000;
