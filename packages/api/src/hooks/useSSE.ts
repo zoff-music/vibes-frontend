@@ -69,6 +69,37 @@ export const useSSE = (
     if (!roomId) return;
     let isMounted = true;
 
+    const syncRoomSnapshot = async () => {
+      const [roomResult, songsResult, playbackResult] = await Promise.all([
+        client.get('/rooms/{id}', { id: roomId }),
+        client.get('/rooms/{id}/songs', { id: roomId }),
+        client.get('/rooms/{id}/states', { id: roomId }),
+      ]);
+      if (!isMounted) return;
+
+      const [roomError, room] = roomResult;
+      const [songsError, songs] = songsResult;
+      const [playbackError, playback] = playbackResult;
+      const error = roomError ?? songsError ?? playbackError;
+      if (error || !room || !songs || !playback) {
+        console.error('Failed to refresh room after resuming', error);
+        return;
+      }
+
+      setRoom(room);
+      setSongs(songs);
+      setPlaybackState(playback, room.mode);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') return;
+      void syncRoomSnapshot();
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+
     const setupConnection = async () => {
       if (PENDING_CLEANUPS.has(roomId)) {
         clearTimeout(PENDING_CLEANUPS.get(roomId));
@@ -234,6 +265,12 @@ export const useSSE = (
 
     return () => {
       isMounted = false;
+      if (typeof document !== 'undefined') {
+        document.removeEventListener(
+          'visibilitychange',
+          handleVisibilityChange,
+        );
+      }
       if (isSubscribedRef.current) {
         const connection = ACTIVE_CONNECTIONS.get(roomId);
         if (connection) {
