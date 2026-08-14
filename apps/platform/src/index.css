@@ -1,6 +1,43 @@
 @import "@vibes/tailwind/styles.css";
 @source "./";
 
+@keyframes platform-background-gradient-drift {
+  0%,
+  100% {
+    transform: translate3d(-3%, -1%, 0) scale(1.04);
+  }
+
+  50% {
+    transform: translate3d(3%, 1%, 0) scale(1.04);
+  }
+}
+
+@keyframes platform-background-grid-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 80px, 0);
+  }
+}
+
+@media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
+  .platform-background-gradient-motion {
+    animation: platform-background-gradient-drift 12s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .platform-background-grid-motion {
+    animation: platform-background-grid-scroll 2s linear infinite;
+    will-change: transform;
+  }
+
+  .platform-background-grid-warp {
+    animation-duration: 80ms;
+  }
+}
+
 @keyframes dice-roll {
   0% {
     transform: rotate(0deg) scale(1);
