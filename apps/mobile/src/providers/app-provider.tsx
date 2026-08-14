@@ -25,6 +25,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { AppState as NativeAppState } from 'react-native';
 import { useToast } from '@/components/toast';
 import {
   getObservedPosition,
@@ -335,6 +336,24 @@ export function AppProvider({ children }: PropsWithChildren) {
     setPlayback(nextPlayback);
     setError('');
   }, [roomId, roomRequests]);
+
+  useEffect(() => {
+    let previousState = NativeAppState.currentState;
+    const subscription = NativeAppState.addEventListener(
+      'change',
+      (nextState) => {
+        const resumed =
+          nextState === 'active' &&
+          (previousState === 'background' || previousState === 'inactive');
+        previousState = nextState;
+        if (resumed) {
+          void refresh();
+        }
+      },
+    );
+
+    return () => subscription.remove();
+  }, [refresh]);
 
   const setRoomId = useCallback(
     async (nextRoomId: string, password = '') => {
