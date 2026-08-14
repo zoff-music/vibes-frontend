@@ -36,8 +36,8 @@ export function Background() {
             'opacity-100 [filter:drop-shadow(0_0_40px_rgba(255,46,151,0.9))] md:animate-[retroGridScroll_80ms_linear_infinite]',
           !isWarping &&
             'opacity-80 [filter:drop-shadow(0_0_25px_rgba(255,46,151,0.5))] md:animate-[retroGridScroll_2s_linear_infinite]',
-          isGridPaused && '[animation-play-state:paused]',
         )}
+        style={{ animationPlayState: isGridPaused ? 'paused' : 'running' }}
       />
     </div>
   );
