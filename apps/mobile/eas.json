@@ -17,6 +17,10 @@
   },
   "submit": {
     "production": {
+      "android": {
+        "track": "production",
+        "releaseStatus": "completed"
+      },
       "ios": {
         "ascAppId": "6799954460",
         "metadataPath": "./docs/app-store/metadata/store.config.json"
