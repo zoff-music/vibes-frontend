@@ -1,11 +1,14 @@
-import { classNames } from '@vibes/shared';
+import { classNames, usePlaybackStore } from '@vibes/shared';
 import { useLocation } from 'react-router';
 import { useThemeStore } from '../../stores/themeStore';
 
 export function Background() {
   const location = useLocation();
   const isWarping = useThemeStore((state) => state.isWarping);
+  const currentSong = usePlaybackStore((state) => state.currentSong);
+  const isPlaying = usePlaybackStore((state) => state.isPlaying);
   const isHome = location.pathname === '/';
+  const isGridPaused = Boolean(currentSong) && !isPlaying;
 
   // Only show the sun on Home and CreateRoom pages
   const showSun = isHome || location.pathname === '/rooms/create';
@@ -33,6 +36,7 @@ export function Background() {
             'opacity-100 [filter:drop-shadow(0_0_40px_rgba(255,46,151,0.9))] md:animate-[retroGridScroll_80ms_linear_infinite]',
           !isWarping &&
             'opacity-80 [filter:drop-shadow(0_0_25px_rgba(255,46,151,0.5))] md:animate-[retroGridScroll_2s_linear_infinite]',
+          isGridPaused && '[animation-play-state:paused]',
         )}
       />
     </div>

@@ -45,7 +45,7 @@ export function AndroidFloatingNavigation() {
               accessibilityRole="tab"
               accessibilityState={{ selected }}
               className={classNames(
-                'min-w-0 flex-1 items-center gap-0.5 rounded-full py-2 active:opacity-70',
+                'min-w-0 flex-1 items-center gap-0.5 overflow-hidden rounded-full py-2 active:opacity-70',
                 selected && 'bg-primary/15',
               )}
               key={item.href}

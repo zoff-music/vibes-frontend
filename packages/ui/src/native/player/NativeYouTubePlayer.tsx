@@ -50,8 +50,13 @@ export function NativeYouTubePlayer({
   const appState = useRef(AppState.currentState);
   const desiredPlaying = useRef(isPlaying);
   const pendingPlayingCommand = useRef<boolean | null>(null);
+  const initialSourceId = useRef(sourceId).current;
+  const loadedSourceId = useRef(sourceId);
   const [ready, setReady] = useState(false);
-  const playerHtml = useMemo(() => getPlayerHtml(sourceId), [sourceId]);
+  const playerHtml = useMemo(
+    () => getPlayerHtml(initialSourceId),
+    [initialSourceId],
+  );
 
   const setPlayerPlaying = useCallback((playing: boolean) => {
     pendingPlayingCommand.current = playing;
@@ -74,6 +79,20 @@ export function NativeYouTubePlayer({
     if (!ready) return;
     setPlayerPlaying(isPlaying);
   }, [isPlaying, ready, setPlayerPlaying]);
+
+  useEffect(() => {
+    if (!ready || loadedSourceId.current === sourceId) return;
+    loadedSourceId.current = sourceId;
+    expectedPosition.current = {
+      commandedAt: Date.now(),
+      positionMs,
+    };
+    previousObservedPosition.current = null;
+    pendingPlayingCommand.current = isPlaying;
+    playerRef.current?.injectJavaScript(
+      `window.zoffLoad?.(${JSON.stringify(sourceId)}, ${Math.max(0, positionMs)}, ${isPlaying ? 'true' : 'false'}); true;`,
+    );
+  }, [isPlaying, positionMs, ready, sourceId]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
@@ -348,8 +367,10 @@ function getPlayerHtml(sourceId: string) {
     <script>
       let player;
       let ready = false;
+      let sourceTransition = false;
       let shouldPlay = false;
       let initialPositionSeconds = 0;
+      let resetAfterTransition = false;
       const post = (message) => window.ReactNativeWebView.postMessage(JSON.stringify(message));
       const syncPlayback = () => {
         if (!ready || !player) return;
@@ -359,19 +380,32 @@ function getPlayerHtml(sourceId: string) {
       };
       window.zoffSetPlaying = (playing) => {
         shouldPlay = playing;
+        if (sourceTransition) return;
         syncPlayback();
       };
       window.zoffSeek = (positionMs) => {
         initialPositionSeconds = Math.max(0, positionMs) / 1000;
+        if (sourceTransition) return;
         if (ready && player) player.seekTo(initialPositionSeconds, true);
       };
       window.zoffReset = (positionMs) => {
         initialPositionSeconds = Math.max(0, positionMs) / 1000;
         if (!ready || !player) return;
+        if (sourceTransition) {
+          resetAfterTransition = true;
+          return;
+        }
         player.unMute();
         player.setVolume(100);
         player.seekTo(initialPositionSeconds, true);
         syncPlayback();
+      };
+      window.zoffLoad = (videoId, positionMs, playing) => {
+        if (!ready || !player) return;
+        sourceTransition = true;
+        shouldPlay = playing;
+        initialPositionSeconds = Math.max(0, positionMs) / 1000;
+        player.loadVideoById({ videoId, startSeconds: initialPositionSeconds });
       };
       window.onYouTubeIframeAPIReady = () => {
         player = new YT.Player('player', {
@@ -395,6 +429,19 @@ function getPlayerHtml(sourceId: string) {
               post({ type: 'ready' });
             },
             onStateChange: (event) => {
+              if (
+                sourceTransition &&
+                event.data === YT.PlayerState.PLAYING
+              ) {
+                sourceTransition = false;
+                if (resetAfterTransition) {
+                  player.unMute();
+                  player.setVolume(100);
+                  resetAfterTransition = false;
+                }
+                player.seekTo(initialPositionSeconds, true);
+                syncPlayback();
+              }
               if (event.data === YT.PlayerState.PLAYING) post({ type: 'playing', isPlaying: true });
               if (event.data === YT.PlayerState.PAUSED) post({ type: 'playing', isPlaying: false });
             },

@@ -1,5 +1,6 @@
 import { classNames } from '@vibes/shared';
 import {
+  NativeAnimatedLogo,
   NativeButton,
   NativeCard,
   NativeCopy,
@@ -70,14 +71,11 @@ export function LandingScreen({
         )}
       >
         <View className="items-center gap-3">
-          <Text
-            className={classNames(
-              'font-heading text-primary',
-              compact ? 'text-4xl' : 'text-6xl',
-            )}
-          >
-            ゾフ
-          </Text>
+          <NativeAnimatedLogo
+            accentColor="#00d9ff"
+            baseColor="#e8dff5"
+            pinkColor="#ff2e97"
+          />
           <NativeCopy muted>
             Shared music rooms, made for the biggest screen.
           </NativeCopy>

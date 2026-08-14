@@ -13,6 +13,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { NativeRetroGrid } from '@/components/native-retro-grid';
 import type { ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import {
@@ -20,29 +21,17 @@ import {
   useTabletLandscapeLayout,
 } from '@/hooks/use-tablet-landscape-layout';
 
-export function Screen({ children }: PropsWithChildren) {
+interface ScreenProps extends PropsWithChildren {
+  gridPaused?: boolean;
+}
+
+export function Screen({ children, gridPaused = false }: ScreenProps) {
   const tabletLayout = useTabletLandscapeLayout();
   const reservesTabletNavigation =
     Platform.OS === 'android' && tabletLayout.isTablet;
   return (
     <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
-      <View className="absolute inset-0 opacity-35" pointerEvents="none">
-        {backgroundGridColumns.map((position) => (
-          <View
-            className="absolute inset-y-0 w-px bg-primary/15 dark:bg-primary/20"
-            key={`column-${position}`}
-            style={{ left: `${position}%` }}
-          />
-        ))}
-        {backgroundGridRows.map((position) => (
-          <View
-            className="absolute inset-x-0 h-px bg-primary/15 dark:bg-primary/20"
-            key={`row-${position}`}
-            style={{ top: `${position}%` }}
-          />
-        ))}
-        <View className="absolute top-0 right-0 left-0 h-40 bg-primary/5" />
-      </View>
+      <NativeRetroGrid paused={gridPaused} />
       <View
         className="flex-1"
         style={
@@ -158,8 +147,6 @@ export function Empty({ children, loading }: EmptyProps) {
   );
 }
 
-const backgroundGridColumns = [12, 25, 38, 50, 62, 75, 88];
-const backgroundGridRows = [18, 30, 42, 54, 66, 78, 90];
 const tabletWidth = 768;
 const tabletContentColumnStyle = {
   alignSelf: 'center' as const,

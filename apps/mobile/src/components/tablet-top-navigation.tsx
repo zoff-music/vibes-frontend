@@ -35,7 +35,7 @@ export function TabletTopNavigation() {
               accessibilityRole="tab"
               accessibilityState={{ selected }}
               className={classNames(
-                'rounded-full px-5 py-2 active:opacity-70',
+                'overflow-hidden rounded-full px-5 py-2 active:opacity-70',
                 selected && 'bg-primary/15',
               )}
               key={item.href}

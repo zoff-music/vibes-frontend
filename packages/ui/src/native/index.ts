@@ -1,3 +1,4 @@
+export { NativeAnimatedLogo } from './components/NativeAnimatedLogo';
 export type {
   NativeControlSize,
   NativeControlTone,
