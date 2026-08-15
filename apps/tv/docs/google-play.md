@@ -29,8 +29,8 @@ providers. No Zoff account is required.
 
 ## Release notes
 
-Initial Android TV release with shared rooms, public-room browsing, AI playlist
-generation, live queue updates, official provider players, and QR joining.
+Improves live room synchronization after network interruptions and long periods
+of inactivity.
 
 ## Pre-release checklist
 
