@@ -16,7 +16,7 @@ From the repository root:
 pnpm --filter @vibes/remote dev
 ```
 
-The development server runs at `http://localhost:3007/remotes`.
+The development server runs at `http://localhost:3007/remotes/join`.
 
 Validate the app with:
 

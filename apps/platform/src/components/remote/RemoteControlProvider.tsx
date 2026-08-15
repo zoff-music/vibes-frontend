@@ -205,7 +205,7 @@ export function RemoteControlProvider({ children }: Props) {
   );
 
   const pairingUrl = pairing
-    ? `${window.location.origin}/remotes?remoteId=${encodeURIComponent(pairing.id)}&pair=${encodeURIComponent(pairing.pairingToken)}`
+    ? `${window.location.origin}/remotes/join?remoteId=${encodeURIComponent(pairing.id)}&pair=${encodeURIComponent(pairing.pairingToken)}`
     : '';
 
   return (
@@ -372,7 +372,7 @@ export function RemoteControlProvider({ children }: Props) {
             className="w-full gap-3"
             onClick={() => {
               setIsOpen(false);
-              navigate('/remotes');
+              navigate('/remotes/join');
             }}
             variant="tertiary"
           >

@@ -239,7 +239,7 @@ export default function RemoteController() {
           </h1>
           <p className="mt-3 text-sm text-theme-muted">{loaderData.error}</p>
           <Link
-            to="/remotes"
+            to="/remotes/join"
             className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-secondary px-5 py-2.5 text-text-inverse transition-opacity hover:opacity-90"
           >
             Pair another machine
