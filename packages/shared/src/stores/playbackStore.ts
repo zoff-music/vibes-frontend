@@ -55,6 +55,8 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
   setPlaybackState: (state, roomMode) => {
     const currentState = get();
+    const receivedAt = Date.now();
+    const playbackReferenceTime = getPlaybackReferenceTime(state, receivedAt);
     const isSameSong = currentState.currentSong?.id === state.currentSong?.id;
     const isSamePlaybackUpdate =
       isSameSong && currentState.updatedAt === state.updatedAt;
@@ -74,9 +76,9 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       set({
         ...state,
         isPlaying: currentState.localIsPlaying,
-        authoritativeClientReferenceTime: Date.now(),
+        authoritativeClientReferenceTime: playbackReferenceTime,
         authoritativePlayback: state,
-        clientReferenceTime: Date.now(),
+        clientReferenceTime: playbackReferenceTime,
         hasLocalPlaybackChanges: isSameSong
           ? currentState.hasLocalPlaybackChanges
           : state.isPlaying !== currentState.localIsPlaying,
@@ -98,9 +100,9 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     // Host mode or no local override - use server state
     set({
       ...state,
-      authoritativeClientReferenceTime: Date.now(),
+      authoritativeClientReferenceTime: playbackReferenceTime,
       authoritativePlayback: state,
-      clientReferenceTime: Date.now(),
+      clientReferenceTime: playbackReferenceTime,
       hasLocalPlaybackChanges: isSameSong
         ? currentState.hasLocalPlaybackChanges
         : false,
@@ -131,11 +133,13 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
   resetPlaybackState: (state, roomMode) => {
     const currentState = get();
+    const receivedAt = Date.now();
+    const playbackReferenceTime = getPlaybackReferenceTime(state, receivedAt);
     set({
       ...state,
-      authoritativeClientReferenceTime: Date.now(),
+      authoritativeClientReferenceTime: playbackReferenceTime,
       authoritativePlayback: state,
-      clientReferenceTime: Date.now(),
+      clientReferenceTime: playbackReferenceTime,
       hasLocalPlaybackChanges: false,
       localIsPlaying: null,
       resetVersion: currentState.resetVersion + 1,
@@ -278,3 +282,18 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     set({ autoUpdateInterval: null });
   },
 }));
+
+function getPlaybackReferenceTime(
+  state: PlaybackState,
+  receivedAt: number,
+): number {
+  if (!state.isPlaying) {
+    return receivedAt;
+  }
+
+  // Replayed SSE updates retain the server time at which the playback
+  // position was measured. Preserve that elapsed time instead of treating an
+  // old update as though it was created when this client received it.
+  const elapsedBeforeReceipt = Math.max(receivedAt - state.serverTimeMs, 0);
+  return receivedAt - elapsedBeforeReceipt;
+}
