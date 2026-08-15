@@ -70,6 +70,7 @@ interface RoomHeaderProps {
   sharePanelRef: RefObject<HTMLDivElement | null>;
   shareUrl: string;
   onShareRoom: () => void;
+  onOpenPartyScreen: () => void;
   themeId: string;
   currentTheme: Theme;
   onToggleDarkMode: () => void;
@@ -97,6 +98,7 @@ export const RoomHeader = React.memo(
     sharePanelRef,
     shareUrl,
     onShareRoom,
+    onOpenPartyScreen,
     themeId,
     currentTheme,
     onToggleDarkMode,
@@ -247,6 +249,7 @@ export const RoomHeader = React.memo(
                           url={shareUrl}
                           roomId={roomId || ''}
                           onShare={onShareRoom}
+                          onOpenPartyScreen={onOpenPartyScreen}
                         />
                       </Suspense>
                     </motion.div>

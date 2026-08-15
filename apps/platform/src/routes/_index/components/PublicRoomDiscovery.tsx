@@ -33,6 +33,11 @@ export function PublicRoomDiscovery({
           rooms.length >= 3 && 'sm:grid-cols-3',
         )}
       >
+        {rooms.length === 0 && (
+          <p className="rounded-xl border border-theme bg-theme px-4 py-5 text-center text-theme-muted text-xs">
+            No public rooms are live. Start one and set the signal.
+          </p>
+        )}
         {rooms.map((room, index) => (
           <motion.div
             key={room.id}
