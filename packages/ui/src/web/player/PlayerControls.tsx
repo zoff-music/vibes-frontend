@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { motion } from 'framer-motion';
-import React, { type ReactNode } from 'react';
+import React from 'react';
 import { Button } from '../components/Button';
 import { Tooltip } from '../components/Tooltip';
 import {
@@ -29,7 +29,6 @@ interface Props {
   castDeviceName?: string | null;
   showSpotifyConnect?: boolean;
   onConnectSpotify?: () => void;
-  addSongLeadingAction?: ReactNode;
 }
 
 const PlayerControlsComponent: React.FC<Props> = ({
@@ -48,7 +47,6 @@ const PlayerControlsComponent: React.FC<Props> = ({
   castDeviceName,
   showSpotifyConnect,
   onConnectSpotify,
-  addSongLeadingAction,
 }) => {
   const playbackLabel = isPlaying ? 'Pause' : 'Play';
 
@@ -161,19 +159,19 @@ const PlayerControlsComponent: React.FC<Props> = ({
             </Button>
           )}
 
-          {addSongLeadingAction}
-
-          <Button
-            onClick={onAddSong}
-            variant="primary"
-            className="h-12 min-w-0 flex-1 gap-3 px-4 sm:flex-none sm:px-6"
-            title="Add Song"
-          >
-            <PlusIcon className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap font-display text-xs tracking-display">
-              Add Song
-            </span>
-          </Button>
+          <div className="hidden sm:block">
+            <Button
+              onClick={onAddSong}
+              variant="primary"
+              className="h-12 min-w-0 gap-3 px-4 sm:px-6"
+              title="Add Song"
+            >
+              <PlusIcon className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap font-display text-xs tracking-display">
+                Add Song
+              </span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

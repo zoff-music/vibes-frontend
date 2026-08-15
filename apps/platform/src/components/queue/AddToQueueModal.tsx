@@ -1,4 +1,9 @@
-import type { PlaybackRestriction, Providers, Room } from '@vibes/models';
+import {
+  generatedPlaylistPromptMaxLength,
+  type PlaybackRestriction,
+  type Providers,
+  type Room,
+} from '@vibes/models';
 import {
   type AddSongOutcome,
   formatDuration,
@@ -21,6 +26,7 @@ import {
   PlusIcon,
   SearchIcon,
   SoundCloudIcon,
+  SparklesIcon,
   SpotifyIcon,
   Tooltip,
   YouTubeIcon,
@@ -34,6 +40,12 @@ interface Props {
   providers: Providers;
   isVisible: boolean;
   onClose: () => void;
+  generationCount: number;
+  roomGenerationMaxDailyCount: number;
+  roomGenerationMaxExistingSongs: number;
+  hasGenerationPermission: boolean;
+  isGenerating: boolean;
+  onGenerationStarted: () => void;
 }
 
 interface SearchResult {
@@ -62,10 +74,18 @@ export const AddToQueueModal: React.FC<Props> = ({
   providers,
   isVisible,
   onClose,
+  generationCount,
+  roomGenerationMaxDailyCount,
+  roomGenerationMaxExistingSongs,
+  hasGenerationPermission,
+  isGenerating,
+  onGenerationStarted,
 }) => {
   const searchFetcher = useFetcher<RoomActionData>();
   const songFetcher = useFetcher<RoomActionData>();
+  const generationFetcher = useFetcher<RoomActionData>();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAIMode, setIsAIMode] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -81,6 +101,30 @@ export const AddToQueueModal: React.FC<Props> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { songs } = useQueueStore();
   const { currentSong } = usePlaybackStore();
+
+  const songCountCutoff = roomGenerationMaxExistingSongs + 1;
+  const isAboveSongLimit = songs.length >= songCountCutoff;
+  const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
+  let generationUnavailableReason = '';
+  if (!hasGenerationPermission) {
+    generationUnavailableReason = 'Log in as room admin to fill this playlist.';
+  }
+  if (hasGenerationPermission && isAboveSongLimit) {
+    generationUnavailableReason = `AI fill is unavailable when the room has ${songCountCutoff} songs or more.`;
+  }
+  if (hasGenerationPermission && !isAboveSongLimit && isGenerating) {
+    generationUnavailableReason = 'A playlist is already being generated.';
+  }
+  if (
+    hasGenerationPermission &&
+    !isAboveSongLimit &&
+    !isGenerating &&
+    isAboveDailyLimit
+  ) {
+    generationUnavailableReason = `This room has used its ${roomGenerationMaxDailyCount} playlist generations for the day.`;
+  }
+  const canGenerate = !generationUnavailableReason;
+  const isGenerationSubmitting = generationFetcher.state !== 'idle';
 
   const hasSpotifySongs =
     songs.some((s) => s.sourceType === 'spotify') ||
@@ -110,6 +154,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     if (!isVisible) {
       setTimeout(() => {
         setSearchQuery('');
+        setIsAIMode(false);
         setSearchResults([]);
         setShowResults(false);
         setPreviewTrack(null);
@@ -122,6 +167,31 @@ export const AddToQueueModal: React.FC<Props> = ({
       }, 300);
     }
   }, [isVisible]);
+
+  useEffect(() => {
+    if (
+      generationFetcher.state !== 'idle' ||
+      generationFetcher.data?.intent !== 'generatePlaylist'
+    ) {
+      return;
+    }
+
+    if (generationFetcher.data.error || !generationFetcher.data.generation) {
+      setError(
+        generationFetcher.data.error ?? 'Could not start playlist generation.',
+      );
+      return;
+    }
+
+    setSearchQuery('');
+    onGenerationStarted();
+    onClose();
+  }, [
+    generationFetcher.data,
+    generationFetcher.state,
+    onClose,
+    onGenerationStarted,
+  ]);
 
   useEffect(() => {
     if (searchFetcher.state !== 'idle' || !searchFetcher.data) return;
@@ -335,7 +405,9 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
+    setSearchQuery(
+      isAIMode ? query.slice(0, generatedPlaylistPromptMaxLength) : query,
+    );
     setError(null);
     setPreviewTrack(null);
     setPreviewPlaylist(null);
@@ -371,8 +443,44 @@ export const AddToQueueModal: React.FC<Props> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      if (isAIMode) {
+        handleGenerate();
+        return;
+      }
       performSearch(searchQuery);
     }
+  };
+
+  const handleToggleAIMode = () => {
+    if (!isAIMode && !canGenerate) {
+      setError(generationUnavailableReason);
+      return;
+    }
+
+    setIsAIMode((current) => !current);
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowResults(false);
+    setPreviewTrack(null);
+    setPreviewPlaylist(null);
+    setError(null);
+  };
+
+  const handleGenerate = () => {
+    const prompt = searchQuery.trim();
+    if (!prompt || isGenerationSubmitting) {
+      return;
+    }
+    if (!canGenerate) {
+      setError(generationUnavailableReason);
+      return;
+    }
+
+    setError(null);
+    generationFetcher.submit(
+      { intent: 'generatePlaylist', prompt },
+      { encType: 'application/json', method: 'post' },
+    );
   };
 
   const handleAdd = () => {
@@ -414,12 +522,24 @@ export const AddToQueueModal: React.FC<Props> = ({
     performSearch(searchQuery);
   };
 
+  const handlePrimaryAction = () => {
+    if (isAIMode) {
+      handleGenerate();
+      return;
+    }
+    handleSearch();
+  };
+
   const providerPlaylistLink = parseProviderPlaylistLink(searchQuery);
   const providerTrackLink = parseProviderTrackLink(searchQuery);
   const canSubmitSearch =
     Boolean(providerPlaylistLink) ||
     Boolean(providerTrackLink) ||
     searchQuery.trim().length >= MINIMUM_SEARCH_QUERY_LENGTH;
+  const canSubmitPrimaryAction = isAIMode
+    ? canGenerate && Boolean(searchQuery.trim())
+    : canSubmitSearch;
+  const isPrimaryActionBusy = isAIMode ? isGenerationSubmitting : isSearching;
 
   let successTitle = 'Added to Queue!';
   let successDescription = 'Everyone will hear it soon';
@@ -459,45 +579,51 @@ export const AddToQueueModal: React.FC<Props> = ({
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 id="add-song-title" className="text-base text-theme">
-              Add a Song
+              {isAIMode ? 'Fill Playlist' : 'Add a Song'}
             </h2>
             <p className="mt-1 text-theme-muted text-xs">
-              Search by title, or paste a song or playlist link
+              {isAIMode
+                ? 'Describe the playlist you want AI to build'
+                : 'Search by title, or paste a song or playlist link'}
             </p>
           </div>
           <Button
             onClick={onClose}
             variant="tertiary"
             size="icon"
-            aria-label="Close add-song search"
+            aria-label={
+              isAIMode ? 'Close playlist fill' : 'Close add-song search'
+            }
           >
             <CloseIcon className="h-5 w-5 text-theme-muted" />
           </Button>
         </div>
 
         {/* Provider Tabs */}
-        <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
-          {providerList.map((p) => (
-            <Button
-              key={p}
-              onClick={() => {
-                setSelectedProvider(p);
-                setSearchResults([]);
-                setSearchQuery('');
-                setPreviewTrack(null);
-                setPreviewPlaylist(null);
-              }}
-              variant={selectedProvider === p ? 'tertiary' : 'ghost'}
-            >
-              <ProviderIcon className="h-5 w-5" provider={p} />
-              {p.charAt(0).toUpperCase() + p.slice(1)}
-            </Button>
-          ))}
-        </div>
+        {!isAIMode && (
+          <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
+            {providerList.map((p) => (
+              <Button
+                key={p}
+                onClick={() => {
+                  setSelectedProvider(p);
+                  setSearchResults([]);
+                  setSearchQuery('');
+                  setPreviewTrack(null);
+                  setPreviewPlaylist(null);
+                }}
+                variant={selectedProvider === p ? 'tertiary' : 'ghost'}
+              >
+                <ProviderIcon className="h-5 w-5" provider={p} />
+                {p.charAt(0).toUpperCase() + p.slice(1)}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Spotify Disclaimer */}
-      {selectedProvider === 'spotify' && !hasSpotifySongs && (
+      {!isAIMode && selectedProvider === 'spotify' && !hasSpotifySongs && (
         <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
           <div className="flex gap-3">
             <div className="mt-0.5 text-orange-400">
@@ -514,7 +640,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       )}
 
       {/* SoundCloud Disclaimer */}
-      {selectedProvider === 'soundcloud' && (
+      {!isAIMode && selectedProvider === 'soundcloud' && (
         <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
           <div className="flex gap-3">
             <div className="mt-0.5 text-orange-400">
@@ -536,18 +662,30 @@ export const AddToQueueModal: React.FC<Props> = ({
             {/* Auth Check Logic Removed: searching allowed without prior active source check */}
 
             <div className="absolute top-1/2 left-4 -translate-y-1/2 text-theme-muted">
-              {isSearching && (
+              {isPrimaryActionBusy && (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               )}
-              {!isSearching && <SearchIcon className="h-5 w-5" />}
+              {!isPrimaryActionBusy && !isAIMode && (
+                <SearchIcon className="h-5 w-5" />
+              )}
+              {!isPrimaryActionBusy && isAIMode && (
+                <SparklesIcon className="h-5 w-5" />
+              )}
             </div>
             <input
               ref={searchInputRef}
               type="text"
-              placeholder={`Search ${selectedProvider}...`}
+              placeholder={
+                isAIMode
+                  ? 'Late-night synthwave for a rainy drive'
+                  : `Search ${selectedProvider}...`
+              }
               value={searchQuery}
               onChange={handleSearchInputChange}
               onKeyDown={handleKeyDown}
+              {...(isAIMode && {
+                maxLength: generatedPlaylistPromptMaxLength,
+              })}
               className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
             />
             {searchQuery && (
@@ -566,13 +704,60 @@ export const AddToQueueModal: React.FC<Props> = ({
             )}
           </div>
           <Button
-            onClick={handleSearch}
-            disabled={!canSubmitSearch || isSearching}
-            variant="primary"
+            aria-checked={isAIMode}
+            aria-label={isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'}
+            className="h-14 w-14 shrink-0 rounded-2xl p-0"
+            onClick={handleToggleAIMode}
+            role="switch"
+            size="none"
+            title={
+              canGenerate
+                ? isAIMode
+                  ? 'Turn off AI mode'
+                  : 'Fill playlist with AI'
+                : generationUnavailableReason
+            }
+            variant={isAIMode ? 'secondary' : 'tertiary'}
           >
-            Search
+            <SparklesIcon className="h-5 w-5" />
           </Button>
         </div>
+
+        {isAIMode && (
+          <p className="mt-2 text-right text-theme-subtle text-xs tabular-nums">
+            {searchQuery.length}/{generatedPlaylistPromptMaxLength}
+          </p>
+        )}
+
+        {!canGenerate && (
+          <p className="mt-3 text-theme-muted text-xs">
+            {generationUnavailableReason}
+          </p>
+        )}
+
+        <Button
+          className="mt-3 w-full gap-2"
+          disabled={!canSubmitPrimaryAction || isPrimaryActionBusy}
+          onClick={handlePrimaryAction}
+          variant="primary"
+        >
+          {!isPrimaryActionBusy && !isAIMode && (
+            <SearchIcon className="h-5 w-5" />
+          )}
+          {!isPrimaryActionBusy && isAIMode && (
+            <SparklesIcon className="h-5 w-5" />
+          )}
+          {isPrimaryActionBusy && (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          )}
+          {isPrimaryActionBusy
+            ? isAIMode
+              ? 'Starting generation…'
+              : 'Searching…'
+            : isAIMode
+              ? 'Generate playlist'
+              : 'Search'}
+        </Button>
 
         {error && (
           <div className="mt-3 flex animate-slide-down items-start gap-2 text-error text-sm">
@@ -582,7 +767,8 @@ export const AddToQueueModal: React.FC<Props> = ({
         )}
 
         {/* Search Results Dropdown */}
-        {showResults &&
+        {!isAIMode &&
+          showResults &&
           searchResults.length > 0 &&
           !isLoading &&
           !justAdded && (

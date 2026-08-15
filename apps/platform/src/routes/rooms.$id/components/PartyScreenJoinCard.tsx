@@ -1,5 +1,6 @@
 import { Button, CloseIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
+import { UserCount } from './UserCount';
 
 interface PartyScreenJoinCardProps {
   onExit: () => void;
@@ -33,9 +34,12 @@ export function PartyScreenJoinCard({
         />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-pixel text-2xs text-secondary tracking-label">
-          Scan to join
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-pixel text-2xs text-secondary tracking-label">
+            Scan to join
+          </p>
+          <UserCount />
+        </div>
         <p className="mt-3 truncate font-display text-theme text-xl">
           {roomName}
         </p>

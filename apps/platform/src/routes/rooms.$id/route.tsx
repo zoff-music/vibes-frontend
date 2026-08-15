@@ -9,6 +9,7 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
+import { Button, PlusIcon } from '@vibes/ui/web';
 import { motion, type Transition, useReducedMotion } from 'framer-motion';
 import {
   lazy,
@@ -38,7 +39,6 @@ import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
 import { PartyScreenJoinCard } from './components/PartyScreenJoinCard';
 import { RoomErrorView } from './components/RoomErrorView';
-import { RoomGenerationMenu } from './components/RoomGenerationMenu';
 import { RoomGenerationProgress } from './components/RoomGenerationProgress';
 import { RoomHeader } from './components/RoomHeader';
 import { RoomPlayer } from './components/RoomPlayer';
@@ -274,11 +274,6 @@ export default function Room() {
     setShowSettings(false);
   }, []);
 
-  const handleOpenGenerationMenu = useCallback(() => {
-    setShowSettings(false);
-    setShowShare(false);
-  }, []);
-
   const handleGenerationStarted = useCallback(() => {
     setGenerationError(undefined);
     setIsGenerating(true);
@@ -478,148 +473,161 @@ export default function Room() {
       : false;
 
   return (
-    <motion.div
-      animate={roomEntryVisibleState}
-      className={classNames(
-        'room-entry relative min-h-screen overflow-x-hidden lg:h-screen lg:overflow-hidden',
-        isPartyScreen && 'bg-theme',
-      )}
-      initial={roomEntryInitial}
-      transition={roomEntryTransition}
-    >
-      <div className="relative z-10 flex min-h-screen flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
-        {!isPartyScreen && (
-          <RoomHeader
-            key="room-header"
-            headerRef={headerRef}
-            displayRoom={displayRoom}
-            roomId={id}
-            showShare={showShare}
-            onToggleShare={handleToggleShare}
-            shareButtonRef={shareButtonRef}
-            sharePanelRef={sharePanelRef}
-            shareUrl={shareUrl}
-            onShareRoom={handleShareRoom}
-            onOpenPartyScreen={handleOpenPartyScreen}
-            themeId={themeId}
-            currentTheme={currentTheme}
-            onToggleDarkMode={handleToggleDarkMode}
-            showSettings={showSettings}
-            onToggleSettings={handleToggleSettings}
-            onCloseSettings={handleCloseSettings}
-            settingsButtonRef={settingsButtonRef}
-            settingsMenuRef={settingsMenuRef}
-            adminPassword={adminPassword}
-            onAdminPasswordChange={setAdminPassword}
-            onJoinAdmin={handleJoinAdmin}
-            isAuthenticating={isAuthenticating}
-            onLeave={handleLeave}
-            providers={loaderData.providers}
-          />
+    <>
+      <motion.div
+        animate={roomEntryVisibleState}
+        className={classNames(
+          'room-entry relative min-h-screen overflow-x-hidden lg:h-screen lg:overflow-hidden',
+          isPartyScreen && 'bg-theme',
         )}
-
-        <div
-          key="room-content"
-          className="flex-1 overflow-visible lg:overflow-hidden"
-        >
-          {showGenerationProgress && (
-            <RoomGenerationProgress isFailed={false} />
+        initial={roomEntryInitial}
+        transition={roomEntryTransition}
+      >
+        <div className="relative z-10 flex min-h-screen flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
+          {!isPartyScreen && (
+            <RoomHeader
+              key="room-header"
+              headerRef={headerRef}
+              displayRoom={displayRoom}
+              roomId={id}
+              showShare={showShare}
+              onToggleShare={handleToggleShare}
+              shareButtonRef={shareButtonRef}
+              sharePanelRef={sharePanelRef}
+              shareUrl={shareUrl}
+              onShareRoom={handleShareRoom}
+              onOpenPartyScreen={handleOpenPartyScreen}
+              themeId={themeId}
+              currentTheme={currentTheme}
+              onToggleDarkMode={handleToggleDarkMode}
+              showSettings={showSettings}
+              onToggleSettings={handleToggleSettings}
+              onCloseSettings={handleCloseSettings}
+              settingsButtonRef={settingsButtonRef}
+              settingsMenuRef={settingsMenuRef}
+              adminPassword={adminPassword}
+              onAdminPasswordChange={setAdminPassword}
+              onJoinAdmin={handleJoinAdmin}
+              isAuthenticating={isAuthenticating}
+              onLeave={handleLeave}
+              providers={loaderData.providers}
+            />
           )}
-          {!showGenerationProgress && (
-            <>
-              {generationError && (
-                <RoomGenerationProgress error={generationError} isFailed />
-              )}
-              <div
-                className={classNames(
-                  'mx-auto items-start gap-8 px-4 lg:grid',
-                  !isPartyScreen &&
-                    'max-w-7xl py-8 lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-[1.3fr_0.7fr] lg:py-6',
-                  isPartyScreen &&
-                    'max-w-none py-4 lg:h-screen lg:grid-cols-[1.8fr_1fr] lg:p-6',
+
+          <div
+            key="room-content"
+            className="flex-1 overflow-visible lg:overflow-hidden"
+          >
+            {showGenerationProgress && (
+              <RoomGenerationProgress isFailed={false} />
+            )}
+            {!showGenerationProgress && (
+              <>
+                {generationError && (
+                  <RoomGenerationProgress error={generationError} isFailed />
                 )}
-              >
-                <RoomPlayer
-                  roomId={id}
-                  displayRoom={displayRoom}
-                  onAddSong={handleAddSong}
-                  onOpenCast={handleOpenCast}
-                  addSongLeadingAction={
-                    <RoomGenerationMenu
-                      generationCount={displayRoom.generationCount}
-                      roomGenerationMaxDailyCount={
-                        displayRoom.roomGenerationMaxDailyCount
-                      }
-                      roomGenerationMaxExistingSongs={
-                        displayRoom.roomGenerationMaxExistingSongs
-                      }
-                      hasGenerationPermission={
-                        !displayRoom.hasPassword || isAdmin
-                      }
-                      isGenerating={isGenerating}
-                      onGenerationStarted={handleGenerationStarted}
-                      onOpen={handleOpenGenerationMenu}
-                      songCount={songs.length}
-                    />
-                  }
-                  initialPlayback={loaderData.playback}
-                  providers={loaderData.providers}
-                />
                 <div
                   className={classNames(
-                    isPartyScreen && 'min-h-0 lg:flex lg:h-full lg:flex-col',
+                    'mx-auto items-start gap-8 px-4 lg:grid',
+                    !isPartyScreen &&
+                      'max-w-7xl py-8 lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-5 lg:py-6',
+                    isPartyScreen &&
+                      'max-w-none py-4 lg:h-screen lg:grid-cols-5 lg:p-6',
                   )}
                 >
-                  <div
-                    className={classNames(
-                      isPartyScreen && 'min-h-0 lg:flex-1 lg:overflow-hidden',
-                    )}
-                  >
-                    <RoomQueue
+                  <div className="min-w-0 lg:col-span-3 lg:h-full">
+                    <RoomPlayer
                       roomId={id}
-                      isSSR={isSSR}
-                      isAdmin={isAdmin}
+                      displayRoom={displayRoom}
+                      onAddSong={handleAddSong}
+                      onOpenCast={handleOpenCast}
                       initialPlayback={loaderData.playback}
-                      initialSongs={loaderData.songs}
+                      providers={loaderData.providers}
                     />
                   </div>
-                  {isPartyScreen && (
-                    <PartyScreenJoinCard
-                      onExit={handleExitPartyScreen}
-                      roomName={displayRoom.name}
-                      url={shareUrl}
-                    />
-                  )}
+                  <div
+                    className={classNames(
+                      'min-w-0 lg:col-span-2',
+                      isPartyScreen && 'min-h-0 lg:flex lg:h-full lg:flex-col',
+                    )}
+                  >
+                    <div
+                      className={classNames(
+                        isPartyScreen && 'min-h-0 lg:flex-1 lg:overflow-hidden',
+                      )}
+                    >
+                      <RoomQueue
+                        roomId={id}
+                        isSSR={isSSR}
+                        isAdmin={isAdmin}
+                        initialPlayback={loaderData.playback}
+                        initialSongs={loaderData.songs}
+                      />
+                    </div>
+                    {isPartyScreen && (
+                      <PartyScreenJoinCard
+                        onExit={handleExitPartyScreen}
+                        roomName={displayRoom.name}
+                        url={shareUrl}
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-            </>
+              </>
+            )}
+          </div>
+
+          {showDeviceSelector && (
+            <Suspense
+              fallback={
+                <DeferredModalLoading label="Loading cast devices..." />
+              }
+            >
+              <LazyDeviceSelector
+                isOpen={showDeviceSelector}
+                onClose={handleCloseCast}
+              />
+            </Suspense>
+          )}
+          {isAddModalVisible && (
+            <Suspense
+              fallback={<DeferredModalLoading label="Loading song search..." />}
+            >
+              <LazyAddToQueueModal
+                room={displayRoom}
+                providers={loaderData.providers}
+                isVisible={isAddModalVisible}
+                onClose={handleCloseAddSong}
+                generationCount={displayRoom.generationCount}
+                roomGenerationMaxDailyCount={
+                  displayRoom.roomGenerationMaxDailyCount
+                }
+                roomGenerationMaxExistingSongs={
+                  displayRoom.roomGenerationMaxExistingSongs
+                }
+                hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
+                isGenerating={isGenerating}
+                onGenerationStarted={handleGenerationStarted}
+              />
+            </Suspense>
           )}
         </div>
-
-        {showDeviceSelector && (
-          <Suspense
-            fallback={<DeferredModalLoading label="Loading cast devices..." />}
+      </motion.div>
+      {!isAddModalVisible && (
+        <div className="sm:hidden">
+          <Button
+            aria-label="Add Song"
+            className="fixed right-5 bottom-5 z-40 h-14 w-14 rounded-full p-0 shadow-primary-popover"
+            onClick={handleAddSong}
+            size="none"
+            title="Add Song"
+            variant="primary"
           >
-            <LazyDeviceSelector
-              isOpen={showDeviceSelector}
-              onClose={handleCloseCast}
-            />
-          </Suspense>
-        )}
-        {isAddModalVisible && (
-          <Suspense
-            fallback={<DeferredModalLoading label="Loading song search..." />}
-          >
-            <LazyAddToQueueModal
-              room={displayRoom}
-              providers={loaderData.providers}
-              isVisible={isAddModalVisible}
-              onClose={handleCloseAddSong}
-            />
-          </Suspense>
-        )}
-      </div>
-    </motion.div>
+            <PlusIcon className="h-6 w-6" />
+          </Button>
+        </div>
+      )}
+    </>
   );
 }
 

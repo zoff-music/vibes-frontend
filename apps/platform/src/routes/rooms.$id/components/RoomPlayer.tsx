@@ -16,7 +16,6 @@ import {
 import { markPlaybackGestureUnlocked, PlayerControls } from '@vibes/ui/web';
 import React, {
   type ComponentType,
-  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -32,7 +31,6 @@ interface RoomPlayerProps {
   displayRoom: Room | null;
   onAddSong: () => void;
   onOpenCast: () => void;
-  addSongLeadingAction?: ReactNode;
   initialPlayback?: PlaybackState;
   providers: Providers;
 }
@@ -112,7 +110,6 @@ export const RoomPlayer = React.memo(
     displayRoom,
     onAddSong,
     onOpenCast,
-    addSongLeadingAction,
     initialPlayback,
     providers,
   }: RoomPlayerProps) => {
@@ -727,7 +724,6 @@ export const RoomPlayer = React.memo(
           castDeviceName={castDeviceName}
           showSpotifyConnect={hasSpotifySongs && !spotifyToken}
           onConnectSpotify={handleConnectSpotify}
-          addSongLeadingAction={addSongLeadingAction}
         />
       </div>
     );
