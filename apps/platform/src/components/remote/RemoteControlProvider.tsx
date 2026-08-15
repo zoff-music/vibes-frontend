@@ -18,7 +18,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useFetcher, useNavigate } from 'react-router';
+import { Link, useFetcher, useNavigate } from 'react-router';
 import type { RemoteControlActionData } from '../../routes/remote-control/action';
 import type { RemoteControlLoaderData } from '../../routes/remote-control/clientLoader';
 
@@ -367,18 +367,14 @@ export function RemoteControlProvider({ children }: Props) {
           )}
         </div>
         <div className="mt-3 border-theme border-t pt-3">
-          <Button
-            type="button"
-            className="w-full gap-3"
-            onClick={() => {
-              setIsOpen(false);
-              navigate('/remotes/join');
-            }}
-            variant="tertiary"
+          <Link
+            to="/remotes/join"
+            reloadDocument
+            className="inline-flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-theme bg-theme-surface px-5 py-2.5 font-normal text-base text-theme transition-all hover:border-theme-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme active:scale-press"
           >
             <RemoteIcon className="h-5 w-5" />
             Connect as a Remote
-          </Button>
+          </Link>
         </div>
       </Modal>
     </RemoteControlContext.Provider>
