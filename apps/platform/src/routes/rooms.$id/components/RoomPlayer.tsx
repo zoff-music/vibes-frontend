@@ -551,7 +551,7 @@ export const RoomPlayer = React.memo(
           : null;
 
     return (
-      <div className="space-y-6 lg:flex lg:h-full lg:flex-col">
+      <div className="space-y-6 lg:col-span-3 lg:flex lg:h-full lg:flex-col">
         <AutoSkipHandler
           currentSong={currentSong}
           isPlaying={isPlaying}

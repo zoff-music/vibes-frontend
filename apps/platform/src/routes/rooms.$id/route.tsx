@@ -535,43 +535,41 @@ export default function Room() {
                       'max-w-none py-4 lg:h-screen lg:grid-cols-5 lg:p-6',
                   )}
                 >
-                  <div className="min-w-0 lg:col-span-3 lg:h-full">
-                    <RoomPlayer
+                  <RoomPlayer
+                    roomId={id}
+                    displayRoom={displayRoom}
+                    onAddSong={handleAddSong}
+                    onOpenCast={handleOpenCast}
+                    initialPlayback={loaderData.playback}
+                    providers={loaderData.providers}
+                  />
+                  {!isPartyScreen && (
+                    <RoomQueue
                       roomId={id}
-                      displayRoom={displayRoom}
-                      onAddSong={handleAddSong}
-                      onOpenCast={handleOpenCast}
+                      isSSR={isSSR}
+                      isAdmin={isAdmin}
                       initialPlayback={loaderData.playback}
-                      providers={loaderData.providers}
+                      initialSongs={loaderData.songs}
                     />
-                  </div>
-                  <div
-                    className={classNames(
-                      'min-w-0 lg:col-span-2',
-                      isPartyScreen && 'min-h-0 lg:flex lg:h-full lg:flex-col',
-                    )}
-                  >
-                    <div
-                      className={classNames(
-                        isPartyScreen && 'min-h-0 lg:flex-1 lg:overflow-hidden',
-                      )}
-                    >
-                      <RoomQueue
-                        roomId={id}
-                        isSSR={isSSR}
-                        isAdmin={isAdmin}
-                        initialPlayback={loaderData.playback}
-                        initialSongs={loaderData.songs}
-                      />
-                    </div>
-                    {isPartyScreen && (
+                  )}
+                  {isPartyScreen && (
+                    <div className="min-h-0 min-w-0 lg:col-span-2 lg:flex lg:h-full lg:flex-col">
+                      <div className="min-h-0 lg:flex-1 lg:overflow-hidden">
+                        <RoomQueue
+                          roomId={id}
+                          isSSR={isSSR}
+                          isAdmin={isAdmin}
+                          initialPlayback={loaderData.playback}
+                          initialSongs={loaderData.songs}
+                        />
+                      </div>
                       <PartyScreenJoinCard
                         onExit={handleExitPartyScreen}
                         roomName={displayRoom.name}
                         url={shareUrl}
                       />
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}
