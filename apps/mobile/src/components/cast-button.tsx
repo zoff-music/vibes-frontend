@@ -1,8 +1,11 @@
 import { useRoomRequests } from '@vibes/api';
 import { safeWrapAsync } from '@vibes/shared';
 import { useEffect } from 'react';
-import { Pressable } from 'react-native';
-import GoogleCast, { useCastChannel } from 'react-native-google-cast';
+import { StyleSheet, View } from 'react-native';
+import {
+  CastButton as NativeCastButton,
+  useCastChannel,
+} from 'react-native-google-cast';
 
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -38,14 +41,14 @@ export function CastButton() {
   }, [channel, resolvedScheme, roomId, roomRequests]);
 
   return (
-    <Pressable
-      accessibilityLabel="Cast room"
-      accessibilityRole="button"
-      className="size-13 items-center justify-center rounded-xl border border-mobile-border bg-mobile-card/90 active:opacity-65 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90"
-      onPress={() => void GoogleCast.showCastDialog()}
-    >
+    <View className="size-13 items-center justify-center rounded-xl border border-mobile-border bg-mobile-card/90 active:opacity-65 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
       <ZoffIcon color={theme.text} name="cast" size={castIconSize} />
-    </Pressable>
+      <NativeCastButton
+        accessibilityLabel="Cast room"
+        style={StyleSheet.absoluteFill}
+        tintColor="transparent"
+      />
+    </View>
   );
 }
 
