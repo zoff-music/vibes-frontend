@@ -166,7 +166,7 @@ export const RoomHeader = React.memo(
               </h1>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="ml-auto flex shrink-0 items-center gap-2">
               <div className="hidden sm:block">
                 <UserCount />
               </div>
