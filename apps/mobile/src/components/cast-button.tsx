@@ -42,12 +42,16 @@ export function CastButton() {
 
   return (
     <View className="size-13 items-center justify-center rounded-xl border border-mobile-border bg-mobile-card/90 active:opacity-65 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
-      <ZoffIcon color={theme.text} name="cast" size={castIconSize} />
       <NativeCastButton
         accessibilityLabel="Cast room"
         style={StyleSheet.absoluteFill}
-        tintColor="transparent"
       />
+      <View
+        className="absolute inset-0 items-center justify-center rounded-xl bg-mobile-card dark:bg-mobile-dark-card"
+        pointerEvents="none"
+      >
+        <ZoffIcon color={theme.text} name="cast" size={castIconSize} />
+      </View>
     </View>
   );
 }
