@@ -15,6 +15,7 @@ import {
 import { useEffect, useRef } from 'react';
 import type { ApiClient } from '../index';
 import { api } from '../index';
+import { useRoomRequests } from './useRoomRequests';
 
 const ACTIVE_CONNECTIONS = new Map<
   string,
@@ -45,6 +46,7 @@ export const useSSE = (
   const addSong = useQueueStore((state) => state.addSong);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
+  const roomRequests = useRoomRequests(client);
 
   const isSubscribedRef = useRef(false);
 
@@ -70,25 +72,16 @@ export const useSSE = (
     let isMounted = true;
 
     const syncRoomSnapshot = async () => {
-      const [roomResult, songsResult, playbackResult] = await Promise.all([
-        client.get('/rooms/{id}', { id: roomId }),
-        client.get('/rooms/{id}/songs', { id: roomId }),
-        client.get('/rooms/{id}/states', { id: roomId }),
-      ]);
+      const [error, snapshot] = await roomRequests.fetchSnapshot(roomId);
       if (!isMounted) return;
-
-      const [roomError, room] = roomResult;
-      const [songsError, songs] = songsResult;
-      const [playbackError, playback] = playbackResult;
-      const error = roomError ?? songsError ?? playbackError;
-      if (error || !room || !songs || !playback) {
+      if (error || !snapshot) {
         console.error('Failed to refresh room after resuming', error);
         return;
       }
 
-      setRoom(room);
-      setSongs(songs);
-      setPlaybackState(playback, room.mode);
+      setRoom(snapshot.room);
+      setSongs(snapshot.songs);
+      setPlaybackState(snapshot.playback, snapshot.room.mode);
     };
 
     const handleVisibilityChange = () => {
@@ -294,6 +287,7 @@ export const useSSE = (
     };
   }, [
     roomId,
+    roomRequests,
     addSong,
     setHost,
     setRoom,

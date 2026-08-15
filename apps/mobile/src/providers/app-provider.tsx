@@ -25,8 +25,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { AppState as NativeAppState } from 'react-native';
 import { useToast } from '@/components/toast';
+import { useAppResume } from '@/hooks/use-app-resume';
 import {
   getObservedPosition,
   useMachineRemote,
@@ -337,23 +337,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     setError('');
   }, [roomId, roomRequests]);
 
-  useEffect(() => {
-    let previousState = NativeAppState.currentState;
-    const subscription = NativeAppState.addEventListener(
-      'change',
-      (nextState) => {
-        const resumed =
-          nextState === 'active' &&
-          (previousState === 'background' || previousState === 'inactive');
-        previousState = nextState;
-        if (resumed) {
-          void refresh();
-        }
-      },
-    );
-
-    return () => subscription.remove();
-  }, [refresh]);
+  useAppResume(refresh);
 
   const setRoomId = useCallback(
     async (nextRoomId: string, password = '') => {
