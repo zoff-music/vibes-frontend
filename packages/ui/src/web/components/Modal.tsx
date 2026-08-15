@@ -27,7 +27,12 @@ export function Modal({
   size = 'md',
 }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
   const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -36,7 +41,7 @@ export function Modal({
     const previousActiveElement = document.activeElement;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -82,7 +87,7 @@ export function Modal({
         previousActiveElement.focus();
       }
     };
-  }, [initialFocusRef, isOpen, onClose]);
+  }, [initialFocusRef, isOpen]);
 
   if (!isOpen || typeof document === 'undefined') return null;
 

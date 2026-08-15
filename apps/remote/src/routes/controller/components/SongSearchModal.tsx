@@ -89,12 +89,21 @@ export function SongSearchModal({
         ))}
       </div>
 
-      <fetcher.Form method="post" className="mt-5 flex gap-3">
+      <fetcher.Form
+        method="post"
+        className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-stretch gap-3"
+      >
         <input type="hidden" name="intent" value="search" />
         <input type="hidden" name="roomId" value={roomId} />
         <input type="hidden" name="provider" value={provider} />
-        <Input name="query" minLength={3} placeholder="Search songs" required />
-        <Button type="submit" variant="primary">
+        <Input
+          containerClassName="mb-0!"
+          name="query"
+          minLength={3}
+          placeholder="Search songs"
+          required
+        />
+        <Button className="h-full" type="submit" variant="primary">
           Search
         </Button>
       </fetcher.Form>

@@ -1,6 +1,7 @@
 import { useSSE } from '@vibes/api';
 import type { RoomGenerationUpdate } from '@vibes/models';
 import {
+  classNames,
   type Song,
   safeWrapAsync,
   showToast,
@@ -27,6 +28,7 @@ import {
   useParams,
   useRevalidator,
   useRouteError,
+  useSearchParams,
 } from 'react-router';
 import { useRemoteControl } from '../../components/remote/RemoteControlProvider';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
@@ -34,6 +36,7 @@ import { useCastStore } from '../../stores/castStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
+import { PartyScreenJoinCard } from './components/PartyScreenJoinCard';
 import { RoomErrorView } from './components/RoomErrorView';
 import { RoomGenerationMenu } from './components/RoomGenerationMenu';
 import { RoomGenerationProgress } from './components/RoomGenerationProgress';
@@ -122,6 +125,7 @@ export default function Room() {
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const [searchParams, setSearchParams] = useSearchParams();
   const revalidate = useRevalidator().revalidate;
   const adminFetcher = useFetcher<RoomActionData>();
   const { setMachineRoomId } = useRemoteControl();
@@ -187,6 +191,7 @@ export default function Room() {
   const isAuthenticating = adminFetcher.state !== 'idle';
   const showGenerationProgress =
     isGenerating && isGenerationProgressVisible && songs.length <= 2;
+  const isPartyScreen = searchParams.get('view') === 'party';
 
   useEffect(() => {
     setMachineRoomId(id);
@@ -247,6 +252,19 @@ export default function Room() {
   const handleToggleShare = useCallback(() => {
     setShowShare((current) => !current);
   }, []);
+
+  const handleOpenPartyScreen = useCallback(() => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.set('view', 'party');
+    setSearchParams(nextSearchParams, { replace: true });
+    setShowShare(false);
+  }, [searchParams, setSearchParams]);
+
+  const handleExitPartyScreen = useCallback(() => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.delete('view');
+    setSearchParams(nextSearchParams, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const handleToggleSettings = useCallback(() => {
     setShowSettings((current) => !current);
@@ -395,7 +413,7 @@ export default function Room() {
       resizeObserver.disconnect();
       window.removeEventListener('resize', updateHeaderHeight);
     };
-  }, []);
+  }, [isPartyScreen]);
 
   useEffect(() => {
     document.title = createRoomShareTitle(displayRoom.name, currentSong);
@@ -462,38 +480,48 @@ export default function Room() {
   return (
     <motion.div
       animate={roomEntryVisibleState}
-      className="room-entry relative min-h-screen overflow-x-hidden lg:h-screen lg:overflow-hidden"
+      className={classNames(
+        'room-entry relative min-h-screen overflow-x-hidden lg:h-screen lg:overflow-hidden',
+        isPartyScreen && 'bg-theme',
+      )}
       initial={roomEntryInitial}
       transition={roomEntryTransition}
     >
       <div className="relative z-10 flex min-h-screen flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
-        <RoomHeader
-          headerRef={headerRef}
-          displayRoom={displayRoom}
-          roomId={id}
-          showShare={showShare}
-          onToggleShare={handleToggleShare}
-          shareButtonRef={shareButtonRef}
-          sharePanelRef={sharePanelRef}
-          shareUrl={shareUrl}
-          onShareRoom={handleShareRoom}
-          themeId={themeId}
-          currentTheme={currentTheme}
-          onToggleDarkMode={handleToggleDarkMode}
-          showSettings={showSettings}
-          onToggleSettings={handleToggleSettings}
-          onCloseSettings={handleCloseSettings}
-          settingsButtonRef={settingsButtonRef}
-          settingsMenuRef={settingsMenuRef}
-          adminPassword={adminPassword}
-          onAdminPasswordChange={setAdminPassword}
-          onJoinAdmin={handleJoinAdmin}
-          isAuthenticating={isAuthenticating}
-          onLeave={handleLeave}
-          providers={loaderData.providers}
-        />
+        {!isPartyScreen && (
+          <RoomHeader
+            key="room-header"
+            headerRef={headerRef}
+            displayRoom={displayRoom}
+            roomId={id}
+            showShare={showShare}
+            onToggleShare={handleToggleShare}
+            shareButtonRef={shareButtonRef}
+            sharePanelRef={sharePanelRef}
+            shareUrl={shareUrl}
+            onShareRoom={handleShareRoom}
+            onOpenPartyScreen={handleOpenPartyScreen}
+            themeId={themeId}
+            currentTheme={currentTheme}
+            onToggleDarkMode={handleToggleDarkMode}
+            showSettings={showSettings}
+            onToggleSettings={handleToggleSettings}
+            onCloseSettings={handleCloseSettings}
+            settingsButtonRef={settingsButtonRef}
+            settingsMenuRef={settingsMenuRef}
+            adminPassword={adminPassword}
+            onAdminPasswordChange={setAdminPassword}
+            onJoinAdmin={handleJoinAdmin}
+            isAuthenticating={isAuthenticating}
+            onLeave={handleLeave}
+            providers={loaderData.providers}
+          />
+        )}
 
-        <div className="flex-1 overflow-visible lg:overflow-hidden">
+        <div
+          key="room-content"
+          className="flex-1 overflow-visible lg:overflow-hidden"
+        >
           {showGenerationProgress && (
             <RoomGenerationProgress isFailed={false} />
           )}
@@ -502,7 +530,15 @@ export default function Room() {
               {generationError && (
                 <RoomGenerationProgress error={generationError} isFailed />
               )}
-              <div className="mx-auto max-w-7xl items-start gap-8 px-4 py-8 lg:grid lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-[1.3fr_0.7fr] lg:py-6">
+              <div
+                className={classNames(
+                  'mx-auto items-start gap-8 px-4 lg:grid',
+                  !isPartyScreen &&
+                    'max-w-7xl py-8 lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-[1.3fr_0.7fr] lg:py-6',
+                  isPartyScreen &&
+                    'max-w-none py-4 lg:h-screen lg:grid-cols-[1.8fr_1fr] lg:p-6',
+                )}
+              >
                 <RoomPlayer
                   roomId={id}
                   displayRoom={displayRoom}
@@ -529,13 +565,32 @@ export default function Room() {
                   initialPlayback={loaderData.playback}
                   providers={loaderData.providers}
                 />
-                <RoomQueue
-                  roomId={id}
-                  isSSR={isSSR}
-                  isAdmin={isAdmin}
-                  initialPlayback={loaderData.playback}
-                  initialSongs={loaderData.songs}
-                />
+                <div
+                  className={classNames(
+                    isPartyScreen && 'min-h-0 lg:flex lg:h-full lg:flex-col',
+                  )}
+                >
+                  <div
+                    className={classNames(
+                      isPartyScreen && 'min-h-0 lg:flex-1 lg:overflow-hidden',
+                    )}
+                  >
+                    <RoomQueue
+                      roomId={id}
+                      isSSR={isSSR}
+                      isAdmin={isAdmin}
+                      initialPlayback={loaderData.playback}
+                      initialSongs={loaderData.songs}
+                    />
+                  </div>
+                  {isPartyScreen && (
+                    <PartyScreenJoinCard
+                      onExit={handleExitPartyScreen}
+                      roomName={displayRoom.name}
+                      url={shareUrl}
+                    />
+                  )}
+                </div>
               </div>
             </>
           )}

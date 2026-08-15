@@ -1,4 +1,4 @@
-import { Button, ShareIcon } from '@vibes/ui/web';
+import { Button, CastIcon, ShareIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import { useRouteLoaderData } from 'react-router';
 import type { RootLoaderData } from '../../../root';
@@ -8,9 +8,15 @@ interface Props {
   url: string;
   roomId: string;
   onShare: () => void;
+  onOpenPartyScreen: () => void;
 }
 
-export const RoomSharePanel = ({ url, roomId, onShare }: Props) => {
+export const RoomSharePanel = ({
+  url,
+  roomId,
+  onShare,
+  onOpenPartyScreen,
+}: Props) => {
   const rootLoaderData = useRouteLoaderData('root') as
     | RootLoaderData
     | undefined;
@@ -50,6 +56,14 @@ export const RoomSharePanel = ({ url, roomId, onShare }: Props) => {
           roomId={roomId}
           embedBasePath={rootLoaderData?.embedBasePath ?? '/embed'}
         />
+        <Button
+          className="col-span-2 w-full gap-2 font-pixel text-xs"
+          onClick={onOpenPartyScreen}
+          variant="tertiary"
+        >
+          <CastIcon className="h-4 w-4" />
+          Party Screen
+        </Button>
       </div>
     </div>
   );

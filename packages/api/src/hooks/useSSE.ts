@@ -1,4 +1,5 @@
 import type {
+  Connected,
   PlaybackState,
   Room,
   RoomGenerationUpdate,
@@ -27,6 +28,34 @@ type UnsubscribeResult = Promise<[Error | null, (() => void) | null]>;
 const IN_FLIGHT_CONNECTIONS = new Map<string, UnsubscribeResult>();
 const PENDING_CLEANUPS = new Map<string, ReturnType<typeof setTimeout>>();
 const ROOM_CALLBACKS = new Map<string, Set<USE_SSE_CALLBACKS>>();
+
+type SSEMessage =
+  | { type: 'connected'; data: Connected }
+  | { type: 'songs_update'; data: Song[] }
+  | { type: 'playback_update'; data: PlaybackState }
+  | { type: 'users_update'; data: number }
+  | { type: 'song_added'; data: Song }
+  | { type: 'skip_vote'; data: SkipVoteUpdate }
+  | { type: 'settings_update'; data: Room }
+  | { type: 'generation_update'; data: RoomGenerationUpdate }
+  | { type: 'new_host'; data: RoomHostUpdate };
+
+function scheduleConnectionCleanup(roomId: string): void {
+  const pendingCleanup = PENDING_CLEANUPS.get(roomId);
+  if (pendingCleanup) {
+    clearTimeout(pendingCleanup);
+  }
+
+  const timeout = setTimeout(() => {
+    const connection = ACTIVE_CONNECTIONS.get(roomId);
+    if (connection && connection.count <= 0) {
+      connection.unsubscribe();
+      ACTIVE_CONNECTIONS.delete(roomId);
+    }
+    PENDING_CLEANUPS.delete(roomId);
+  }, 2000);
+  PENDING_CLEANUPS.set(roomId, timeout);
+}
 
 export interface USE_SSE_CALLBACKS {
   onGenerationUpdate?: (update: RoomGenerationUpdate) => void;
@@ -104,19 +133,6 @@ export const useSSE = (
       if (!connection) {
         let inFlight = IN_FLIGHT_CONNECTIONS.get(roomId);
 
-        type SSEMessage =
-          | { type: 'connected'; data: Room } // connectedSchema usually returns Room-like info or just { connected: true }? Check schema.
-          | { type: 'songs_update'; data: Song[] }
-          | { type: 'playback_update'; data: PlaybackState }
-          | { type: 'users_update'; data: number }
-          | { type: 'song_added'; data: Song }
-          | { type: 'skip_vote'; data: SkipVoteUpdate }
-          | { type: 'settings_update'; data: Room }
-          | { type: 'generation_update'; data: RoomGenerationUpdate }
-          | { type: 'new_host'; data: RoomHostUpdate };
-
-        // ...
-
         if (!inFlight) {
           inFlight = client.sse(
             '/rooms/{id}/events',
@@ -133,7 +149,6 @@ export const useSSE = (
 
               switch (message.type) {
                 case 'connected':
-                  console.log('[SSE] connected:', message.data);
                   break;
                 case 'songs_update': {
                   const [error] = safeWrap(() => {
@@ -230,16 +245,13 @@ export const useSSE = (
 
         if (err || !isMounted) {
           if (!isMounted && unsubscribe && !ACTIVE_CONNECTIONS.has(roomId)) {
-            // Park connection logic (same as platform)
             connection = { count: 0, unsubscribe };
             ACTIVE_CONNECTIONS.set(roomId, connection);
-            // ... parking logic simplified for brevity but functionally same ...
-            // Actually I should copy the full logic to be safe.
+            scheduleConnectionCleanup(roomId);
           }
           return;
         }
 
-        // Setup connection object matching platform logic
         if (!ACTIVE_CONNECTIONS.has(roomId) && unsubscribe) {
           connection = { count: 0, unsubscribe };
           ACTIVE_CONNECTIONS.set(roomId, connection);
@@ -254,7 +266,7 @@ export const useSSE = (
       }
     };
 
-    setupConnection();
+    void setupConnection();
 
     return () => {
       isMounted = false;
@@ -269,17 +281,7 @@ export const useSSE = (
         if (connection) {
           connection.count--;
           if (connection.count <= 0) {
-            if (PENDING_CLEANUPS.has(roomId))
-              clearTimeout(PENDING_CLEANUPS.get(roomId));
-            const timeout = setTimeout(() => {
-              const currentConn = ACTIVE_CONNECTIONS.get(roomId);
-              if (currentConn && currentConn.count <= 0) {
-                if (currentConn.unsubscribe) currentConn.unsubscribe();
-                ACTIVE_CONNECTIONS.delete(roomId);
-              }
-              PENDING_CLEANUPS.delete(roomId);
-            }, 2000);
-            PENDING_CLEANUPS.set(roomId, timeout);
+            scheduleConnectionCleanup(roomId);
           }
         }
         isSubscribedRef.current = false;
