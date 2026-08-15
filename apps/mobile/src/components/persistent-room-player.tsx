@@ -2,6 +2,7 @@ import { useRoomRequests } from '@vibes/api';
 import { useKeepAwake } from 'expo-keep-awake';
 import { usePathname } from 'expo-router';
 import { Platform, View } from 'react-native';
+import { CastState, useCastState } from 'react-native-google-cast';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProviderPlayer } from '@/components/provider-player';
@@ -28,10 +29,13 @@ export function PersistentRoomPlayer() {
     setLocalPlaying,
   } = useApp();
   const roomRequests = useRoomRequests(mobileApi);
+  const castState = useCastState();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const tabletLayout = useTabletLandscapeLayout();
-  const visible = pathname === '/' && Boolean(room && roomId);
+  const isCasting =
+    castState === CastState.CONNECTING || castState === CastState.CONNECTED;
+  const visible = pathname === '/' && Boolean(room && roomId) && !isCasting;
   const topInset =
     Platform.OS === 'android' && tabletLayout.isTabletLandscape
       ? androidTabletPlayerTopInset
@@ -122,6 +126,7 @@ export function PersistentRoomPlayer() {
         positionMs={livePositionMs}
         resetVersion={playbackResetVersion}
         song={playback?.currentSong ?? null}
+        suppressPlayback={isCasting}
         synchronizePosition={room.mode === 'host'}
         {...(availableWidth ? { availableWidth } : {})}
         {...(tabletLayout.isTabletLandscape

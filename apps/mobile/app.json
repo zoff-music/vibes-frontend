@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zoff",
     "slug": "vibes-mobile",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "zoff",
@@ -14,7 +14,6 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Zoff uses the camera only to scan remote-pairing QR codes.",
-        "UIBackgroundModes": ["audio"],
         "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
         "UISupportedInterfaceOrientations~ipad": [
           "UIInterfaceOrientationPortrait",
@@ -35,9 +34,7 @@
         "android.permission.CAMERA",
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
-        "android.permission.ACCESS_WIFI_STATE",
-        "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+        "android.permission.ACCESS_WIFI_STATE"
       ],
       "predictiveBackGestureEnabled": true
     },
@@ -47,7 +44,7 @@
       [
         "expo-audio",
         {
-          "enableBackgroundPlayback": true,
+          "enableBackgroundPlayback": false,
           "recordAudioAndroid": false
         }
       ],
@@ -62,9 +59,10 @@
       [
         "react-native-google-cast",
         {
+          "iosStartDiscoveryAfterFirstTapOnCastButton": false,
+          "iosSuspendSessionsWhenBackgrounded": false,
           "receiverAppId": "1FAF5D9F",
-          "startDiscoveryAfterFirstTapOnCastButton": false,
-          "suspendSessionsWhenBackgrounded": false
+          "expandedController": true
         }
       ],
       [

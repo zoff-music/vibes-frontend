@@ -24,6 +24,7 @@ interface ProviderPlayerProps {
   positionMs: number;
   resetVersion: number;
   song: Song | null;
+  suppressPlayback: boolean;
   synchronizePosition: boolean;
 }
 
@@ -39,6 +40,7 @@ export function ProviderPlayer({
   positionMs,
   resetVersion,
   song,
+  suppressPlayback,
   synchronizePosition,
 }: ProviderPlayerProps) {
   const { width: windowWidth } = useWindowDimensions();
@@ -59,6 +61,7 @@ export function ProviderPlayer({
     song?.sourceType === 'soundcloud' ? song : retainedSoundCloudSong;
   const isYouTubeActive = song?.sourceType === 'youtube';
   const isSoundCloudActive = song?.sourceType === 'soundcloud';
+  const localIsPlaying = !suppressPlayback && (playback?.isPlaying ?? false);
   const playerWidth = Math.max(
     0,
     (availableWidth ?? windowWidth) - horizontalMargin * 2,
@@ -93,9 +96,9 @@ export function ProviderPlayer({
   useEffect(() => {
     if (song?.sourceType !== 'spotify') return;
     webViewRef.current?.injectJavaScript(
-      `window.zoffSetPlaying?.(${playback?.isPlaying ? 'true' : 'false'}); true;`,
+      `window.zoffSetPlaying?.(${localIsPlaying ? 'true' : 'false'}); true;`,
     );
-  }, [playback?.isPlaying, songId]);
+  }, [localIsPlaying, song?.sourceType]);
 
   useEffect(() => {
     const positionChanged = Math.abs(positionMs - previousPosition.current);
@@ -116,7 +119,7 @@ export function ProviderPlayer({
   const initializePlayback = () => {
     const position = Math.max(0, positionMs);
     webViewRef.current?.injectJavaScript(
-      `window.zoffInitialize?.(${position}, ${playback?.isPlaying ? 'true' : 'false'}); true;`,
+      `window.zoffInitialize?.(${position}, ${localIsPlaying ? 'true' : 'false'}); true;`,
     );
   };
 
@@ -137,6 +140,7 @@ export function ProviderPlayer({
       'positionMs' in message &&
       typeof message.positionMs === 'number'
     ) {
+      if (suppressPlayback) return;
       onLocalPositionObserved(message.positionMs);
       return;
     }
@@ -145,6 +149,7 @@ export function ProviderPlayer({
       'isPlaying' in message &&
       typeof message.isPlaying === 'boolean'
     ) {
+      if (suppressPlayback) return;
       onLocalPlayingChange(message.isPlaying);
     }
   };
@@ -173,18 +178,26 @@ export function ProviderPlayer({
           >
             <NativeYouTubePlayer
               height={embeddedPlayerHeight}
-              isPlaying={isYouTubeActive && (playback?.isPlaying ?? false)}
+              isPlaying={isYouTubeActive && localIsPlaying}
               onError={setError}
               positionMs={isYouTubeActive ? positionMs : 0}
               resetVersion={resetVersion}
               sourceId={youtubeSong.sourceId}
-              synchronizePosition={isYouTubeActive && synchronizePosition}
+              synchronizePosition={
+                isYouTubeActive && !suppressPlayback && synchronizePosition
+              }
               width={embeddedPlayerWidth}
               {...(isYouTubeActive
                 ? {
-                    onLocalPositionObserved,
+                    onLocalPositionObserved: (observedPositionMs) => {
+                      if (suppressPlayback) return;
+                      onLocalPositionObserved(observedPositionMs);
+                    },
                     onLocalSeek,
-                    onPlayingChange: onLocalPlayingChange,
+                    onPlayingChange: (isPlaying) => {
+                      if (suppressPlayback) return;
+                      onLocalPlayingChange(isPlaying);
+                    },
                   }
                 : {})}
             />
@@ -207,19 +220,27 @@ export function ProviderPlayer({
               artworkUrl={soundCloudSong.thumbnailUrl}
               blankArtworkColor={isPhoneLayout ? '#f5f5f5' : '#000000'}
               height={embeddedPlayerHeight}
-              interactive={isSoundCloudActive}
-              isPlaying={isSoundCloudActive && (playback?.isPlaying ?? false)}
+              interactive={isSoundCloudActive && !suppressPlayback}
+              isPlaying={isSoundCloudActive && localIsPlaying}
               onError={setError}
               positionMs={isSoundCloudActive ? positionMs : 0}
               resetVersion={resetVersion}
               sourceId={soundCloudSong.sourceId}
-              synchronizePosition={isSoundCloudActive && synchronizePosition}
+              synchronizePosition={
+                isSoundCloudActive && !suppressPlayback && synchronizePosition
+              }
               width={embeddedPlayerWidth}
               {...(isSoundCloudActive
                 ? {
-                    onLocalPositionObserved,
+                    onLocalPositionObserved: (observedPositionMs) => {
+                      if (suppressPlayback) return;
+                      onLocalPositionObserved(observedPositionMs);
+                    },
                     onLocalSeek,
-                    onPlayingChange: onLocalPlayingChange,
+                    onPlayingChange: (isPlaying) => {
+                      if (suppressPlayback) return;
+                      onLocalPlayingChange(isPlaying);
+                    },
                   }
                 : {})}
               {...(soundCloudSong.providerUrl

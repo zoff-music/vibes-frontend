@@ -39,7 +39,6 @@ export default function RootLayout() {
         setAudioModeAsync({
           interruptionMode: 'doNotMix',
           playsInSilentMode: true,
-          shouldPlayInBackground: true,
         }),
       );
       if (error) return;
