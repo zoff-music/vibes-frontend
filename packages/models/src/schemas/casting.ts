@@ -83,4 +83,5 @@ export type CastingTokenResponse = yup.InferType<
 export const sseQuerySchema = yup.object({
   castReceiver: yup.string().optional(),
   casterId: yup.string().optional(),
+  lastEventId: yup.string().optional(),
 });

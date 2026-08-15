@@ -1,5 +1,9 @@
-import { createApiClient } from '@vibes/api';
-import type { PlaybackState, Room, Song } from '@vibes/models';
+import {
+  createApiClient,
+  type RoomSSEMessage,
+  subscribeRoomEvents,
+} from '@vibes/api';
+import type { Song } from '@vibes/models';
 import { usePlaybackStore } from '@vibes/shared';
 import { useEffect } from 'react';
 import type { QueueItem, RoomInfo } from '../types';
@@ -19,13 +23,6 @@ interface UseRoomSyncProps {
   updateMediaMetadata: (song: Song) => void;
   debugMode: boolean;
 }
-
-type SSEMessage =
-  | { type: 'connected'; data: Room }
-  | { type: 'playback_update'; data: PlaybackState }
-  | { type: 'songs_update'; data: Song[] }
-  | { type: 'settings_update'; data: Room }
-  | { type: 'users_update'; data: number };
 
 export function useRoomSync({
   roomId,
@@ -116,10 +113,10 @@ export function useRoomSync({
         updateMediaMetadata(normalizedSong);
       }
 
-      const [err, stop] = await api.sse(
-        '/rooms/{id}/events',
-        { id: roomId, $search: undefined },
-        (result: [Error | null, unknown]) => {
+      const [err, stop] = await subscribeRoomEvents(
+        api,
+        roomId,
+        (result) => {
           const [eventError, message] = result;
           if (eventError) {
             // connection error
@@ -127,7 +124,7 @@ export function useRoomSync({
           }
           if (!message || !isMounted) return;
 
-          const typedMessage = message as SSEMessage;
+          const typedMessage: RoomSSEMessage = message;
 
           switch (typedMessage.type) {
             case 'connected':
@@ -182,11 +179,7 @@ export function useRoomSync({
               break;
           }
         },
-        {
-          headers: {
-            ...authHeaders,
-          },
-        },
+        `cast:${casterId ?? 'receiver'}`,
       );
 
       if (!isMounted) {

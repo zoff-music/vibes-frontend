@@ -30,6 +30,7 @@ import {
   createRoomResponseSchema,
   createSessionRequestSchema,
   emptyObjectSchema,
+  eventCursorSchema,
   generatedPlaylistRequestSchema,
   messageResponseSchema,
   musicPlaylistSchema,
@@ -294,6 +295,7 @@ const endpoints = {
       $search: sseQuerySchema.optional(),
       events: {
         connected: connectedSchema,
+        event_cursor: eventCursorSchema,
         playback_update: playbackStateSchema,
         songs_update: songsListSchema,
         song_added: songSchema,
@@ -549,3 +551,4 @@ export * from './hooks/useRoomRequests';
 // Hooks
 export * from './hooks/useSSE';
 export * from './rateLimit';
+export * from './roomEvents';

@@ -8,6 +8,11 @@ export const connectedSchema = yup.object({
 });
 export type Connected = yup.InferType<typeof connectedSchema>;
 
+export const eventCursorSchema = yup.object({
+  id: yup.string().required(),
+});
+export type EventCursor = yup.InferType<typeof eventCursorSchema>;
+
 export const messageResponseSchema = yup.string();
 export type MessageResponse = yup.InferType<typeof messageResponseSchema>;
 

@@ -1,10 +1,7 @@
 import type {
-  Connected,
   PlaybackState,
   Room,
   RoomGenerationUpdate,
-  RoomHostUpdate,
-  SkipVoteUpdate,
   Song,
 } from '@vibes/models';
 import {
@@ -16,7 +13,7 @@ import {
 import { useEffect, useRef } from 'react';
 import type { ApiClient } from '../index';
 import { api } from '../index';
-import { useRoomRequests } from './useRoomRequests';
+import { subscribeRoomEvents } from '../roomEvents';
 
 const ACTIVE_CONNECTIONS = new Map<
   string,
@@ -28,17 +25,6 @@ type UnsubscribeResult = Promise<[Error | null, (() => void) | null]>;
 const IN_FLIGHT_CONNECTIONS = new Map<string, UnsubscribeResult>();
 const PENDING_CLEANUPS = new Map<string, ReturnType<typeof setTimeout>>();
 const ROOM_CALLBACKS = new Map<string, Set<USE_SSE_CALLBACKS>>();
-
-type SSEMessage =
-  | { type: 'connected'; data: Connected }
-  | { type: 'songs_update'; data: Song[] }
-  | { type: 'playback_update'; data: PlaybackState }
-  | { type: 'users_update'; data: number }
-  | { type: 'song_added'; data: Song }
-  | { type: 'skip_vote'; data: SkipVoteUpdate }
-  | { type: 'settings_update'; data: Room }
-  | { type: 'generation_update'; data: RoomGenerationUpdate }
-  | { type: 'new_host'; data: RoomHostUpdate };
 
 function scheduleConnectionCleanup(roomId: string): void {
   const pendingCleanup = PENDING_CLEANUPS.get(roomId);
@@ -59,7 +45,10 @@ function scheduleConnectionCleanup(roomId: string): void {
 
 export interface USE_SSE_CALLBACKS {
   onGenerationUpdate?: (update: RoomGenerationUpdate) => void;
+  onPlaybackUpdate?: (playback: PlaybackState) => void;
+  onRoomUpdate?: (room: Room) => void;
   onSongAdded?: (song: Song) => void;
+  onSongsUpdate?: (songs: Song[]) => void;
   onToast?: (message: string, type: 'success' | 'error' | 'info') => void;
   onUsersUpdate?: (count: number) => void;
 }
@@ -75,8 +64,6 @@ export const useSSE = (
   const addSong = useQueueStore((state) => state.addSong);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
-  const roomRequests = useRoomRequests(client);
-
   const isSubscribedRef = useRef(false);
 
   useEffect(() => {
@@ -100,28 +87,6 @@ export const useSSE = (
     if (!roomId) return;
     let isMounted = true;
 
-    const syncRoomSnapshot = async () => {
-      const [error, snapshot] = await roomRequests.fetchSnapshot(roomId);
-      if (!isMounted) return;
-      if (error || !snapshot) {
-        console.error('Failed to refresh room after resuming', error);
-        return;
-      }
-
-      setRoom(snapshot.room);
-      setSongs(snapshot.songs);
-      setPlaybackState(snapshot.playback, snapshot.room.mode);
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState !== 'visible') return;
-      void syncRoomSnapshot();
-    };
-
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-    }
-
     const setupConnection = async () => {
       if (PENDING_CLEANUPS.has(roomId)) {
         clearTimeout(PENDING_CLEANUPS.get(roomId));
@@ -134,105 +99,113 @@ export const useSSE = (
         let inFlight = IN_FLIGHT_CONNECTIONS.get(roomId);
 
         if (!inFlight) {
-          inFlight = client.sse(
-            '/rooms/{id}/events',
-            { id: roomId, $search: undefined },
-            (result: [Error | null, unknown]) => {
-              const [err, msg] = result;
-              if (err) {
-                console.error('SSE Error:', err);
-                return;
-              }
+          inFlight = subscribeRoomEvents(client, roomId, (result) => {
+            const [err, msg] = result;
+            if (err) {
+              console.error('SSE Error:', err);
+              return;
+            }
 
-              if (!msg) return;
-              const message = msg as SSEMessage;
+            if (!msg) return;
+            const message = msg;
 
-              switch (message.type) {
-                case 'connected':
-                  break;
-                case 'songs_update': {
-                  const [error] = safeWrap(() => {
-                    setSongs(message.data);
-                  });
-                  if (error)
-                    console.error('Failed to parse songs_update', error);
-                  break;
-                }
-                case 'playback_update': {
-                  const [error] = safeWrap(() => {
-                    const roomMode = useRoomStore.getState().room?.mode;
-                    setPlaybackState(message.data, roomMode);
-                  });
-                  if (error)
-                    console.error('Failed to parse playback_update', error);
-                  break;
-                }
-                case 'song_added': {
-                  const [error] = safeWrap(() => {
-                    const song = message.data;
-                    console.log('[SSE] song_added received:', song);
-                    addSong(song);
-                    const roomCallbacks = ROOM_CALLBACKS.get(roomId);
-                    let hasSongAddedCallback = false;
-                    for (const roomCallback of roomCallbacks ?? []) {
-                      if (roomCallback.onSongAdded) {
-                        hasSongAddedCallback = true;
-                        roomCallback.onSongAdded(song);
-                      }
-                    }
-                    if (
-                      !hasSongAddedCallback &&
-                      typeof window !== 'undefined' &&
-                      window.dispatchEvent
-                    ) {
-                      // Value backward compatibility for now
-                      window.dispatchEvent(
-                        new CustomEvent('song-added', { detail: song }),
-                      );
-                    }
-                  });
-                  if (error) console.error('Failed to parse song_added', error);
-                  break;
-                }
-                case 'settings_update': {
-                  const [error] = safeWrap(() => setRoom(message.data));
-                  if (error)
-                    console.error('Failed to parse settings_update', error);
-                  break;
-                }
-                case 'users_update': {
-                  const [error] = safeWrap(() => {
-                    setUsersCount(message.data);
-                    const roomCallbacks = ROOM_CALLBACKS.get(roomId);
-                    for (const roomCallback of roomCallbacks ?? []) {
-                      roomCallback.onUsersUpdate?.(message.data);
-                    }
-                  });
-                  if (error)
-                    console.error('Failed to parse users_update', error);
-                  break;
-                }
-                case 'skip_vote':
-                  break;
-                case 'generation_update': {
+            switch (message.type) {
+              case 'connected':
+                break;
+              case 'songs_update': {
+                const [error] = safeWrap(() => {
+                  setSongs(message.data);
                   const roomCallbacks = ROOM_CALLBACKS.get(roomId);
                   for (const roomCallback of roomCallbacks ?? []) {
-                    roomCallback.onGenerationUpdate?.(message.data);
+                    roomCallback.onSongsUpdate?.(message.data);
                   }
-                  break;
-                }
-                case 'new_host': {
-                  const [error] = safeWrap(() => {
-                    setHost(message.data.userId);
-                  });
-                  if (error) {
-                    console.error('Failed to parse new_host', error);
-                  }
-                  break;
-                }
+                });
+                if (error) console.error('Failed to parse songs_update', error);
+                break;
               }
-            },
-          );
+              case 'playback_update': {
+                const [error] = safeWrap(() => {
+                  const roomMode = useRoomStore.getState().room?.mode;
+                  setPlaybackState(message.data, roomMode);
+                  const roomCallbacks = ROOM_CALLBACKS.get(roomId);
+                  for (const roomCallback of roomCallbacks ?? []) {
+                    roomCallback.onPlaybackUpdate?.(message.data);
+                  }
+                });
+                if (error)
+                  console.error('Failed to parse playback_update', error);
+                break;
+              }
+              case 'song_added': {
+                const [error] = safeWrap(() => {
+                  const song = message.data;
+                  console.log('[SSE] song_added received:', song);
+                  addSong(song);
+                  const roomCallbacks = ROOM_CALLBACKS.get(roomId);
+                  let hasSongAddedCallback = false;
+                  for (const roomCallback of roomCallbacks ?? []) {
+                    if (roomCallback.onSongAdded) {
+                      hasSongAddedCallback = true;
+                      roomCallback.onSongAdded(song);
+                    }
+                  }
+                  if (
+                    !hasSongAddedCallback &&
+                    typeof window !== 'undefined' &&
+                    window.dispatchEvent
+                  ) {
+                    // Value backward compatibility for now
+                    window.dispatchEvent(
+                      new CustomEvent('song-added', { detail: song }),
+                    );
+                  }
+                });
+                if (error) console.error('Failed to parse song_added', error);
+                break;
+              }
+              case 'settings_update': {
+                const [error] = safeWrap(() => {
+                  setRoom(message.data);
+                  const roomCallbacks = ROOM_CALLBACKS.get(roomId);
+                  for (const roomCallback of roomCallbacks ?? []) {
+                    roomCallback.onRoomUpdate?.(message.data);
+                  }
+                });
+                if (error)
+                  console.error('Failed to parse settings_update', error);
+                break;
+              }
+              case 'users_update': {
+                const [error] = safeWrap(() => {
+                  setUsersCount(message.data);
+                  const roomCallbacks = ROOM_CALLBACKS.get(roomId);
+                  for (const roomCallback of roomCallbacks ?? []) {
+                    roomCallback.onUsersUpdate?.(message.data);
+                  }
+                });
+                if (error) console.error('Failed to parse users_update', error);
+                break;
+              }
+              case 'skip_vote':
+                break;
+              case 'generation_update': {
+                const roomCallbacks = ROOM_CALLBACKS.get(roomId);
+                for (const roomCallback of roomCallbacks ?? []) {
+                  roomCallback.onGenerationUpdate?.(message.data);
+                }
+                break;
+              }
+              case 'new_host': {
+                const [error] = safeWrap(() => {
+                  setHost(message.data.userId);
+                });
+                if (error) {
+                  console.error('Failed to parse new_host', error);
+                }
+                break;
+              }
+            }
+          });
           if (inFlight) IN_FLIGHT_CONNECTIONS.set(roomId, inFlight);
         }
 
@@ -270,12 +243,6 @@ export const useSSE = (
 
     return () => {
       isMounted = false;
-      if (typeof document !== 'undefined') {
-        document.removeEventListener(
-          'visibilitychange',
-          handleVisibilityChange,
-        );
-      }
       if (isSubscribedRef.current) {
         const connection = ACTIVE_CONNECTIONS.get(roomId);
         if (connection) {
@@ -289,7 +256,6 @@ export const useSSE = (
     };
   }, [
     roomId,
-    roomRequests,
     addSong,
     setHost,
     setRoom,

@@ -26,7 +26,6 @@ import {
   useState,
 } from 'react';
 import { useToast } from '@/components/toast';
-import { useAppResume } from '@/hooks/use-app-resume';
 import {
   getObservedPosition,
   useMachineRemote,
@@ -118,6 +117,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     useState<ControllerRemoteSession | null>(null);
   const playbackRef = useRef<PlaybackState | null>(null);
   const authoritativePlaybackRef = useRef<PlaybackState | null>(null);
+  const roomModeRef = useRef<Room['mode'] | null>(null);
   const localPlayingRef = useRef<boolean | null>(null);
   const pendingGeneratedRoomRef = useRef('');
   const authenticatedRoomIdsRef = useRef(new Set<string>());
@@ -238,6 +238,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     setAuthoritativePlayback(null);
     playbackRef.current = null;
     authoritativePlaybackRef.current = null;
+    roomModeRef.current = null;
     localPlayingRef.current = null;
     setHasLocalPlaybackChanges(false);
     setHasLocalPlaybackPositionDrift(false);
@@ -262,6 +263,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       setAuthoritativePlayback(null);
       playbackRef.current = null;
       authoritativePlaybackRef.current = null;
+      roomModeRef.current = null;
       localPlayingRef.current = null;
       setHasLocalPlaybackChanges(false);
       setHasLocalPlaybackPositionDrift(false);
@@ -279,6 +281,46 @@ export function AppProvider({ children }: PropsWithChildren) {
     [],
   );
 
+  const applyRoomUpdate = useCallback((incomingRoom: Room) => {
+    let nextRoom = getLocallyAuthorizedRoom(
+      incomingRoom,
+      authenticatedRoomIdsRef.current.has(incomingRoom.id),
+    );
+    if (pendingGeneratedRoomRef.current === incomingRoom.id) {
+      nextRoom = { ...nextRoom, isGenerating: true };
+    }
+    roomModeRef.current = nextRoom.mode;
+    setRoom(nextRoom);
+  }, []);
+
+  const applyPlaybackUpdate = useCallback((incomingPlayback: PlaybackState) => {
+    const previousPlayback = playbackRef.current;
+    const isSameSong =
+      previousPlayback?.currentSong?.id === incomingPlayback.currentSong?.id;
+    let nextPlayback = incomingPlayback;
+    authoritativePlaybackRef.current = incomingPlayback;
+    setAuthoritativePlayback(incomingPlayback);
+    if (roomModeRef.current === 'server' && localPlayingRef.current !== null) {
+      nextPlayback = {
+        ...incomingPlayback,
+        isPlaying: localPlayingRef.current,
+      };
+      if (localPlayingRef.current === false && isSameSong && previousPlayback) {
+        nextPlayback.positionMs = previousPlayback.positionMs;
+      }
+    }
+    if (roomModeRef.current === 'host') {
+      localPlayingRef.current = null;
+      setHasLocalPlaybackChanges(false);
+      setHasLocalPlaybackPositionDrift(false);
+    }
+    if (!isSameSong) {
+      setHasLocalPlaybackPositionDrift(false);
+    }
+    playbackRef.current = nextPlayback;
+    setPlayback(nextPlayback);
+  }, []);
+
   const refresh = useCallback(async () => {
     if (!roomId) {
       return;
@@ -292,30 +334,6 @@ export function AppProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const previousPlayback = playbackRef.current;
-    const isSameSong =
-      previousPlayback?.currentSong?.id === snapshot.playback.currentSong?.id;
-    let nextPlayback = snapshot.playback;
-    authoritativePlaybackRef.current = snapshot.playback;
-    setAuthoritativePlayback(snapshot.playback);
-    if (snapshot.room.mode === 'server' && localPlayingRef.current !== null) {
-      nextPlayback = {
-        ...snapshot.playback,
-        isPlaying: localPlayingRef.current,
-      };
-      if (localPlayingRef.current === false && isSameSong && previousPlayback) {
-        nextPlayback.positionMs = previousPlayback.positionMs;
-      }
-    }
-    if (snapshot.room.mode === 'host') {
-      localPlayingRef.current = null;
-      setHasLocalPlaybackChanges(false);
-      setHasLocalPlaybackPositionDrift(false);
-    }
-    if (!isSameSong) {
-      setHasLocalPlaybackPositionDrift(false);
-    }
-    playbackRef.current = nextPlayback;
     const generationPending = pendingGeneratedRoomRef.current === roomId;
     if (
       generationPending &&
@@ -324,20 +342,11 @@ export function AppProvider({ children }: PropsWithChildren) {
     ) {
       pendingGeneratedRoomRef.current = '';
     }
-    let nextRoom = getLocallyAuthorizedRoom(
-      snapshot.room,
-      authenticatedRoomIdsRef.current.has(roomId),
-    );
-    if (pendingGeneratedRoomRef.current === roomId) {
-      nextRoom = { ...nextRoom, isGenerating: true };
-    }
-    setRoom(nextRoom);
+    applyRoomUpdate(snapshot.room);
     setSongs(snapshot.songs);
-    setPlayback(nextPlayback);
+    applyPlaybackUpdate(snapshot.playback);
     setError('');
-  }, [roomId, roomRequests]);
-
-  useAppResume(refresh);
+  }, [applyPlaybackUpdate, applyRoomUpdate, roomId, roomRequests]);
 
   const setRoomId = useCallback(
     async (nextRoomId: string, password = '') => {
@@ -398,21 +407,11 @@ export function AppProvider({ children }: PropsWithChildren) {
       }
       setRoomIdValue(normalized);
       localPlayingRef.current = null;
-      authoritativePlaybackRef.current = snapshot.playback;
-      setAuthoritativePlayback(snapshot.playback);
-      playbackRef.current = snapshot.playback;
       setHasLocalPlaybackChanges(false);
       setHasLocalPlaybackPositionDrift(false);
-      let nextRoom = getLocallyAuthorizedRoom(
-        snapshot.room,
-        authenticatedRoomIdsRef.current.has(normalized),
-      );
-      if (pendingGeneratedRoomRef.current === normalized) {
-        nextRoom = { ...nextRoom, isGenerating: true };
-      }
-      setRoom(nextRoom);
+      applyRoomUpdate(snapshot.room);
       setSongs(snapshot.songs);
-      setPlayback(snapshot.playback);
+      applyPlaybackUpdate(snapshot.playback);
       setError(
         storageError
           ? 'Room opened, but the saved admin password could not be read.'
@@ -427,7 +426,12 @@ export function AppProvider({ children }: PropsWithChildren) {
       ]);
       return 'joined';
     },
-    [rememberRoomAdminPassword, roomRequests],
+    [
+      applyPlaybackUpdate,
+      applyRoomUpdate,
+      rememberRoomAdminPassword,
+      roomRequests,
+    ],
   );
 
   const startGeneratedRoom = useCallback(
@@ -541,9 +545,17 @@ export function AppProvider({ children }: PropsWithChildren) {
   const roomEventCallbacks = useMemo(
     () => ({
       onGenerationUpdate: handleGenerationUpdate,
+      onPlaybackUpdate: applyPlaybackUpdate,
+      onRoomUpdate: applyRoomUpdate,
+      onSongsUpdate: setSongs,
       onUsersUpdate: handleUsersUpdate,
     }),
-    [handleGenerationUpdate, handleUsersUpdate],
+    [
+      applyPlaybackUpdate,
+      applyRoomUpdate,
+      handleGenerationUpdate,
+      handleUsersUpdate,
+    ],
   );
 
   useSSE(roomId || undefined, roomEventCallbacks, mobileApi);
@@ -603,8 +615,6 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     void refresh();
-    const interval = setInterval(() => void refresh(), 3_000);
-    return () => clearInterval(interval);
   }, [refresh]);
 
   const value = useMemo<AppState>(
