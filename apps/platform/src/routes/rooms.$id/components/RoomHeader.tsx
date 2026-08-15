@@ -151,13 +151,13 @@ export const RoomHeader = React.memo(
         className="panel-surface sticky top-0 z-20 border-theme border-b px-4 py-3 sm:py-4"
       >
         <div className="mx-auto max-w-7xl">
-          <div className="flex items-center">
+          <div className="relative flex items-center">
             <Button className="shrink-0" onClick={onLeave} variant="ghost">
               <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
               <span className="text-2xs tracking-label">Leave</span>
             </Button>
 
-            <div className="min-w-0 flex-1 px-2 text-center sm:px-4">
+            <div className="pointer-events-none absolute left-1/2 w-1/2 min-w-0 -translate-x-1/2 text-center sm:pointer-events-auto sm:static sm:w-auto sm:flex-1 sm:translate-x-0 sm:px-4">
               <h1
                 className="block w-full truncate whitespace-nowrap text-theme text-xs sm:text-sm"
                 title={displayRoom?.name}
