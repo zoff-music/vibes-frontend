@@ -29,6 +29,7 @@ interface Props {
   castDeviceName?: string | null;
   showSpotifyConnect?: boolean;
   onConnectSpotify?: () => void;
+  mobileTrailingContent?: React.ReactNode;
 }
 
 const PlayerControlsComponent: React.FC<Props> = ({
@@ -47,6 +48,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
   castDeviceName,
   showSpotifyConnect,
   onConnectSpotify,
+  mobileTrailingContent,
 }) => {
   const playbackLabel = isPlaying ? 'Pause' : 'Play';
 
@@ -143,6 +145,10 @@ const PlayerControlsComponent: React.FC<Props> = ({
             />
           </Button>
         </Tooltip>
+
+        {mobileTrailingContent && (
+          <div className="ml-auto sm:hidden">{mobileTrailingContent}</div>
+        )}
 
         <div className="flex w-full min-w-0 items-center gap-2 sm:ml-auto sm:w-auto">
           {showSpotifyConnect && onConnectSpotify && (

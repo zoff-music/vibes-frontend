@@ -167,24 +167,8 @@ export const RoomHeader = React.memo(
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <UserCount />
-
-              <div className="sm:hidden">
-                <Tooltip
-                  className="inline-flex"
-                  content="Share Room"
-                  side="bottom"
-                  align="end"
-                >
-                  <Button
-                    onClick={onShareRoom}
-                    variant="tertiary"
-                    size="icon"
-                    aria-label="Share Room"
-                  >
-                    <ShareIcon className="h-5 w-5" />
-                  </Button>
-                </Tooltip>
+              <div className="hidden sm:block">
+                <UserCount />
               </div>
 
               <div className="hidden sm:block">
@@ -257,7 +241,9 @@ export const RoomHeader = React.memo(
                 </AnimatePresence>
               </div>
 
-              <RemoteControlButton />
+              <div className="hidden sm:block">
+                <RemoteControlButton />
+              </div>
 
               <div className="relative ml-1">
                 <Tooltip
@@ -284,6 +270,7 @@ export const RoomHeader = React.memo(
                       themeId={themeId}
                       currentTheme={currentTheme}
                       onToggleDarkMode={onToggleDarkMode}
+                      onShareRoom={onShareRoom}
                       room={displayRoom}
                       displayRoom={displayRoom}
                       isAdmin={isAdmin}

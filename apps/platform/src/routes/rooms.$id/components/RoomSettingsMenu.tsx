@@ -12,6 +12,8 @@ import {
   ChevronDownIcon,
   CircleHalfIcon,
   MoonIcon,
+  RemoteIcon,
+  ShareIcon,
   SoundCloudIcon,
   SpotifyIcon,
   SunIcon,
@@ -28,6 +30,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import type { Theme } from '../../../stores/themeStore';
 
 interface RoomSettingsMenuProps {
@@ -36,6 +39,7 @@ interface RoomSettingsMenuProps {
   themeId: string;
   currentTheme: Theme;
   onToggleDarkMode: () => void;
+  onShareRoom: () => void;
   room: Room | null;
   displayRoom: Room | null;
   isAdmin: boolean;
@@ -55,6 +59,7 @@ export const RoomSettingsMenu = ({
   themeId,
   currentTheme,
   onToggleDarkMode,
+  onShareRoom,
   room,
   displayRoom,
   isAdmin,
@@ -67,6 +72,7 @@ export const RoomSettingsMenu = ({
   settingsMenuRef,
   providers,
 }: RoomSettingsMenuProps) => {
+  const { openRemoteControl } = useRemoteControl();
   const [wobblePassword, setWobblePassword] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
   const adminSectionRef = useRef<HTMLDivElement>(null);
@@ -110,6 +116,16 @@ export const RoomSettingsMenu = ({
       ...room.settings,
       public: checked,
     });
+  };
+
+  const handleShareRoom = () => {
+    onClose();
+    onShareRoom();
+  };
+
+  const handleOpenRemoteControl = () => {
+    onClose();
+    openRemoteControl();
   };
 
   const updateScrollCue = useCallback(() => {
@@ -235,6 +251,24 @@ export const RoomSettingsMenu = ({
         >
           <div className="space-y-4">
             <div className="space-y-3 sm:hidden">
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={handleShareRoom}
+                  variant="tertiary"
+                  className="w-full gap-2 font-pixel text-xs"
+                >
+                  <ShareIcon className="h-4 w-4" />
+                  Share room
+                </Button>
+                <Button
+                  onClick={handleOpenRemoteControl}
+                  variant="tertiary"
+                  className="w-full gap-2 font-pixel text-xs"
+                >
+                  <RemoteIcon className="h-4 w-4" />
+                  Remote control
+                </Button>
+              </div>
               <div className="flex items-center">
                 <Button
                   onClick={onToggleDarkMode}

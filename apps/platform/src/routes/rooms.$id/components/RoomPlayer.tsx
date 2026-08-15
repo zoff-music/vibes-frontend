@@ -25,6 +25,7 @@ import React, {
 import { useFetcher } from 'react-router';
 import { useCasting } from '../../../hooks/useCasting';
 import type { RoomActionData } from '../action';
+import { UserCount } from './UserCount';
 
 interface RoomPlayerProps {
   roomId: string;
@@ -724,6 +725,7 @@ export const RoomPlayer = React.memo(
           castDeviceName={castDeviceName}
           showSpotifyConnect={hasSpotifySongs && !spotifyToken}
           onConnectSpotify={handleConnectSpotify}
+          mobileTrailingContent={<UserCount />}
         />
       </div>
     );
