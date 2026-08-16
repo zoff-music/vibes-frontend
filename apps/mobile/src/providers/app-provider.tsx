@@ -26,6 +26,7 @@ import {
   useState,
 } from 'react';
 import { useToast } from '@/components/toast';
+import { useAppResume } from '@/hooks/use-app-resume';
 import {
   getObservedPosition,
   useMachineRemote,
@@ -347,6 +348,8 @@ export function AppProvider({ children }: PropsWithChildren) {
     applyPlaybackUpdate(snapshot.playback);
     setError('');
   }, [applyPlaybackUpdate, applyRoomUpdate, roomId, roomRequests]);
+
+  useAppResume(refresh);
 
   const setRoomId = useCallback(
     async (nextRoomId: string, password = '') => {

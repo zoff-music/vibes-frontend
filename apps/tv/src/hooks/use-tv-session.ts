@@ -14,6 +14,7 @@ import type {
 } from '@vibes/models';
 import { usePlaybackStore, useQueueStore, useRoomStore } from '@vibes/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AppState } from 'react-native';
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
 
@@ -85,6 +86,37 @@ export function useTvSession(client: ApiClient): TvSession {
     },
     [],
   );
+
+  useEffect(() => {
+    let previousState = AppState.currentState;
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      const resumed =
+        nextState === 'active' &&
+        (previousState === 'background' || previousState === 'inactive');
+      previousState = nextState;
+      if (!resumed || !roomId) return;
+
+      const refreshRoom = async () => {
+        const [requestError, snapshot] = await requests.fetchSnapshot(roomId);
+        if (requestError || !snapshot) {
+          setError(
+            await getRequestErrorMessage(
+              requestError,
+              'Could not refresh the room.',
+            ),
+          );
+          return;
+        }
+
+        applySnapshot(snapshot);
+        setError('');
+      };
+
+      void refreshRoom();
+    });
+
+    return () => subscription.remove();
+  }, [applySnapshot, requests, roomId]);
 
   const loadRoom = useCallback(
     async (nextRoomId: string): Promise<RoomJoinResult> => {
