@@ -185,34 +185,36 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Tooltip>
         )}
 
-        <Tooltip
-          className="inline-flex"
-          content={
-            isCasting && castDeviceName
-              ? `Casting to ${castDeviceName}`
-              : 'Cast'
-          }
-        >
-          <Button
-            onClick={onOpenCast}
-            variant={isCasting ? 'secondary' : 'tertiary'}
-            size="icon"
-            aria-label={
+        <div className="hidden sm:block">
+          <Tooltip
+            className="inline-flex"
+            content={
               isCasting && castDeviceName
                 ? `Casting to ${castDeviceName}`
                 : 'Cast'
             }
           >
-            <CastIcon
-              className={classNames(
-                'h-5 w-5 transition-colors',
-                isCasting && 'text-primary',
-                !isCasting && 'text-theme-muted group-hover:text-primary',
-              )}
-              showDot={isCasting}
-            />
-          </Button>
-        </Tooltip>
+            <Button
+              onClick={onOpenCast}
+              variant={isCasting ? 'secondary' : 'tertiary'}
+              size="icon"
+              aria-label={
+                isCasting && castDeviceName
+                  ? `Casting to ${castDeviceName}`
+                  : 'Cast'
+              }
+            >
+              <CastIcon
+                className={classNames(
+                  'h-5 w-5 transition-colors',
+                  isCasting && 'text-primary',
+                  !isCasting && 'text-theme-muted group-hover:text-primary',
+                )}
+                showDot={isCasting}
+              />
+            </Button>
+          </Tooltip>
+        </div>
 
         <div className="min-w-24 flex-1 sm:hidden">
           <VolumeControl
