@@ -63,10 +63,9 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const isPlayingFromStore = usePlaybackStore((state) => state.isPlaying);
 
     /* 2. State & Computed */
-    const isPlaying =
-      isPlayingFromStore !== undefined
-        ? isPlayingFromStore
-        : initialPlayback?.isPlaying || false;
+    const isPlaying = isSSR
+      ? (initialPlayback?.isPlaying ?? false)
+      : isPlayingFromStore;
     const displaySongs =
       isSSR && initialSongs
         ? initialSongs
