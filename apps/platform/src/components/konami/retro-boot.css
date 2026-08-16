@@ -1,4 +1,5 @@
 @import "tailwindcss/utilities.css" layer(components) source(none);
+@reference "../../../../../packages/tailwind/styles.css";
 @source "./RetroBootExperience.tsx";
 
 @keyframes retro-boot-enter {
@@ -118,6 +119,150 @@ html[data-konami-mode="retro-boot"] {
     rgb(113 245 173 / 13%),
     transparent 65%
   );
+}
+
+html[data-konami-mode="retro-boot"] body {
+  @apply bg-[#010705] font-mono text-[#dffff0];
+}
+
+html[data-konami-mode="retro-boot"] body *:not(svg, path) {
+  @apply rounded-none;
+}
+
+html[data-konami-mode="retro-boot"] body :is(button, input, textarea, select) {
+  @apply border-[#71f5ad]/35 font-mono tracking-[0.08em] shadow-none;
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  :is(button, input, textarea, select):focus-visible {
+  @apply border-[#a6ffd0] outline-none ring-1 ring-[#71f5ad] ring-offset-2 ring-offset-[#010705];
+}
+
+html[data-konami-mode="retro-boot"] body button:not(:disabled):hover {
+  @apply border-[#a6ffd0] shadow-[inset_0_0_1.5rem_rgba(113,245,173,0.09)];
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  :is(.crt-frame, .panel-surface, .panel-strong, .glass, .glass-elevated) {
+  @apply border border-[#71f5ad]/35 bg-[rgba(1,12,8,0.94)] shadow-[inset_0_0_2.5rem_rgba(113,245,173,0.035),0_0_1.5rem_rgba(113,245,173,0.08)] backdrop-blur-none;
+}
+
+html[data-konami-mode="retro-boot"] body .crt-frame {
+  @apply border-[#71f5ad]/55;
+}
+
+html[data-konami-mode="retro-boot"] body :is(h1, h2, h3, h4, h5, h6) {
+  @apply font-mono text-[#e0ffef] [text-shadow:0_0_0.55rem_rgba(113,245,173,0.5)];
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  :is(.font-body, .font-display, .font-pixel, .font-wide, .font-japanese) {
+  @apply font-mono;
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  :is(.vhs-tear, .vhs-tear-strong, .glow-text) {
+  @apply text-[#e0ffef] [text-shadow:0_0_0.65rem_rgba(113,245,173,0.72)];
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  :is(.vhs-tear, .vhs-tear-strong)::before,
+html[data-konami-mode="retro-boot"]
+  body
+  :is(.vhs-tear, .vhs-tear-strong)::after {
+  @apply hidden;
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  :is(img, .provider-mark-light, .provider-mark-dark) {
+  filter: grayscale(1) sepia(1) hue-rotate(85deg) saturate(3) brightness(1.15);
+}
+
+html[data-konami-mode="retro-boot"] .platform-background-grid-motion {
+  background-image:
+    linear-gradient(
+      to right,
+      transparent 0,
+      rgb(113 245 173 / 26%) 1px,
+      transparent 2px
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      rgb(113 245 173 / 26%) 1px,
+      transparent 2px
+    );
+}
+
+html[data-konami-mode="retro-boot"] body :is(.bg-secondary, .bg-accent) {
+  @apply bg-[#71f5ad] text-[#03150d];
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  :is(.text-white, .text-secondary, .text-accent) {
+  @apply text-[#a6ffd0];
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  :is(.border-secondary, .border-accent) {
+  @apply border-[#71f5ad];
+}
+
+html[data-konami-mode="retro-boot"] body .bg-gradient-to-r {
+  @apply bg-[#71f5ad] bg-none;
+}
+
+html[data-konami-mode="retro-boot"] body [class*="peer-checked:bg-secondary"] {
+  @apply border border-[#71f5ad]/60 bg-[#071b12];
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  [class*="peer-checked:bg-secondary"]::after {
+  @apply rounded-none bg-[#71f5ad];
+}
+
+html[data-konami-mode="retro-boot"]
+  body
+  input[type="range"]::-webkit-slider-thumb {
+  @apply rounded-none bg-[#71f5ad];
+}
+
+html[data-konami-mode="retro-boot"] body input[type="range"]::-moz-range-thumb {
+  @apply rounded-none border-[#71f5ad] bg-[#71f5ad];
+}
+
+html[data-konami-mode="retro-boot"] body .progress-bar,
+html[data-konami-mode="retro-boot"] body .progress-bar::-webkit-progress-bar {
+  @apply rounded-none bg-[#173525];
+}
+
+html[data-konami-mode="retro-boot"] body .progress-bar::-webkit-progress-value {
+  @apply rounded-none bg-[#71f5ad] bg-none shadow-[0_0_0.75rem_rgba(113,245,173,0.65)];
+  background: #71f5ad;
+}
+
+html[data-konami-mode="retro-boot"] body .progress-bar::-moz-progress-bar {
+  @apply rounded-none bg-[#71f5ad] bg-none shadow-[0_0_0.75rem_rgba(113,245,173,0.65)];
+  background: #71f5ad;
+}
+
+html[data-konami-mode="retro-boot"] body .home-entry .crt-frame::before {
+  content: "ZOFF TERMINAL // HOME CHANNEL";
+  @apply mb-6 block border-[#71f5ad]/45 border-b pb-3 font-mono text-[#71f5ad] text-[0.6rem] uppercase tracking-[0.2em];
+}
+
+html[data-konami-mode="retro-boot"] body [data-konami-player-column]::before {
+  content: "PLAYBACK CONTROL // SERVER SIGNAL";
+  @apply block border-[#71f5ad]/45 border-b pb-3 font-mono text-[#71f5ad] text-[0.6rem] uppercase tracking-[0.2em];
 }
 
 html[data-konami-mode="retro-boot"] [data-konami-player-surface],
