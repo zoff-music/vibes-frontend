@@ -24,6 +24,7 @@ import React, {
 } from 'react';
 import { useFetcher } from 'react-router';
 import { useCasting } from '../../../hooks/useCasting';
+import { usePersistentPlayerVolume } from '../../../hooks/usePersistentPlayerVolume';
 import type { RoomActionData } from '../action';
 import { UserCount } from './UserCount';
 
@@ -52,6 +53,7 @@ interface PlayerProps {
   onLocalSeek?: (positionMs: number) => void;
   onLocalAlignmentChange?: (isAligned: boolean) => void;
   showInitialPlaybackOverlay?: boolean;
+  volume?: number;
 }
 
 type PlayerComponent = ComponentType<PlayerProps>;
@@ -119,6 +121,7 @@ export const RoomPlayer = React.memo(
     const tokenFetcher = useFetcher<RoomActionData>();
     const songs = useQueueStore((state) => state.songs);
     const { isConnected, castDeviceName } = useCasting(roomId);
+    const { volume, setVolume, toggleMuted } = usePersistentPlayerVolume();
 
     // Granular store subscriptions
     const isPlaying = usePlaybackStore((state) => state.isPlaying);
@@ -586,6 +589,7 @@ export const RoomPlayer = React.memo(
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 appContext="platform"
                 preloadSong={preloadVideoSong}
+                volume={volume}
               />
             </div>
           )}
@@ -666,6 +670,7 @@ export const RoomPlayer = React.memo(
                 isVisible={!isConnected && isSoundCloudTrack}
                 preloadSong={preloadSoundCloudSong}
                 showInitialPlaybackOverlay
+                volume={volume}
               />
             </div>
           )}
@@ -726,6 +731,9 @@ export const RoomPlayer = React.memo(
           showSpotifyConnect={hasSpotifySongs && !spotifyToken}
           onConnectSpotify={handleConnectSpotify}
           mobileTrailingContent={<UserCount />}
+          volume={volume}
+          onVolumeChange={setVolume}
+          onToggleMuted={toggleMuted}
         />
       </div>
     );

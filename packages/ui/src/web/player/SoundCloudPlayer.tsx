@@ -25,7 +25,6 @@ declare global {
 interface SoundCloudWidget {
   bind: (event: string, callback: (event?: unknown) => void) => void;
   getPosition: (callback: (currentTimeMs: number) => void) => void;
-  getVolume: (callback: (volume: number) => void) => void;
   isPaused: (callback: (isPaused: boolean) => void) => void;
   load: (url: string, options: SoundCloudWidgetLoadOptions) => void;
   pause: () => void;
@@ -75,6 +74,7 @@ interface Props {
   onLocalVolumeChange?: () => void;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   showInitialPlaybackOverlay?: boolean;
+  volume?: number;
 }
 
 const SoundCloudPlayerComponent: React.FC<Props> = ({
@@ -83,10 +83,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   fill = false,
   preloadSong = null,
   onLocalAlignmentChange,
-  onLocalVolumeChange,
   onLocalPlay,
   onNeedsUserGestureChange,
   showInitialPlaybackOverlay = false,
+  volume = MAX_VOLUME,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
@@ -117,11 +117,12 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const latestWidgetPositionRef = useRef<number | null>(null);
   const expectedSeekPositionRef = useRef<number | null>(null);
   const lastAlignmentRef = useRef<boolean | null>(null);
-  const lastObservedVolumeRef = useRef<number | null>(null);
   const lastResetVersionRef = useRef(resetVersion);
   const onEndedRef = useRef(onEnded);
   const onLocalAlignmentChangeRef = useRef(onLocalAlignmentChange);
-  const onLocalVolumeChangeRef = useRef(onLocalVolumeChange);
+  const desiredVolume = Math.min(MAX_VOLUME, Math.max(MIN_VOLUME, volume));
+  const desiredVolumeRef = useRef(desiredVolume);
+  desiredVolumeRef.current = desiredVolume;
   const [isReady, setIsReady] = useState(false);
   const [isPlaybackUnlocked, setIsPlaybackUnlocked] = useState(
     isPlaybackGestureUnlocked,
@@ -150,8 +151,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
   const playWidget = (widget: SoundCloudWidget) => {
     claimProviderPlayback('soundcloud');
-    widget.setVolume(MIN_VOLUME);
-    setIsWidgetMuted(true);
+    widget.setVolume(desiredVolumeRef.current);
+    setIsWidgetMuted(desiredVolumeRef.current === MIN_VOLUME);
     widget.play();
   };
 
@@ -234,8 +235,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         restartTimerRef.current = null;
       }
       claimProviderPlayback('soundcloud');
-      widget.setVolume(MAX_VOLUME);
-      setIsWidgetMuted(false);
+      widget.setVolume(desiredVolumeRef.current);
+      setIsWidgetMuted(desiredVolumeRef.current === MIN_VOLUME);
       setIsWidgetPlaying(true);
     });
 
@@ -259,8 +260,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   useEffect(() => {
     onEndedRef.current = onEnded;
     onLocalAlignmentChangeRef.current = onLocalAlignmentChange;
-    onLocalVolumeChangeRef.current = onLocalVolumeChange;
-  }, [onEnded, onLocalAlignmentChange, onLocalVolumeChange]);
+  }, [onEnded, onLocalAlignmentChange]);
 
   useEffect(() => {
     return registerProviderPlayback('soundcloud', () => {
@@ -307,7 +307,6 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     expectedSeekPositionRef.current = null;
     latestWidgetPositionRef.current = null;
     lastAlignmentRef.current = null;
-    lastObservedVolumeRef.current = null;
     setIsReady(false);
     setIsWidgetPlaying(false);
     setIsWidgetMuted(true);
@@ -339,6 +338,13 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     setIsWidgetPlaying(false);
     setIsWidgetMuted(true);
   }, [isActive, isPlaybackUnlocked, isPlaying, isReady]);
+
+  useEffect(() => {
+    const widget = widgetRef.current;
+    if (!widget || !isActive || !isReady) return;
+    widget.setVolume(desiredVolume);
+    setIsWidgetMuted(desiredVolume === MIN_VOLUME);
+  }, [desiredVolume, isActive, isReady]);
 
   useEffect(() => {
     if (!isActive) {
@@ -379,28 +385,20 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       const widget = widgetRef.current;
       const positionMs = latestWidgetPositionRef.current;
       if (!widget || positionMs === null) return;
-      widget.getVolume((volume) => {
-        widget.isPaused((isPaused) => {
-          if (cancelled) return;
-          setIsWidgetPlaying(!isPaused);
-          const previousVolume = lastObservedVolumeRef.current;
-          lastObservedVolumeRef.current = volume;
-          if (previousVolume !== null && previousVolume !== volume) {
-            onLocalVolumeChangeRef.current?.();
-          }
-          const playbackStore = usePlaybackStore.getState();
-          const authoritativePlayback = playbackStore.authoritativePlayback;
-          const aligned =
-            providerSong?.sourceId ===
-              authoritativePlayback.currentSong?.sourceId &&
-            !isPaused === authoritativePlayback.isPlaying &&
-            Math.abs(positionMs - playbackStore.getAuthoritativePositionMs()) <=
-              ALIGNED_POSITION_TOLERANCE_MS &&
-            volume === MAX_VOLUME;
-          if (lastAlignmentRef.current === aligned) return;
-          lastAlignmentRef.current = aligned;
-          onLocalAlignmentChangeRef.current?.(aligned);
-        });
+      widget.isPaused((isPaused) => {
+        if (cancelled) return;
+        setIsWidgetPlaying(!isPaused);
+        const playbackStore = usePlaybackStore.getState();
+        const authoritativePlayback = playbackStore.authoritativePlayback;
+        const aligned =
+          providerSong?.sourceId ===
+            authoritativePlayback.currentSong?.sourceId &&
+          !isPaused === authoritativePlayback.isPlaying &&
+          Math.abs(positionMs - playbackStore.getAuthoritativePositionMs()) <=
+            ALIGNED_POSITION_TOLERANCE_MS;
+        if (lastAlignmentRef.current === aligned) return;
+        lastAlignmentRef.current = aligned;
+        onLocalAlignmentChangeRef.current?.(aligned);
       });
     }, VOLUME_SAMPLE_MS);
     return () => {
@@ -510,10 +508,10 @@ export const SoundCloudPlayer = memo(
     previous.onLocalPause === next.onLocalPause &&
     previous.onLocalPlay === next.onLocalPlay &&
     previous.onLocalSeek === next.onLocalSeek &&
-    previous.onLocalVolumeChange === next.onLocalVolumeChange &&
     previous.onNeedsUserGestureChange === next.onNeedsUserGestureChange &&
     previous.showInitialPlaybackOverlay === next.showInitialPlaybackOverlay &&
-    previous.preloadSong?.id === next.preloadSong?.id,
+    previous.preloadSong?.id === next.preloadSong?.id &&
+    previous.volume === next.volume,
 );
 
 const EXPECTED_SEEK_TOLERANCE_MS = 1000;

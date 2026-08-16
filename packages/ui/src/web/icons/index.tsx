@@ -31,6 +31,8 @@ import {
   spotifyProviderIcon,
   sunIcon,
   trashIcon,
+  volumeIcon,
+  volumeMutedIcon,
   voteIcon,
   youTubeProviderIcon,
 } from '../../shared';
@@ -114,6 +116,12 @@ export const SkipIcon = (props: IconProps) => (
 );
 export const ResetIcon = (props: IconProps) => (
   <DefinitionIcon definition={resetIcon} {...props} />
+);
+export const VolumeIcon = (props: IconProps) => (
+  <DefinitionIcon definition={volumeIcon} {...props} />
+);
+export const VolumeMutedIcon = (props: IconProps) => (
+  <DefinitionIcon definition={volumeMutedIcon} {...props} />
 );
 export const SpinnerIcon = (props: IconProps) => (
   <DefinitionIcon definition={spinnerIcon} {...props} />
