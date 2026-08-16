@@ -201,7 +201,11 @@ export const RoomPlayer = React.memo(
       useState<PlayerComponent | null>(null);
     const [VideoPlayerComponent, setVideoPlayerComponent] =
       useState<PlayerComponent | null>(null);
-    const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
+    const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(
+      Boolean(initialPlayback?.isPlaying) &&
+        (initialPlayback?.currentSong?.sourceType === 'youtube' ||
+          initialPlayback?.currentSong?.sourceType === 'soundcloud'),
+    );
     const [isSkipPending, setIsSkipPending] = useState(false);
     const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
     const [tokenError, setTokenError] = useState<string | null>(null);
