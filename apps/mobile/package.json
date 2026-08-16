@@ -1,7 +1,7 @@
 {
   "name": "@vibes/mobile",
   "main": "expo-router/entry",
-  "version": "0.2.4",
+  "version": "0.2.6",
   "dependencies": {
     "@expo-google-fonts/pixelify-sans": "^0.4.2",
     "@react-native-community/slider": "5.2.0",
