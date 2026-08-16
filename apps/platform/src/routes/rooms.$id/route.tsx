@@ -108,11 +108,28 @@ const LazyTerminalShell = lazy(async () => {
   return { default: module.TerminalShell };
 });
 
+const LazyTerminalLoading = lazy(async () => {
+  const module = await import('@vibes/ui/konami');
+  return { default: module.TerminalLoading };
+});
+
 interface DeferredModalLoadingProps {
   label: string;
+  terminalMode?: boolean;
 }
 
-function DeferredModalLoading({ label }: DeferredModalLoadingProps) {
+function DeferredModalLoading({
+  label,
+  terminalMode = false,
+}: DeferredModalLoadingProps) {
+  if (terminalMode) {
+    return (
+      <Suspense fallback={null}>
+        <LazyTerminalLoading label={label} overlay />
+      </Suspense>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
       <div
@@ -529,7 +546,7 @@ export default function Room() {
           />
 
           {showGenerationProgress && (
-            <RoomGenerationProgress isFailed={false} />
+            <RoomGenerationProgress isFailed={false} terminalMode />
           )}
           {!showGenerationProgress && (
             <div className="grid min-h-0 flex-1 content-start items-start gap-4 lg:grid-cols-5">
@@ -554,15 +571,20 @@ export default function Room() {
           )}
 
           {generationError && (
-            <div className="mt-4 border border-[#ff8e8e]/50 p-3 text-[#ff8e8e] text-xs">
-              GENERATION ERROR: {generationError}
-            </div>
+            <RoomGenerationProgress
+              error={generationError}
+              isFailed
+              terminalMode
+            />
           )}
 
           {showDeviceSelector && (
             <Suspense
               fallback={
-                <DeferredModalLoading label="Loading cast devices..." />
+                <DeferredModalLoading
+                  label="Loading cast devices..."
+                  terminalMode
+                />
               }
             >
               <LazyDeviceSelector
@@ -574,7 +596,12 @@ export default function Room() {
           )}
           {isAddModalVisible && (
             <Suspense
-              fallback={<DeferredModalLoading label="Loading song search..." />}
+              fallback={
+                <DeferredModalLoading
+                  label="Loading song search..."
+                  terminalMode
+                />
+              }
             >
               <LazyAddToQueueModal
                 room={displayRoom}

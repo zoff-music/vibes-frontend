@@ -2,6 +2,7 @@ import type { Providers, Room, RoomSettings, RoomUpdate } from '@vibes/models';
 import { classNames, useRoomStore } from '@vibes/shared';
 import {
   TerminalButton,
+  TerminalLoading,
   TerminalToolbar,
   useTerminalShortcuts,
 } from '@vibes/ui/konami';
@@ -202,11 +203,7 @@ export const RoomHeader = React.memo(
           />
           {showSettings && (
             <Suspense
-              fallback={
-                <div className="fixed inset-0 z-50 grid place-items-center bg-[#010705]/90 font-mono text-[#71f5ad] text-xs">
-                  LOADING CONFIG.SYS_
-                </div>
-              }
+              fallback={<TerminalLoading label="Loading config.sys" overlay />}
             >
               <LazyTerminalRoomSettings
                 adminPassword={adminPassword}

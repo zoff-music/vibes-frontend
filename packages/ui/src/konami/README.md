@@ -15,9 +15,10 @@ import {
 } from '@vibes/ui/konami';
 ```
 
-The package contains controls, feedback, progress, list, modal, toolbar,
-section, shell, and room-compiler components. Application code continues to
-own routing, cookies, API workflows, and room state.
+The package contains controls, feedback, progress, loading and generation
+states, lists, modals, toolbars, sections, the shell, and room-compiler
+components. Application code continues to own routing, cookies, API workflows,
+and room state.
 
 Advertised function-key controls use `useTerminalShortcuts`. The hook keeps
 callbacks current without reinstalling its listener on every render, removes
