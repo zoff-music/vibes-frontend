@@ -49,7 +49,7 @@ const VolumeControl = ({
   onToggleMuted,
 }: VolumeControlProps) => {
   return (
-    <div className="flex h-12 w-24 shrink-0 items-center gap-2 sm:w-40">
+    <div className="flex h-12 w-28 shrink-0 items-center gap-2 sm:w-44">
       <Button
         aria-label={volume === 0 ? 'Unmute player' : 'Mute player'}
         className="group h-12 w-12 shrink-0 rounded-2xl p-0"
