@@ -154,6 +154,20 @@ export const resetIcon = {
   ],
 } satisfies IconDefinition;
 
+export const volumeIcon = {
+  viewBox: squareViewBox,
+  paths: [
+    'M3 9h4V7h2V5h2V3h3v18h-3v-2H9v-2H7v-2H3zm13-2h3v2h2v6h-2v2h-3v-3h1v-4h-1z',
+  ],
+} satisfies IconDefinition;
+
+export const volumeMutedIcon = {
+  viewBox: squareViewBox,
+  paths: [
+    'M3 9h4V7h2V5h2V3h3v18h-3v-2H9v-2H7v-2H3zM17 8h3v3h2v3h-2v3h-3v-3h-2v-3h2z',
+  ],
+} satisfies IconDefinition;
+
 export const spinnerIcon = {
   viewBox: squareViewBox,
   paths: [
@@ -245,6 +259,7 @@ export const zoffIconDefinitions = {
   sun: sunIcon,
   trash: trashIcon,
   vote: voteIcon,
+  volume: volumeIcon,
 } satisfies Record<string, IconDefinition>;
 
 export type ZoffIconName = keyof typeof zoffIconDefinitions;
