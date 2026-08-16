@@ -4,7 +4,7 @@ import {
   subscribeRoomEvents,
 } from '@vibes/api';
 import type { Song } from '@vibes/models';
-import { usePlaybackStore } from '@vibes/shared';
+import { synchronizeServerClock, usePlaybackStore } from '@vibes/shared';
 import { useEffect } from 'react';
 import type { QueueItem, RoomInfo } from '../types';
 import { normalizeSong } from '../utils/songUtils';
@@ -103,6 +103,7 @@ export function useRoomSync({
       }
 
       if (!playbackErr && playbackState && playbackState.currentSong) {
+        synchronizeServerClock(playbackState.serverTimeMs);
         const normalizedSong = normalizeSong(playbackState.currentSong);
         setPlaybackState({
           ...playbackState,
@@ -128,6 +129,7 @@ export function useRoomSync({
 
           switch (typedMessage.type) {
             case 'connected':
+              synchronizeServerClock(typedMessage.data.time);
               setStatusText(`Connected to ${roomId}`);
               break;
             case 'playback_update': {

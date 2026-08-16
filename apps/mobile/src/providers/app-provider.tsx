@@ -15,6 +15,10 @@ import type {
   RoomGenerationUpdate,
   Song,
 } from '@vibes/models';
+import {
+  getEstimatedServerTimeMs,
+  synchronizeServerClock,
+} from '@vibes/shared';
 import type { PropsWithChildren } from 'react';
 import {
   createContext,
@@ -146,7 +150,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         ...currentPlayback,
         isPlaying,
         positionMs: positionMs ?? currentPlayback.positionMs,
-        serverTimeMs: Date.now(),
+        serverTimeMs: getEstimatedServerTimeMs(),
       };
       playbackRef.current = nextPlayback;
       setPlayback(nextPlayback);
@@ -160,7 +164,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     const nextPlayback = {
       ...currentPlayback,
       positionMs,
-      serverTimeMs: Date.now(),
+      serverTimeMs: getEstimatedServerTimeMs(),
     };
     playbackRef.current = nextPlayback;
     setPlayback(nextPlayback);
@@ -345,6 +349,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     }
     applyRoomUpdate(snapshot.room);
     setSongs(snapshot.songs);
+    synchronizeServerClock(snapshot.playback.serverTimeMs);
     applyPlaybackUpdate(snapshot.playback);
     setError('');
   }, [applyPlaybackUpdate, applyRoomUpdate, roomId, roomRequests]);
@@ -414,6 +419,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       setHasLocalPlaybackPositionDrift(false);
       applyRoomUpdate(snapshot.room);
       setSongs(snapshot.songs);
+      synchronizeServerClock(snapshot.playback.serverTimeMs);
       applyPlaybackUpdate(snapshot.playback);
       setError(
         storageError
@@ -467,6 +473,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       return;
     }
     authoritativePlaybackRef.current = authoritativePlayback;
+    synchronizeServerClock(authoritativePlayback.serverTimeMs);
     setAuthoritativePlayback(authoritativePlayback);
     playbackRef.current = authoritativePlayback;
     localPlayingRef.current = null;

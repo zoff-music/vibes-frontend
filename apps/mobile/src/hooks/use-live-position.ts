@@ -1,3 +1,4 @@
+import { getClientReferenceTimeMs } from '@vibes/shared';
 import { useEffect, useState } from 'react';
 
 export function useLivePosition(
@@ -11,7 +12,7 @@ export function useLivePosition(
     positionMs,
     isPlaying,
     durationSeconds,
-    referenceTimeMs ?? Date.now(),
+    resolveReferenceTime(isPlaying, referenceTimeMs),
   );
   const [positionState, setPositionState] = useState({
     key: referenceKey,
@@ -19,7 +20,7 @@ export function useLivePosition(
   });
 
   useEffect(() => {
-    const referenceTime = referenceTimeMs ?? Date.now();
+    const referenceTime = resolveReferenceTime(isPlaying, referenceTimeMs);
     const updatePosition = () => {
       setPositionState({
         key: referenceKey,
@@ -41,6 +42,14 @@ export function useLivePosition(
     return resolvedPosition;
   }
   return positionState.positionMs;
+}
+
+function resolveReferenceTime(
+  isPlaying: boolean,
+  serverTimeMs?: number,
+): number {
+  if (!isPlaying || serverTimeMs === undefined) return Date.now();
+  return getClientReferenceTimeMs(serverTimeMs);
 }
 
 function getLivePosition(
