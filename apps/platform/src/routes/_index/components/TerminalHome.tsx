@@ -100,39 +100,54 @@ export function TerminalHome({
         </>
       }
     >
-      <div className="grid flex-1 gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="flex min-h-0 flex-col gap-4">
-          <section className="border border-[#71f5ad]/35 px-4 py-8 text-center sm:py-10">
-            <p className="mb-5 text-[#71f5ad]/65 text-[0.65rem] uppercase tracking-[0.2em]">
-              Shared room protocol initialized
+      <div className="flex flex-1 flex-col gap-4">
+        <section className="flex flex-wrap items-center gap-2 border border-[#71f5ad]/30 bg-[#020e09] p-2">
+          <div className="min-w-0 flex-1 px-2 py-1">
+            <p className="truncate text-[#dffff0] text-sm uppercase">
+              ZOFF / SIGNAL DIRECTORY
             </p>
-            <div
-              aria-label="Zoff OS"
-              className="text-[#dffff0] text-[clamp(1.2rem,4vw,2.4rem)] leading-[1.35] [text-shadow:0_0_0.8rem_rgba(113,245,173,0.85)]"
-              role="img"
-            >
-              <div>╔════════════════════╗</div>
-              <div>║　　ゾ フ O S　　║</div>
-              <div>╚════════════════════╝</div>
-            </div>
-            <p className="mt-6 text-[#b9ffda] text-xs uppercase tracking-[0.12em]">
-              Signal acquired. Select a room to transmit.
-              <span className="terminal-cursor">_</span>
+            <p className="mt-1 text-[#71f5ad]/55 text-[0.58rem] uppercase tracking-[0.12em]">
+              PUBLIC ROOM DISCOVERY / SHARED PLAYBACK PROTOCOL
             </p>
-          </section>
+          </div>
+          <TerminalButton onClick={onStartSession}>
+            [F1] NEW ROOM
+          </TerminalButton>
+          <TerminalButton onClick={onToggleAIMode}>
+            {isAIMode ? '[F2] ROOM UPLINK' : '[F2] AI PLAYLIST'}
+          </TerminalButton>
+        </section>
 
+        <div className="grid min-h-0 flex-1 content-start items-start gap-4 lg:grid-cols-5">
           <TerminalSection
+            className="lg:col-span-2"
             label={isAIMode ? 'AI PLAYLIST COMMAND' : 'ROOM UPLINK'}
             status={isGenerating ? 'PROCESSING' : 'READY'}
           >
+            <div className="border-[#71f5ad]/20 border-b pb-4">
+              <p className="text-[#71f5ad]/55 text-[0.6rem] uppercase tracking-[0.16em]">
+                CURRENT COMMAND
+              </p>
+              <p className="mt-2 text-[#e0ffef] text-sm uppercase">
+                {isAIMode
+                  ? 'GENERATE PLAYLIST SIGNAL'
+                  : 'CONNECT TO ROOM CHANNEL'}
+              </p>
+              <p className="mt-1 text-[#a6ffd0]/55 text-[0.62rem] uppercase">
+                {isAIMode
+                  ? 'DESCRIBE THE SOUND TO COMPILE'
+                  : 'ENTER AN EXISTING CHANNEL NAME'}
+              </p>
+            </div>
+
             <label
-              className="mb-2 block text-[#a6ffd0]/70 text-[0.6rem] uppercase tracking-[0.16em]"
+              className="mt-4 mb-2 block text-[#a6ffd0]/70 text-[0.6rem] uppercase tracking-[0.16em]"
               htmlFor="terminal-room-command"
             >
-              {isAIMode ? 'Describe requested signal' : 'Enter channel name'}
+              {isAIMode ? 'PLAYLIST PROMPT' : 'CHANNEL IDENTIFIER'}
             </label>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <span className="hidden self-center text-[#71f5ad] sm:inline">
+            <div className="flex items-stretch gap-2">
+              <span className="flex items-center border border-[#71f5ad]/35 bg-black/40 px-3 text-[#71f5ad]">
                 &gt;
               </span>
               <input
@@ -149,24 +164,21 @@ export function TerminalHome({
                 type="text"
                 value={roomCode}
               />
-              <TerminalButton
-                className="shrink-0"
-                disabled={!roomCode.trim() || isGenerating}
-                onClick={isAIMode ? handleGenerate : handleJoin}
-              >
-                {isAIMode ? '[ EXECUTE ]' : '[ JOIN ]'}
-              </TerminalButton>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <TerminalButton onClick={onStartSession}>
-                [ NEW ROOM ]
-              </TerminalButton>
-              <TerminalButton onClick={onToggleAIMode}>
-                {isAIMode ? '[ ROOM MODE ]' : '[ AI PLAYLIST ]'}
-              </TerminalButton>
-            </div>
+            <TerminalButton
+              className="mt-2 w-full text-center"
+              disabled={!roomCode.trim() || isGenerating}
+              onClick={isAIMode ? handleGenerate : handleJoin}
+            >
+              {isAIMode
+                ? '[ EXECUTE PLAYLIST COMMAND ]'
+                : '[ OPEN ROOM CHANNEL ]'}
+            </TerminalButton>
             {isGenerating && (
-              <p className="mt-3 text-[#71f5ad] text-xs" aria-live="polite">
+              <p
+                className="mt-3 border border-[#71f5ad]/20 bg-black/20 p-3 text-[#71f5ad] text-xs"
+                aria-live="polite"
+              >
                 {playlistGenerationMessages[generationMessageIndex]}
                 <span className="terminal-cursor">_</span>
               </p>
@@ -176,58 +188,92 @@ export function TerminalHome({
                 ERROR: {fetcher.data.error}
               </p>
             )}
-          </TerminalSection>
-        </div>
 
-        <div className="flex min-h-0 flex-col gap-4">
-          <TerminalSection
-            className="flex-1"
-            label="ACTIVE CHANNELS"
-            status={`${publicRooms.length.toString().padStart(2, '0')} FOUND`}
-          >
-            <div className="space-y-2">
-              {publicRooms.length === 0 && (
-                <p className="border border-[#71f5ad]/25 border-dashed p-4 text-[#a6ffd0]/55 text-xs">
-                  NO PUBLIC SIGNALS DETECTED.
+            <div className="mt-4 border-[#71f5ad]/20 border-t pt-4">
+              <p className="mb-2 text-[#71f5ad]/55 text-[0.6rem] uppercase tracking-[0.16em]">
+                COMMAND REGISTERS
+              </p>
+              <div className="space-y-2 text-[0.65rem] uppercase tracking-[0.08em]">
+                <p className="flex justify-between gap-3">
+                  <span>INTERFACE</span>
+                  <strong className="text-[#dffff0]">
+                    {isAIMode ? 'AI GENERATOR' : 'ROOM DIRECTORY'}
+                  </strong>
                 </p>
-              )}
-              {publicRooms.map((room, index) => (
-                <button
-                  className="group grid w-full cursor-pointer grid-cols-[2rem_1fr_auto] items-center gap-2 border border-[#71f5ad]/25 bg-black/20 px-3 py-3 text-left font-mono hover:border-[#71f5ad] hover:bg-[#071b12] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#71f5ad]"
-                  key={room.id}
-                  onClick={() => onJoinRoom(room.id)}
-                  type="button"
-                >
-                  <span className="text-[#71f5ad]/55 text-xs">
-                    {(index + 1).toString().padStart(2, '0')}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-[#dffff0] text-xs uppercase">
-                      {room.name}
-                    </span>
-                    <span className="mt-1 block text-[#a6ffd0]/55 text-[0.6rem]">
-                      {room.listenerCount} USERS / {room.songCount} TRACKS
-                    </span>
-                  </span>
-                  <span className="text-[#71f5ad] text-xs">ENTER &gt;</span>
-                </button>
-              ))}
+                <p className="flex justify-between gap-3">
+                  <span>LISTENERS</span>
+                  <strong className="text-[#dffff0]">
+                    {totalListeners.toString().padStart(3, '0')} ONLINE
+                  </strong>
+                </p>
+                <p className="flex justify-between gap-3">
+                  <span>ROOM INDEX</span>
+                  <strong className="text-[#dffff0]">
+                    {publicRooms.length.toString().padStart(2, '0')} VISIBLE
+                  </strong>
+                </p>
+              </div>
             </div>
           </TerminalSection>
 
-          <TerminalSection label="SYSTEM STATUS" status="ONLINE">
-            <div className="space-y-2 text-[0.65rem] uppercase tracking-[0.08em]">
-              <p className="flex justify-between gap-3">
-                <span>Providers</span>
-                <strong className="text-right text-[#dffff0]">
-                  {providers.join(' / ') || 'NONE'}
-                </strong>
-              </p>
-              <p className="flex justify-between gap-3">
-                <span>Memory test</span>
-                <strong className="text-[#dffff0]">640K VIBES OK</strong>
-              </p>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 border-[#71f5ad]/20 border-t pt-3 text-[#a6ffd0]/70">
+          <div className="flex min-h-0 flex-col gap-4 lg:col-span-3">
+            <TerminalSection
+              className="flex-1"
+              label="ACTIVE CHANNELS"
+              status={`${publicRooms.length.toString().padStart(2, '0')} FOUND`}
+            >
+              <div className="space-y-1.5">
+                {publicRooms.length === 0 && (
+                  <p className="border border-[#71f5ad]/25 border-dashed p-4 text-[#a6ffd0]/55 text-xs">
+                    NO PUBLIC SIGNALS DETECTED.
+                  </p>
+                )}
+                {publicRooms.map((room, index) => (
+                  <button
+                    className="group grid w-full cursor-pointer grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 border border-[#71f5ad]/20 bg-black/15 px-2.5 py-2.5 text-left font-mono hover:border-[#71f5ad] hover:bg-[#071b12] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#71f5ad]"
+                    key={room.id}
+                    onClick={() => onJoinRoom(room.id)}
+                    type="button"
+                  >
+                    <span className="text-[#71f5ad]/55 text-xs">
+                      {(index + 1).toString().padStart(2, '0')}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-[#dffff0] text-xs uppercase">
+                        {room.name}
+                      </span>
+                      <span className="mt-1 block truncate text-[#a6ffd0]/50 text-[0.6rem] uppercase">
+                        {room.listenerCount.toString().padStart(3, '0')} USERS /{' '}
+                        {room.songCount.toString().padStart(3, '0')} TRACKS /
+                        ONLINE
+                      </span>
+                    </span>
+                    <span className="border border-[#71f5ad]/35 px-2 py-1 text-[#a6ffd0]/70 text-[0.62rem] group-hover:border-[#71f5ad] group-hover:text-white">
+                      ENTER
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </TerminalSection>
+
+            <TerminalSection label="SYSTEM SIGNAL" status="ONLINE">
+              <div className="grid gap-2 text-[0.62rem] uppercase tracking-[0.08em] sm:grid-cols-3">
+                <div className="border border-[#71f5ad]/20 bg-black/15 p-2.5">
+                  <p className="text-[#71f5ad]/50">PROVIDER DRIVERS</p>
+                  <p className="mt-1 truncate text-[#dffff0]">
+                    {providers.join(' / ') || 'NONE'}
+                  </p>
+                </div>
+                <div className="border border-[#71f5ad]/20 bg-black/15 p-2.5">
+                  <p className="text-[#71f5ad]/50">DIRECTORY LINK</p>
+                  <p className="mt-1 text-[#dffff0]">LOCKED / SECURE</p>
+                </div>
+                <div className="border border-[#71f5ad]/20 bg-black/15 p-2.5">
+                  <p className="text-[#71f5ad]/50">PLAYBACK NETWORK</p>
+                  <p className="mt-1 text-[#dffff0]">READY / STANDBY</p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-[#71f5ad]/20 border-t pt-3 text-[#a6ffd0]/70 text-[0.62rem]">
                 <Link className="hover:text-[#dffff0]" to="/terms-of-service">
                   [TERMS]
                 </Link>
@@ -238,8 +284,8 @@ export function TerminalHome({
                   [SECURITY]
                 </Link>
               </div>
-            </div>
-          </TerminalSection>
+            </TerminalSection>
+          </div>
         </div>
       </div>
       {pendingRoomSlug && (
