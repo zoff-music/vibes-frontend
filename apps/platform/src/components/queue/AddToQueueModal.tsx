@@ -34,6 +34,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../../routes/rooms.$id/action';
+import { TerminalButton } from '../konami/TerminalPrimitives';
 
 interface Props {
   room: Room;
@@ -46,6 +47,7 @@ interface Props {
   hasGenerationPermission: boolean;
   isGenerating: boolean;
   onGenerationStarted: () => void;
+  terminalMode?: boolean;
 }
 
 interface SearchResult {
@@ -80,6 +82,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   hasGenerationPermission,
   isGenerating,
   onGenerationStarted,
+  terminalMode = false,
 }) => {
   const searchFetcher = useFetcher<RoomActionData>();
   const songFetcher = useFetcher<RoomActionData>();
@@ -564,6 +567,200 @@ export const AddToQueueModal: React.FC<Props> = ({
   }
 
   if (!isVisible) return null;
+
+  if (terminalMode) {
+    return (
+      <Modal
+        alignment="top"
+        ariaLabelledBy="terminal-add-song-title"
+        className="!rounded-none !border !border-[#71f5ad] !bg-[#020e09] !p-0 !shadow-[0_0_4rem_rgba(49,255,154,0.16)] font-mono text-[#b9ffda]"
+        initialFocusRef={searchInputRef}
+        isOpen={isVisible}
+        onClose={onClose}
+        size="lg"
+      >
+        <header className="flex items-center justify-between gap-4 bg-[#71f5ad] px-4 py-2 font-bold text-[#03150d] text-xs uppercase">
+          <h2 id="terminal-add-song-title">
+            ZOFF QUEUE.EXE / {isAIMode ? 'GENERATE' : 'SEARCH'}
+          </h2>
+          <button
+            className="cursor-pointer border border-[#03150d]/45 px-2 py-1 font-mono hover:bg-[#03150d] hover:text-[#71f5ad]"
+            onClick={onClose}
+            type="button"
+          >
+            [ESC] CLOSE
+          </button>
+        </header>
+        <div className="max-h-[calc(100dvh-7rem)] overflow-y-auto p-4 sm:p-6">
+          {!isAIMode && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {providerList.map((provider) => (
+                <TerminalButton
+                  key={provider}
+                  onClick={() => {
+                    setSelectedProvider(provider);
+                    setSearchResults([]);
+                    setSearchQuery('');
+                    setPreviewTrack(null);
+                    setPreviewPlaylist(null);
+                  }}
+                >
+                  [{selectedProvider === provider ? 'X' : ' '}] {provider}
+                </TerminalButton>
+              ))}
+            </div>
+          )}
+
+          <div className="border border-[#71f5ad]/30 p-3">
+            <label
+              className="mb-2 block text-[#71f5ad]/65 text-[0.6rem] uppercase tracking-[0.16em]"
+              htmlFor="terminal-song-search"
+            >
+              {isAIMode
+                ? 'PLAYLIST GENERATION COMMAND'
+                : `${selectedProvider.toUpperCase()} QUERY OR URL`}
+            </label>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                className="min-w-0 flex-1 border border-[#71f5ad]/50 bg-black/40 px-3 py-2.5 font-mono text-[#e0ffef] text-sm placeholder:text-[#71f5ad]/30 focus:border-[#a6ffd0] focus:outline-none"
+                id="terminal-song-search"
+                onChange={handleSearchInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  isAIMode
+                    ? 'DESCRIBE REQUESTED PLAYLIST'
+                    : `SEARCH ${selectedProvider.toUpperCase()}`
+                }
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                {...(isAIMode && {
+                  maxLength: generatedPlaylistPromptMaxLength,
+                })}
+              />
+              <TerminalButton
+                disabled={!canSubmitPrimaryAction || isPrimaryActionBusy}
+                onClick={handlePrimaryAction}
+              >
+                {isPrimaryActionBusy ? '[ WORKING ]' : '[ EXECUTE ]'}
+              </TerminalButton>
+              <TerminalButton onClick={handleToggleAIMode}>
+                {isAIMode ? '[ SEARCH MODE ]' : '[ AI MODE ]'}
+              </TerminalButton>
+            </div>
+            {error && (
+              <p className="mt-3 text-[#ff8e8e] text-xs">ERROR: {error}</p>
+            )}
+            {!canGenerate && (
+              <p className="mt-3 text-[#a6ffd0]/55 text-xs">
+                {generationUnavailableReason}
+              </p>
+            )}
+          </div>
+
+          {!isAIMode &&
+            showResults &&
+            searchResults.length > 0 &&
+            !isLoading &&
+            !justAdded && (
+              <section className="mt-4 border border-[#71f5ad]/30">
+                <h3 className="border-[#71f5ad]/30 border-b bg-[#071b12] px-3 py-2 text-[0.65rem] uppercase tracking-[0.14em]">
+                  SEARCH RESULTS / {searchResults.length} FOUND
+                </h3>
+                <div className="max-h-80 overflow-y-auto p-2">
+                  {searchResults.map((result, index) => (
+                    <button
+                      className="grid w-full cursor-pointer grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 border-[#71f5ad]/20 border-b px-2 py-3 text-left font-mono hover:bg-[#071b12]"
+                      key={result.id}
+                      onClick={() => handleSelectResult(result)}
+                      type="button"
+                    >
+                      <span className="text-[#71f5ad]/45 text-xs">
+                        {(index + 1).toString().padStart(2, '0')}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-[#e0ffef] text-xs uppercase">
+                          {result.title}
+                        </span>
+                        <span className="mt-1 block truncate text-[#a6ffd0]/55 text-[0.6rem] uppercase">
+                          {result.artist} / {result.source}
+                        </span>
+                      </span>
+                      <span className="text-[#71f5ad] text-xs">[ADD]</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+          {previewTrack && !justAdded && (
+            <section className="mt-4 border border-[#71f5ad]/30 p-4">
+              <p className="text-[#71f5ad]/55 text-[0.6rem] uppercase">
+                TRACK PREVIEW
+              </p>
+              <p className="mt-2 text-[#e0ffef] text-sm uppercase">
+                {previewTrack.title}
+              </p>
+              <p className="mt-1 text-[#a6ffd0]/55 text-xs uppercase">
+                {previewTrack.artist} / {previewTrack.source} /{' '}
+                {formatDuration(parseISODuration(previewTrack.duration))}
+              </p>
+              <div className="mt-4 flex gap-2">
+                <TerminalButton disabled={isLoading} onClick={handleAdd}>
+                  {isLoading ? '[ ADDING ]' : '[ ADD TO QUEUE ]'}
+                </TerminalButton>
+                <TerminalButton onClick={onClose}>[ CANCEL ]</TerminalButton>
+              </div>
+            </section>
+          )}
+
+          {previewPlaylist && !justAdded && (
+            <section className="mt-4 border border-[#71f5ad]/30 p-4">
+              <p className="text-[#71f5ad]/55 text-[0.6rem] uppercase">
+                PLAYLIST PREVIEW / {previewPlaylist.tracks.length} TRACKS
+              </p>
+              <p className="mt-2 text-[#e0ffef] text-sm uppercase">
+                {previewPlaylist.title ?? 'UNNAMED PLAYLIST'}
+              </p>
+              <ol className="mt-3 max-h-52 overflow-y-auto border-[#71f5ad]/20 border-t">
+                {previewPlaylist.tracks.map((track, index) => (
+                  <li
+                    className="flex gap-3 border-[#71f5ad]/15 border-b px-2 py-2 text-xs"
+                    key={track.key}
+                  >
+                    <span className="text-[#71f5ad]/45">
+                      {(index + 1).toString().padStart(2, '0')}
+                    </span>
+                    <span className="min-w-0 truncate text-[#dffff0]">
+                      {track.title}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-4 flex gap-2">
+                <TerminalButton
+                  disabled={isLoading || previewPlaylist.tracks.length === 0}
+                  onClick={handleAddPlaylist}
+                >
+                  {isLoading ? '[ ADDING ]' : '[ IMPORT PLAYLIST ]'}
+                </TerminalButton>
+                <TerminalButton onClick={onClose}>[ CANCEL ]</TerminalButton>
+              </div>
+            </section>
+          )}
+
+          {justAdded && (
+            <div className="mt-4 border border-[#71f5ad] p-6 text-center">
+              <p className="text-[#e0ffef] text-sm uppercase">{successTitle}</p>
+              <p className="mt-2 text-[#a6ffd0]/60 text-xs uppercase">
+                {successDescription}
+              </p>
+            </div>
+          )}
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal

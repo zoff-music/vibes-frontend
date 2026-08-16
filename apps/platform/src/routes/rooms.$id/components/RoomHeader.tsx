@@ -20,7 +20,10 @@ import React, {
   useEffect,
 } from 'react';
 import { useFetcher } from 'react-router';
-import { RemoteControlButton } from '../../../components/remote/RemoteControlProvider';
+import {
+  RemoteControlButton,
+  useRemoteControl,
+} from '../../../components/remote/RemoteControlProvider';
 import type { Theme } from '../../../stores/themeStore';
 import type { RoomActionData } from '../action';
 import { UserCount } from './UserCount';
@@ -34,6 +37,31 @@ const LazyRoomSharePanel = lazy(async () => {
   const module = await import('./RoomSharePanel');
   return { default: module.RoomSharePanel };
 });
+
+const LazyTerminalRoomSettings = lazy(async () => {
+  const module = await import('./TerminalRoomSettings');
+  return { default: module.TerminalRoomSettings };
+});
+
+interface TerminalHeaderButtonProps {
+  children: React.ReactNode;
+  onClick: () => void;
+}
+
+function TerminalHeaderButton({
+  children,
+  onClick,
+}: TerminalHeaderButtonProps) {
+  return (
+    <button
+      className="cursor-pointer border border-[#71f5ad]/55 bg-[#071b12] px-3 py-2 text-left font-mono text-[#b9ffda] text-xs uppercase tracking-[0.08em] hover:border-[#a6ffd0] hover:bg-[#0d2a1c] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#71f5ad]"
+      onClick={onClick}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
 
 interface DeferredHeaderLoadingProps {
   label: string;
@@ -89,6 +117,7 @@ interface RoomHeaderProps {
   isAuthenticating: boolean;
   onLeave: () => void;
   providers: Providers;
+  terminalMode?: boolean;
 }
 
 export const RoomHeader = React.memo(
@@ -120,10 +149,12 @@ export const RoomHeader = React.memo(
     isAuthenticating,
     onLeave,
     providers,
+    terminalMode = false,
   }: RoomHeaderProps) => {
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = useRoomStore((state) => state.isAdmin);
     const setRoom = useRoomStore((state) => state.setRoom);
+    const { openRemoteControl } = useRemoteControl();
 
     const updateRoom = useCallback(
       (room: RoomUpdate) => {
@@ -151,6 +182,61 @@ export const RoomHeader = React.memo(
         setRoom(settingsFetcher.data.room);
       }
     }, [setRoom, settingsFetcher.data, settingsFetcher.state]);
+
+    if (terminalMode) {
+      return (
+        <div ref={headerRef} className="relative z-30 mb-4">
+          <div className="flex flex-wrap items-center gap-2 border border-[#71f5ad]/30 bg-[#020e09] p-2">
+            <TerminalHeaderButton onClick={onLeave}>
+              [ESC] LEAVE
+            </TerminalHeaderButton>
+            <div className="min-w-0 flex-1 px-2">
+              <p className="truncate text-[#dffff0] text-sm uppercase">
+                ROOM / {displayRoom?.name || 'LOADING'}
+              </p>
+              <p className="mt-1 text-[#71f5ad]/55 text-[0.58rem] uppercase tracking-[0.12em]">
+                MODE {displayRoom?.mode || 'UNKNOWN'} / CHANNEL {roomId}
+              </p>
+            </div>
+            <TerminalHeaderButton onClick={onShareRoom}>
+              [SHARE]
+            </TerminalHeaderButton>
+            <RemoteControlButton terminalMode showLabel />
+            <TerminalHeaderButton onClick={onToggleSettings}>
+              [F10] {showSettings ? 'CLOSE' : 'CONFIG'}
+            </TerminalHeaderButton>
+          </div>
+          {showSettings && (
+            <Suspense
+              fallback={
+                <div className="fixed inset-0 z-50 grid place-items-center bg-[#010705]/90 font-mono text-[#71f5ad] text-xs">
+                  LOADING CONFIG.SYS_
+                </div>
+              }
+            >
+              <LazyTerminalRoomSettings
+                adminPassword={adminPassword}
+                currentTheme={currentTheme}
+                displayRoom={displayRoom}
+                isAdmin={isAdmin}
+                isAuthenticating={isAuthenticating}
+                onAdminPasswordChange={onAdminPasswordChange}
+                onClose={onCloseSettings}
+                onJoinAdmin={onJoinAdmin}
+                onOpenRemoteControl={openRemoteControl}
+                onShareRoom={onShareRoom}
+                onToggleDarkMode={onToggleDarkMode}
+                providers={providers}
+                room={displayRoom}
+                settingsMenuRef={settingsMenuRef}
+                updateRoom={updateRoom}
+                updateRoomSettings={updateRoomSettings}
+              />
+            </Suspense>
+          )}
+        </div>
+      );
+    }
 
     return (
       <div

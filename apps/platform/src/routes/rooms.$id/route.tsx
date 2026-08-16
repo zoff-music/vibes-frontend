@@ -31,6 +31,7 @@ import {
   useRouteError,
   useSearchParams,
 } from 'react-router';
+import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { useRemoteControl } from '../../components/remote/RemoteControlProvider';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useCastStore } from '../../stores/castStore';
@@ -102,6 +103,11 @@ const LazyAddToQueueModal = lazy(async () => {
   return { default: module.AddToQueueModal };
 });
 
+const LazyTerminalShell = lazy(async () => {
+  const module = await import('../../components/konami/TerminalShell');
+  return { default: module.TerminalShell };
+});
+
 interface DeferredModalLoadingProps {
   label: string;
 }
@@ -129,6 +135,7 @@ export default function Room() {
   const revalidate = useRevalidator().revalidate;
   const adminFetcher = useFetcher<RoomActionData>();
   const { setMachineRoomId } = useRemoteControl();
+  const terminalMode = useKonamiMode();
 
   const headerRef = useRef<HTMLDivElement | null>(null);
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -475,6 +482,123 @@ export default function Room() {
     navigationType === 'PUSH' && !shouldReduceMotion
       ? roomEntryInitialState
       : false;
+
+  if (terminalMode) {
+    return (
+      <Suspense fallback={null}>
+        <LazyTerminalShell
+          channel="ROOM CONTROL"
+          title={displayRoom.name}
+          footer={
+            <>
+              <span>ROOM {id.toUpperCase()} / SSE ONLINE</span>
+              <span>{usersCount.toString().padStart(3, '0')} USERS LINKED</span>
+            </>
+          }
+        >
+          <RoomHeader
+            key="terminal-room-header"
+            headerRef={headerRef}
+            displayRoom={displayRoom}
+            roomId={id}
+            showShare={showShare}
+            onToggleShare={handleToggleShare}
+            shareButtonRef={shareButtonRef}
+            sharePanelRef={sharePanelRef}
+            shareUrl={shareUrl}
+            onShareRoom={handleShareRoom}
+            onOpenPartyScreen={handleOpenPartyScreen}
+            onOpenCast={handleOpenCast}
+            isCasting={isCasting}
+            castDeviceName={castDeviceName}
+            themeId={themeId}
+            currentTheme={currentTheme}
+            onToggleDarkMode={handleToggleDarkMode}
+            showSettings={showSettings}
+            onToggleSettings={handleToggleSettings}
+            onCloseSettings={handleCloseSettings}
+            settingsButtonRef={settingsButtonRef}
+            settingsMenuRef={settingsMenuRef}
+            adminPassword={adminPassword}
+            onAdminPasswordChange={setAdminPassword}
+            onJoinAdmin={handleJoinAdmin}
+            isAuthenticating={isAuthenticating}
+            onLeave={handleLeave}
+            providers={loaderData.providers}
+            terminalMode
+          />
+
+          {showGenerationProgress && (
+            <RoomGenerationProgress isFailed={false} />
+          )}
+          {!showGenerationProgress && (
+            <div className="grid min-h-0 flex-1 content-start items-start gap-4 lg:grid-cols-5">
+              <RoomPlayer
+                roomId={id}
+                displayRoom={displayRoom}
+                onAddSong={handleAddSong}
+                onOpenCast={handleOpenCast}
+                initialPlayback={loaderData.playback}
+                providers={loaderData.providers}
+                terminalMode
+              />
+              <RoomQueue
+                roomId={id}
+                isSSR={isSSR}
+                isAdmin={isAdmin}
+                initialPlayback={loaderData.playback}
+                initialSongs={loaderData.songs}
+                terminalMode
+              />
+            </div>
+          )}
+
+          {generationError && (
+            <div className="mt-4 border border-[#ff8e8e]/50 p-3 text-[#ff8e8e] text-xs">
+              GENERATION ERROR: {generationError}
+            </div>
+          )}
+
+          {showDeviceSelector && (
+            <Suspense
+              fallback={
+                <DeferredModalLoading label="Loading cast devices..." />
+              }
+            >
+              <LazyDeviceSelector
+                isOpen={showDeviceSelector}
+                onClose={handleCloseCast}
+                terminalMode
+              />
+            </Suspense>
+          )}
+          {isAddModalVisible && (
+            <Suspense
+              fallback={<DeferredModalLoading label="Loading song search..." />}
+            >
+              <LazyAddToQueueModal
+                room={displayRoom}
+                providers={loaderData.providers}
+                isVisible={isAddModalVisible}
+                onClose={handleCloseAddSong}
+                generationCount={displayRoom.generationCount}
+                roomGenerationMaxDailyCount={
+                  displayRoom.roomGenerationMaxDailyCount
+                }
+                roomGenerationMaxExistingSongs={
+                  displayRoom.roomGenerationMaxExistingSongs
+                }
+                hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
+                isGenerating={isGenerating}
+                onGenerationStarted={handleGenerationStarted}
+                terminalMode
+              />
+            </Suspense>
+          )}
+        </LazyTerminalShell>
+      </Suspense>
+    );
+  }
 
   return (
     <>

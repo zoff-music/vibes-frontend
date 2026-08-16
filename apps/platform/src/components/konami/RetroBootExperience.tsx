@@ -41,22 +41,6 @@ interface RetroBootExperienceProps {
   onComplete: () => void;
 }
 
-export function RetroModeHud() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[900] overflow-hidden border border-[#71f5ad]/50 shadow-[inset_0_0_8rem_rgba(0,0,0,0.75)] before:absolute before:inset-0 before:bg-[repeating-linear-gradient(to_bottom,transparent_0_3px,rgba(113,245,173,0.045)_3px_4px)] before:content-['']"
-    >
-      <div className="absolute top-2 left-3 border-[#71f5ad]/60 border-l-2 pl-2 font-mono text-[#a6ffd0] text-[0.6rem] uppercase tracking-[0.16em] [text-shadow:0_0_0.5rem_rgba(113,245,173,0.8)]">
-        ZOFF OS · SIGNAL LOCKED
-      </div>
-      <div className="absolute right-3 bottom-2 font-mono text-[#71f5ad]/70 text-[0.55rem] uppercase tracking-[0.14em]">
-        CH 1989 · ROOM SYNC ACTIVE
-      </div>
-    </div>
-  );
-}
-
 export function RetroBootExperience({ onComplete }: RetroBootExperienceProps) {
   useEffect(() => {
     const timer = window.setTimeout(onComplete, BOOT_DURATION_MS);

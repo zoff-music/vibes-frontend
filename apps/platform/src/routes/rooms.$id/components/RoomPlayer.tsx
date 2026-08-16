@@ -16,6 +16,8 @@ import {
 import { markPlaybackGestureUnlocked, PlayerControls } from '@vibes/ui/web';
 import React, {
   type ComponentType,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -28,6 +30,11 @@ import { usePersistentPlayerVolume } from '../../../hooks/usePersistentPlayerVol
 import type { RoomActionData } from '../action';
 import { UserCount } from './UserCount';
 
+const LazyTerminalPlayerControls = lazy(async () => {
+  const module = await import('./TerminalPlayerControls');
+  return { default: module.TerminalPlayerControls };
+});
+
 interface RoomPlayerProps {
   roomId: string;
   displayRoom: Room | null;
@@ -35,6 +42,7 @@ interface RoomPlayerProps {
   onOpenCast: () => void;
   initialPlayback?: PlaybackState;
   providers: Providers;
+  terminalMode?: boolean;
 }
 
 interface PlayerProps {
@@ -115,6 +123,7 @@ export const RoomPlayer = React.memo(
     onOpenCast,
     initialPlayback,
     providers,
+    terminalMode = false,
   }: RoomPlayerProps) => {
     /* 1. Hooks */
     const playbackFetcher = useFetcher<RoomActionData>();
@@ -556,8 +565,11 @@ export const RoomPlayer = React.memo(
 
     return (
       <div
-        className="space-y-6 lg:col-span-3 lg:flex lg:h-full lg:flex-col"
-        data-konami-player-column
+        className={classNames(
+          'space-y-6 lg:col-span-3 lg:flex lg:h-full lg:flex-col',
+          terminalMode &&
+            '!h-fit !space-y-4 lg:!col-span-2 lg:!block lg:!h-fit',
+        )}
       >
         <AutoSkipHandler
           currentSong={currentSong}
@@ -567,8 +579,12 @@ export const RoomPlayer = React.memo(
         />
         {/* Player - Reserve height to prevent CLS */}
         <div
-          className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1"
-          data-konami-player-surface
+          aria-hidden={terminalMode}
+          className={classNames(
+            'crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1',
+            terminalMode &&
+              '!fixed !top-0 !-left-[200vw] !h-[360px] !min-h-0 !w-[640px] !flex-none !opacity-0 pointer-events-none',
+          )}
         >
           {VideoPlayerComponent && (
             <div
@@ -718,34 +734,64 @@ export const RoomPlayer = React.memo(
         </div>
 
         {/* Controls (always below video) */}
-        <PlayerControls
-          isPlaying={isPlaying && !isPlaybackBlocked}
-          canPlay={
-            canControlRoomPlayback && Boolean(currentSong || songs.length > 0)
-          }
-          canSkip={canControlRoomPlayback && Boolean(currentSong)}
-          isSkipping={isSkipPending}
-          showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
-          onPlay={play}
-          onPause={pause}
-          onSkip={skip}
-          onReset={reset}
-          onAddSong={onAddSong}
-          onOpenCast={onOpenCast}
-          isCasting={isConnected}
-          castDeviceName={castDeviceName}
-          showSpotifyConnect={hasSpotifySongs && !spotifyToken}
-          onConnectSpotify={handleConnectSpotify}
-          mobileTrailingContent={
-            <UserCount
-              initialCount={displayRoom?.userCount ?? 0}
-              roomId={roomId}
+        {!terminalMode && (
+          <PlayerControls
+            isPlaying={isPlaying && !isPlaybackBlocked}
+            canPlay={
+              canControlRoomPlayback && Boolean(currentSong || songs.length > 0)
+            }
+            canSkip={canControlRoomPlayback && Boolean(currentSong)}
+            isSkipping={isSkipPending}
+            showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
+            onPlay={play}
+            onPause={pause}
+            onSkip={skip}
+            onReset={reset}
+            onAddSong={onAddSong}
+            onOpenCast={onOpenCast}
+            isCasting={isConnected}
+            castDeviceName={castDeviceName}
+            showSpotifyConnect={hasSpotifySongs && !spotifyToken}
+            onConnectSpotify={handleConnectSpotify}
+            mobileTrailingContent={
+              <UserCount
+                initialCount={displayRoom?.userCount ?? 0}
+                roomId={roomId}
+              />
+            }
+            volume={volume}
+            onVolumeChange={setVolume}
+            onToggleMuted={toggleMuted}
+          />
+        )}
+        {terminalMode && (
+          <Suspense fallback={null}>
+            <LazyTerminalPlayerControls
+              canPlay={
+                canControlRoomPlayback &&
+                Boolean(currentSong || songs.length > 0)
+              }
+              canSkip={canControlRoomPlayback && Boolean(currentSong)}
+              castDeviceName={castDeviceName}
+              currentSong={currentSong}
+              isCasting={isConnected}
+              isPlaying={isPlaying && !isPlaybackBlocked}
+              isSkipping={isSkipPending}
+              onAddSong={onAddSong}
+              onConnectSpotify={handleConnectSpotify}
+              onOpenCast={onOpenCast}
+              onPause={pause}
+              onPlay={play}
+              onReset={reset}
+              onSkip={skip}
+              onToggleMuted={toggleMuted}
+              onVolumeChange={setVolume}
+              showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
+              showSpotifyConnect={hasSpotifySongs && !spotifyToken}
+              volume={volume}
             />
-          }
-          volume={volume}
-          onVolumeChange={setVolume}
-          onToggleMuted={toggleMuted}
-        />
+          </Suspense>
+        )}
       </div>
     );
   },

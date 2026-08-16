@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { konamiModeCookieName } from './constants';
 
 const KONAMI_SEQUENCE = [
   'ArrowUp',
@@ -14,19 +15,26 @@ const KONAMI_SEQUENCE = [
 ] as const;
 
 const MAX_KEY_INTERVAL_MS = 1_800;
-type BootPhase = 'idle' | 'booting' | 'enabled';
+type BootPhase = 'idle' | 'booting';
 
 const RetroBootExperience = lazy(async () => {
   const module = await import('./RetroBootExperience');
   return { default: module.RetroBootExperience };
 });
 
-const RetroModeHud = lazy(async () => {
-  const module = await import('./RetroBootExperience');
-  return { default: module.RetroModeHud };
-});
+interface KonamiBootLoaderProps {
+  enabled: boolean;
+}
 
-export function KonamiBootLoader() {
+function setKonamiCookie(enabled: boolean) {
+  const isSecure = window.location.protocol === 'https:';
+  const cookieValue = enabled
+    ? `${konamiModeCookieName}=enabled; Path=/; Max-Age=31536000; SameSite=Lax${isSecure ? '; Secure' : ''}`
+    : `${konamiModeCookieName}=; Path=/; Max-Age=0; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+  Reflect.set(document, 'cookie', cookieValue);
+}
+
+export function KonamiBootLoader({ enabled }: KonamiBootLoaderProps) {
   const [phase, setPhase] = useState<BootPhase>('idle');
 
   useEffect(() => {
@@ -52,37 +60,28 @@ export function KonamiBootLoader() {
       if (sequenceIndex !== KONAMI_SEQUENCE.length) return;
 
       sequenceIndex = 0;
-      setPhase((currentPhase) => {
-        if (currentPhase === 'enabled') return 'idle';
-        return 'booting';
-      });
+      if (enabled) {
+        setKonamiCookie(false);
+        window.location.reload();
+        return;
+      }
+      setPhase('booting');
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  useEffect(() => {
-    if (phase === 'enabled') {
-      document.documentElement.dataset.konamiMode = 'retro-boot';
-    }
-    if (phase !== 'enabled') {
-      delete document.documentElement.dataset.konamiMode;
-    }
-
-    return () => {
-      delete document.documentElement.dataset.konamiMode;
-    };
-  }, [phase]);
+  }, [enabled]);
 
   if (phase === 'idle') return null;
 
   return (
     <Suspense fallback={null}>
-      {phase === 'booting' && (
-        <RetroBootExperience onComplete={() => setPhase('enabled')} />
-      )}
-      {phase === 'enabled' && <RetroModeHud />}
+      <RetroBootExperience
+        onComplete={() => {
+          setKonamiCookie(true);
+          window.location.reload();
+        }}
+      />
     </Suspense>
   );
 }

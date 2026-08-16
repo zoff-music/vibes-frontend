@@ -7,8 +7,31 @@ import {
   useQueueStore,
 } from '@vibes/shared';
 import { ProviderIcon, QueueList, Tooltip } from '@vibes/ui/web';
-import React, { useEffect, useState } from 'react';
+import React, { type ReactNode, useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
+
+interface TerminalQueueSectionProps {
+  children: ReactNode;
+  label: string;
+  status: string;
+}
+
+function TerminalQueueSection({
+  children,
+  label,
+  status,
+}: TerminalQueueSectionProps) {
+  return (
+    <section className="border border-[#71f5ad]/30 bg-[#020e09]/80">
+      <div className="flex items-center justify-between gap-3 border-[#71f5ad]/30 border-b bg-[#071b12] px-3 py-2 text-[#a6ffd0] text-[0.65rem] uppercase tracking-[0.14em]">
+        <span>{label}</span>
+        <span className="text-[#71f5ad]/65">[{status}]</span>
+      </div>
+      <div className="p-3 sm:p-4">{children}</div>
+    </section>
+  );
+}
+
 import type { RoomActionData } from '../action';
 import { PlaybackProgress } from './PlaybackProgress';
 
@@ -18,6 +41,7 @@ interface RoomQueueProps {
   isAdmin?: boolean;
   initialPlayback?: PlaybackState;
   initialSongs?: Song[];
+  terminalMode?: boolean;
 }
 
 export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
@@ -27,6 +51,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     isAdmin,
     initialPlayback,
     initialSongs,
+    terminalMode = false,
   }: RoomQueueProps) => {
     /* 1. Hooks */
     const voteFetcher = useFetcher<RoomActionData>();
@@ -109,11 +134,107 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
         )
       : null;
 
+    if (terminalMode) {
+      const queuedSongs = displaySongs.filter(
+        (song) => song.id !== currentSongData?.id,
+      );
+
+      return (
+        <div className="space-y-4 lg:col-span-3 lg:min-h-0 lg:overflow-y-auto">
+          <TerminalQueueSection
+            label="SERVER SIGNAL"
+            status={isPlaying ? 'PLAYING' : 'PAUSED'}
+          >
+            {!currentSongData && (
+              <p className="border border-[#71f5ad]/25 border-dashed p-4 text-[#a6ffd0]/55 text-xs">
+                NO TRACK MOUNTED. QUEUE A SIGNAL TO BEGIN.
+              </p>
+            )}
+            {currentSongData && (
+              <>
+                <div className="grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-1 text-xs uppercase">
+                  <span className="text-[#71f5ad]/55">TRACK</span>
+                  <strong className="min-w-0 truncate text-[#e0ffef]">
+                    {currentSongData.title}
+                  </strong>
+                  <span className="text-[#71f5ad]">
+                    {currentSongData.sourceType.toUpperCase()}
+                  </span>
+                  <span className="text-[#71f5ad]/55">ARTIST</span>
+                  <span className="min-w-0 truncate text-[#a6ffd0]/70">
+                    {currentSongData.artist || 'UNKNOWN'}
+                  </span>
+                  <span className="text-[#a6ffd0]/55 tabular-nums">
+                    {formatTime(currentSongData.duration * 1000)}
+                  </span>
+                </div>
+                <PlaybackProgress
+                  durationMs={currentSongData.duration * 1000}
+                  isSSR={isSSR}
+                  terminalMode
+                />
+              </>
+            )}
+          </TerminalQueueSection>
+
+          <TerminalQueueSection
+            label="QUEUE DIRECTORY"
+            status={`${queuedSongs.length.toString().padStart(2, '0')} WAITING`}
+          >
+            <div className="space-y-1.5">
+              {queuedSongs.length === 0 && (
+                <p className="border border-[#71f5ad]/25 border-dashed p-4 text-[#a6ffd0]/55 text-xs">
+                  END OF QUEUE.
+                </p>
+              )}
+              {queuedSongs.map((song, index) => (
+                <article
+                  className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 border border-[#71f5ad]/20 bg-black/15 px-2.5 py-2.5 text-xs"
+                  key={song.id}
+                >
+                  <span className="text-[#71f5ad]/45 tabular-nums">
+                    {(index + 1).toString().padStart(2, '0')}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-[#dffff0] uppercase">
+                      {song.title}
+                    </p>
+                    <p className="mt-1 truncate text-[#a6ffd0]/50 text-[0.6rem] uppercase">
+                      {song.artist || 'UNKNOWN'} / {song.sourceType} /{' '}
+                      {formatTime(song.duration * 1000)}
+                    </p>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      aria-label={`Vote for ${song.title}`}
+                      className="cursor-pointer border border-[#71f5ad]/35 px-2 py-1 text-[#a6ffd0]/70 hover:border-[#71f5ad] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                      disabled={Boolean(votingSongId)}
+                      onClick={() => handleVote(song.id)}
+                      type="button"
+                    >
+                      +{song.voteCount ?? 0}
+                    </button>
+                    {isAdmin && (
+                      <button
+                        aria-label={`Remove ${song.title}`}
+                        className="cursor-pointer border border-[#ff8e8e]/35 px-2 py-1 text-[#ff8e8e]/75 hover:border-[#ff8e8e] hover:text-white"
+                        onClick={() => handleRemove(song.id)}
+                        type="button"
+                      >
+                        DEL
+                      </button>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </TerminalQueueSection>
+        </div>
+      );
+    }
+
     return (
-      <div
-        className="mt-8 space-y-8 lg:col-span-2 lg:mt-0 lg:h-full lg:overflow-y-auto"
-        data-konami-room-queue
-      >
+      <div className="mt-8 space-y-8 lg:col-span-2 lg:mt-0 lg:h-full lg:overflow-y-auto">
         <div className="relative lg:pb-6">
           {/* Now Playing (Integrated into list style) */}
           {currentSongData && (
