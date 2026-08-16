@@ -15,15 +15,18 @@ import React, { useEffect, useState } from 'react';
 import { castManager } from '../../services/cast';
 import { CAST_DEVICE_PICKER_ID } from '../../services/cast/constants';
 import { useCastStore } from '../../stores/castStore';
+import { TerminalButton } from '../konami/TerminalPrimitives';
 
 interface DeviceSelectorProps {
   isOpen: boolean;
   onClose: () => void;
+  terminalMode?: boolean;
 }
 
 export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
   isOpen,
   onClose,
+  terminalMode = false,
 }) => {
   const {
     isInitialized,
@@ -141,6 +144,99 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     }
     setIsConnecting(null);
   };
+
+  if (terminalMode) {
+    return (
+      <Modal
+        ariaLabelledBy="terminal-cast-title"
+        className="!max-w-xl !rounded-none !border !border-[#71f5ad] !bg-[#020e09] !p-0 !shadow-[0_0_4rem_rgba(49,255,154,0.16)] font-mono text-[#b9ffda]"
+        isOpen={isOpen}
+        onClose={onClose}
+      >
+        <header className="flex items-center justify-between gap-4 bg-[#71f5ad] px-4 py-2 font-bold text-[#03150d] text-xs uppercase">
+          <h2 id="terminal-cast-title">CAST ADAPTER / DEVICE BUS</h2>
+          <button
+            className="cursor-pointer border border-[#03150d]/45 px-2 py-1 font-mono hover:bg-[#03150d] hover:text-[#71f5ad]"
+            onClick={onClose}
+            type="button"
+          >
+            [ESC] CLOSE
+          </button>
+        </header>
+        <div className="p-4 sm:p-6">
+          {isConnected && currentSession && (
+            <section className="mb-4 border border-[#71f5ad]/35 p-4">
+              <p className="text-[#71f5ad]/55 text-[0.6rem] uppercase">
+                ACTIVE OUTPUT
+              </p>
+              <p className="mt-2 text-[#e0ffef] text-sm uppercase">
+                {currentSession.deviceName}
+              </p>
+              <TerminalButton className="mt-3" onClick={handleDisconnect}>
+                [ DISCONNECT ]
+              </TerminalButton>
+            </section>
+          )}
+          {!isConnected && (
+            <section className="border border-[#71f5ad]/35">
+              <div className="flex items-center justify-between border-[#71f5ad]/30 border-b bg-[#071b12] px-3 py-2">
+                <p className="text-[0.65rem] uppercase tracking-[0.14em]">
+                  AVAILABLE DEVICES
+                </p>
+                <button
+                  className="cursor-pointer text-[#71f5ad] text-xs hover:text-white"
+                  onClick={handleRefresh}
+                  type="button"
+                >
+                  [REFRESH]
+                </button>
+              </div>
+              <div className="p-2">
+                {availableDevices.length === 0 && (
+                  <div className="p-5 text-center text-[#a6ffd0]/55 text-xs">
+                    NO CAST TARGETS DETECTED.
+                    <TerminalButton
+                      className="mx-auto mt-4 block"
+                      disabled={isConnecting === CAST_DEVICE_PICKER_ID}
+                      onClick={handleOpenDevicePicker}
+                    >
+                      {isConnecting === CAST_DEVICE_PICKER_ID
+                        ? '[ SCANNING ]'
+                        : '[ OPEN DEVICE PICKER ]'}
+                    </TerminalButton>
+                  </div>
+                )}
+                {availableDevices.map((device, index) => (
+                  <button
+                    className="grid w-full cursor-pointer grid-cols-[2rem_1fr_auto] items-center gap-2 border-[#71f5ad]/20 border-b px-2 py-3 text-left font-mono hover:bg-[#071b12] disabled:cursor-not-allowed disabled:opacity-40"
+                    disabled={isConnecting === device.id}
+                    key={device.id}
+                    onClick={() => handleDeviceSelect(device)}
+                    type="button"
+                  >
+                    <span className="text-[#71f5ad]/45 text-xs">
+                      {(index + 1).toString().padStart(2, '0')}
+                    </span>
+                    <span>
+                      <span className="block text-[#e0ffef] text-xs uppercase">
+                        {device.name}
+                      </span>
+                      <span className="mt-1 block text-[#a6ffd0]/45 text-[0.6rem] uppercase">
+                        {device.type}
+                      </span>
+                    </span>
+                    <span className="text-[#71f5ad] text-xs">
+                      {isConnecting === device.id ? '[LINKING]' : '[LINK]'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal

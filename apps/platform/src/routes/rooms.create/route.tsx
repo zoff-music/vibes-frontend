@@ -18,8 +18,9 @@ import {
   Toggle,
   YouTubeIcon,
 } from '@vibes/ui/web';
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
+import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { useThemeStore } from '../../stores/themeStore';
 import type { RoomsCreateActionData } from './action';
 import { clientAction } from './action';
@@ -28,6 +29,12 @@ import type { RoomsCreateLoaderData } from './loader';
 
 export { loader } from './loader';
 export { clientAction, clientLoader };
+
+const LazyTerminalCreateRoom = lazy(() =>
+  import('../../components/konami/TerminalCreateRoom').then((module) => ({
+    default: module.TerminalCreateRoom,
+  })),
+);
 
 type RoomNameAvailabilityState =
   | 'idle'
@@ -42,6 +49,7 @@ const CreateRoom: React.FC = () => {
   const suggestionFetcher = useFetcher<RoomsCreateActionData>();
   const availabilityFetcher = useFetcher<RoomsCreateActionData>();
   const [searchParams] = useSearchParams();
+  const terminalMode = useKonamiMode();
   const { setIsWarping } = useThemeStore();
 
   // Initialize name - prioritize SSR data, then URL params
@@ -347,11 +355,7 @@ const CreateRoom: React.FC = () => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSourceToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const source = event.currentTarget.value;
-    if (!isSourceType(source)) {
-      return;
-    }
+  const toggleSource = (source: SourceType) => {
     if (!loaderData.providers?.includes(source)) {
       return;
     }
@@ -364,8 +368,15 @@ const CreateRoom: React.FC = () => {
     updateSetting('enabledSources', enabledSources);
   };
 
-  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextPassword = event.target.value;
+  const handleSourceToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const source = event.currentTarget.value;
+    if (!isSourceType(source)) {
+      return;
+    }
+    toggleSource(source);
+  };
+
+  const updatePassword = (nextPassword: string) => {
     setPassword(nextPassword);
     if (nextPassword) {
       return;
@@ -376,6 +387,10 @@ const CreateRoom: React.FC = () => {
       onlyAdminAddSongs: false,
       public: false,
     }));
+  };
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    updatePassword(event.target.value);
   };
 
   const handlePublicRoomChange = (checked: boolean) => {
@@ -389,6 +404,57 @@ const CreateRoom: React.FC = () => {
   const publicRoomDescription = password
     ? 'Show under Live now while listeners are active'
     : 'Add an admin password to make this room public';
+
+  if (terminalMode) {
+    return (
+      <Suspense fallback={null}>
+        <LazyTerminalCreateRoom
+          availability={nameAvailability}
+          availabilityError={nameAvailabilityError}
+          error={error}
+          isCreating={isCreating}
+          isGeneratingName={isGeneratingName}
+          mode={mode}
+          name={name}
+          onBooleanSettingChange={updateSetting}
+          onGenerateName={handleGenerateName}
+          onModeChange={setMode}
+          onNameChange={setName}
+          onPasswordChange={updatePassword}
+          onSourceToggle={toggleSource}
+          password={password}
+          providers={loaderData.providers ?? []}
+          renderForm={(content) => (
+            <createFetcher.Form
+              ref={createFormRef}
+              action="/rooms/create"
+              className="contents"
+              method="post"
+              onSubmit={handleCreate}
+            >
+              <input name="intent" type="hidden" value="createRoom" />
+              <input
+                name="reservationToken"
+                type="hidden"
+                value={reservation?.token ?? ''}
+              />
+              <input name="mode" type="hidden" value={mode} />
+              {settings.enabledSources.map((source) => (
+                <input
+                  key={source}
+                  name="enabledSources"
+                  type="hidden"
+                  value={source}
+                />
+              ))}
+              {content}
+            </createFetcher.Form>
+          )}
+          settings={settings}
+        />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-start overflow-hidden">

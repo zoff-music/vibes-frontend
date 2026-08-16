@@ -7,10 +7,12 @@ import {
   useLayoutEffect,
   useState,
 } from 'react';
-import { Outlet, useLocation } from 'react-router';
+import { Outlet, useLocation, useRouteLoaderData } from 'react-router';
 import { KonamiBootLoader } from './components/konami/KonamiBootLoader';
+import { KonamiModeProvider } from './components/konami/KonamiModeContext';
 import { Background } from './components/layout/Background';
 import { RemoteControlProvider } from './components/remote/RemoteControlProvider';
+import type { RootLoaderData } from './root';
 import { useThemeStore } from './stores/themeStore';
 import { updateNavigationHistory } from './utils/navigationHistory';
 
@@ -54,6 +56,8 @@ function DebugConsoleLoader() {
 
 export function App() {
   const location = useLocation();
+  const rootData = useRouteLoaderData<RootLoaderData>('root');
+  const konamiEnabled = rootData?.konamiEnabled ?? false;
   const syncTheme = useThemeStore((state) => state.syncTheme);
 
   useLayoutEffect(() => {
@@ -66,13 +70,15 @@ export function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <DebugConsoleLoader />
-      <ToastViewport />
-      <Background />
-      <KonamiBootLoader />
-      <RemoteControlProvider>
-        <Outlet />
-      </RemoteControlProvider>
+      <KonamiModeProvider enabled={konamiEnabled}>
+        <DebugConsoleLoader />
+        <ToastViewport />
+        {!konamiEnabled && <Background />}
+        <KonamiBootLoader enabled={konamiEnabled} />
+        <RemoteControlProvider>
+          <Outlet />
+        </RemoteControlProvider>
+      </KonamiModeProvider>
     </MotionConfig>
   );
 }

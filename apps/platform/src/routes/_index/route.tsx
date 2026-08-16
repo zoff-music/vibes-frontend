@@ -7,8 +7,9 @@ import {
   Tooltip,
 } from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
+import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { SiteFooter } from '../../components/legal/SiteFooter';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
@@ -72,6 +73,11 @@ const AI_PROMPTS = [
   'heavy riffs for an intense gym session',
 ];
 
+const LazyTerminalHome = lazy(async () => {
+  const module = await import('./components/TerminalHome');
+  return { default: module.TerminalHome };
+});
+
 export default function Home() {
   const { providers, publicRooms, totalListeners } =
     useLoaderData<typeof loader>();
@@ -89,6 +95,7 @@ export default function Home() {
   const { toggleDarkMode } = useThemeStore();
   const { themeId, currentTheme } = useThemeDisplay();
   const previousPath = getPreviousPath();
+  const konamiEnabled = useKonamiMode();
   const previousRoomId = previousPath?.match(/^\/([^/]+)$/)?.[1];
   const shouldFadeIn =
     navigationType === 'POP' &&
@@ -173,6 +180,26 @@ export default function Home() {
   const handleRoomCodeChange = (value: string) => {
     setRoomCode(value);
   };
+
+  if (konamiEnabled) {
+    return (
+      <Suspense fallback={null}>
+        <LazyTerminalHome
+          isAIMode={isAIMode}
+          onJoinRoom={handleJoinRoom}
+          onRoomCodeChange={handleRoomCodeChange}
+          onStartSession={handleStartSession}
+          onToggleAIMode={handleToggleAIMode}
+          pendingRoomSlug={pendingRoomSlug}
+          placeholder={placeholder}
+          providers={providers}
+          publicRooms={publicRooms}
+          roomCode={roomCode}
+          totalListeners={totalListeners}
+        />
+      </Suspense>
+    );
+  }
 
   return (
     <motion.div
