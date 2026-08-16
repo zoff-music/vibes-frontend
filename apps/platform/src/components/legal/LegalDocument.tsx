@@ -1,9 +1,10 @@
+import { terminalButtonClassName } from '@vibes/ui/konami';
 import { lazy, type ReactNode, Suspense } from 'react';
 import { Link } from 'react-router';
 import { useKonamiMode } from '../konami/KonamiModeContext';
 
 const LazyTerminalShell = lazy(() =>
-  import('../konami/TerminalShell').then((module) => ({
+  import('@vibes/ui/konami').then((module) => ({
     default: module.TerminalShell,
   })),
 );
@@ -44,10 +45,7 @@ export function LegalDocument({
         <LazyTerminalShell channel="SYSTEM MANUAL" title={title.toUpperCase()}>
           <div className="flex flex-1 flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border border-[#71f5ad]/30 bg-[#071b12] p-3">
-              <Link
-                className="border border-[#71f5ad]/55 bg-[#020e09] px-3 py-2 text-[#b9ffda] text-xs uppercase hover:border-[#a6ffd0]"
-                to="/"
-              >
+              <Link className={terminalButtonClassName()} to="/">
                 [ESC] DIRECTORY
               </Link>
               <span className="text-[#71f5ad]/55 text-[0.62rem] uppercase tracking-[0.14em]">

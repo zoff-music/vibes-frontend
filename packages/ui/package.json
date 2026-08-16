@@ -9,6 +9,9 @@
     "./web/player/SoundCloudPlayer": "./src/web/player/SoundCloudPlayer.tsx",
     "./web/player/SpotifyPlayer": "./src/web/player/SpotifyPlayer.tsx",
     "./web/player/VideoPlayer": "./src/web/player/VideoPlayer.tsx",
+    "./konami": "./src/konami/index.ts",
+    "./konami/boot": "./src/konami/boot.ts",
+    "./konami/styles.css": "./src/konami/boot.css",
     "./native": "./src/native/index.ts",
     "./shared": "./src/shared/index.ts"
   },

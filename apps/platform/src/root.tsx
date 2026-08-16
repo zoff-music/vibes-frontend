@@ -1,3 +1,4 @@
+import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
 import { type ReactNode, useState } from 'react';
 import type { LoaderFunctionArgs, MetaFunction } from 'react-router';
 import {
@@ -8,7 +9,6 @@ import {
   useLoaderData,
 } from 'react-router';
 import { App } from './App';
-import retroStylesUrl from './components/konami/retro-boot.css?url';
 import stylesUrl from './index.css?url';
 import { getKonamiModeFromCookies } from './ssr/konamiMode.server';
 import { getThemeFromCookies } from './ssr/theme.server';

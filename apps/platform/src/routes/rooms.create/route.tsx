@@ -19,7 +19,13 @@ import {
   YouTubeIcon,
 } from '@vibes/ui/web';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useSearchParams,
+} from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { useThemeStore } from '../../stores/themeStore';
 import type { RoomsCreateActionData } from './action';
@@ -31,7 +37,7 @@ export { loader } from './loader';
 export { clientAction, clientLoader };
 
 const LazyTerminalCreateRoom = lazy(() =>
-  import('../../components/konami/TerminalCreateRoom').then((module) => ({
+  import('@vibes/ui/konami').then((module) => ({
     default: module.TerminalCreateRoom,
   })),
 );
@@ -49,6 +55,7 @@ const CreateRoom: React.FC = () => {
   const suggestionFetcher = useFetcher<RoomsCreateActionData>();
   const availabilityFetcher = useFetcher<RoomsCreateActionData>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const terminalMode = useKonamiMode();
   const { setIsWarping } = useThemeStore();
 
@@ -416,6 +423,7 @@ const CreateRoom: React.FC = () => {
           isGeneratingName={isGeneratingName}
           mode={mode}
           name={name}
+          onBack={() => navigate('/')}
           onBooleanSettingChange={updateSetting}
           onGenerateName={handleGenerateName}
           onModeChange={setMode}

@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { ReactNode, RefObject } from 'react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
 
@@ -13,6 +13,7 @@ interface Props {
   initialFocusRef?: RefObject<HTMLElement | null>;
   isOpen: boolean;
   onClose: () => void;
+  panelRef?: RefObject<HTMLDivElement | null>;
   size?: 'lg' | 'md' | 'sm';
 }
 
@@ -24,9 +25,10 @@ export function Modal({
   initialFocusRef,
   isOpen,
   onClose,
+  panelRef,
   size = 'md',
 }: Props) {
-  const panelRef = useRef<HTMLDivElement>(null);
+  const internalPanelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const shouldReduceMotion = useReducedMotion();
 
@@ -45,17 +47,18 @@ export function Modal({
         return;
       }
 
-      if (event.key !== 'Tab' || !panelRef.current) return;
+      if (event.key !== 'Tab' || !internalPanelRef.current) return;
 
-      const focusableElements = panelRef.current.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      );
+      const focusableElements =
+        internalPanelRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
       const firstElement = focusableElements.item(0);
       const lastElement = focusableElements.item(focusableElements.length - 1);
 
       if (focusableElements.length === 0) {
         event.preventDefault();
-        panelRef.current.focus();
+        internalPanelRef.current.focus();
         return;
       }
 
@@ -71,13 +74,14 @@ export function Modal({
     document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', handleKeyDown);
 
-    const firstFocusableElement = panelRef.current?.querySelector<HTMLElement>(
-      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
+    const firstFocusableElement =
+      internalPanelRef.current?.querySelector<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
     (
       initialFocusRef?.current ||
       firstFocusableElement ||
-      panelRef.current
+      internalPanelRef.current
     )?.focus();
 
     return () => {
@@ -88,6 +92,14 @@ export function Modal({
       }
     };
   }, [initialFocusRef, isOpen]);
+
+  const setPanelRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      internalPanelRef.current = element;
+      if (panelRef) panelRef.current = element;
+    },
+    [panelRef],
+  );
 
   if (!isOpen || typeof document === 'undefined') return null;
 
@@ -127,7 +139,7 @@ export function Modal({
           damping: 32,
           mass: 0.8,
         }}
-        ref={panelRef}
+        ref={setPanelRef}
         tabIndex={-1}
         className={classNames(
           'panel-strong relative w-full rounded-4xl p-7 shadow-primary-panel',

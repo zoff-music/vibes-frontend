@@ -1,5 +1,6 @@
 import type { Providers, Room, RoomSettings, RoomUpdate } from '@vibes/models';
 import { classNames, useRoomStore } from '@vibes/shared';
+import { TerminalButton, TerminalToolbar } from '@vibes/ui/konami';
 import {
   ArrowLeftIcon,
   Button,
@@ -42,26 +43,6 @@ const LazyTerminalRoomSettings = lazy(async () => {
   const module = await import('./TerminalRoomSettings');
   return { default: module.TerminalRoomSettings };
 });
-
-interface TerminalHeaderButtonProps {
-  children: React.ReactNode;
-  onClick: () => void;
-}
-
-function TerminalHeaderButton({
-  children,
-  onClick,
-}: TerminalHeaderButtonProps) {
-  return (
-    <button
-      className="cursor-pointer border border-[#71f5ad]/55 bg-[#071b12] px-3 py-2 text-left font-mono text-[#b9ffda] text-xs uppercase tracking-[0.08em] hover:border-[#a6ffd0] hover:bg-[#0d2a1c] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#71f5ad]"
-      onClick={onClick}
-      type="button"
-    >
-      {children}
-    </button>
-  );
-}
 
 interface DeferredHeaderLoadingProps {
   label: string;
@@ -186,26 +167,22 @@ export const RoomHeader = React.memo(
     if (terminalMode) {
       return (
         <div ref={headerRef} className="relative z-30 mb-4">
-          <div className="flex flex-wrap items-center gap-2 border border-[#71f5ad]/30 bg-[#020e09] p-2">
-            <TerminalHeaderButton onClick={onLeave}>
-              [ESC] LEAVE
-            </TerminalHeaderButton>
-            <div className="min-w-0 flex-1 px-2">
-              <p className="truncate text-[#dffff0] text-sm uppercase">
-                ROOM / {displayRoom?.name || 'LOADING'}
-              </p>
-              <p className="mt-1 text-[#71f5ad]/55 text-[0.58rem] uppercase tracking-[0.12em]">
-                MODE {displayRoom?.mode || 'UNKNOWN'} / CHANNEL {roomId}
-              </p>
-            </div>
-            <TerminalHeaderButton onClick={onShareRoom}>
-              [SHARE]
-            </TerminalHeaderButton>
-            <RemoteControlButton terminalMode showLabel />
-            <TerminalHeaderButton onClick={onToggleSettings}>
-              [F10] {showSettings ? 'CLOSE' : 'CONFIG'}
-            </TerminalHeaderButton>
-          </div>
+          <TerminalToolbar
+            actions={
+              <>
+                <TerminalButton onClick={onShareRoom}>[SHARE]</TerminalButton>
+                <RemoteControlButton terminalMode showLabel />
+                <TerminalButton onClick={onToggleSettings}>
+                  [F10] {showSettings ? 'CLOSE' : 'CONFIG'}
+                </TerminalButton>
+              </>
+            }
+            description={`MODE ${displayRoom?.mode || 'UNKNOWN'} / CHANNEL ${roomId}`}
+            leading={
+              <TerminalButton onClick={onLeave}>[ESC] LEAVE</TerminalButton>
+            }
+            title={`ROOM / ${displayRoom?.name || 'LOADING'}`}
+          />
           {showSettings && (
             <Suspense
               fallback={

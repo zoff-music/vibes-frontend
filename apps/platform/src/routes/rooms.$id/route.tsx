@@ -104,7 +104,7 @@ const LazyAddToQueueModal = lazy(async () => {
 });
 
 const LazyTerminalShell = lazy(async () => {
-  const module = await import('../../components/konami/TerminalShell');
+  const module = await import('@vibes/ui/konami');
   return { default: module.TerminalShell };
 });
 

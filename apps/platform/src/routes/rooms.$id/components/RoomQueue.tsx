@@ -6,31 +6,14 @@ import {
   usePlaybackStore,
   useQueueStore,
 } from '@vibes/shared';
+import {
+  TerminalButton,
+  TerminalFeedback,
+  TerminalSection,
+} from '@vibes/ui/konami';
 import { ProviderIcon, QueueList, Tooltip } from '@vibes/ui/web';
-import React, { type ReactNode, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
-
-interface TerminalQueueSectionProps {
-  children: ReactNode;
-  label: string;
-  status: string;
-}
-
-function TerminalQueueSection({
-  children,
-  label,
-  status,
-}: TerminalQueueSectionProps) {
-  return (
-    <section className="border border-[#71f5ad]/30 bg-[#020e09]/80">
-      <div className="flex items-center justify-between gap-3 border-[#71f5ad]/30 border-b bg-[#071b12] px-3 py-2 text-[#a6ffd0] text-[0.65rem] uppercase tracking-[0.14em]">
-        <span>{label}</span>
-        <span className="text-[#71f5ad]/65">[{status}]</span>
-      </div>
-      <div className="p-3 sm:p-4">{children}</div>
-    </section>
-  );
-}
 
 import type { RoomActionData } from '../action';
 import { PlaybackProgress } from './PlaybackProgress';
@@ -140,14 +123,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
       return (
         <div className="space-y-4 lg:col-span-3 lg:min-h-0 lg:overflow-y-auto">
-          <TerminalQueueSection
+          <TerminalSection
             label="SERVER SIGNAL"
             status={isPlaying ? 'PLAYING' : 'PAUSED'}
           >
             {!currentSongData && (
-              <p className="border border-[#71f5ad]/25 border-dashed p-4 text-[#a6ffd0]/55 text-xs">
+              <TerminalFeedback>
                 NO TRACK MOUNTED. QUEUE A SIGNAL TO BEGIN.
-              </p>
+              </TerminalFeedback>
             )}
             {currentSongData && (
               <>
@@ -174,17 +157,15 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 />
               </>
             )}
-          </TerminalQueueSection>
+          </TerminalSection>
 
-          <TerminalQueueSection
+          <TerminalSection
             label="QUEUE DIRECTORY"
             status={`${queuedSongs.length.toString().padStart(2, '0')} WAITING`}
           >
             <div className="space-y-1.5">
               {queuedSongs.length === 0 && (
-                <p className="border border-[#71f5ad]/25 border-dashed p-4 text-[#a6ffd0]/55 text-xs">
-                  END OF QUEUE.
-                </p>
+                <TerminalFeedback>END OF QUEUE.</TerminalFeedback>
               )}
               {queuedSongs.map((song, index) => (
                 <article
@@ -204,30 +185,29 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     </p>
                   </div>
                   <div className="flex gap-1">
-                    <button
+                    <TerminalButton
                       aria-label={`Vote for ${song.title}`}
-                      className="cursor-pointer border border-[#71f5ad]/35 px-2 py-1 text-[#a6ffd0]/70 hover:border-[#71f5ad] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                      className="px-2 py-1"
                       disabled={Boolean(votingSongId)}
                       onClick={() => handleVote(song.id)}
-                      type="button"
                     >
                       +{song.voteCount ?? 0}
-                    </button>
+                    </TerminalButton>
                     {isAdmin && (
-                      <button
+                      <TerminalButton
                         aria-label={`Remove ${song.title}`}
-                        className="cursor-pointer border border-[#ff8e8e]/35 px-2 py-1 text-[#ff8e8e]/75 hover:border-[#ff8e8e] hover:text-white"
+                        className="px-2 py-1"
                         onClick={() => handleRemove(song.id)}
-                        type="button"
+                        variant="danger"
                       >
                         DEL
-                      </button>
+                      </TerminalButton>
                     )}
                   </div>
                 </article>
               ))}
             </div>
-          </TerminalQueueSection>
+          </TerminalSection>
         </div>
       );
     }

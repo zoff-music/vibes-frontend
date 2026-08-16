@@ -1,8 +1,11 @@
 import type { Providers, RoomSettings, SourceType } from '@vibes/models';
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
-import { TerminalButton, TerminalSection } from './TerminalPrimitives';
+import { TerminalButton } from './TerminalButton';
+import { TerminalField, TerminalInputGroup } from './TerminalField';
+import { TerminalInput } from './TerminalInput';
+import { TerminalSection } from './TerminalSection';
 import { TerminalShell } from './TerminalShell';
+import { TerminalToggle } from './TerminalToggle';
 
 type BooleanRoomSetting = keyof Pick<
   RoomSettings,
@@ -15,7 +18,7 @@ type BooleanRoomSetting = keyof Pick<
   | 'skipAllowed'
 >;
 
-interface TerminalCreateRoomProps {
+export interface TerminalCreateRoomProps {
   availability: 'idle' | 'checking' | 'available' | 'taken' | 'error';
   availabilityError: string | null;
   error: string | null;
@@ -27,6 +30,7 @@ interface TerminalCreateRoomProps {
     setting: BooleanRoomSetting,
     checked: boolean,
   ) => void;
+  onBack: () => void;
   onGenerateName: () => void;
   onModeChange: (mode: 'server' | 'host') => void;
   onNameChange: (name: string) => void;
@@ -38,35 +42,6 @@ interface TerminalCreateRoomProps {
   settings: RoomSettings;
 }
 
-interface TerminalCreateSettingProps {
-  checked: boolean;
-  disabled?: boolean;
-  label: string;
-  onChange: (checked: boolean) => void;
-}
-
-function TerminalCreateSetting({
-  checked,
-  disabled = false,
-  label,
-  onChange,
-}: TerminalCreateSettingProps) {
-  return (
-    <button
-      aria-pressed={checked}
-      className="flex w-full cursor-pointer items-center justify-between gap-2 border-[#71f5ad]/20 border-b px-1 py-2.5 text-left font-mono text-[#b9ffda] text-xs uppercase hover:bg-[#071b12] disabled:cursor-not-allowed disabled:opacity-35"
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      type="button"
-    >
-      <span>{label}</span>
-      <span className={checked ? 'text-[#71f5ad]' : 'text-[#a6ffd0]/40'}>
-        [{checked ? 'ON ' : 'OFF'}]
-      </span>
-    </button>
-  );
-}
-
 export function TerminalCreateRoom({
   availability,
   availabilityError,
@@ -75,6 +50,7 @@ export function TerminalCreateRoom({
   isGeneratingName,
   mode,
   name,
+  onBack,
   onBooleanSettingChange,
   onGenerateName,
   onModeChange,
@@ -94,12 +70,7 @@ export function TerminalCreateRoom({
       {renderForm(
         <div className="flex flex-1 flex-col gap-4">
           <div className="flex items-center justify-between gap-3 border border-[#71f5ad]/30 p-2">
-            <Link
-              className="border border-[#71f5ad]/55 bg-[#071b12] px-3 py-2 text-[#b9ffda] text-xs uppercase hover:border-[#a6ffd0] hover:bg-[#0d2a1c]"
-              to="/"
-            >
-              [ESC] DIRECTORY
-            </Link>
+            <TerminalButton onClick={onBack}>[ESC] DIRECTORY</TerminalButton>
             <p className="text-right text-[#71f5ad]/60 text-[0.62rem] uppercase tracking-[0.16em]">
               ROOM PROTOCOL COMPILER / REV 19.89
             </p>
@@ -108,56 +79,49 @@ export function TerminalCreateRoom({
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="space-y-4">
               <TerminalSection label="ROOM IDENTITY" status={availabilityLabel}>
-                <label
-                  className="mb-2 block text-[#71f5ad]/60 text-[0.6rem] uppercase tracking-[0.14em]"
+                <TerminalField
+                  error={availabilityError}
                   htmlFor="terminal-room-name"
+                  label="CHANNEL NAME"
                 >
-                  CHANNEL NAME
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    autoFocus
-                    className="min-w-0 flex-1 border border-[#71f5ad]/50 bg-black/40 px-3 py-2.5 font-mono text-[#e0ffef] text-sm placeholder:text-[#71f5ad]/30 focus:border-[#a6ffd0] focus:outline-none"
-                    id="terminal-room-name"
-                    name="name"
-                    onChange={(event) => onNameChange(event.target.value)}
-                    placeholder="CHANNEL NAME"
-                    type="text"
-                    value={name}
-                  />
-                  <TerminalButton
-                    disabled={isGeneratingName || isCreating}
-                    onClick={onGenerateName}
-                  >
-                    {isGeneratingName ? '[ ... ]' : '[ RANDOM ]'}
-                  </TerminalButton>
-                </div>
-                {availabilityError && (
-                  <p className="mt-2 text-[#ff8e8e] text-xs">
-                    {availabilityError}
-                  </p>
-                )}
+                  <TerminalInputGroup>
+                    <TerminalInput
+                      autoFocus
+                      id="terminal-room-name"
+                      name="name"
+                      onChange={(event) => onNameChange(event.target.value)}
+                      placeholder="CHANNEL NAME"
+                      type="text"
+                      value={name}
+                    />
+                    <TerminalButton
+                      disabled={isGeneratingName || isCreating}
+                      onClick={onGenerateName}
+                    >
+                      {isGeneratingName ? '[ ... ]' : '[ RANDOM ]'}
+                    </TerminalButton>
+                  </TerminalInputGroup>
+                </TerminalField>
               </TerminalSection>
 
               <TerminalSection
                 label="ADMIN KEY"
                 status={password ? 'SET' : 'OPEN'}
               >
-                <label
-                  className="mb-2 block text-[#71f5ad]/60 text-[0.6rem] uppercase tracking-[0.14em]"
+                <TerminalField
                   htmlFor="terminal-room-password"
+                  label="OPTIONAL CONTROL PASSWORD"
                 >
-                  OPTIONAL CONTROL PASSWORD
-                </label>
-                <input
-                  className="w-full border border-[#71f5ad]/50 bg-black/40 px-3 py-2.5 font-mono text-[#e0ffef] text-sm placeholder:text-[#71f5ad]/30 focus:border-[#a6ffd0] focus:outline-none"
-                  id="terminal-room-password"
-                  name="password"
-                  onChange={(event) => onPasswordChange(event.target.value)}
-                  placeholder="LEAVE EMPTY FOR OPEN CONTROL"
-                  type="password"
-                  value={password}
-                />
+                  <TerminalInput
+                    className="w-full"
+                    id="terminal-room-password"
+                    name="password"
+                    onChange={(event) => onPasswordChange(event.target.value)}
+                    placeholder="LEAVE EMPTY FOR OPEN CONTROL"
+                    type="password"
+                    value={password}
+                  />
+                </TerminalField>
               </TerminalSection>
 
               <TerminalSection label="PROVIDER DRIVERS" status="CONFIG">
@@ -194,42 +158,42 @@ export function TerminalCreateRoom({
               </TerminalSection>
 
               <TerminalSection label="ROOM FLAGS" status="EDITABLE">
-                <TerminalCreateSetting
+                <TerminalToggle
                   checked={settings.skipAllowed}
                   label="ALLOW SKIP"
                   onChange={(checked) =>
                     onBooleanSettingChange('skipAllowed', checked)
                   }
                 />
-                <TerminalCreateSetting
+                <TerminalToggle
                   checked={settings.democraticSkip}
                   label="DEMOCRATIC SKIP"
                   onChange={(checked) =>
                     onBooleanSettingChange('democraticSkip', checked)
                   }
                 />
-                <TerminalCreateSetting
+                <TerminalToggle
                   checked={settings.loopQueue}
                   label="LOOP QUEUE"
                   onChange={(checked) =>
                     onBooleanSettingChange('loopQueue', checked)
                   }
                 />
-                <TerminalCreateSetting
+                <TerminalToggle
                   checked={settings.removeOnPlay}
                   label="REMOVE PLAYED"
                   onChange={(checked) =>
                     onBooleanSettingChange('removeOnPlay', checked)
                   }
                 />
-                <TerminalCreateSetting
+                <TerminalToggle
                   checked={settings.allowDuplicates}
                   label="ALLOW DUPLICATES"
                   onChange={(checked) =>
                     onBooleanSettingChange('allowDuplicates', checked)
                   }
                 />
-                <TerminalCreateSetting
+                <TerminalToggle
                   checked={settings.onlyAdminAddSongs ?? false}
                   disabled={!password}
                   label="ADMINS ONLY ADD"
@@ -237,7 +201,7 @@ export function TerminalCreateRoom({
                     onBooleanSettingChange('onlyAdminAddSongs', checked)
                   }
                 />
-                <TerminalCreateSetting
+                <TerminalToggle
                   checked={settings.public}
                   disabled={!password}
                   label="PUBLIC DIRECTORY"
@@ -255,13 +219,14 @@ export function TerminalCreateRoom({
             </p>
           )}
 
-          <button
-            className="mt-auto w-full cursor-pointer border border-[#71f5ad] bg-[#71f5ad] px-5 py-3 font-bold font-mono text-[#03150d] text-sm uppercase tracking-[0.12em] hover:bg-[#a6ffd0] disabled:cursor-not-allowed disabled:opacity-35"
+          <TerminalButton
+            className="mt-auto w-full px-5 py-3 text-sm tracking-[0.12em]"
             disabled={!name.trim() || isCreating}
             type="submit"
+            variant="primary"
           >
             {isCreating ? 'COMPILING ROOM...' : '[ EXECUTE / START SESSION ]'}
-          </button>
+          </TerminalButton>
         </div>,
       )}
     </TerminalShell>
