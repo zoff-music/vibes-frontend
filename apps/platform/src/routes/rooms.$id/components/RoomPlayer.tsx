@@ -555,7 +555,10 @@ export const RoomPlayer = React.memo(
           : null;
 
     return (
-      <div className="space-y-6 lg:col-span-3 lg:flex lg:h-full lg:flex-col">
+      <div
+        className="space-y-6 lg:col-span-3 lg:flex lg:h-full lg:flex-col"
+        data-konami-player-column
+      >
         <AutoSkipHandler
           currentSong={currentSong}
           isPlaying={isPlaying}
@@ -563,7 +566,10 @@ export const RoomPlayer = React.memo(
           {...(hasHostPlaybackAuthority && { mode: 'host' })}
         />
         {/* Player - Reserve height to prevent CLS */}
-        <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1">
+        <div
+          className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1"
+          data-konami-player-surface
+        >
           {VideoPlayerComponent && (
             <div
               className={classNames(

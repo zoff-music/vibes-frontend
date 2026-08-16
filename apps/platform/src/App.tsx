@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import { Outlet, useLocation } from 'react-router';
-
+import { KonamiBootLoader } from './components/konami/KonamiBootLoader';
 import { Background } from './components/layout/Background';
 import { RemoteControlProvider } from './components/remote/RemoteControlProvider';
 import { useThemeStore } from './stores/themeStore';
@@ -69,6 +69,7 @@ export function App() {
       <DebugConsoleLoader />
       <ToastViewport />
       <Background />
+      <KonamiBootLoader />
       <RemoteControlProvider>
         <Outlet />
       </RemoteControlProvider>
