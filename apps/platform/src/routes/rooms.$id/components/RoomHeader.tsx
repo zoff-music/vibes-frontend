@@ -175,7 +175,10 @@ export const RoomHeader = React.memo(
 
             <div className="ml-auto flex shrink-0 items-center gap-2">
               <div className="hidden sm:block">
-                <UserCount />
+                <UserCount
+                  initialCount={displayRoom?.userCount ?? 0}
+                  roomId={roomId}
+                />
               </div>
 
               <div className="hidden sm:block">

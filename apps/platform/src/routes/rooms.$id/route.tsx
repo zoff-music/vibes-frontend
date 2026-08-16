@@ -571,7 +571,9 @@ export default function Room() {
                         />
                       </div>
                       <PartyScreenJoinCard
+                        initialListenerCount={displayRoom.userCount ?? 0}
                         onExit={handleExitPartyScreen}
+                        roomId={id}
                         roomName={displayRoom.name}
                         url={shareUrl}
                       />
