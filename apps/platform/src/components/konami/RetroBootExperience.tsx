@@ -45,7 +45,7 @@ export function RetroModeHud() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[35] overflow-hidden border border-[#71f5ad]/50 shadow-[inset_0_0_8rem_rgba(0,0,0,0.75)] before:absolute before:inset-0 before:bg-[repeating-linear-gradient(to_bottom,transparent_0_3px,rgba(113,245,173,0.045)_3px_4px)] before:content-['']"
+      className="pointer-events-none fixed inset-0 z-[900] overflow-hidden border border-[#71f5ad]/50 shadow-[inset_0_0_8rem_rgba(0,0,0,0.75)] before:absolute before:inset-0 before:bg-[repeating-linear-gradient(to_bottom,transparent_0_3px,rgba(113,245,173,0.045)_3px_4px)] before:content-['']"
     >
       <div className="absolute top-2 left-3 border-[#71f5ad]/60 border-l-2 pl-2 font-mono text-[#a6ffd0] text-[0.6rem] uppercase tracking-[0.16em] [text-shadow:0_0_0.5rem_rgba(113,245,173,0.8)]">
         ZOFF OS · SIGNAL LOCKED
