@@ -1,0 +1,152 @@
+@import "tailwindcss/utilities.css" layer(components) source(none);
+@source "./RetroBootExperience.tsx";
+
+@keyframes retro-boot-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes retro-boot-terminal-enter {
+  0% {
+    filter: brightness(4);
+    transform: scaleY(0.005) scaleX(0);
+  }
+  35% {
+    filter: brightness(2);
+    transform: scaleY(0.005) scaleX(1);
+  }
+  60% {
+    filter: brightness(1.4);
+    transform: scaleY(1) scaleX(1);
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes retro-boot-line-reveal {
+  to {
+    transform: translateX(102%);
+  }
+}
+
+@keyframes retro-boot-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes retro-boot-mark {
+  0%,
+  35% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  45%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes retro-boot-ready {
+  0%,
+  70% {
+    opacity: 0;
+  }
+  76%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes retro-boot-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes retro-boot-scan {
+  from {
+    transform: translateY(-12vh);
+  }
+  to {
+    transform: translateY(112vh);
+  }
+}
+
+html[data-konami-mode="retro-boot"] {
+  color-scheme: dark;
+  --theme-bg: #010705;
+  --theme-bg-paper: #03110b;
+  --theme-bg-surface: #06170f;
+  --theme-bg-elevated: #0a2117;
+  --theme-bg-hover: #103322;
+  --theme-text: #dffff0;
+  --theme-text-muted: #9bd8b9;
+  --theme-text-subtle: #629779;
+  --theme-primary: #71f5ad;
+  --theme-primary-muted: #47c681;
+  --theme-primary-light: #a6ffd0;
+  --theme-border: rgb(113 245 173 / 25%);
+  --theme-border-strong: rgb(113 245 173 / 48%);
+  --theme-shadow: rgb(0 0 0 / 55%);
+  --theme-shadow-accent: rgb(113 245 173 / 24%);
+  --theme-glass-bg: rgb(2 15 9 / 78%);
+  --theme-glass-border: rgb(113 245 173 / 28%);
+  --theme-panel-bg: rgb(3 18 11 / 90%);
+  --theme-panel-strong-bg: rgb(5 25 16 / 96%);
+  --theme-panel-border: rgb(113 245 173 / 32%);
+  --theme-panel-border-strong: rgb(113 245 173 / 52%);
+  --theme-crt-bg: rgb(2 14 9 / 94%);
+  --theme-crt-shadow: rgb(47 255 145 / 22%);
+  --theme-page-gradient: radial-gradient(
+    circle at 50% 12%,
+    #103322,
+    #010705 68%
+  );
+  --theme-page-glow: radial-gradient(
+    circle at 50% 30%,
+    rgb(113 245 173 / 13%),
+    transparent 65%
+  );
+}
+
+html[data-konami-mode="retro-boot"] [data-konami-player-surface],
+html[data-konami-mode="retro-boot"] [data-konami-decorative-sun] {
+  @apply hidden;
+}
+
+html[data-konami-mode="retro-boot"] .bg-primary,
+html[data-konami-mode="retro-boot"] .bg-secondary {
+  @apply bg-[#71f5ad] text-[#03150d];
+}
+
+html[data-konami-mode="retro-boot"] .text-primary,
+html[data-konami-mode="retro-boot"] .text-secondary {
+  @apply text-[#71f5ad];
+}
+
+html[data-konami-mode="retro-boot"] .border-primary,
+html[data-konami-mode="retro-boot"] .border-secondary {
+  @apply border-[#71f5ad];
+}
+
+@media (min-width: 64rem) {
+  html[data-konami-mode="retro-boot"] [data-konami-player-column],
+  html[data-konami-mode="retro-boot"] [data-konami-room-queue] {
+    @apply col-span-full h-auto;
+  }
+
+  html[data-konami-mode="retro-boot"] [data-konami-room-queue] {
+    @apply overflow-visible;
+  }
+}

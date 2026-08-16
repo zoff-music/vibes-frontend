@@ -1,5 +1,6 @@
 @import "@vibes/tailwind/styles.css";
 @source "./";
+@source not "./components/konami";
 
 @keyframes platform-background-gradient-drift {
   0%,

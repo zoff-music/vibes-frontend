@@ -110,7 +110,10 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       : null;
 
     return (
-      <div className="mt-8 space-y-8 lg:col-span-2 lg:mt-0 lg:h-full lg:overflow-y-auto">
+      <div
+        className="mt-8 space-y-8 lg:col-span-2 lg:mt-0 lg:h-full lg:overflow-y-auto"
+        data-konami-room-queue
+      >
         <div className="relative lg:pb-6">
           {/* Now Playing (Integrated into list style) */}
           {currentSongData && (
