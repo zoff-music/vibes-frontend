@@ -19,6 +19,11 @@ The package contains controls, feedback, progress, list, modal, toolbar,
 section, shell, and room-compiler components. Application code continues to
 own routing, cookies, API workflows, and room state.
 
+Advertised function-key controls use `useTerminalShortcuts`. The hook keeps
+callbacks current without reinstalling its listener on every render, removes
+the listener when its consumer leaves Konami mode, ignores disabled commands,
+and yields keyboard priority to open modals.
+
 The boot sequence is intentionally split from the main entrypoint:
 
 ```tsx

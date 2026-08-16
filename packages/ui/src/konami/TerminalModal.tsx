@@ -46,7 +46,11 @@ export function TerminalModal({
     >
       <header className="flex items-center justify-between gap-4 bg-[#71f5ad] px-4 py-2 font-bold text-[#03150d] text-xs uppercase">
         <h2 id={ariaLabelledBy}>{title}</h2>
-        <TerminalButton onClick={onClose} variant="header">
+        <TerminalButton
+          aria-keyshortcuts="Escape"
+          onClick={onClose}
+          variant="header"
+        >
           [ESC] CLOSE
         </TerminalButton>
       </header>

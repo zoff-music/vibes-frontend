@@ -1,6 +1,9 @@
-import { terminalButtonClassName } from '@vibes/ui/konami';
+import {
+  terminalButtonClassName,
+  useTerminalShortcuts,
+} from '@vibes/ui/konami';
 import { lazy, type ReactNode, Suspense } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useKonamiMode } from '../konami/KonamiModeContext';
 
 const LazyTerminalShell = lazy(() =>
@@ -38,6 +41,11 @@ export function LegalDocument({
   updatedAt,
 }: LegalDocumentProps) {
   const terminalMode = useKonamiMode();
+  const navigate = useNavigate();
+
+  useTerminalShortcuts([{ key: 'Escape', onTrigger: () => navigate('/') }], {
+    enabled: terminalMode,
+  });
 
   if (terminalMode) {
     return (
@@ -45,7 +53,11 @@ export function LegalDocument({
         <LazyTerminalShell channel="SYSTEM MANUAL" title={title.toUpperCase()}>
           <div className="flex flex-1 flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border border-[#71f5ad]/30 bg-[#071b12] p-3">
-              <Link className={terminalButtonClassName()} to="/">
+              <Link
+                aria-keyshortcuts="Escape"
+                className={terminalButtonClassName()}
+                to="/"
+              >
                 [ESC] DIRECTORY
               </Link>
               <span className="text-[#71f5ad]/55 text-[0.62rem] uppercase tracking-[0.14em]">

@@ -43,6 +43,8 @@ export function Modal({
     const previousActiveElement = document.activeElement;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
         onCloseRef.current();
         return;
       }

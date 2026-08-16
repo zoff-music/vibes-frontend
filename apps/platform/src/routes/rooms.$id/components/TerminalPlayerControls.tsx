@@ -3,6 +3,7 @@ import {
   TerminalButton,
   TerminalSection,
   TerminalSlider,
+  useTerminalShortcuts,
 } from '@vibes/ui/konami';
 
 interface TerminalPlayerControlsProps {
@@ -48,6 +49,23 @@ export function TerminalPlayerControls({
   showSpotifyConnect,
   volume,
 }: TerminalPlayerControlsProps) {
+  useTerminalShortcuts([
+    {
+      disabled: !canPlay,
+      key: 'F1',
+      onTrigger: isPlaying ? onPause : onPlay,
+    },
+    { disabled: !canSkip || isSkipping, key: 'F2', onTrigger: onSkip },
+    { disabled: !showReset, key: 'F3', onTrigger: onReset },
+    { key: 'F4', onTrigger: onOpenCast },
+    { key: 'F5', onTrigger: onAddSong },
+    {
+      disabled: !showSpotifyConnect,
+      key: 'F6',
+      onTrigger: onConnectSpotify,
+    },
+  ]);
+
   return (
     <TerminalSection
       label="PLAYBACK CONTROL"
@@ -68,24 +86,33 @@ export function TerminalPlayerControls({
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <TerminalButton
+          aria-keyshortcuts="F1"
           disabled={!canPlay}
           onClick={isPlaying ? onPause : onPlay}
         >
           [F1] {isPlaying ? 'PAUSE' : 'PLAY'}
         </TerminalButton>
-        <TerminalButton disabled={!canSkip || isSkipping} onClick={onSkip}>
+        <TerminalButton
+          aria-keyshortcuts="F2"
+          disabled={!canSkip || isSkipping}
+          onClick={onSkip}
+        >
           [F2] {isSkipping ? 'SKIPPING' : 'SKIP'}
         </TerminalButton>
         {showReset && (
-          <TerminalButton onClick={onReset}>[F3] RESYNC</TerminalButton>
+          <TerminalButton aria-keyshortcuts="F3" onClick={onReset}>
+            [F3] RESYNC
+          </TerminalButton>
         )}
         {!showReset && <TerminalButton disabled>[F3] SYNCED</TerminalButton>}
-        <TerminalButton onClick={onOpenCast}>
+        <TerminalButton aria-keyshortcuts="F4" onClick={onOpenCast}>
           [F4] {isCasting ? 'CAST ON' : 'CAST'}
         </TerminalButton>
-        <TerminalButton onClick={onAddSong}>[F5] ADD SONG</TerminalButton>
+        <TerminalButton aria-keyshortcuts="F5" onClick={onAddSong}>
+          [F5] ADD SONG
+        </TerminalButton>
         {showSpotifyConnect && (
-          <TerminalButton onClick={onConnectSpotify}>
+          <TerminalButton aria-keyshortcuts="F6" onClick={onConnectSpotify}>
             [F6] SPOTIFY LINK
           </TerminalButton>
         )}

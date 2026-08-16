@@ -16,6 +16,7 @@ import {
   TerminalStatus,
   TerminalStatusGrid,
   TerminalToolbar,
+  useTerminalShortcuts,
 } from '@vibes/ui/konami';
 import {
   playlistGenerationMessageIntervalMs,
@@ -61,6 +62,11 @@ export function TerminalHome({
   const isTabVisible = usePageVisibility();
   const [generationMessageIndex, setGenerationMessageIndex] = useState(0);
   const isGenerating = fetcher.state !== 'idle';
+
+  useTerminalShortcuts([
+    { key: 'F1', onTrigger: onStartSession },
+    { key: 'F2', onTrigger: onToggleAIMode },
+  ]);
 
   useEffect(() => {
     if (!isGenerating || !isTabVisible) return;
@@ -112,10 +118,10 @@ export function TerminalHome({
         <TerminalToolbar
           actions={
             <>
-              <TerminalButton onClick={onStartSession}>
+              <TerminalButton aria-keyshortcuts="F1" onClick={onStartSession}>
                 [F1] NEW ROOM
               </TerminalButton>
-              <TerminalButton onClick={onToggleAIMode}>
+              <TerminalButton aria-keyshortcuts="F2" onClick={onToggleAIMode}>
                 {isAIMode ? '[F2] ROOM UPLINK' : '[F2] AI PLAYLIST'}
               </TerminalButton>
             </>

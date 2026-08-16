@@ -6,6 +6,7 @@ import { TerminalInput } from './TerminalInput';
 import { TerminalSection } from './TerminalSection';
 import { TerminalShell } from './TerminalShell';
 import { TerminalToggle } from './TerminalToggle';
+import { useTerminalShortcuts } from './useTerminalShortcuts';
 
 type BooleanRoomSetting = keyof Pick<
   RoomSettings,
@@ -65,12 +66,16 @@ export function TerminalCreateRoom({
   const availabilityLabel =
     availability === 'idle' ? 'WAITING' : availability.toUpperCase();
 
+  useTerminalShortcuts([{ key: 'Escape', onTrigger: onBack }]);
+
   return (
     <TerminalShell channel="ROOM COMPILER" title="CREATE SESSION">
       {renderForm(
         <div className="flex flex-1 flex-col gap-4">
           <div className="flex items-center justify-between gap-3 border border-[#71f5ad]/30 p-2">
-            <TerminalButton onClick={onBack}>[ESC] DIRECTORY</TerminalButton>
+            <TerminalButton aria-keyshortcuts="Escape" onClick={onBack}>
+              [ESC] DIRECTORY
+            </TerminalButton>
             <p className="text-right text-[#71f5ad]/60 text-[0.62rem] uppercase tracking-[0.16em]">
               ROOM PROTOCOL COMPILER / REV 19.89
             </p>

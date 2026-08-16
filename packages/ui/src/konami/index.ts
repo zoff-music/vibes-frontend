@@ -12,3 +12,4 @@ export * from './TerminalSlider';
 export * from './TerminalStatus';
 export * from './TerminalToggle';
 export * from './TerminalToolbar';
+export * from './useTerminalShortcuts';

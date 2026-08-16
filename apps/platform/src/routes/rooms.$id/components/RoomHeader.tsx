@@ -1,6 +1,10 @@
 import type { Providers, Room, RoomSettings, RoomUpdate } from '@vibes/models';
 import { classNames, useRoomStore } from '@vibes/shared';
-import { TerminalButton, TerminalToolbar } from '@vibes/ui/konami';
+import {
+  TerminalButton,
+  TerminalToolbar,
+  useTerminalShortcuts,
+} from '@vibes/ui/konami';
 import {
   ArrowLeftIcon,
   Button,
@@ -164,6 +168,14 @@ export const RoomHeader = React.memo(
       }
     }, [setRoom, settingsFetcher.data, settingsFetcher.state]);
 
+    useTerminalShortcuts(
+      [
+        { key: 'Escape', onTrigger: onLeave },
+        { key: 'F10', onTrigger: onToggleSettings },
+      ],
+      { enabled: terminalMode },
+    );
+
     if (terminalMode) {
       return (
         <div ref={headerRef} className="relative z-30 mb-4">
@@ -172,14 +184,19 @@ export const RoomHeader = React.memo(
               <>
                 <TerminalButton onClick={onShareRoom}>[SHARE]</TerminalButton>
                 <RemoteControlButton terminalMode showLabel />
-                <TerminalButton onClick={onToggleSettings}>
+                <TerminalButton
+                  aria-keyshortcuts="F10"
+                  onClick={onToggleSettings}
+                >
                   [F10] {showSettings ? 'CLOSE' : 'CONFIG'}
                 </TerminalButton>
               </>
             }
             description={`MODE ${displayRoom?.mode || 'UNKNOWN'} / CHANNEL ${roomId}`}
             leading={
-              <TerminalButton onClick={onLeave}>[ESC] LEAVE</TerminalButton>
+              <TerminalButton aria-keyshortcuts="Escape" onClick={onLeave}>
+                [ESC] LEAVE
+              </TerminalButton>
             }
             title={`ROOM / ${displayRoom?.name || 'LOADING'}`}
           />
