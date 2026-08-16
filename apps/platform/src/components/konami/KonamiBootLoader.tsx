@@ -18,7 +18,7 @@ const MAX_KEY_INTERVAL_MS = 1_800;
 type BootPhase = 'idle' | 'booting';
 
 const RetroBootExperience = lazy(async () => {
-  const module = await import('./RetroBootExperience');
+  const module = await import('@vibes/ui/konami/boot');
   return { default: module.RetroBootExperience };
 });
 

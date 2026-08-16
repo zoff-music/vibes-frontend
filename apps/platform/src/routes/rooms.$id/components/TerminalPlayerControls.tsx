@@ -2,7 +2,9 @@ import type { Song } from '@vibes/models';
 import {
   TerminalButton,
   TerminalSection,
-} from '../../../components/konami/TerminalPrimitives';
+  TerminalSlider,
+  useTerminalShortcuts,
+} from '@vibes/ui/konami';
 
 interface TerminalPlayerControlsProps {
   canPlay: boolean;
@@ -47,9 +49,22 @@ export function TerminalPlayerControls({
   showSpotifyConnect,
   volume,
 }: TerminalPlayerControlsProps) {
-  const handleVolumeInput = (event: React.FormEvent<HTMLInputElement>) => {
-    onVolumeChange(Number(event.currentTarget.value));
-  };
+  useTerminalShortcuts([
+    {
+      disabled: !canPlay,
+      key: 'F1',
+      onTrigger: isPlaying ? onPause : onPlay,
+    },
+    { disabled: !canSkip || isSkipping, key: 'F2', onTrigger: onSkip },
+    { disabled: !showReset, key: 'F3', onTrigger: onReset },
+    { key: 'F4', onTrigger: onOpenCast },
+    { key: 'F5', onTrigger: onAddSong },
+    {
+      disabled: !showSpotifyConnect,
+      key: 'F6',
+      onTrigger: onConnectSpotify,
+    },
+  ]);
 
   return (
     <TerminalSection
@@ -71,65 +86,61 @@ export function TerminalPlayerControls({
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <TerminalButton
+          aria-keyshortcuts="F1"
           disabled={!canPlay}
           onClick={isPlaying ? onPause : onPlay}
         >
           [F1] {isPlaying ? 'PAUSE' : 'PLAY'}
         </TerminalButton>
-        <TerminalButton disabled={!canSkip || isSkipping} onClick={onSkip}>
+        <TerminalButton
+          aria-keyshortcuts="F2"
+          disabled={!canSkip || isSkipping}
+          onClick={onSkip}
+        >
           [F2] {isSkipping ? 'SKIPPING' : 'SKIP'}
         </TerminalButton>
         {showReset && (
-          <TerminalButton onClick={onReset}>[F3] RESYNC</TerminalButton>
+          <TerminalButton aria-keyshortcuts="F3" onClick={onReset}>
+            [F3] RESYNC
+          </TerminalButton>
         )}
         {!showReset && <TerminalButton disabled>[F3] SYNCED</TerminalButton>}
-        <TerminalButton onClick={onOpenCast}>
+        <TerminalButton aria-keyshortcuts="F4" onClick={onOpenCast}>
           [F4] {isCasting ? 'CAST ON' : 'CAST'}
         </TerminalButton>
-        <TerminalButton onClick={onAddSong}>[F5] ADD SONG</TerminalButton>
+        <TerminalButton aria-keyshortcuts="F5" onClick={onAddSong}>
+          [F5] ADD SONG
+        </TerminalButton>
         {showSpotifyConnect && (
-          <TerminalButton onClick={onConnectSpotify}>
+          <TerminalButton aria-keyshortcuts="F6" onClick={onConnectSpotify}>
             [F6] SPOTIFY LINK
           </TerminalButton>
         )}
       </div>
 
-      <div className="mt-4 grid items-center gap-3 border-[#71f5ad]/20 border-t pt-4 sm:grid-cols-[auto_1fr_auto]">
-        <button
-          className="cursor-pointer text-left font-mono text-[#b9ffda] text-xs uppercase hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#71f5ad]"
-          onClick={onToggleMuted}
-          type="button"
-        >
-          [VOL] {volume === 0 ? 'MUTED' : 'LEVEL'}
-        </button>
-        <div className="relative">
-          <input
-            aria-label="Player volume"
-            aria-valuetext={`${volume}%`}
-            className="peer absolute inset-x-0 -inset-y-2 z-10 w-full cursor-pointer opacity-0"
-            max="100"
-            min="0"
-            onInput={handleVolumeInput}
-            type="range"
-            value={volume}
-          />
-          <div className="pointer-events-none h-3 border border-[#71f5ad]/45 bg-black p-0.5 peer-focus-visible:ring-1 peer-focus-visible:ring-[#a6ffd0] peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-[#020e09]">
-            <div
-              className="h-full bg-[repeating-linear-gradient(90deg,#71f5ad_0_9px,transparent_9px_12px)]"
-              style={{ width: `${volume}%` }}
-            />
-            <div
-              className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 border-2 border-[#020e09] bg-[#a6ffd0] shadow-[0_0_0.75rem_rgba(113,245,173,0.65)] outline outline-[#71f5ad]/75"
-              style={{
-                left: `calc(${volume}% + ${10 - volume * 0.2}px)`,
-              }}
-            />
-          </div>
-        </div>
-        <span className="text-right text-[#dffff0] text-xs tabular-nums">
-          {volume.toString().padStart(3, '0')}
-        </span>
-      </div>
+      <TerminalSlider
+        aria-label="Player volume"
+        aria-valuetext={`${volume}%`}
+        className="mt-4 border-[#71f5ad]/20 border-t pt-4"
+        end={
+          <span className="text-right text-[#dffff0] text-xs tabular-nums">
+            {volume.toString().padStart(3, '0')}
+          </span>
+        }
+        max={100}
+        min={0}
+        onValueChange={onVolumeChange}
+        start={
+          <TerminalButton
+            className="px-0 py-0"
+            onClick={onToggleMuted}
+            variant="ghost"
+          >
+            [VOL] {volume === 0 ? 'MUTED' : 'LEVEL'}
+          </TerminalButton>
+        }
+        value={volume}
+      />
 
       {isCasting && castDeviceName && (
         <p className="mt-3 text-[#71f5ad] text-[0.65rem] uppercase">

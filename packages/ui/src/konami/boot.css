@@ -1,10 +1,6 @@
 @import "tailwindcss/utilities.css" layer(components) source(none);
-@reference "../../../../../packages/tailwind/styles.css";
+@reference "../../../tailwind/styles.css";
 @source "./*.tsx";
-@source "../../routes/**/*.tsx";
-@source "../cast/*.tsx";
-@source "../queue/*.tsx";
-@source "../remote/*.tsx";
 
 @keyframes retro-boot-enter {
   from {

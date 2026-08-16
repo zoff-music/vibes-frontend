@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { useEffect } from 'react';
-import './retro-boot.css';
+import '@vibes/ui/konami/styles.css';
 
 const BOOT_DURATION_MS = 7_600;
 
@@ -56,11 +56,10 @@ export function RetroBootExperience({ onComplete }: RetroBootExperienceProps) {
   }, [onComplete]);
 
   return (
-    <section
+    <output
       aria-label="Zoff retro boot sequence"
       aria-live="polite"
       className="fixed inset-0 z-[1000] grid place-items-center overflow-hidden bg-[#010705] font-mono text-[#8cffc5] [animation:retro-boot-enter_100ms_linear_both] before:pointer-events-none before:absolute before:inset-0 before:z-[3] before:bg-[repeating-linear-gradient(to_bottom,transparent_0_3px,rgba(130,255,191,0.05)_3px_4px)] before:content-[''] after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:z-[4] after:h-[12vh] after:bg-[linear-gradient(transparent,rgba(140,255,197,0.07),transparent)] motion-reduce:after:animate-none after:[animation:retro-boot-scan_1.4s_linear_infinite] motion-reduce:[animation-duration:1ms]"
-      role="status"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(48,255,153,0.07),transparent_68%)] shadow-[inset_0_0_15vw_#000]" />
       <div className="relative z-[2] w-[min(58rem,calc(100vw-2rem))] border border-[#55ffad] bg-[rgba(1,12,8,0.96)] shadow-[inset_0_0_4rem_rgba(49,255,154,0.06),0_0_3rem_rgba(49,255,154,0.16)] [animation:retro-boot-terminal-enter_550ms_ease-out_both] [text-shadow:0_0_0.55rem_rgba(89,255,169,0.8)] motion-reduce:[animation-duration:1ms]">
@@ -125,6 +124,6 @@ export function RetroBootExperience({ onComplete }: RetroBootExperienceProps) {
           <span>ESC TO BYPASS</span>
         </footer>
       </div>
-    </section>
+    </output>
   );
 }

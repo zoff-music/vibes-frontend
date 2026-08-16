@@ -1,4 +1,5 @@
 import { usePlaybackStore } from '@vibes/shared';
+import { TerminalProgress } from '@vibes/ui/konami';
 import { PlaybackProgress as SharedPlaybackProgress } from '@vibes/ui/web';
 import React, { useEffect, useState } from 'react';
 
@@ -39,8 +40,6 @@ export const PlaybackProgress: React.FC<PlaybackProgressProps> = React.memo(
         0,
         Math.min(displayedPosition, durationMs),
       );
-      const progress =
-        durationMs > 0 ? (boundedPosition / durationMs) * 100 : 0;
       const formatTime = (milliseconds: number) => {
         const seconds = Math.floor(milliseconds / 1000);
         const minutes = Math.floor(seconds / 60);
@@ -48,25 +47,14 @@ export const PlaybackProgress: React.FC<PlaybackProgressProps> = React.memo(
       };
 
       return (
-        <div
+        <TerminalProgress
           aria-label="Server playback position"
-          aria-valuemax={durationMs}
-          aria-valuemin={0}
-          aria-valuenow={Math.round(boundedPosition)}
           className="mt-3"
-          role="progressbar"
-        >
-          <div className="mb-1 flex justify-between text-[#a6ffd0]/65 text-[0.6rem] tabular-nums">
-            <span>SERVER {formatTime(boundedPosition)}</span>
-            <span>{formatTime(durationMs)}</span>
-          </div>
-          <div className="h-3 border border-[#71f5ad]/45 bg-black p-0.5">
-            <div
-              className="h-full bg-[repeating-linear-gradient(90deg,#71f5ad_0_9px,transparent_9px_12px)]"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
+          end={formatTime(durationMs)}
+          max={durationMs}
+          start={`SERVER ${formatTime(boundedPosition)}`}
+          value={boundedPosition}
+        />
       );
     }
 

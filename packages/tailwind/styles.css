@@ -4,6 +4,7 @@
 
 @config "./config.js";
 @source "../ui/src";
+@source not "../ui/src/konami";
 
 @layer base {
   :root,
