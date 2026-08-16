@@ -1,7 +1,7 @@
 import type { ApiClient } from '@vibes/api';
 import { getHttpError, useRemoteRequests, useRoomRequests } from '@vibes/api';
 import type { PlaybackState, RemoteStatus, Room, Song } from '@vibes/models';
-import { safeWrap } from '@vibes/shared';
+import { safeWrap, synchronizeServerClock } from '@vibes/shared';
 import type { BarcodeScanningResult } from 'expo-camera';
 import { useCameraPermissions } from 'expo-camera';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -124,6 +124,7 @@ export function useControllerRemote(): ControllerRemote {
     }
     setRoom(snapshot.room);
     setSongs(snapshot.songs);
+    synchronizeServerClock(snapshot.playback.serverTimeMs);
     setPlayback(snapshot.playback);
     setError('');
   }, [

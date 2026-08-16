@@ -1,5 +1,6 @@
 import { type PlaybackState } from '@vibes/models';
 import { create } from 'zustand';
+import { getClientReferenceTimeMs } from '../utils/serverClock';
 
 interface PlaybackStoreState extends PlaybackState {
   // Client-side computed fields
@@ -294,6 +295,5 @@ function getPlaybackReferenceTime(
   // Replayed SSE updates retain the server time at which the playback
   // position was measured. Preserve that elapsed time instead of treating an
   // old update as though it was created when this client received it.
-  const elapsedBeforeReceipt = Math.max(receivedAt - state.serverTimeMs, 0);
-  return receivedAt - elapsedBeforeReceipt;
+  return getClientReferenceTimeMs(state.serverTimeMs, receivedAt);
 }

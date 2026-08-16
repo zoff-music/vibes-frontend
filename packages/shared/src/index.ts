@@ -9,6 +9,7 @@ export * from './types';
 export * from './utils/classNames';
 export * from './utils/debug';
 export * from './utils/provider';
+export * from './utils/serverClock';
 export * from './utils/theme';
 export * from './utils/time';
 export * from './utils/wrap';

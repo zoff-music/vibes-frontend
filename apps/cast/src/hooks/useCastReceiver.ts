@@ -1,5 +1,9 @@
 import type { ResolvedColorScheme, Song } from '@vibes/shared';
-import { safeWrap, usePlaybackStore } from '@vibes/shared';
+import {
+  getEstimatedServerTimeMs,
+  safeWrap,
+  usePlaybackStore,
+} from '@vibes/shared';
 import type { framework } from 'chromecast-caf-receiver';
 import { useEffect, useRef } from 'react';
 import type { LocalCastMessage } from '../types';
@@ -115,7 +119,7 @@ export const useCastReceiver = ({
                 isPlaying: true,
                 positionMs: data.positionMs || 0,
                 updatedAt: new Date().toISOString(),
-                serverTimeMs: Date.now(),
+                serverTimeMs: getEstimatedServerTimeMs(),
               });
               setIsPlaying(true);
               setStatusText(`Now Playing: ${normalizedSong.title}`);

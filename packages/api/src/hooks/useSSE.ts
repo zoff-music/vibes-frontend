@@ -6,6 +6,7 @@ import type {
 } from '@vibes/models';
 import {
   safeWrap,
+  synchronizeServerClock,
   usePlaybackStore,
   useQueueStore,
   useRoomStore,
@@ -99,6 +100,7 @@ export const useSSE = (
 
       setRoom(snapshot.room);
       setSongs(snapshot.songs);
+      synchronizeServerClock(snapshot.playback.serverTimeMs);
       setPlaybackState(snapshot.playback, snapshot.room.mode);
     };
 
@@ -156,6 +158,7 @@ export const useSSE = (
 
             switch (message.type) {
               case 'connected':
+                synchronizeServerClock(message.data.time);
                 break;
               case 'songs_update': {
                 const [error] = safeWrap(() => {

@@ -12,7 +12,12 @@ import type {
   Room,
   Song,
 } from '@vibes/models';
-import { usePlaybackStore, useQueueStore, useRoomStore } from '@vibes/shared';
+import {
+  synchronizeServerClock,
+  usePlaybackStore,
+  useQueueStore,
+  useRoomStore,
+} from '@vibes/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 
@@ -80,6 +85,7 @@ export function useTvSession(client: ApiClient): TvSession {
     (snapshot: { playback: PlaybackState; room: Room; songs: Song[] }) => {
       useRoomStore.getState().setRoom(snapshot.room);
       useQueueStore.getState().setSongs(snapshot.songs);
+      synchronizeServerClock(snapshot.playback.serverTimeMs);
       usePlaybackStore
         .getState()
         .resetPlaybackState(snapshot.playback, snapshot.room.mode);

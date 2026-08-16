@@ -1,5 +1,5 @@
 import type { ResolvedColorScheme, Song } from '@vibes/shared';
-import { usePlaybackStore } from '@vibes/shared';
+import { getEstimatedServerTimeMs, usePlaybackStore } from '@vibes/shared';
 import { useCallback } from 'react';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
 import { normalizeSong } from '../utils/songUtils';
@@ -82,7 +82,8 @@ export const useCastMessageHandler = ({
                 isPlaying: message.isPlaying || false,
                 positionMs: positionMs,
                 updatedAt: message.updatedAt || new Date().toISOString(),
-                serverTimeMs: message.serverTimeMs || Date.now(),
+                serverTimeMs:
+                  message.serverTimeMs || getEstimatedServerTimeMs(),
               },
               roomMode || undefined,
             );

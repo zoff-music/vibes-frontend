@@ -1,5 +1,6 @@
 import type { RemoteRequests } from '@vibes/api';
 import type { PlaybackState, RemotePairing, RemoteStatus } from '@vibes/models';
+import { getClientReferenceTimeMs } from '@vibes/shared';
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -154,7 +155,8 @@ export function useMachineRemote({
 export function getObservedPosition(playback: PlaybackState | null) {
   if (!playback) return 0;
   if (!playback.isPlaying) return playback.positionMs;
-  const elapsed = Math.max(Date.now() - playback.serverTimeMs, 0);
+  const referenceTimeMs = getClientReferenceTimeMs(playback.serverTimeMs);
+  const elapsed = Math.max(Date.now() - referenceTimeMs, 0);
   const duration = (playback.currentSong?.duration ?? 0) * 1_000;
   return Math.min(playback.positionMs + elapsed, duration || Number.MAX_VALUE);
 }
