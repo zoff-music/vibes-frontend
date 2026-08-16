@@ -38,23 +38,27 @@ interface Props {
 }
 
 interface VolumeControlProps {
+  className?: string;
   volume: number;
   onVolumeChange: (volume: number) => void;
   onToggleMuted: () => void;
 }
 
 const VolumeControl = ({
+  className,
   volume,
   onVolumeChange,
   onToggleMuted,
 }: VolumeControlProps) => {
   return (
-    <div className="flex h-12 w-28 shrink-0 items-center gap-2 sm:w-44">
+    <div
+      className={classNames('flex h-11 min-w-0 items-center gap-2', className)}
+    >
       <Button
         aria-label={volume === 0 ? 'Unmute player' : 'Mute player'}
-        className="group h-12 w-12 shrink-0 rounded-2xl p-0"
+        className="group"
         onClick={onToggleMuted}
-        size="none"
+        size="icon"
         variant="tertiary"
       >
         {volume === 0 && (
@@ -64,23 +68,27 @@ const VolumeControl = ({
           <VolumeIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
         )}
       </Button>
-      <div className="relative h-5 min-w-0 flex-1 touch-none select-none">
-        <div className="absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full bg-theme-muted/20">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-secondary via-primary to-accent"
-            style={{ width: `${volume}%` }}
+      <div className="flex h-11 min-w-0 flex-1 touch-none select-none items-center rounded-xl border border-theme bg-theme-surface px-2">
+        <div className="relative h-5 min-w-0 flex-1">
+          <div className="absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full bg-theme-muted/20">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-secondary via-primary to-accent"
+              style={{ width: `${volume}%` }}
+            />
+          </div>
+          <input
+            aria-label="Player volume"
+            aria-valuetext={`${volume} percent`}
+            className="absolute inset-x-0 top-0 h-5 w-full cursor-pointer touch-none select-none appearance-none bg-transparent [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-primary [&::-moz-range-track]:h-1 [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-primary"
+            max="100"
+            min="0"
+            onInput={(event) =>
+              onVolumeChange(Number(event.currentTarget.value))
+            }
+            type="range"
+            value={volume}
           />
         </div>
-        <input
-          aria-label="Player volume"
-          aria-valuetext={`${volume} percent`}
-          className="absolute inset-x-0 top-0 h-5 w-full cursor-pointer touch-none select-none appearance-none bg-transparent [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-primary [&::-moz-range-track]:h-1 [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-primary"
-          max="100"
-          min="0"
-          onInput={(event) => onVolumeChange(Number(event.currentTarget.value))}
-          type="range"
-          value={volume}
-        />
       </div>
       <span className="hidden w-7 text-right font-display text-2xs text-theme-muted tabular-nums sm:block">
         {volume}
@@ -114,15 +122,15 @@ const PlayerControlsComponent: React.FC<Props> = ({
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap items-center justify-start gap-2 sm:flex-nowrap sm:gap-4">
+      <div className="flex flex-wrap items-center justify-start gap-1.5 sm:flex-nowrap sm:gap-4">
         <Tooltip className="inline-flex" content={playbackLabel}>
           <Button
             onClick={isPlaying ? onPause : onPlay}
             disabled={!canPlay}
             variant="tertiary"
-            size="none"
+            size="icon"
             aria-label={playbackLabel}
-            className="group h-12 w-12 shrink-0 rounded-2xl p-0 active:scale-95"
+            className="group active:scale-95"
           >
             {isPlaying && <PauseIcon className="h-6 w-6 fill-current" />}
             {!isPlaying && <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />}
@@ -206,8 +214,9 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Button>
         </Tooltip>
 
-        <div className="sm:hidden">
+        <div className="min-w-24 flex-1 sm:hidden">
           <VolumeControl
+            className="w-full"
             volume={volume}
             onVolumeChange={onVolumeChange}
             onToggleMuted={onToggleMuted}
@@ -226,6 +235,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
         >
           <div className="hidden sm:block">
             <VolumeControl
+              className="w-52"
               volume={volume}
               onVolumeChange={onVolumeChange}
               onToggleMuted={onToggleMuted}
