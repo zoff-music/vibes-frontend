@@ -148,6 +148,10 @@ export default function Room() {
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const initializeCast = useCastStore((state) => state.initialize);
   const isCastInitialized = useCastStore((state) => state.isInitialized);
+  const isCasting = useCastStore((state) => state.isConnected);
+  const castDeviceName = useCastStore(
+    (state) => state.currentSession?.deviceName ?? null,
+  );
 
   const [isSSR, setIsSSR] = useState(true);
   const shouldReduceMotion = useReducedMotion();
@@ -497,6 +501,9 @@ export default function Room() {
               shareUrl={shareUrl}
               onShareRoom={handleShareRoom}
               onOpenPartyScreen={handleOpenPartyScreen}
+              onOpenCast={handleOpenCast}
+              isCasting={isCasting}
+              castDeviceName={castDeviceName}
               themeId={themeId}
               currentTheme={currentTheme}
               onToggleDarkMode={handleToggleDarkMode}

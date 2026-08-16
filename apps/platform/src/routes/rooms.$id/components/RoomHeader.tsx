@@ -1,8 +1,9 @@
 import type { Providers, Room, RoomSettings, RoomUpdate } from '@vibes/models';
-import { useRoomStore } from '@vibes/shared';
+import { classNames, useRoomStore } from '@vibes/shared';
 import {
   ArrowLeftIcon,
   Button,
+  CastIcon,
   CircleHalfIcon,
   MoonIcon,
   SettingsIcon,
@@ -71,6 +72,9 @@ interface RoomHeaderProps {
   shareUrl: string;
   onShareRoom: () => void;
   onOpenPartyScreen: () => void;
+  onOpenCast: () => void;
+  isCasting: boolean;
+  castDeviceName?: string | null;
   themeId: string;
   currentTheme: Theme;
   onToggleDarkMode: () => void;
@@ -99,6 +103,9 @@ export const RoomHeader = React.memo(
     shareUrl,
     onShareRoom,
     onOpenPartyScreen,
+    onOpenCast,
+    isCasting,
+    castDeviceName,
     themeId,
     currentTheme,
     onToggleDarkMode,
@@ -245,7 +252,40 @@ export const RoomHeader = React.memo(
                 <RemoteControlButton />
               </div>
 
-              <div className="relative ml-1">
+              <div className="sm:hidden">
+                <Tooltip
+                  className="inline-flex"
+                  content={
+                    isCasting && castDeviceName
+                      ? `Casting to ${castDeviceName}`
+                      : 'Cast'
+                  }
+                  side="bottom"
+                >
+                  <Button
+                    onClick={onOpenCast}
+                    variant={isCasting ? 'secondary' : 'tertiary'}
+                    size="icon"
+                    aria-label={
+                      isCasting && castDeviceName
+                        ? `Casting to ${castDeviceName}`
+                        : 'Cast'
+                    }
+                  >
+                    <CastIcon
+                      className={classNames(
+                        'h-5 w-5 transition-colors',
+                        isCasting && 'text-primary',
+                        !isCasting &&
+                          'text-theme-muted group-hover:text-primary',
+                      )}
+                      showDot={isCasting}
+                    />
+                  </Button>
+                </Tooltip>
+              </div>
+
+              <div className="relative sm:ml-1">
                 <Tooltip
                   className="inline-flex"
                   content="Room Settings"
