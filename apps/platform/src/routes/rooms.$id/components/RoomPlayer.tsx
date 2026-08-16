@@ -736,7 +736,12 @@ export const RoomPlayer = React.memo(
           castDeviceName={castDeviceName}
           showSpotifyConnect={hasSpotifySongs && !spotifyToken}
           onConnectSpotify={handleConnectSpotify}
-          mobileTrailingContent={<UserCount />}
+          mobileTrailingContent={
+            <UserCount
+              initialCount={displayRoom?.userCount ?? 0}
+              roomId={roomId}
+            />
+          }
           volume={volume}
           onVolumeChange={setVolume}
           onToggleMuted={toggleMuted}

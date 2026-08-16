@@ -3,13 +3,17 @@ import { QRCodeSVG } from 'qrcode.react';
 import { UserCount } from './UserCount';
 
 interface PartyScreenJoinCardProps {
+  initialListenerCount: number;
   onExit: () => void;
+  roomId: string;
   roomName: string;
   url: string;
 }
 
 export function PartyScreenJoinCard({
+  initialListenerCount,
   onExit,
+  roomId,
   roomName,
   url,
 }: PartyScreenJoinCardProps) {
@@ -38,7 +42,7 @@ export function PartyScreenJoinCard({
           <p className="font-pixel text-2xs text-secondary tracking-label">
             Scan to join
           </p>
-          <UserCount />
+          <UserCount initialCount={initialListenerCount} roomId={roomId} />
         </div>
         <p className="mt-3 truncate font-display text-theme text-xl">
           {roomName}
