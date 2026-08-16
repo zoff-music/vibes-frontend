@@ -68,7 +68,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       small: 'rounded-lg px-3 py-1.5 text-xs',
       medium: 'rounded-xl px-5 py-2.5 text-base',
       large: 'rounded-2xl px-6 py-4 text-sm',
-      icon: 'rounded-xl p-2.5',
+      icon: 'h-11 w-11 shrink-0 rounded-xl p-0',
     };
 
     const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
