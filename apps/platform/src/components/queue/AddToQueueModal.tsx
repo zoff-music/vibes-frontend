@@ -111,8 +111,8 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [addedPlaylistCount, setAddedPlaylistCount] = useState(0);
   const [existingPlaylistCount, setExistingPlaylistCount] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const { songs } = useQueueStore();
-  const { currentSong } = usePlaybackStore();
+  const songs = useQueueStore((state) => state.songs);
+  const currentSong = usePlaybackStore((state) => state.currentSong);
 
   const songCountCutoff = roomGenerationMaxExistingSongs + 1;
   const isAboveSongLimit = songs.length >= songCountCutoff;

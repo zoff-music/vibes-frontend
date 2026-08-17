@@ -13,17 +13,15 @@ import { useThemeStore } from '../stores/themeStore';
  * Hook to integrate casting functionality with the existing playback system
  */
 export const useCasting = (_roomId: string) => {
-  const {
-    isConnected,
-    currentSession,
-    availableDevices,
-    lastError,
-    syncPlaybackState,
-    updateQueue,
-    updateRoomInfo,
-    updateTheme,
-    clearError,
-  } = useCastStore();
+  const isConnected = useCastStore((state) => state.isConnected);
+  const currentSession = useCastStore((state) => state.currentSession);
+  const availableDevices = useCastStore((state) => state.availableDevices);
+  const lastError = useCastStore((state) => state.lastError);
+  const syncPlaybackState = useCastStore((state) => state.syncPlaybackState);
+  const updateQueue = useCastStore((state) => state.updateQueue);
+  const updateRoomInfo = useCastStore((state) => state.updateRoomInfo);
+  const updateTheme = useCastStore((state) => state.updateTheme);
+  const clearError = useCastStore((state) => state.clearError);
 
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);

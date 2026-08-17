@@ -5,8 +5,8 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFetcher } from 'react-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useFetcher, useRevalidator } from 'react-router';
 import type { EmbedActionData } from '../action';
 import type { EmbedLoaderData } from '../loader';
 
@@ -19,7 +19,12 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const { roomId } = loaderData;
   const actionFetcher = useFetcher<EmbedActionData>();
   const spotifyTokenFetcher = useFetcher<EmbedActionData>();
-  useSSE(roomId);
+  const revalidate = useRevalidator().revalidate;
+  const sseCallbacks = useMemo(
+    () => ({ onReconnect: revalidate }),
+    [revalidate],
+  );
+  useSSE(roomId, sseCallbacks);
 
   const [toast, setToast] = useState<EmbedToast | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null);

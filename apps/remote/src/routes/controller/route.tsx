@@ -42,8 +42,9 @@ import { RoomSettingsModal } from './components/RoomSettingsModal';
 import { SongSearchModal } from './components/SongSearchModal';
 import type { ControllerLoaderData } from './loadController';
 import { loader } from './loader';
+import { shouldRevalidate } from './shouldRevalidate';
 
-export { clientAction, clientLoader, loader };
+export { clientAction, clientLoader, loader, shouldRevalidate };
 
 export default function RemoteController() {
   const loaderData = useLoaderData<ControllerLoaderData>();
@@ -59,15 +60,17 @@ export default function RemoteController() {
   );
   const room = useRoomStore((state) => state.room) ?? loaderData.room;
   const songs = useQueueStore((state) => state.songs);
-  const playback = usePlaybackStore();
+  const currentSongFromStore = usePlaybackStore((state) => state.currentSong);
+  const actualPositionMs = usePlaybackStore((state) => state.actualPositionMs);
+  const playbackIsPlaying = usePlaybackStore((state) => state.isPlaying);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const usersCount = useRoomStore((state) => state.usersCount);
   const setSession = useRoomStore((state) => state.setSession);
-  const currentSong = playback.currentSong ?? loaderData.playback?.currentSong;
+  const currentSong = currentSongFromStore ?? loaderData.playback?.currentSong;
   const serverPositionMs =
-    playback.actualPositionMs ?? loaderData.playback?.positionMs ?? 0;
+    actualPositionMs ?? loaderData.playback?.positionMs ?? 0;
   const durationMs = (currentSong?.duration ?? 0) * 1000;
   const isMachineSongCurrent = Boolean(
     currentSong?.id && remoteStatus?.currentSongId === currentSong.id,
@@ -141,13 +144,11 @@ export default function RemoteController() {
     }
     if (data.room) setRoom(data.room);
     if (data.playback && room) setPlaybackState(data.playback, room.mode);
-    if (data.intent === 'changeRoom' || data.intent === 'addSong') {
-      void revalidator.revalidate();
+    if (data.intent === 'changeRoom') {
       setRoomInput('');
     }
   }, [
     actionFetcher.data,
-    revalidator,
     room,
     roomFetcher.data,
     setPlaybackState,
@@ -170,20 +171,14 @@ export default function RemoteController() {
         currentSongId: event.currentSongId,
         enabled: true,
         id: current?.id ?? remoteId,
-        online: true,
-        paired: true,
+        online: event.online,
+        paired: event.paired,
         playbackIsPlaying: event.playbackIsPlaying,
         playbackObservedAt: event.playbackObservedAt,
         playbackPositionMs: event.playbackPositionMs,
       }));
-      if (
-        event.roomId !== room?.id ||
-        (event.currentSongId && event.currentSongId !== currentSong?.id)
-      ) {
-        void revalidator.revalidate();
-      }
     },
-    [currentSong?.id, remoteId, revalidator, room?.id],
+    [remoteId],
   );
   useRemoteEvents({
     controller: true,
@@ -192,7 +187,10 @@ export default function RemoteController() {
     onStateUpdate: handleRemoteStateUpdate,
   });
 
-  const callbacks = useMemo(() => ({}), []);
+  const callbacks = useMemo(
+    () => ({ onReconnect: revalidator.revalidate }),
+    [revalidator.revalidate],
+  );
   useSSE(room?.id, callbacks, remoteClient);
 
   const handleRoomInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -251,7 +249,7 @@ export default function RemoteController() {
 
   const isPlaying = isMachineSongCurrent
     ? (remoteStatus?.playbackIsPlaying ?? false)
-    : (playback.isPlaying ?? loaderData.playback?.isPlaying ?? false);
+    : (playbackIsPlaying ?? loaderData.playback?.isPlaying ?? false);
   const canSeek =
     room?.mode === 'host' &&
     Boolean(room.hostId && room.hostId === room.userId);

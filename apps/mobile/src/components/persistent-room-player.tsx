@@ -21,7 +21,6 @@ export function PersistentRoomPlayer() {
     observeLocalPlaybackPosition,
     playback,
     playbackResetVersion,
-    refresh,
     room,
     roomId,
     setError,
@@ -118,7 +117,6 @@ export function PersistentRoomPlayer() {
               );
               return;
             }
-            await refresh();
           };
           void update();
         }}
@@ -161,7 +159,6 @@ export function PersistentRoomPlayer() {
               );
               return;
             }
-            await refresh();
           };
           void update();
         }}

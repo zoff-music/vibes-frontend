@@ -57,7 +57,7 @@ const CreateRoom: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const terminalMode = useKonamiMode();
-  const { setIsWarping } = useThemeStore();
+  const setIsWarping = useThemeStore((state) => state.setIsWarping);
 
   // Initialize name - prioritize SSR data, then URL params
   const [name, setName] = useState(() => {

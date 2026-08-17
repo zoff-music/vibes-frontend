@@ -59,6 +59,8 @@ export const remoteEventSchema = yup.object({
     .required(),
   roomId: yup.string().default(''),
   origin: yup.string().oneOf(['machine', 'controller']).required(),
+  online: yup.boolean().default(true),
+  paired: yup.boolean().default(false),
   currentSongId: yup.string().default(''),
   playbackPositionMs: yup.number().default(0),
   playbackIsPlaying: yup.boolean().default(false),

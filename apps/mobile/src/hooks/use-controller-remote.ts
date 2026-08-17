@@ -1,6 +1,18 @@
 import type { ApiClient } from '@vibes/api';
-import { getHttpError, useRemoteRequests, useRoomRequests } from '@vibes/api';
-import type { PlaybackState, RemoteStatus, Room, Song } from '@vibes/models';
+import {
+  getHttpError,
+  useRemoteEvents,
+  useRemoteRequests,
+  useRoomRequests,
+  useSSE,
+} from '@vibes/api';
+import type {
+  PlaybackState,
+  RemoteEvent,
+  RemoteStatus,
+  Room,
+  Song,
+} from '@vibes/models';
 import { safeWrap, synchronizeServerClock } from '@vibes/shared';
 import type { BarcodeScanningResult } from 'expo-camera';
 import { useCameraPermissions } from 'expo-camera';
@@ -145,9 +157,59 @@ export function useControllerRemote(): ControllerRemote {
 
   useEffect(() => {
     void refresh();
-    const interval = setInterval(() => void refresh(), refreshIntervalMs);
-    return () => clearInterval(interval);
   }, [refresh]);
+
+  const handleRemoteRoomUpdate = useCallback(
+    (event: RemoteEvent) => {
+      if (!event.roomId || event.roomId === remote?.currentRoomId) return;
+      void refresh();
+    },
+    [refresh, remote?.currentRoomId],
+  );
+
+  const handleRemoteStateUpdate = useCallback((event: RemoteEvent) => {
+    setRemote((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        currentRoomId: event.roomId,
+        currentSongId: event.currentSongId,
+        online: event.online,
+        paired: event.paired,
+        playbackIsPlaying: event.playbackIsPlaying,
+        playbackObservedAt: event.playbackObservedAt,
+        playbackPositionMs: event.playbackPositionMs,
+      };
+    });
+  }, []);
+
+  useRemoteEvents({
+    client,
+    controller: true,
+    onRoomUpdate: handleRemoteRoomUpdate,
+    onStateUpdate: handleRemoteStateUpdate,
+    ...(remoteId ? { remoteId } : {}),
+  });
+
+  const roomEventCallbacks = useMemo(
+    () => ({
+      onPlaybackUpdate: (nextPlayback: PlaybackState) => {
+        synchronizeServerClock(nextPlayback.serverTimeMs);
+        setPlayback(nextPlayback);
+      },
+      onReconnect: () => void refresh(),
+      onRoomUpdate: setRoom,
+      onSongsUpdate: setSongs,
+      onUsersUpdate: (count: number) => {
+        setRoom((current) => {
+          if (!current) return current;
+          return { ...current, userCount: count };
+        });
+      },
+    }),
+    [refresh],
+  );
+  useSSE(remote?.currentRoomId || undefined, roomEventCallbacks, client);
 
   const pair = async () => {
     const normalizedRemoteId = remoteId.trim();
@@ -196,7 +258,6 @@ export function useControllerRemote(): ControllerRemote {
         );
         return;
       }
-      await refresh();
       return;
     }
     const hasHostAuthority =
@@ -215,7 +276,6 @@ export function useControllerRemote(): ControllerRemote {
         );
         return;
       }
-      await refresh();
       return;
     }
     const isPlaying = kind === 'play';
@@ -255,7 +315,6 @@ export function useControllerRemote(): ControllerRemote {
         await getRequestErrorMessage(requestError, 'Could not register vote.'),
       );
     }
-    await refresh();
   };
 
   const remove = async (song: Song) => {
@@ -269,7 +328,6 @@ export function useControllerRemote(): ControllerRemote {
         await getRequestErrorMessage(requestError, 'Could not remove song.'),
       );
     }
-    await refresh();
   };
 
   const seek = async (positionMs: number) => {
@@ -283,9 +341,7 @@ export function useControllerRemote(): ControllerRemote {
       setError(
         await getRequestErrorMessage(requestError, 'Could not seek playback.'),
       );
-      return;
     }
-    await refresh();
   };
 
   const openScanner = async () => {
@@ -357,7 +413,6 @@ export function useControllerRemote(): ControllerRemote {
       return;
     }
     setNextRoomId('');
-    await refresh();
   };
 
   const disconnect = async () => {
@@ -402,4 +457,3 @@ export function useControllerRemote(): ControllerRemote {
 }
 
 const invalidRemoteStatuses = [401, 403, 404, 410];
-const refreshIntervalMs = 2_000;

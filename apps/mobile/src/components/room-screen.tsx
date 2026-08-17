@@ -33,7 +33,6 @@ export function RoomScreen() {
     playback,
     playerEnabled,
     playerPreferenceLoaded,
-    refresh,
     resetLocalPlayback,
     room,
     roomId,
@@ -95,7 +94,6 @@ export function RoomScreen() {
         ),
       );
     }
-    await refresh();
   };
 
   const skip = async () => {
@@ -115,7 +113,6 @@ export function RoomScreen() {
         `Skip vote added (${response.currentVotes}/${response.requiredVotes}).`,
       );
     }
-    await refresh();
   };
 
   const vote = async (song: Song) => {
@@ -125,7 +122,6 @@ export function RoomScreen() {
         await getRequestErrorMessage(requestError, 'Could not register vote.'),
       );
     }
-    await refresh();
   };
 
   const remove = async (song: Song) => {
@@ -135,7 +131,6 @@ export function RoomScreen() {
         await getRequestErrorMessage(requestError, 'Could not remove song.'),
       );
     }
-    await refresh();
   };
 
   const seek = async (positionMs: number) => {
@@ -149,7 +144,6 @@ export function RoomScreen() {
         await getRequestErrorMessage(requestError, 'Could not seek playback.'),
       );
     }
-    await refresh();
   };
 
   const leave = async () => {

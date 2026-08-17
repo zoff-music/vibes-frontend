@@ -1,12 +1,11 @@
 import { api, getAPIErrorMessage, getRateLimitMessage } from '@vibes/api';
-import type { RemotePairing, RemoteStatus } from '@vibes/models';
+import type { RemotePairing } from '@vibes/models';
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface RemoteControlActionData {
   error?: string;
-  intent: 'delete' | 'enable' | 'heartbeat';
+  intent: 'delete' | 'enable' | 'unknown';
   pairing?: RemotePairing;
-  remote?: RemoteStatus;
 }
 
 export async function clientAction({
@@ -16,10 +15,6 @@ export async function clientAction({
   const intent = formData.get('intent');
   const remoteId = String(formData.get('remoteId') ?? '');
   const roomId = String(formData.get('roomId') ?? '');
-  const currentSongId = String(formData.get('currentSongId') ?? '');
-  const playbackPositionMs = Number(formData.get('playbackPositionMs') ?? 0);
-  const playbackIsPlaying =
-    String(formData.get('playbackIsPlaying') ?? 'false') === 'true';
 
   if (intent === 'enable') {
     const [error, pairing] = await api.post('/remotes', null, { roomId });
@@ -27,26 +22,6 @@ export async function clientAction({
       return createErrorData('enable', error);
     }
     return { intent: 'enable', pairing };
-  }
-
-  if (intent === 'heartbeat') {
-    if (!remoteId) {
-      return { error: 'Remote ID is required', intent: 'heartbeat' };
-    }
-    const [error] = await api.patch(
-      '/remotes/{id}',
-      { id: remoteId },
-      {
-        currentSongId,
-        playbackIsPlaying,
-        playbackPositionMs,
-        roomId,
-      },
-    );
-    if (error) {
-      return createErrorData('heartbeat', error);
-    }
-    return { intent: 'heartbeat' };
   }
 
   if (intent === 'delete') {
@@ -60,11 +35,11 @@ export async function clientAction({
     return { intent: 'delete' };
   }
 
-  return { error: 'Unknown remote control action', intent: 'heartbeat' };
+  return { error: 'Unknown remote control action', intent: 'unknown' };
 }
 
 async function createErrorData(
-  intent: RemoteControlActionData['intent'],
+  intent: Exclude<RemoteControlActionData['intent'], 'unknown'>,
   error: Error | null,
 ) {
   return {
