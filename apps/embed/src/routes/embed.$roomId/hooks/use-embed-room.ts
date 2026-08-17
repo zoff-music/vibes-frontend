@@ -1,4 +1,5 @@
 import { useSSE } from '@vibes/api';
+import type { Room, Song } from '@vibes/models';
 import {
   synchronizeServerClock,
   useMediaSession,
@@ -9,26 +10,14 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useRevalidator } from 'react-router';
 import type { EmbedActionData } from '../action';
-import type { EmbedLoaderData } from '../loader';
+import type { EmbedLoaderData, EmbedOptions } from '../loader';
 
 interface EmbedToast {
   message: string;
   type: 'success' | 'error' | 'info';
 }
 
-export function useEmbedRoom(loaderData: EmbedLoaderData) {
-  const { roomId } = loaderData;
-  const actionFetcher = useFetcher<EmbedActionData>();
-  const spotifyTokenFetcher = useFetcher<EmbedActionData>();
-  const revalidate = useRevalidator().revalidate;
-
-  const [toast, setToast] = useState<EmbedToast | null>(null);
-  const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
-  const [hasLocalPlayerInteraction, setHasLocalPlayerInteraction] =
-    useState(false);
-  const [hydratedRoomId, setHydratedRoomId] = useState<string | null>(null);
-  const interactionRoomIDRef = useRef(loaderData.roomId);
-  const spotifyTokenRequestedRef = useRef(false);
+export function useEmbedRoomState(loaderData: EmbedLoaderData) {
   const storedRoom = useRoomStore((state) => state.room);
   const storedSongs = useQueueStore((state) => state.songs);
   const storedCurrentSong = usePlaybackStore((state) => state.currentSong);
@@ -37,6 +26,14 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     (state) => state.hasLocalPlaybackChanges,
   );
   const storedPositionMs = usePlaybackStore((state) => state.actualPositionMs);
+  const setRoom = useRoomStore((state) => state.setRoom);
+  const setHost = useRoomStore((state) => state.setHost);
+  const setUsersCount = useRoomStore((state) => state.setUsersCount);
+  const setSongs = useQueueStore((state) => state.setSongs);
+  const addSong = useQueueStore((state) => state.addSong);
+  const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
+  const [hydratedRoomId, setHydratedRoomId] = useState<string | null>(null);
+  const revalidate = useRevalidator().revalidate;
   const isRoomHydrated = hydratedRoomId === loaderData.roomId;
   const room = isRoomHydrated && storedRoom ? storedRoom : loaderData.room;
   const songs = isRoomHydrated ? storedSongs : loaderData.songs;
@@ -46,28 +43,9 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const isPlaying = isRoomHydrated
     ? storedIsPlaying
     : (loaderData.playback?.isPlaying ?? false);
-  const hasLocalPlaybackChanges = isRoomHydrated
-    ? storedHasLocalPlaybackChanges
-    : false;
   const positionMs = isRoomHydrated
     ? storedPositionMs
     : (loaderData.playback?.positionMs ?? 0);
-  const roomModeRef = useRef(room.mode);
-  const setRoom = useRoomStore((state) => state.setRoom);
-  const setHost = useRoomStore((state) => state.setHost);
-  const setUsersCount = useRoomStore((state) => state.setUsersCount);
-  const setSongs = useQueueStore((state) => state.setSongs);
-  const addSong = useQueueStore((state) => state.addSong);
-  const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
-  const resetPlaybackState = usePlaybackStore(
-    (state) => state.resetPlaybackState,
-  );
-  const setLocalPlaybackAligned = usePlaybackStore(
-    (state) => state.setLocalPlaybackAligned,
-  );
-  const setLocalPlayingState = usePlaybackStore(
-    (state) => state.setLocalPlayingState,
-  );
 
   const sseCallbacks = useMemo(
     () => ({
@@ -93,92 +71,7 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
       setUsersCount,
     ],
   );
-  useSSE(roomId, sseCallbacks);
-
-  const dismissToast = useCallback(() => {
-    setToast(null);
-  }, []);
-
-  const handleLocalPlayerInteraction = useCallback(() => {
-    setHasLocalPlayerInteraction(true);
-  }, []);
-
-  const handleLocalAlignmentChange = useCallback(
-    (isAligned: boolean) => {
-      if (!hasLocalPlayerInteraction) return;
-      setLocalPlaybackAligned(isAligned);
-    },
-    [hasLocalPlayerInteraction, setLocalPlaybackAligned],
-  );
-
-  const handleSkip = useCallback(() => {
-    actionFetcher.submit(
-      { intent: 'skip' },
-      { encType: 'application/json', method: 'post' },
-    );
-  }, [actionFetcher]);
-
-  const handleReset = useCallback(() => {
-    actionFetcher.submit(
-      { intent: 'resetPlayback' },
-      { encType: 'application/json', method: 'post' },
-    );
-  }, [actionFetcher]);
-
-  const handlePlay = useCallback(() => {
-    setHasLocalPlayerInteraction(true);
-    setLocalPlayingState(true, room.mode);
-  }, [room.mode, setLocalPlayingState]);
-
-  const handlePause = useCallback(() => {
-    setHasLocalPlayerInteraction(true);
-    setLocalPlayingState(false, room.mode);
-  }, [room.mode, setLocalPlayingState]);
-
-  const handlePlayPause = useCallback(() => {
-    if (isPlaying) {
-      handlePause();
-      return;
-    }
-
-    handlePlay();
-  }, [handlePause, handlePlay, isPlaying]);
-
-  useMediaSession({
-    canPlay: loaderData.options.player && Boolean(currentSong),
-    canSkip: loaderData.options.skip && Boolean(currentSong),
-    currentSong,
-    isPlaying,
-    onPause: handlePause,
-    onPlay: handlePlay,
-    onSkip: handleSkip,
-  });
-
-  const handleVote = useCallback(
-    (songId: string) => {
-      actionFetcher.submit(
-        { intent: 'voteSong', songId },
-        { encType: 'application/json', method: 'post' },
-      );
-    },
-    [actionFetcher],
-  );
-
-  const requestProviderToken = useCallback(
-    (provider: 'spotify', force = false) => {
-      if (!force && spotifyTokenRequestedRef.current) return;
-      spotifyTokenRequestedRef.current = true;
-      spotifyTokenFetcher.submit(
-        { intent: 'providerToken', provider },
-        { encType: 'application/json', method: 'post' },
-      );
-    },
-    [spotifyTokenFetcher],
-  );
-
-  useEffect(() => {
-    roomModeRef.current = room.mode;
-  }, [room.mode]);
+  useSSE(loaderData.roomId, sseCallbacks);
 
   useEffect(() => {
     setRoom(loaderData.room);
@@ -189,68 +82,53 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     setHydratedRoomId(loaderData.roomId);
   }, [loaderData, setPlaybackState, setRoom, setSongs]);
 
-  useEffect(() => {
-    if (interactionRoomIDRef.current === loaderData.roomId) return;
-    interactionRoomIDRef.current = loaderData.roomId;
-    setHasLocalPlayerInteraction(false);
-  }, [loaderData.roomId]);
-
-  useEffect(() => {
-    if (hasLocalPlayerInteraction || !currentSong?.id || !isPlaying) return;
-    setLocalPlayingState(false, room.mode);
-  }, [
-    currentSong?.id,
-    hasLocalPlayerInteraction,
+  return {
+    currentSong,
+    hasLocalPlaybackChanges: isRoomHydrated
+      ? storedHasLocalPlaybackChanges
+      : false,
     isPlaying,
-    room.mode,
-    setLocalPlayingState,
-  ]);
+    positionMs,
+    room,
+    songs,
+  };
+}
+
+interface EmbedActionOptions {
+  roomMode: Room['mode'];
+}
+
+export function useEmbedRoomActions({ roomMode }: EmbedActionOptions) {
+  const fetcher = useFetcher<EmbedActionData>();
+  const resetPlaybackState = usePlaybackStore(
+    (state) => state.resetPlaybackState,
+  );
+  const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
+  const roomModeRef = useRef(roomMode);
+  const [toast, setToast] = useState<EmbedToast | null>(null);
 
   useEffect(() => {
-    if (spotifyTokenFetcher.state !== 'idle' || !spotifyTokenFetcher.data) {
-      return;
-    }
-    if (spotifyTokenFetcher.data.error) {
-      spotifyTokenRequestedRef.current = false;
-      return;
-    }
-    if (
-      spotifyTokenFetcher.data.intent !== 'providerToken' ||
-      spotifyTokenFetcher.data.provider !== 'spotify' ||
-      !spotifyTokenFetcher.data.providerToken
-    ) {
-      return;
-    }
-    setSpotifyToken(spotifyTokenFetcher.data.providerToken.accessToken);
-  }, [spotifyTokenFetcher.data, spotifyTokenFetcher.state]);
+    roomModeRef.current = roomMode;
+  }, [roomMode]);
 
   useEffect(() => {
-    if (actionFetcher.state !== 'idle' || !actionFetcher.data) return;
-    if (actionFetcher.data.error) {
-      setToast({ message: actionFetcher.data.error, type: 'error' });
+    if (fetcher.state !== 'idle' || !fetcher.data) return;
+    if (fetcher.data.error) {
+      setToast({ message: fetcher.data.error, type: 'error' });
       return;
     }
-    if (
-      actionFetcher.data.intent === 'resetPlayback' &&
-      actionFetcher.data.playback
-    ) {
-      resetPlaybackState(actionFetcher.data.playback, roomModeRef.current);
+    if (fetcher.data.intent === 'resetPlayback' && fetcher.data.playback) {
+      resetPlaybackState(fetcher.data.playback, roomModeRef.current);
       return;
     }
-    if (actionFetcher.data.playback) {
-      setPlaybackState(actionFetcher.data.playback, roomModeRef.current);
+    if (fetcher.data.playback) {
+      setPlaybackState(fetcher.data.playback, roomModeRef.current);
     }
     setToast({
-      message:
-        actionFetcher.data.intent === 'skip' ? 'Skip requested' : 'Vote added',
+      message: fetcher.data.intent === 'skip' ? 'Skip requested' : 'Vote added',
       type: 'success',
     });
-  }, [
-    actionFetcher.data,
-    actionFetcher.state,
-    resetPlaybackState,
-    setPlaybackState,
-  ]);
+  }, [fetcher.data, fetcher.state, resetPlaybackState, setPlaybackState]);
 
   useEffect(() => {
     if (!toast) return;
@@ -258,25 +136,155 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     return () => window.clearTimeout(timeout);
   }, [toast]);
 
+  const submit = useCallback(
+    (intent: 'resetPlayback' | 'skip' | 'voteSong', songId?: string) => {
+      fetcher.submit(
+        { intent, ...(songId ? { songId } : {}) },
+        { encType: 'application/json', method: 'post' },
+      );
+    },
+    [fetcher],
+  );
+
   return {
-    currentSong,
-    dismissToast,
-    handleLocalAlignmentChange,
-    handleLocalPlayerInteraction,
-    handlePlay,
-    handlePlayPause,
-    handleReset,
-    handleSkip,
-    handleVote,
-    hasLocalPlaybackChanges,
+    dismissToast: () => setToast(null),
+    handleReset: () => submit('resetPlayback'),
+    handleSkip: () => submit('skip'),
+    handleVote: (songId: string) => submit('voteSong', songId),
+    toast,
+  };
+}
+
+interface EmbedPlaybackOptions {
+  canPlay: boolean;
+  canSkip: boolean;
+  currentSong: Song | null;
+  isPlaying: boolean;
+  onSkip: () => void;
+  roomId: string;
+  roomMode: Room['mode'];
+}
+
+export function useEmbedLocalPlayback({
+  canPlay,
+  canSkip,
+  currentSong,
+  isPlaying,
+  onSkip,
+  roomId,
+  roomMode,
+}: EmbedPlaybackOptions) {
+  const [hasLocalPlayerInteraction, setHasLocalPlayerInteraction] =
+    useState(false);
+  const interactionRoomIdRef = useRef(roomId);
+  const setLocalPlaybackAligned = usePlaybackStore(
+    (state) => state.setLocalPlaybackAligned,
+  );
+  const setLocalPlayingState = usePlaybackStore(
+    (state) => state.setLocalPlayingState,
+  );
+
+  useEffect(() => {
+    if (interactionRoomIdRef.current === roomId) return;
+    interactionRoomIdRef.current = roomId;
+    setHasLocalPlayerInteraction(false);
+  }, [roomId]);
+
+  useEffect(() => {
+    if (hasLocalPlayerInteraction || !currentSong?.id || !isPlaying) return;
+    setLocalPlayingState(false, roomMode);
+  }, [
+    currentSong?.id,
     hasLocalPlayerInteraction,
     isPlaying,
-    positionMs,
-    requestProviderToken,
-    room,
-    songs,
-    spotifyTokenLoading: spotifyTokenFetcher.state !== 'idle',
-    spotifyToken,
-    toast,
+    roomMode,
+    setLocalPlayingState,
+  ]);
+
+  const handlePlay = useCallback(() => {
+    setHasLocalPlayerInteraction(true);
+    setLocalPlayingState(true, roomMode);
+  }, [roomMode, setLocalPlayingState]);
+  const handlePause = useCallback(() => {
+    setHasLocalPlayerInteraction(true);
+    setLocalPlayingState(false, roomMode);
+  }, [roomMode, setLocalPlayingState]);
+  const handlePlayPause = useCallback(() => {
+    if (isPlaying) {
+      handlePause();
+      return;
+    }
+    handlePlay();
+  }, [handlePause, handlePlay, isPlaying]);
+  const handleLocalAlignmentChange = useCallback(
+    (isAligned: boolean) => {
+      if (!hasLocalPlayerInteraction) return;
+      setLocalPlaybackAligned(isAligned);
+    },
+    [hasLocalPlayerInteraction, setLocalPlaybackAligned],
+  );
+
+  useMediaSession({
+    canPlay,
+    canSkip,
+    currentSong,
+    isPlaying,
+    onPause: handlePause,
+    onPlay: handlePlay,
+    onSkip,
+  });
+
+  return {
+    handleLocalAlignmentChange,
+    handleLocalPlayerInteraction: () => setHasLocalPlayerInteraction(true),
+    handlePlay,
+    handlePlayPause,
+    hasLocalPlayerInteraction,
+  };
+}
+
+export function useEmbedSpotifyToken() {
+  const fetcher = useFetcher<EmbedActionData>();
+  const requestedRef = useRef(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (fetcher.state !== 'idle' || !fetcher.data) return;
+    if (fetcher.data.error) {
+      requestedRef.current = false;
+      return;
+    }
+    if (
+      fetcher.data.intent !== 'providerToken' ||
+      fetcher.data.provider !== 'spotify' ||
+      !fetcher.data.providerToken
+    ) {
+      return;
+    }
+    setToken(fetcher.data.providerToken.accessToken);
+  }, [fetcher.data, fetcher.state]);
+
+  const requestToken = useCallback(
+    (provider: 'spotify', force = false) => {
+      if (!force && requestedRef.current) return;
+      requestedRef.current = true;
+      fetcher.submit(
+        { intent: 'providerToken', provider },
+        { encType: 'application/json', method: 'post' },
+      );
+    },
+    [fetcher],
+  );
+
+  return { loading: fetcher.state !== 'idle', requestToken, token };
+}
+
+export function getEmbedPlaybackCapabilities(
+  options: EmbedOptions,
+  currentSong: Song | null,
+) {
+  return {
+    canPlay: options.player && Boolean(currentSong),
+    canSkip: options.skip && Boolean(currentSong),
   };
 }

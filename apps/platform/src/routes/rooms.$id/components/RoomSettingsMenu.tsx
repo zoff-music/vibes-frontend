@@ -158,13 +158,7 @@ export const RoomSettingsMenu = ({
         onlyAdminAddSongs: false,
       });
     }
-  }, [
-    adminPassword,
-    room?.hasPassword,
-    room?.settings.onlyAdminAddSongs,
-    room,
-    updateRoomSettings,
-  ]);
+  }, [adminPassword, room, updateRoomSettings]);
 
   useEffect(() => {
     if (!showSettings) return;

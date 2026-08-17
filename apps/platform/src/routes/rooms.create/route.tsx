@@ -133,23 +133,7 @@ const CreateRoom: React.FC = () => {
   // Handle hydration
   useEffect(() => {
     setIsHydrated(true);
-
-    // Fix hydration mismatch: ensure client state matches server state
-    if (loaderData.createRoomName && name !== loaderData.createRoomName) {
-      setName(loaderData.createRoomName);
-      return; // Don't check URL params if we have SSR data
-    }
-
-    // After hydration, check if we need to update from URL params (only if no SSR data)
-    if (!loaderData.createRoomName) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlName = urlParams.get('name');
-
-      if (urlName && urlName !== name) {
-        setName(urlName);
-      }
-    }
-  }, []); // Run only once on mount
+  }, []);
 
   // Handle client-side URL changes (for navigation)
   useEffect(() => {
@@ -160,13 +144,12 @@ const CreateRoom: React.FC = () => {
       return;
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlName = urlParams.get('name');
+    const urlName = searchParams.get('name');
 
     if (urlName && urlName !== name) {
       setName(urlName);
     }
-  }, [searchParams, isHydrated, loaderData.createRoomName, name]);
+  }, [isHydrated, loaderData.createRoomName, name, searchParams]);
 
   useEffect(() => {
     if (availabilityTimerRef.current !== null) {

@@ -1,6 +1,6 @@
 import type { CastSession } from '@vibes/models';
 import { safeWrapAsync, showToast, usePlaybackStore } from '@vibes/shared';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../routes/rooms.$id/action';
 import { useCastStore } from '../stores/castStore';
@@ -97,5 +97,8 @@ export function useCastRoomHandshake({
     };
   }, [currentSession, isConnected, syncPlaybackState, tokenFetcher.data]);
 
-  return initializedSessionIdRef;
+  return useCallback(
+    (sessionId: string) => initializedSessionIdRef.current === sessionId,
+    [],
+  );
 }

@@ -1,5 +1,11 @@
 import { Toast } from '@vibes/ui/web';
-import { useEmbedRoom } from '../hooks/use-embed-room';
+import {
+  getEmbedPlaybackCapabilities,
+  useEmbedLocalPlayback,
+  useEmbedRoomActions,
+  useEmbedRoomState,
+  useEmbedSpotifyToken,
+} from '../hooks/use-embed-room';
 import type { EmbedLoaderData } from '../loader';
 import { EmbedPlayerCard } from './player-card';
 import { EmbedPlaylist } from './playlist';
@@ -11,27 +17,29 @@ interface Props {
 
 export function EmbedRoomView({ loaderData }: Props) {
   const { roomId, options } = loaderData;
+  const roomState = useEmbedRoomState(loaderData);
+  const actions = useEmbedRoomActions({ roomMode: roomState.room.mode });
+  const spotify = useEmbedSpotifyToken();
+  const capabilities = getEmbedPlaybackCapabilities(
+    options,
+    roomState.currentSong,
+  );
+  const localPlayback = useEmbedLocalPlayback({
+    ...capabilities,
+    currentSong: roomState.currentSong,
+    isPlaying: roomState.isPlaying,
+    onSkip: actions.handleSkip,
+    roomId,
+    roomMode: roomState.room.mode,
+  });
   const {
     currentSong,
-    dismissToast,
-    handleLocalAlignmentChange,
-    handleLocalPlayerInteraction,
-    handlePlay,
-    handlePlayPause,
-    handleReset,
-    handleSkip,
-    handleVote,
     hasLocalPlaybackChanges,
-    hasLocalPlayerInteraction,
     isPlaying,
     positionMs,
-    requestProviderToken,
     room,
     songs,
-    spotifyTokenLoading,
-    spotifyToken,
-    toast,
-  } = useEmbedRoom(loaderData);
+  } = roomState;
   const durationMs = (currentSong?.duration ?? 0) * 1000;
   const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
   const enabledProviders = loaderData.providers.filter((provider) =>
@@ -42,14 +50,14 @@ export function EmbedRoomView({ loaderData }: Props) {
       currentSong={currentSong}
       durationMs={durationMs}
       enabledProviders={enabledProviders}
-      hasLocalPlayerInteraction={hasLocalPlayerInteraction}
-      onLocalAlignmentChange={handleLocalAlignmentChange}
-      onLocalInteraction={handleLocalPlayerInteraction}
-      onStartPlayback={handlePlay}
+      hasLocalPlayerInteraction={localPlayback.hasLocalPlayerInteraction}
+      onLocalAlignmentChange={localPlayback.handleLocalAlignmentChange}
+      onLocalInteraction={localPlayback.handleLocalPlayerInteraction}
+      onStartPlayback={localPlayback.handlePlay}
       positionMs={positionMs}
-      requestProviderToken={requestProviderToken}
-      spotifyTokenLoading={spotifyTokenLoading}
-      spotifyToken={spotifyToken}
+      requestProviderToken={spotify.requestToken}
+      spotifyTokenLoading={spotify.loading}
+      spotifyToken={spotify.token}
       songs={songs}
     />
   );
@@ -68,9 +76,9 @@ export function EmbedRoomView({ loaderData }: Props) {
           canSkip={canSkip}
           isPlaying={isPlaying}
           showPlaybackControls={options.player}
-          onPlayPause={handlePlayPause}
-          onReset={handleReset}
-          onSkip={handleSkip}
+          onPlayPause={localPlayback.handlePlayPause}
+          onReset={actions.handleReset}
+          onSkip={actions.handleSkip}
           room={room}
           roomId={roomId}
           showReset={
@@ -85,7 +93,7 @@ export function EmbedRoomView({ loaderData }: Props) {
             <EmbedPlaylist
               songs={queuedSongs}
               votingEnabled={options.vote}
-              onVote={handleVote}
+              onVote={actions.handleVote}
             />
           </div>
         )}
@@ -99,7 +107,7 @@ export function EmbedRoomView({ loaderData }: Props) {
             <EmbedPlaylist
               songs={queuedSongs}
               votingEnabled={options.vote}
-              onVote={handleVote}
+              onVote={actions.handleVote}
             />
           </div>
         )}
@@ -109,11 +117,11 @@ export function EmbedRoomView({ loaderData }: Props) {
           </div>
         )}
       </section>
-      {toast && (
+      {actions.toast && (
         <Toast
-          message={toast.message}
-          onClose={dismissToast}
-          type={toast.type}
+          message={actions.toast.message}
+          onClose={actions.dismissToast}
+          type={actions.toast.type}
         />
       )}
     </main>

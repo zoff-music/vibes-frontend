@@ -2,7 +2,6 @@ import {
   getHttpError,
   useRemoteEvents,
   useRemoteRequests,
-  useRoomDiscoveryRequests,
   useRoomLifecycleRequests,
   useRoomPlaybackRequests,
   useRoomReadRequests,
@@ -38,6 +37,8 @@ import {
   getObservedPosition,
   useMachineRemote,
 } from '@/hooks/use-machine-remote';
+import { usePlayerPreference } from '@/hooks/use-player-preference';
+import { useProviders } from '@/hooks/use-providers';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 import {
@@ -115,12 +116,10 @@ const RoomNavigationContext = createContext<RoomNavigationState | null>(null);
 const MachineRemoteContext = createContext<MachineRemoteState | null>(null);
 const remoteStorageKey = 'zoff.mobile.remote';
 const remoteTokenStorageKey = 'zoff.mobile.remote-token';
-const playerEnabledStorageKey = 'zoff.mobile.player-enabled';
 const roomAdminPasswordStoragePrefix = 'zoff.mobile.room-admin';
 
 export function AppProvider({ children }: PropsWithChildren) {
   const { showToast } = useToast();
-  const discoveryRequests = useRoomDiscoveryRequests(mobileApi);
   const lifecycleRequests = useRoomLifecycleRequests(mobileApi);
   const playbackRequests = useRoomPlaybackRequests(mobileApi);
   const readRequests = useRoomReadRequests(mobileApi);
@@ -131,11 +130,14 @@ export function AppProvider({ children }: PropsWithChildren) {
   const [playback, setPlayback] = useState<PlaybackState | null>(null);
   const [authoritativePlayback, setAuthoritativePlayback] =
     useState<PlaybackState | null>(null);
-  const [providers, setProviders] = useState<Providers>([]);
-  const [playerEnabled, setPlayerEnabledValue] = useState(true);
-  const [playerPreferenceLoaded, setPlayerPreferenceLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const providers = useProviders(setError);
+  const {
+    enabled: playerEnabled,
+    loaded: playerPreferenceLoaded,
+    setEnabled: setPlayerEnabled,
+  } = usePlayerPreference();
   const [hasLocalPlaybackChanges, setHasLocalPlaybackChanges] = useState(false);
   const [hasLocalPlaybackPositionDrift, setHasLocalPlaybackPositionDrift] =
     useState(false);
@@ -226,11 +228,6 @@ export function AppProvider({ children }: PropsWithChildren) {
     if (positionIsAligned && playingIsAligned) {
       localPlayingRef.current = null;
     }
-  }, []);
-
-  const setPlayerEnabled = useCallback(async (enabled: boolean) => {
-    setPlayerEnabledValue(enabled);
-    await setSecureValue(playerEnabledStorageKey, enabled ? 'true' : 'false');
   }, []);
 
   const rememberRoomAdminPassword = useCallback(
@@ -620,19 +617,6 @@ export function AppProvider({ children }: PropsWithChildren) {
   });
 
   useEffect(() => {
-    const loadPlayerPreference = async () => {
-      const [, storedPreference] = await getSecureValue(
-        playerEnabledStorageKey,
-      );
-      if (storedPreference === 'false') {
-        setPlayerEnabledValue(false);
-      }
-      setPlayerPreferenceLoaded(true);
-    };
-    void loadPlayerPreference();
-  }, []);
-
-  useEffect(() => {
     const loadStoredControllerRemote = async () => {
       const [, storedRemoteId] = await getSecureValue(remoteStorageKey);
       const [, storedControllerToken] = await getSecureValue(
@@ -647,24 +631,6 @@ export function AppProvider({ children }: PropsWithChildren) {
     };
     void loadStoredControllerRemote();
   }, []);
-
-  useEffect(() => {
-    const loadProviders = async () => {
-      const [requestError, nextProviders] =
-        await discoveryRequests.fetchProviders();
-      if (requestError || !nextProviders) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not load music providers.',
-          ),
-        );
-        return;
-      }
-      setProviders(nextProviders);
-    };
-    void loadProviders();
-  }, [discoveryRequests]);
 
   const value = useMemo<AppState>(
     () => ({

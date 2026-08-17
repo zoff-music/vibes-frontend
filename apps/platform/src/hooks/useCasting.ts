@@ -5,7 +5,7 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useCastStore } from '../stores/castStore';
 import { useThemeStore } from '../stores/themeStore';
 import { useCastRoomHandshake } from './useCastRoomHandshake';
@@ -17,12 +17,10 @@ export const useCasting = (_roomId: string) => {
   const isConnected = useCastStore((state) => state.isConnected);
   const currentSession = useCastStore((state) => state.currentSession);
   const availableDevices = useCastStore((state) => state.availableDevices);
-  const lastError = useCastStore((state) => state.lastError);
   const syncPlaybackState = useCastStore((state) => state.syncPlaybackState);
   const updateQueue = useCastStore((state) => state.updateQueue);
   const updateRoomInfo = useCastStore((state) => state.updateRoomInfo);
   const updateTheme = useCastStore((state) => state.updateTheme);
-  const clearError = useCastStore((state) => state.clearError);
 
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
@@ -43,12 +41,6 @@ export const useCasting = (_roomId: string) => {
     );
   })();
 
-  // Create stable callback references
-  const stableSyncPlaybackState = useCallback(syncPlaybackState, []);
-  const stableUpdateQueue = useCallback(updateQueue, []);
-  const stableUpdateRoomInfo = useCallback(updateRoomInfo, []);
-  const stableUpdateTheme = useCallback(updateTheme, []);
-
   useEffect(() => {
     if (!isLocalEmulatorEnabled) return;
     if (isConnected) return;
@@ -56,16 +48,16 @@ export const useCasting = (_roomId: string) => {
     console.log('[Cast] local emulator available; waiting for user connect');
   }, [isConnected, isLocalEmulatorEnabled, availableDevices.length]);
 
-  const initializedSessionIdRef = useCastRoomHandshake({
+  const isSessionInitialized = useCastRoomHandshake({
     currentSession,
     isConnected,
     roomId: _roomId,
-    syncPlaybackState: stableSyncPlaybackState,
+    syncPlaybackState,
   });
 
   useEffect(() => {
     if (!isConnected || !currentSession || !currentSong) return;
-    if (initializedSessionIdRef.current !== currentSession.id) return;
+    if (!isSessionInitialized(currentSession.id)) return;
 
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
     console.log('[Cast] syncing playback state', {
@@ -75,7 +67,7 @@ export const useCasting = (_roomId: string) => {
     });
     void (async () => {
       const [error] = await safeWrapAsync(
-        stableSyncPlaybackState({
+        syncPlaybackState({
           isPlaying,
           positionMs: actualPositionMs,
           currentSong,
@@ -90,10 +82,11 @@ export const useCasting = (_roomId: string) => {
   }, [
     isConnected,
     isPlaying,
-    currentSong?.id,
-    currentSession?.id,
+    currentSong,
+    currentSession,
+    isSessionInitialized,
     playbackUpdatedAt,
-    stableSyncPlaybackState,
+    syncPlaybackState,
   ]);
 
   useEffect(() => {
@@ -102,7 +95,7 @@ export const useCasting = (_roomId: string) => {
 
     void (async () => {
       const [error] = await safeWrapAsync(
-        stableUpdateRoomInfo({
+        updateRoomInfo({
           name: room.name,
           participantCount: usersCount,
         }),
@@ -111,43 +104,39 @@ export const useCasting = (_roomId: string) => {
         console.error('Failed to update local room info:', error);
       }
     })();
-  }, [currentSession?.deviceId, room, usersCount, stableUpdateRoomInfo]);
+  }, [currentSession?.deviceId, room, updateRoomInfo, usersCount]);
 
   useEffect(() => {
     if (currentSession?.deviceId !== 'local-cast-emulator') return;
 
     void (async () => {
-      const [error] = await safeWrapAsync(stableUpdateQueue(queueSongs));
+      const [error] = await safeWrapAsync(updateQueue(queueSongs));
       if (error) {
         console.error('Failed to update local queue:', error);
       }
     })();
-  }, [currentSession?.deviceId, queueSongs, stableUpdateQueue]);
+  }, [currentSession?.deviceId, queueSongs, updateQueue]);
 
   useEffect(() => {
     if (!isConnected || !currentSession) return;
-    if (initializedSessionIdRef.current !== currentSession.id) return;
+    if (!isSessionInitialized(currentSession.id)) return;
 
     void (async () => {
-      const [error] = await safeWrapAsync(stableUpdateTheme(resolvedTheme));
+      const [error] = await safeWrapAsync(updateTheme(resolvedTheme));
       if (error) {
         console.error('Failed to update cast display theme:', error);
       }
     })();
-  }, [currentSession?.id, isConnected, resolvedTheme, stableUpdateTheme]);
+  }, [
+    currentSession,
+    isConnected,
+    isSessionInitialized,
+    resolvedTheme,
+    updateTheme,
+  ]);
 
   return {
-    // State
-    isConnected,
-    currentSession,
-    availableDevices,
-    lastError,
-
-    // Actions
-    clearError,
-
-    // Computed
-    isCastingAvailable: availableDevices.length > 0,
     castDeviceName: currentSession?.deviceName || null,
+    isConnected,
   };
 };

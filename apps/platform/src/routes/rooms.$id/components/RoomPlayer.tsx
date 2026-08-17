@@ -378,7 +378,7 @@ export const RoomPlayer = React.memo(
             ? null
             : prev.video,
       }));
-    }, [currentSong?.sourceType]);
+    }, [currentSong?.sourceType, currentSong]);
 
     useEffect(() => {
       if (playbackFetcher.state !== 'idle' || !playbackFetcher.data) return;
