@@ -338,7 +338,11 @@ export default function RemoteController() {
                   name="intent"
                   value={isPlaying ? 'pause' : 'play'}
                 />
-                <input type="hidden" name="roomId" value={room.id} />
+                <input
+                  type="hidden"
+                  name="currentSongId"
+                  value={currentSong?.id ?? ''}
+                />
                 <input type="hidden" name="positionMs" value={positionMs} />
                 <Button
                   type="submit"
@@ -377,7 +381,16 @@ export default function RemoteController() {
 
             <actionFetcher.Form method="post" className="mt-6">
               <input type="hidden" name="intent" value="seek" />
-              <input type="hidden" name="roomId" value={room.id} />
+              <input
+                type="hidden"
+                name="currentSongId"
+                value={currentSong?.id ?? ''}
+              />
+              <input
+                type="hidden"
+                name="playbackIsPlaying"
+                value={String(isPlaying)}
+              />
               <PlaybackProgress
                 disabled={!canSeek || durationMs === 0}
                 durationMs={durationMs}

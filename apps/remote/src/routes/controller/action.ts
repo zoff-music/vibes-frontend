@@ -44,14 +44,21 @@ export async function clientAction({
   }
 
   if (intent === 'play' || intent === 'pause' || intent === 'seek') {
+    const currentSongId = String(formData.get('currentSongId') ?? '');
     const positionMs = Number(formData.get('positionMs') ?? 0);
-    const [error, playback] = await client.put(
-      '/rooms/{id}/states',
-      { id: roomId },
-      { action: intent, positionMs },
+    const playbackIsPlaying =
+      intent === 'play' ||
+      (intent === 'seek' && formData.get('playbackIsPlaying') === 'true');
+    const [error] = await client.patch(
+      '/remotes/{id}',
+      { id: remoteId },
+      {
+        currentSongId,
+        playbackIsPlaying,
+        playbackPositionMs: positionMs,
+      },
     );
-    if (error || !playback) return errorResult(intent, error);
-    return { intent, playback };
+    return errorResult(intent, error);
   }
 
   if (intent === 'skip') {
