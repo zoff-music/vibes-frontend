@@ -1,4 +1,4 @@
-import { createRoomPlaybackRequests } from '@vibes/api';
+import { useFetcher } from '@vibes/native-router';
 import { useKeepAwake } from 'expo-keep-awake';
 import { usePathname } from 'expo-router';
 import { Platform, View } from 'react-native';
@@ -13,22 +13,27 @@ import {
   tabletRoomHeaderHeight,
   useTabletLandscapeLayout,
 } from '@/hooks/use-tablet-landscape-layout';
-import { getRequestErrorMessage, mobileApi } from '@/lib/api';
-import { useApp } from '@/providers/app-provider';
-
-const playbackRequests = createRoomPlaybackRequests(mobileApi);
+import {
+  usePlaybackActions,
+  usePlaybackSession,
+  useRoomActions,
+  useRoomSession,
+} from '@/providers/app-provider';
+import type { RoomPlaybackActionData } from '@/routes/rooms.$id.playback/action';
 
 export function PersistentRoomPlayer() {
+  const { playback, playbackResetVersion } = usePlaybackSession();
+  const { room, roomId } = useRoomSession();
   const {
     observeLocalPlaybackPosition,
-    playback,
-    playbackResetVersion,
-    room,
-    roomId,
-    setError,
     setLocalPlaybackPosition,
     setLocalPlaying,
-  } = useApp();
+  } = usePlaybackActions();
+  const { setError } = useRoomActions();
+  const { submit } = useFetcher<RoomPlaybackActionData>({
+    params: { id: roomId },
+    routeId: 'rooms.$id.playback',
+  });
   const castState = useCastState();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
@@ -104,20 +109,12 @@ export function PersistentRoomPlayer() {
             (Boolean(room.userId) && room.hostId === room.userId);
           if (!hasAuthority) return;
           const update = async () => {
-            const [requestError] = await playbackRequests.updatePlayback(
-              roomId,
-              'seek',
+            const result = await submit({
+              action: 'seek',
+              intent: 'update',
               positionMs,
-            );
-            if (requestError) {
-              setError(
-                await getRequestErrorMessage(
-                  requestError,
-                  'Could not seek playback.',
-                ),
-              );
-              return;
-            }
+            });
+            if (result.error) setError(result.error);
           };
           void update();
         }}
@@ -147,19 +144,11 @@ export function PersistentRoomPlayer() {
             (Boolean(room.userId) && room.hostId === room.userId);
           if (!hasAuthority || playback?.isPlaying === isPlaying) return;
           const update = async () => {
-            const [requestError] = await playbackRequests.updatePlayback(
-              roomId,
-              isPlaying ? 'play' : 'pause',
-            );
-            if (requestError) {
-              setError(
-                await getRequestErrorMessage(
-                  requestError,
-                  'Could not update playback.',
-                ),
-              );
-              return;
-            }
+            const result = await submit({
+              action: isPlaying ? 'play' : 'pause',
+              intent: 'update',
+            });
+            if (result.error) setError(result.error);
           };
           void update();
         }}

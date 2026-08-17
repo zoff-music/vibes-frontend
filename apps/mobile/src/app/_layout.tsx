@@ -18,6 +18,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import '@/global.css';
 
+import { Route } from '@vibes/native-router';
 import { AndroidFloatingNavigation } from '@/components/android-floating-navigation';
 import AppTabs from '@/components/app-tabs';
 import { DeviceOrientationLock } from '@/components/device-orientation-lock';
@@ -28,11 +29,17 @@ import {
 import { TabletAddSongButton } from '@/components/tablet-add-song-button';
 import { TabletTopNavigation } from '@/components/tablet-top-navigation';
 import { ToastProvider } from '@/components/toast';
-import { AppProvider, useApp } from '@/providers/app-provider';
+import { AppRouterProvider } from '@/data-router/provider';
+import {
+  AppProvider,
+  usePlaybackSession,
+  useRoomSession,
+} from '@/providers/app-provider';
 import {
   AppThemeProvider,
   useThemePreference,
 } from '@/providers/theme-provider';
+import { HydrateFallback as AppHydrateFallback } from '@/routes/_index/components';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -53,13 +60,17 @@ export default function RootLayout() {
   }, []);
 
   if (!fontsLoaded) {
-    return null;
+    return <AppHydrateFallback />;
   }
 
   return (
-    <AppThemeProvider>
-      <RootContent />
-    </AppThemeProvider>
+    <AppRouterProvider>
+      <Route routeId="preferences.theme">
+        <AppThemeProvider>
+          <RootContent />
+        </AppThemeProvider>
+      </Route>
+    </AppRouterProvider>
   );
 }
 
@@ -85,7 +96,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 }
 
 function RootContent() {
-  const { resolvedScheme } = useThemePreference();
+  const [{ resolvedScheme }] = useThemePreference();
   return (
     <GestureHandlerRootView className="flex-1 bg-mobile-background dark:bg-mobile-dark-background">
       <SafeAreaProvider>
@@ -93,12 +104,16 @@ function RootContent() {
           value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
         >
           <ToastProvider>
-            <AppProvider>
-              <StatusBar
-                style={resolvedScheme === 'light' ? 'dark' : 'light'}
-              />
-              <RoomRuntime />
-            </AppProvider>
+            <Route routeId="_index">
+              <Route routeId="remotes.session">
+                <AppProvider>
+                  <StatusBar
+                    style={resolvedScheme === 'light' ? 'dark' : 'light'}
+                  />
+                  <RoomRuntime />
+                </AppProvider>
+              </Route>
+            </Route>
           </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>
@@ -107,8 +122,8 @@ function RootContent() {
 }
 
 function RoomRuntime() {
-  const { controllerRemote, playerEnabled, playerPreferenceLoaded, room } =
-    useApp();
+  const { controllerRemote, room } = useRoomSession();
+  const { playerEnabled, playerPreferenceLoaded } = usePlaybackSession();
   const hasActiveSession = Boolean(room || controllerRemote?.roomId);
   return (
     <>

@@ -1,11 +1,10 @@
-import { createRoomPlaybackRequests, createRoomReadRequests } from '@vibes/api';
 import type { Room } from '@vibes/models';
-import { useEffect, useMemo, useState } from 'react';
+import { useFetcher } from '@vibes/native-router';
+import { useEffect, useState } from 'react';
 
 import { SearchSheet } from '@/components/search-sheet';
-import { createRemoteApi, mobileApi } from '@/lib/api';
-import { fetchRoomSnapshot } from '@/lib/room-snapshot';
-import { useApp } from '@/providers/app-provider';
+import { useRoomActions, useRoomSession } from '@/providers/app-provider';
+import type { ControllerRemoteData } from '@/routes/remotes.controller.$id/loader';
 
 interface AddSongSheetProps {
   onClose: () => void;
@@ -13,22 +12,16 @@ interface AddSongSheetProps {
 }
 
 export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
-  const { controllerRemote, refresh, room, songs } = useApp();
-  const remoteClient = useMemo(
-    () =>
-      createRemoteApi(
-        controllerRemote?.id ?? '',
-        controllerRemote?.controllerToken ?? '',
-      ),
-    [controllerRemote?.controllerToken, controllerRemote?.id],
-  );
-  const client = controllerRemote ? remoteClient : mobileApi;
-  const playbackRequests = useMemo(
-    () => createRoomPlaybackRequests(client),
-    [client],
-  );
-  const readRequests = useMemo(() => createRoomReadRequests(client), [client]);
+  const { controllerRemote, room, songs } = useRoomSession();
+  const { refresh } = useRoomActions();
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
+  const roomFetcher = useFetcher<ControllerRemoteData>({
+    params: {
+      controllerToken: controllerRemote?.controllerToken ?? '',
+      id: controllerRemote?.id ?? '',
+    },
+    routeId: 'remotes.controller.$id',
+  });
   const [targetRoom, setTargetRoom] = useState<Room | null>(room);
   const [targetSongCount, setTargetSongCount] = useState(songs.length);
 
@@ -39,21 +32,24 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
       return;
     }
     const loadRoom = async () => {
-      const [requestError, snapshot] = await fetchRoomSnapshot(
-        controllerRemote.roomId,
-        readRequests,
-        playbackRequests,
-      );
-      if (requestError || !snapshot) return;
+      const result = await roomFetcher.load({
+        params: {
+          controllerToken: controllerRemote.controllerToken,
+          id: controllerRemote.id,
+        },
+      });
+      const snapshot = result.data?.snapshot;
+      if (!snapshot) return;
       setTargetRoom(snapshot.room);
       setTargetSongCount(snapshot.songs.length);
     };
     void loadRoom();
   }, [
+    controllerRemote?.controllerToken,
+    controllerRemote?.id,
     controllerRemote?.roomId,
-    playbackRequests,
-    readRequests,
     room,
+    roomFetcher.load,
     songs.length,
   ]);
 
@@ -103,10 +99,17 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
   return (
     <SearchSheet
       canGenerate={canGenerate}
-      client={client}
       generationUnavailableReason={generationUnavailableReason}
       providersOverride={targetRoom?.settings.enabledSources ?? []}
       roomIdOverride={roomId}
+      {...(controllerRemote
+        ? {
+            remoteCredentials: {
+              controllerToken: controllerRemote.controllerToken,
+              remoteId: controllerRemote.id,
+            },
+          }
+        : {})}
       visible={visible}
       onAdded={refreshSession}
       onClose={onClose}

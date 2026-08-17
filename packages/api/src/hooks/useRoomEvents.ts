@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { type ApiClient, api } from '../index';
+import { type ApiClient, api } from '../client';
 import { type RoomEventCallbacks, subscribeRoomUpdates } from '../roomEvents';
 
 export function useRoomEvents(

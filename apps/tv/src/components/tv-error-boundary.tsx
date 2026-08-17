@@ -10,6 +10,20 @@ interface TvErrorBoundaryState {
   failed: boolean;
 }
 
+export function TvRouteError({ retry }: { retry: () => void }) {
+  return (
+    <View className="flex-1 items-center justify-center gap-6 bg-tv-background p-12">
+      <Text className="text-center font-heading text-4xl text-tv-text">
+        TV data unavailable
+      </Text>
+      <Text className="max-w-2xl text-center font-heading text-2xl text-tv-muted">
+        Check the connection and try loading this screen again.
+      </Text>
+      <NativeButton label="Try again" onPress={retry} tone="primary" />
+    </View>
+  );
+}
+
 export class TvErrorBoundary extends Component<
   TvErrorBoundaryProps,
   TvErrorBoundaryState

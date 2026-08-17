@@ -1,0 +1,26 @@
+{
+  "name": "@vibes/native-router",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "biome check src tests",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.2.7"
+  },
+  "dependencies": {
+    "@vibes/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.16",
+    "typescript": "5.9.3"
+  }
+}

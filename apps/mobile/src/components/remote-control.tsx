@@ -14,14 +14,22 @@ import {
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
-import type { ControllerRemote } from '@/hooks/use-controller-remote';
+import type {
+  ControllerRemoteActions,
+  ControllerRemoteState,
+} from '@/hooks/use-controller-remote';
 
 interface RemoteControlProps {
-  controller: ControllerRemote;
+  controller: ControllerRemoteState;
+  controllerActions: ControllerRemoteActions;
   providers: Providers;
 }
 
-export function RemoteControl({ controller, providers }: RemoteControlProps) {
+export function RemoteControl({
+  controller,
+  controllerActions,
+  providers,
+}: RemoteControlProps) {
   const { playback, remote, room } = controller;
   if (!remote) return null;
   const displayedIsPlaying =
@@ -37,9 +45,12 @@ export function RemoteControl({ controller, providers }: RemoteControlProps) {
             <Queue
               contained
               songs={controller.queuedSongs}
-              onVote={(song) => void controller.vote(song)}
+              onVote={(song) => void controllerActions.vote(song)}
               {...(room.isAdmin
-                ? { onDelete: (song: Song) => void controller.remove(song) }
+                ? {
+                    onDelete: (song: Song) =>
+                      void controllerActions.remove(song),
+                  }
                 : {})}
               header={
                 <View className="gap-3 p-4">
@@ -56,12 +67,12 @@ export function RemoteControl({ controller, providers }: RemoteControlProps) {
                       icon="settings"
                       label="Room settings"
                       tone="secondary"
-                      onPress={() => controller.setSettingsVisible(true)}
+                      onPress={() => controllerActions.setSettingsVisible(true)}
                     />
                     <Button
                       label="Disconnect remote"
                       tone="danger"
-                      onPress={() => void controller.disconnect()}
+                      onPress={() => void controllerActions.disconnect()}
                     />
                   </Card>
                   <Card>
@@ -71,15 +82,17 @@ export function RemoteControl({ controller, providers }: RemoteControlProps) {
                         <Field
                           autoCapitalize="none"
                           value={controller.nextRoomId}
-                          onChangeText={controller.setNextRoomId}
-                          onSubmitEditing={() => void controller.changeRoom()}
+                          onChangeText={controllerActions.setNextRoomId}
+                          onSubmitEditing={() =>
+                            void controllerActions.changeRoom()
+                          }
                           placeholder="Room name"
                         />
                       </View>
                       <Button
                         disabled={!controller.nextRoomId.trim()}
                         label="Go"
-                        onPress={() => void controller.changeRoom()}
+                        onPress={() => void controllerActions.changeRoom()}
                       />
                     </View>
                   </Card>
@@ -98,7 +111,7 @@ export function RemoteControl({ controller, providers }: RemoteControlProps) {
                           icon={displayedIsPlaying ? 'pause' : 'play'}
                           label={displayedIsPlaying ? 'Pause' : 'Play'}
                           onPress={() =>
-                            void controller.action(
+                            void controllerActions.action(
                               displayedIsPlaying ? 'pause' : 'play',
                             )
                           }
@@ -109,13 +122,15 @@ export function RemoteControl({ controller, providers }: RemoteControlProps) {
                           icon="skip"
                           label="Skip"
                           tone="secondary"
-                          onPress={() => void controller.action('skip')}
+                          onPress={() => void controllerActions.action('skip')}
                         />
                       </View>
                     </View>
                     <PlaybackProgress
                       duration={playback?.currentSong?.duration ?? 0}
-                      onSeek={(position) => void controller.seek(position)}
+                      onSeek={(position) =>
+                        void controllerActions.seek(position)
+                      }
                       position={controller.livePosition}
                       seekable={
                         room.mode === 'host' &&
@@ -127,13 +142,13 @@ export function RemoteControl({ controller, providers }: RemoteControlProps) {
               }
             />
             <RoomSettingsSheet
-              client={controller.client}
+              controllerToken={controller.controllerToken}
               providers={providers}
               remoteId={controller.remoteId}
               room={room}
               visible={controller.settingsVisible}
-              onClose={() => controller.setSettingsVisible(false)}
-              onUpdated={controller.refresh}
+              onClose={() => controllerActions.setSettingsVisible(false)}
+              onUpdated={controllerActions.refresh}
             />
           </>
         )}

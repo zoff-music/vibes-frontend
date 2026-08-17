@@ -1,38 +1,48 @@
-import type { RemoteRequests } from '@vibes/api';
 import type {
   PlaybackState,
   RemoteEvent,
   RemotePairing,
   RemoteStatus,
 } from '@vibes/models';
+import { useFetcher } from '@vibes/native-router';
 import { getClientReferenceTimeMs } from '@vibes/shared';
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { getRequestErrorMessage } from '@/lib/api';
+import type { MachineRemoteActionData } from '@/routes/remotes.machine/action';
 
 interface UseMachineRemoteOptions {
   playbackRef: RefObject<PlaybackState | null>;
-  remoteRequests: RemoteRequests;
   roomId: string;
   setError: (message: string) => void;
 }
 
-interface MachineRemoteState {
+interface MachineRemoteActions {
   applyMachineRemoteEvent: (event: RemoteEvent) => void;
   disableMachineRemote: () => Promise<void>;
   enableMachineRemote: () => Promise<void>;
+  refreshMachineRemote: () => Promise<void>;
+}
+
+interface MachineRemoteState {
   machinePairing: RemotePairing | null;
   machineRemote: RemoteStatus | null;
-  refreshMachineRemote: () => Promise<void>;
 }
 
 export function useMachineRemote({
   playbackRef,
-  remoteRequests,
   roomId,
   setError,
-}: UseMachineRemoteOptions): MachineRemoteState {
+}: UseMachineRemoteOptions): readonly [
+  MachineRemoteState,
+  MachineRemoteActions,
+] {
+  const remoteLoader = useFetcher<RemoteStatus>({
+    routeId: 'remotes.machine',
+  });
+  const remoteAction = useFetcher<MachineRemoteActionData>({
+    routeId: 'remotes.machine',
+  });
   const [machinePairing, setMachinePairing] = useState<RemotePairing | null>(
     null,
   );
@@ -56,37 +66,32 @@ export function useMachineRemote({
   }, []);
 
   const refreshMachineRemote = useCallback(async () => {
-    const [requestError, nextRemote] = await remoteRequests.fetchOwnedRemote();
-    if (requestError || !nextRemote) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not load remote control status.',
-        ),
-      );
+    const result = await remoteLoader.load();
+    if (!result.data) {
+      setError(result.error || 'Could not load remote control status.');
       return;
     }
+    const nextRemote = result.data;
     setMachineRemote(nextRemote);
     if (nextRemote.paired) setMachinePairing(null);
-  }, [remoteRequests, setError]);
+  }, [remoteLoader.load, setError]);
 
   const enableMachineRemote = useCallback(async () => {
     const playback = playbackRef.current;
-    const [requestError, pairing] = await remoteRequests.createRemote({
-      currentSongId: playback?.currentSong?.id ?? '',
-      playbackIsPlaying: playback?.isPlaying ?? false,
-      playbackPositionMs: getObservedPosition(playback),
-      roomId,
+    const result = await remoteAction.submit({
+      intent: 'enable',
+      request: {
+        currentSongId: playback?.currentSong?.id ?? '',
+        playbackIsPlaying: playback?.isPlaying ?? false,
+        playbackPositionMs: getObservedPosition(playback),
+        roomId,
+      },
     });
-    if (requestError || !pairing) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not enable remote control.',
-        ),
-      );
+    if (result.data?.intent !== 'enabled') {
+      setError(result.error || 'Could not enable remote control.');
       return;
     }
+    const { pairing } = result.data;
     setMachinePairing(pairing);
     setMachineRemote({
       currentRoomId: pairing.currentRoomId,
@@ -100,37 +105,36 @@ export function useMachineRemote({
       playbackPositionMs: pairing.playbackPositionMs,
     });
     setError('');
-  }, [playbackRef, remoteRequests, roomId, setError]);
+  }, [playbackRef, remoteAction.submit, roomId, setError]);
 
   const disableMachineRemote = useCallback(async () => {
     if (!machineRemote?.id) return;
-    const [requestError] = await remoteRequests.deleteRemote(machineRemote.id);
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not disable remote control.',
-        ),
-      );
+    const result = await remoteAction.submit({
+      intent: 'disable',
+      remoteId: machineRemote.id,
+    });
+    if (result.error) {
+      setError(result.error);
       return;
     }
     setMachinePairing(null);
     setMachineRemote(null);
     setError('');
-  }, [machineRemote?.id, remoteRequests, setError]);
+  }, [machineRemote?.id, remoteAction.submit, setError]);
 
   useEffect(() => {
     void refreshMachineRemote();
   }, [refreshMachineRemote]);
 
-  return {
-    applyMachineRemoteEvent,
-    disableMachineRemote,
-    enableMachineRemote,
-    machinePairing,
-    machineRemote,
-    refreshMachineRemote,
-  };
+  return [
+    { machinePairing, machineRemote },
+    {
+      applyMachineRemoteEvent,
+      disableMachineRemote,
+      enableMachineRemote,
+      refreshMachineRemote,
+    },
+  ];
 }
 
 export function getObservedPosition(playback: PlaybackState | null) {

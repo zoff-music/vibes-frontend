@@ -2,10 +2,10 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 
 import { AddSongSheet } from '@/components/add-song-sheet';
-import { useApp } from '@/providers/app-provider';
+import { useRoomSession } from '@/providers/app-provider';
 
 export default function AddSongScreen() {
-  const { controllerRemote } = useApp();
+  const { controllerRemote } = useRoomSession();
   const router = useRouter();
   const [visible, setVisible] = useState(false);
 

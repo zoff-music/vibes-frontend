@@ -1,8 +1,5 @@
-import {
-  createRoomPlaybackRequests,
-  createRoomQueueRequests,
-} from '@vibes/api';
 import type { Song } from '@vibes/models';
+import { useFetcher } from '@vibes/native-router';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -24,31 +21,38 @@ import { RoomGenerationProgress } from '@/components/room-generation-progress';
 import { Toast } from '@/components/toast';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
-import { getRequestErrorMessage, mobileApi } from '@/lib/api';
-import { useApp } from '@/providers/app-provider';
-
-const playbackRequests = createRoomPlaybackRequests(mobileApi);
-const queueRequests = createRoomQueueRequests(mobileApi);
+import {
+  usePlaybackActions,
+  usePlaybackSession,
+  useRoomActions,
+  useRoomSession,
+} from '@/providers/app-provider';
+import type { RoomPlaybackActionData } from '@/routes/rooms.$id.playback/action';
+import type { RoomQueueActionData } from '@/routes/rooms.$id.queue/action';
 
 export function RoomScreen() {
   const {
     authoritativePlayback,
     hasLocalPlaybackPositionDrift,
-    leaveRoom,
     playback,
     playerEnabled,
     playerPreferenceLoaded,
-    resetLocalPlayback,
-    room,
-    roomId,
-    setError,
-    setLocalPlaying,
-    songs,
-  } = useApp();
+  } = usePlaybackSession();
+  const { room, roomId, songs } = useRoomSession();
+  const { resetLocalPlayback, setLocalPlaying } = usePlaybackActions();
+  const { leaveRoom, setError } = useRoomActions();
   const router = useRouter();
   const tabletLayout = useTabletLandscapeLayout();
   const { width } = tabletLayout;
   const [notice, setNotice] = useState('');
+  const { submit: submitPlayback } = useFetcher<RoomPlaybackActionData>({
+    params: { id: roomId },
+    routeId: 'rooms.$id.playback',
+  });
+  const { submit: submitQueue } = useFetcher<RoomQueueActionData>({
+    params: { id: roomId },
+    routeId: 'rooms.$id.queue',
+  });
 
   const current = playback?.currentSong ?? null;
   const queuedSongs = current
@@ -90,26 +94,17 @@ export function RoomScreen() {
       return;
     }
     if (!hasHostPlaybackAuthority) return;
-    const [requestError] = await playbackRequests.updatePlayback(
-      roomId,
-      action,
-    );
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          `Could not ${action} playback.`,
-        ),
-      );
-    }
+    const result = await submitPlayback({ intent: 'update', action });
+    if (result.error) setError(result.error);
   };
 
   const skip = async () => {
-    const [requestError, response] = await playbackRequests.skip(roomId);
-    if (requestError) {
-      setError(await getRequestErrorMessage(requestError, 'Could not skip.'));
+    const result = await submitPlayback({ intent: 'skip' });
+    if (result.data?.intent !== 'skip') {
+      setError(result.error || 'Could not skip.');
       return;
     }
+    const { response } = result.data;
     if (response?.skipped) {
       setNotice('Song skipped.');
     } else if (response?.alreadyVoted) {
@@ -124,34 +119,25 @@ export function RoomScreen() {
   };
 
   const vote = async (song: Song) => {
-    const [requestError] = await queueRequests.vote(roomId, song.id);
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(requestError, 'Could not register vote.'),
-      );
-    }
+    const result = await submitQueue({ intent: 'vote', songId: song.id });
+    if (result.error) setError(result.error);
   };
 
   const remove = async (song: Song) => {
-    const [requestError] = await queueRequests.removeSong(roomId, song.id);
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(requestError, 'Could not remove song.'),
-      );
-    }
+    const result = await submitQueue({
+      intent: 'remove',
+      songId: song.id,
+    });
+    if (result.error) setError(result.error);
   };
 
   const seek = async (positionMs: number) => {
-    const [requestError] = await playbackRequests.updatePlayback(
-      roomId,
-      'seek',
+    const result = await submitPlayback({
+      action: 'seek',
+      intent: 'update',
       positionMs,
-    );
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(requestError, 'Could not seek playback.'),
-      );
-    }
+    });
+    if (result.error) setError(result.error);
   };
 
   const leave = async () => {

@@ -1,27 +1,26 @@
+import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import { useCallback, useEffect, useState } from 'react';
-import { getSecureValue, setSecureValue } from '@/lib/secure-storage';
+import type { PlayerPreferenceData } from '@/routes/preferences.player/loader';
 
 export function usePlayerPreference() {
+  const preference =
+    useRouteLoaderData<PlayerPreferenceData>('preferences.player');
+  const preferenceFetcher = useFetcher<boolean>({
+    routeId: 'preferences.player',
+  });
   const [enabled, setEnabledValue] = useState(true);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const load = async () => {
-      const [, storedPreference] = await getSecureValue(storageKey);
-      if (storedPreference === 'false') {
-        setEnabledValue(false);
-      }
-      setLoaded(true);
-    };
-    void load();
-  }, []);
+    if (preference) setEnabledValue(preference.enabled);
+  }, [preference]);
 
-  const setEnabled = useCallback(async (nextEnabled: boolean) => {
-    setEnabledValue(nextEnabled);
-    await setSecureValue(storageKey, nextEnabled ? 'true' : 'false');
-  }, []);
+  const setEnabled = useCallback(
+    async (nextEnabled: boolean) => {
+      const result = await preferenceFetcher.submit({ enabled: nextEnabled });
+      if (result.data !== null) setEnabledValue(result.data);
+    },
+    [preferenceFetcher.submit],
+  );
 
-  return { enabled, loaded, setEnabled };
+  return [{ enabled, loaded: Boolean(preference) }, setEnabled] as const;
 }
-
-const storageKey = 'zoff.mobile.player-enabled';

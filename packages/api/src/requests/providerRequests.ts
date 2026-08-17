@@ -7,17 +7,20 @@ import type {
   SearchResult,
   SourceType,
 } from '@vibes/models';
-import type { ApiClient, ApiResult } from '../index';
+import type { ApiClient, ApiRequestOptions, ApiResult } from '../client';
 
 export function createProviderSearchRequest(client: ApiClient) {
   return async (
     provider: SourceType,
     query: string,
+    options?: ApiRequestOptions,
   ): ApiResult<SearchResult[]> => {
     if (provider === 'youtube') {
-      const [error, videos] = await client.get('/youtube/search', {
-        $search: { q: query },
-      });
+      const [error, videos] = await client.get(
+        '/youtube/search',
+        { $search: { q: query } },
+        options,
+      );
       if (error) return [error, null];
       return [
         null,
@@ -28,9 +31,9 @@ export function createProviderSearchRequest(client: ApiClient) {
       ];
     }
     if (provider === 'spotify') {
-      return client.get('/spotify/search', { $search: { q: query } });
+      return client.get('/spotify/search', { $search: { q: query } }, options);
     }
-    return client.get('/soundcloud/search', { $search: { q: query } });
+    return client.get('/soundcloud/search', { $search: { q: query } }, options);
   };
 }
 
@@ -38,32 +41,47 @@ export function createProviderTrackRequest(client: ApiClient) {
   return async (
     provider: SourceType,
     source: string,
+    options?: ApiRequestOptions,
   ): ApiResult<SearchResult> => {
     if (provider === 'youtube') {
-      const [error, video] = await client.get('/youtube/videos/{id}', {
-        id: source,
-      });
+      const [error, video] = await client.get(
+        '/youtube/videos/{id}',
+        { id: source },
+        options,
+      );
       if (error) return [error, null];
       return [null, { ...video, source: 'youtube' }];
     }
     if (provider === 'spotify') {
-      return client.get('/spotify/tracks/{id}', { id: source });
+      return client.get('/spotify/tracks/{id}', { id: source }, options);
     }
-    return client.get('/soundcloud/tracks', { $search: { url: source } });
+    return client.get(
+      '/soundcloud/tracks',
+      { $search: { url: source } },
+      options,
+    );
   };
 }
 
 export function createProviderPlaylistRequest(client: ApiClient) {
-  return (provider: SourceType, source: string): ApiResult<MusicPlaylist> => {
+  return (
+    provider: SourceType,
+    source: string,
+    options?: ApiRequestOptions,
+  ): ApiResult<MusicPlaylist> => {
     if (provider === 'youtube') {
-      return client.get('/youtube/playlists/{id}', { id: source });
+      return client.get('/youtube/playlists/{id}', { id: source }, options);
     }
     if (provider === 'spotify') {
-      return client.get('/spotify/playlists/{id}', { id: source });
+      return client.get('/spotify/playlists/{id}', { id: source }, options);
     }
-    return client.get('/soundcloud/playlists', {
-      $search: { url: source },
-    });
+    return client.get(
+      '/soundcloud/playlists',
+      {
+        $search: { url: source },
+      },
+      options,
+    );
   };
 }
 
@@ -71,15 +89,27 @@ export interface QueueAddRequests {
   addPlaylist: (
     roomId: string,
     playlist: AddPlaylistRequest,
+    options?: ApiRequestOptions,
   ) => ApiResult<AddPlaylistResponse>;
-  addSong: (roomId: string, song: AddSongRequest) => ApiResult<AddSongResponse>;
+  addSong: (
+    roomId: string,
+    song: AddSongRequest,
+    options?: ApiRequestOptions,
+  ) => ApiResult<AddSongResponse>;
 }
 
 export function createQueueAddRequests(client: ApiClient): QueueAddRequests {
   return {
-    addPlaylist: (roomId: string, playlist: AddPlaylistRequest) =>
-      client.post('/rooms/{id}/playlists', { id: roomId }, playlist),
-    addSong: (roomId: string, song: AddSongRequest) =>
-      client.post('/rooms/{id}/songs', { id: roomId }, song),
+    addPlaylist: (
+      roomId: string,
+      playlist: AddPlaylistRequest,
+      options?: ApiRequestOptions,
+    ) =>
+      client.post('/rooms/{id}/playlists', { id: roomId }, playlist, options),
+    addSong: (
+      roomId: string,
+      song: AddSongRequest,
+      options?: ApiRequestOptions,
+    ) => client.post('/rooms/{id}/songs', { id: roomId }, song, options),
   };
 }

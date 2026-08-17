@@ -1,11 +1,3 @@
-import {
-  type ApiClient,
-  createProviderPlaylistRequest,
-  createProviderSearchRequest,
-  createProviderTrackRequest,
-  createQueueAddRequests,
-  createRoomQueueRequests,
-} from '@vibes/api';
 import type {
   MusicPlaylist,
   Providers,
@@ -13,32 +5,45 @@ import type {
   SourceType,
 } from '@vibes/models';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
+import { useFetcher } from '@vibes/native-router';
 import {
   parseISODuration,
   parseProviderPlaylistLink,
   parseProviderTrackLink,
 } from '@vibes/shared';
-import { getProviderDisplayName } from '@vibes/ui/shared';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { useToast } from '@/components/toast';
-import { getRequestErrorMessage } from '@/lib/api';
-import { useApp } from '@/providers/app-provider';
+import { useRoomActions, useRoomSession } from '@/providers/app-provider';
+import type { SearchActionData } from '@/routes/rooms.$id.search/action';
+import type { SearchData } from '@/routes/rooms.$id.search/loader';
+
+interface SearchRemoteCredentials {
+  controllerToken: string;
+  remoteId: string;
+}
 
 interface UseMusicSearchOptions {
   canGenerate: boolean;
-  client: ApiClient;
   generationUnavailableReason: string;
   onAdded?: () => Promise<void>;
   onClose: () => void;
   onGenerated: () => Promise<void>;
   providersOverride?: Providers;
+  remoteCredentials?: SearchRemoteCredentials;
   roomIdOverride?: string;
 }
 
-interface MusicSearchController {
+interface MusicSearchActions {
   add: (result: SearchResult) => Promise<void>;
   addPlaylist: () => Promise<void>;
+  search: () => Promise<void>;
+  setProvider: (provider: SourceType) => void;
+  toggleAIMode: () => void;
+  updateQuery: (query: string) => void;
+}
+
+interface MusicSearchState {
   enabledProviders: SourceType[];
   error: string;
   isAIMode: boolean;
@@ -47,44 +52,21 @@ interface MusicSearchController {
   provider: SourceType;
   query: string;
   results: SearchResult[];
-  search: () => Promise<void>;
-  setProvider: (provider: SourceType) => void;
-  toggleAIMode: () => void;
-  updateQuery: (query: string) => void;
 }
 
 export function useMusicSearch({
   canGenerate,
-  client,
   generationUnavailableReason,
   onAdded,
   onClose,
   onGenerated,
   providersOverride,
+  remoteCredentials,
   roomIdOverride,
-}: UseMusicSearchOptions): MusicSearchController {
+}: UseMusicSearchOptions): readonly [MusicSearchState, MusicSearchActions] {
   const { showToast } = useToast();
-  const { providers, refresh, roomId } = useApp();
-  const fetchPlaylist = useMemo(
-    () => createProviderPlaylistRequest(client),
-    [client],
-  );
-  const fetchTrack = useMemo(
-    () => createProviderTrackRequest(client),
-    [client],
-  );
-  const searchProvider = useMemo(
-    () => createProviderSearchRequest(client),
-    [client],
-  );
-  const queueAddRequests = useMemo(
-    () => createQueueAddRequests(client),
-    [client],
-  );
-  const queueRequests = useMemo(
-    () => createRoomQueueRequests(client),
-    [client],
-  );
+  const { providers, roomId } = useRoomSession();
+  const { refresh } = useRoomActions();
   const [provider, setProvider] = useState<SourceType>('youtube');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -93,6 +75,22 @@ export function useMusicSearch({
   const [error, setError] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
   const targetRoomId = roomIdOverride ?? roomId;
+  const searchLoader = useFetcher<SearchData>({
+    params: {
+      controllerToken: remoteCredentials?.controllerToken ?? '',
+      remoteId: remoteCredentials?.remoteId ?? '',
+      roomId: targetRoomId,
+    },
+    routeId: 'rooms.$id.search',
+  });
+  const searchAction = useFetcher<SearchActionData>({
+    params: {
+      controllerToken: remoteCredentials?.controllerToken ?? '',
+      remoteId: remoteCredentials?.remoteId ?? '',
+      roomId: targetRoomId,
+    },
+    routeId: 'rooms.$id.search',
+  });
   const roomProviders = providersOverride ?? providers;
   const enabledProviders = supportedProviders.filter(
     (source) => providers.includes(source) && roomProviders.includes(source),
@@ -142,18 +140,17 @@ export function useMusicSearch({
       return;
     }
     setLoading(true);
-    const [requestError, result] = await queueRequests.generatePlaylist(
-      targetRoomId,
-      { prompt },
+    const result = await searchAction.submit(
+      {
+        intent: 'generate',
+        prompt,
+        ...(remoteCredentials ? { credentials: remoteCredentials } : {}),
+      },
+      { params: { id: targetRoomId } },
     );
     setLoading(false);
-    if (requestError || !result) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not start playlist generation.',
-        ),
-      );
+    if (!result.data) {
+      setError(result.error || 'Could not start playlist generation.');
       return;
     }
     await onGenerated();
@@ -183,75 +180,28 @@ export function useMusicSearch({
     setLoading(true);
     Keyboard.dismiss();
 
-    if (playlistLink) {
-      if (!enabledProviders.includes(playlistLink.provider)) {
-        setLoading(false);
-        setError(`${playlistLink.provider} is not enabled in this room.`);
-        return;
-      }
-      setProvider(playlistLink.provider);
-      const playlistSource =
-        playlistLink.sourceId ?? playlistLink.providerUrl ?? '';
-      const [requestError, nextPlaylist] = await fetchPlaylist(
-        playlistLink.provider,
-        playlistSource,
-      );
+    const linkedProvider = playlistLink?.provider ?? trackLink?.provider;
+    if (linkedProvider && !enabledProviders.includes(linkedProvider)) {
       setLoading(false);
-      if (requestError || !nextPlaylist) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not load this playlist.',
-          ),
-        );
-        return;
-      }
-      setPlaylist(nextPlaylist);
-      setResults(nextPlaylist.tracks);
+      setError(`${linkedProvider} is not enabled in this room.`);
       return;
     }
-
-    if (trackLink) {
-      if (!enabledProviders.includes(trackLink.provider)) {
-        setLoading(false);
-        setError(`${trackLink.provider} is not enabled in this room.`);
-        return;
-      }
-      setProvider(trackLink.provider);
-      const trackSource = trackLink.sourceId ?? trackLink.providerUrl ?? '';
-      const [requestError, track] = await fetchTrack(
-        trackLink.provider,
-        trackSource,
-      );
-      setLoading(false);
-      if (requestError || !track) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not load this song.',
-          ),
-        );
-        return;
-      }
-      setResults([track]);
-      return;
-    }
-
-    const [requestError, nextResults] = await searchProvider(
-      provider,
-      trimmedQuery,
-    );
+    const result = await searchLoader.load({
+      params: {
+        id: targetRoomId,
+        provider,
+        query: trimmedQuery,
+        ...(remoteCredentials ?? {}),
+      },
+    });
     setLoading(false);
-    if (requestError || !nextResults) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          `Could not search ${getProviderDisplayName(provider)}. Check your connection and try again.`,
-        ),
-      );
+    if (!result.data) {
+      setError(result.error || 'Could not search for music.');
       return;
     }
-    setResults(nextResults);
+    setProvider(result.data.provider);
+    setPlaylist(result.data.playlist);
+    setResults(result.data.results);
   };
 
   const add = async (result: SearchResult) => {
@@ -259,19 +209,24 @@ export function useMusicSearch({
       setError('Join a room before adding music.');
       return;
     }
-    const [requestError] = await queueAddRequests.addSong(targetRoomId, {
-      sourceType: result.source,
-      sourceId: result.id,
-      providerUrl: result.providerUrl,
-      title: result.title,
-      artist: result.channelTitle,
-      thumbnailUrl: result.thumbnailUrl ?? '',
-      duration: parseISODuration(result.duration),
-    });
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(requestError, 'Could not add this song.'),
-      );
+    const actionResult = await searchAction.submit(
+      {
+        intent: 'addSong',
+        request: {
+          sourceType: result.source,
+          sourceId: result.id,
+          providerUrl: result.providerUrl,
+          title: result.title,
+          artist: result.channelTitle,
+          thumbnailUrl: result.thumbnailUrl ?? '',
+          duration: parseISODuration(result.duration),
+        },
+        ...(remoteCredentials ? { credentials: remoteCredentials } : {}),
+      },
+      { params: { id: targetRoomId } },
+    );
+    if (actionResult.error) {
+      setError(actionResult.error);
       return;
     }
     if (onAdded) await onAdded();
@@ -286,25 +241,27 @@ export function useMusicSearch({
     }
     if (!playlist || playlist.tracks.length === 0) return;
     setLoading(true);
-    const [requestError] = await queueAddRequests.addPlaylist(targetRoomId, {
-      songs: playlist.tracks.map((track) => ({
-        artist: track.channelTitle,
-        duration: parseISODuration(track.duration),
-        providerUrl: track.providerUrl,
-        sourceId: track.id,
-        sourceType: track.source,
-        thumbnailUrl: track.thumbnailUrl ?? '',
-        title: track.title,
-      })),
-    });
+    const result = await searchAction.submit(
+      {
+        intent: 'addPlaylist',
+        request: {
+          songs: playlist.tracks.map((track) => ({
+            artist: track.channelTitle,
+            duration: parseISODuration(track.duration),
+            providerUrl: track.providerUrl,
+            sourceId: track.id,
+            sourceType: track.source,
+            thumbnailUrl: track.thumbnailUrl ?? '',
+            title: track.title,
+          })),
+        },
+        ...(remoteCredentials ? { credentials: remoteCredentials } : {}),
+      },
+      { params: { id: targetRoomId } },
+    );
     setLoading(false);
-    if (requestError) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not add this playlist.',
-        ),
-      );
+    if (result.error) {
+      setError(result.error);
       return;
     }
     if (onAdded) await onAdded();
@@ -312,22 +269,19 @@ export function useMusicSearch({
     onClose();
   };
 
-  return {
-    add,
-    addPlaylist,
-    enabledProviders,
-    error,
-    isAIMode,
-    loading,
-    playlist,
-    provider,
-    query,
-    results,
-    search,
-    setProvider,
-    toggleAIMode,
-    updateQuery,
-  };
+  return [
+    {
+      enabledProviders,
+      error,
+      isAIMode,
+      loading,
+      playlist,
+      provider,
+      query,
+      results,
+    },
+    { add, addPlaylist, search, setProvider, toggleAIMode, updateQuery },
+  ];
 }
 
 const supportedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];

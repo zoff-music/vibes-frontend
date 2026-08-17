@@ -11,18 +11,20 @@ import { chunkItems } from '@vibes/ui/shared';
 import { useState } from 'react';
 import { ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
-import type { TvSession } from '@/hooks/use-tv-session';
+import type { TvSessionActions, TvSessionState } from '@/hooks/use-tv-session';
 
 interface LandingScreenProps {
   isAIMode: boolean;
   onToggleAIMode: () => void;
-  session: TvSession;
+  session: TvSessionState;
+  sessionActions: TvSessionActions;
 }
 
 export function LandingScreen({
   isAIMode,
   onToggleAIMode,
   session,
+  sessionActions,
 }: LandingScreenProps) {
   const { height, width } = useWindowDimensions();
   const compact = width <= compactScreenWidth || height <= compactScreenHeight;
@@ -34,12 +36,12 @@ export function LandingScreen({
   const generationMessage = useGenerationMessage(isAIMode && session.loading);
   const submit = () => {
     if (isAIMode) {
-      void session.generateRoom(value);
+      void sessionActions.generateRoom(value);
       return;
     }
     const joinOrCreate = async () => {
-      const result = await session.loadRoom(value);
-      if (result === 'notFound') await session.createRoom(value);
+      const result = await sessionActions.loadRoom(value);
+      if (result === 'notFound') await sessionActions.createRoom(value);
     };
     void joinOrCreate();
   };
@@ -172,7 +174,8 @@ export function LandingScreen({
                         compact && 'px-8 py-6',
                         !compact && 'px-12 py-8',
                       )}
-                      onPress={() => void session.loadRoom(room.id)}
+                      onPress={() => void sessionActions.loadRoom(room.id)}
+                      disabled={session.loading}
                       tone="secondary"
                     >
                       <View className="min-w-0 flex-1 flex-row items-center justify-between gap-5">

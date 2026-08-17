@@ -8,7 +8,7 @@ import type {
   SkipVoteUpdate,
   Song,
 } from '@vibes/models';
-import type { ApiClient } from './index';
+import type { ApiClient } from './client';
 
 export type RoomSSEMessage =
   | { type: 'connected'; data: Connected }

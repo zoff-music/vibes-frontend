@@ -13,13 +13,20 @@ import {
 } from '@/components/native';
 import { Toast, ToastViewport } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
-import type { ControllerRemote } from '@/hooks/use-controller-remote';
+import type {
+  ControllerRemoteActions,
+  ControllerRemoteState,
+} from '@/hooks/use-controller-remote';
 
 interface RemotePairingProps {
-  controller: ControllerRemote;
+  controller: ControllerRemoteState;
+  controllerActions: ControllerRemoteActions;
 }
 
-export function RemotePairing({ controller }: RemotePairingProps) {
+export function RemotePairing({
+  controller,
+  controllerActions,
+}: RemotePairingProps) {
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']}>
@@ -44,7 +51,7 @@ export function RemotePairing({ controller }: RemotePairingProps) {
                   icon="scan"
                   label="Scan remote QR code"
                   tone="secondary"
-                  onPress={() => void controller.openScanner()}
+                  onPress={() => void controllerActions.openScanner()}
                 />
                 <View className="flex-row items-center gap-3">
                   <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
@@ -55,7 +62,7 @@ export function RemotePairing({ controller }: RemotePairingProps) {
                   accessibilityLabel="Remote ID"
                   autoCapitalize="none"
                   value={controller.remoteId}
-                  onChangeText={controller.setRemoteId}
+                  onChangeText={controllerActions.setRemoteId}
                   placeholder="Remote ID"
                   testID="remote-id"
                 />
@@ -63,14 +70,14 @@ export function RemotePairing({ controller }: RemotePairingProps) {
                   accessibilityLabel="Pairing code"
                   autoCapitalize="none"
                   value={controller.pairingCode}
-                  onChangeText={controller.setPairingCode}
-                  onSubmitEditing={() => void controller.pair()}
+                  onChangeText={controllerActions.setPairingCode}
+                  onSubmitEditing={() => void controllerActions.pair()}
                   placeholder="Pairing code"
                   testID="remote-pairing-code"
                 />
                 <Button
                   label="Pair remote"
-                  onPress={() => void controller.pair()}
+                  onPress={() => void controllerActions.pair()}
                 />
                 <Toast message={controller.error} />
               </Card>
@@ -88,7 +95,7 @@ export function RemotePairing({ controller }: RemotePairingProps) {
               barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
               facing="back"
               className="absolute inset-0"
-              onBarcodeScanned={controller.handleScan}
+              onBarcodeScanned={controllerActions.handleScan}
             />
             <SafeAreaView className="flex-1 justify-between">
               <View className="items-center gap-3 px-6 pt-8">
@@ -100,7 +107,7 @@ export function RemotePairing({ controller }: RemotePairingProps) {
                 <Button
                   label="Close scanner"
                   tone="secondary"
-                  onPress={() => controller.setScannerVisible(false)}
+                  onPress={() => controllerActions.setScannerVisible(false)}
                 />
               </View>
             </SafeAreaView>

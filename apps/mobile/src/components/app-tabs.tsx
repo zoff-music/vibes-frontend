@@ -10,7 +10,7 @@ import { useRoomNavigation } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 export default function AppTabs() {
-  const { resolvedScheme } = useThemePreference();
+  const [{ resolvedScheme }] = useThemePreference();
   const theme = useAppTheme();
   const tabletLayout = useTabletLandscapeLayout();
   const { canAddSongs, hasRoom } = useRoomNavigation();
