@@ -2,11 +2,6 @@ import type { AdminRoomSummary } from '@vibes/models';
 import { useEffect, useRef } from 'react';
 import { api } from '../index';
 
-interface AdminSSEMessage {
-  type: string;
-  data: unknown;
-}
-
 interface UseAdminEventsParameters {
   enabled: boolean;
   onRoomsUpdate: (rooms: AdminRoomSummary[]) => void;
@@ -29,23 +24,18 @@ export function useAdminEvents({
     let unsubscribe: null | (() => void) = null;
 
     const connect = async () => {
-      const [err, stop] = await api.sse(
-        '/admin/events',
-        null,
-        (result: [Error | null, AdminSSEMessage | null]) => {
-          const [eventError, message] = result;
-          if (eventError || !message) return;
-          if (message.type !== 'admin_rooms_update') return;
-          if (!Array.isArray(message.data)) return;
-          onRoomsUpdateRef.current(message.data as AdminRoomSummary[]);
-        },
-      );
+      const [err, stop] = await api.sse('/admin/events', null, (result) => {
+        const [eventError, message] = result;
+        if (!isMounted || eventError || !message) return;
+        if (message.type !== 'admin_rooms_update') return;
+        onRoomsUpdateRef.current(message.data);
+      });
 
       if (err || !isMounted || !stop) return;
       unsubscribe = stop;
     };
 
-    connect();
+    void connect();
 
     return () => {
       isMounted = false;

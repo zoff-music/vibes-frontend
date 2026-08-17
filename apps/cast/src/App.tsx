@@ -1,5 +1,6 @@
 import { DebugConsole, ToastViewport } from '@vibes/ui/web';
 import { ActiveView } from './components/ActiveView';
+import { CastErrorBoundary } from './components/CastErrorBoundary';
 import { CastProvider, useCast } from './components/CastProvider';
 import { IdleView } from './components/IdleView';
 
@@ -21,9 +22,11 @@ const CastAppContent = () => {
 
 export const App = () => {
   return (
-    <CastProvider>
-      <ToastViewport />
-      <CastAppContent />
-    </CastProvider>
+    <CastErrorBoundary>
+      <CastProvider>
+        <ToastViewport />
+        <CastAppContent />
+      </CastProvider>
+    </CastErrorBoundary>
   );
 };

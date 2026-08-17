@@ -1,3 +1,4 @@
+import { getHttpError } from '@vibes/api';
 import type {
   AdminListenerUsage,
   AdminSearchUsage,
@@ -26,19 +27,38 @@ export async function loader({
   const [searchError, searchUsage] = searchResult;
   const [listenerError, listenerUsage] = listenerResult;
   const [statsError, stats] = statsResult;
+  if (
+    searchError ||
+    listenerError ||
+    statsError ||
+    !searchUsage ||
+    !listenerUsage ||
+    !stats
+  ) {
+    if (
+      isAuthorizationError(searchError) ||
+      isAuthorizationError(listenerError)
+    ) {
+      return {
+        listenerUsage: { points: [], generatedAt: '' },
+        searchUsage: { points: [], generatedAt: '' },
+        stats: stats ?? { totalListeners: 0, totalRooms: 0, totalSongs: 0 },
+      };
+    }
+    throw new Response('Admin overview temporarily unavailable', {
+      status: 503,
+      statusText: 'Admin overview temporarily unavailable',
+    });
+  }
 
   return {
-    listenerUsage:
-      listenerError || !listenerUsage
-        ? { points: [], generatedAt: '' }
-        : listenerUsage,
-    searchUsage:
-      searchError || !searchUsage
-        ? { points: [], generatedAt: '' }
-        : searchUsage,
-    stats:
-      statsError || !stats
-        ? { totalListeners: 0, totalRooms: 0, totalSongs: 0 }
-        : stats,
+    listenerUsage,
+    searchUsage,
+    stats,
   };
+}
+
+function isAuthorizationError(error: Error | null) {
+  const status = error ? getHttpError(error)?.response.status : null;
+  return status === 401 || status === 403;
 }

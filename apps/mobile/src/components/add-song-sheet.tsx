@@ -1,9 +1,10 @@
-import { useRoomRequests } from '@vibes/api';
+import { useRoomPlaybackRequests, useRoomReadRequests } from '@vibes/api';
 import type { Room } from '@vibes/models';
 import { useEffect, useMemo, useState } from 'react';
 
 import { SearchSheet } from '@/components/search-sheet';
 import { createRemoteApi, mobileApi } from '@/lib/api';
+import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 import { useApp } from '@/providers/app-provider';
 
 interface AddSongSheetProps {
@@ -22,7 +23,8 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
     [controllerRemote?.controllerToken, controllerRemote?.id],
   );
   const client = controllerRemote ? remoteClient : mobileApi;
-  const roomRequests = useRoomRequests(client);
+  const playbackRequests = useRoomPlaybackRequests(client);
+  const readRequests = useRoomReadRequests(client);
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
   const [targetRoom, setTargetRoom] = useState<Room | null>(room);
   const [targetSongCount, setTargetSongCount] = useState(songs.length);
@@ -34,15 +36,23 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
       return;
     }
     const loadRoom = async () => {
-      const [requestError, snapshot] = await roomRequests.fetchSnapshot(
+      const [requestError, snapshot] = await fetchRoomSnapshot(
         controllerRemote.roomId,
+        readRequests,
+        playbackRequests,
       );
       if (requestError || !snapshot) return;
       setTargetRoom(snapshot.room);
       setTargetSongCount(snapshot.songs.length);
     };
     void loadRoom();
-  }, [controllerRemote?.roomId, room, roomRequests, songs.length]);
+  }, [
+    controllerRemote?.roomId,
+    playbackRequests,
+    readRequests,
+    room,
+    songs.length,
+  ]);
 
   if (!roomId) return null;
 

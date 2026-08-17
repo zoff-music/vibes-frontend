@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import { TerminalFeedback } from './TerminalFeedback';
 import { TerminalLoading } from './TerminalLoading';
 import { TerminalSection } from './TerminalSection';
@@ -29,7 +30,12 @@ export function TerminalGenerationProgress({
         <div className="border border-[#71f5ad]/20 bg-black/25 p-4 sm:p-6">
           <div className="flex items-center justify-between gap-4 border-[#71f5ad]/20 border-b pb-3 font-mono text-[0.62rem] uppercase tracking-[0.14em]">
             <span className="text-[#71f5ad]/55">PROCESS / GEN-1989</span>
-            <span className={isFailed ? 'text-[#ff8e8e]' : 'text-[#71f5ad]'}>
+            <span
+              className={classNames(
+                isFailed && 'text-[#ff8e8e]',
+                !isFailed && 'text-[#71f5ad]',
+              )}
+            >
               {isFailed ? 'EXIT 01' : 'RUNNING'}
             </span>
           </div>

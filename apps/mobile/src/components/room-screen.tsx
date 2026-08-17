@@ -1,4 +1,4 @@
-import { useRoomRequests } from '@vibes/api';
+import { useRoomPlaybackRequests, useRoomQueueRequests } from '@vibes/api';
 import type { Song } from '@vibes/models';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useRouter } from 'expo-router';
@@ -25,7 +25,8 @@ import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
 export function RoomScreen() {
-  const roomRequests = useRoomRequests(mobileApi);
+  const playbackRequests = useRoomPlaybackRequests(mobileApi);
+  const queueRequests = useRoomQueueRequests(mobileApi);
   const {
     authoritativePlayback,
     hasLocalPlaybackPositionDrift,
@@ -85,7 +86,10 @@ export function RoomScreen() {
       return;
     }
     if (!hasHostPlaybackAuthority) return;
-    const [requestError] = await roomRequests.updatePlayback(roomId, action);
+    const [requestError] = await playbackRequests.updatePlayback(
+      roomId,
+      action,
+    );
     if (requestError) {
       setError(
         await getRequestErrorMessage(
@@ -97,7 +101,7 @@ export function RoomScreen() {
   };
 
   const skip = async () => {
-    const [requestError, response] = await roomRequests.skip(roomId);
+    const [requestError, response] = await playbackRequests.skip(roomId);
     if (requestError) {
       setError(await getRequestErrorMessage(requestError, 'Could not skip.'));
       return;
@@ -116,7 +120,7 @@ export function RoomScreen() {
   };
 
   const vote = async (song: Song) => {
-    const [requestError] = await roomRequests.vote(roomId, song.id);
+    const [requestError] = await queueRequests.vote(roomId, song.id);
     if (requestError) {
       setError(
         await getRequestErrorMessage(requestError, 'Could not register vote.'),
@@ -125,7 +129,7 @@ export function RoomScreen() {
   };
 
   const remove = async (song: Song) => {
-    const [requestError] = await roomRequests.removeSong(roomId, song.id);
+    const [requestError] = await queueRequests.removeSong(roomId, song.id);
     if (requestError) {
       setError(
         await getRequestErrorMessage(requestError, 'Could not remove song.'),
@@ -134,7 +138,7 @@ export function RoomScreen() {
   };
 
   const seek = async (positionMs: number) => {
-    const [requestError] = await roomRequests.updatePlayback(
+    const [requestError] = await playbackRequests.updatePlayback(
       roomId,
       'seek',
       positionMs,
@@ -194,9 +198,9 @@ export function RoomScreen() {
   if (!room.isGenerating) {
     roomDetails = (
       <Card
-        className={
-          tabletLayout.isTabletLandscape ? 'flex-1 justify-between' : undefined
-        }
+        className={classNames(
+          tabletLayout.isTabletLandscape && 'flex-1 justify-between',
+        )}
       >
         <View className="flex-row items-center justify-between gap-3">
           <View className="min-w-0 flex-1 gap-1">

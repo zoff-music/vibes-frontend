@@ -4,19 +4,19 @@ import { Platform, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
-import { useApp } from '@/providers/app-provider';
+import { useRoomNavigation } from '@/providers/app-provider';
 
 export function TabletTopNavigation() {
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
   const router = useRouter();
   const tabletLayout = useTabletLandscapeLayout();
-  const { room } = useApp();
+  const { hasRoom } = useRoomNavigation();
 
   if (Platform.OS !== 'android' || !tabletLayout.isTablet) return null;
 
   const items = [
-    { href: '/', label: room ? 'Room' : 'Rooms' },
+    { href: '/', label: hasRoom ? 'Room' : 'Rooms' },
     { href: '/remote', label: 'Remote' },
     { href: '/settings', label: 'Settings' },
   ] as const;

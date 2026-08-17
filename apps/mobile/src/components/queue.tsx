@@ -152,13 +152,25 @@ export function Queue({
     </Animated.View>
   );
 
+  let listHeader: ReactElement | null = null;
+  if (!contained) {
+    listHeader = (
+      <>
+        {header}
+        <View className="px-4 pt-4 pb-3">
+          <Copy muted>UP NEXT ({songs.length})</Copy>
+        </View>
+      </>
+    );
+  }
+
   const list = (
     <FlatList
       automaticallyAdjustContentInsets={false}
       automaticallyAdjustsScrollIndicatorInsets={false}
       contentInsetAdjustmentBehavior="never"
       className="flex-1"
-      contentContainerStyle={contained ? undefined : queueStyle}
+      {...(!contained && { contentContainerStyle: queueStyle })}
       data={songs}
       initialNumToRender={8}
       keyExtractor={(song) => song.id}
@@ -167,16 +179,7 @@ export function Queue({
           <Empty>{emptyMessage}</Empty>
         </View>
       }
-      ListHeaderComponent={
-        contained ? null : (
-          <>
-            {header}
-            <View className="px-4 pt-4 pb-3">
-              <Copy muted>UP NEXT ({songs.length})</Copy>
-            </View>
-          </>
-        )
-      }
+      ListHeaderComponent={listHeader}
       maxToRenderPerBatch={8}
       renderItem={renderSong}
       ItemSeparatorComponent={QueueSeparator}

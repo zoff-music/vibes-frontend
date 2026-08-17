@@ -31,7 +31,7 @@ const headersSetter: TextMapSetter<Headers> = {
 
 function normalizeOtelEndpoint(endpoint: string | undefined) {
   if (!endpoint) {
-    return 'http://alloy.monitoring.svc.cluster.local:4317';
+    return 'http://localhost:4317';
   }
 
   if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {

@@ -1,3 +1,4 @@
+import { getHttpError } from '@vibes/api';
 import type { Providers, Room as RoomModel, Song } from '@vibes/models';
 import type { PlaybackState } from '@vibes/shared';
 import type { LoaderFunctionArgs } from 'react-router';
@@ -42,13 +43,26 @@ export async function loader({
   ]);
 
   const [roomErr, room] = roomRes;
-  const [, songs] = songsRes;
-  const [, playback] = playbackRes;
-  const [, providers] = providersRes;
+  const [songsErr, songs] = songsRes;
+  const [playbackErr, playback] = playbackRes;
+  const [providersErr, providers] = providersRes;
   if (roomErr || !room) {
+    const status = roomErr ? getHttpError(roomErr)?.response.status : null;
+    if (status !== 404) {
+      throw new Response('Room temporarily unavailable', {
+        status: status === 429 ? 429 : 503,
+        statusText: 'Room temporarily unavailable',
+      });
+    }
     const createUrl = new URL('/rooms/create', request.url);
     createUrl.searchParams.set('name', roomId);
     return redirect(createUrl.toString());
+  }
+  if (songsErr || playbackErr || providersErr) {
+    throw new Response('Room temporarily unavailable', {
+      status: 503,
+      statusText: 'Room temporarily unavailable',
+    });
   }
 
   return {

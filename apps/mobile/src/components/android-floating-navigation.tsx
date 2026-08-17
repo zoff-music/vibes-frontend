@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
-import { useApp } from '@/providers/app-provider';
+import { useRoomNavigation } from '@/providers/app-provider';
 
 interface NavigationItem {
   href: '/' | '/remote' | '/settings';
@@ -20,17 +20,15 @@ export function AndroidFloatingNavigation() {
   const router = useRouter();
   const theme = useAppTheme();
   const { isTablet } = useTabletLandscapeLayout();
-  const { controllerRemote, room } = useApp();
+  const { canAddSongs, hasRoom } = useRoomNavigation();
 
   if (Platform.OS !== 'android' || isTablet) return null;
 
   const items: NavigationItem[] = [
-    { href: '/', icon: 'home', label: room ? 'Room' : 'Rooms' },
+    { href: '/', icon: 'home', label: hasRoom ? 'Room' : 'Rooms' },
     { href: '/remote', icon: 'remote', label: 'Remote' },
     { href: '/settings', icon: 'settings', label: 'Settings' },
   ];
-  const canAddSongs = Boolean(room || controllerRemote?.roomId);
-
   return (
     <View
       className="absolute inset-x-4 z-50 flex-row items-center gap-3"

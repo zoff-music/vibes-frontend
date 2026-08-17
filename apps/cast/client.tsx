@@ -10,51 +10,26 @@ applyConsoleLogGuard(debugEnabled);
 // Wrap initialization in safeWrap to report errors
 const [err] = safeWrap(() => {
   const rootElement = document.getElementById('root');
-  if (rootElement) {
-    // Hide the loading screen once React mounts
-    const loadingElement = document.getElementById('static-loading');
-    if (loadingElement) {
-      loadingElement.style.display = 'none';
-    }
+  if (!rootElement) throw new Error('Cast receiver root is unavailable.');
 
-    // Create root and render the app
-    const root = createRoot(rootElement);
+  const loadingElement = document.getElementById('static-loading');
+  if (loadingElement) loadingElement.classList.add('hidden');
 
-    const [renderErr] = safeWrap(() => {
-      root.render(
-        <StrictMode>
-          <div className="hidden p-4">Debug</div>
-          <App />
-        </StrictMode>,
-      );
-    });
-
-    if (renderErr) {
-      console.error('Failed to render app', renderErr);
-      const errDiv = document.createElement('div');
-      errDiv.style.color = 'red';
-      errDiv.style.fontSize = '24px';
-      errDiv.style.padding = '20px';
-      errDiv.textContent = `Failed to render: ${
-        renderErr instanceof Error ? renderErr.message : String(renderErr)
-      }`;
-      document.body.replaceChildren(errDiv);
-    }
-  }
+  const root = createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <div className="hidden p-4">Debug</div>
+      <App />
+    </StrictMode>,
+  );
 });
 
 if (err) {
-  // Catch top-level errors (e.g. imports)
-  console.error('Fatal startup error', err);
+  console.error('The Cast receiver failed during startup.');
   const errDiv = document.createElement('div');
-  errDiv.style.color = 'red';
-  errDiv.style.fontSize = '24px';
-  errDiv.style.padding = '20px';
-  errDiv.style.backgroundColor = 'white';
-  errDiv.style.zIndex = '9999';
-  errDiv.style.position = 'absolute';
-  errDiv.style.top = '0';
-  errDiv.style.margin = '20px';
-  errDiv.innerText = `Startup Error: ${err instanceof Error ? err.message : String(err)}`;
-  document.body.appendChild(errDiv);
+  errDiv.className =
+    'cast-shell flex h-screen w-screen items-center justify-center px-8 text-center font-display text-3xl text-theme';
+  errDiv.textContent =
+    'The Zoff receiver could not start. Reload to try again.';
+  document.body.replaceChildren(errDiv);
 }

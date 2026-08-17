@@ -47,13 +47,16 @@ export function TerminalToggle({
         className="sr-only"
         disabled={disabled}
         id={inputId}
-        name={name}
+        {...(name && { name })}
         onChange={(event) => onChange(event.target.checked)}
         type="checkbox"
       />
       <span
         aria-hidden="true"
-        className={checked ? 'text-[#71f5ad]' : 'text-[#a6ffd0]/40'}
+        className={classNames(
+          checked && 'text-[#71f5ad]',
+          !checked && 'text-[#a6ffd0]/40',
+        )}
       >
         [{checked ? 'ON ' : 'OFF'}]
       </span>

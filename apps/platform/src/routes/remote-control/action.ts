@@ -46,7 +46,6 @@ async function createErrorData(
     error:
       (error && getRateLimitMessage(error)) ??
       (error ? await getAPIErrorMessage(error) : null) ??
-      error?.message ??
       'The remote control request failed',
     intent,
   } satisfies RemoteControlActionData;

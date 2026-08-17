@@ -3,7 +3,9 @@ import {
   getHttpError,
   useRemoteEvents,
   useRemoteRequests,
-  useRoomRequests,
+  useRoomPlaybackRequests,
+  useRoomQueueRequests,
+  useRoomReadRequests,
   useSSE,
 } from '@vibes/api';
 import type {
@@ -20,6 +22,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useLivePosition } from '@/hooks/use-live-position';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
+import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 import { useApp } from '@/providers/app-provider';
 
 export interface ControllerRemote {
@@ -74,7 +77,9 @@ export function useControllerRemote(): ControllerRemote {
     [controllerToken, remoteId],
   );
   const remoteRequests = useRemoteRequests(client);
-  const roomRequests = useRoomRequests(client);
+  const playbackRequests = useRoomPlaybackRequests(client);
+  const queueRequests = useRoomQueueRequests(client);
+  const readRequests = useRoomReadRequests(client);
   const mobileRemoteRequests = useRemoteRequests(mobileApi);
   const livePosition = useLivePosition(
     remote?.playbackPositionMs ?? 0,
@@ -122,8 +127,10 @@ export function useControllerRemote(): ControllerRemote {
       setError('');
       return;
     }
-    const [roomError, snapshot] = await roomRequests.fetchSnapshot(
+    const [roomError, snapshot] = await fetchRoomSnapshot(
       nextRemote.currentRoomId,
+      readRequests,
+      playbackRequests,
     );
     if (roomError || !snapshot) {
       setError(
@@ -144,9 +151,10 @@ export function useControllerRemote(): ControllerRemote {
     clearControllerRemote,
     controllerRemote?.roomId,
     controllerToken,
+    playbackRequests,
+    readRequests,
     remoteId,
     remoteRequests,
-    roomRequests,
   ]);
 
   useEffect(() => {
@@ -193,12 +201,19 @@ export function useControllerRemote(): ControllerRemote {
 
   const roomEventCallbacks = useMemo(
     () => ({
+      onConnected: synchronizeServerClock,
       onPlaybackUpdate: (nextPlayback: PlaybackState) => {
         synchronizeServerClock(nextPlayback.serverTimeMs);
         setPlayback(nextPlayback);
       },
       onReconnect: () => void refresh(),
       onRoomUpdate: setRoom,
+      onSongAdded: (song: Song) => {
+        setSongs((current) => {
+          if (current.some((item) => item.id === song.id)) return current;
+          return [...current, song];
+        });
+      },
       onSongsUpdate: setSongs,
       onUsersUpdate: (count: number) => {
         setRoom((current) => {
@@ -248,7 +263,7 @@ export function useControllerRemote(): ControllerRemote {
   const action = async (kind: 'play' | 'pause' | 'skip') => {
     if (!remote?.currentRoomId) return;
     if (kind === 'skip') {
-      const [requestError] = await roomRequests.skip(remote.currentRoomId);
+      const [requestError] = await playbackRequests.skip(remote.currentRoomId);
       if (requestError) {
         setError(
           await getRequestErrorMessage(
@@ -263,7 +278,7 @@ export function useControllerRemote(): ControllerRemote {
     const hasHostAuthority =
       room?.mode === 'host' && (room.isAdmin || room.hostId === room.userId);
     if (hasHostAuthority) {
-      const [requestError] = await roomRequests.updatePlayback(
+      const [requestError] = await playbackRequests.updatePlayback(
         remote.currentRoomId,
         kind,
       );
@@ -306,7 +321,7 @@ export function useControllerRemote(): ControllerRemote {
 
   const vote = async (song: Song) => {
     if (!remote?.currentRoomId) return;
-    const [requestError] = await roomRequests.vote(
+    const [requestError] = await queueRequests.vote(
       remote.currentRoomId,
       song.id,
     );
@@ -319,7 +334,7 @@ export function useControllerRemote(): ControllerRemote {
 
   const remove = async (song: Song) => {
     if (!remote?.currentRoomId) return;
-    const [requestError] = await roomRequests.removeSong(
+    const [requestError] = await queueRequests.removeSong(
       remote.currentRoomId,
       song.id,
     );
@@ -332,7 +347,7 @@ export function useControllerRemote(): ControllerRemote {
 
   const seek = async (positionMs: number) => {
     if (!remote?.currentRoomId) return;
-    const [requestError] = await roomRequests.updatePlayback(
+    const [requestError] = await playbackRequests.updatePlayback(
       remote.currentRoomId,
       'seek',
       positionMs,

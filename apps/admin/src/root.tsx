@@ -6,8 +6,10 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
 } from 'react-router';
 import { App } from './App';
+import { AdminErrorView } from './components/AdminErrorView';
 import stylesUrl from './index.css?url';
 import { getThemeFromCookies } from './ssr/theme.server';
 
@@ -81,4 +83,11 @@ export function Layout({ children }: { children: ReactNode }) {
 
 export default function Root() {
   return <App />;
+}
+
+export function ErrorBoundary() {
+  useRouteError();
+  return (
+    <AdminErrorView message="The admin dashboard could not be loaded. Reload the page or return to sign in." />
+  );
 }

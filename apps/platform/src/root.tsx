@@ -11,8 +11,10 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
 } from 'react-router';
 import { App } from './App';
+import { PlatformErrorView } from './components/errors/PlatformErrorView';
 import stylesUrl from './index.css?url';
 import { getKonamiModeFromCookies } from './ssr/konamiMode.server';
 import { getThemeFromCookies } from './ssr/theme.server';
@@ -114,4 +116,14 @@ export function Layout({ children }: Props) {
 
 export default function Root() {
   return <App />;
+}
+
+export function ErrorBoundary() {
+  useRouteError();
+  return (
+    <PlatformErrorView
+      message="Something went wrong. Reload the page or return home."
+      title="Zoff is temporarily unavailable"
+    />
+  );
 }

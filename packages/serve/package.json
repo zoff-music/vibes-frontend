@@ -7,6 +7,10 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "scripts": {
+    "lint": "biome check src",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@opentelemetry/api": "1.9.1",
     "@opentelemetry/core": "2.9.0",

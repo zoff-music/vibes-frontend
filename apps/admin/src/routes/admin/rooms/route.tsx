@@ -1,4 +1,6 @@
-import { showRateLimitMessageToast, useAdminEvents } from '@vibes/api';
+import { useAdminEvents } from '@vibes/api';
+import type { AdminRoomResult, AdminRoomSummary } from '@vibes/models';
+import { showRateLimitMessageToast } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
 import {
   type ChangeEvent,
@@ -21,8 +23,9 @@ import { action } from './action';
 import { AdminRoomCard } from './components/AdminRoomCard';
 import type { AdminRoomSearch, AdminRoomsLoaderData } from './loader';
 import { loader } from './loader';
+import { shouldRevalidate } from './shouldRevalidate';
 
-export { action, loader };
+export { action, loader, shouldRevalidate };
 
 export default function AdminRooms() {
   const { roomResult, roomSearch } = useLoaderData<AdminRoomsLoaderData>();
@@ -30,10 +33,11 @@ export default function AdminRooms() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const revalidator = useRevalidator();
+  const [liveRoomResult, setLiveRoomResult] = useState(roomResult);
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const isLoading = fetcher.state !== 'idle' || navigation.state !== 'idle';
-  const rooms = roomResult.rooms;
+  const rooms = liveRoomResult.rooms;
   const hasRooms = rooms.length > 0;
   const totalViewers = useMemo(
     () => rooms.reduce((total, room) => total + room.userCount, 0),
@@ -42,8 +46,14 @@ export default function AdminRooms() {
 
   useAdminEvents({
     enabled: true,
-    onRoomsUpdate: revalidator.revalidate,
+    onRoomsUpdate: (updatedRooms) => {
+      setLiveRoomResult(selectRoomPage(updatedRooms, roomSearch));
+    },
   });
+
+  useEffect(() => {
+    setLiveRoomResult(roomResult);
+  }, [roomResult]);
 
   useEffect(() => {
     if (fetcher.data?.rateLimitMessage) {
@@ -52,8 +62,11 @@ export default function AdminRooms() {
     if (fetcher.data?.success) {
       setEditingRoomId(null);
       setEditingName('');
+      if (fetcher.data.rooms) {
+        setLiveRoomResult(selectRoomPage(fetcher.data.rooms, roomSearch));
+      }
     }
-  }, [fetcher.data]);
+  }, [fetcher.data, roomSearch]);
 
   const loadRoomPage = (next: AdminRoomSearch) => {
     const params = new URLSearchParams({
@@ -196,7 +209,7 @@ export default function AdminRooms() {
           <h1 className="font-black text-3xl tracking-tight">Rooms</h1>
           <p className="text-ink/60 text-sm dark:text-gray-400">
             {hasRooms
-              ? `${roomResult.total} rooms, ${totalViewers} listeners on this page`
+              ? `${liveRoomResult.total} rooms, ${totalViewers} listeners on this page`
               : roomSearch.q
                 ? 'No rooms match this search'
                 : 'No active rooms yet'}
@@ -208,7 +221,11 @@ export default function AdminRooms() {
       </header>
 
       {fetcher.data?.error && !fetcher.data.rateLimitMessage && (
-        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-500 text-sm">
+        <p
+          aria-live="polite"
+          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-500 text-sm"
+          role="alert"
+        >
           {fetcher.data.error}
         </p>
       )}
@@ -244,9 +261,9 @@ export default function AdminRooms() {
         className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
         <p className="text-ink/60 text-sm dark:text-gray-400">
-          {roomResult.total === 0
+          {liveRoomResult.total === 0
             ? 'No rooms'
-            : `${roomResult.from + 1}–${roomResult.to + 1} of ${roomResult.total}`}
+            : `${liveRoomResult.from + 1}–${liveRoomResult.to + 1} of ${liveRoomResult.total}`}
         </p>
         <div className="flex gap-3">
           <Button
@@ -257,7 +274,9 @@ export default function AdminRooms() {
             Previous
           </Button>
           <Button
-            disabled={roomResult.to + 1 >= roomResult.total || isLoading}
+            disabled={
+              liveRoomResult.to + 1 >= liveRoomResult.total || isLoading
+            }
             onClick={loadNextRooms}
             variant="secondary"
           >
@@ -267,4 +286,34 @@ export default function AdminRooms() {
       </nav>
     </main>
   );
+}
+
+function selectRoomPage(
+  rooms: AdminRoomSummary[],
+  search: AdminRoomSearch,
+): AdminRoomResult {
+  const query = search.q.toLowerCase();
+  const matchingRooms = query
+    ? rooms.filter(
+        (room) =>
+          room.id.toLowerCase().includes(query) ||
+          room.name.toLowerCase().includes(query),
+      )
+    : [...rooms];
+  matchingRooms.sort((left, right) => {
+    const leftValue =
+      search.sortBy === 'songs' ? left.songCount : left.userCount;
+    const rightValue =
+      search.sortBy === 'songs' ? right.songCount : right.userCount;
+    const difference = leftValue - rightValue;
+    return search.order === 'asc' ? difference : -difference;
+  });
+  const page = matchingRooms.slice(search.from, search.to + 1);
+  return {
+    count: page.length,
+    from: search.from,
+    rooms: page,
+    to: page.length > 0 ? search.from + page.length - 1 : search.from,
+    total: matchingRooms.length,
+  };
 }

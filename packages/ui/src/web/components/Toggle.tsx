@@ -40,7 +40,7 @@ export const Toggle: React.FC<ToggleProps> = ({
       <div className="relative inline-flex items-center">
         <input
           id={inputId}
-          name={name}
+          {...(name && { name })}
           type="checkbox"
           checked={checked}
           onChange={(e) => !disabled && onChange(e.target.checked)}
@@ -91,7 +91,7 @@ export const Toggle: React.FC<ToggleProps> = ({
     >
       <input
         id={inputId}
-        name={name}
+        {...(name && { name })}
         type="checkbox"
         checked={checked}
         onChange={(e) => !disabled && onChange(e.target.checked)}

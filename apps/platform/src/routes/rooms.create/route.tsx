@@ -1,10 +1,13 @@
-import { showRateLimitMessageToast } from '@vibes/api';
 import {
   isSourceType,
   type RoomNameReservation,
   type SourceType,
 } from '@vibes/models';
-import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
+import {
+  classNames,
+  DEFAULT_ROOM_SETTINGS,
+  showRateLimitMessageToast,
+} from '@vibes/shared';
 import {
   AlertCircleIcon,
   ArrowLeftIcon,
@@ -588,10 +591,19 @@ const CreateRoom: React.FC = () => {
               {/* 2. ADMIN PASSWORD */}
               <div
                 ref={passwordRef}
-                className={`panel-surface rounded-3xl p-4 transition-all duration-300 sm:p-6 ${wobblePassword ? 'border-red-500 shadow-error ring-2 ring-red-500/50' : ''}`}
+                className={classNames(
+                  'panel-surface rounded-3xl p-4 transition-all duration-300 sm:p-6',
+                  wobblePassword &&
+                    'border-red-500 shadow-error ring-2 ring-red-500/50',
+                )}
               >
                 <label
-                  className={`mb-3 block font-pixel text-2xs tracking-label transition-colors ${wobblePassword ? 'animate-bounce text-red-500' : 'text-theme-muted'}`}
+                  className={classNames(
+                    'mb-3 block font-pixel text-2xs tracking-label transition-colors',
+                    wobblePassword
+                      ? 'animate-bounce text-red-500'
+                      : 'text-theme-muted',
+                  )}
                 >
                   ADMIN PASSWORD
                   <span className="ml-2 text-theme-subtle">(optional)</span>
@@ -602,10 +614,20 @@ const CreateRoom: React.FC = () => {
                   placeholder="For room control"
                   value={password}
                   onChange={handlePasswordChange}
-                  className={`w-full rounded-2xl border bg-theme-surface px-4 py-4 text-base text-theme placeholder:text-theme-subtle focus:outline-hidden focus:ring-2 ${wobblePassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500/30' : 'border-theme focus:border-primary focus:ring-primary/30'}`}
+                  className={classNames(
+                    'w-full rounded-2xl border bg-theme-surface px-4 py-4 text-base text-theme placeholder:text-theme-subtle focus:outline-hidden focus:ring-2',
+                    wobblePassword
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/30'
+                      : 'border-theme focus:border-primary focus:ring-primary/30',
+                  )}
                 />
                 <p
-                  className={`mt-3 text-xs transition-colors ${wobblePassword ? 'font-bold text-red-400' : 'text-theme-subtle'}`}
+                  className={classNames(
+                    'mt-3 text-xs transition-colors',
+                    wobblePassword
+                      ? 'font-bold text-red-400'
+                      : 'text-theme-subtle',
+                  )}
                 >
                   {wobblePassword
                     ? 'Password required for "Only Admin Add Songs"'

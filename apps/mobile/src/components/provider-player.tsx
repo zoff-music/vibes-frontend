@@ -1,5 +1,5 @@
 import type { PlaybackState, Song } from '@vibes/models';
-import { safeWrap } from '@vibes/shared';
+import { classNames, safeWrap } from '@vibes/shared';
 import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -165,16 +165,12 @@ export function ProviderPlayer({
       >
         {youtubeSong && (
           <View
+            className={classNames(
+              'absolute inset-0 items-center justify-center',
+              isYouTubeActive && 'z-10 opacity-100',
+              !isYouTubeActive && 'z-0 opacity-0',
+            )}
             pointerEvents={isYouTubeActive ? 'auto' : 'none'}
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: isYouTubeActive ? 1 : 0,
-                zIndex: isYouTubeActive ? 2 : 0,
-              },
-            ]}
           >
             <NativeYouTubePlayer
               height={embeddedPlayerHeight}
@@ -205,16 +201,12 @@ export function ProviderPlayer({
         )}
         {soundCloudSong && (
           <View
+            className={classNames(
+              'absolute inset-0 items-center justify-center',
+              isSoundCloudActive && 'z-10 opacity-100',
+              !isSoundCloudActive && 'z-0 opacity-0',
+            )}
             pointerEvents={isSoundCloudActive ? 'auto' : 'none'}
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: isSoundCloudActive ? 1 : 0,
-                zIndex: isSoundCloudActive ? 2 : 0,
-              },
-            ]}
           >
             <NativeSoundCloudPlayer
               artworkUrl={soundCloudSong.thumbnailUrl}

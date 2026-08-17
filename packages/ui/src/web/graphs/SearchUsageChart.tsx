@@ -1,4 +1,5 @@
 import type { AdminSearchUsagePoint } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import { line, max, scaleLinear, scaleUtc, utcFormat } from 'd3';
 import { type FocusEvent, type MouseEvent, useMemo, useState } from 'react';
 import { getProviderDisplayName } from '../../shared';
@@ -232,21 +233,21 @@ export function SearchUsageChart({
             ))}
             <path
               className="fill-none stroke-violet-400"
-              d={cachedPath ?? undefined}
+              {...(cachedPath && { d: cachedPath })}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={supportingLineWidth}
             />
             <path
               className="fill-none stroke-cyan-400"
-              d={livePath ?? undefined}
+              {...(livePath && { d: livePath })}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={supportingLineWidth}
             />
             <path
               className="fill-none stroke-primary"
-              d={totalPath ?? undefined}
+              {...(totalPath && { d: totalPath })}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={totalLineWidth}
@@ -254,7 +255,10 @@ export function SearchUsageChart({
             {searchUsageMetrics.map((metric) =>
               buckets.map((bucket) => (
                 <circle
-                  className={`${metric.pointClassName} pointer-events-none stroke-theme-surface`}
+                  className={classNames(
+                    metric.pointClassName,
+                    'pointer-events-none stroke-theme-surface',
+                  )}
                   cx={xScale(bucket.timestamp)}
                   cy={yScale(bucket[metric.id])}
                   key={`${metric.id}-${bucket.timestamp.toISOString()}`}

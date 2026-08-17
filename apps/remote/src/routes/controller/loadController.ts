@@ -1,52 +1,37 @@
-import type { ApiClient } from '@vibes/api';
-import type { PlaybackState, RemoteStatus, Room, Song } from '@vibes/models';
+import type {
+  PlaybackState,
+  Providers,
+  RemoteStatus,
+  Room,
+  Song,
+} from '@vibes/models';
 
 export interface ControllerLoaderData {
   error?: string;
   playback?: PlaybackState;
-  providers: string[];
+  providers: Providers;
   remote?: RemoteStatus;
   room?: Room;
   songs: Song[];
 }
 
-export async function loadController(
-  client: ApiClient,
-  remoteId: string,
-  headers?: Record<string, string>,
-): Promise<ControllerLoaderData> {
-  if (!remoteId) {
-    return { error: 'Remote ID is required.', providers: [], songs: [] };
-  }
+interface ControllerRoomResults {
+  playback: PlaybackState | null;
+  providers: Providers | null;
+  remote: RemoteStatus;
+  room: Room | null;
+  roomError: Error | null;
+  songs: Song[] | null;
+}
 
-  const [remoteError, remote] = await client.get(
-    '/remotes/{id}',
-    { id: remoteId },
-    { headers },
-  );
-  if (remoteError || !remote) {
-    return {
-      error: 'This remote is not paired, disabled, or its machine is offline.',
-      providers: [],
-      songs: [],
-    };
-  }
-  if (!remote.currentRoomId) {
-    return { providers: [], remote, songs: [] };
-  }
-
-  const roomId = remote.currentRoomId;
-  const [roomResult, songResult, playbackResult, providerResult] =
-    await Promise.all([
-      client.get('/rooms/{id}', { id: roomId }, { headers }),
-      client.get('/rooms/{id}/songs', { id: roomId }, { headers }),
-      client.get('/rooms/{id}/states', { id: roomId }, { headers }),
-      client.get('/providers', null, { headers }),
-    ]);
-  const [roomError, room] = roomResult;
-  const [, songs] = songResult;
-  const [, playback] = playbackResult;
-  const [, providers] = providerResult;
+export function createControllerRoomData({
+  playback,
+  providers,
+  remote,
+  room,
+  roomError,
+  songs,
+}: ControllerRoomResults): ControllerLoaderData {
   if (roomError || !room) {
     return {
       error: 'The controlled machine is in a room that is no longer available.',
@@ -55,9 +40,8 @@ export async function loadController(
       songs: [],
     };
   }
-
   return {
-    playback: playback ?? undefined,
+    ...(playback ? { playback } : {}),
     providers: providers ?? [],
     remote,
     room,

@@ -1,4 +1,5 @@
 import type { ListenerUsagePoint } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import { line, max, scaleLinear, scaleUtc, utcFormat } from 'd3';
 import { type FocusEvent, type MouseEvent, useMemo, useState } from 'react';
 
@@ -80,11 +81,12 @@ export function ListenerUsageChart({
           {listenerUsageWindows.map((window) => (
             <button
               aria-pressed={selectedWindow === window.id}
-              className={
-                selectedWindow === window.id
-                  ? 'rounded-lg bg-primary px-3 py-2 font-bold text-white text-xs'
-                  : 'rounded-lg bg-ink/5 px-3 py-2 font-bold text-ink/60 text-xs transition-colors hover:bg-ink/10 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'
-              }
+              className={classNames(
+                'rounded-lg px-3 py-2 font-bold text-xs',
+                selectedWindow === window.id && 'bg-primary text-white',
+                selectedWindow !== window.id &&
+                  'bg-ink/5 text-ink/60 transition-colors hover:bg-ink/10 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700',
+              )}
               key={window.id}
               onClick={handleWindowChange}
               type="button"
@@ -155,7 +157,7 @@ export function ListenerUsageChart({
             ))}
             <path
               className="fill-none stroke-primary"
-              d={path ?? undefined}
+              {...(path && { d: path })}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={chartLineWidth}

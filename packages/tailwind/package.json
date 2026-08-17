@@ -8,5 +8,8 @@
     "./plugin": "./vibes-plugin.mjs",
     "./styles.css": "./styles.css",
     "./cast.css": "./cast.css"
+  },
+  "scripts": {
+    "lint": "biome check ."
   }
 }

@@ -123,10 +123,6 @@ This app is built with:
 
 **HMR not working**: Ensure WebSocket connection is established. Look for `[HMR] Cast Client connected` in server logs.
 
----
-
-For more details on the architecture, see [MUSIC-PROVIDERS.md](../../../docs/MUSIC-PROVIDERS.md).
-
 ## 🐛 Debugging
 
 ### Remote Logging

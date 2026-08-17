@@ -2,7 +2,10 @@ import {
   type ApiClient,
   getHttpError,
   getRequestErrorMessage,
-  useRoomRequests,
+  useRoomDiscoveryRequests,
+  useRoomLifecycleRequests,
+  useRoomPlaybackRequests,
+  useRoomReadRequests,
   useSSE,
 } from '@vibes/api';
 import type {
@@ -10,6 +13,7 @@ import type {
   Providers,
   PublicRoom,
   Room,
+  RoomGenerationUpdate,
   Song,
 } from '@vibes/models';
 import {
@@ -19,7 +23,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AppState } from 'react-native';
+import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
 
@@ -39,19 +43,24 @@ export interface TvSession {
   songs: Song[];
 }
 
-export function useTvSession(client: ApiClient): TvSession {
-  const requests = useRoomRequests(client);
+export type SubscribeToResume = (onResume: () => void) => () => void;
+
+export function useTvSession(
+  client: ApiClient,
+  subscribeToResume?: SubscribeToResume,
+): TvSession {
+  const discoveryRequests = useRoomDiscoveryRequests(client);
+  const lifecycleRequests = useRoomLifecycleRequests(client);
+  const playbackRequests = useRoomPlaybackRequests(client);
+  const readRequests = useRoomReadRequests(client);
   const room = useRoomStore((state) => state.room);
   const listenerCount = useRoomStore((state) => state.usersCount);
   const songs = useQueueStore((state) => state.songs);
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
-  const positionMs = usePlaybackStore((state) => state.actualPositionMs);
+  const positionMs = usePlaybackStore((state) => state.positionMs);
   const serverTimeMs = usePlaybackStore((state) => state.serverTimeMs);
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
-  const updateActualPosition = usePlaybackStore(
-    (state) => state.updateActualPosition,
-  );
   const playback = useMemo<PlaybackState>(
     () => ({ currentSong, isPlaying, positionMs, serverTimeMs, updatedAt }),
     [currentSong, isPlaying, positionMs, serverTimeMs, updatedAt],
@@ -64,6 +73,36 @@ export function useTvSession(client: ApiClient): TvSession {
 
   const callbacks = useMemo(
     () => ({
+      onConnected: synchronizeServerClock,
+      onGenerationUpdate: (update: RoomGenerationUpdate) => {
+        const currentRoom = useRoomStore.getState().room;
+        if (!currentRoom) return;
+        useRoomStore.getState().setRoom({
+          ...currentRoom,
+          generationError:
+            update.status === 'failed'
+              ? (update.error ?? 'Playlist generation could not be completed.')
+              : undefined,
+          isGenerating: update.status === 'generating',
+        });
+      },
+      onHostUpdate: ({ userId }: { userId: string }) => {
+        useRoomStore.getState().setHost(userId);
+      },
+      onPlaybackUpdate: (nextPlayback: PlaybackState) => {
+        synchronizeServerClock(nextPlayback.serverTimeMs);
+        const roomMode = useRoomStore.getState().room?.mode;
+        usePlaybackStore.getState().setPlaybackState(nextPlayback, roomMode);
+      },
+      onRoomUpdate: (nextRoom: Room) => {
+        useRoomStore.getState().setRoom(nextRoom);
+      },
+      onSongAdded: (song: Song) => {
+        useQueueStore.getState().addSong(song);
+      },
+      onSongsUpdate: (nextSongs: Song[]) => {
+        useQueueStore.getState().setSongs(nextSongs);
+      },
       onUsersUpdate: (count: number) => {
         useRoomStore.getState().setUsersCount(count);
       },
@@ -71,15 +110,6 @@ export function useTvSession(client: ApiClient): TvSession {
     [],
   );
   useSSE(roomId || undefined, callbacks, client);
-
-  useEffect(() => {
-    if (!roomId) return;
-    const interval = setInterval(
-      updateActualPosition,
-      playbackPositionIntervalMs,
-    );
-    return () => clearInterval(interval);
-  }, [roomId, updateActualPosition]);
 
   const applySnapshot = useCallback(
     (snapshot: { playback: PlaybackState; room: Room; songs: Song[] }) => {
@@ -93,36 +123,33 @@ export function useTvSession(client: ApiClient): TvSession {
     [],
   );
 
+  const refreshRoom = useCallback(async () => {
+    if (!roomId) return;
+    const [requestError, snapshot] = await fetchRoomSnapshot(
+      roomId,
+      readRequests,
+      playbackRequests,
+    );
+    if (requestError || !snapshot) {
+      setError(
+        await getRequestErrorMessage(
+          requestError,
+          'Could not refresh the room.',
+        ),
+      );
+      return;
+    }
+
+    applySnapshot(snapshot);
+    setError('');
+  }, [applySnapshot, playbackRequests, readRequests, roomId]);
+
   useEffect(() => {
-    let previousState = AppState.currentState;
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      const resumed =
-        nextState === 'active' &&
-        (previousState === 'background' || previousState === 'inactive');
-      previousState = nextState;
-      if (!resumed || !roomId) return;
-
-      const refreshRoom = async () => {
-        const [requestError, snapshot] = await requests.fetchSnapshot(roomId);
-        if (requestError || !snapshot) {
-          setError(
-            await getRequestErrorMessage(
-              requestError,
-              'Could not refresh the room.',
-            ),
-          );
-          return;
-        }
-
-        applySnapshot(snapshot);
-        setError('');
-      };
-
+    if (!subscribeToResume) return;
+    return subscribeToResume(() => {
       void refreshRoom();
     });
-
-    return () => subscription.remove();
-  }, [applySnapshot, requests, roomId]);
+  }, [refreshRoom, subscribeToResume]);
 
   const loadRoom = useCallback(
     async (nextRoomId: string): Promise<RoomJoinResult> => {
@@ -132,8 +159,11 @@ export function useTvSession(client: ApiClient): TvSession {
         return 'error';
       }
       setLoading(true);
-      const [requestError, snapshot] =
-        await requests.fetchSnapshot(normalizedRoomId);
+      const [requestError, snapshot] = await fetchRoomSnapshot(
+        normalizedRoomId,
+        readRequests,
+        playbackRequests,
+      );
       setLoading(false);
       if (requestError || !snapshot) {
         const status = requestError
@@ -156,7 +186,7 @@ export function useTvSession(client: ApiClient): TvSession {
       setError('');
       return 'joined';
     },
-    [applySnapshot, requests],
+    [applySnapshot, playbackRequests, readRequests],
   );
 
   const generateRoom = useCallback(
@@ -166,9 +196,10 @@ export function useTvSession(client: ApiClient): TvSession {
         return;
       }
       setLoading(true);
-      const [requestError, generatedRoom] = await requests.createGeneratedRoom({
-        prompt: prompt.trim(),
-      });
+      const [requestError, generatedRoom] =
+        await lifecycleRequests.createGeneratedRoom({
+          prompt: prompt.trim(),
+        });
       if (requestError || !generatedRoom) {
         setLoading(false);
         setError(
@@ -182,7 +213,7 @@ export function useTvSession(client: ApiClient): TvSession {
       await loadRoom(generatedRoom.id);
       setLoading(false);
     },
-    [loadRoom, requests],
+    [lifecycleRequests, loadRoom],
   );
 
   const createRoom = useCallback(
@@ -198,7 +229,7 @@ export function useTvSession(client: ApiClient): TvSession {
       }
       setLoading(true);
       const [reservationError, reservation] =
-        await requests.reserveRoom(normalizedName);
+        await lifecycleRequests.reserveRoom(normalizedName);
       if (reservationError || !reservation) {
         setLoading(false);
         setError(
@@ -209,7 +240,7 @@ export function useTvSession(client: ApiClient): TvSession {
         );
         return;
       }
-      const [requestError, createdRoom] = await requests.createRoom({
+      const [requestError, createdRoom] = await lifecycleRequests.createRoom({
         name: normalizedName,
         mode: 'server',
         reservationToken: reservation.token,
@@ -239,7 +270,7 @@ export function useTvSession(client: ApiClient): TvSession {
       await loadRoom(createdRoom.id);
       setLoading(false);
     },
-    [loadRoom, providers, requests],
+    [lifecycleRequests, loadRoom, providers],
   );
 
   const leaveRoom = useCallback(() => {
@@ -253,14 +284,14 @@ export function useTvSession(client: ApiClient): TvSession {
   useEffect(() => {
     const loadDiscovery = async () => {
       const [[, nextProviders], [, nextPublicRooms]] = await Promise.all([
-        requests.fetchProviders(),
-        requests.fetchPublicRooms(),
+        discoveryRequests.fetchProviders(),
+        discoveryRequests.fetchPublicRooms(),
       ]);
       setProviders(nextProviders ?? []);
       setPublicRooms(nextPublicRooms ?? []);
     };
     void loadDiscovery();
-  }, [requests]);
+  }, [discoveryRequests]);
 
   return {
     createRoom,
@@ -280,8 +311,6 @@ export function useTvSession(client: ApiClient): TvSession {
 }
 
 const notFoundStatus = 404;
-const playbackPositionIntervalMs = 1000;
-
 const emptyPlaybackState: PlaybackState = {
   currentSong: null,
   isPlaying: false,

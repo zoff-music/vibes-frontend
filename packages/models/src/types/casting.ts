@@ -37,7 +37,7 @@ export interface CastManager {
     participantCount: number;
   }): Promise<void>;
   syncPlaybackState(state: unknown): Promise<void>;
-  joinRoom(roomId: string): Promise<void>;
+  joinRoom(roomId: string, castToken: string): Promise<void>;
 
   // Event Handling
   onDeviceAvailable(callback: (device: CastDevice) => void): void;

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { safeWrapAsync } from '@vibes/shared/src/utils/wrap.ts';
+import { safeWrapAsync } from '@vibes/shared';
 import compression from 'compression';
 import express, { type Request } from 'express';
 import {

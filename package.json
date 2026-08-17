@@ -8,9 +8,10 @@
   ],
   "scripts": {
     "dev": "pnpm --filter @vibes/platform dev",
-    "build": "pnpm --filter @vibes/platform build && pnpm --filter @vibes/admin build && pnpm --filter @vibes/cast build && pnpm --filter @vibes/embed build && pnpm --filter @vibes/tv build",
+    "build": "pnpm --filter @vibes/platform build && pnpm --filter @vibes/admin build && pnpm --filter @vibes/cast build && pnpm --filter @vibes/embed build && pnpm --filter @vibes/remote build && pnpm --filter @vibes/tv build",
     "typecheck": "pnpm --recursive typecheck",
-    "lint": "pnpm --recursive lint",
+    "lint": "pnpm check:api-boundaries && pnpm --recursive lint",
+    "check:api-boundaries": "biome check scripts && node scripts/check-api-boundaries.mjs",
     "fix": "biome check --write --unsafe ."
   },
   "devDependencies": {

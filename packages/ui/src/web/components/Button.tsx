@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import React from 'react';
 
 export type ButtonVariant =
@@ -71,15 +72,20 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       icon: 'h-11 w-11 shrink-0 rounded-xl p-0',
     };
 
-    const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
+    const classes = classNames(
+      baseClasses,
+      variantClasses[variant],
+      sizeClasses[size],
+      className,
+    );
     const ariaLabel = props['aria-label'] || title;
 
     return (
       <button
         type={type}
         ref={ref}
-        title={title}
-        aria-label={ariaLabel}
+        {...(title && { title })}
+        {...(ariaLabel && { 'aria-label': ariaLabel })}
         disabled={disabled || loading}
         className={classes}
         {...props}

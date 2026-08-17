@@ -1,4 +1,4 @@
-import { useRoomRequests } from '@vibes/api';
+import { useRoomLifecycleRequests } from '@vibes/api';
 import type {
   Providers,
   RoomNameReservation,
@@ -37,7 +37,7 @@ export function CreateRoomSheet({
   providers,
   visible,
 }: CreateRoomSheetProps) {
-  const roomRequests = useRoomRequests(mobileApi);
+  const lifecycleRequests = useRoomLifecycleRequests(mobileApi);
   const [name, setName] = useState(initialName);
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'host' | 'server'>('server');
@@ -64,7 +64,8 @@ export function CreateRoomSheet({
     setReservation(null);
     if (initialName.trim()) return;
     const generateName = async () => {
-      const [requestError, nextReservation] = await roomRequests.reserveRoom();
+      const [requestError, nextReservation] =
+        await lifecycleRequests.reserveRoom();
       if (requestError || !nextReservation) {
         setError(
           await getRequestErrorMessage(
@@ -78,10 +79,11 @@ export function CreateRoomSheet({
       setReservation(nextReservation);
     };
     void generateName();
-  }, [initialName, providers, roomRequests, visible]);
+  }, [initialName, lifecycleRequests, providers, visible]);
 
   const generateName = async () => {
-    const [requestError, nextReservation] = await roomRequests.reserveRoom();
+    const [requestError, nextReservation] =
+      await lifecycleRequests.reserveRoom();
     if (requestError || !nextReservation) {
       setError(
         await getRequestErrorMessage(
@@ -119,7 +121,7 @@ export function CreateRoomSheet({
     let roomReservation = reservation;
     if (!roomReservation || roomReservation.name !== normalizedName) {
       const [reservationError, nextReservation] =
-        await roomRequests.reserveRoom(normalizedName);
+        await lifecycleRequests.reserveRoom(normalizedName);
       if (reservationError || !nextReservation) {
         setLoading(false);
         setError(
@@ -138,7 +140,7 @@ export function CreateRoomSheet({
       return;
     }
 
-    const [requestError, room] = await roomRequests.createRoom({
+    const [requestError, room] = await lifecycleRequests.createRoom({
       name: normalizedName,
       mode,
       reservationToken: roomReservation.token,

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, {
   cancelAnimation,
@@ -121,39 +121,41 @@ export function NativeAnimatedLogo({
     <View
       accessibilityLabel="Zoff"
       accessibilityRole="header"
-      style={styles.container}
+      className="h-19 w-37.5 items-center justify-center"
     >
-      <Animated.View accessible={false} style={[styles.slice, cyanSliceStyle]}>
+      <Animated.View
+        accessible={false}
+        className="absolute w-37.5 overflow-hidden"
+        style={cyanSliceStyle}
+      >
         <Animated.Text
-          style={[
-            styles.sliceText,
-            { color: accentColor },
-            cyanSliceTextStyle,
-            cyanJitterStyle,
-          ]}
+          className="absolute top-0 w-37.5 text-center font-heading text-[52px] leading-[60px] tracking-[3px]"
+          style={[{ color: accentColor }, cyanSliceTextStyle, cyanJitterStyle]}
         >
           ゾフ
         </Animated.Text>
       </Animated.View>
-      <Animated.View accessible={false} style={[styles.slice, pinkSliceStyle]}>
+      <Animated.View
+        accessible={false}
+        className="absolute w-37.5 overflow-hidden"
+        style={pinkSliceStyle}
+      >
         <Animated.Text
-          style={[
-            styles.sliceText,
-            { color: pinkColor },
-            pinkSliceTextStyle,
-            pinkJitterStyle,
-          ]}
+          className="absolute top-0 w-37.5 text-center font-heading text-[52px] leading-[60px] tracking-[3px]"
+          style={[{ color: pinkColor }, pinkSliceTextStyle, pinkJitterStyle]}
         >
           ゾフ
         </Animated.Text>
       </Animated.View>
       <Animated.Text
         accessible={false}
-        style={[
-          styles.text,
-          styles.base,
-          { color: baseColor, textShadowColor: pinkColor },
-        ]}
+        className="absolute top-2 w-37.5 text-center font-heading text-[52px] leading-[60px] tracking-[3px]"
+        style={{
+          color: baseColor,
+          textShadowColor: pinkColor,
+          textShadowOffset: { height: 0, width: 0 },
+          textShadowRadius: 12,
+        }}
       >
         ゾフ
       </Animated.Text>
@@ -217,41 +219,3 @@ const pinkGlitchTiming = { duration: 1_000, easing: Easing.linear };
 const cyanSliceTiming = { duration: 2_200, easing: Easing.linear };
 const pinkSliceTiming = { duration: 1_800, easing: Easing.linear };
 const logoTop = 8;
-
-const styles = StyleSheet.create({
-  base: {
-    textShadowOffset: { height: 0, width: 0 },
-    textShadowRadius: 12,
-  },
-  container: {
-    alignItems: 'center',
-    height: 76,
-    justifyContent: 'center',
-    width: 150,
-  },
-  slice: {
-    overflow: 'hidden',
-    position: 'absolute',
-    width: 150,
-  },
-  sliceText: {
-    fontFamily: 'Pixelify Sans Bold',
-    fontSize: 52,
-    letterSpacing: 3,
-    lineHeight: 60,
-    position: 'absolute',
-    textAlign: 'center',
-    top: 0,
-    width: 150,
-  },
-  text: {
-    fontFamily: 'Pixelify Sans Bold',
-    fontSize: 52,
-    letterSpacing: 3,
-    lineHeight: 60,
-    position: 'absolute',
-    textAlign: 'center',
-    top: logoTop,
-    width: 150,
-  },
-});

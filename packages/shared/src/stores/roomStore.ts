@@ -1,6 +1,5 @@
-import { Room } from '@vibes/models';
+import type { Room, RoomUser } from '@vibes/models';
 import { create } from 'zustand';
-import { RoomUser } from '../types';
 
 interface RoomState {
   room: Room | null;

@@ -140,7 +140,7 @@ export function LandingScreen({
           )}
         </NativeCard>
 
-        <View className={compact ? 'gap-3' : 'gap-5'}>
+        <View className={classNames(compact && 'gap-3', !compact && 'gap-5')}>
           <View className="flex-row items-center justify-between">
             <NativeHeading>Live now</NativeHeading>
             <NativeCopy muted>
@@ -155,16 +155,23 @@ export function LandingScreen({
               </Text>
             </View>
           )}
-          <View className={compact ? 'gap-3' : 'gap-5'}>
+          <View className={classNames(compact && 'gap-3', !compact && 'gap-5')}>
             {publicRoomRows.map((rooms) => (
               <View
-                className={classNames('flex-row', compact ? 'gap-3' : 'gap-5')}
+                className={classNames(
+                  'flex-row',
+                  compact && 'gap-3',
+                  !compact && 'gap-5',
+                )}
                 key={rooms.map((room) => room.id).join(':')}
               >
                 {rooms.map((room) => (
                   <View className="min-w-0 flex-1" key={room.id}>
                     <NativeButton
-                      className={compact ? 'px-8 py-6' : 'px-12 py-8'}
+                      className={classNames(
+                        compact && 'px-8 py-6',
+                        !compact && 'px-12 py-8',
+                      )}
                       onPress={() => void session.loadRoom(room.id)}
                       tone="secondary"
                     >

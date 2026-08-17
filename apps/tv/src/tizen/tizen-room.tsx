@@ -1,6 +1,5 @@
 import {
   formatPlaybackSeconds,
-  getPlaybackPresentation,
   getProviderDisplayName,
   getQueueRemainderLabel,
 } from '@vibes/ui/shared';
@@ -8,6 +7,7 @@ import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'react';
 import type { TvSession } from '@/hooks/use-tv-session';
 import { QrCode } from '@/tizen/qr-code';
+import { TizenPlaybackStatus } from '@/tizen/tizen-playback-status';
 import { TizenProviderSurface } from '@/tizen/tizen-provider-surface';
 
 interface TizenRoomProps {
@@ -43,10 +43,6 @@ export function TizenRoom({ session }: TizenRoomProps) {
     return () => observer.disconnect();
   }, []);
   const listenerCount = session.listenerCount || session.room?.userCount || 0;
-  const progress = getPlaybackPresentation(
-    session.playback.positionMs,
-    (current?.duration ?? 0) * millisecondsPerSecond,
-  ).progress;
   const queueRemainderLabel = getQueueRemainderLabel(
     queued.length,
     visibleQueueLength,
@@ -81,20 +77,7 @@ export function TizenRoom({ session }: TizenRoomProps) {
               {current ? getProviderDisplayName(current.sourceType) : ''}
             </span>
           </div>
-          <div className="mt-4 flex justify-between text-sm text-white/60">
-            <span>
-              {formatPlaybackSeconds(
-                session.playback.positionMs / millisecondsPerSecond,
-              )}
-            </span>
-            <span>{formatPlaybackSeconds(current?.duration ?? 0)}</span>
-          </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/20">
-            <div
-              className="h-full bg-accent"
-              style={{ width: `${progress * percentageMultiplier}%` }}
-            />
-          </div>
+          <TizenPlaybackStatus durationSeconds={current?.duration ?? 0} />
         </div>
       </section>
 
@@ -186,7 +169,5 @@ export function TizenRoom({ session }: TizenRoomProps) {
   );
 }
 
-const millisecondsPerSecond = 1000;
-const percentageMultiplier = 100;
 const queueTrackHeight = 96;
 const queueTrackGap = 12;

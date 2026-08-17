@@ -17,9 +17,18 @@
   :root {
     @apply font-body;
     --cast-background: #f7f4ff;
-    --cast-background-gradient: linear-gradient(145deg, #f7f4ff 0%, #eee8fa 55%, #fceff8 100%);
+    --cast-background-gradient: linear-gradient(
+      145deg,
+      #f7f4ff 0%,
+      #eee8fa 55%,
+      #fceff8 100%
+    );
     --cast-panel: rgba(255, 255, 255, 0.9);
-    --cast-panel-surface: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(246, 238, 255, 0.98));
+    --cast-panel-surface: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.94),
+      rgba(246, 238, 255, 0.98)
+    );
     --cast-track-details: #ffffff;
     --cast-surface: #f2effa;
     --cast-translucent-surface: rgba(242, 239, 250, 0.88);
@@ -34,9 +43,18 @@
 
   .dark {
     --cast-background: #0b0718;
-    --cast-background-gradient: linear-gradient(145deg, #120820 0%, #090412 55%, #160927 100%);
+    --cast-background-gradient: linear-gradient(
+      145deg,
+      #120820 0%,
+      #090412 55%,
+      #160927 100%
+    );
     --cast-panel: #160b27;
-    --cast-panel-surface: linear-gradient(145deg, rgba(26, 12, 50, 0.92), rgba(40, 18, 70, 0.98));
+    --cast-panel-surface: linear-gradient(
+      145deg,
+      rgba(26, 12, 50, 0.92),
+      rgba(40, 18, 70, 0.98)
+    );
     --cast-track-details: #07030d;
     --cast-surface: #1e1330;
     --cast-translucent-surface: rgba(30, 19, 48, 0.88);
@@ -78,16 +96,20 @@
 .cast-shell *,
 .cast-shell *::before,
 .cast-shell *::after {
+  /* biome-ignore lint/complexity/noImportantStyles: Cast must override animated utility classes. */
   animation: none !important;
+  /* biome-ignore lint/complexity/noImportantStyles: Cast must override transition utility classes. */
   transition: none !important;
 }
 
 .cast-shell .vhs-scanlines,
 .cast-shell .crt-overlay {
+  /* biome-ignore lint/complexity/noImportantStyles: Cast intentionally disables decorative overlays. */
   display: none !important;
 }
 
 .cast-shell .backdrop-blur-sm {
+  /* biome-ignore lint/complexity/noImportantStyles: Cast intentionally disables expensive backdrop filters. */
   backdrop-filter: none !important;
 }
 

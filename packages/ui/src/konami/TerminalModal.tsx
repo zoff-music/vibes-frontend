@@ -38,10 +38,10 @@ export function TerminalModal({
         '!rounded-none !border !border-[#71f5ad] !bg-[#020e09] !p-0 !shadow-[0_0_4rem_rgba(49,255,154,0.16)] font-mono text-[#b9ffda]',
         className,
       )}
-      initialFocusRef={initialFocusRef}
+      {...(initialFocusRef && { initialFocusRef })}
       isOpen={isOpen}
       onClose={onClose}
-      panelRef={panelRef}
+      {...(panelRef && { panelRef })}
       size={size}
     >
       <header className="flex items-center justify-between gap-4 bg-[#71f5ad] px-4 py-2 font-bold text-[#03150d] text-xs uppercase">

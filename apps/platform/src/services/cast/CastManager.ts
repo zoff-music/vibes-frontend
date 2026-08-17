@@ -1,4 +1,3 @@
-import { createCastingToken } from '@vibes/api';
 import type {
   CastDevice,
   CastError,
@@ -45,6 +44,7 @@ class GoogleCastManager implements ICastManager {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
   private reconnectDelay = 1000;
+  private roomCredentials: { castToken: string; roomId: string } | null = null;
 
   private eventBus: CastEventBus;
   private localEmulator: LocalEmulator;
@@ -429,8 +429,13 @@ class GoogleCastManager implements ICastManager {
           return;
         }
 
+        const castToken = this.roomCredentials?.castToken;
+        if (!castToken || this.roomCredentials?.roomId !== roomId) {
+          console.warn('[Cast] receiverReady before room credentials loaded');
+          return;
+        }
         const [joinErr] = safeWrap(() => {
-          void this.joinRoom(roomId);
+          void this.joinRoom(roomId, castToken);
         });
         if (joinErr) {
           console.error(
@@ -1062,20 +1067,15 @@ class GoogleCastManager implements ICastManager {
     }
   }
 
-  async joinRoom(roomId: string): Promise<void> {
+  async joinRoom(roomId: string, castToken: string): Promise<void> {
     if (!this.currentSession) return;
-
-    const [tokenErr, tokenResp] = await createCastingToken(roomId);
-    if (tokenErr || !tokenResp?.token) {
-      console.error('[Cast] failed to mint cast token', tokenErr);
-      throw tokenErr || new Error('Failed to mint cast token');
-    }
+    this.roomCredentials = { castToken, roomId };
 
     const casterId = this.localEmulator.getCasterIdFromContext() || undefined;
     const message = {
       action: 'joinRoom',
       roomId,
-      castToken: tokenResp.token,
+      castToken,
       casterId,
       sessionId: casterId,
       theme: useThemeStore.getState().resolvedTheme,

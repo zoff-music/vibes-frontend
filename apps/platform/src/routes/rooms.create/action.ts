@@ -77,11 +77,7 @@ export async function clientAction({
     const rateLimitMessage = err ? getRateLimitMessage(err) : null;
     const apiErrorMessage = err ? await getAPIErrorMessage(err) : null;
     return {
-      error:
-        rateLimitMessage ??
-        apiErrorMessage ??
-        err?.message ??
-        'Failed to create room',
+      error: rateLimitMessage ?? apiErrorMessage ?? 'Failed to create room',
       ...(rateLimitMessage && { rateLimitMessage }),
     };
   }
@@ -103,10 +99,7 @@ async function reserveRoomName(
     return {
       checkedName: name,
       error:
-        rateLimitMessage ??
-        apiErrorMessage ??
-        err?.message ??
-        'Could not reserve this name',
+        rateLimitMessage ?? apiErrorMessage ?? 'Could not reserve this name',
       ...(rateLimitMessage && { rateLimitMessage }),
       ...(status === CONFLICT_STATUS && { roomNameUnavailable: true }),
     };

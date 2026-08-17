@@ -118,7 +118,3 @@ PORT=3000
 - **Optimized Bundles**: Vite code splitting and tree shaking
 - **Hot Module Replacement**: Sub-second development feedback
 - **Zustand Optimization**: Selective subscriptions prevent unnecessary re-renders
-
----
-
-For architecture details on music providers, see [MUSIC-PROVIDERS.md](../../../docs/MUSIC-PROVIDERS.md).

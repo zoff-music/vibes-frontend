@@ -1,5 +1,5 @@
 import { classNames, type ToastType } from '@vibes/shared';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AlertCircleIcon, CheckIcon, InfoIcon } from '../icons';
 
 interface ToastProps {
@@ -18,14 +18,25 @@ export const Toast = ({
   onClose,
 }: ToastProps) => {
   const [isVisible, setIsVisible] = useState(true);
+  const onCloseRef = useRef(onClose);
 
   useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    let closeTimer: ReturnType<typeof setTimeout> | null = null;
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300);
+      closeTimer = setTimeout(() => onCloseRef.current(), 300);
     }, duration);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (closeTimer) {
+        clearTimeout(closeTimer);
+      }
+    };
   }, [duration]);
 
   const bgColors = {

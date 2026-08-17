@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 import zoffLogo from '@/assets/images/icon.png';
 import { Button, Card, Copy } from '@/components/native';
-import { useApp } from '@/providers/app-provider';
+import { useMachineRemoteSettings } from '@/providers/app-provider';
 
 export function DeviceRemoteSettings() {
   const {
@@ -11,7 +11,7 @@ export function DeviceRemoteSettings() {
     enableMachineRemote,
     machinePairing,
     machineRemote,
-  } = useApp();
+  } = useMachineRemoteSettings();
   const pairingUrl = machinePairing
     ? `https://zoff.me/remotes?remoteId=${encodeURIComponent(machinePairing.id)}&pair=${encodeURIComponent(machinePairing.pairingToken)}`
     : '';

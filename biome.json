@@ -1,9 +1,10 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
   "files": {
     "includes": [
       "apps/**",
       "packages/**",
+      "scripts/**",
       "!**/node_modules",
       "!**/dist",
       "!apps/**/e2e",
@@ -40,8 +41,8 @@
         "noUnknownFunction": "off"
       },
       "suspicious": {
-        "noImplicitAnyLet": "off",
-        "noExplicitAny": "off",
+        "noImplicitAnyLet": "error",
+        "noExplicitAny": "error",
         "noUnknownAtRules": "off"
       },
       "style": {

@@ -5,53 +5,87 @@ import type {
   AddSongResponse,
   MusicPlaylist,
   SearchResult,
-  YouTubeVideo,
+  SourceType,
 } from '@vibes/models';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { ApiClient, ApiResult } from '../index';
 
-export interface ProviderRequests {
+export function useProviderSearchRequest(client: ApiClient) {
+  return useCallback(
+    async (provider: SourceType, query: string): ApiResult<SearchResult[]> => {
+      if (provider === 'youtube') {
+        const [error, videos] = await client.get('/youtube/search', {
+          $search: { q: query },
+        });
+        if (error) return [error, null];
+        return [
+          null,
+          (videos ?? []).map((video) => ({
+            ...video,
+            source: 'youtube' as const,
+          })),
+        ];
+      }
+      if (provider === 'spotify') {
+        return client.get('/spotify/search', { $search: { q: query } });
+      }
+      return client.get('/soundcloud/search', { $search: { q: query } });
+    },
+    [client],
+  );
+}
+
+export function useProviderTrackRequest(client: ApiClient) {
+  return useCallback(
+    async (provider: SourceType, source: string): ApiResult<SearchResult> => {
+      if (provider === 'youtube') {
+        const [error, video] = await client.get('/youtube/videos/{id}', {
+          id: source,
+        });
+        if (error) return [error, null];
+        return [null, { ...video, source: 'youtube' }];
+      }
+      if (provider === 'spotify') {
+        return client.get('/spotify/tracks/{id}', { id: source });
+      }
+      return client.get('/soundcloud/tracks', { $search: { url: source } });
+    },
+    [client],
+  );
+}
+
+export function useProviderPlaylistRequest(client: ApiClient) {
+  return useCallback(
+    (provider: SourceType, source: string): ApiResult<MusicPlaylist> => {
+      if (provider === 'youtube') {
+        return client.get('/youtube/playlists/{id}', { id: source });
+      }
+      if (provider === 'spotify') {
+        return client.get('/spotify/playlists/{id}', { id: source });
+      }
+      return client.get('/soundcloud/playlists', {
+        $search: { url: source },
+      });
+    },
+    [client],
+  );
+}
+
+export interface QueueAddRequests {
   addPlaylist: (
     roomId: string,
     playlist: AddPlaylistRequest,
   ) => ApiResult<AddPlaylistResponse>;
   addSong: (roomId: string, song: AddSongRequest) => ApiResult<AddSongResponse>;
-  fetchSoundCloudPlaylist: (url: string) => ApiResult<MusicPlaylist>;
-  fetchSoundCloudTrack: (url: string) => ApiResult<SearchResult>;
-  fetchSpotifyPlaylist: (id: string) => ApiResult<MusicPlaylist>;
-  fetchSpotifyTrack: (id: string) => ApiResult<SearchResult>;
-  fetchYouTubePlaylist: (id: string) => ApiResult<MusicPlaylist>;
-  fetchYouTubeTrack: (id: string) => ApiResult<YouTubeVideo>;
-  searchSoundCloud: (query: string) => ApiResult<SearchResult[]>;
-  searchSpotify: (query: string) => ApiResult<SearchResult[]>;
-  searchYouTube: (query: string) => ApiResult<YouTubeVideo[] | undefined>;
 }
 
-export function useProviderRequests(client: ApiClient): ProviderRequests {
+export function useQueueAddRequests(client: ApiClient): QueueAddRequests {
   return useMemo(
     () => ({
       addPlaylist: (roomId: string, playlist: AddPlaylistRequest) =>
         client.post('/rooms/{id}/playlists', { id: roomId }, playlist),
       addSong: (roomId: string, song: AddSongRequest) =>
         client.post('/rooms/{id}/songs', { id: roomId }, song),
-      fetchSoundCloudPlaylist: (url: string) =>
-        client.get('/soundcloud/playlists', { $search: { url } }),
-      fetchSoundCloudTrack: (url: string) =>
-        client.get('/soundcloud/tracks', { $search: { url } }),
-      fetchSpotifyPlaylist: (id: string) =>
-        client.get('/spotify/playlists/{id}', { id }),
-      fetchSpotifyTrack: (id: string) =>
-        client.get('/spotify/tracks/{id}', { id }),
-      fetchYouTubePlaylist: (id: string) =>
-        client.get('/youtube/playlists/{id}', { id }),
-      fetchYouTubeTrack: (id: string) =>
-        client.get('/youtube/videos/{id}', { id }),
-      searchSoundCloud: (query: string) =>
-        client.get('/soundcloud/search', { $search: { q: query } }),
-      searchSpotify: (query: string) =>
-        client.get('/spotify/search', { $search: { q: query } }),
-      searchYouTube: (query: string) =>
-        client.get('/youtube/search', { $search: { q: query } }),
     }),
     [client],
   );

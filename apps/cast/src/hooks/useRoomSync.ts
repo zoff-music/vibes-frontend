@@ -1,11 +1,8 @@
-import {
-  createApiClient,
-  type RoomSSEMessage,
-  subscribeRoomEvents,
-} from '@vibes/api';
-import type { Song } from '@vibes/models';
+import { type RoomSSEMessage, subscribeRoomEvents } from '@vibes/api';
+import type { Providers, Song } from '@vibes/models';
 import { synchronizeServerClock, usePlaybackStore } from '@vibes/shared';
 import { useEffect } from 'react';
+import { createCastApiClient, loadCastRoomSnapshot } from '../lib/castRequests';
 import type { QueueItem, RoomInfo } from '../types';
 import { normalizeSong } from '../utils/songUtils';
 
@@ -21,7 +18,6 @@ interface UseRoomSyncProps {
   setSpotifyToken: (token: string | null) => void;
   setEnabledProviders: (providers: string[]) => void;
   updateMediaMetadata: (song: Song) => void;
-  debugMode: boolean;
 }
 
 export function useRoomSync({
@@ -43,11 +39,7 @@ export function useRoomSync({
   useEffect(() => {
     if (!roomId || !castToken) return;
 
-    const authHeaders: Record<string, string> = {
-      Authorization: `Bearer ${castToken}`,
-    };
-
-    const api = createApiClient(authHeaders);
+    const api = createCastApiClient(castToken);
 
     let isMounted = true;
     let unsubscribe: (() => void) | null = null;
@@ -55,63 +47,43 @@ export function useRoomSync({
     const connect = async () => {
       if (!roomId) return;
 
-      // Fetch initial state
-      const initialState = await Promise.all([
-        api.get('/rooms/{id}', { id: roomId }, { headers: authHeaders }),
-        api.get('/rooms/{id}/songs', { id: roomId }, { headers: authHeaders }),
-        api.get(
-          '/rooms/{id}/states',
-          { id: roomId },
-          {
-            headers: authHeaders,
-          },
-        ),
-        api.get('/providers', null, { headers: authHeaders }),
-        api.get(
-          '/tokens/{provider}',
-          { provider: 'spotify' },
-          { headers: authHeaders },
-        ),
-      ]);
+      const [requestError, snapshot] = await loadCastRoomSnapshot(api, roomId);
       if (!isMounted) return;
-
-      const [roomRes, queueRes, playbackRes, providersRes, spotifyTokenRes] =
-        initialState;
-      const [, room] = roomRes;
-      const [songsErr, songs] = queueRes;
-      const [playbackErr, playbackState] = playbackRes;
-      const [, providers] = providersRes;
-      const [, spotifyToken] = spotifyTokenRes;
-      const enabledProviders = (providers ?? []).filter((provider) =>
-        room?.settings.enabledSources.includes(provider),
-      );
-      setEnabledProviders(enabledProviders);
-
-      if (enabledProviders.includes('spotify') && spotifyToken) {
-        setSpotifyToken(spotifyToken.accessToken);
+      let availableProviders: Providers = [];
+      if (requestError || !snapshot) {
+        setError('Could not connect to this room. Reconnect and try again.');
+        setStatusText('Could not load the room. Waiting for updates…');
       }
-
-      if (!songsErr && songs) {
-        console.log(`[Cast] Fetched ${songs.length} songs for room ${roomId}`);
-        const normalizedSongs = songs.map((s) => normalizeSong(s));
-        setQueue(normalizedSongs);
-      } else if (songsErr) {
-        console.error(
-          `[Cast] Failed to fetch songs for room ${roomId}:`,
-          songsErr,
+      if (snapshot) {
+        availableProviders = snapshot.providers;
+        setError(
+          snapshot.spotifyTokenUnavailable
+            ? 'Connected, but Spotify could not be prepared.'
+            : null,
         );
-      }
-
-      if (!playbackErr && playbackState && playbackState.currentSong) {
-        synchronizeServerClock(playbackState.serverTimeMs);
-        const normalizedSong = normalizeSong(playbackState.currentSong);
-        setPlaybackState({
-          ...playbackState,
-          currentSong: normalizedSong,
+        setRoomInfo({
+          name: snapshot.room.name,
+          participantCount: snapshot.room.userCount ?? 0,
         });
-        setIsPlaying(playbackState.isPlaying);
-        setStatusText(`Now Playing: ${normalizedSong.title}`);
-        updateMediaMetadata(normalizedSong);
+        setRoomMode(snapshot.room.mode);
+        setEnabledProviders(snapshot.providers);
+        setSpotifyToken(snapshot.spotifyAccessToken);
+        const normalizedSongs = snapshot.songs.map((song) =>
+          normalizeSong(song),
+        );
+        setQueue(normalizedSongs);
+
+        if (snapshot.playback.currentSong) {
+          synchronizeServerClock(snapshot.playback.serverTimeMs);
+          const normalizedSong = normalizeSong(snapshot.playback.currentSong);
+          setPlaybackState({
+            ...snapshot.playback,
+            currentSong: normalizedSong,
+          });
+          setIsPlaying(snapshot.playback.isPlaying);
+          setStatusText(`Now Playing: ${normalizedSong.title}`);
+          updateMediaMetadata(normalizedSong);
+        }
       }
 
       const [err, stop] = await subscribeRoomEvents(
@@ -164,7 +136,7 @@ export function useRoomSync({
             case 'settings_update':
               setRoomMode(typedMessage.data.mode);
               setEnabledProviders(
-                (providers ?? []).filter((provider) =>
+                availableProviders.filter((provider) =>
                   typedMessage.data.settings.enabledSources.includes(provider),
                 ),
               );
