@@ -1,4 +1,7 @@
-import { useRoomDiscoveryRequests, useRoomLifecycleRequests } from '@vibes/api';
+import {
+  createRoomDiscoveryRequests,
+  createRoomLifecycleRequests,
+} from '@vibes/api';
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useEffect, useState } from 'react';
@@ -22,10 +25,11 @@ import { useAppTheme } from '@/hooks/use-app-theme';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
+const discoveryRequests = createRoomDiscoveryRequests(mobileApi);
+const lifecycleRequests = createRoomLifecycleRequests(mobileApi);
+
 export default function RoomsScreen() {
   const theme = useAppTheme();
-  const discoveryRequests = useRoomDiscoveryRequests(mobileApi);
-  const lifecycleRequests = useRoomLifecycleRequests(mobileApi);
   const {
     controllerRemote,
     loading,
@@ -49,7 +53,7 @@ export default function RoomsScreen() {
       setPublicRooms(rooms ?? []);
     };
     void loadRooms();
-  }, [discoveryRequests]);
+  }, []);
 
   const joinRoom = async (roomName: string) => {
     if (!roomName.trim()) {

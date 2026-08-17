@@ -1,4 +1,4 @@
-import { createApiClient, useRemoteEvents, useSSE } from '@vibes/api';
+import { createApiClient } from '@vibes/api';
 import type { PlaybackState, RemoteEvent, RemoteStatus } from '@vibes/models';
 import {
   showToast,
@@ -37,6 +37,8 @@ import { clientLoader } from './clientLoader';
 import { RemotePlaybackControls } from './components/RemotePlaybackControls';
 import { RoomSettingsModal } from './components/RoomSettingsModal';
 import { SongSearchModal } from './components/SongSearchModal';
+import { useRemoteEvents } from './hooks/use-remote-events';
+import { useRoomEvents } from './hooks/use-room-events';
 import type { ControllerLoaderData } from './loadController';
 import { loader } from './loader';
 import { shouldRevalidate } from './shouldRevalidate';
@@ -179,7 +181,7 @@ export default function RemoteController() {
       setUsersCount,
     ],
   );
-  useSSE(room?.id, callbacks, remoteClient);
+  useRoomEvents(room?.id, callbacks, remoteClient);
 
   const handleRoomInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRoomInput(event.target.value.toLowerCase());

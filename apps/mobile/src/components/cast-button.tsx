@@ -1,4 +1,4 @@
-import { useCastingRequests } from '@vibes/api';
+import { createCastingRequests } from '@vibes/api';
 import { safeWrapAsync } from '@vibes/shared';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -14,9 +14,9 @@ import { useApp } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 const castNamespace = 'urn:x-cast:com.vibez.cast';
+const castingRequests = createCastingRequests(mobileApi);
 
 export function CastButton() {
-  const castingRequests = useCastingRequests(mobileApi);
   const theme = useAppTheme();
   const { resolvedScheme } = useThemePreference();
   const { roomId } = useApp();
@@ -39,7 +39,7 @@ export function CastButton() {
       );
     };
     void joinRoom();
-  }, [castingRequests, channel, resolvedScheme, roomId]);
+  }, [channel, resolvedScheme, roomId]);
 
   return (
     <View className="size-13 items-center justify-center rounded-xl border border-mobile-border bg-mobile-card/90 active:opacity-65 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">

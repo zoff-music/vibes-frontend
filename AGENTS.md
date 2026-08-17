@@ -18,6 +18,7 @@ Non-negotiable conventions. Follow strictly.
 - **Run `pnpm lint`** to check both format and lint rules before committing.
 - **Run `pnpm typecheck`** to verify TypeScript compilation before committing.
 - **Use `@vibes/api`** for ALL API calls / SSE.
+- **Keep `@vibes/api` React-free** - it owns typed clients, request capabilities, error parsing, and SSE subscription plumbing only. React hooks and runtime orchestration belong in the consuming app.
 - **NEVER use `fetch()` or `new EventSource()`** in app code. Only `@vibes/api` clients; native API construction may inject `expo/fetch`.
 - **React Router REST boundary** - In every DOM app, including Cast, REST calls belong only in `loader`, `clientLoader`, `action`, or `clientAction` modules. Components may submit through fetchers and subscribe to SSE through `@vibes/api`, but must never execute REST requests inline.
 - **Unified Build System** - Apps build through the pnpm workspace

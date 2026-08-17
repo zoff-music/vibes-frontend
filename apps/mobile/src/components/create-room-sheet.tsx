@@ -1,4 +1,4 @@
-import { useRoomLifecycleRequests } from '@vibes/api';
+import { createRoomLifecycleRequests } from '@vibes/api';
 import type {
   Providers,
   RoomNameReservation,
@@ -22,6 +22,8 @@ import { RoomConfiguration } from '@/components/room-configuration';
 import { Toast, ToastViewport } from '@/components/toast';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
+const lifecycleRequests = createRoomLifecycleRequests(mobileApi);
+
 interface CreateRoomSheetProps {
   initialName: string;
   onClose: () => void;
@@ -37,7 +39,6 @@ export function CreateRoomSheet({
   providers,
   visible,
 }: CreateRoomSheetProps) {
-  const lifecycleRequests = useRoomLifecycleRequests(mobileApi);
   const [name, setName] = useState(initialName);
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'host' | 'server'>('server');
@@ -79,7 +80,7 @@ export function CreateRoomSheet({
       setReservation(nextReservation);
     };
     void generateName();
-  }, [initialName, lifecycleRequests, providers, visible]);
+  }, [initialName, providers, visible]);
 
   const generateName = async () => {
     const [requestError, nextReservation] =

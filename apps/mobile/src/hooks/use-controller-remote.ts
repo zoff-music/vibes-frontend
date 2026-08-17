@@ -1,12 +1,10 @@
 import type { ApiClient } from '@vibes/api';
 import {
+  createRemoteRequests,
+  createRoomPlaybackRequests,
+  createRoomQueueRequests,
+  createRoomReadRequests,
   getHttpError,
-  useRemoteEvents,
-  useRemoteRequests,
-  useRoomPlaybackRequests,
-  useRoomQueueRequests,
-  useRoomReadRequests,
-  useSSE,
 } from '@vibes/api';
 import type {
   PlaybackState,
@@ -21,6 +19,8 @@ import { useCameraPermissions } from 'expo-camera';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useLivePosition } from '@/hooks/use-live-position';
+import { useRemoteEvents } from '@/hooks/use-remote-events';
+import { useRoomEvents } from '@/hooks/use-room-events';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 import { useApp } from '@/providers/app-provider';
@@ -76,11 +76,20 @@ export function useControllerRemote(): ControllerRemote {
     () => createRemoteApi(remoteId, controllerToken),
     [controllerToken, remoteId],
   );
-  const remoteRequests = useRemoteRequests(client);
-  const playbackRequests = useRoomPlaybackRequests(client);
-  const queueRequests = useRoomQueueRequests(client);
-  const readRequests = useRoomReadRequests(client);
-  const mobileRemoteRequests = useRemoteRequests(mobileApi);
+  const remoteRequests = useMemo(() => createRemoteRequests(client), [client]);
+  const playbackRequests = useMemo(
+    () => createRoomPlaybackRequests(client),
+    [client],
+  );
+  const queueRequests = useMemo(
+    () => createRoomQueueRequests(client),
+    [client],
+  );
+  const readRequests = useMemo(() => createRoomReadRequests(client), [client]);
+  const mobileRemoteRequests = useMemo(
+    () => createRemoteRequests(mobileApi),
+    [],
+  );
   const livePosition = useLivePosition(
     remote?.playbackPositionMs ?? 0,
     remote?.playbackIsPlaying ?? false,
@@ -224,7 +233,7 @@ export function useControllerRemote(): ControllerRemote {
     }),
     [refresh],
   );
-  useSSE(remote?.currentRoomId || undefined, roomEventCallbacks, client);
+  useRoomEvents(remote?.currentRoomId || undefined, roomEventCallbacks, client);
 
   const pair = async () => {
     const normalizedRemoteId = remoteId.trim();

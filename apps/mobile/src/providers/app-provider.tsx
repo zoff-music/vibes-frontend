@@ -1,11 +1,9 @@
 import {
+  createRemoteRequests,
+  createRoomLifecycleRequests,
+  createRoomPlaybackRequests,
+  createRoomReadRequests,
   getHttpError,
-  useRemoteEvents,
-  useRemoteRequests,
-  useRoomLifecycleRequests,
-  useRoomPlaybackRequests,
-  useRoomReadRequests,
-  useSSE,
 } from '@vibes/api';
 import type {
   PlaybackState,
@@ -39,6 +37,8 @@ import {
 } from '@/hooks/use-machine-remote';
 import { usePlayerPreference } from '@/hooks/use-player-preference';
 import { useProviders } from '@/hooks/use-providers';
+import { useRemoteEvents } from '@/hooks/use-remote-events';
+import { useRoomEvents } from '@/hooks/use-room-events';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 import {
@@ -117,13 +117,13 @@ const MachineRemoteContext = createContext<MachineRemoteState | null>(null);
 const remoteStorageKey = 'zoff.mobile.remote';
 const remoteTokenStorageKey = 'zoff.mobile.remote-token';
 const roomAdminPasswordStoragePrefix = 'zoff.mobile.room-admin';
+const lifecycleRequests = createRoomLifecycleRequests(mobileApi);
+const playbackRequests = createRoomPlaybackRequests(mobileApi);
+const readRequests = createRoomReadRequests(mobileApi);
+const remoteRequests = createRemoteRequests(mobileApi);
 
 export function AppProvider({ children }: PropsWithChildren) {
   const { showToast } = useToast();
-  const lifecycleRequests = useRoomLifecycleRequests(mobileApi);
-  const playbackRequests = useRoomPlaybackRequests(mobileApi);
-  const readRequests = useRoomReadRequests(mobileApi);
-  const remoteRequests = useRemoteRequests(mobileApi);
   const [roomId, setRoomIdValue] = useState('');
   const [room, setRoom] = useState<Room | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
@@ -376,13 +376,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     synchronizeServerClock(snapshot.playback.serverTimeMs);
     applyPlaybackUpdate(snapshot.playback);
     setError('');
-  }, [
-    applyPlaybackUpdate,
-    applyRoomUpdate,
-    playbackRequests,
-    readRequests,
-    roomId,
-  ]);
+  }, [applyPlaybackUpdate, applyRoomUpdate, roomId]);
 
   useAppResume(refresh);
 
@@ -468,14 +462,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       ]);
       return 'joined';
     },
-    [
-      applyPlaybackUpdate,
-      applyRoomUpdate,
-      lifecycleRequests,
-      playbackRequests,
-      readRequests,
-      rememberRoomAdminPassword,
-    ],
+    [applyPlaybackUpdate, applyRoomUpdate, rememberRoomAdminPassword],
   );
 
   const startGeneratedRoom = useCallback(
@@ -517,7 +504,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     setHasLocalPlaybackPositionDrift(false);
     setPlaybackResetVersion((version) => version + 1);
     setError('');
-  }, [playbackRequests, roomId]);
+  }, [roomId]);
 
   const handleRemoteRoomUpdate = useCallback(
     (event: RemoteEvent) => {
@@ -607,7 +594,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     ],
   );
 
-  useSSE(roomId || undefined, roomEventCallbacks, mobileApi);
+  useRoomEvents(roomId || undefined, roomEventCallbacks, mobileApi);
 
   useRemoteEvents({
     client: mobileApi,

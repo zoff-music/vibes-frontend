@@ -26,6 +26,19 @@ export type RoomSSECallback = (
   result: [Error | null, RoomSSEMessage | null],
 ) => void;
 
+export interface RoomEventCallbacks {
+  onConnected?: (serverTimeMs: number) => void;
+  onGenerationUpdate?: (update: RoomGenerationUpdate) => void;
+  onHostUpdate?: (update: RoomHostUpdate) => void;
+  onPlaybackUpdate?: (playback: PlaybackState) => void;
+  onReconnect?: () => void;
+  onRoomUpdate?: (room: Room) => void;
+  onSkipVote?: (update: SkipVoteUpdate) => void;
+  onSongAdded?: (song: Song) => void;
+  onSongsUpdate?: (songs: Song[]) => void;
+  onUsersUpdate?: (count: number) => void;
+}
+
 const CLIENT_IDS = new WeakMap<ApiClient, number>();
 const ROOM_EVENT_CURSORS = new Map<string, string>();
 let nextClientId = 1;
@@ -90,4 +103,52 @@ export async function subscribeRoomEvents(
       ROOM_EVENT_CURSORS.delete(cursorKey);
     },
   ];
+}
+
+export function subscribeRoomUpdates(
+  client: ApiClient,
+  roomId: string,
+  callbacks: RoomEventCallbacks,
+): Promise<[Error | null, (() => void) | null]> {
+  let connected = false;
+  return subscribeRoomEvents(client, roomId, ([eventError, message]) => {
+    if (eventError || !message) return;
+    if (message.type === 'connected') {
+      callbacks.onConnected?.(message.data.time);
+      if (connected) callbacks.onReconnect?.();
+      connected = true;
+      return;
+    }
+    if (message.type === 'songs_update') {
+      callbacks.onSongsUpdate?.(message.data);
+      return;
+    }
+    if (message.type === 'playback_update') {
+      callbacks.onPlaybackUpdate?.(message.data);
+      return;
+    }
+    if (message.type === 'song_added') {
+      callbacks.onSongAdded?.(message.data);
+      return;
+    }
+    if (message.type === 'settings_update') {
+      callbacks.onRoomUpdate?.(message.data);
+      return;
+    }
+    if (message.type === 'users_update') {
+      callbacks.onUsersUpdate?.(message.data);
+      return;
+    }
+    if (message.type === 'generation_update') {
+      callbacks.onGenerationUpdate?.(message.data);
+      return;
+    }
+    if (message.type === 'new_host') {
+      callbacks.onHostUpdate?.(message.data);
+      return;
+    }
+    if (message.type === 'skip_vote') {
+      callbacks.onSkipVote?.(message.data);
+    }
+  });
 }

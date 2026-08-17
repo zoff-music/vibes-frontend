@@ -1,12 +1,11 @@
 import {
   type ApiClient,
+  createRoomDiscoveryRequests,
+  createRoomLifecycleRequests,
+  createRoomPlaybackRequests,
+  createRoomReadRequests,
   getHttpError,
   getRequestErrorMessage,
-  useRoomDiscoveryRequests,
-  useRoomLifecycleRequests,
-  useRoomPlaybackRequests,
-  useRoomReadRequests,
-  useSSE,
 } from '@vibes/api';
 import type {
   PlaybackState,
@@ -23,6 +22,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRoomEvents } from '@/hooks/use-room-events';
 import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
@@ -49,10 +49,19 @@ export function useTvSession(
   client: ApiClient,
   subscribeToResume?: SubscribeToResume,
 ): TvSession {
-  const discoveryRequests = useRoomDiscoveryRequests(client);
-  const lifecycleRequests = useRoomLifecycleRequests(client);
-  const playbackRequests = useRoomPlaybackRequests(client);
-  const readRequests = useRoomReadRequests(client);
+  const discoveryRequests = useMemo(
+    () => createRoomDiscoveryRequests(client),
+    [client],
+  );
+  const lifecycleRequests = useMemo(
+    () => createRoomLifecycleRequests(client),
+    [client],
+  );
+  const playbackRequests = useMemo(
+    () => createRoomPlaybackRequests(client),
+    [client],
+  );
+  const readRequests = useMemo(() => createRoomReadRequests(client), [client]);
   const room = useRoomStore((state) => state.room);
   const listenerCount = useRoomStore((state) => state.usersCount);
   const songs = useQueueStore((state) => state.songs);
@@ -109,7 +118,7 @@ export function useTvSession(
     }),
     [],
   );
-  useSSE(roomId || undefined, callbacks, client);
+  useRoomEvents(roomId || undefined, callbacks, client);
 
   const applySnapshot = useCallback(
     (snapshot: { playback: PlaybackState; room: Room; songs: Song[] }) => {
