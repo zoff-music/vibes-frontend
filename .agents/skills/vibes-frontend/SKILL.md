@@ -60,7 +60,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 ## TV
 
 - Android TV uses Expo, `react-native-tvos`, NativeWind, directional focus, and `@vibes/ui/native`.
-- Samsung TVs require a DOM runtime with its own entrypoint, CSS, spatial navigation, `config.xml`, and store packaging under `apps/tv`; this is a delivery boundary within the same TV app, not a separate product.
+- Samsung TVs require a DOM runtime with its own React Router data route, entrypoint, CSS, spatial navigation, `config.xml`, and store packaging under `apps/tv`; this is a delivery boundary within the same TV app, not a separate product.
 - Share app-owned domain hooks between the TV renderers, not UI trees. Keep REST capabilities in `@vibes/api` React-free; reusable SSE lifecycle hooks may also live there.
 - Keep the cross-renderer room lifecycle in `useTvSession` with an exported `TvSession` contract. Keep provider surfaces, queue measurement, and focus/navigation in renderer-specific components.
 - Design TV screens for ten-foot viewing: large type, strong focus feedback, bounded queues, and no touch-only interaction.
@@ -68,7 +68,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 ## Web and SSR
 
-- Use React Router data APIs in every DOM app, including the Cast receiver. REST reads belong in `loader` or `clientLoader` modules and mutations belong in `action` or `clientAction` modules.
+- Use React Router data APIs in every DOM app, including the Cast receiver and Samsung Tizen. REST reads belong in `loader` or `clientLoader` modules and mutations belong in `action` or `clientAction` modules.
 - Components may trigger route data APIs through fetchers and may subscribe to SSE through `@vibes/api`; they must not execute REST calls inline.
 - Keep React Router route files thin and colocate route-specific components, `loader.ts`, and `action.ts` files.
 - Use `getServerApi()` in server loaders/actions and `useFetcher` or `fetcher.Form` for route mutations.

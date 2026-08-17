@@ -1,16 +1,31 @@
 import { createRoot } from 'react-dom/client';
-import { TizenApp } from '@/tizen/tizen-app';
-import { TizenErrorBoundary } from '@/tizen/tizen-error-boundary';
+import { createHashRouter, RouterProvider } from 'react-router';
+import { action } from '@/tizen/routes/session/action';
+import { loader } from '@/tizen/routes/session/loader';
+import {
+  shouldRevalidate,
+  TizenSessionRoute,
+} from '@/tizen/routes/session/route';
+import {
+  TizenErrorBoundary,
+  TizenRecoveryView,
+} from '@/tizen/tizen-error-boundary';
 import '@/tizen/tizen.css';
 
-let rootElement = document.getElementById('root');
-if (!rootElement) {
-  rootElement = document.createElement('div');
-  rootElement.id = 'root';
-  document.body.appendChild(rootElement);
-}
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Samsung TV root is unavailable.');
+const router = createHashRouter([
+  {
+    action,
+    Component: TizenSessionRoute,
+    errorElement: <TizenRecoveryView />,
+    loader,
+    path: '/',
+    shouldRevalidate,
+  },
+]);
 createRoot(rootElement).render(
   <TizenErrorBoundary>
-    <TizenApp />
+    <RouterProvider router={router} />
   </TizenErrorBoundary>,
 );

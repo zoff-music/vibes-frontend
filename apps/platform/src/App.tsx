@@ -12,7 +12,7 @@ import { KonamiBootLoader } from './components/konami/KonamiBootLoader';
 import { KonamiModeProvider } from './components/konami/KonamiModeContext';
 import { Background } from './components/layout/Background';
 import { RemoteControlProvider } from './components/remote/RemoteControlProvider';
-import type { RootLoaderData } from './root';
+import type { RootLoaderData } from './root/loader';
 import { useThemeStore } from './stores/themeStore';
 import { updateNavigationHistory } from './utils/navigationHistory';
 
@@ -75,7 +75,7 @@ export function App() {
         <ToastViewport />
         {!konamiEnabled && <Background />}
         <KonamiBootLoader enabled={konamiEnabled} />
-        <RemoteControlProvider>
+        <RemoteControlProvider initialRemote={rootData?.remoteStatus}>
           <Outlet />
         </RemoteControlProvider>
       </KonamiModeProvider>

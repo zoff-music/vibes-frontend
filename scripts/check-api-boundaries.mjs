@@ -1,7 +1,14 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 
-const reactRouterApps = ['admin', 'cast', 'embed', 'platform', 'remote'];
+const reactRouterSourceDirectories = [
+  'apps/admin/src',
+  'apps/cast',
+  'apps/embed/src',
+  'apps/platform/src',
+  'apps/remote/src',
+  'apps/tv/src/tizen',
+];
 const requestMethodPattern = '(?:delete|get|patch|post|put|roomExists)';
 const literalRequestCallPattern = new RegExp(
   `\\.[ \\t]*${requestMethodPattern}[ \\t]*\\([ \\t\\r\\n]*['"]\\/`,
@@ -132,8 +139,7 @@ for (const file of listSourceFiles('packages/api/src')) {
   }
 }
 
-for (const app of reactRouterApps) {
-  const sourceDirectory = app === 'cast' ? `apps/${app}` : `apps/${app}/src`;
+for (const sourceDirectory of reactRouterSourceDirectories) {
   for (const file of listSourceFiles(sourceDirectory)) {
     const repositoryPath = relative('.', file);
     const source = readFileSync(file, 'utf8');

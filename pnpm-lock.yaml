@@ -593,6 +593,9 @@ importers:
       react-native-youtube-iframe:
         specifier: 2.4.1
         version: 2.4.1(react-native-tvos@0.86.2-0)(react-native-webview@13.16.1(react-native-tvos@0.86.2-0)(react@19.2.7))(react@19.2.7)
+      react-router:
+        specifier: 8.3.0
+        version: 8.3.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3

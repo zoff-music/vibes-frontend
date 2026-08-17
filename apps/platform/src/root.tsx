@@ -1,10 +1,6 @@
 import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
 import { type ReactNode, useState } from 'react';
-import type {
-  LoaderFunctionArgs,
-  MetaFunction,
-  ShouldRevalidateFunctionArgs,
-} from 'react-router';
+import type { MetaFunction } from 'react-router';
 import {
   Links,
   Meta,
@@ -16,12 +12,10 @@ import {
 import { App } from './App';
 import { PlatformErrorView } from './components/errors/PlatformErrorView';
 import stylesUrl from './index.css?url';
-import { getKonamiModeFromCookies } from './ssr/konamiMode.server';
-import { getThemeFromCookies } from './ssr/theme.server';
+import { loader, type RootLoaderData } from './root/loader';
 
-interface RootContext {
-  cspNonce?: string;
-}
+export type { RootLoaderData } from './root/loader';
+export { loader };
 
 export const meta: MetaFunction = () => [
   { title: 'ゾフ - Shared Music Queue' },
@@ -31,25 +25,9 @@ export const meta: MetaFunction = () => [
   },
 ];
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const cookieHeader = request.headers.get('cookie') ?? null;
-  const theme = getThemeFromCookies(cookieHeader);
-  const konamiEnabled = getKonamiModeFromCookies(cookieHeader);
-  const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
-  const cspNonce = (context as RootContext | undefined)?.cspNonce;
-  return { theme, embedBasePath, cspNonce, konamiEnabled };
+export function shouldRevalidate() {
+  return false;
 }
-
-export function shouldRevalidate({
-  currentUrl,
-  defaultShouldRevalidate,
-  nextUrl,
-}: ShouldRevalidateFunctionArgs) {
-  if (currentUrl.pathname === nextUrl.pathname) return false;
-  return defaultShouldRevalidate;
-}
-
-export type RootLoaderData = Awaited<ReturnType<typeof loader>>;
 
 interface Props {
   children: ReactNode;

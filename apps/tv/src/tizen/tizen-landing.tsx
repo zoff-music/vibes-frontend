@@ -1,35 +1,39 @@
+import type { PublicRoom } from '@vibes/models';
 import { chunkItems } from '@vibes/ui/shared';
 import { useState } from 'react';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
-import type { TvSession } from '@/hooks/use-tv-session';
 
 interface TizenLandingProps {
+  error: string;
   isAIMode: boolean;
+  loading: boolean;
+  onGenerateRoom: (value: string) => void;
+  onJoinOrCreateRoom: (value: string) => void;
   onToggleAIMode: () => void;
-  session: TvSession;
+  publicRooms: PublicRoom[];
 }
 
 export function TizenLanding({
+  error,
   isAIMode,
+  loading,
+  onGenerateRoom,
+  onJoinOrCreateRoom,
   onToggleAIMode,
-  session,
+  publicRooms,
 }: TizenLandingProps) {
   const [value, setValue] = useState('');
   const publicRoomRows = chunkItems(
-    session.publicRooms.slice(0, publicRoomLimit),
+    publicRooms.slice(0, publicRoomLimit),
     publicRoomColumns,
   );
-  const generationMessage = useGenerationMessage(isAIMode && session.loading);
+  const generationMessage = useGenerationMessage(isAIMode && loading);
   const submit = () => {
     if (isAIMode) {
-      void session.generateRoom(value);
+      onGenerateRoom(value);
       return;
     }
-    const joinOrCreate = async () => {
-      const result = await session.loadRoom(value);
-      if (result === 'notFound') await session.createRoom(value);
-    };
-    void joinOrCreate();
+    onJoinOrCreateRoom(value);
   };
   let placeholder = 'Room name';
   let submitLabel = 'Join or create room';
@@ -37,7 +41,7 @@ export function TizenLanding({
     placeholder = 'Late-night synthwave for a rainy drive';
     submitLabel = 'Generate playlist';
   }
-  if (session.loading && isAIMode) submitLabel = generationMessage;
+  if (loading && isAIMode) submitLabel = generationMessage;
   return (
     <div className="relative mx-auto flex h-full max-w-5xl flex-col justify-center gap-10 px-20 py-12">
       <header className="text-center">
@@ -72,26 +76,24 @@ export function TizenLanding({
           </div>
           <button
             className="min-h-20 w-full rounded-2xl border-2 border-primary bg-primary px-10 text-2xl disabled:opacity-40"
-            disabled={session.loading || !value.trim()}
+            disabled={loading || !value.trim()}
             type="submit"
           >
             {submitLabel}
           </button>
-          {isAIMode && session.loading && (
+          {isAIMode && loading && (
             <p className="animate-pulse text-center text-accent text-xl">
               {generationMessage}
             </p>
           )}
         </form>
-        {session.error && (
-          <p className="mt-4 text-primary text-xl">{session.error}</p>
-        )}
+        {error && <p className="mt-4 text-primary text-xl">{error}</p>}
       </section>
       <section>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-3xl">Live now</h2>
           <span className="text-tv-muted text-xl">
-            {session.publicRooms.length} public rooms
+            {publicRooms.length} public rooms
           </span>
         </div>
         <div className="flex flex-col gap-5">
@@ -104,7 +106,7 @@ export function TizenLanding({
                 <button
                   className="flex min-h-28 min-w-0 flex-1 items-center justify-between gap-6 rounded-2xl border-2 border-tv-border bg-tv-card p-6 text-left focus:border-accent focus:bg-accent focus:text-tv-background focus:outline-none"
                   key={room.id}
-                  onClick={() => void session.loadRoom(room.id)}
+                  onClick={() => onJoinOrCreateRoom(room.id)}
                   type="button"
                 >
                   <span className="min-w-0">
