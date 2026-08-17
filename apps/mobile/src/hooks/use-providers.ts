@@ -1,10 +1,11 @@
-import { useRoomDiscoveryRequests } from '@vibes/api';
+import { createRoomDiscoveryRequests } from '@vibes/api';
 import type { Providers } from '@vibes/models';
 import { useEffect, useState } from 'react';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
+const discoveryRequests = createRoomDiscoveryRequests(mobileApi);
+
 export function useProviders(setError: (message: string) => void): Providers {
-  const discoveryRequests = useRoomDiscoveryRequests(mobileApi);
   const [providers, setProviders] = useState<Providers>([]);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export function useProviders(setError: (message: string) => void): Providers {
       setProviders(nextProviders);
     };
     void load();
-  }, [discoveryRequests, setError]);
+  }, [setError]);
 
   return providers;
 }

@@ -1,4 +1,4 @@
-import { useRoomPlaybackRequests } from '@vibes/api';
+import { createRoomPlaybackRequests } from '@vibes/api';
 import { useKeepAwake } from 'expo-keep-awake';
 import { usePathname } from 'expo-router';
 import { Platform, View } from 'react-native';
@@ -16,6 +16,8 @@ import {
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
+const playbackRequests = createRoomPlaybackRequests(mobileApi);
+
 export function PersistentRoomPlayer() {
   const {
     observeLocalPlaybackPosition,
@@ -27,7 +29,6 @@ export function PersistentRoomPlayer() {
     setLocalPlaybackPosition,
     setLocalPlaying,
   } = useApp();
-  const playbackRequests = useRoomPlaybackRequests(mobileApi);
   const castState = useCastState();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();

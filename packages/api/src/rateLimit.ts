@@ -1,5 +1,5 @@
 import { errorCodeResponseSchema } from '@vibes/models';
-import { safeWrap, safeWrapAsync } from '@vibes/shared';
+import { safeWrap, safeWrapAsync } from '@vibes/shared/wrap';
 import { getHttpError } from 'wiretyped';
 
 function getRetryAfterSeconds(response: Response) {

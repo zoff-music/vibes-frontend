@@ -1,4 +1,7 @@
-import { useRoomPlaybackRequests, useRoomQueueRequests } from '@vibes/api';
+import {
+  createRoomPlaybackRequests,
+  createRoomQueueRequests,
+} from '@vibes/api';
 import type { Song } from '@vibes/models';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useRouter } from 'expo-router';
@@ -24,9 +27,10 @@ import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { useApp } from '@/providers/app-provider';
 
+const playbackRequests = createRoomPlaybackRequests(mobileApi);
+const queueRequests = createRoomQueueRequests(mobileApi);
+
 export function RoomScreen() {
-  const playbackRequests = useRoomPlaybackRequests(mobileApi);
-  const queueRequests = useRoomQueueRequests(mobileApi);
   const {
     authoritativePlayback,
     hasLocalPlaybackPositionDrift,

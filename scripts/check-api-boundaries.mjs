@@ -59,6 +59,45 @@ function hasClientRequestCall(source) {
 }
 
 const violations = [];
+const apiPackage = JSON.parse(
+  readFileSync('packages/api/package.json', 'utf8'),
+);
+for (const dependencyGroup of [
+  apiPackage.dependencies,
+  apiPackage.devDependencies,
+  apiPackage.peerDependencies,
+]) {
+  if (!dependencyGroup) continue;
+  for (const dependency of ['@types/react', 'react', 'react-dom']) {
+    if (dependency in dependencyGroup) {
+      violations.push(
+        `packages/api/package.json: @vibes/api must not depend on ${dependency}`,
+      );
+    }
+  }
+}
+
+for (const file of listSourceFiles('packages/api/src')) {
+  const repositoryPath = relative('.', file);
+  const source = readFileSync(file, 'utf8');
+  if (repositoryPath.includes('/hooks/')) {
+    violations.push(`${repositoryPath}: @vibes/api must not contain hooks`);
+  }
+  if (/from\s+['"]react(?:\/[^'"]*)?['"]/.test(source)) {
+    violations.push(`${repositoryPath}: @vibes/api must remain React-free`);
+  }
+  if (/from\s+['"]@vibes\/shared['"]/.test(source)) {
+    violations.push(
+      `${repositoryPath}: @vibes/api must not import the React-capable @vibes/shared barrel`,
+    );
+  }
+  if (/\b(?:export\s+)?(?:const|function|let|var)\s+use[A-Z]/.test(source)) {
+    violations.push(
+      `${repositoryPath}: @vibes/api must not export React hooks`,
+    );
+  }
+}
+
 for (const app of reactRouterApps) {
   const sourceDirectory = app === 'cast' ? `apps/${app}` : `apps/${app}/src`;
   for (const file of listSourceFiles(sourceDirectory)) {

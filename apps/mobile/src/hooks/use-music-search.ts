@@ -1,10 +1,10 @@
 import {
   type ApiClient,
-  useProviderPlaylistRequest,
-  useProviderSearchRequest,
-  useProviderTrackRequest,
-  useQueueAddRequests,
-  useRoomQueueRequests,
+  createProviderPlaylistRequest,
+  createProviderSearchRequest,
+  createProviderTrackRequest,
+  createQueueAddRequests,
+  createRoomQueueRequests,
 } from '@vibes/api';
 import type {
   MusicPlaylist,
@@ -19,7 +19,7 @@ import {
   parseProviderTrackLink,
 } from '@vibes/shared';
 import { getProviderDisplayName } from '@vibes/ui/shared';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { useToast } from '@/components/toast';
 import { getRequestErrorMessage } from '@/lib/api';
@@ -65,11 +65,26 @@ export function useMusicSearch({
 }: UseMusicSearchOptions): MusicSearchController {
   const { showToast } = useToast();
   const { providers, refresh, roomId } = useApp();
-  const fetchPlaylist = useProviderPlaylistRequest(client);
-  const fetchTrack = useProviderTrackRequest(client);
-  const searchProvider = useProviderSearchRequest(client);
-  const queueAddRequests = useQueueAddRequests(client);
-  const queueRequests = useRoomQueueRequests(client);
+  const fetchPlaylist = useMemo(
+    () => createProviderPlaylistRequest(client),
+    [client],
+  );
+  const fetchTrack = useMemo(
+    () => createProviderTrackRequest(client),
+    [client],
+  );
+  const searchProvider = useMemo(
+    () => createProviderSearchRequest(client),
+    [client],
+  );
+  const queueAddRequests = useMemo(
+    () => createQueueAddRequests(client),
+    [client],
+  );
+  const queueRequests = useMemo(
+    () => createRoomQueueRequests(client),
+    [client],
+  );
   const [provider, setProvider] = useState<SourceType>('youtube');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);

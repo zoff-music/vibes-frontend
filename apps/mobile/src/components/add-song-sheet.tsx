@@ -1,4 +1,4 @@
-import { useRoomPlaybackRequests, useRoomReadRequests } from '@vibes/api';
+import { createRoomPlaybackRequests, createRoomReadRequests } from '@vibes/api';
 import type { Room } from '@vibes/models';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -23,8 +23,11 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
     [controllerRemote?.controllerToken, controllerRemote?.id],
   );
   const client = controllerRemote ? remoteClient : mobileApi;
-  const playbackRequests = useRoomPlaybackRequests(client);
-  const readRequests = useRoomReadRequests(client);
+  const playbackRequests = useMemo(
+    () => createRoomPlaybackRequests(client),
+    [client],
+  );
+  const readRequests = useMemo(() => createRoomReadRequests(client), [client]);
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
   const [targetRoom, setTargetRoom] = useState<Room | null>(room);
   const [targetSongCount, setTargetSongCount] = useState(songs.length);

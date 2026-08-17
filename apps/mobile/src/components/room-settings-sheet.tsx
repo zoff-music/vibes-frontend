@@ -1,11 +1,11 @@
 import {
   type ApiClient,
+  createRemoteRequests,
+  createRoomLifecycleRequests,
   getHttpError,
-  useRemoteRequests,
-  useRoomLifecycleRequests,
 } from '@vibes/api';
 import type { Providers, Room, RoomSettings } from '@vibes/models';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Modal, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -45,8 +45,11 @@ export function RoomSettingsSheet({
   room,
   visible,
 }: RoomSettingsSheetProps) {
-  const remoteRequests = useRemoteRequests(client);
-  const lifecycleRequests = useRoomLifecycleRequests(client);
+  const remoteRequests = useMemo(() => createRemoteRequests(client), [client]);
+  const lifecycleRequests = useMemo(
+    () => createRoomLifecycleRequests(client),
+    [client],
+  );
   const [activeRoom, setActiveRoom] = useState(room);
   const [settings, setSettings] = useState(room.settings);
   const [mode, setMode] = useState(room.mode);

@@ -1,4 +1,4 @@
-import { safeWrapAsync } from '@vibes/shared';
+import { safeWrapAsync } from '@vibes/shared/wrap';
 import type { RequestClientProps, RequestDefinitions } from 'wiretyped';
 import { HTTPError } from 'wiretyped';
 
