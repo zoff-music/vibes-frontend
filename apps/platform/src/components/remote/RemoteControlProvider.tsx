@@ -28,7 +28,7 @@ import {
 } from 'react';
 import { Link, useFetcher, useNavigate } from 'react-router';
 import type { RemoteControlActionData } from '../../routes/remote-control/action';
-import type { RemoteControlLoaderData } from '../../routes/remote-control/clientLoader';
+import { createEmptyRemoteStatus } from '../../utils/remoteStatus';
 import { useKonamiMode } from '../konami/KonamiModeContext';
 
 interface RemoteControlContextValue {
@@ -42,12 +42,12 @@ const RemoteControlContext = createContext<RemoteControlContextValue | null>(
 
 interface Props {
   children: ReactNode;
+  initialRemote?: RemoteStatus;
 }
 
-export function RemoteControlProvider({ children }: Props) {
+export function RemoteControlProvider({ children, initialRemote }: Props) {
   const navigate = useNavigate();
   const terminalMode = useKonamiMode();
-  const statusFetcher = useFetcher<RemoteControlLoaderData>();
   const controlFetcher = useFetcher<RemoteControlActionData>();
   const [isOpen, setIsOpen] = useState(false);
   const [machineRoomId, setMachineRoomId] = useState('');
@@ -61,34 +61,10 @@ export function RemoteControlProvider({ children }: Props) {
   const setLocalPlayingState = usePlaybackStore(
     (state) => state.setLocalPlayingState,
   );
-  const [remote, setRemote] = useState<RemoteStatus>({
-    currentRoomId: '',
-    currentSongId: '',
-    enabled: false,
-    id: '',
-    online: false,
-    paired: false,
-    playbackIsPlaying: false,
-    playbackObservedAt: '',
-    playbackPositionMs: 0,
-  });
+  const [remote, setRemote] = useState<RemoteStatus>(
+    initialRemote ?? createEmptyRemoteStatus,
+  );
   const [pairing, setPairing] = useState<RemotePairing | null>(null);
-
-  useEffect(() => {
-    statusFetcher.load('/remote-control');
-  }, [statusFetcher.load]);
-
-  useEffect(() => {
-    const nextRemote = statusFetcher.data?.remote;
-    if (nextRemote) {
-      setRemote(nextRemote);
-      if (nextRemote.paired && pairing) {
-        setPairing(null);
-        showToast('Remote paired successfully', 'success');
-      }
-      statusFetcher.reset();
-    }
-  }, [pairing, statusFetcher.data, statusFetcher.reset]);
 
   useEffect(() => {
     if (controlFetcher.state !== 'idle' || !controlFetcher.data) return;
@@ -117,17 +93,7 @@ export function RemoteControlProvider({ children }: Props) {
     }
     if (controlFetcher.data.intent === 'delete') {
       setPairing(null);
-      setRemote({
-        currentRoomId: '',
-        currentSongId: '',
-        enabled: false,
-        id: '',
-        online: false,
-        paired: false,
-        playbackIsPlaying: false,
-        playbackObservedAt: '',
-        playbackPositionMs: 0,
-      });
+      setRemote(createEmptyRemoteStatus());
       showToast('Remote control disabled', 'success');
     }
   }, [controlFetcher.data, controlFetcher.state]);
@@ -195,8 +161,7 @@ export function RemoteControlProvider({ children }: Props) {
 
   const closeRemoteControl = useCallback(() => {
     setIsOpen(false);
-    statusFetcher.reset({ reason: 'Remote control modal closed' });
-  }, [statusFetcher.reset]);
+  }, []);
 
   const value = useMemo(
     () => ({

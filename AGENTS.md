@@ -20,7 +20,7 @@ Non-negotiable conventions. Follow strictly.
 - **Use `@vibes/api`** for ALL API calls / SSE.
 - **Only SSE hooks in `@vibes/api`** - reusable SSE subscription hooks are allowed. REST/request hooks, providers, stores, and application state orchestration are forbidden; REST capabilities remain plain React-free functions.
 - **NEVER use `fetch()` or `new EventSource()`** in app code. Only `@vibes/api` clients; native API construction may inject `expo/fetch`.
-- **React Router REST boundary** - In every DOM app, including Cast, REST calls belong only in `loader`, `clientLoader`, `action`, or `clientAction` modules. Components may submit through fetchers and subscribe to SSE through `@vibes/api`, but must never execute REST requests inline.
+- **React Router REST boundary** - In every DOM app, including Cast and Samsung Tizen, REST calls belong only in `loader`, `clientLoader`, `action`, or `clientAction` modules. Components may submit through fetchers and subscribe to SSE through `@vibes/api`, but must never execute REST requests inline.
 - **Unified Build System** - Apps build through the pnpm workspace
 - **Content Hashing** - All assets use content-based hashing for cache busting
 

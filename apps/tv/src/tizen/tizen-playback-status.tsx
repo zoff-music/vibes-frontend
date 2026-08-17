@@ -1,17 +1,30 @@
+import type { PlaybackState } from '@vibes/models';
+import { getClientReferenceTimeMs } from '@vibes/shared';
 import {
   formatPlaybackSeconds,
   getPlaybackPresentation,
 } from '@vibes/ui/shared';
-import { useLivePlaybackPosition } from '@/hooks/use-live-playback-position';
+import { useEffect, useState } from 'react';
 
 interface TizenPlaybackStatusProps {
   durationSeconds: number;
+  playback: PlaybackState;
 }
 
 export function TizenPlaybackStatus({
   durationSeconds,
+  playback,
 }: TizenPlaybackStatusProps) {
-  const positionMs = useLivePlaybackPosition(true);
+  const [positionMs, setPositionMs] = useState(() => getLivePosition(playback));
+  useEffect(() => {
+    setPositionMs(getLivePosition(playback));
+    if (!playback.isPlaying) return;
+    const interval = window.setInterval(
+      () => setPositionMs(getLivePosition(playback)),
+      playbackPositionIntervalMs,
+    );
+    return () => window.clearInterval(interval);
+  }, [playback]);
   const progress = getPlaybackPresentation(
     positionMs,
     durationSeconds * millisecondsPerSecond,
@@ -35,3 +48,16 @@ export function TizenPlaybackStatus({
 
 const millisecondsPerSecond = 1000;
 const percentageMultiplier = 100;
+const playbackPositionIntervalMs = 1000;
+
+function getLivePosition(playback: PlaybackState): number {
+  if (!playback.isPlaying) return playback.positionMs;
+  const referenceTime = getClientReferenceTimeMs(playback.serverTimeMs);
+  const positionMs =
+    playback.positionMs + Math.max(0, Date.now() - referenceTime);
+  if (!playback.currentSong?.duration) return positionMs;
+  return Math.min(
+    positionMs,
+    playback.currentSong.duration * millisecondsPerSecond,
+  );
+}

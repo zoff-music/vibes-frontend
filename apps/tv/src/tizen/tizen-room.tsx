@@ -1,3 +1,4 @@
+import type { PlaybackState, Room, Song } from '@vibes/models';
 import {
   formatPlaybackSeconds,
   getProviderDisplayName,
@@ -5,24 +6,35 @@ import {
 } from '@vibes/ui/shared';
 import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'react';
-import type { TvSession } from '@/hooks/use-tv-session';
 import { QrCode } from '@/tizen/qr-code';
 import { TizenPlaybackStatus } from '@/tizen/tizen-playback-status';
 import { TizenProviderSurface } from '@/tizen/tizen-provider-surface';
 
 interface TizenRoomProps {
-  session: TvSession;
+  listenerCount: number;
+  onLeave: () => void;
+  playback: PlaybackState;
+  room: Room;
+  roomId: string;
+  songs: Song[];
 }
 
-export function TizenRoom({ session }: TizenRoomProps) {
+export function TizenRoom({
+  listenerCount,
+  onLeave,
+  playback,
+  room,
+  roomId,
+  songs,
+}: TizenRoomProps) {
   const queueRef = useRef<HTMLDivElement>(null);
   const [visibleQueueLength, setVisibleQueueLength] = useState(0);
-  const isGenerating = Boolean(session.room?.isGenerating);
-  const current = session.playback.currentSong;
+  const isGenerating = Boolean(room.isGenerating);
+  const current = playback.currentSong;
   const queued = current
-    ? session.songs.filter((song) => song.id !== current.id)
-    : session.songs;
-  const joinUrl = `https://zoff.me/${encodeURIComponent(session.roomId)}`;
+    ? songs.filter((song) => song.id !== current.id)
+    : songs;
+  const joinUrl = `https://zoff.me/${encodeURIComponent(roomId)}`;
   useEffect(() => {
     const queue = queueRef.current;
     if (!queue) return;
@@ -42,7 +54,7 @@ export function TizenRoom({ session }: TizenRoomProps) {
     observer.observe(queue);
     return () => observer.disconnect();
   }, []);
-  const listenerCount = session.listenerCount || session.room?.userCount || 0;
+  const displayedListenerCount = listenerCount || room.userCount || 0;
   const queueRemainderLabel = getQueueRemainderLabel(
     queued.length,
     visibleQueueLength,
@@ -53,7 +65,7 @@ export function TizenRoom({ session }: TizenRoomProps) {
         <div className="min-h-0 flex-1 bg-black">
           <TizenProviderSurface
             isGenerating={isGenerating}
-            playback={session.playback}
+            playback={playback}
           />
         </div>
         <div className="shrink-0 border-tv-border border-t bg-black px-8 py-5">
@@ -77,7 +89,10 @@ export function TizenRoom({ session }: TizenRoomProps) {
               {current ? getProviderDisplayName(current.sourceType) : ''}
             </span>
           </div>
-          <TizenPlaybackStatus durationSeconds={current?.duration ?? 0} />
+          <TizenPlaybackStatus
+            durationSeconds={current?.duration ?? 0}
+            playback={playback}
+          />
         </div>
       </section>
 
@@ -89,11 +104,12 @@ export function TizenRoom({ session }: TizenRoomProps) {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 rounded-full border border-accent/30 px-4 py-2 text-sm text-tv-muted">
               <span className="size-2 rounded-full bg-accent" />
-              {listenerCount} {listenerCount === 1 ? 'listener' : 'listeners'}
+              {displayedListenerCount}{' '}
+              {displayedListenerCount === 1 ? 'listener' : 'listeners'}
             </div>
             <button
               className="rounded-xl border border-tv-border bg-tv-surface px-4 py-2 text-sm"
-              onClick={session.leaveRoom}
+              onClick={onLeave}
               type="button"
             >
               Leave
@@ -158,7 +174,7 @@ export function TizenRoom({ session }: TizenRoomProps) {
             <p className="text-accent text-xs uppercase tracking-[0.2em]">
               Scan to join
             </p>
-            <p className="mt-3 truncate text-2xl">{session.room?.name}</p>
+            <p className="mt-3 truncate text-2xl">{room.name}</p>
             <p className="mt-2 text-sm text-tv-muted">
               Add songs and vote from your phone
             </p>
