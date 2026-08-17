@@ -1,4 +1,3 @@
-import type { ApiClient } from '@vibes/api';
 import type { Providers } from '@vibes/models';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { classNames } from '@vibes/shared';
@@ -12,55 +11,56 @@ import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useMusicSearch } from '@/hooks/use-music-search';
-import { mobileApi } from '@/lib/api';
+
+interface SearchRemoteCredentials {
+  controllerToken: string;
+  remoteId: string;
+}
 
 interface SearchSheetProps {
   canGenerate: boolean;
-  client?: ApiClient;
   generationUnavailableReason: string;
   onAdded?: () => Promise<void>;
   onClose: () => void;
   onGenerated: () => Promise<void>;
   providersOverride?: Providers;
+  remoteCredentials?: SearchRemoteCredentials;
   roomIdOverride?: string;
   visible: boolean;
 }
 
 export function SearchSheet({
   canGenerate,
-  client = mobileApi,
   generationUnavailableReason,
   onAdded,
   onClose,
   onGenerated,
   providersOverride,
+  remoteCredentials,
   roomIdOverride,
   visible,
 }: SearchSheetProps) {
   const theme = useAppTheme();
-  const {
-    add,
-    addPlaylist,
-    enabledProviders,
-    error,
-    isAIMode,
-    loading,
-    playlist,
-    provider,
-    query,
-    results,
-    search,
-    setProvider,
-    toggleAIMode,
-    updateQuery,
-  } = useMusicSearch({
+  const [
+    {
+      enabledProviders,
+      error,
+      isAIMode,
+      loading,
+      playlist,
+      provider,
+      query,
+      results,
+    },
+    { add, addPlaylist, search, setProvider, toggleAIMode, updateQuery },
+  ] = useMusicSearch({
     canGenerate,
-    client,
     generationUnavailableReason,
     onClose,
     onGenerated,
     ...(onAdded ? { onAdded } : {}),
     ...(providersOverride ? { providersOverride } : {}),
+    ...(remoteCredentials ? { remoteCredentials } : {}),
     ...(roomIdOverride ? { roomIdOverride } : {}),
   });
 

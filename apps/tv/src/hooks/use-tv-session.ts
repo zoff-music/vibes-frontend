@@ -1,40 +1,34 @@
-import {
-  type ApiClient,
-  createRoomDiscoveryRequests,
-  createRoomLifecycleRequests,
-  createRoomPlaybackRequests,
-  createRoomReadRequests,
-  getHttpError,
-  getRequestErrorMessage,
-  useRoomEvents,
-} from '@vibes/api';
 import type {
   PlaybackState,
   Providers,
   PublicRoom,
   Room,
-  RoomGenerationUpdate,
   Song,
 } from '@vibes/models';
-import {
-  synchronizeServerClock,
-  usePlaybackStore,
-  useQueueStore,
-  useRoomStore,
-} from '@vibes/shared';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { fetchRoomSnapshot } from '@/lib/room-snapshot';
+import { useFetcher, useLoaderData } from '@vibes/native-router';
+import { usePlaybackStore, useQueueStore, useRoomStore } from '@vibes/shared';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { RoomSnapshot } from '@/data-router/room-snapshot';
+import { useTvRoomEvents } from '@/hooks/use-tv-room-events';
+import { subscribeToAppResume } from '@/lib/app-resume';
+import { applyRoomSnapshot } from '@/lib/apply-room-snapshot';
+import type { DiscoveryData } from '@/routes/_index/loader';
+import type { CreateRoomData } from '@/routes/rooms.create/action';
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
 
-export interface TvSession {
+export interface TvSessionActions {
   createRoom: (name: string) => Promise<void>;
-  error: string;
   generateRoom: (prompt: string) => Promise<void>;
   leaveRoom: () => void;
+  loadRoom: (roomId: string) => Promise<RoomJoinResult>;
+}
+
+export interface TvSessionState {
+  error: string;
+  hydrating: boolean;
   listenerCount: number;
   loading: boolean;
-  loadRoom: (roomId: string) => Promise<RoomJoinResult>;
   playback: PlaybackState;
   providers: Providers;
   publicRooms: PublicRoom[];
@@ -43,25 +37,13 @@ export interface TvSession {
   songs: Song[];
 }
 
-export type SubscribeToResume = (onResume: () => void) => () => void;
-
-export function useTvSession(
-  client: ApiClient,
-  subscribeToResume?: SubscribeToResume,
-): TvSession {
-  const discoveryRequests = useMemo(
-    () => createRoomDiscoveryRequests(client),
-    [client],
-  );
-  const lifecycleRequests = useMemo(
-    () => createRoomLifecycleRequests(client),
-    [client],
-  );
-  const playbackRequests = useMemo(
-    () => createRoomPlaybackRequests(client),
-    [client],
-  );
-  const readRequests = useMemo(() => createRoomReadRequests(client), [client]);
+export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
+  const discovery = useLoaderData<DiscoveryData>();
+  const roomFetcher = useFetcher<RoomSnapshot>({ routeId: 'rooms.$id' });
+  const createFetcher = useFetcher<CreateRoomData>({
+    routeId: 'rooms.create',
+  });
+  const submitCreate = createFetcher.submit;
   const room = useRoomStore((state) => state.room);
   const listenerCount = useRoomStore((state) => state.usersCount);
   const songs = useQueueStore((state) => state.songs);
@@ -75,251 +57,112 @@ export function useTvSession(
     [currentSong, isPlaying, positionMs, serverTimeMs, updatedAt],
   );
   const [roomId, setRoomId] = useState('');
-  const [providers, setProviders] = useState<Providers>([]);
-  const [publicRooms, setPublicRooms] = useState<PublicRoom[]>([]);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [requestError, setRequestError] = useState('');
+  const [roomLoading, setRoomLoading] = useState(false);
+  const roomRequest = useRef(0);
+  const providers = discovery?.providers ?? [];
+  const publicRooms = discovery?.publicRooms ?? [];
 
-  const callbacks = useMemo(
-    () => ({
-      onConnected: synchronizeServerClock,
-      onGenerationUpdate: (update: RoomGenerationUpdate) => {
-        const currentRoom = useRoomStore.getState().room;
-        if (!currentRoom) return;
-        useRoomStore.getState().setRoom({
-          ...currentRoom,
-          generationError:
-            update.status === 'failed'
-              ? (update.error ?? 'Playlist generation could not be completed.')
-              : undefined,
-          isGenerating: update.status === 'generating',
-        });
-      },
-      onHostUpdate: ({ userId }: { userId: string }) => {
-        useRoomStore.getState().setHost(userId);
-      },
-      onPlaybackUpdate: (nextPlayback: PlaybackState) => {
-        synchronizeServerClock(nextPlayback.serverTimeMs);
-        const roomMode = useRoomStore.getState().room?.mode;
-        usePlaybackStore.getState().setPlaybackState(nextPlayback, roomMode);
-      },
-      onRoomUpdate: (nextRoom: Room) => {
-        useRoomStore.getState().setRoom(nextRoom);
-      },
-      onSongAdded: (song: Song) => {
-        useQueueStore.getState().addSong(song);
-      },
-      onSongsUpdate: (nextSongs: Song[]) => {
-        useQueueStore.getState().setSongs(nextSongs);
-      },
-      onUsersUpdate: (count: number) => {
-        useRoomStore.getState().setUsersCount(count);
-      },
-    }),
-    [],
-  );
-  useRoomEvents(roomId || undefined, callbacks, client);
-
-  const applySnapshot = useCallback(
-    (snapshot: { playback: PlaybackState; room: Room; songs: Song[] }) => {
-      useRoomStore.getState().setRoom(snapshot.room);
-      useQueueStore.getState().setSongs(snapshot.songs);
-      synchronizeServerClock(snapshot.playback.serverTimeMs);
-      usePlaybackStore
-        .getState()
-        .resetPlaybackState(snapshot.playback, snapshot.room.mode);
-    },
-    [],
-  );
-
-  const refreshRoom = useCallback(async () => {
-    if (!roomId) return;
-    const [requestError, snapshot] = await fetchRoomSnapshot(
-      roomId,
-      readRequests,
-      playbackRequests,
-    );
-    if (requestError || !snapshot) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not refresh the room.',
-        ),
-      );
-      return;
-    }
-
-    applySnapshot(snapshot);
-    setError('');
-  }, [applySnapshot, playbackRequests, readRequests, roomId]);
-
-  useEffect(() => {
-    if (!subscribeToResume) return;
-    return subscribeToResume(() => {
-      void refreshRoom();
-    });
-  }, [refreshRoom, subscribeToResume]);
+  useTvRoomEvents(roomId);
 
   const loadRoom = useCallback(
     async (nextRoomId: string): Promise<RoomJoinResult> => {
       const normalizedRoomId = nextRoomId.trim().toLowerCase();
       if (!normalizedRoomId) {
-        setError('Enter a room name.');
+        setRequestError('Enter a room name.');
         return 'error';
       }
-      setLoading(true);
-      const [requestError, snapshot] = await fetchRoomSnapshot(
-        normalizedRoomId,
-        readRequests,
-        playbackRequests,
-      );
-      setLoading(false);
-      if (requestError || !snapshot) {
-        const status = requestError
-          ? getHttpError(requestError)?.response.status
-          : null;
-        if (status === notFoundStatus) {
-          setError('That room does not exist yet.');
-          return 'notFound';
-        }
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not find that room.',
-          ),
-        );
+      const requestId = roomRequest.current + 1;
+      roomRequest.current = requestId;
+      setRoomLoading(true);
+      const result = await roomFetcher.load({
+        params: { id: normalizedRoomId },
+      });
+      if (requestId !== roomRequest.current) return 'error';
+      setRoomLoading(false);
+      if (result.error === roomNotFoundError) {
+        setRequestError('That room does not exist yet.');
+        return 'notFound';
+      }
+      if (result.error || !result.data) {
+        setRequestError(result.error || 'Could not find that room.');
         return 'error';
       }
-      applySnapshot(snapshot);
+      applyRoomSnapshot(result.data);
       setRoomId(normalizedRoomId);
-      setError('');
+      setRequestError('');
       return 'joined';
     },
-    [applySnapshot, playbackRequests, readRequests],
+    [roomFetcher.load],
+  );
+
+  const refreshRoom = useCallback(async () => {
+    if (!roomId) return;
+    const result = await roomFetcher.load({ params: { id: roomId } });
+    if (result.error || !result.data) {
+      setRequestError(result.error || 'Could not refresh the room.');
+      return;
+    }
+    applyRoomSnapshot(result.data);
+    setRequestError('');
+  }, [roomFetcher.load, roomId]);
+
+  useEffect(
+    () => subscribeToAppResume(() => void refreshRoom()),
+    [refreshRoom],
   );
 
   const generateRoom = useCallback(
     async (prompt: string) => {
-      if (!prompt.trim()) {
-        setError('Describe the playlist you want.');
+      const result = await submitCreate({ intent: 'generate', prompt });
+      if (result.error || !result.data) {
+        setRequestError(result.error || 'Could not generate the room.');
         return;
       }
-      setLoading(true);
-      const [requestError, generatedRoom] =
-        await lifecycleRequests.createGeneratedRoom({
-          prompt: prompt.trim(),
-        });
-      if (requestError || !generatedRoom) {
-        setLoading(false);
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not start playlist generation.',
-          ),
-        );
-        return;
-      }
-      await loadRoom(generatedRoom.id);
-      setLoading(false);
+      await loadRoom(result.data.roomId);
     },
-    [lifecycleRequests, loadRoom],
+    [loadRoom, submitCreate],
   );
 
   const createRoom = useCallback(
     async (name: string) => {
-      const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
-      if (!normalizedName) {
-        setError('Enter a room name.');
+      const result = await submitCreate({ intent: 'create', name, providers });
+      if (result.error || !result.data) {
+        setRequestError(result.error || 'Could not create the room.');
         return;
       }
-      if (providers.length === 0) {
-        setError('Music providers are still loading.');
-        return;
-      }
-      setLoading(true);
-      const [reservationError, reservation] =
-        await lifecycleRequests.reserveRoom(normalizedName);
-      if (reservationError || !reservation) {
-        setLoading(false);
-        setError(
-          await getRequestErrorMessage(
-            reservationError,
-            'Could not reserve that room name.',
-          ),
-        );
-        return;
-      }
-      const [requestError, createdRoom] = await lifecycleRequests.createRoom({
-        name: normalizedName,
-        mode: 'server',
-        reservationToken: reservation.token,
-        settings: {
-          allowDuplicates: false,
-          democraticSkip: true,
-          enabledSources: providers,
-          loopQueue: true,
-          maxContinuousAdds: 3,
-          onlyAdminAddSongs: false,
-          public: false,
-          removeOnPlay: false,
-          skipAllowed: true,
-          skipVoteThreshold: 0.5,
-        },
-      });
-      if (requestError || !createdRoom) {
-        setLoading(false);
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not create that room.',
-          ),
-        );
-        return;
-      }
-      await loadRoom(createdRoom.id);
-      setLoading(false);
+      await loadRoom(result.data.roomId);
     },
-    [lifecycleRequests, loadRoom, providers],
+    [loadRoom, providers, submitCreate],
   );
 
   const leaveRoom = useCallback(() => {
+    roomRequest.current += 1;
     setRoomId('');
-    setError('');
+    setRequestError('');
     useRoomStore.getState().reset();
     useQueueStore.getState().setSongs([]);
     usePlaybackStore.getState().resetPlaybackState(emptyPlaybackState);
   }, []);
 
-  useEffect(() => {
-    const loadDiscovery = async () => {
-      const [[, nextProviders], [, nextPublicRooms]] = await Promise.all([
-        discoveryRequests.fetchProviders(),
-        discoveryRequests.fetchPublicRooms(),
-      ]);
-      setProviders(nextProviders ?? []);
-      setPublicRooms(nextPublicRooms ?? []);
-    };
-    void loadDiscovery();
-  }, [discoveryRequests]);
-
-  return {
-    createRoom,
-    error,
-    generateRoom,
-    leaveRoom,
-    listenerCount,
-    loading,
-    loadRoom,
-    playback,
-    providers,
-    publicRooms,
-    room,
-    roomId,
-    songs,
-  };
+  return [
+    {
+      error: requestError || discovery?.warning || '',
+      hydrating: discovery === null,
+      listenerCount,
+      loading: roomLoading || createFetcher.state === 'submitting',
+      playback,
+      providers,
+      publicRooms,
+      room,
+      roomId,
+      songs,
+    },
+    { createRoom, generateRoom, leaveRoom, loadRoom },
+  ];
 }
 
-const notFoundStatus = 404;
+const roomNotFoundError = 'ROOM_NOT_FOUND';
 const emptyPlaybackState: PlaybackState = {
   currentSong: null,
   isPlaying: false,

@@ -17,6 +17,7 @@ export interface TizenRoomSnapshot {
 
 export interface TizenSessionLoaderData {
   error: string;
+  loadedAt: number;
   providers: Providers;
   publicRooms: PublicRoom[];
   roomId: string;
@@ -34,7 +35,14 @@ export async function loader({
   const providers = discoveryResults[0][1] ?? [];
   const publicRooms = discoveryResults[1][1] ?? [];
   if (!roomId) {
-    return { error: '', providers, publicRooms, roomId: '', snapshot: null };
+    return {
+      error: '',
+      loadedAt: Date.now(),
+      providers,
+      publicRooms,
+      roomId: '',
+      snapshot: null,
+    };
   }
 
   const snapshotResults = await Promise.all([
@@ -53,6 +61,7 @@ export async function loader({
         requestError,
         'Could not load that room.',
       ),
+      loadedAt: Date.now(),
       providers,
       publicRooms,
       roomId: '',
@@ -62,6 +71,7 @@ export async function loader({
 
   return {
     error: '',
+    loadedAt: Date.now(),
     providers,
     publicRooms,
     roomId,

@@ -1,9 +1,9 @@
-import { createRoomLifecycleRequests } from '@vibes/api';
 import type {
   Providers,
   RoomNameReservation,
   RoomSettings,
 } from '@vibes/models';
+import { useFetcher } from '@vibes/native-router';
 import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
 import { useEffect, useState } from 'react';
 import { FlatList, Modal, View } from 'react-native';
@@ -20,9 +20,7 @@ import {
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
 import { Toast, ToastViewport } from '@/components/toast';
-import { getRequestErrorMessage, mobileApi } from '@/lib/api';
-
-const lifecycleRequests = createRoomLifecycleRequests(mobileApi);
+import type { CreateRoomActionData } from '@/routes/rooms.create/action';
 
 interface CreateRoomSheetProps {
   initialName: string;
@@ -39,6 +37,9 @@ export function CreateRoomSheet({
   providers,
   visible,
 }: CreateRoomSheetProps) {
+  const { submit } = useFetcher<CreateRoomActionData>({
+    routeId: 'rooms.create',
+  });
   const [name, setName] = useState(initialName);
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'host' | 'server'>('server');
@@ -65,37 +66,25 @@ export function CreateRoomSheet({
     setReservation(null);
     if (initialName.trim()) return;
     const generateName = async () => {
-      const [requestError, nextReservation] =
-        await lifecycleRequests.reserveRoom();
-      if (requestError || !nextReservation) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not generate a room name.',
-          ),
-        );
+      const result = await submit({ intent: 'reserve' });
+      if (result.data?.intent !== 'reserved') {
+        setError(result.error || 'Could not generate a room name.');
         return;
       }
-      setName(nextReservation.name);
-      setReservation(nextReservation);
+      setName(result.data.reservation.name);
+      setReservation(result.data.reservation);
     };
     void generateName();
-  }, [initialName, providers, visible]);
+  }, [initialName, providers, submit, visible]);
 
   const generateName = async () => {
-    const [requestError, nextReservation] =
-      await lifecycleRequests.reserveRoom();
-    if (requestError || !nextReservation) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not generate a room name.',
-        ),
-      );
+    const result = await submit({ intent: 'reserve' });
+    if (result.data?.intent !== 'reserved') {
+      setError(result.error || 'Could not generate a room name.');
       return;
     }
-    setName(nextReservation.name);
-    setReservation(nextReservation);
+    setName(result.data.reservation.name);
+    setReservation(result.data.reservation);
     setError('');
   };
 
@@ -121,19 +110,16 @@ export function CreateRoomSheet({
     setLoading(true);
     let roomReservation = reservation;
     if (!roomReservation || roomReservation.name !== normalizedName) {
-      const [reservationError, nextReservation] =
-        await lifecycleRequests.reserveRoom(normalizedName);
-      if (reservationError || !nextReservation) {
+      const result = await submit({
+        intent: 'reserve',
+        name: normalizedName,
+      });
+      if (result.data?.intent !== 'reserved') {
         setLoading(false);
-        setError(
-          await getRequestErrorMessage(
-            reservationError,
-            'Could not reserve this room name.',
-          ),
-        );
+        setError(result.error || 'Could not reserve this room name.');
         return;
       }
-      roomReservation = nextReservation;
+      roomReservation = result.data.reservation;
     }
     if (!roomReservation) {
       setLoading(false);
@@ -141,25 +127,23 @@ export function CreateRoomSheet({
       return;
     }
 
-    const [requestError, room] = await lifecycleRequests.createRoom({
-      name: normalizedName,
-      mode,
-      reservationToken: roomReservation.token,
-      settings,
-      ...(password ? { password } : {}),
+    const result = await submit({
+      intent: 'create',
+      request: {
+        name: normalizedName,
+        mode,
+        reservationToken: roomReservation.token,
+        settings,
+        ...(password ? { password } : {}),
+      },
     });
     setLoading(false);
-    if (requestError || !room) {
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not create this room.',
-        ),
-      );
+    if (result.data?.intent !== 'created') {
+      setError(result.error || 'Could not create this room.');
       return;
     }
 
-    const joined = await onCreated(room.id, password);
+    const joined = await onCreated(result.data.roomId, password);
     if (joined) onClose();
   };
 

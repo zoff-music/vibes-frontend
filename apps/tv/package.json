@@ -24,6 +24,7 @@
     "@vibes/api": "workspace:*",
     "@vibes/ui": "workspace:*",
     "@vibes/models": "workspace:*",
+    "@vibes/native-router": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vitejs/plugin-react": "latest",
     "expo": "~57.0.11",

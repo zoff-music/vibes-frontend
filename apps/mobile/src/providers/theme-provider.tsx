@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import type { PropsWithChildren } from 'react';
 import {
   createContext,
@@ -15,34 +15,43 @@ export type ThemePreference = 'auto' | 'dark' | 'light';
 interface ThemeState {
   preference: ThemePreference;
   resolvedScheme: 'dark' | 'light';
-  setPreference: (preference: ThemePreference) => Promise<void>;
 }
 
-const ThemeContext = createContext<ThemeState | null>(null);
+type ThemeContextValue = readonly [
+  ThemeState,
+  (preference: ThemePreference) => Promise<void>,
+];
+
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function AppThemeProvider({ children }: PropsWithChildren) {
+  const preferenceFetcher = useFetcher<ThemePreference>({
+    routeId: 'preferences.theme',
+  });
   const systemScheme = useColorScheme();
+  const loadedPreference =
+    useRouteLoaderData<ThemePreference>('preferences.theme');
   const [preference, setPreferenceValue] = useState<ThemePreference>('auto');
 
   useEffect(() => {
-    const restorePreference = async () => {
-      const storedPreference = await SecureStore.getItemAsync(themeStorageKey);
-      if (!isThemePreference(storedPreference)) return;
-      Appearance.setColorScheme(
-        storedPreference === 'auto' ? 'unspecified' : storedPreference,
-      );
-      setPreferenceValue(storedPreference);
-    };
-    void restorePreference();
-  }, []);
-
-  const setPreference = useCallback(async (nextPreference: ThemePreference) => {
+    if (!loadedPreference) return;
     Appearance.setColorScheme(
-      nextPreference === 'auto' ? 'unspecified' : nextPreference,
+      loadedPreference === 'auto' ? 'unspecified' : loadedPreference,
     );
-    setPreferenceValue(nextPreference);
-    await SecureStore.setItemAsync(themeStorageKey, nextPreference);
-  }, []);
+    setPreferenceValue(loadedPreference);
+  }, [loadedPreference]);
+
+  const setPreference = useCallback(
+    async (nextPreference: ThemePreference) => {
+      const result = await preferenceFetcher.submit(nextPreference);
+      if (!result.data) return;
+      Appearance.setColorScheme(
+        result.data === 'auto' ? 'unspecified' : result.data,
+      );
+      setPreferenceValue(result.data);
+    },
+    [preferenceFetcher.submit],
+  );
 
   const resolvedScheme =
     preference === 'auto'
@@ -51,8 +60,8 @@ export function AppThemeProvider({ children }: PropsWithChildren) {
         : 'dark'
       : preference;
 
-  const value = useMemo<ThemeState>(
-    () => ({ preference, resolvedScheme, setPreference }),
+  const value = useMemo<ThemeContextValue>(
+    () => [{ preference, resolvedScheme }, setPreference],
     [preference, resolvedScheme, setPreference],
   );
 
@@ -68,9 +77,3 @@ export function useThemePreference() {
   }
   return context;
 }
-
-function isThemePreference(value: string | null): value is ThemePreference {
-  return value === 'auto' || value === 'dark' || value === 'light';
-}
-
-const themeStorageKey = 'zoff.mobile.theme';

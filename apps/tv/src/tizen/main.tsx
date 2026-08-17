@@ -8,6 +8,7 @@ import {
 } from '@/tizen/routes/session/route';
 import {
   TizenErrorBoundary,
+  TizenHydrateFallback,
   TizenRecoveryView,
 } from '@/tizen/tizen-error-boundary';
 import '@/tizen/tizen.css';
@@ -19,6 +20,7 @@ const router = createHashRouter([
     action,
     Component: TizenSessionRoute,
     errorElement: <TizenRecoveryView />,
+    HydrateFallback: TizenHydrateFallback,
     loader,
     path: '/',
     shouldRevalidate,

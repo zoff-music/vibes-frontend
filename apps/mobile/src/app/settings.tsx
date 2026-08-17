@@ -21,22 +21,22 @@ import {
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
 import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { useApp } from '@/providers/app-provider';
+import {
+  usePlaybackActions,
+  usePlaybackSession,
+  useRoomActions,
+  useRoomSession,
+} from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 export default function SettingsScreen() {
-  const {
-    playerEnabled,
-    playerPreferenceLoaded,
-    providers,
-    refresh,
-    rememberRoomAdminPassword,
-    forgetRoomAdminPassword,
-    room,
-    setPlayerEnabled,
-  } = useApp();
+  const { playerEnabled, playerPreferenceLoaded } = usePlaybackSession();
+  const { providers, room } = useRoomSession();
+  const { setPlayerEnabled } = usePlaybackActions();
+  const { forgetRoomAdminPassword, refresh, rememberRoomAdminPassword } =
+    useRoomActions();
   const [roomSettingsVisible, setRoomSettingsVisible] = useState(false);
-  const { preference, setPreference } = useThemePreference();
+  const [{ preference }, setPreference] = useThemePreference();
   const theme = useAppTheme();
   return (
     <Screen>

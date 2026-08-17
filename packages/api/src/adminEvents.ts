@@ -1,5 +1,5 @@
 import type { AdminRoomSummary } from '@vibes/models';
-import { api } from './index';
+import { api } from './client';
 
 export function subscribeAdminEvents(
   onRoomsUpdate: (rooms: AdminRoomSummary[]) => void,

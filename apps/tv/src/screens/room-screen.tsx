@@ -18,13 +18,14 @@ import { PlaybackStatus } from '@/components/playback-status';
 import { ProviderIcon } from '@/components/provider-icon';
 import { ProviderSurface } from '@/components/provider-surface';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
-import type { TvSession } from '@/hooks/use-tv-session';
+import type { TvSessionActions, TvSessionState } from '@/hooks/use-tv-session';
 
 interface RoomScreenProps {
-  session: TvSession;
+  session: TvSessionState;
+  sessionActions: TvSessionActions;
 }
 
-export function RoomScreen({ session }: RoomScreenProps) {
+export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
   const { height, width } = useWindowDimensions();
   const compact = width <= compactScreenWidth || height <= compactScreenHeight;
   const queueTrackHeight = compact
@@ -136,7 +137,7 @@ export function RoomScreen({ session }: RoomScreenProps) {
             <NativeButton
               className="h-12 min-h-0 px-4"
               label="Leave"
-              onPress={session.leaveRoom}
+              onPress={sessionActions.leaveRoom}
               tone="secondary"
             />
           </View>

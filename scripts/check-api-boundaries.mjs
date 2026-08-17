@@ -9,12 +9,15 @@ const reactRouterSourceDirectories = [
   'apps/remote/src',
   'apps/tv/src/tizen',
 ];
+const nativeSourceDirectories = ['apps/mobile/src', 'apps/tv/src'];
 const requestMethodPattern = '(?:delete|get|patch|post|put|roomExists)';
 const literalRequestCallPattern = new RegExp(
   `\\.[ \\t]*${requestMethodPattern}[ \\t]*\\([ \\t\\r\\n]*['"]\\/`,
 );
 const requestCapabilityPattern =
   /\buse[A-Z][A-Za-z0-9]*(?:Request|Requests)\s*\(/;
+const requestFactoryPattern =
+  /\bcreate[A-Z][A-Za-z0-9]*(?:Request|Requests)\s*\(/;
 const routeDataModulePattern =
   /\/(?:action|clientAction|clientLoader|loader)\.(?:ts|tsx)$/;
 
@@ -143,7 +146,11 @@ for (const sourceDirectory of reactRouterSourceDirectories) {
   for (const file of listSourceFiles(sourceDirectory)) {
     const repositoryPath = relative('.', file);
     const source = readFileSync(file, 'utf8');
-    if (requestCapabilityPattern.test(source)) {
+    if (
+      requestCapabilityPattern.test(source) ||
+      requestFactoryPattern.test(source)
+    ) {
+      if (routeDataModulePattern.test(repositoryPath)) continue;
       violations.push(
         `${repositoryPath}: request hooks and endpoint helpers are not allowed in React Router apps`,
       );
@@ -153,6 +160,60 @@ for (const sourceDirectory of reactRouterSourceDirectories) {
     violations.push(
       `${repositoryPath}: REST calls must run in a loader, clientLoader, action, or clientAction`,
     );
+  }
+}
+
+for (const sourceDirectory of nativeSourceDirectories) {
+  for (const file of listSourceFiles(sourceDirectory)) {
+    const repositoryPath = relative('.', file);
+    if (repositoryPath.includes('/tizen/')) continue;
+    const source = readFileSync(file, 'utf8');
+    const isRouteDataModule = routeDataModulePattern.test(repositoryPath);
+    const isApiConstructionModule = /\/lib\/api\.ts$/.test(repositoryPath);
+    if (hasClientRequestCall(source) && !isRouteDataModule) {
+      violations.push(
+        `${repositoryPath}: native REST calls must run in a loader or action`,
+      );
+    }
+    if (requestFactoryPattern.test(source) && !isRouteDataModule) {
+      violations.push(
+        `${repositoryPath}: native request capabilities must be constructed in a loader or action`,
+      );
+    }
+    if (
+      /createApiClient[A-Za-z]*\s*\(/.test(source) &&
+      !isApiConstructionModule &&
+      !isRouteDataModule
+    ) {
+      violations.push(
+        `${repositoryPath}: native API clients must be constructed in the app API module or route data modules`,
+      );
+    }
+  }
+}
+
+for (const packageDirectory of [
+  'apps/admin',
+  'apps/cast',
+  'apps/embed',
+  'apps/platform',
+  'apps/remote',
+  'packages/api',
+  'packages/models',
+  'packages/serve',
+  'packages/shared',
+  'packages/tailwind',
+  'packages/ui',
+]) {
+  const manifest = JSON.parse(
+    readFileSync(join(packageDirectory, 'package.json'), 'utf8'),
+  );
+  for (const group of ['dependencies', 'devDependencies', 'peerDependencies']) {
+    if (manifest[group]?.['@vibes/native-router']) {
+      violations.push(
+        `${packageDirectory}/package.json: @vibes/native-router is restricted to mobile and TV apps`,
+      );
+    }
   }
 }
 

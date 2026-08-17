@@ -2,12 +2,13 @@ import {
   PixelifySans_700Bold,
   useFonts,
 } from '@expo-google-fonts/pixelify-sans';
+import { Route } from '@vibes/native-router';
 import { useEffect, useState } from 'react';
 import { BackHandler, StatusBar, View } from 'react-native';
 import { TvErrorBoundary } from '@/components/tv-error-boundary';
+import { TvHydrateFallback } from '@/components/tv-hydrate-fallback';
+import { AppRouterProvider } from '@/data-router/provider';
 import { useTvSession } from '@/hooks/use-tv-session';
-import { tvApi } from '@/lib/api';
-import { subscribeToAppResume } from '@/lib/app-resume';
 import { LandingScreen } from '@/screens/landing-screen';
 import { RoomScreen } from '@/screens/room-screen';
 import '@/global.css';
@@ -15,7 +16,11 @@ import '@/global.css';
 export function App() {
   return (
     <TvErrorBoundary>
-      <TvApp />
+      <AppRouterProvider>
+        <Route routeId="_index">
+          <TvApp />
+        </Route>
+      </AppRouterProvider>
     </TvErrorBoundary>
   );
 }
@@ -24,7 +29,7 @@ function TvApp() {
   const [fontsLoaded] = useFonts({
     'Pixelify Sans Bold': PixelifySans_700Bold,
   });
-  const session = useTvSession(tvApi, subscribeToAppResume);
+  const [session, sessionActions] = useTvSession();
   const [isAIMode, setIsAIMode] = useState(false);
 
   useEffect(() => {
@@ -32,24 +37,25 @@ function TvApp() {
     const subscription = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        session.leaveRoom();
+        sessionActions.leaveRoom();
         return true;
       },
     );
     return () => subscription.remove();
-  }, [session.leaveRoom, session.roomId]);
+  }, [session.roomId, sessionActions.leaveRoom]);
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded || session.hydrating) return <TvHydrateFallback />;
 
   let screen = (
     <LandingScreen
       isAIMode={isAIMode}
+      sessionActions={sessionActions}
       session={session}
       onToggleAIMode={() => setIsAIMode((current) => !current)}
     />
   );
   if (session.room && session.roomId) {
-    screen = <RoomScreen session={session} />;
+    screen = <RoomScreen session={session} sessionActions={sessionActions} />;
   }
 
   return (

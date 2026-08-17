@@ -1,5 +1,5 @@
 import type { RemoteEvent } from '@vibes/models';
-import { type ApiClient, api, createApiClient } from './index';
+import { type ApiClient, api, createApiClient } from './client';
 
 export interface RemoteEventSubscriptionOptions {
   client?: ApiClient;

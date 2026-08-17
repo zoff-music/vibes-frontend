@@ -1,12 +1,7 @@
-import {
-  type ApiClient,
-  createRemoteRequests,
-  createRoomLifecycleRequests,
-  getHttpError,
-} from '@vibes/api';
 import type { Providers, Room, RoomSettings } from '@vibes/models';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Modal, View } from 'react-native';
+import { useFetcher } from '@vibes/native-router';
+import { useEffect, useRef, useState } from 'react';
+import { FlatList, Modal, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -20,10 +15,12 @@ import {
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
 import { Toast, ToastViewport } from '@/components/toast';
-import { getRequestErrorMessage, mobileApi } from '@/lib/api';
+import type { ControllerRoomActionData } from '@/routes/remotes.controller.$id.room/action';
+import type { RoomSessionActionData } from '@/routes/rooms.$id.session/action';
+import type { RoomSettingsActionData } from '@/routes/rooms.$id.settings/action';
 
 interface RoomSettingsSheetProps {
-  client?: ApiClient;
+  controllerToken?: string;
   onAuthenticated?: (roomId: string, password: string) => Promise<void>;
   onClose: () => void;
   onLoggedOut?: (roomId: string) => Promise<void>;
@@ -35,7 +32,7 @@ interface RoomSettingsSheetProps {
 }
 
 export function RoomSettingsSheet({
-  client = mobileApi,
+  controllerToken,
   onAuthenticated,
   onClose,
   onLoggedOut,
@@ -45,11 +42,21 @@ export function RoomSettingsSheet({
   room,
   visible,
 }: RoomSettingsSheetProps) {
-  const remoteRequests = useMemo(() => createRemoteRequests(client), [client]);
-  const lifecycleRequests = useMemo(
-    () => createRoomLifecycleRequests(client),
-    [client],
-  );
+  const roomSessionFetcher = useFetcher<RoomSessionActionData>({
+    params: { id: room.id },
+    routeId: 'rooms.$id.session',
+  });
+  const roomSettingsFetcher = useFetcher<RoomSettingsActionData>({
+    params: { id: room.id },
+    routeId: 'rooms.$id.settings',
+  });
+  const remoteFetcher = useFetcher<ControllerRoomActionData>({
+    params: { controllerToken: controllerToken ?? '', id: remoteId ?? '' },
+    routeId: 'remotes.controller.$id.room',
+  });
+  const submitRoomSession = roomSessionFetcher.submit;
+  const submitRoomSettings = roomSettingsFetcher.submit;
+  const submitRemote = remoteFetcher.submit;
   const [activeRoom, setActiveRoom] = useState(room);
   const [settings, setSettings] = useState(room.settings);
   const [mode, setMode] = useState(room.mode);
@@ -80,40 +87,27 @@ export function RoomSettingsSheet({
       return;
     }
     setLoading(true);
-    const [requestError, session] = await lifecycleRequests.joinRoom(
-      activeRoom.id,
-      submittedPassword,
-    );
-    if (requestError || !session) {
+    const result = controllerToken
+      ? await submitRemote({
+          intent: 'authenticate',
+          password: submittedPassword,
+          roomId: activeRoom.id,
+        })
+      : await submitRoomSession({
+          intent: 'authenticate',
+          password: submittedPassword,
+        });
+    if (result.data?.intent !== 'roomUpdated') {
       setLoading(false);
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'The admin password was not accepted. Check it and try again.',
-        ),
-      );
+      setError(result.error || 'The admin password was not accepted.');
       return;
     }
-    if (remoteId) {
-      const [remoteError] = await remoteRequests.updateRemote(remoteId, {
-        roomId: activeRoom.id,
-      });
-      if (remoteError) {
-        setLoading(false);
-        setError(
-          await getRequestErrorMessage(
-            remoteError,
-            'Could not authenticate the paired machine.',
-          ),
-        );
-        return;
-      }
-    }
     setLoading(false);
-    setActiveRoom(session.room);
-    setSettings(session.room.settings);
-    setMode(session.room.mode);
+    setActiveRoom(result.data.room);
+    setSettings(result.data.room.settings);
+    setMode(result.data.room.mode);
     setPassword('');
+    setError('warning' in result.data ? result.data.warning : '');
     await onUpdated();
     if (onAuthenticated) {
       await onAuthenticated(activeRoom.id, submittedPassword);
@@ -123,63 +117,62 @@ export function RoomSettingsSheet({
   const save = async (nextMode: Room['mode'], nextSettings: RoomSettings) => {
     setLoading(true);
     setError('');
-    const [requestError, updatedRoom] = await lifecycleRequests.updateRoom(
-      activeRoom.id,
-      { mode: nextMode, settings: nextSettings },
-    );
+    const result = controllerToken
+      ? await submitRemote({
+          intent: 'settings',
+          roomId: activeRoom.id,
+          update: { mode: nextMode, settings: nextSettings },
+        })
+      : await submitRoomSettings({
+          update: { mode: nextMode, settings: nextSettings },
+        });
     setLoading(false);
-    if (requestError || !updatedRoom) {
+    const updatedRoom =
+      result.data && 'room' in result.data ? result.data.room : null;
+    if (!updatedRoom) {
       setMode(activeRoom.mode);
       setSettings(activeRoom.settings);
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not update room settings.',
-        ),
-      );
+      setError(result.error || 'Could not update room settings.');
       return;
     }
     setActiveRoom(updatedRoom);
     setMode(updatedRoom.mode);
     setSettings(updatedRoom.settings);
+    setError(
+      result.data &&
+        'warning' in result.data &&
+        typeof result.data.warning === 'string'
+        ? result.data.warning
+        : '',
+    );
     await onUpdated();
   };
 
   const logOut = async () => {
     setLoading(true);
     setError('');
-    const [requestError, session] = await lifecycleRequests.logOutRoomAdmin(
-      activeRoom.id,
-    );
-    const responseStatus = requestError
-      ? getHttpError(requestError)?.response.status
-      : null;
-    const serverDoesNotSupportLogout =
-      responseStatus === notFoundStatus ||
-      responseStatus === methodNotAllowedStatus;
-    if (
-      (requestError && !serverDoesNotSupportLogout) ||
-      (!session && !serverDoesNotSupportLogout)
-    ) {
+    const result = controllerToken
+      ? await submitRemote({
+          intent: 'logout',
+          roomId: activeRoom.id,
+        })
+      : await submitRoomSession({ intent: 'logoutAdmin' });
+    if (result.error || result.data?.intent !== 'success') {
       setLoading(false);
-      setError(
-        await getRequestErrorMessage(
-          requestError,
-          'Could not log out of this room.',
-        ),
-      );
+      setError(result.error || 'Could not sign out as room admin.');
       return;
     }
     if (onLoggedOut) {
       await onLoggedOut(activeRoom.id);
     }
     const guestRoom = {
-      ...(session?.room ?? activeRoom),
+      ...activeRoom,
       isAdmin: false,
     };
     setActiveRoom(guestRoom);
     setSettings(guestRoom.settings);
     setMode(guestRoom.mode);
+    setError('warning' in result.data ? result.data.warning : '');
     setLoading(false);
     await onUpdated();
   };
@@ -228,6 +221,15 @@ export function RoomSettingsSheet({
             }
             onPress={() => void authenticate()}
           />
+          {error && (
+            <Text
+              accessibilityLiveRegion="assertive"
+              accessibilityRole="alert"
+              className="font-heading text-error text-sm"
+            >
+              {error}
+            </Text>
+          )}
         </Card>
       )}
       {activeRoom.isAdmin && (
@@ -255,7 +257,7 @@ export function RoomSettingsSheet({
         onSettingsChange={changeSettings}
       />
       {loading && <Copy muted>Saving change…</Copy>}
-      <Toast message={error} />
+      {!needsAdminAccess && <Toast message={error} />}
     </View>
   );
 
@@ -290,8 +292,5 @@ export function RoomSettingsSheet({
     </Modal>
   );
 }
-
-const notFoundStatus = 404;
-const methodNotAllowedStatus = 405;
 
 const sheetItems = ['room-settings'];
