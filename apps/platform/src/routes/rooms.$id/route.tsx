@@ -1,3 +1,4 @@
+import { useRoomEvents } from '@vibes/api';
 import type { RoomGenerationUpdate } from '@vibes/models';
 import {
   classNames,
@@ -33,7 +34,6 @@ import {
 } from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { useRemoteControl } from '../../components/remote/RemoteControlProvider';
-import { useRoomEvents } from '../../hooks/use-room-events';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useCastStore } from '../../stores/castStore';
 import { useThemeStore } from '../../stores/themeStore';

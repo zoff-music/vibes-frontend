@@ -29,7 +29,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 - `apps/cast`: Chromecast receiver.
 - `apps/mobile`: native-only Expo Router app for iOS and Android phones/tablets.
 - `apps/tv`: one TV product with a shared session layer, delivered through an Expo Android TV renderer and a Samsung TV DOM renderer.
-- `packages/api`: the React-free transport package and the only package that owns `wiretyped`, backend REST calls, typed request capabilities, and SSE subscription plumbing.
+- `packages/api`: the transport package and the only package that owns `wiretyped`, backend REST calls, typed request capabilities, SSE plumbing, and narrowly scoped reusable SSE hooks.
 - `packages/models`: shared Yup schemas and derived domain types.
 - `packages/shared`: platform-neutral utilities, hooks, stores, constants, and safe wrappers.
 - `packages/ui/web`: DOM components and provider players.
@@ -52,7 +52,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 - Keep Expo Router files under `apps/mobile/src/app` as small adapters. Default exports are allowed where Expo Router requires them.
 - Put screen fragments in `src/components`, stateful workflows in `src/hooks`, API construction in `src/lib`, and room-wide state in providers.
 - Split independent workflows out of `AppProvider`; do not turn the provider into a collection of unrelated API state machines.
-- Inject `expo/fetch` only while constructing the shared API client. Native runtime hooks compose React-free request capabilities from `@vibes/api`; screens and components must not call endpoints directly.
+- Inject `expo/fetch` only while constructing the shared API client. Native runtime hooks compose React-free request capabilities and may consume reusable SSE hooks from `@vibes/api`; screens and components must not call endpoints directly.
 - Persist tokens and preferences with Expo SecureStore, not browser storage.
 - Preserve native system tabs, sheets, safe areas, tablet layouts, Cast behavior, QR scanning, and background playback.
 - Use a config plugin under `apps/mobile/plugins` for generated native-project mutations. Do not commit generated `ios` or `android` projects or stray root Expo config files.
@@ -61,7 +61,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 - Android TV uses Expo, `react-native-tvos`, NativeWind, directional focus, and `@vibes/ui/native`.
 - Samsung TVs require a DOM runtime with its own entrypoint, CSS, spatial navigation, `config.xml`, and store packaging under `apps/tv`; this is a delivery boundary within the same TV app, not a separate product.
-- Share app-owned domain hooks between the TV renderers, not UI trees. Keep transport capabilities in `@vibes/api` React-free.
+- Share app-owned domain hooks between the TV renderers, not UI trees. Keep REST capabilities in `@vibes/api` React-free; reusable SSE lifecycle hooks may also live there.
 - Keep the cross-renderer room lifecycle in `useTvSession` with an exported `TvSession` contract. Keep provider surfaces, queue measurement, and focus/navigation in renderer-specific components.
 - Design TV screens for ten-foot viewing: large type, strong focus feedback, bounded queues, and no touch-only interaction.
 - Verify Leanback launcher metadata, touchscreen optionality, banner assets, and directional focus after Android TV prebuild.
@@ -77,8 +77,8 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 ## API and Errors
 
-- Keep `@vibes/api` React-free. It may export typed clients, focused request capabilities, error helpers, and SSE subscription functions, but never React hooks, providers, stores, or application state orchestration.
-- Put subscription lifecycle hooks in the consuming app so each runtime owns React effects, callback refs, reconnection policy, and state updates.
+- `@vibes/api` may export reusable hooks only for SSE subscription lifecycle. REST/request hooks, providers, stores, and application state orchestration are forbidden.
+- Keep REST capabilities, clients, error helpers, and SSE transport functions React-free. SSE hooks may own effects, callback refs, subscription cleanup, and reconnection notification, but state updates remain callback-driven and app-owned.
 - Use exports from `@vibes/api` for every backend call and SSE subscription.
 - Never call `fetch`, instantiate `EventSource`, or import `wiretyped` outside approved API-client construction.
 - Do not wrap `@vibes/api` calls; they already return `[error, data]`.

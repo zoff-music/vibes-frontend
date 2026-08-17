@@ -543,6 +543,9 @@ export function createApiClient(customHeaders: Record<string, string> = {}) {
 export const api = createApiClient();
 
 export * from './adminEvents';
+export * from './hooks/useAdminEvents';
+export * from './hooks/useRemoteEvents';
+export * from './hooks/useRoomEvents';
 export * from './rateLimit';
 export * from './remoteEvents';
 export * from './requests/providerRequests';

@@ -59,41 +59,75 @@ function hasClientRequestCall(source) {
 }
 
 const violations = [];
+const allowedApiHooks = new Set([
+  'useAdminEvents',
+  'useRemoteEvents',
+  'useRoomEvents',
+]);
+const allowedApiHookFiles = new Set(
+  [...allowedApiHooks].map(
+    (hookName) => `packages/api/src/hooks/${hookName}.ts`,
+  ),
+);
 const apiPackage = JSON.parse(
   readFileSync('packages/api/package.json', 'utf8'),
 );
-for (const dependencyGroup of [
-  apiPackage.dependencies,
-  apiPackage.devDependencies,
-  apiPackage.peerDependencies,
+for (const [groupName, dependencyGroup, forbiddenDependencies] of [
+  [
+    'dependencies',
+    apiPackage.dependencies,
+    ['@types/react', 'react', 'react-dom'],
+  ],
+  [
+    'peerDependencies',
+    apiPackage.peerDependencies,
+    ['@types/react', 'react-dom'],
+  ],
+  ['devDependencies', apiPackage.devDependencies, ['react', 'react-dom']],
 ]) {
-  if (!dependencyGroup) continue;
-  for (const dependency of ['@types/react', 'react', 'react-dom']) {
-    if (dependency in dependencyGroup) {
-      violations.push(
-        `packages/api/package.json: @vibes/api must not depend on ${dependency}`,
-      );
-    }
+  for (const dependency of forbiddenDependencies) {
+    if (!dependencyGroup || !(dependency in dependencyGroup)) continue;
+    violations.push(
+      `packages/api/package.json: ${dependency} is forbidden in ${groupName}`,
+    );
   }
 }
 
 for (const file of listSourceFiles('packages/api/src')) {
   const repositoryPath = relative('.', file);
   const source = readFileSync(file, 'utf8');
-  if (repositoryPath.includes('/hooks/')) {
-    violations.push(`${repositoryPath}: @vibes/api must not contain hooks`);
+  const isHookFile = repositoryPath.includes('/hooks/');
+  if (isHookFile && !allowedApiHookFiles.has(repositoryPath)) {
+    violations.push(
+      `${repositoryPath}: only approved SSE hooks may live in @vibes/api`,
+    );
   }
-  if (/from\s+['"]react(?:\/[^'"]*)?['"]/.test(source)) {
-    violations.push(`${repositoryPath}: @vibes/api must remain React-free`);
+  if (/from\s+['"]react(?:\/[^'"]*)?['"]/.test(source) && !isHookFile) {
+    violations.push(
+      `${repositoryPath}: only @vibes/api SSE hooks may import React`,
+    );
   }
   if (/from\s+['"]@vibes\/shared['"]/.test(source)) {
     violations.push(
       `${repositoryPath}: @vibes/api must not import the React-capable @vibes/shared barrel`,
     );
   }
-  if (/\b(?:export\s+)?(?:const|function|let|var)\s+use[A-Z]/.test(source)) {
+  const hookDeclarationPattern =
+    /\b(?:export\s+)?(?:const|function|let|var)\s+(use[A-Z][A-Za-z0-9]*)/g;
+  for (const match of source.matchAll(hookDeclarationPattern)) {
+    if (isHookFile && allowedApiHooks.has(match[1])) continue;
     violations.push(
-      `${repositoryPath}: @vibes/api must not export React hooks`,
+      `${repositoryPath}: only SSE hooks may be exported by @vibes/api`,
+    );
+  }
+  if (isHookFile && hasClientRequestCall(source)) {
+    violations.push(
+      `${repositoryPath}: @vibes/api hooks must never execute REST requests`,
+    );
+  }
+  if (isHookFile && /from\s+['"][^'"]*requests\//.test(source)) {
+    violations.push(
+      `${repositoryPath}: @vibes/api hooks must not import REST capabilities`,
     );
   }
 }
@@ -120,5 +154,5 @@ if (violations.length > 0) {
   console.error(violations.join('\n'));
   process.exitCode = 1;
 } else {
-  console.log('React Router API boundaries are valid.');
+  console.log('Frontend API boundaries are valid.');
 }

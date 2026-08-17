@@ -1,6 +1,6 @@
-import { subscribeAdminEvents } from '@vibes/api';
 import type { AdminRoomSummary } from '@vibes/models';
 import { useEffect, useRef } from 'react';
+import { subscribeAdminEvents } from '../adminEvents';
 
 interface UseAdminEventsParameters {
   enabled: boolean;

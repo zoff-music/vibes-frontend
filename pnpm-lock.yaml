@@ -630,6 +630,9 @@ importers:
       '@vibes/shared':
         specifier: workspace:*
         version: link:../shared
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
       wiretyped:
         specifier: 0.3.4
         version: 0.3.4
@@ -640,6 +643,9 @@ importers:
       '@types/node':
         specifier: 25.0.10
         version: 25.0.10
+      '@types/react':
+        specifier: 19.2.16
+        version: 19.2.16
       typescript:
         specifier: 5.9.3
         version: 5.9.3

@@ -1,3 +1,4 @@
+import { useRoomEvents } from '@vibes/api';
 import type { Room, Song } from '@vibes/models';
 import {
   synchronizeServerClock,
@@ -10,7 +11,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useRevalidator } from 'react-router';
 import type { EmbedActionData } from '../action';
 import type { EmbedLoaderData, EmbedOptions } from '../loader';
-import { useRoomEvents } from './use-room-events';
 
 interface EmbedToast {
   message: string;

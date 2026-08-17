@@ -1,8 +1,8 @@
+import { useEffect, useRef } from 'react';
 import {
   type RemoteEventSubscriptionOptions,
   subscribeRemoteEvents,
-} from '@vibes/api';
-import { useEffect, useRef } from 'react';
+} from '../remoteEvents';
 
 export function useRemoteEvents(options: RemoteEventSubscriptionOptions) {
   const callbacksRef = useRef(options);

@@ -5,6 +5,8 @@ import {
   createRoomQueueRequests,
   createRoomReadRequests,
   getHttpError,
+  useRemoteEvents,
+  useRoomEvents,
 } from '@vibes/api';
 import type {
   PlaybackState,
@@ -19,8 +21,6 @@ import { useCameraPermissions } from 'expo-camera';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useLivePosition } from '@/hooks/use-live-position';
-import { useRemoteEvents } from '@/hooks/use-remote-events';
-import { useRoomEvents } from '@/hooks/use-room-events';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 import { useApp } from '@/providers/app-provider';

@@ -6,6 +6,7 @@ import {
   createRoomReadRequests,
   getHttpError,
   getRequestErrorMessage,
+  useRoomEvents,
 } from '@vibes/api';
 import type {
   PlaybackState,
@@ -22,7 +23,6 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRoomEvents } from '@/hooks/use-room-events';
 import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';

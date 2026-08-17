@@ -1,3 +1,4 @@
+import { useRemoteEvents } from '@vibes/api';
 import type { RemoteEvent, RemotePairing, RemoteStatus } from '@vibes/models';
 import {
   classNames,
@@ -26,7 +27,6 @@ import {
   useState,
 } from 'react';
 import { Link, useFetcher, useNavigate } from 'react-router';
-import { useRemoteEvents } from '../../hooks/use-remote-events';
 import type { RemoteControlActionData } from '../../routes/remote-control/action';
 import type { RemoteControlLoaderData } from '../../routes/remote-control/clientLoader';
 import { useKonamiMode } from '../konami/KonamiModeContext';
