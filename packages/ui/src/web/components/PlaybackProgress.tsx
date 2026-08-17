@@ -36,12 +36,15 @@ export function PlaybackProgress({
   return (
     <div>
       <div className="relative flex h-5 items-center">
-        <progress
+        <div
           aria-hidden="true"
-          className="progress-bar h-1.5 w-full"
-          max={1}
-          value={progress}
-        />
+          className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/12"
+        >
+          <div
+            className="absolute inset-0 bg-[linear-gradient(90deg,#ff3fa4,#00d9ff)] shadow-[0_0_12px_rgba(255,63,164,0.6)]"
+            style={{ clipPath: `inset(0 ${100 - progress * 100}% 0 0)` }}
+          />
+        </div>
         {isInteractive && (
           <input
             aria-label="Playback position"

@@ -72,8 +72,8 @@ const VolumeControl = ({
         <div className="relative h-5 min-w-0 flex-1">
           <div className="absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full bg-theme-muted/20">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-secondary via-primary to-accent"
-              style={{ width: `${volume}%` }}
+              className="absolute inset-0 bg-gradient-to-r from-secondary via-primary to-accent"
+              style={{ clipPath: `inset(0 ${100 - volume}% 0 0)` }}
             />
           </div>
           <input
@@ -90,9 +90,6 @@ const VolumeControl = ({
           />
         </div>
       </div>
-      <span className="hidden w-7 text-right font-display text-2xs text-theme-muted tabular-nums sm:block">
-        {volume}
-      </span>
     </div>
   );
 };
@@ -216,7 +213,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Tooltip>
         </div>
 
-        <div className="min-w-24 flex-1 sm:hidden">
+        <div className="min-w-24 max-w-52 flex-1 sm:hidden">
           <VolumeControl
             className="w-full"
             volume={volume}
