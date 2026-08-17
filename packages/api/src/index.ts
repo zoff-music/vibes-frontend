@@ -380,6 +380,7 @@ const endpoints = {
     sse: {
       events: {
         remote_room_update: remoteEventSchema,
+        remote_state_update: remoteEventSchema,
       },
     },
   },

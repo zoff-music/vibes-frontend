@@ -35,7 +35,10 @@ import {
   useLoaderData,
   useParams,
   useRevalidator,
+  useRouteError,
 } from 'react-router';
+import { RemoteErrorView } from '../../components/RemoteErrorView';
+import { getPublicRouteErrorMessage } from '../../routeError';
 import { type ControllerActionData, clientAction } from './action';
 import { clientLoader } from './clientLoader';
 import { RoomSettingsModal } from './components/RoomSettingsModal';
@@ -45,6 +48,16 @@ import { loader } from './loader';
 import { shouldRevalidate } from './shouldRevalidate';
 
 export { clientAction, clientLoader, loader, shouldRevalidate };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  return (
+    <RemoteErrorView
+      message={getPublicRouteErrorMessage(error)}
+      title="Remote control unavailable"
+    />
+  );
+}
 
 export default function RemoteController() {
   const loaderData = useLoaderData<ControllerLoaderData>();

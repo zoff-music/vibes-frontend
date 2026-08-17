@@ -68,6 +68,15 @@ export function RoomSettingsModal({ fetcher, isOpen, onClose, room }: Props) {
           <Button type="submit" className="w-full" variant="secondary">
             Authenticate
           </Button>
+          {fetcher.data?.intent === 'joinAdmin' && fetcher.data.error && (
+            <p
+              aria-live="polite"
+              className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-error text-sm"
+              role="alert"
+            >
+              {fetcher.data.error}
+            </p>
+          )}
         </fetcher.Form>
       )}
 
