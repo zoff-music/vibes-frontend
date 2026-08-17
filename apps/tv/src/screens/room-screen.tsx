@@ -84,7 +84,9 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
             {!compact && currentSong?.thumbnailUrl && (
               <View className="h-14 w-14 overflow-hidden rounded-xl border border-tv-border bg-black">
                 <Image
+                  cachePolicy="memory-disk"
                   contentFit="cover"
+                  recyclingKey={currentSong.id}
                   source={currentSong.thumbnailUrl}
                   style={thumbnailImageStyle}
                 />
@@ -176,7 +178,9 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
                     </Text>
                     <View className="size-12 overflow-hidden rounded-lg border border-tv-border bg-black">
                       <Image
+                        cachePolicy="memory-disk"
                         contentFit="cover"
+                        recyclingKey={song.id}
                         source={song.thumbnailUrl}
                         style={thumbnailImageStyle}
                       />

@@ -104,16 +104,12 @@ function RootContent() {
           value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
         >
           <ToastProvider>
-            <Route routeId="_index">
-              <Route routeId="remotes.session">
-                <AppProvider>
-                  <StatusBar
-                    style={resolvedScheme === 'light' ? 'dark' : 'light'}
-                  />
-                  <RoomRuntime />
-                </AppProvider>
-              </Route>
-            </Route>
+            <AppProvider>
+              <StatusBar
+                style={resolvedScheme === 'light' ? 'dark' : 'light'}
+              />
+              <RoomRuntime />
+            </AppProvider>
           </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>

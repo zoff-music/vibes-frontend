@@ -12,7 +12,12 @@ import {
   TerminalFeedback,
   TerminalSection,
 } from '@vibes/ui/konami';
-import { ProviderIcon, QueueList, Tooltip } from '@vibes/ui/web';
+import {
+  ProviderIcon,
+  QueueList,
+  Tooltip,
+  useProgressiveList,
+} from '@vibes/ui/web';
 import React, { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
 
@@ -61,6 +66,12 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const currentSongData =
       usePlaybackStore((state) => state.currentSong) ||
       initialPlayback?.currentSong;
+    const queuedSongCount = displaySongs.reduce(
+      (count, song) => count + Number(song.id !== currentSongData?.id),
+      0,
+    );
+    const [terminalVisibleCount, terminalSentinelRef] =
+      useProgressiveList(queuedSongCount);
 
     /* 3. Handlers */
     const handleVote = React.useCallback(
@@ -121,6 +132,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       const queuedSongs = displaySongs.filter(
         (song) => song.id !== currentSongData?.id,
       );
+      const visibleQueuedSongs = queuedSongs.slice(0, terminalVisibleCount);
 
       return (
         <div className="space-y-4 lg:col-span-3 lg:min-h-0 lg:overflow-y-auto">
@@ -168,7 +180,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               {queuedSongs.length === 0 && (
                 <TerminalFeedback>END OF QUEUE.</TerminalFeedback>
               )}
-              {queuedSongs.map((song, index) => (
+              {visibleQueuedSongs.map((song, index) => (
                 <article
                   className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 border border-[#71f5ad]/20 bg-black/15 px-2.5 py-2.5 text-xs"
                   key={song.id}
@@ -207,6 +219,13 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   </div>
                 </article>
               ))}
+              {terminalVisibleCount < queuedSongs.length && (
+                <div
+                  aria-hidden="true"
+                  className="h-10"
+                  ref={terminalSentinelRef}
+                />
+              )}
             </div>
           </TerminalSection>
         </div>

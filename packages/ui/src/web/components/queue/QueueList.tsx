@@ -1,6 +1,7 @@
 import { type Song } from '@vibes/shared';
 import { AnimatePresence, motion } from 'framer-motion';
 import React from 'react';
+import { useProgressiveList } from '../../hooks/useProgressiveList';
 import { QueueEmptyIcon } from '../../icons';
 import { QueueItem } from './QueueItem';
 
@@ -21,6 +22,7 @@ const QueueListComponent: React.FC<Props> = ({
   isAdmin,
   votingSongId,
 }) => {
+  const [visibleCount, sentinelRef] = useProgressiveList(songs.length);
   if (songs.length === 0) {
     return (
       <div className="panel-surface animate-fade-in rounded-3xl px-4 py-20 text-center sm:px-12">
@@ -38,12 +40,12 @@ const QueueListComponent: React.FC<Props> = ({
     );
   }
 
-  const queueSongs = songs; // All songs are now in the queue (no position-based filtering)
+  const visibleSongs = songs.slice(0, visibleCount);
 
   return (
     <div className="space-y-2">
       <AnimatePresence initial={false} mode="popLayout">
-        {queueSongs.map((song, index) => (
+        {visibleSongs.map((song, index) => (
           <motion.div
             key={song.id}
             layout="position"
@@ -68,6 +70,9 @@ const QueueListComponent: React.FC<Props> = ({
           </motion.div>
         ))}
       </AnimatePresence>
+      {visibleCount < songs.length && (
+        <div aria-hidden="true" className="h-12" ref={sentinelRef} />
+      )}
     </div>
   );
 };

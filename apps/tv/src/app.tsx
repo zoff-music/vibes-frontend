@@ -1,72 +1,13 @@
-import {
-  PixelifySans_700Bold,
-  useFonts,
-} from '@expo-google-fonts/pixelify-sans';
 import { Route } from '@vibes/native-router';
-import { useEffect, useState } from 'react';
-import { BackHandler, StatusBar, View } from 'react-native';
 import { TvErrorBoundary } from '@/components/tv-error-boundary';
-import { TvHydrateFallback } from '@/components/tv-hydrate-fallback';
 import { AppRouterProvider } from '@/data-router/provider';
-import { useTvSession } from '@/hooks/use-tv-session';
-import { LandingScreen } from '@/screens/landing-screen';
-import { RoomScreen } from '@/screens/room-screen';
-import '@/global.css';
 
 export function App() {
   return (
     <TvErrorBoundary>
       <AppRouterProvider>
-        <Route routeId="_index">
-          <TvApp />
-        </Route>
+        <Route routeId="_index" />
       </AppRouterProvider>
     </TvErrorBoundary>
-  );
-}
-
-function TvApp() {
-  const [fontsLoaded] = useFonts({
-    'Pixelify Sans Bold': PixelifySans_700Bold,
-  });
-  const [session, sessionActions] = useTvSession();
-  const [isAIMode, setIsAIMode] = useState(false);
-
-  useEffect(() => {
-    if (!session.roomId) return;
-    const subscription = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        sessionActions.leaveRoom();
-        return true;
-      },
-    );
-    return () => subscription.remove();
-  }, [session.roomId, sessionActions.leaveRoom]);
-
-  if (!fontsLoaded || session.hydrating) return <TvHydrateFallback />;
-
-  let screen = (
-    <LandingScreen
-      isAIMode={isAIMode}
-      sessionActions={sessionActions}
-      session={session}
-      onToggleAIMode={() => setIsAIMode((current) => !current)}
-    />
-  );
-  if (session.room && session.roomId) {
-    screen = <RoomScreen session={session} sessionActions={sessionActions} />;
-  }
-
-  return (
-    <View className="flex-1 bg-tv-background">
-      <StatusBar hidden />
-      <View className="absolute inset-0 opacity-40">
-        <View className="absolute inset-x-0 bottom-0 h-1/3 bg-primary/10" />
-        <View className="absolute top-0 right-0 h-80 w-80 rounded-full bg-accent/5" />
-        <View className="absolute bottom-0 left-1/4 h-96 w-96 rounded-full bg-primary/10" />
-      </View>
-      {screen}
-    </View>
   );
 }

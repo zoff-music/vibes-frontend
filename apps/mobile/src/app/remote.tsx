@@ -1,25 +1,12 @@
-import { RemoteControl } from '@/components/remote-control';
-import { RemotePairing } from '@/components/remote-pairing';
-import { useControllerRemote } from '@/hooks/use-controller-remote';
-import { useRoomSession } from '@/providers/app-provider';
+import { Route } from '@vibes/native-router';
+import RemoteScreen from '@/routes/remote/component';
 
-export default function RemoteScreen() {
-  const { providers } = useRoomSession();
-  const [controller, controllerActions] = useControllerRemote();
+export { ErrorBoundary } from '@/routes/_index/components';
 
-  if (!controller.remote) {
-    return (
-      <RemotePairing
-        controller={controller}
-        controllerActions={controllerActions}
-      />
-    );
-  }
+export default function RemoteRoute() {
   return (
-    <RemoteControl
-      controller={controller}
-      controllerActions={controllerActions}
-      providers={providers}
-    />
+    <Route routeId="remote">
+      <RemoteScreen />
+    </Route>
   );
 }

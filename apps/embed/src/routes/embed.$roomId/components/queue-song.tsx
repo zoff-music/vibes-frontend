@@ -16,6 +16,8 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
         src={resolveSongThumbnail(song.thumbnailUrl)}
         alt=""
         className="h-11 w-11 shrink-0 rounded-lg object-cover"
+        decoding="async"
+        fetchPriority="low"
         loading="lazy"
       />
       <span className="min-w-0 flex-1 text-left">
