@@ -1,8 +1,12 @@
-import { type RoomSSEMessage, subscribeRoomEvents } from '@vibes/api';
-import type { Providers, Song } from '@vibes/models';
+import {
+  createApiClient,
+  type RoomSSEMessage,
+  subscribeRoomEvents,
+} from '@vibes/api';
+import type { Song } from '@vibes/models';
 import { synchronizeServerClock, usePlaybackStore } from '@vibes/shared';
 import { useEffect } from 'react';
-import { createCastApiClient, loadCastRoomSnapshot } from '../lib/castRequests';
+import type { CastRoomSnapshot } from '../routes/cast/loader';
 import type { QueueItem, RoomInfo } from '../types';
 import { normalizeSong } from '../utils/songUtils';
 
@@ -10,6 +14,8 @@ interface UseRoomSyncProps {
   roomId: string | null;
   casterId: string | null;
   castToken: string | null;
+  loadError: string | null;
+  snapshot: CastRoomSnapshot | null;
   setQueue: (queue: QueueItem[]) => void;
   setRoomInfo: React.Dispatch<React.SetStateAction<RoomInfo | null>>;
   setStatusText: (text: string) => void;
@@ -24,6 +30,8 @@ export function useRoomSync({
   roomId,
   casterId,
   castToken,
+  loadError,
+  snapshot,
   setQueue,
   setRoomInfo,
   setStatusText,
@@ -37,55 +45,61 @@ export function useRoomSync({
   const setIsPlaying = usePlaybackStore((state) => state.setIsPlaying);
 
   useEffect(() => {
+    if (loadError) {
+      setError(loadError);
+      setStatusText('Could not load the room. Waiting for updates…');
+      return;
+    }
+    if (!snapshot) return;
+
+    setError(
+      snapshot.spotifyTokenUnavailable
+        ? 'Connected, but Spotify could not be prepared.'
+        : null,
+    );
+    setRoomInfo({
+      name: snapshot.room.name,
+      participantCount: snapshot.room.userCount ?? 0,
+    });
+    setRoomMode(snapshot.room.mode);
+    setEnabledProviders(snapshot.providers);
+    setSpotifyToken(snapshot.spotifyAccessToken);
+    setQueue(snapshot.songs.map((song) => normalizeSong(song)));
+
+    if (!snapshot.playback.currentSong) return;
+    synchronizeServerClock(snapshot.playback.serverTimeMs);
+    const normalizedSong = normalizeSong(snapshot.playback.currentSong);
+    setPlaybackState({
+      ...snapshot.playback,
+      currentSong: normalizedSong,
+    });
+    setIsPlaying(snapshot.playback.isPlaying);
+    setStatusText(`Now Playing: ${normalizedSong.title}`);
+    updateMediaMetadata(normalizedSong);
+  }, [
+    loadError,
+    setEnabledProviders,
+    setError,
+    setIsPlaying,
+    setPlaybackState,
+    setQueue,
+    setRoomInfo,
+    setRoomMode,
+    setSpotifyToken,
+    setStatusText,
+    snapshot,
+    updateMediaMetadata,
+  ]);
+
+  useEffect(() => {
     if (!roomId || !castToken) return;
 
-    const api = createCastApiClient(castToken);
-
+    const api = createApiClient({ Authorization: `Bearer ${castToken}` });
+    const availableProviders = snapshot?.providers ?? [];
     let isMounted = true;
     let unsubscribe: (() => void) | null = null;
 
     const connect = async () => {
-      if (!roomId) return;
-
-      const [requestError, snapshot] = await loadCastRoomSnapshot(api, roomId);
-      if (!isMounted) return;
-      let availableProviders: Providers = [];
-      if (requestError || !snapshot) {
-        setError('Could not connect to this room. Reconnect and try again.');
-        setStatusText('Could not load the room. Waiting for updates…');
-      }
-      if (snapshot) {
-        availableProviders = snapshot.providers;
-        setError(
-          snapshot.spotifyTokenUnavailable
-            ? 'Connected, but Spotify could not be prepared.'
-            : null,
-        );
-        setRoomInfo({
-          name: snapshot.room.name,
-          participantCount: snapshot.room.userCount ?? 0,
-        });
-        setRoomMode(snapshot.room.mode);
-        setEnabledProviders(snapshot.providers);
-        setSpotifyToken(snapshot.spotifyAccessToken);
-        const normalizedSongs = snapshot.songs.map((song) =>
-          normalizeSong(song),
-        );
-        setQueue(normalizedSongs);
-
-        if (snapshot.playback.currentSong) {
-          synchronizeServerClock(snapshot.playback.serverTimeMs);
-          const normalizedSong = normalizeSong(snapshot.playback.currentSong);
-          setPlaybackState({
-            ...snapshot.playback,
-            currentSong: normalizedSong,
-          });
-          setIsPlaying(snapshot.playback.isPlaying);
-          setStatusText(`Now Playing: ${normalizedSong.title}`);
-          updateMediaMetadata(normalizedSong);
-        }
-      }
-
       const [err, stop] = await subscribeRoomEvents(
         api,
         roomId,
@@ -168,7 +182,7 @@ export function useRoomSync({
       }
     };
 
-    connect();
+    void connect();
 
     return () => {
       isMounted = false;
@@ -180,13 +194,12 @@ export function useRoomSync({
     setRoomInfo,
     setStatusText,
     setRoomMode,
-    setError,
     updateMediaMetadata,
     setPlaybackState,
     setIsPlaying,
     setEnabledProviders,
     casterId,
     castToken,
-    setSpotifyToken,
+    snapshot?.providers,
   ]);
 }

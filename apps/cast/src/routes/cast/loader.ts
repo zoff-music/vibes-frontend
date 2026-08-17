@@ -1,11 +1,12 @@
 import { type ApiClient, type ApiResult, createApiClient } from '@vibes/api';
-import type {
-  EmptyObject,
-  PlaybackState,
-  Providers,
-  Room,
-  Song,
-} from '@vibes/models';
+import type { PlaybackState, Providers, Room, Song } from '@vibes/models';
+import type { LoaderFunctionArgs } from 'react-router';
+
+export interface CastCredentials {
+  castToken: string | null;
+  casterId: string | null;
+  roomId: string | null;
+}
 
 export interface CastRoomSnapshot {
   playback: PlaybackState;
@@ -16,11 +17,25 @@ export interface CastRoomSnapshot {
   spotifyTokenUnavailable: boolean;
 }
 
-export function createCastApiClient(castToken: string): ApiClient {
-  return createApiClient({ Authorization: `Bearer ${castToken}` });
+export interface CastLoaderData {
+  credentials: CastCredentials;
+  error: string | null;
+  snapshot: CastRoomSnapshot | null;
 }
 
-export async function loadCastRoomSnapshot(
+function getCredentials(request: Request): CastCredentials {
+  const url = new URL(request.url);
+  return {
+    castToken: url.searchParams.get('castToken'),
+    casterId:
+      url.searchParams.get('casterId') ??
+      url.searchParams.get('casterUserId') ??
+      url.searchParams.get('sessionId'),
+    roomId: url.searchParams.get('roomId'),
+  };
+}
+
+async function loadSnapshot(
   client: ApiClient,
   roomId: string,
 ): ApiResult<CastRoomSnapshot> {
@@ -75,14 +90,28 @@ export async function loadCastRoomSnapshot(
   ];
 }
 
-export function reportCastPlaybackFailure(
-  client: ApiClient,
-  roomId: string,
-  songId: string,
-): ApiResult<EmptyObject> {
-  return client.post(
-    '/rooms/{id}/playbackfailures',
-    { id: roomId },
-    { songId },
+export async function loader({
+  request,
+}: LoaderFunctionArgs): Promise<CastLoaderData> {
+  const credentials = getCredentials(request);
+  if (!credentials.roomId || !credentials.castToken) {
+    return { credentials, error: null, snapshot: null };
+  }
+
+  const client = createApiClient({
+    Authorization: `Bearer ${credentials.castToken}`,
+  });
+  const [requestError, snapshot] = await loadSnapshot(
+    client,
+    credentials.roomId,
   );
+  if (requestError || !snapshot) {
+    return {
+      credentials,
+      error: 'Could not connect to this room. Reconnect and try again.',
+      snapshot: null,
+    };
+  }
+
+  return { credentials, error: null, snapshot };
 }

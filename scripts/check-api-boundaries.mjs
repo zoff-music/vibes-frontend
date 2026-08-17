@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 
-const reactRouterApps = ['admin', 'embed', 'platform', 'remote'];
+const reactRouterApps = ['admin', 'cast', 'embed', 'platform', 'remote'];
 const requestMethodPattern = '(?:delete|get|patch|post|put|roomExists)';
 const literalRequestCallPattern = new RegExp(
   `\\.[ \\t]*${requestMethodPattern}[ \\t]*\\([ \\t\\r\\n]*['"]\\/`,
@@ -60,7 +60,8 @@ function hasClientRequestCall(source) {
 
 const violations = [];
 for (const app of reactRouterApps) {
-  for (const file of listSourceFiles(`apps/${app}/src`)) {
+  const sourceDirectory = app === 'cast' ? `apps/${app}` : `apps/${app}/src`;
+  for (const file of listSourceFiles(sourceDirectory)) {
     const repositoryPath = relative('.', file);
     const source = readFileSync(file, 'utf8');
     if (requestCapabilityPattern.test(source)) {
