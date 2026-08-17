@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunctionArgs,
@@ -9,14 +9,16 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
 } from 'react-router';
 import { App } from './App';
+import { RemoteErrorView } from './components/RemoteErrorView';
 import stylesUrl from './index.css?url';
+import { getPublicRouteErrorMessage } from './routeError';
 import { getThemeClass } from './theme.server';
 
 export function loader({ request }: LoaderFunctionArgs) {
   return {
-    cspNonce: undefined as string | undefined,
     themeClass: getThemeClass(request.headers.get('cookie')),
   };
 }
@@ -32,7 +34,6 @@ export function shouldRevalidate({
 
 export function Layout({ children }: { children: ReactNode }) {
   const loaderData = useLoaderData<typeof loader>();
-  const [cspNonce] = useState(() => loaderData?.cspNonce);
 
   return (
     <html lang="en" className={loaderData?.themeClass}>
@@ -46,10 +47,20 @@ export function Layout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <div id="root">{children}</div>
-        <ScrollRestoration nonce={cspNonce} />
-        <Scripts nonce={cspNonce} />
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  return (
+    <RemoteErrorView
+      message={getPublicRouteErrorMessage(error)}
+      title="Remote unavailable"
+    />
   );
 }
 

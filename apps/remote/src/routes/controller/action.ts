@@ -1,8 +1,4 @@
-import {
-  createApiClient,
-  getAPIErrorMessage,
-  getRateLimitMessage,
-} from '@vibes/api';
+import { createApiClient, getRequestErrorMessage } from '@vibes/api';
 import type {
   PlaybackState,
   Room,
@@ -188,12 +184,21 @@ export async function clientAction({
 }
 
 async function errorResult(intent: string, error: Error | null) {
-  if (!error) return { intent };
   return {
-    error:
-      getRateLimitMessage(error) ??
-      (await getAPIErrorMessage(error)) ??
-      error.message,
+    error: await getRequestErrorMessage(error, getActionErrorFallback(intent)),
     intent,
   } satisfies ControllerActionData;
+}
+
+function getActionErrorFallback(intent: string) {
+  if (intent === 'joinAdmin') {
+    return 'Could not authenticate with that password.';
+  }
+  if (intent === 'search') {
+    return 'Could not search right now. Please try again.';
+  }
+  if (intent === 'addSong') {
+    return 'Could not add that song. Please try again.';
+  }
+  return 'Could not complete that remote action. Please try again.';
 }

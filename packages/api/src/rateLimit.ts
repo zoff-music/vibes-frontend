@@ -54,7 +54,12 @@ export async function getAPIErrorMessage(error: Error) {
     return null;
   }
 
-  const [bodyError, body] = await safeWrapAsync(response.clone().json());
+  const [cloneError, clonedResponse] = safeWrap(() => response.clone());
+  if (cloneError || !clonedResponse) {
+    return null;
+  }
+
+  const [bodyError, body] = await safeWrapAsync(clonedResponse.json());
   if (bodyError || !body) {
     return null;
   }
