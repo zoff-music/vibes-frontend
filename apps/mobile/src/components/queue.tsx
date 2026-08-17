@@ -1,7 +1,7 @@
 import type { Song } from '@vibes/models';
 import { getProviderTrackUrl, safeWrapAsync } from '@vibes/shared';
 import { Image } from 'expo-image';
-import type { ReactElement } from 'react';
+import { memo, type ReactElement, useCallback } from 'react';
 import type { ListRenderItemInfo } from 'react-native';
 import { FlatList, Linking, Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -23,17 +23,19 @@ interface QueueProps {
   songs: Song[];
 }
 
-function QueueItem({
+interface QueueItemProps {
+  index: number;
+  onDelete?: (song: Song) => void;
+  onVote: (song: Song) => void;
+  song: Song;
+}
+
+const QueueItem = memo(function QueueItem({
   index,
   onDelete,
   onVote,
   song,
-}: {
-  index: number;
-  onDelete?: () => void;
-  onVote: () => void;
-  song: Song;
-}) {
+}: QueueItemProps) {
   const theme = useAppTheme();
   const providerUrl = getProviderTrackUrl(
     song.sourceType,
@@ -48,14 +50,16 @@ function QueueItem({
     <Pressable
       accessibilityLabel={`Vote for ${song.title}`}
       className="min-h-18 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
-      onPress={onVote}
+      onPress={() => onVote(song)}
     >
       <Text className="w-5 text-center font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
         {index + 1}
       </Text>
       <View className="size-13 overflow-hidden rounded-xl bg-black">
         <Image
+          cachePolicy="memory-disk"
           contentFit="cover"
+          recyclingKey={song.id}
           source={song.thumbnailUrl}
           style={thumbnailImageStyle}
         />
@@ -99,7 +103,7 @@ function QueueItem({
               className="w-20 items-center justify-center rounded-2xl border-2 border-error bg-error active:opacity-70"
               onPress={() => {
                 swipeable.close();
-                onDelete();
+                onDelete(song);
               }}
             >
               <ZoffIcon color="#ffffff" name="trash" size={20} />
@@ -127,7 +131,7 @@ function QueueItem({
       {row}
     </ReanimatedSwipeable>
   );
-}
+});
 
 export function Queue({
   contained,
@@ -137,19 +141,22 @@ export function Queue({
   onVote,
   songs,
 }: QueueProps) {
-  const renderSong = ({ item, index }: ListRenderItemInfo<Song>) => (
-    <Animated.View
-      className="px-4"
-      entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
-      layout={LinearTransition.duration(180)}
-    >
-      <QueueItem
-        index={index}
-        onVote={() => onVote(item)}
-        song={item}
-        {...(onDelete ? { onDelete: () => onDelete(item) } : {})}
-      />
-    </Animated.View>
+  const renderSong = useCallback(
+    ({ item, index }: ListRenderItemInfo<Song>) => (
+      <Animated.View
+        className="px-4"
+        entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
+        layout={LinearTransition.duration(180)}
+      >
+        <QueueItem
+          index={index}
+          onVote={onVote}
+          song={item}
+          {...(onDelete ? { onDelete } : {})}
+        />
+      </Animated.View>
+    ),
+    [onDelete, onVote],
   );
 
   let listHeader: ReactElement | null = null;
@@ -183,6 +190,7 @@ export function Queue({
       maxToRenderPerBatch={8}
       renderItem={renderSong}
       ItemSeparatorComponent={QueueSeparator}
+      updateCellsBatchingPeriod={32}
       windowSize={5}
     />
   );

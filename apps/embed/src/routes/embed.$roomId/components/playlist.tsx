@@ -1,4 +1,5 @@
 import type { Song } from '@vibes/models';
+import { useProgressiveList } from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
 import { EmbedQueueSong } from './queue-song';
 
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
+  const [visibleCount, sentinelRef] = useProgressiveList(songs.length);
+  const visibleSongs = songs.slice(0, visibleCount);
   return (
     <div className="min-h-0 min-w-0 overflow-y-auto pr-1">
       <div className="mb-3 flex items-center justify-between">
@@ -21,7 +24,7 @@ export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
       </div>
       <div className="space-y-2">
         <AnimatePresence initial={false} mode="popLayout">
-          {songs.map((song) => (
+          {visibleSongs.map((song) => (
             <motion.div
               key={song.id}
               layout="position"
@@ -48,6 +51,9 @@ export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
             </motion.div>
           ))}
         </AnimatePresence>
+        {visibleCount < songs.length && (
+          <div aria-hidden="true" className="h-10" ref={sentinelRef} />
+        )}
         {songs.length === 0 && (
           <div className="rounded-xl border border-theme bg-theme-surface p-6 text-center text-theme-muted text-xs">
             The queue is empty

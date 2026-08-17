@@ -1,5 +1,5 @@
+// Resource route submitted by rendered room routes.
 export { action } from './action';
-export { loader } from './loader';
 
 export function shouldRevalidate() {
   return false;

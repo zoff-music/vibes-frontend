@@ -16,5 +16,6 @@ export * from './components/Toggle';
 export * from './components/Tooltip';
 export * from './graphs/ListenerUsageChart';
 export * from './graphs/SearchUsageChart';
+export * from './hooks/useProgressiveList';
 export * from './icons';
 export * from './player';

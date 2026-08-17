@@ -1,25 +1,12 @@
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { Route } from '@vibes/native-router';
+import AddSongScreen from '@/routes/add/component';
 
-import { AddSongSheet } from '@/components/add-song-sheet';
-import { useRoomSession } from '@/providers/app-provider';
+export { ErrorBoundary } from '@/routes/_index/components';
 
-export default function AddSongScreen() {
-  const { controllerRemote } = useRoomSession();
-  const router = useRouter();
-  const [visible, setVisible] = useState(false);
-
-  useFocusEffect(
-    useCallback(() => {
-      setVisible(true);
-      return () => setVisible(false);
-    }, []),
+export default function AddRoute() {
+  return (
+    <Route routeId="add">
+      <AddSongScreen />
+    </Route>
   );
-
-  const close = () => {
-    setVisible(false);
-    router.replace(controllerRemote ? '/remote' : '/');
-  };
-
-  return <AddSongSheet visible={visible} onClose={close} />;
 }

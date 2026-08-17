@@ -20,7 +20,7 @@ interface Props {
   isVoting?: boolean;
 }
 
-export const QueueItem: React.FC<Props> = ({
+const QueueItemComponent: React.FC<Props> = ({
   song,
   position,
   onRemove,
@@ -54,6 +54,8 @@ export const QueueItem: React.FC<Props> = ({
         src={resolveSongThumbnail(song.thumbnailUrl)}
         alt=""
         className="h-12 w-12 shrink-0 rounded-xl border border-theme bg-theme-surface object-cover sm:h-14 sm:w-14"
+        decoding="async"
+        fetchPriority="low"
         loading="lazy"
       />
 
@@ -152,3 +154,5 @@ export const QueueItem: React.FC<Props> = ({
     </article>
   );
 };
+
+export const QueueItem = React.memo(QueueItemComponent);

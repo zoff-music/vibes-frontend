@@ -137,6 +137,8 @@ export function TizenRoom({
                     <img
                       alt=""
                       className="size-16 shrink-0 rounded-xl border border-tv-border object-cover"
+                      decoding="async"
+                      loading="lazy"
                       src={song.thumbnailUrl}
                     />
                     <div className="min-w-0 flex-1">
