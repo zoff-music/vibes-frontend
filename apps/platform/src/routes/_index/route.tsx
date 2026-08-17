@@ -92,7 +92,7 @@ export default function Home() {
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const { toggleDarkMode } = useThemeStore();
+  const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
   const { themeId, currentTheme } = useThemeDisplay();
   const previousPath = getPreviousPath();
   const konamiEnabled = useKonamiMode();

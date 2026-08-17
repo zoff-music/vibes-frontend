@@ -15,7 +15,6 @@ import { useEffect, useRef } from 'react';
 import type { ApiClient } from '../index';
 import { api } from '../index';
 import { subscribeRoomEvents } from '../roomEvents';
-import { useRoomRequests } from './useRoomRequests';
 
 const ACTIVE_CONNECTIONS = new Map<
   string,
@@ -48,6 +47,7 @@ function scheduleConnectionCleanup(roomId: string): void {
 export interface USE_SSE_CALLBACKS {
   onGenerationUpdate?: (update: RoomGenerationUpdate) => void;
   onPlaybackUpdate?: (playback: PlaybackState) => void;
+  onReconnect?: () => void;
   onRoomUpdate?: (room: Room) => void;
   onSongAdded?: (song: Song) => void;
   onSongsUpdate?: (songs: Song[]) => void;
@@ -66,8 +66,12 @@ export const useSSE = (
   const addSong = useQueueStore((state) => state.addSong);
   const setSongs = useQueueStore((state) => state.setSongs);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
-  const roomRequests = useRoomRequests(client);
+  const callbacksRef = useRef(callbacks);
   const isSubscribedRef = useRef(false);
+
+  useEffect(() => {
+    callbacksRef.current = callbacks;
+  }, [callbacks]);
 
   useEffect(() => {
     if (!roomId || !callbacks) {
@@ -87,48 +91,24 @@ export const useSSE = (
   }, [callbacks, roomId]);
 
   useEffect(() => {
-    if (!roomId) return;
-    let isMounted = true;
-
-    const syncRoomSnapshot = async () => {
-      const [error, snapshot] = await roomRequests.fetchSnapshot(roomId);
-      if (!isMounted) return;
-      if (error || !snapshot) {
-        console.error('Failed to refresh room snapshot', error);
-        return;
-      }
-
-      setRoom(snapshot.room);
-      setSongs(snapshot.songs);
-      synchronizeServerClock(snapshot.playback.serverTimeMs);
-      setPlaybackState(snapshot.playback, snapshot.room.mode);
-    };
-
+    if (!roomId || typeof document === 'undefined') return;
     const handleResume = () => {
-      if (
-        typeof document !== 'undefined' &&
-        document.visibilityState !== 'visible'
-      ) {
+      if (document.visibilityState !== 'visible') {
         return;
       }
-      void syncRoomSnapshot();
+      callbacksRef.current?.onReconnect?.();
     };
 
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', handleResume);
-      window.addEventListener('online', handleResume);
-      window.addEventListener('pageshow', handleResume);
-    }
+    document.addEventListener('visibilitychange', handleResume);
+    window.addEventListener('online', handleResume);
+    window.addEventListener('pageshow', handleResume);
 
     return () => {
-      isMounted = false;
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('visibilitychange', handleResume);
-        window.removeEventListener('online', handleResume);
-        window.removeEventListener('pageshow', handleResume);
-      }
+      document.removeEventListener('visibilitychange', handleResume);
+      window.removeEventListener('online', handleResume);
+      window.removeEventListener('pageshow', handleResume);
     };
-  }, [roomId, roomRequests, setPlaybackState, setRoom, setSongs]);
+  }, [roomId]);
 
   useEffect(() => {
     if (!roomId) return;

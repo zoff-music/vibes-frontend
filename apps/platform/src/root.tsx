@@ -1,6 +1,10 @@
 import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
 import { type ReactNode, useState } from 'react';
-import type { LoaderFunctionArgs, MetaFunction } from 'react-router';
+import type {
+  LoaderFunctionArgs,
+  MetaFunction,
+  ShouldRevalidateFunctionArgs,
+} from 'react-router';
 import {
   Links,
   Meta,
@@ -32,6 +36,15 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
   const cspNonce = (context as RootContext | undefined)?.cspNonce;
   return { theme, embedBasePath, cspNonce, konamiEnabled };
+}
+
+export function shouldRevalidate({
+  currentUrl,
+  defaultShouldRevalidate,
+  nextUrl,
+}: ShouldRevalidateFunctionArgs) {
+  if (currentUrl.pathname === nextUrl.pathname) return false;
+  return defaultShouldRevalidate;
 }
 
 export type RootLoaderData = Awaited<ReturnType<typeof loader>>;

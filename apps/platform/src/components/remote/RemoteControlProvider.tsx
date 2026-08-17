@@ -24,7 +24,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Link, useFetcher, useNavigate } from 'react-router';
@@ -50,18 +49,11 @@ export function RemoteControlProvider({ children }: Props) {
   const terminalMode = useKonamiMode();
   const statusFetcher = useFetcher<RemoteControlLoaderData>();
   const controlFetcher = useFetcher<RemoteControlActionData>();
-  const heartbeatFetcher = useFetcher<RemoteControlActionData>();
-  const heartbeatFormRef = useRef<HTMLFormElement>(null);
-  const heartbeatSubmitRef = useRef(heartbeatFetcher.submit);
   const [isOpen, setIsOpen] = useState(false);
   const [machineRoomId, setMachineRoomId] = useState('');
   const currentSongId = usePlaybackStore(
     (state) => state.currentSong?.id ?? '',
   );
-  const playbackPositionMs = usePlaybackStore(
-    (state) => state.actualPositionMs,
-  );
-  const playbackIsPlaying = usePlaybackStore((state) => state.isPlaying);
   const roomMode = useRoomStore((state) => state.room?.mode);
   const setLocalPlaybackPosition = usePlaybackStore(
     (state) => state.setLocalPlaybackPosition,
@@ -83,28 +75,16 @@ export function RemoteControlProvider({ children }: Props) {
   const [pairing, setPairing] = useState<RemotePairing | null>(null);
 
   useEffect(() => {
-    statusFetcher.load('/remote-control');
-  }, [statusFetcher.load]);
-
-  useEffect(() => {
-    if (statusFetcher.data?.remote) {
-      setRemote(statusFetcher.data.remote);
-      if (statusFetcher.data.remote.paired && pairing) {
+    const nextRemote = statusFetcher.data?.remote;
+    if (nextRemote) {
+      setRemote(nextRemote);
+      if (nextRemote.paired && pairing) {
         setPairing(null);
         showToast('Remote paired successfully', 'success');
       }
+      statusFetcher.reset();
     }
-  }, [pairing, statusFetcher.data]);
-
-  useEffect(() => {
-    if (!isOpen || !pairing) return;
-
-    const interval = window.setInterval(() => {
-      statusFetcher.load('/remote-control');
-    }, remotePairingStatusIntervalMs);
-
-    return () => window.clearInterval(interval);
-  }, [isOpen, pairing, statusFetcher.load]);
+  }, [pairing, statusFetcher.data, statusFetcher.reset]);
 
   useEffect(() => {
     if (controlFetcher.state !== 'idle' || !controlFetcher.data) return;
@@ -160,6 +140,24 @@ export function RemoteControlProvider({ children }: Props) {
 
   const handleRemoteStateUpdate = useCallback(
     (event: RemoteEvent) => {
+      setRemote((current) => ({
+        ...current,
+        currentRoomId: event.roomId,
+        currentSongId: event.currentSongId,
+        online: event.online,
+        paired: event.paired,
+        playbackIsPlaying: event.playbackIsPlaying,
+        playbackObservedAt: event.playbackObservedAt,
+        playbackPositionMs: event.playbackPositionMs,
+      }));
+      if (event.paired) {
+        setPairing((current) => {
+          if (current) {
+            showToast('Remote paired successfully', 'success');
+          }
+          return null;
+        });
+      }
       if (
         event.origin !== 'controller' ||
         event.roomId !== machineRoomId ||
@@ -187,32 +185,22 @@ export function RemoteControlProvider({ children }: Props) {
     onStateUpdate: handleRemoteStateUpdate,
   });
 
-  useEffect(() => {
-    heartbeatSubmitRef.current = heartbeatFetcher.submit;
-  }, [heartbeatFetcher.submit]);
+  const openRemoteControl = useCallback(() => {
+    setIsOpen(true);
+    statusFetcher.load('/remote-control');
+  }, [statusFetcher.load]);
 
-  useEffect(() => {
-    if (!remote.enabled || !heartbeatFormRef.current) return;
-
-    const submitHeartbeat = () => {
-      if (!heartbeatFormRef.current) return;
-      heartbeatSubmitRef.current(heartbeatFormRef.current);
-    };
-    submitHeartbeat();
-    const interval = window.setInterval(
-      submitHeartbeat,
-      remoteHeartbeatIntervalMs,
-    );
-
-    return () => window.clearInterval(interval);
-  }, [machineRoomId, remote.enabled, remote.id]);
+  const closeRemoteControl = useCallback(() => {
+    setIsOpen(false);
+    statusFetcher.reset({ reason: 'Remote control modal closed' });
+  }, [statusFetcher.reset]);
 
   const value = useMemo(
     () => ({
-      openRemoteControl: () => setIsOpen(true),
+      openRemoteControl,
       setMachineRoomId,
     }),
-    [],
+    [openRemoteControl],
   );
 
   const pairingUrl = pairing
@@ -223,34 +211,12 @@ export function RemoteControlProvider({ children }: Props) {
     <RemoteControlContext.Provider value={value}>
       {children}
 
-      <heartbeatFetcher.Form
-        ref={heartbeatFormRef}
-        action="/remote-control"
-        method="post"
-        className="hidden"
-      >
-        <input type="hidden" name="intent" value="heartbeat" />
-        <input type="hidden" name="remoteId" value={remote.id} />
-        <input type="hidden" name="roomId" value={machineRoomId} />
-        <input type="hidden" name="currentSongId" value={currentSongId} />
-        <input
-          type="hidden"
-          name="playbackPositionMs"
-          value={Math.round(playbackPositionMs)}
-        />
-        <input
-          type="hidden"
-          name="playbackIsPlaying"
-          value={String(playbackIsPlaying)}
-        />
-      </heartbeatFetcher.Form>
-
       {terminalMode && (
         <TerminalModal
           ariaLabelledBy="remote-control-title"
           className="!max-w-xl"
           isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
+          onClose={closeRemoteControl}
           size="sm"
           title="REMOTE LINK DAEMON"
         >
@@ -341,7 +307,7 @@ export function RemoteControlProvider({ children }: Props) {
         <Modal
           ariaLabelledBy="remote-control-title"
           isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
+          onClose={closeRemoteControl}
           size="sm"
         >
           <div className="mb-6 flex items-start justify-between gap-4">
@@ -359,7 +325,7 @@ export function RemoteControlProvider({ children }: Props) {
             </div>
             <Button
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={closeRemoteControl}
               variant="ghost"
               size="icon"
               aria-label="Close remote control"
@@ -541,9 +507,5 @@ export function RemoteControlButton({
     </Tooltip>
   );
 }
-
-const remoteHeartbeatIntervalMs = 2_000;
-
-const remotePairingStatusIntervalMs = 1_500;
 
 const platformLogoUrl = `${import.meta.env.BASE_URL}logo.png`;

@@ -1,5 +1,10 @@
 import type { RemoteRequests } from '@vibes/api';
-import type { PlaybackState, RemotePairing, RemoteStatus } from '@vibes/models';
+import type {
+  PlaybackState,
+  RemoteEvent,
+  RemotePairing,
+  RemoteStatus,
+} from '@vibes/models';
 import { getClientReferenceTimeMs } from '@vibes/shared';
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useState } from 'react';
@@ -14,6 +19,7 @@ interface UseMachineRemoteOptions {
 }
 
 interface MachineRemoteState {
+  applyMachineRemoteEvent: (event: RemoteEvent) => void;
   disableMachineRemote: () => Promise<void>;
   enableMachineRemote: () => Promise<void>;
   machinePairing: RemotePairing | null;
@@ -31,6 +37,23 @@ export function useMachineRemote({
     null,
   );
   const [machineRemote, setMachineRemote] = useState<RemoteStatus | null>(null);
+
+  const applyMachineRemoteEvent = useCallback((event: RemoteEvent) => {
+    setMachineRemote((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        currentRoomId: event.roomId,
+        currentSongId: event.currentSongId,
+        online: event.online,
+        paired: event.paired,
+        playbackIsPlaying: event.playbackIsPlaying,
+        playbackObservedAt: event.playbackObservedAt,
+        playbackPositionMs: event.playbackPositionMs,
+      };
+    });
+    if (event.paired) setMachinePairing(null);
+  }, []);
 
   const refreshMachineRemote = useCallback(async () => {
     const [requestError, nextRemote] = await remoteRequests.fetchOwnedRemote();
@@ -100,50 +123,8 @@ export function useMachineRemote({
     void refreshMachineRemote();
   }, [refreshMachineRemote]);
 
-  useEffect(() => {
-    if (!machineRemote?.enabled) return;
-    const heartbeat = async () => {
-      const playback = playbackRef.current;
-      const [requestError] = await remoteRequests.updateRemote(
-        machineRemote.id,
-        {
-          currentSongId: playback?.currentSong?.id ?? '',
-          playbackIsPlaying: playback?.isPlaying ?? false,
-          playbackPositionMs: getObservedPosition(playback),
-          roomId,
-        },
-      );
-      if (requestError) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'The remote control connection was interrupted. Reconnect the remote and try again.',
-          ),
-        );
-      }
-    };
-    void heartbeat();
-    const interval = setInterval(() => void heartbeat(), remoteHeartbeatMs);
-    return () => clearInterval(interval);
-  }, [
-    machineRemote?.enabled,
-    machineRemote?.id,
-    playbackRef,
-    remoteRequests,
-    roomId,
-    setError,
-  ]);
-
-  useEffect(() => {
-    if (!machinePairing) return;
-    const interval = setInterval(
-      () => void refreshMachineRemote(),
-      remotePairingStatusMs,
-    );
-    return () => clearInterval(interval);
-  }, [machinePairing, refreshMachineRemote]);
-
   return {
+    applyMachineRemoteEvent,
     disableMachineRemote,
     enableMachineRemote,
     machinePairing,
@@ -160,6 +141,3 @@ export function getObservedPosition(playback: PlaybackState | null) {
   const duration = (playback.currentSong?.duration ?? 0) * 1_000;
   return Math.min(playback.positionMs + elapsed, duration || Number.MAX_VALUE);
 }
-
-const remoteHeartbeatMs = 5_000;
-const remotePairingStatusMs = 2_000;

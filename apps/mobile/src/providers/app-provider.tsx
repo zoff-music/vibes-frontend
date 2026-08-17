@@ -127,6 +127,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   const pendingGeneratedRoomRef = useRef('');
   const authenticatedRoomIdsRef = useRef(new Set<string>());
   const {
+    applyMachineRemoteEvent,
     disableMachineRemote,
     enableMachineRemote,
     machinePairing,
@@ -494,6 +495,7 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   const handleRemoteStateUpdate = useCallback(
     (event: RemoteEvent) => {
+      applyMachineRemoteEvent(event);
       if (
         event.origin !== 'controller' ||
         event.roomId !== roomId ||
@@ -509,7 +511,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         isCurrentSong ? event.playbackPositionMs : undefined,
       );
     },
-    [room?.mode, roomId, setLocalPlaying],
+    [applyMachineRemoteEvent, room?.mode, roomId, setLocalPlaying],
   );
 
   const handleUsersUpdate = useCallback((count: number) => {

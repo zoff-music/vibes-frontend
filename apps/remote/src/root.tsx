@@ -1,5 +1,8 @@
 import { type ReactNode, useState } from 'react';
-import type { LoaderFunctionArgs } from 'react-router';
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunctionArgs,
+} from 'react-router';
 import {
   Links,
   Meta,
@@ -16,6 +19,15 @@ export function loader({ request }: LoaderFunctionArgs) {
     cspNonce: undefined as string | undefined,
     themeClass: getThemeClass(request.headers.get('cookie')),
   };
+}
+
+export function shouldRevalidate({
+  currentUrl,
+  defaultShouldRevalidate,
+  nextUrl,
+}: ShouldRevalidateFunctionArgs) {
+  if (currentUrl.pathname === nextUrl.pathname) return false;
+  return defaultShouldRevalidate;
 }
 
 export function Layout({ children }: { children: ReactNode }) {

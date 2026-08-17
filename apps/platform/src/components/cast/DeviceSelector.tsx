@@ -34,17 +34,17 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
   onClose,
   terminalMode = false,
 }) => {
-  const {
-    isInitialized,
-    availableDevices,
-    currentSession,
-    isConnected,
-    initialize,
-    connectToDevice,
-    disconnectFromDevice,
-    discoverDevices,
-    castCurrentSong,
-  } = useCastStore();
+  const isInitialized = useCastStore((state) => state.isInitialized);
+  const availableDevices = useCastStore((state) => state.availableDevices);
+  const currentSession = useCastStore((state) => state.currentSession);
+  const isConnected = useCastStore((state) => state.isConnected);
+  const initialize = useCastStore((state) => state.initialize);
+  const connectToDevice = useCastStore((state) => state.connectToDevice);
+  const disconnectFromDevice = useCastStore(
+    (state) => state.disconnectFromDevice,
+  );
+  const discoverDevices = useCastStore((state) => state.discoverDevices);
+  const castCurrentSong = useCastStore((state) => state.castCurrentSong);
 
   const currentSong = usePlaybackStore((state) => state.currentSong);
 

@@ -8,18 +8,18 @@ interface CastButtonProps {
 }
 
 export const CastButton: React.FC<CastButtonProps> = ({ onDeviceSelect }) => {
-  const {
-    isInitialized,
-    availableDevices,
-    isConnected,
-    currentSession,
-    initialize,
-    discoverDevices,
-    connectToDevice,
-    disconnectFromDevice,
-    lastError,
-    clearError,
-  } = useCastStore();
+  const isInitialized = useCastStore((state) => state.isInitialized);
+  const availableDevices = useCastStore((state) => state.availableDevices);
+  const isConnected = useCastStore((state) => state.isConnected);
+  const currentSession = useCastStore((state) => state.currentSession);
+  const initialize = useCastStore((state) => state.initialize);
+  const discoverDevices = useCastStore((state) => state.discoverDevices);
+  const connectToDevice = useCastStore((state) => state.connectToDevice);
+  const disconnectFromDevice = useCastStore(
+    (state) => state.disconnectFromDevice,
+  );
+  const lastError = useCastStore((state) => state.lastError);
+  const clearError = useCastStore((state) => state.clearError);
 
   useEffect(() => {
     if (!isInitialized) {

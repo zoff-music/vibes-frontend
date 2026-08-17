@@ -6,7 +6,8 @@ import { useHydrated } from './useHydrated';
 export function useThemeDisplay() {
   const hydrated = useHydrated();
   const rootData = useRouteLoaderData('root') as RootLoaderData | undefined;
-  const { themeId, currentTheme } = useThemeStore();
+  const themeId = useThemeStore((state) => state.themeId);
+  const currentTheme = useThemeStore((state) => state.currentTheme);
 
   if (!hydrated) {
     const ssrThemeId = rootData?.theme ?? 'auto';

@@ -160,7 +160,7 @@ export default function Room() {
   const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
   const settingsMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const { toggleDarkMode } = useThemeStore();
+  const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
   const room = useRoomStore((state) => state.room);
   const isAdmin = useRoomStore((state) => state.isAdmin);
   const setRoom = useRoomStore((state) => state.setRoom);
@@ -222,9 +222,9 @@ export default function Room() {
   const isPartyScreen = searchParams.get('view') === 'party';
 
   useEffect(() => {
-    setMachineRoomId(id);
+    setMachineRoomId(loaderData.room.id);
     return () => setMachineRoomId('');
-  }, [id, setMachineRoomId]);
+  }, [loaderData.room.id, setMachineRoomId]);
 
   useEffect(() => {
     if (isCastInitialized) return;
@@ -232,28 +232,27 @@ export default function Room() {
     void initializeCast();
   }, [initializeCast, isCastInitialized]);
 
-  const handleGenerationUpdate = useCallback(
-    (update: RoomGenerationUpdate) => {
-      if (update.status === 'generating') {
-        setIsGenerating(true);
-        return;
-      }
+  const handleGenerationUpdate = useCallback((update: RoomGenerationUpdate) => {
+    if (update.status === 'generating') {
+      setIsGenerating(true);
+      return;
+    }
 
-      setIsGenerating(false);
-      setIsGenerationProgressVisible(false);
-      void revalidate();
-      if (update.status === 'failed') {
-        setGenerationError(
-          update.error ?? 'Could not finish generating this playlist.',
-        );
-      }
-    },
-    [revalidate],
-  );
+    setIsGenerating(false);
+    setIsGenerationProgressVisible(false);
+    if (update.status === 'failed') {
+      setGenerationError(
+        update.error ?? 'Could not finish generating this playlist.',
+      );
+    }
+  }, []);
 
   const sseCallbacks = useMemo(
-    () => ({ onGenerationUpdate: handleGenerationUpdate }),
-    [handleGenerationUpdate],
+    () => ({
+      onGenerationUpdate: handleGenerationUpdate,
+      onReconnect: revalidate,
+    }),
+    [handleGenerationUpdate, revalidate],
   );
   useSSE(id, sseCallbacks);
 
