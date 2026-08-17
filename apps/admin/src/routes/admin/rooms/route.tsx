@@ -1,3 +1,4 @@
+import { useAdminEvents } from '@vibes/api';
 import type { AdminRoomResult, AdminRoomSummary } from '@vibes/models';
 import { showRateLimitMessageToast } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
@@ -16,7 +17,6 @@ import {
   useNavigation,
   useRevalidator,
 } from 'react-router';
-import { useAdminEvents } from '../../../hooks/use-admin-events';
 import { AdminRoomFilters } from '../components/AdminRoomFilters';
 import type { AdminRoomsActionData } from './action';
 import { action } from './action';

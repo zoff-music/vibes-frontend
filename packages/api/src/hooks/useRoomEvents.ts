@@ -1,10 +1,6 @@
-import {
-  type ApiClient,
-  api,
-  type RoomEventCallbacks,
-  subscribeRoomUpdates,
-} from '@vibes/api';
 import { useEffect, useRef } from 'react';
+import { type ApiClient, api } from '../index';
+import { type RoomEventCallbacks, subscribeRoomUpdates } from '../roomEvents';
 
 export function useRoomEvents(
   roomId: string | undefined,
@@ -15,6 +11,7 @@ export function useRoomEvents(
   useEffect(() => {
     callbacksRef.current = callbacks;
   }, [callbacks]);
+
   useEffect(() => {
     if (!roomId) return;
     let active = true;

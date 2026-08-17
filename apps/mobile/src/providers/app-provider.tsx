@@ -4,6 +4,8 @@ import {
   createRoomPlaybackRequests,
   createRoomReadRequests,
   getHttpError,
+  useRemoteEvents,
+  useRoomEvents,
 } from '@vibes/api';
 import type {
   PlaybackState,
@@ -37,8 +39,6 @@ import {
 } from '@/hooks/use-machine-remote';
 import { usePlayerPreference } from '@/hooks/use-player-preference';
 import { useProviders } from '@/hooks/use-providers';
-import { useRemoteEvents } from '@/hooks/use-remote-events';
-import { useRoomEvents } from '@/hooks/use-room-events';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 import {
