@@ -1,6 +1,6 @@
 # Vibes Cast Receiver
 
-The standalone Chromecast Receiver application for the Vibes ecosystem. It handles synchronized playback of multiple music providers on Google Cast devices with server-side rendering for optimal performance.
+The standalone Chromecast Receiver application for the Vibes ecosystem. It handles synchronized playback of multiple music providers on Google Cast devices.
 
 ## Visual preview
 
@@ -26,14 +26,9 @@ The cast app uses Vite for local development and production builds.
 - **Node.js Runtime**: Served through Vite preview in the production container
 - **Environment Variables**: Automatic `VITE_*` prefix mapping and defaults for Cast configuration
 
-### Server-Side Rendering (SSR)
-The cast app includes full SSR support via `server.tsx`:
+### React Router data architecture
 
-- **React 19 SSR**: Uses `renderToReadableStream` for streaming HTML
-- **Static Router**: Server-side routing with React Router
-- **Static File Serving**: Handles both `public/` and `dist/client/` assets
-- **Hot Module Replacement**: WebSocket-based HMR in development
-- **Error Handling**: Graceful SSR error recovery with `safeWrapAsync`
+The receiver is a React Router SPA. Room bootstrap REST reads run in its route loader and mutations run in its route action. Receiver components consume loader data, submit mutations through fetchers, and subscribe to room SSE updates through `@vibes/api`.
 
 ### Development Scripts
 
@@ -63,7 +58,7 @@ pnpm lint
 - **Authentication Bridge**: Receives Spotify and SoundCloud tokens from the sender app via `LOAD` interceptors
 - **Global State**: Synchronizes with the backend via a shared Zustand store (`@vibes/shared`)
 - **Premium UI**: Dark-mode primary interface with glassmorphism and smooth animations
-- **Server-Side Rendering**: Fast initial page loads with streaming HTML
+- **Data Router**: Loader/action request orchestration with recoverable route errors
 - **Hot Module Replacement**: Instant development feedback
 
 ## 📡 Communication Protocol

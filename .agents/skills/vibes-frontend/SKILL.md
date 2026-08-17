@@ -68,6 +68,8 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 ## Web and SSR
 
+- Use React Router data APIs in every DOM app, including the Cast receiver. REST reads belong in `loader` or `clientLoader` modules and mutations belong in `action` or `clientAction` modules.
+- Components may trigger route data APIs through fetchers and may subscribe to SSE through `@vibes/api`; they must not execute REST calls inline.
 - Keep React Router route files thin and colocate route-specific components, `loader.ts`, and `action.ts` files.
 - Use `getServerApi()` in server loaders/actions and `useFetcher` or `fetcher.Form` for route mutations.
 - Keep browser-only APIs behind client guards and prevent hydration mismatches.

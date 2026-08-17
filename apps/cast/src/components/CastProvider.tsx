@@ -9,11 +9,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useFetcher, useLocation, useNavigate } from 'react-router';
 import { useCastMessageHandler } from '../hooks/useCastMessageHandler';
 import { useCastReceiver } from '../hooks/useCastReceiver';
 import { useMediaMetadata } from '../hooks/useMediaMetadata';
-import { usePlaybackFailureReporter } from '../hooks/usePlaybackFailureReporter';
 import { useRoomSync } from '../hooks/useRoomSync';
+import type { CastActionData } from '../routes/cast/action';
+import type { CastLoaderData } from '../routes/cast/loader';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
 import { applyColorScheme, getInitialColorScheme } from '../utils/theme';
 
@@ -31,12 +33,17 @@ interface CastContextType {
   apiUrl: string;
   spotifyToken: string | null;
   enabledProviders: string[];
-  reportPlaybackFailure: (songId: string) => Promise<void>;
+  reportPlaybackFailure: (songId: string) => void;
 }
 
 const CastContext = createContext<CastContextType | undefined>(undefined);
 
-export function CastProvider({ children }: { children: React.ReactNode }) {
+interface CastProviderProps {
+  children: React.ReactNode;
+  loaderData: CastLoaderData;
+}
+
+export function CastProvider({ children, loaderData }: CastProviderProps) {
   // --- State ---
   const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null);
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -53,22 +60,10 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
     return params.get('debug') === 'true';
   });
 
-  // Room ID State
-  const [roomId, setRoomId] = useState<string | null>(() => {
-    return new URLSearchParams(window.location.search).get('roomId');
-  });
-  const [casterId, setCasterId] = useState<string | null>(() => {
-    const params = new URLSearchParams(window.location.search);
-    return (
-      params.get('casterId') ||
-      params.get('casterUserId') ||
-      params.get('sessionId')
-    );
-  });
-  const [castToken, setCastToken] = useState<string | null>(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('castToken');
-  });
+  const { castToken, casterId, roomId } = loaderData.credentials;
+  const failureFetcher = useFetcher<CastActionData>();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const debugModeRef = useRef(debugMode);
   const setDebugMode = useCallback((value: boolean) => {
@@ -82,10 +77,28 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   // --- Hooks ---
   const updateMediaMetadata = useMediaMetadata();
 
+  const joinRoom = useCallback(
+    (connection: { castToken?: string; casterId?: string; roomId: string }) => {
+      const params = new URLSearchParams(location.search);
+      params.set('roomId', connection.roomId);
+      if (connection.castToken) {
+        params.set('castToken', connection.castToken);
+      }
+      if (connection.casterId) {
+        params.set('casterId', connection.casterId);
+      }
+      void navigate(
+        { pathname: location.pathname, search: `?${params.toString()}` },
+        {
+          replace: true,
+        },
+      );
+    },
+    [location.pathname, location.search, navigate],
+  );
+
   const handleCastMessage = useCastMessageHandler({
-    setRoomId,
-    setCasterId,
-    setCastToken,
+    joinRoom,
     setRoomInfo,
     setQueue,
     setStatusText,
@@ -106,6 +119,8 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
     roomId,
     casterId,
     castToken,
+    loadError: loaderData.error,
+    snapshot: loaderData.snapshot,
     setQueue,
     setRoomInfo,
     setStatusText,
@@ -115,10 +130,21 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
     setEnabledProviders,
     updateMediaMetadata,
   });
-  const reportPlaybackFailure = usePlaybackFailureReporter({
-    castToken,
-    roomId,
-  });
+  const reportPlaybackFailure = useCallback(
+    (songId: string) => {
+      if (!castToken || !roomId) return;
+      failureFetcher.submit(
+        { castToken, intent: 'reportPlaybackFailure', roomId, songId },
+        { method: 'post' },
+      );
+    },
+    [castToken, failureFetcher, roomId],
+  );
+
+  useEffect(() => {
+    if (!failureFetcher.data?.error) return;
+    console.error('[Cast] Failed to report restricted playback failure.');
+  }, [failureFetcher.data]);
 
   // --- Effects ---
 

@@ -3,6 +3,7 @@ import { ActiveView } from './components/ActiveView';
 import { CastErrorBoundary } from './components/CastErrorBoundary';
 import { CastProvider, useCast } from './components/CastProvider';
 import { IdleView } from './components/IdleView';
+import type { CastLoaderData } from './routes/cast/loader';
 
 const CastAppContent = () => {
   const { currentSong, debugMode } = useCast();
@@ -20,10 +21,14 @@ const CastAppContent = () => {
   );
 };
 
-export const App = () => {
+interface AppProps {
+  loaderData: CastLoaderData;
+}
+
+export const App = ({ loaderData }: AppProps) => {
   return (
     <CastErrorBoundary>
-      <CastProvider>
+      <CastProvider loaderData={loaderData}>
         <ToastViewport />
         <CastAppContent />
       </CastProvider>

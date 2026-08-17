@@ -1,8 +1,14 @@
 import { applyConsoleLogGuard, isTruthyFlag, safeWrap } from '@vibes/shared';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import './src/styles/index.css';
-import { App } from './src/App';
+import { action } from './src/routes/cast/action';
+import { loader } from './src/routes/cast/loader';
+import CastRoute, {
+  ErrorBoundary,
+  shouldRevalidate,
+} from './src/routes/cast/route';
 
 const debugEnabled = isTruthyFlag(import.meta.env.VITE_DEBUG);
 applyConsoleLogGuard(debugEnabled);
@@ -15,11 +21,27 @@ const [err] = safeWrap(() => {
   const loadingElement = document.getElementById('static-loading');
   if (loadingElement) loadingElement.classList.add('hidden');
 
+  const basename = window.location.pathname.startsWith('/casting/receiver')
+    ? '/casting/receiver'
+    : '/';
+  const router = createBrowserRouter(
+    [
+      {
+        action,
+        Component: CastRoute,
+        ErrorBoundary,
+        loader,
+        path: '/',
+        shouldRevalidate,
+      },
+    ],
+    { basename },
+  );
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
       <div className="hidden p-4">Debug</div>
-      <App />
+      <RouterProvider router={router} />
     </StrictMode>,
   );
 });

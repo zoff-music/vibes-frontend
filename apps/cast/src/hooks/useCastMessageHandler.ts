@@ -5,9 +5,11 @@ import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
 import { normalizeSong } from '../utils/songUtils';
 
 interface UseCastMessageHandlerProps {
-  setRoomId: (id: string) => void;
-  setCasterId: (id: string | null) => void;
-  setCastToken: (token: string | null) => void;
+  joinRoom: (connection: {
+    castToken?: string;
+    casterId?: string;
+    roomId: string;
+  }) => void;
   setRoomInfo: (info: RoomInfo | null) => void;
   setQueue: (queue: QueueItem[]) => void;
   setStatusText: (text: string) => void;
@@ -17,9 +19,7 @@ interface UseCastMessageHandlerProps {
 }
 
 export const useCastMessageHandler = ({
-  setRoomId,
-  setCasterId,
-  setCastToken,
+  joinRoom,
   setRoomInfo,
   setQueue,
   setStatusText,
@@ -41,18 +41,14 @@ export const useCastMessageHandler = ({
 
       switch (action) {
         case 'joinRoom': {
-          if (message.roomId) {
-            setRoomId(message.roomId);
-          }
-          if ('castToken' in message) {
-            setCastToken(message.castToken || null);
-          }
+          const casterId = message.casterId || message.sessionId || undefined;
+          joinRoom({
+            roomId: message.roomId,
+            ...(message.castToken ? { castToken: message.castToken } : {}),
+            ...(casterId ? { casterId } : {}),
+          });
           if (message.theme) {
             setColorScheme(message.theme);
-          }
-          const casterId = message.casterId || message.sessionId || undefined;
-          if (casterId !== undefined) {
-            setCasterId(casterId || null);
           }
           break;
         }
@@ -125,9 +121,7 @@ export const useCastMessageHandler = ({
       setIsPlaying,
       setPlaybackState,
       updateMediaMetadata,
-      setRoomId,
-      setCasterId,
-      setCastToken,
+      joinRoom,
       setRoomInfo,
       setQueue,
       setStatusText,
