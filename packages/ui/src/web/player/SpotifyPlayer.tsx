@@ -83,6 +83,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     }
   }, [providerSong?.sourceType, onRequestToken]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: A track identity change intentionally resets the SDK state held in refs.
   useEffect(() => {
     setIsReady(false);
     hasEndedRef.current = false;

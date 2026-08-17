@@ -225,7 +225,7 @@ const VideoPlayerComponent = ({
     return () => {
       debugLog('unmount');
     };
-  }, []);
+  }, [debugLog]);
 
   useEffect(() => {
     if (!currentSong && !isPlaying) {
@@ -404,7 +404,6 @@ const VideoPlayerComponent = ({
     isYouTubeActive,
     onLocalAlignmentChange,
     onLocalSeek,
-    shouldPlay,
     hasUserStartedPlayback,
   ]);
 
@@ -435,7 +434,7 @@ const VideoPlayerComponent = ({
   useEffect(() => {
     if (isYouTubeActive || !playerRef.current) return;
     silenceProviderPlayback('youtube');
-  }, [isReady, isYouTubeActive, videoId]);
+  }, [isYouTubeActive]);
 
   useEffect(() => {
     if (
@@ -551,7 +550,7 @@ const VideoPlayerComponent = ({
         debugLog('kick-error', { reason, error: err.message });
       }
     },
-    [isCastReceiver, videoId, shouldPlay],
+    [isCastReceiver, videoId, shouldPlay, debugLog],
   );
 
   useEffect(() => {
@@ -604,7 +603,7 @@ const VideoPlayerComponent = ({
         autoPlayRetryRef.current = null;
       }
     };
-  }, [isCastReceiver, videoId, shouldPlay, kickAutoplay]);
+  }, [videoId, shouldPlay, kickAutoplay, debugLog]);
 
   useEffect(() => {
     if (isCastReceiver) return;
@@ -633,7 +632,7 @@ const VideoPlayerComponent = ({
     }, AUTOPLAY_RETRY_MS);
 
     return () => clearInterval(kickInterval);
-  }, [videoId, shouldPlay, kickAutoplay]);
+  }, [videoId, shouldPlay, kickAutoplay, isCastReceiver, debugLog]);
 
   const forceAutoplay = useCallback(
     (label: string) => {
@@ -672,7 +671,7 @@ const VideoPlayerComponent = ({
       setNeedsUserGesture(false);
       debugLog('force-autoplay', { label });
     },
-    [debugLog, isCastReceiver, isYouTubeActive, shouldPlay, videoId],
+    [debugLog, isCastReceiver, isYouTubeActive, shouldPlay],
   );
 
   const handleReady = useCallback(
@@ -996,7 +995,7 @@ const VideoPlayerComponent = ({
     if (isCastReceiver && isActiveYouTube) {
       forceAutoplay('load-video');
     }
-  }, [videoId, isReady, debugLog, forceAutoplay, isCastReceiver]);
+  }, [videoId, debugLog, forceAutoplay, isCastReceiver]);
 
   // All hooks must be called unconditionally, so define these before early return
   const opts: YouTubeProps['opts'] = useMemo(

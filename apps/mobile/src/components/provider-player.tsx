@@ -84,6 +84,7 @@ export function ProviderPlayer({
     [song?.sourceId, song?.sourceType],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: A song identity change intentionally clears prior provider errors.
   useEffect(() => {
     setError('');
   }, [songId]);
@@ -114,7 +115,7 @@ export function ProviderPlayer({
     webViewRef.current?.injectJavaScript(
       `window.zoffSeek?.(${Math.max(0, positionMs)}); true;`,
     );
-  }, [positionMs, resetVersion, songId, synchronizePosition]);
+  }, [positionMs, resetVersion, synchronizePosition, song?.sourceType]);
 
   const initializePlayback = () => {
     const position = Math.max(0, positionMs);

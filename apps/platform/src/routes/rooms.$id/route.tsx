@@ -479,7 +479,7 @@ export default function Room() {
       resizeObserver.disconnect();
       window.removeEventListener('resize', updateHeaderHeight);
     };
-  }, [isPartyScreen]);
+  }, []);
 
   useEffect(() => {
     document.title = createRoomShareTitle(displayRoom.name, currentSong);

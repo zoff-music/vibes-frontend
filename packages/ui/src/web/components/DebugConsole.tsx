@@ -98,11 +98,12 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
     };
   }, [enabled]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: New logs and visibility changes intentionally trigger imperative scrolling.
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [logs, isVisible]); // Add isVisible dependency to ensure scroll on show
+  }, [logs, isVisible]);
 
   if (!envDebugEnabled || !isVisible) return null;
 

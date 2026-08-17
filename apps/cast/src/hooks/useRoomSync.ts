@@ -187,5 +187,6 @@ export function useRoomSync({
     setEnabledProviders,
     casterId,
     castToken,
+    setSpotifyToken,
   ]);
 }
