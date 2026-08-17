@@ -75,6 +75,10 @@ export function RemoteControlProvider({ children }: Props) {
   const [pairing, setPairing] = useState<RemotePairing | null>(null);
 
   useEffect(() => {
+    statusFetcher.load('/remote-control');
+  }, [statusFetcher.load]);
+
+  useEffect(() => {
     const nextRemote = statusFetcher.data?.remote;
     if (nextRemote) {
       setRemote(nextRemote);
@@ -161,14 +165,14 @@ export function RemoteControlProvider({ children }: Props) {
       if (
         event.origin !== 'controller' ||
         event.roomId !== machineRoomId ||
-        roomMode !== 'server'
+        !roomMode
       ) {
         return;
       }
       if (!event.currentSongId || event.currentSongId === currentSongId) {
         setLocalPlaybackPosition(event.playbackPositionMs);
       }
-      setLocalPlayingState(event.playbackIsPlaying, 'server');
+      setLocalPlayingState(event.playbackIsPlaying, roomMode);
     },
     [
       currentSongId,
@@ -187,8 +191,7 @@ export function RemoteControlProvider({ children }: Props) {
 
   const openRemoteControl = useCallback(() => {
     setIsOpen(true);
-    statusFetcher.load('/remote-control');
-  }, [statusFetcher.load]);
+  }, []);
 
   const closeRemoteControl = useCallback(() => {
     setIsOpen(false);

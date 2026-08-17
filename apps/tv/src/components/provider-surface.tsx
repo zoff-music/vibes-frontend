@@ -1,4 +1,5 @@
 import type { Song } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
 import { Image } from 'expo-image';
 import { useCallback, useEffect, useState } from 'react';
@@ -66,12 +67,12 @@ export function ProviderSurface({
     >
       {youtubeSong && (
         <View
-          className="absolute inset-0 items-center justify-center"
+          className={classNames(
+            'absolute inset-0 items-center justify-center',
+            isYouTubeActive && 'z-10 opacity-100',
+            !isYouTubeActive && 'z-0 opacity-0',
+          )}
           pointerEvents={isYouTubeActive ? 'auto' : 'none'}
-          style={{
-            opacity: isYouTubeActive ? 1 : 0,
-            zIndex: isYouTubeActive ? 2 : 0,
-          }}
         >
           <NativeYouTubePlayer
             height={playerHeight}
@@ -86,12 +87,12 @@ export function ProviderSurface({
       )}
       {soundCloudSong && (
         <View
-          className="absolute inset-0 items-center justify-center"
+          className={classNames(
+            'absolute inset-0 items-center justify-center',
+            isSoundCloudActive && 'z-10 opacity-100',
+            !isSoundCloudActive && 'z-0 opacity-0',
+          )}
           pointerEvents="none"
-          style={{
-            opacity: isSoundCloudActive ? 1 : 0,
-            zIndex: isSoundCloudActive ? 2 : 0,
-          }}
         >
           <NativeSoundCloudPlayer
             artworkUrl={soundCloudSong.thumbnailUrl}
@@ -112,11 +113,11 @@ export function ProviderSurface({
       {song.sourceType === 'spotify' && (
         <WebView
           allowsFullscreenVideo
+          className="z-3"
           mediaPlaybackRequiresUserAction={false}
           source={{
             uri: `https://open.spotify.com/embed/track/${encodeURIComponent(song.sourceId)}?utm_source=zoff`,
           }}
-          style={{ zIndex: 3 }}
         />
       )}
       {song.sourceType !== 'youtube' &&

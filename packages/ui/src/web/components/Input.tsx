@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import React from 'react';
 
 interface Props
@@ -22,7 +23,7 @@ export const Input: React.FC<Props> = ({
   const errorId = `${inputId}-error`;
 
   return (
-    <div className={`mb-4 w-full ${containerClassName}`}>
+    <div className={classNames('mb-4 w-full', containerClassName)}>
       {label && (
         <label
           htmlFor={inputId}
@@ -37,9 +38,10 @@ export const Input: React.FC<Props> = ({
           'aria-describedby': errorId,
           'aria-invalid': true,
         })}
-        className={`w-full rounded-lg border bg-surface px-4 py-3 text-base text-text placeholder:text-zinc-500 focus:outline-hidden focus:ring-2 focus:ring-primary ${
-          error ? 'border-error' : 'border-surfaceElevated'
-        }`}
+        className={classNames(
+          'w-full rounded-lg border bg-surface px-4 py-3 text-base text-text placeholder:text-zinc-500 focus:outline-hidden focus:ring-2 focus:ring-primary',
+          error ? 'border-error' : 'border-surfaceElevated',
+        )}
         {...props}
       />
       {error && (

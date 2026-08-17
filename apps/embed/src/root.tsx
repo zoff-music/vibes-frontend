@@ -10,6 +10,7 @@ import {
 import { App } from './App';
 import logoUrl from './assets/logo.png';
 import stylesUrl from './index.css?url';
+import { EmbedRoomErrorBoundary } from './routes/embed.$roomId/components/error-boundary';
 
 export function loader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url);
@@ -61,6 +62,8 @@ export function Layout({ children }: Props) {
 export default function Root() {
   return <App />;
 }
+
+export const ErrorBoundary = EmbedRoomErrorBoundary;
 
 const colorSchemeClasses = {
   auto: '',

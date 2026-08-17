@@ -1,4 +1,4 @@
-import { isTruthyFlag } from '@vibes/shared';
+import { classNames, isTruthyFlag } from '@vibes/shared';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from './Button';
 
@@ -58,7 +58,9 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
           content: arg,
         })),
       };
-      setLogs((prev) => [...prev, entry]); // Keep all logs, maybe limit later
+      setLogs((previousLogs) =>
+        [...previousLogs, entry].slice(-MAX_DEBUG_LOG_ENTRIES),
+      );
     };
 
     console.log = (...args) => {
@@ -123,13 +125,12 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
         {logs.map((log) => (
           <div
             key={log.id}
-            className={`mb-1 border-zinc-800 border-b pb-0.5 ${
-              log.level === 'error'
-                ? 'text-red-400'
-                : log.level === 'warn'
-                  ? 'text-yellow-400'
-                  : 'text-zinc-300'
-            }`}
+            className={classNames(
+              'mb-1 border-zinc-800 border-b pb-0.5',
+              log.level === 'error' && 'text-red-400',
+              log.level === 'warn' && 'text-yellow-400',
+              log.level !== 'error' && log.level !== 'warn' && 'text-zinc-300',
+            )}
           >
             <span className="mr-2 text-zinc-500">[{log.timestamp}]</span>
             <span className="mr-2 font-bold uppercase">{log.level}</span>
@@ -151,3 +152,5 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
     </div>
   );
 };
+
+const MAX_DEBUG_LOG_ENTRIES = 200;

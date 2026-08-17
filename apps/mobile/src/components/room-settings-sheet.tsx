@@ -2,7 +2,7 @@ import {
   type ApiClient,
   getHttpError,
   useRemoteRequests,
-  useRoomRequests,
+  useRoomLifecycleRequests,
 } from '@vibes/api';
 import type { Providers, Room, RoomSettings } from '@vibes/models';
 import { useEffect, useRef, useState } from 'react';
@@ -46,7 +46,7 @@ export function RoomSettingsSheet({
   visible,
 }: RoomSettingsSheetProps) {
   const remoteRequests = useRemoteRequests(client);
-  const roomRequests = useRoomRequests(client);
+  const lifecycleRequests = useRoomLifecycleRequests(client);
   const [activeRoom, setActiveRoom] = useState(room);
   const [settings, setSettings] = useState(room.settings);
   const [mode, setMode] = useState(room.mode);
@@ -77,7 +77,7 @@ export function RoomSettingsSheet({
       return;
     }
     setLoading(true);
-    const [requestError, session] = await roomRequests.joinRoom(
+    const [requestError, session] = await lifecycleRequests.joinRoom(
       activeRoom.id,
       submittedPassword,
     );
@@ -120,7 +120,7 @@ export function RoomSettingsSheet({
   const save = async (nextMode: Room['mode'], nextSettings: RoomSettings) => {
     setLoading(true);
     setError('');
-    const [requestError, updatedRoom] = await roomRequests.updateRoom(
+    const [requestError, updatedRoom] = await lifecycleRequests.updateRoom(
       activeRoom.id,
       { mode: nextMode, settings: nextSettings },
     );
@@ -145,7 +145,7 @@ export function RoomSettingsSheet({
   const logOut = async () => {
     setLoading(true);
     setError('');
-    const [requestError, session] = await roomRequests.logOutRoomAdmin(
+    const [requestError, session] = await lifecycleRequests.logOutRoomAdmin(
       activeRoom.id,
     );
     const responseStatus = requestError

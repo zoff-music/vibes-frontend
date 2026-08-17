@@ -5,6 +5,7 @@ import {
   type Song,
   safeWrapAsync,
   showToast,
+  synchronizeServerClock,
   usePlaybackStore,
   useQueueStore,
   useRoomStore,
@@ -62,30 +63,45 @@ export {
   shouldRevalidate,
 };
 
-const GENERATION_RELOAD_DELAY_MS = 5 * 60 * 1000;
+const GENERATION_REFRESH_DELAY_MS = 5 * 60 * 1000;
 
-function normalizeRouteError(routeError: unknown): Error {
-  if (routeError instanceof Error) {
-    return routeError;
-  }
+interface PublicRoomError {
+  isRoomNotFound: boolean;
+  message: string;
+}
+
+function normalizeRouteError(routeError: unknown): PublicRoomError {
   if (isRouteErrorResponse(routeError)) {
-    return new Error(
-      routeError.statusText ||
-        `Could not load this room (${routeError.status})`,
-    );
+    if (routeError.status === 404) {
+      return {
+        isRoomNotFound: true,
+        message: 'This room could not be found.',
+      };
+    }
+    if (routeError.status === 429) {
+      return {
+        isRoomNotFound: false,
+        message: 'Too many requests. Wait a moment, then try again.',
+      };
+    }
   }
-  return new Error('Could not load this room. Please try again.');
+  return {
+    isRoomNotFound: false,
+    message: 'Could not load this room. Please try again.',
+  };
 }
 
 export function ErrorBoundary() {
   const routeError = useRouteError();
   const { id = '' } = useParams<{ id: string }>();
   const revalidator = useRevalidator();
+  const publicError = normalizeRouteError(routeError);
 
   return (
     <div className="relative z-10 flex min-h-screen">
       <RoomErrorView
-        error={normalizeRouteError(routeError)}
+        isRoomNotFound={publicError.isRoomNotFound}
+        message={publicError.message}
         roomId={id}
         onRetry={revalidator.revalidate}
       />
@@ -164,10 +180,13 @@ export default function Room() {
   const room = useRoomStore((state) => state.room);
   const isAdmin = useRoomStore((state) => state.isAdmin);
   const setRoom = useRoomStore((state) => state.setRoom);
+  const setHost = useRoomStore((state) => state.setHost);
   const setSession = useRoomStore((state) => state.setSession);
+  const setUsersCount = useRoomStore((state) => state.setUsersCount);
   const usersCount = useRoomStore((state) => state.usersCount);
   const songs = useQueueStore((state) => state.songs);
   const setSongs = useQueueStore((state) => state.setSongs);
+  const addSong = useQueueStore((state) => state.addSong);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const initializeCast = useCastStore((state) => state.initialize);
@@ -217,6 +236,10 @@ export default function Room() {
     usersCount,
   );
   const isAuthenticating = adminFetcher.state !== 'idle';
+  const adminError =
+    adminFetcher.data?.intent === 'joinRoom'
+      ? (adminFetcher.data.error ?? null)
+      : null;
   const showGenerationProgress =
     isGenerating && isGenerationProgressVisible && songs.length <= 2;
   const isPartyScreen = searchParams.get('view') === 'party';
@@ -249,10 +272,32 @@ export default function Room() {
 
   const sseCallbacks = useMemo(
     () => ({
+      onConnected: synchronizeServerClock,
       onGenerationUpdate: handleGenerationUpdate,
+      onHostUpdate: ({ userId }: { userId: string }) => setHost(userId),
+      onPlaybackUpdate: (playback: RoomLoaderData['playback']) => {
+        if (!playback) return;
+        setPlaybackState(playback, useRoomStore.getState().room?.mode);
+      },
       onReconnect: revalidate,
+      onRoomUpdate: setRoom,
+      onSongAdded: (song: Song) => {
+        addSong(song);
+        showToast(`"${song.title}" added to queue`, 'success');
+      },
+      onSongsUpdate: setSongs,
+      onUsersUpdate: setUsersCount,
     }),
-    [handleGenerationUpdate, revalidate],
+    [
+      addSong,
+      handleGenerationUpdate,
+      revalidate,
+      setHost,
+      setPlaybackState,
+      setRoom,
+      setSongs,
+      setUsersCount,
+    ],
   );
   useSSE(id, sseCallbacks);
 
@@ -378,18 +423,17 @@ export default function Room() {
     }
 
     const timeout = window.setTimeout(() => {
-      window.location.reload();
-    }, GENERATION_RELOAD_DELAY_MS);
+      void revalidate();
+    }, GENERATION_REFRESH_DELAY_MS);
 
     return () => window.clearTimeout(timeout);
-  }, [isGenerating]);
+  }, [isGenerating, revalidate]);
 
   useEffect(() => {
     if (adminFetcher.state !== 'idle' || !adminFetcher.data) return;
     if (adminFetcher.data.intent !== 'joinRoom') return;
 
     if (adminFetcher.data.error || !adminFetcher.data.session) {
-      showToast('Failed to authenticate. Incorrect password?', 'error');
       return;
     }
 
@@ -440,15 +484,6 @@ export default function Room() {
   useEffect(() => {
     document.title = createRoomShareTitle(displayRoom.name, currentSong);
   }, [currentSong, displayRoom.name]);
-
-  useEffect(() => {
-    const handleSongAdded = (event: Event) => {
-      const song = (event as CustomEvent<Song>).detail;
-      showToast(`"${song.title}" added to queue`, 'success');
-    };
-    window.addEventListener('song-added', handleSongAdded);
-    return () => window.removeEventListener('song-added', handleSongAdded);
-  }, []);
 
   useEffect(() => {
     if (!showShare) return;
@@ -513,6 +548,7 @@ export default function Room() {
           }
         >
           <RoomHeader
+            adminError={adminError}
             key="terminal-room-header"
             headerRef={headerRef}
             displayRoom={displayRoom}
@@ -640,6 +676,7 @@ export default function Room() {
         <div className="relative z-10 flex min-h-screen flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
           {!isPartyScreen && (
             <RoomHeader
+              adminError={adminError}
               key="room-header"
               headerRef={headerRef}
               displayRoom={displayRoom}

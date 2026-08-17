@@ -1,4 +1,4 @@
-import { api } from '@vibes/api';
+import { api, getRequestErrorMessage } from '@vibes/api';
 import type {
   PlaybackState,
   ProviderToken,
@@ -43,7 +43,7 @@ export async function clientAction({
     );
     if (error || !skip) {
       return {
-        error: error?.message ?? 'Could not skip song',
+        error: await getRequestErrorMessage(error, 'Could not skip song'),
         intent: body.intent,
       };
     }
@@ -63,7 +63,10 @@ export async function clientAction({
     });
     if (error || !providerToken) {
       return {
-        error: error?.message ?? 'Could not get provider token',
+        error: await getRequestErrorMessage(
+          error,
+          'Could not get provider token',
+        ),
         intent: body.intent,
       };
     }
@@ -80,7 +83,7 @@ export async function clientAction({
     });
     if (error || !playback) {
       return {
-        error: error?.message ?? 'Could not reset playback',
+        error: await getRequestErrorMessage(error, 'Could not reset playback'),
         intent: body.intent,
       };
     }
@@ -96,7 +99,10 @@ export async function clientAction({
     {},
   );
   if (error) {
-    return { error: error.message, intent: body.intent };
+    return {
+      error: await getRequestErrorMessage(error, 'Could not add your vote'),
+      intent: body.intent,
+    };
   }
   return { intent: body.intent };
 }

@@ -34,6 +34,7 @@ import { useRemoteControl } from '../../../components/remote/RemoteControlProvid
 import type { Theme } from '../../../stores/themeStore';
 
 interface RoomSettingsMenuProps {
+  adminError: string | null;
   showSettings: boolean;
   onClose: () => void;
   themeId: string;
@@ -54,6 +55,7 @@ interface RoomSettingsMenuProps {
 }
 
 export const RoomSettingsMenu = ({
+  adminError,
   showSettings,
   onClose,
   themeId,
@@ -563,6 +565,15 @@ export const RoomSettingsMenu = ({
                     {isAuthenticating ? '...' : 'Go'}
                   </Button>
                 </div>
+                {adminError && (
+                  <p
+                    aria-live="polite"
+                    className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-error text-sm"
+                    role="alert"
+                  >
+                    {adminError}
+                  </p>
+                )}
               </div>
             )}
 

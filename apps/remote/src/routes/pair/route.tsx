@@ -1,4 +1,4 @@
-import { safeWrap } from '@vibes/shared';
+import { safeWrap, safeWrapAsync } from '@vibes/shared';
 import { Button, Input } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useSearchParams } from 'react-router';
@@ -71,10 +71,12 @@ export default function PairRemote() {
       await inspectFrame();
     };
 
-    void scan().catch(() => {
+    void (async () => {
+      const [error] = await safeWrapAsync(scan());
+      if (!error || !active) return;
       setScanError('Could not open the camera. Enter the code instead.');
       setScanning(false);
-    });
+    })();
 
     return () => {
       active = false;
@@ -167,7 +169,11 @@ export default function PairRemote() {
         )}
 
         {(fetcher.data?.error || scanError) && (
-          <p className="mt-4 text-center text-destructive text-sm">
+          <p
+            aria-live="polite"
+            className="mt-4 text-center text-destructive text-sm"
+            role="alert"
+          >
             {fetcher.data?.error ?? scanError}
           </p>
         )}

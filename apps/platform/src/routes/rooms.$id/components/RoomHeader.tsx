@@ -97,6 +97,7 @@ interface RoomHeaderProps {
   onCloseSettings: () => void;
   settingsButtonRef: RefObject<HTMLButtonElement | null>;
   settingsMenuRef: RefObject<HTMLDivElement | null>;
+  adminError: string | null;
   adminPassword: string;
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
@@ -129,6 +130,7 @@ export const RoomHeader = React.memo(
     onCloseSettings,
     settingsButtonRef,
     settingsMenuRef,
+    adminError,
     adminPassword,
     onAdminPasswordChange,
     onJoinAdmin,
@@ -206,6 +208,7 @@ export const RoomHeader = React.memo(
               fallback={<TerminalLoading label="Loading config.sys" overlay />}
             >
               <LazyTerminalRoomSettings
+                adminError={adminError}
                 adminPassword={adminPassword}
                 currentTheme={currentTheme}
                 displayRoom={displayRoom}
@@ -385,6 +388,7 @@ export const RoomHeader = React.memo(
                 {showSettings && (
                   <Suspense fallback={<DeferredSettingsLoading />}>
                     <LazyRoomSettingsMenu
+                      adminError={adminError}
                       showSettings={showSettings}
                       onClose={onCloseSettings}
                       themeId={themeId}

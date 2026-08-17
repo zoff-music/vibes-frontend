@@ -1,4 +1,8 @@
-import { type ApiClient, useRoomRequests } from '@vibes/api';
+import {
+  type ApiClient,
+  useRoomLifecycleRequests,
+  useRoomQueueRequests,
+} from '@vibes/api';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { useEffect, useRef, useState } from 'react';
 import type { TextInput } from 'react-native';
@@ -32,7 +36,8 @@ export function GenerationSheet({
   roomId,
   visible,
 }: GenerationSheetProps) {
-  const roomRequests = useRoomRequests(client);
+  const lifecycleRequests = useRoomLifecycleRequests(client);
+  const queueRequests = useRoomQueueRequests(client);
   const inputRef = useRef<TextInput>(null);
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,10 +57,12 @@ export function GenerationSheet({
     }
     setLoading(true);
     const [requestError, result] = roomId
-      ? await roomRequests.generatePlaylist(roomId, {
+      ? await queueRequests.generatePlaylist(roomId, {
           prompt: normalizedPrompt,
         })
-      : await roomRequests.createGeneratedRoom({ prompt: normalizedPrompt });
+      : await lifecycleRequests.createGeneratedRoom({
+          prompt: normalizedPrompt,
+        });
     setLoading(false);
     if (requestError || !result) {
       setError(

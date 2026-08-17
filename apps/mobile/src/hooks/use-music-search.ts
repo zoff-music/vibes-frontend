@@ -1,7 +1,10 @@
 import {
   type ApiClient,
-  useProviderRequests,
-  useRoomRequests,
+  useProviderPlaylistRequest,
+  useProviderSearchRequest,
+  useProviderTrackRequest,
+  useQueueAddRequests,
+  useRoomQueueRequests,
 } from '@vibes/api';
 import type {
   MusicPlaylist,
@@ -62,8 +65,11 @@ export function useMusicSearch({
 }: UseMusicSearchOptions): MusicSearchController {
   const { showToast } = useToast();
   const { providers, refresh, roomId } = useApp();
-  const providerRequests = useProviderRequests(client);
-  const roomRequests = useRoomRequests(client);
+  const fetchPlaylist = useProviderPlaylistRequest(client);
+  const fetchTrack = useProviderTrackRequest(client);
+  const searchProvider = useProviderSearchRequest(client);
+  const queueAddRequests = useQueueAddRequests(client);
+  const queueRequests = useRoomQueueRequests(client);
   const [provider, setProvider] = useState<SourceType>('youtube');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -121,7 +127,7 @@ export function useMusicSearch({
       return;
     }
     setLoading(true);
-    const [requestError, result] = await roomRequests.generatePlaylist(
+    const [requestError, result] = await queueRequests.generatePlaylist(
       targetRoomId,
       { prompt },
     );
@@ -169,14 +175,12 @@ export function useMusicSearch({
         return;
       }
       setProvider(playlistLink.provider);
-      const [requestError, nextPlaylist] =
-        playlistLink.provider === 'youtube' && playlistLink.sourceId
-          ? await providerRequests.fetchYouTubePlaylist(playlistLink.sourceId)
-          : playlistLink.provider === 'spotify' && playlistLink.sourceId
-            ? await providerRequests.fetchSpotifyPlaylist(playlistLink.sourceId)
-            : await providerRequests.fetchSoundCloudPlaylist(
-                playlistLink.providerUrl ?? '',
-              );
+      const playlistSource =
+        playlistLink.sourceId ?? playlistLink.providerUrl ?? '';
+      const [requestError, nextPlaylist] = await fetchPlaylist(
+        playlistLink.provider,
+        playlistSource,
+      );
       setLoading(false);
       if (requestError || !nextPlaylist) {
         setError(
@@ -199,42 +203,10 @@ export function useMusicSearch({
         return;
       }
       setProvider(trackLink.provider);
-      if (trackLink.provider === 'youtube' && trackLink.sourceId) {
-        const [requestError, track] = await providerRequests.fetchYouTubeTrack(
-          trackLink.sourceId,
-        );
-        setLoading(false);
-        if (requestError || !track) {
-          setError(
-            await getRequestErrorMessage(
-              requestError,
-              'Could not load this song.',
-            ),
-          );
-          return;
-        }
-        setResults([{ ...track, source: 'youtube' }]);
-        return;
-      }
-      if (trackLink.provider === 'spotify' && trackLink.sourceId) {
-        const [requestError, track] = await providerRequests.fetchSpotifyTrack(
-          trackLink.sourceId,
-        );
-        setLoading(false);
-        if (requestError || !track) {
-          setError(
-            await getRequestErrorMessage(
-              requestError,
-              'Could not load this song.',
-            ),
-          );
-          return;
-        }
-        setResults([track]);
-        return;
-      }
-      const [requestError, track] = await providerRequests.fetchSoundCloudTrack(
-        trackLink.providerUrl ?? '',
+      const trackSource = trackLink.sourceId ?? trackLink.providerUrl ?? '';
+      const [requestError, track] = await fetchTrack(
+        trackLink.provider,
+        trackSource,
       );
       setLoading(false);
       if (requestError || !track) {
@@ -250,26 +222,10 @@ export function useMusicSearch({
       return;
     }
 
-    if (provider === 'youtube') {
-      const [requestError, videos] =
-        await providerRequests.searchYouTube(trimmedQuery);
-      setLoading(false);
-      if (requestError || !videos) {
-        setError(
-          await getRequestErrorMessage(
-            requestError,
-            'Could not search YouTube. Check your connection and try again.',
-          ),
-        );
-        return;
-      }
-      setResults(videos.map((video) => ({ ...video, source: 'youtube' })));
-      return;
-    }
-    const [requestError, nextResults] =
-      provider === 'spotify'
-        ? await providerRequests.searchSpotify(trimmedQuery)
-        : await providerRequests.searchSoundCloud(trimmedQuery);
+    const [requestError, nextResults] = await searchProvider(
+      provider,
+      trimmedQuery,
+    );
     setLoading(false);
     if (requestError || !nextResults) {
       setError(
@@ -288,7 +244,7 @@ export function useMusicSearch({
       setError('Join a room before adding music.');
       return;
     }
-    const [requestError] = await providerRequests.addSong(targetRoomId, {
+    const [requestError] = await queueAddRequests.addSong(targetRoomId, {
       sourceType: result.source,
       sourceId: result.id,
       providerUrl: result.providerUrl,
@@ -315,7 +271,7 @@ export function useMusicSearch({
     }
     if (!playlist || playlist.tracks.length === 0) return;
     setLoading(true);
-    const [requestError] = await providerRequests.addPlaylist(targetRoomId, {
+    const [requestError] = await queueAddRequests.addPlaylist(targetRoomId, {
       songs: playlist.tracks.map((track) => ({
         artist: track.channelTitle,
         duration: parseISODuration(track.duration),

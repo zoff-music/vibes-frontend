@@ -4,17 +4,27 @@ import {
 } from '@expo-google-fonts/pixelify-sans';
 import { useEffect, useState } from 'react';
 import { BackHandler, StatusBar, View } from 'react-native';
+import { TvErrorBoundary } from '@/components/tv-error-boundary';
 import { useTvSession } from '@/hooks/use-tv-session';
 import { tvApi } from '@/lib/api';
+import { subscribeToAppResume } from '@/lib/app-resume';
 import { LandingScreen } from '@/screens/landing-screen';
 import { RoomScreen } from '@/screens/room-screen';
 import '@/global.css';
 
 export function App() {
+  return (
+    <TvErrorBoundary>
+      <TvApp />
+    </TvErrorBoundary>
+  );
+}
+
+function TvApp() {
   const [fontsLoaded] = useFonts({
     'Pixelify Sans Bold': PixelifySans_700Bold,
   });
-  const session = useTvSession(tvApi);
+  const session = useTvSession(tvApi, subscribeToAppResume);
   const [isAIMode, setIsAIMode] = useState(false);
 
   useEffect(() => {

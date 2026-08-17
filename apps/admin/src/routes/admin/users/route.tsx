@@ -1,4 +1,4 @@
-import { showRateLimitMessageToast } from '@vibes/api';
+import { showRateLimitMessageToast } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
 import {
   type ChangeEvent,
@@ -99,12 +99,20 @@ export default function AdminUsers() {
       </header>
 
       {fetcher.data?.error && !fetcher.data.rateLimitMessage && (
-        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-500 text-sm">
+        <p
+          aria-live="polite"
+          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-500 text-sm"
+          role="alert"
+        >
           {fetcher.data.error}
         </p>
       )}
       {fetcher.data?.message && (
-        <p className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-700 text-sm dark:text-green-300">
+        <p
+          aria-live="polite"
+          className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-700 text-sm dark:text-green-300"
+          role="status"
+        >
           {fetcher.data.message}
         </p>
       )}

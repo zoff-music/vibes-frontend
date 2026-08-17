@@ -1,28 +1,20 @@
-import { getHttpError } from '@vibes/api';
 import { AlertCircleIcon, Button } from '@vibes/ui/web';
-import React from 'react';
 import { useNavigate } from 'react-router';
 
 interface RoomErrorViewProps {
-  error: Error;
+  isRoomNotFound: boolean;
+  message: string;
   roomId: string;
   onRetry: () => void;
 }
 
-export const RoomErrorView: React.FC<RoomErrorViewProps> = ({
-  error,
+export function RoomErrorView({
+  isRoomNotFound,
+  message,
   roomId,
   onRetry,
-}) => {
+}: RoomErrorViewProps) {
   const navigate = useNavigate();
-
-  const httpError = getHttpError(error);
-  const isRoomNotFound =
-    httpError?.response?.status === 404 ||
-    error.message.includes('not found') ||
-    error.message.includes('404') ||
-    error.message.includes('Room does not exist') ||
-    error.message.toLowerCase().includes('room not found');
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4">
@@ -33,7 +25,7 @@ export const RoomErrorView: React.FC<RoomErrorViewProps> = ({
         <h2 className="mb-2 font-display text-lg text-theme">
           Connection Failed
         </h2>
-        <p className="mb-6 text-sm text-theme-muted">{error.message}</p>
+        <p className="mb-6 text-sm text-theme-muted">{message}</p>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button onClick={onRetry} variant="tertiary">
             Try Again
@@ -54,4 +46,4 @@ export const RoomErrorView: React.FC<RoomErrorViewProps> = ({
       </div>
     </div>
   );
-};
+}

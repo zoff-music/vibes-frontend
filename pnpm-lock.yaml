@@ -760,9 +760,6 @@ importers:
 
   packages/ui:
     dependencies:
-      '@vibes/api':
-        specifier: workspace:*
-        version: link:../api
       '@vibes/models':
         specifier: workspace:*
         version: link:../models

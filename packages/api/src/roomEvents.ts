@@ -78,5 +78,16 @@ export async function subscribeRoomEvents(
     },
   );
 
-  return [error, unsubscribe];
+  if (error || !unsubscribe) {
+    ROOM_EVENT_CURSORS.delete(cursorKey);
+    return [error, null];
+  }
+
+  return [
+    null,
+    () => {
+      unsubscribe();
+      ROOM_EVENT_CURSORS.delete(cursorKey);
+    },
+  ];
 }

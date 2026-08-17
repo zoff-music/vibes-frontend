@@ -20,8 +20,8 @@ export function Background() {
             isHome &&
               'platform-background-gradient-motion -inset-[12%] [background-size:140%_140%]',
             !isHome && 'inset-0',
+            !isTabVisible && '[animation-play-state:paused]',
           )}
-          style={{ animationPlayState: isTabVisible ? 'running' : 'paused' }}
         />
       </div>
       <div className="theme-page-glow absolute inset-0 opacity-65" />
@@ -51,8 +51,8 @@ export function Background() {
             className={classNames(
               'platform-background-grid-motion absolute -top-20 right-0 left-0 h-[calc(100%+5rem)] bg-[length:80px_80px] bg-[linear-gradient(to_right,rgba(255,105,180,0)_0px,rgba(255,105,180,0.45)_1px,rgba(255,105,180,0)_2px),linear-gradient(to_bottom,rgba(0,217,255,0)_0px,rgba(0,217,255,0.45)_1px,rgba(0,217,255,0)_2px)]',
               isWarping && 'platform-background-grid-warp',
+              !isTabVisible && '[animation-play-state:paused]',
             )}
-            style={{ animationPlayState: isTabVisible ? 'running' : 'paused' }}
           />
         </div>
       )}

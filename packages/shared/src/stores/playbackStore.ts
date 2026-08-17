@@ -30,7 +30,7 @@ interface PlaybackStoreState extends PlaybackState {
   updateActualPosition: () => void;
 }
 
-let visibilityListenerAttached = false;
+let visibilityChangeListener: (() => void) | null = null;
 
 export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
   currentSong: null,
@@ -219,9 +219,18 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
   },
 
   updateActualPosition: () => {
-    const { positionMs, isPlaying, clientReferenceTime, currentSong } = get();
+    const {
+      actualPositionMs,
+      clientReferenceTime,
+      currentSong,
+      isPlaying,
+      positionMs,
+    } = get();
 
     if (!isPlaying) {
+      if (actualPositionMs === positionMs) {
+        return;
+      }
       set({ actualPositionMs: positionMs });
       return;
     }
@@ -236,6 +245,9 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       newPositionMs = Math.min(newPositionMs, durationMs);
     }
 
+    if (actualPositionMs === newPositionMs) {
+      return;
+    }
     set({ actualPositionMs: newPositionMs });
   },
 
@@ -243,7 +255,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     const { autoUpdateInterval, isPlaying } = get();
     if (autoUpdateInterval || !isPlaying) return;
 
-    if (typeof document !== 'undefined' && !visibilityListenerAttached) {
+    if (typeof document !== 'undefined' && !visibilityChangeListener) {
       const handleVisibilityChange = () => {
         const { isPlaying: currentlyPlaying, roomMode } = get();
         const shouldThrottle = document.visibilityState === 'hidden';
@@ -258,7 +270,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       };
 
       document.addEventListener('visibilitychange', handleVisibilityChange);
-      visibilityListenerAttached = true;
+      visibilityChangeListener = handleVisibilityChange;
     }
 
     if (typeof document !== 'undefined') {
@@ -277,10 +289,22 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
   stopAutoUpdate: () => {
     const { autoUpdateInterval } = get();
-    if (!autoUpdateInterval) return;
+    if (autoUpdateInterval) {
+      clearInterval(autoUpdateInterval);
+      set({ autoUpdateInterval: null });
+    }
 
-    clearInterval(autoUpdateInterval);
-    set({ autoUpdateInterval: null });
+    if (
+      typeof document !== 'undefined' &&
+      visibilityChangeListener &&
+      !get().isPlaying
+    ) {
+      document.removeEventListener(
+        'visibilitychange',
+        visibilityChangeListener,
+      );
+      visibilityChangeListener = null;
+    }
   },
 }));
 

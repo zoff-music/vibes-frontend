@@ -34,11 +34,9 @@ export function Screen({ children, gridPaused = false }: ScreenProps) {
       <NativeRetroGrid paused={gridPaused} />
       <View
         className="flex-1"
-        style={
-          reservesTabletNavigation
-            ? { paddingTop: tabletNavigationHeight }
-            : undefined
-        }
+        {...(reservesTabletNavigation && {
+          style: { paddingTop: tabletNavigationHeight },
+        })}
       >
         {children}
       </View>

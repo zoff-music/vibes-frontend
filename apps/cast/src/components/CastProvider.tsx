@@ -1,4 +1,4 @@
-import { API_BASE_URL, createApiClient } from '@vibes/api';
+import { API_BASE_URL } from '@vibes/api';
 import type { ResolvedColorScheme, Song } from '@vibes/shared';
 import { safeWrap, usePlaybackStore } from '@vibes/shared';
 import React, {
@@ -12,6 +12,7 @@ import React, {
 import { useCastMessageHandler } from '../hooks/useCastMessageHandler';
 import { useCastReceiver } from '../hooks/useCastReceiver';
 import { useMediaMetadata } from '../hooks/useMediaMetadata';
+import { usePlaybackFailureReporter } from '../hooks/usePlaybackFailureReporter';
 import { useRoomSync } from '../hooks/useRoomSync';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
 import { applyColorScheme, getInitialColorScheme } from '../utils/theme';
@@ -76,9 +77,6 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // --- Store ---
-  const updateActualPosition = usePlaybackStore(
-    (state) => state.updateActualPosition,
-  );
   const currentSong = usePlaybackStore((state) => state.currentSong);
 
   // --- Hooks ---
@@ -116,7 +114,10 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
     setSpotifyToken,
     setEnabledProviders,
     updateMediaMetadata,
-    debugMode,
+  });
+  const reportPlaybackFailure = usePlaybackFailureReporter({
+    castToken,
+    roomId,
   });
 
   // --- Effects ---
@@ -124,15 +125,6 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     applyColorScheme(colorScheme);
   }, [colorScheme]);
-
-  // Update actual position interval
-  useEffect(() => {
-    const interval = setInterval(() => {
-      updateActualPosition();
-    }, POSITION_UPDATE_INTERVAL_MS);
-
-    return () => clearInterval(interval);
-  }, [updateActualPosition]);
 
   // Local window message listener (emulator/dev)
   useEffect(() => {
@@ -177,30 +169,6 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
-  const reportPlaybackFailure = useCallback(
-    async (songId: string) => {
-      if (!roomId || !castToken) return;
-
-      const headers = {
-        Authorization: `Bearer ${castToken}`,
-      };
-      const api = createApiClient(headers);
-      const [requestError] = await api.post(
-        '/rooms/{id}/playbackfailures',
-        { id: roomId },
-        { songId },
-        { headers },
-      );
-      if (requestError) {
-        console.error(
-          '[Cast] Failed to report restricted playback failure:',
-          requestError,
-        );
-      }
-    },
-    [castToken, roomId],
-  );
-
   return (
     <CastContext.Provider
       value={{
@@ -232,5 +200,3 @@ export function useCast() {
   }
   return context;
 }
-
-const POSITION_UPDATE_INTERVAL_MS = 1000;

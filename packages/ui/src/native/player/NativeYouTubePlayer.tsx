@@ -234,7 +234,7 @@ export function NativeYouTubePlayer({
         scrollEnabled={false}
         setSupportMultipleWindows={false}
         source={{ baseUrl: platformUrl, html: playerHtml }}
-        style={{ backgroundColor: '#000000' }}
+        className="bg-black"
       />
     </View>
   );

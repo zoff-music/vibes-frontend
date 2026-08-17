@@ -1,5 +1,6 @@
 import { useSSE } from '@vibes/api';
 import {
+  synchronizeServerClock,
   useMediaSession,
   usePlaybackStore,
   useQueueStore,
@@ -20,11 +21,6 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const actionFetcher = useFetcher<EmbedActionData>();
   const spotifyTokenFetcher = useFetcher<EmbedActionData>();
   const revalidate = useRevalidator().revalidate;
-  const sseCallbacks = useMemo(
-    () => ({ onReconnect: revalidate }),
-    [revalidate],
-  );
-  useSSE(roomId, sseCallbacks);
 
   const [toast, setToast] = useState<EmbedToast | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
@@ -58,7 +54,10 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
     : (loaderData.playback?.positionMs ?? 0);
   const roomModeRef = useRef(room.mode);
   const setRoom = useRoomStore((state) => state.setRoom);
+  const setHost = useRoomStore((state) => state.setHost);
+  const setUsersCount = useRoomStore((state) => state.setUsersCount);
   const setSongs = useQueueStore((state) => state.setSongs);
+  const addSong = useQueueStore((state) => state.addSong);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const resetPlaybackState = usePlaybackStore(
     (state) => state.resetPlaybackState,
@@ -69,6 +68,32 @@ export function useEmbedRoom(loaderData: EmbedLoaderData) {
   const setLocalPlayingState = usePlaybackStore(
     (state) => state.setLocalPlayingState,
   );
+
+  const sseCallbacks = useMemo(
+    () => ({
+      onConnected: synchronizeServerClock,
+      onHostUpdate: ({ userId }: { userId: string }) => setHost(userId),
+      onPlaybackUpdate: (playback: EmbedLoaderData['playback']) => {
+        if (!playback) return;
+        setPlaybackState(playback, useRoomStore.getState().room?.mode);
+      },
+      onReconnect: revalidate,
+      onRoomUpdate: setRoom,
+      onSongAdded: addSong,
+      onSongsUpdate: setSongs,
+      onUsersUpdate: setUsersCount,
+    }),
+    [
+      addSong,
+      revalidate,
+      setHost,
+      setPlaybackState,
+      setRoom,
+      setSongs,
+      setUsersCount,
+    ],
+  );
+  useSSE(roomId, sseCallbacks);
 
   const dismissToast = useCallback(() => {
     setToast(null);

@@ -1,4 +1,4 @@
-import { api } from '@vibes/api';
+import { api, getHttpError } from '@vibes/api';
 import { parseColorScheme, safeWrap } from '@vibes/shared';
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import type { EmbedLoaderData } from './loader';
@@ -26,9 +26,18 @@ export async function embedRoomClientLoader({
   const [roomError, room] = roomResult;
   const [songsError, songs] = songsResult;
   const [playbackError, playback] = playbackResult;
-  const [, providers] = providersResult;
-  if (roomError || songsError || playbackError || !room) {
-    throw new Response('Room not found', { status: 404 });
+  const [providersError, providers] = providersResult;
+  if (roomError || songsError || playbackError || providersError || !room) {
+    const roomStatus = roomError
+      ? getHttpError(roomError)?.response.status
+      : null;
+    if (roomStatus === 404) {
+      throw new Response('Room not found', { status: 404 });
+    }
+    throw new Response('Embedded room temporarily unavailable', {
+      status: 503,
+      statusText: 'Embedded room temporarily unavailable',
+    });
   }
 
   return {

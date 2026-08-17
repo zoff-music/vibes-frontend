@@ -4,14 +4,12 @@ import { Modal, View } from 'react-native';
 import { AddSongSheet } from '@/components/add-song-sheet';
 import { IconButton } from '@/components/native';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
-import { useApp } from '@/providers/app-provider';
+import { useRoomNavigation } from '@/providers/app-provider';
 
 export function TabletAddSongButton() {
   const tabletLayout = useTabletLandscapeLayout();
-  const { controllerRemote, room } = useApp();
+  const { canAddSongs } = useRoomNavigation();
   const [addSongVisible, setAddSongVisible] = useState(false);
-  const canAddSongs = Boolean(room || controllerRemote?.roomId);
-
   if (!tabletLayout.isTablet || !canAddSongs) return null;
 
   return (

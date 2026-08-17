@@ -9,6 +9,7 @@ import type {
   AddPlaylistResponse,
   AddSongRequest,
   AddSongResponse,
+  CastingTokenResponse,
   MusicPlaylist,
   PlaybackState,
   ProviderToken,
@@ -26,6 +27,7 @@ import type { ClientActionFunctionArgs } from 'react-router';
 export type RoomActionIntent =
   | 'addPlaylist'
   | 'addSong'
+  | 'castingToken'
   | 'generatePlaylist'
   | 'joinRoom'
   | 'playback'
@@ -42,6 +44,10 @@ export type RoomActionIntent =
 export interface RoomActionData {
   addPlaylist?: AddPlaylistResponse;
   addSong?: AddSongResponse;
+  casting?: {
+    roomId: string;
+    token: CastingTokenResponse;
+  };
   error?: string;
   intent: RoomActionIntent;
   generation?: RoomGenerationUpdate;
@@ -87,7 +93,6 @@ async function createErrorData(intent: RoomActionIntent, error: Error | null) {
       permissionError ??
       (error && getRateLimitMessage(error)) ??
       apiErrorMessage ??
-      error?.message ??
       'The request failed',
     intent,
   } satisfies RoomActionData;
@@ -125,6 +130,19 @@ export async function clientAction({
       intent: body.intent,
       room: session.room,
       session,
+    };
+  }
+
+  if (body.intent === 'castingToken') {
+    const [error, castingToken] = await api.post('/tokens/casting', null, {
+      roomId,
+    });
+    if (error || !castingToken) {
+      return createErrorData(body.intent, error);
+    }
+    return {
+      casting: { roomId, token: castingToken },
+      intent: body.intent,
     };
   }
 

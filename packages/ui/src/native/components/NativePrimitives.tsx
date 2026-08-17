@@ -99,23 +99,26 @@ export function NativeButton({
   accessibilityLabel,
   children,
   className,
-  disabled,
+  disabled = false,
   icon,
   iconColor,
   label,
   onPress,
-  preferred,
+  preferred = false,
   size = 'default',
   tone = 'primary',
 }: NativeButtonProps) {
   const [focused, setFocused] = useState(false);
+  const resolvedAccessibilityLabel = accessibilityLabel ?? label;
   let resolvedIconColor = iconColor ?? '#e8dff5';
   if (tone === 'primary') resolvedIconColor = '#ffffff';
   if (tone === 'danger') resolvedIconColor = '#d91465';
 
   return (
     <Pressable
-      accessibilityLabel={accessibilityLabel ?? label}
+      {...(resolvedAccessibilityLabel && {
+        accessibilityLabel: resolvedAccessibilityLabel,
+      })}
       accessibilityRole="button"
       className={classNames(
         'flex-row items-center justify-center border active:opacity-70',
@@ -135,7 +138,7 @@ export function NativeButton({
       onBlur={() => setFocused(false)}
       onFocus={() => setFocused(true)}
       onPress={onPress}
-      style={focused ? focusedControlStyle : undefined}
+      {...(focused && { style: focusedControlStyle })}
     >
       {icon && (
         <NativeIcon
@@ -191,7 +194,7 @@ interface NativeIconButtonProps {
 
 export function NativeIconButton({
   accessibilityLabel,
-  disabled,
+  disabled = false,
   icon,
   iconColor = '#e8dff5',
   onPress,
@@ -213,7 +216,7 @@ export function NativeIconButton({
       onBlur={() => setFocused(false)}
       onFocus={() => setFocused(true)}
       onPress={onPress}
-      style={focused ? focusedControlStyle : undefined}
+      {...(focused && { style: focusedControlStyle })}
     >
       <NativeIcon
         color={iconColor}
@@ -274,7 +277,7 @@ export function NativeQrCode({ logo, size, value }: NativeQrCodeProps) {
         backgroundColor="#ffffff"
         color="#000000"
         ecl="H"
-        logo={logo}
+        {...(logo && { logo })}
         logoBackgroundColor="#120b1e"
         logoBorderRadius={8}
         logoMargin={3}

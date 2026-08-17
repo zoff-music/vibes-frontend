@@ -1,16 +1,16 @@
-import { showRateLimitMessageToast } from '@vibes/api';
 import type { AdminUser } from '@vibes/models';
+import { showRateLimitMessageToast } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import {
-  isRouteErrorResponse,
   NavLink,
   type NavLinkRenderProps,
   Outlet,
+  type ShouldRevalidateFunctionArgs,
   useFetcher,
   useLoaderData,
-  useRouteError,
 } from 'react-router';
+import { AdminErrorView } from '../../components/AdminErrorView';
 import type { AdminActionData } from './action';
 import { action } from './action';
 import type { AdminLoaderData } from './loader';
@@ -20,6 +20,25 @@ export { action, loader };
 
 export interface AdminOutletContext {
   user: AdminUser;
+}
+
+export function shouldRevalidate({
+  actionResult,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs): boolean {
+  if (
+    typeof actionResult === 'object' &&
+    actionResult !== null &&
+    ('completedIntent' in actionResult ||
+      'error' in actionResult ||
+      'message' in actionResult ||
+      'rooms' in actionResult ||
+      'success' in actionResult)
+  ) {
+    return false;
+  }
+
+  return defaultShouldRevalidate;
 }
 
 export default function AdminLayout() {
@@ -98,7 +117,13 @@ export default function AdminLayout() {
               </label>
 
               {fetcher.data?.error && (
-                <p className="text-red-500 text-sm">{fetcher.data.error}</p>
+                <p
+                  aria-live="polite"
+                  className="text-red-500 text-sm"
+                  role="alert"
+                >
+                  {fetcher.data.error}
+                </p>
               )}
 
               <Button
@@ -169,31 +194,10 @@ function getNavigationClassName({ isActive }: NavLinkRenderProps) {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError();
-  const message = isRouteErrorResponse(error)
-    ? error.statusText
-    : error instanceof Error
-      ? error.message
-      : 'Could not load the admin dashboard.';
-  const reloadPage = () => {
-    window.location.reload();
-  };
-
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-surface px-6 py-12 text-ink dark:bg-gray-900 dark:text-white">
-      <div className="relative z-10 w-full max-w-md">
-        <div className="glass rounded-3xl border-2 border-ink/10 p-8 text-center dark:border-gray-700">
-          <h1 className="mb-2 font-black text-3xl tracking-tight">
-            Admin Error
-          </h1>
-          <p className="mb-6 text-ink/60 text-sm dark:text-gray-400">
-            {message}
-          </p>
-          <Button className="w-full" onClick={reloadPage} variant="primary">
-            Reload
-          </Button>
-        </div>
-      </div>
-    </main>
+    <AdminErrorView
+      message="The requested admin data could not be loaded. Reload the page to try again."
+      title="Admin request failed"
+    />
   );
 }

@@ -5,9 +5,10 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useCastStore } from '../stores/castStore';
 import { useThemeStore } from '../stores/themeStore';
+import { useCastRoomHandshake } from './useCastRoomHandshake';
 
 /**
  * Hook to integrate casting functionality with the existing playback system
@@ -55,49 +56,12 @@ export const useCasting = (_roomId: string) => {
     console.log('[Cast] local emulator available; waiting for user connect');
   }, [isConnected, isLocalEmulatorEnabled, availableDevices.length]);
 
-  const initializedSessionIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!isConnected || !currentSession || !_roomId) return;
-
-    let cancelled = false;
-    const sessionId = currentSession.id;
-
-    void (async () => {
-      console.log('[Cast] starting ordered room handshake:', _roomId);
-      const { joinRoom } = useCastStore.getState();
-      const [joinError] = await safeWrapAsync(joinRoom(_roomId));
-      if (joinError) {
-        console.error('Failed to send joinRoom handshake:', joinError);
-        return;
-      }
-      if (cancelled) return;
-
-      initializedSessionIdRef.current = sessionId;
-      const playbackState = usePlaybackStore.getState();
-      if (!playbackState.currentSong) return;
-
-      const [syncError] = await safeWrapAsync(
-        stableSyncPlaybackState({
-          isPlaying: playbackState.isPlaying,
-          positionMs: playbackState.actualPositionMs,
-          currentSong: playbackState.currentSong,
-          updatedAt: playbackState.updatedAt,
-          serverTimeMs: playbackState.serverTimeMs,
-        }),
-      );
-      if (syncError) {
-        console.error('Failed to send initial playback state:', syncError);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      if (initializedSessionIdRef.current === sessionId) {
-        initializedSessionIdRef.current = null;
-      }
-    };
-  }, [isConnected, currentSession?.id, _roomId, stableSyncPlaybackState]);
+  const initializedSessionIdRef = useCastRoomHandshake({
+    currentSession,
+    isConnected,
+    roomId: _roomId,
+    syncPlaybackState: stableSyncPlaybackState,
+  });
 
   useEffect(() => {
     if (!isConnected || !currentSession || !currentSong) return;

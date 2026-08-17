@@ -1,4 +1,4 @@
-import { useRoomRequests } from '@vibes/api';
+import { useRoomDiscoveryRequests, useRoomLifecycleRequests } from '@vibes/api';
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useEffect, useState } from 'react';
@@ -24,7 +24,8 @@ import { useApp } from '@/providers/app-provider';
 
 export default function RoomsScreen() {
   const theme = useAppTheme();
-  const roomRequests = useRoomRequests(mobileApi);
+  const discoveryRequests = useRoomDiscoveryRequests(mobileApi);
+  const lifecycleRequests = useRoomLifecycleRequests(mobileApi);
   const {
     controllerRemote,
     loading,
@@ -44,11 +45,11 @@ export default function RoomsScreen() {
   useEffect(() => setValue(roomId), [roomId]);
   useEffect(() => {
     const loadRooms = async () => {
-      const [, rooms] = await roomRequests.fetchPublicRooms();
+      const [, rooms] = await discoveryRequests.fetchPublicRooms();
       setPublicRooms(rooms ?? []);
     };
     void loadRooms();
-  }, [roomRequests]);
+  }, [discoveryRequests]);
 
   const joinRoom = async (roomName: string) => {
     if (!roomName.trim()) {
@@ -103,7 +104,7 @@ export default function RoomsScreen() {
     }
     setGenerationLoading(true);
     const [requestError, generatedRoom] =
-      await roomRequests.createGeneratedRoom({ prompt });
+      await lifecycleRequests.createGeneratedRoom({ prompt });
     setGenerationLoading(false);
     if (requestError || !generatedRoom) {
       setError(

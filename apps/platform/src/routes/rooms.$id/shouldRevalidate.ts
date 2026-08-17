@@ -15,7 +15,10 @@ export function shouldRevalidate({
     return false;
   }
 
-  if (currentUrl.pathname === nextUrl.pathname) {
+  if (
+    currentUrl.pathname === nextUrl.pathname &&
+    currentUrl.search !== nextUrl.search
+  ) {
     return false;
   }
 

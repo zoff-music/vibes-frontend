@@ -42,16 +42,12 @@ export function useRemoteEvents({
         '/remotes/{id}/events',
         { id: remoteId },
         ([eventError, message]) => {
-          if (eventError || !message) return;
-          const event = message as {
-            data: RemoteEvent;
-            type: 'remote_room_update' | 'remote_state_update';
-          };
-          if (event.type === 'remote_state_update') {
-            onStateUpdateRef.current?.(event.data);
+          if (!active || eventError || !message) return;
+          if (message.type === 'remote_state_update') {
+            onStateUpdateRef.current?.(message.data);
             return;
           }
-          onRoomUpdateRef.current(event.data);
+          onRoomUpdateRef.current(message.data);
         },
       );
       if (!active) {

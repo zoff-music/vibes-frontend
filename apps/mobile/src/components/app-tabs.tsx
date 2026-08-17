@@ -6,15 +6,14 @@ import {
 } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
-import { useApp } from '@/providers/app-provider';
+import { useRoomNavigation } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 export default function AppTabs() {
   const { resolvedScheme } = useThemePreference();
   const theme = useAppTheme();
   const tabletLayout = useTabletLandscapeLayout();
-  const { controllerRemote, room } = useApp();
-  const canAddSongs = Boolean(room || controllerRemote?.roomId);
+  const { canAddSongs, hasRoom } = useRoomNavigation();
   const showsFloatingAddButton = tabletLayout.isTablet;
   const hidesAddTab = Platform.OS === 'ios' && showsFloatingAddButton;
   const hidesNativeTabs = Platform.OS === 'android';
@@ -47,7 +46,7 @@ export default function AppTabs() {
     >
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>
-          {room ? 'Room' : 'Rooms'}
+          {hasRoom ? 'Room' : 'Rooms'}
         </NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           renderingMode="template"

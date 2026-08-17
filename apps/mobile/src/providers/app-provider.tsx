@@ -2,7 +2,10 @@ import {
   getHttpError,
   useRemoteEvents,
   useRemoteRequests,
-  useRoomRequests,
+  useRoomDiscoveryRequests,
+  useRoomLifecycleRequests,
+  useRoomPlaybackRequests,
+  useRoomReadRequests,
   useSSE,
 } from '@vibes/api';
 import type {
@@ -36,6 +39,7 @@ import {
   useMachineRemote,
 } from '@/hooks/use-machine-remote';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
+import { fetchRoomSnapshot } from '@/lib/room-snapshot';
 import {
   deleteSecureValue,
   getSecureValue,
@@ -94,6 +98,21 @@ export interface ControllerRemoteSession {
 }
 
 const AppContext = createContext<AppState | null>(null);
+
+interface RoomNavigationState {
+  canAddSongs: boolean;
+  hasRoom: boolean;
+}
+
+interface MachineRemoteState {
+  disableMachineRemote: () => Promise<void>;
+  enableMachineRemote: () => Promise<void>;
+  machinePairing: RemotePairing | null;
+  machineRemote: RemoteStatus | null;
+}
+
+const RoomNavigationContext = createContext<RoomNavigationState | null>(null);
+const MachineRemoteContext = createContext<MachineRemoteState | null>(null);
 const remoteStorageKey = 'zoff.mobile.remote';
 const remoteTokenStorageKey = 'zoff.mobile.remote-token';
 const playerEnabledStorageKey = 'zoff.mobile.player-enabled';
@@ -101,7 +120,10 @@ const roomAdminPasswordStoragePrefix = 'zoff.mobile.room-admin';
 
 export function AppProvider({ children }: PropsWithChildren) {
   const { showToast } = useToast();
-  const roomRequests = useRoomRequests(mobileApi);
+  const discoveryRequests = useRoomDiscoveryRequests(mobileApi);
+  const lifecycleRequests = useRoomLifecycleRequests(mobileApi);
+  const playbackRequests = useRoomPlaybackRequests(mobileApi);
+  const readRequests = useRoomReadRequests(mobileApi);
   const remoteRequests = useRemoteRequests(mobileApi);
   const [roomId, setRoomIdValue] = useState('');
   const [room, setRoom] = useState<Room | null>(null);
@@ -332,7 +354,11 @@ export function AppProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const [requestError, snapshot] = await roomRequests.fetchSnapshot(roomId);
+    const [requestError, snapshot] = await fetchRoomSnapshot(
+      roomId,
+      readRequests,
+      playbackRequests,
+    );
     if (requestError || !snapshot) {
       setError(
         await getRequestErrorMessage(requestError, 'Could not refresh room.'),
@@ -353,7 +379,13 @@ export function AppProvider({ children }: PropsWithChildren) {
     synchronizeServerClock(snapshot.playback.serverTimeMs);
     applyPlaybackUpdate(snapshot.playback);
     setError('');
-  }, [applyPlaybackUpdate, applyRoomUpdate, roomId, roomRequests]);
+  }, [
+    applyPlaybackUpdate,
+    applyRoomUpdate,
+    playbackRequests,
+    readRequests,
+    roomId,
+  ]);
 
   useAppResume(refresh);
 
@@ -377,7 +409,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       const adminPassword = password || storedPassword || '';
       let savedPasswordAuthenticationFailed = false;
       if (adminPassword) {
-        const [requestError] = await roomRequests.joinRoom(
+        const [requestError] = await lifecycleRequests.joinRoom(
           normalized,
           adminPassword,
         );
@@ -399,8 +431,11 @@ export function AppProvider({ children }: PropsWithChildren) {
         }
       }
 
-      const [requestError, snapshot] =
-        await roomRequests.fetchSnapshot(normalized);
+      const [requestError, snapshot] = await fetchRoomSnapshot(
+        normalized,
+        readRequests,
+        playbackRequests,
+      );
       setLoading(false);
       if (requestError || !snapshot) {
         const status = requestError
@@ -439,8 +474,10 @@ export function AppProvider({ children }: PropsWithChildren) {
     [
       applyPlaybackUpdate,
       applyRoomUpdate,
+      lifecycleRequests,
+      playbackRequests,
+      readRequests,
       rememberRoomAdminPassword,
-      roomRequests,
     ],
   );
 
@@ -463,7 +500,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   const resetLocalPlayback = useCallback(async () => {
     if (!roomId) return;
     const [requestError, authoritativePlayback] =
-      await roomRequests.fetchPlayback(roomId);
+      await playbackRequests.fetchPlayback(roomId);
     if (requestError || !authoritativePlayback) {
       setError(
         await getRequestErrorMessage(
@@ -483,7 +520,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     setHasLocalPlaybackPositionDrift(false);
     setPlaybackResetVersion((version) => version + 1);
     setError('');
-  }, [roomId, roomRequests]);
+  }, [playbackRequests, roomId]);
 
   const handleRemoteRoomUpdate = useCallback(
     (event: RemoteEvent) => {
@@ -521,44 +558,47 @@ export function AppProvider({ children }: PropsWithChildren) {
     });
   }, []);
 
-  const handleGenerationUpdate = useCallback(
-    (update: RoomGenerationUpdate) => {
-      setRoom((currentRoom) => {
-        if (!currentRoom) return currentRoom;
-        if (update.status === 'generating') {
-          return {
-            ...currentRoom,
-            generationError: undefined,
-            isGenerating: true,
-          };
-        }
-        if (update.status === 'failed') {
-          return {
-            ...currentRoom,
-            generationError:
-              update.error ?? 'Playlist generation could not be completed.',
-            isGenerating: false,
-          };
-        }
+  const handleGenerationUpdate = useCallback((update: RoomGenerationUpdate) => {
+    setRoom((currentRoom) => {
+      if (!currentRoom) return currentRoom;
+      if (update.status === 'generating') {
         return {
           ...currentRoom,
           generationError: undefined,
+          isGenerating: true,
+        };
+      }
+      if (update.status === 'failed') {
+        return {
+          ...currentRoom,
+          generationError:
+            update.error ?? 'Playlist generation could not be completed.',
           isGenerating: false,
         };
-      });
-      if (update.status !== 'generating') {
-        pendingGeneratedRoomRef.current = '';
-        void refresh();
       }
-    },
-    [refresh],
-  );
+      return {
+        ...currentRoom,
+        generationError: undefined,
+        isGenerating: false,
+      };
+    });
+    if (update.status !== 'generating') {
+      pendingGeneratedRoomRef.current = '';
+    }
+  }, []);
 
   const roomEventCallbacks = useMemo(
     () => ({
+      onConnected: synchronizeServerClock,
       onGenerationUpdate: handleGenerationUpdate,
       onPlaybackUpdate: applyPlaybackUpdate,
       onRoomUpdate: applyRoomUpdate,
+      onSongAdded: (song: Song) => {
+        setSongs((current) => {
+          if (current.some((item) => item.id === song.id)) return current;
+          return [...current, song];
+        });
+      },
       onSongsUpdate: setSongs,
       onUsersUpdate: handleUsersUpdate,
     }),
@@ -610,7 +650,8 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     const loadProviders = async () => {
-      const [requestError, nextProviders] = await roomRequests.fetchProviders();
+      const [requestError, nextProviders] =
+        await discoveryRequests.fetchProviders();
       if (requestError || !nextProviders) {
         setError(
           await getRequestErrorMessage(
@@ -623,11 +664,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       setProviders(nextProviders);
     };
     void loadProviders();
-  }, [roomRequests]);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  }, [discoveryRequests]);
 
   const value = useMemo<AppState>(
     () => ({
@@ -701,7 +738,29 @@ export function AppProvider({ children }: PropsWithChildren) {
     ],
   );
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  const hasRoom = Boolean(room);
+  const canAddSongs = hasRoom || Boolean(controllerRemote?.roomId);
+  const roomNavigationValue = useMemo<RoomNavigationState>(
+    () => ({ canAddSongs, hasRoom }),
+    [canAddSongs, hasRoom],
+  );
+  const machineRemoteValue = useMemo<MachineRemoteState>(
+    () => ({
+      disableMachineRemote,
+      enableMachineRemote,
+      machinePairing,
+      machineRemote,
+    }),
+    [disableMachineRemote, enableMachineRemote, machinePairing, machineRemote],
+  );
+
+  return (
+    <RoomNavigationContext.Provider value={roomNavigationValue}>
+      <MachineRemoteContext.Provider value={machineRemoteValue}>
+        <AppContext.Provider value={value}>{children}</AppContext.Provider>
+      </MachineRemoteContext.Provider>
+    </RoomNavigationContext.Provider>
+  );
 }
 
 const notFoundStatus = 404;
@@ -724,6 +783,22 @@ export function useApp() {
   const context = useContext(AppContext);
   if (!context) {
     throw new Error('useApp must be used inside AppProvider');
+  }
+  return context;
+}
+
+export function useRoomNavigation() {
+  const context = useContext(RoomNavigationContext);
+  if (!context) {
+    throw new Error('useRoomNavigation must be used inside AppProvider');
+  }
+  return context;
+}
+
+export function useMachineRemoteSettings() {
+  const context = useContext(MachineRemoteContext);
+  if (!context) {
+    throw new Error('useMachineRemoteSettings must be used inside AppProvider');
   }
   return context;
 }

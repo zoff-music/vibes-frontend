@@ -51,11 +51,11 @@ export function PlaybackProgress({
             className="absolute inset-x-0 h-5 w-full cursor-pointer appearance-none bg-transparent [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-secondary [&::-moz-range-thumb]:bg-theme-surface [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-0.75 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-secondary [&::-webkit-slider-thumb]:bg-theme-surface"
             max={durationMs}
             min={0}
-            name={name}
-            onChange={onChange}
-            onKeyUp={onKeyUp}
-            onPointerDown={onPointerDown}
-            onPointerUp={onPointerUp}
+            {...(name && { name })}
+            {...(onChange && { onChange })}
+            {...(onKeyUp && { onKeyUp })}
+            {...(onPointerDown && { onPointerDown })}
+            {...(onPointerUp && { onPointerUp })}
             type="range"
             value={boundedPositionMs}
           />

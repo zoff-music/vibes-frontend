@@ -18,6 +18,7 @@ import type { KeyboardEvent, RefObject } from 'react';
 import type { Theme } from '../../../stores/themeStore';
 
 interface TerminalRoomSettingsProps {
+  adminError: string | null;
   adminPassword: string;
   currentTheme: Theme;
   displayRoom: Room | null;
@@ -37,6 +38,7 @@ interface TerminalRoomSettingsProps {
 }
 
 export function TerminalRoomSettings({
+  adminError,
   adminPassword,
   currentTheme,
   displayRoom,
@@ -235,6 +237,15 @@ export function TerminalRoomSettings({
                   {isAuthenticating ? '[...]' : '[AUTH]'}
                 </TerminalButton>
               </TerminalInputGroup>
+              {adminError && (
+                <p
+                  aria-live="polite"
+                  className="mt-2 text-[#ff8ca8] text-xs"
+                  role="alert"
+                >
+                  {adminError}
+                </p>
+              )}
             </TerminalField>
           )}
           {isAdmin && (

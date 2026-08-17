@@ -63,7 +63,7 @@ interface CastState {
     name: string;
     participantCount: number;
   }) => Promise<void>;
-  joinRoom: (roomId: string) => Promise<void>;
+  joinRoom: (roomId: string, castToken: string) => Promise<void>;
   updateTheme: (theme: ResolvedColorScheme) => Promise<void>;
   clearError: () => void;
   cleanup: () => void;
@@ -355,13 +355,15 @@ export const useCastStore = create<CastState>((set, get) => ({
     }
   },
 
-  joinRoom: async (roomId: string) => {
+  joinRoom: async (roomId: string, castToken: string) => {
     if (!get().isConnected) return;
 
     console.log('[Cast] store joinRoom:start', { roomId });
     set({ lastError: null });
     const castManager = await getCastManager();
-    const [error, _] = await safeWrapAsync(castManager.joinRoom(roomId));
+    const [error, _] = await safeWrapAsync(
+      castManager.joinRoom(roomId, castToken),
+    );
 
     if (error) {
       console.error('Failed to join room on cast device:', error);

@@ -1,5 +1,6 @@
 import { type PlaybackState, type Song } from '@vibes/models';
 import {
+  classNames,
   getProviderTrackUrl,
   resolveSongThumbnail,
   showToast,
@@ -220,11 +221,12 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             <div className="mb-8">
               <div className="mb-3 flex items-center gap-2">
                 <div
-                  className={`h-2 w-2 rounded-full ${
+                  className={classNames(
+                    'h-2 w-2 rounded-full',
                     isPlaying
                       ? 'animate-pulse bg-secondary shadow-secondary-strong'
-                      : 'bg-white/30'
-                  }`}
+                      : 'bg-white/30',
+                  )}
                 />
                 <span className="font-display text-2xs text-theme-muted tracking-label">
                   {isPlaying ? 'Now Playing' : 'Paused'}

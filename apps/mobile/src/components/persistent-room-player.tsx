@@ -1,4 +1,4 @@
-import { useRoomRequests } from '@vibes/api';
+import { useRoomPlaybackRequests } from '@vibes/api';
 import { useKeepAwake } from 'expo-keep-awake';
 import { usePathname } from 'expo-router';
 import { Platform, View } from 'react-native';
@@ -27,7 +27,7 @@ export function PersistentRoomPlayer() {
     setLocalPlaybackPosition,
     setLocalPlaying,
   } = useApp();
-  const roomRequests = useRoomRequests(mobileApi);
+  const playbackRequests = useRoomPlaybackRequests(mobileApi);
   const castState = useCastState();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
@@ -103,7 +103,7 @@ export function PersistentRoomPlayer() {
             (Boolean(room.userId) && room.hostId === room.userId);
           if (!hasAuthority) return;
           const update = async () => {
-            const [requestError] = await roomRequests.updatePlayback(
+            const [requestError] = await playbackRequests.updatePlayback(
               roomId,
               'seek',
               positionMs,
@@ -146,7 +146,7 @@ export function PersistentRoomPlayer() {
             (Boolean(room.userId) && room.hostId === room.userId);
           if (!hasAuthority || playback?.isPlaying === isPlaying) return;
           const update = async () => {
-            const [requestError] = await roomRequests.updatePlayback(
+            const [requestError] = await playbackRequests.updatePlayback(
               roomId,
               isPlaying ? 'play' : 'pause',
             );

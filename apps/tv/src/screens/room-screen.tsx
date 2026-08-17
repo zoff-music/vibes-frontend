@@ -2,12 +2,11 @@ import { classNames } from '@vibes/shared';
 import { NativeButton, NativeIcon, NativeQrCode } from '@vibes/ui/native';
 import {
   formatPlaybackSeconds,
-  getPlaybackPresentation,
   getQueueRemainderLabel,
   voteIcon,
 } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   type LayoutChangeEvent,
@@ -15,6 +14,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { PlaybackStatus } from '@/components/playback-status';
 import { ProviderIcon } from '@/components/provider-icon';
 import { ProviderSurface } from '@/components/provider-surface';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
@@ -45,11 +45,6 @@ export function RoomScreen({ session }: RoomScreenProps) {
     ),
   );
   const joinUrl = `https://zoff.me/${encodeURIComponent(session.roomId)}`;
-  const progress = useMemo(() => {
-    const durationMs = (currentSong?.duration ?? 0) * millisecondsPerSecond;
-    return getPlaybackPresentation(session.playback.positionMs, durationMs)
-      .progress;
-  }, [currentSong?.duration, session.playback.positionMs]);
   const queueRemainderLabel = getQueueRemainderLabel(
     queuedSongs.length,
     visibleQueueLength,
@@ -116,20 +111,10 @@ export function RoomScreen({ session }: RoomScreenProps) {
               />
             )}
           </View>
-          <View className="mt-2 flex-row justify-between">
-            <Text className="font-heading text-tv-muted text-xs">
-              {formatPlaybackSeconds(
-                session.playback.positionMs / millisecondsPerSecond,
-              )}
-            </Text>
-            <Text className="font-heading text-tv-muted text-xs">
-              {formatPlaybackSeconds(currentSong?.duration ?? 0)}
-            </Text>
-          </View>
-          <View className="mt-1 h-2 flex-row overflow-hidden rounded-full bg-white/20">
-            <View className="bg-accent" style={{ flex: progress }} />
-            <View style={{ flex: 1 - progress }} />
-          </View>
+          <PlaybackStatus
+            durationSeconds={currentSong?.duration ?? 0}
+            hasRoom={Boolean(session.roomId)}
+          />
         </View>
       </View>
 
@@ -267,7 +252,6 @@ export function RoomScreen({ session }: RoomScreenProps) {
   );
 }
 
-const millisecondsPerSecond = 1000;
 const compactScreenWidth = 1100;
 const compactScreenHeight = 560;
 const compactQueueTrackHeight = 64;

@@ -1,4 +1,4 @@
-import { getRateLimitMessage } from '@vibes/api';
+import { getRateLimitMessage, getRequestErrorMessage } from '@vibes/api';
 import type { Providers } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
@@ -35,7 +35,7 @@ export async function loader({
     return {
       createRoomName: name,
       providers: [],
-      ...getLoaderError(err, 'Failed to load music providers'),
+      ...(await getLoaderError(err, 'Failed to load music providers')),
     };
   }
 
@@ -89,7 +89,7 @@ async function loadRoomNameExistence(
   if (err || exists === null) {
     return {
       checkedName: name,
-      ...getLoaderError(err, 'Could not check this name'),
+      ...(await getLoaderError(err, 'Could not check this name')),
     };
   }
 
@@ -108,13 +108,13 @@ function getRequestHeaders(request: Request): Record<string, string> {
   return { Cookie: cookieHeader };
 }
 
-function getLoaderError(
+async function getLoaderError(
   err: Error | null,
   fallbackMessage: string,
-): RoomsCreateLoaderData {
+): Promise<RoomsCreateLoaderData> {
   const rateLimitMessage = err ? getRateLimitMessage(err) : null;
   return {
-    error: rateLimitMessage ?? err?.message ?? fallbackMessage,
+    error: await getRequestErrorMessage(err, fallbackMessage),
     ...(rateLimitMessage && { rateLimitMessage }),
   };
 }

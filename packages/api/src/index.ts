@@ -542,8 +542,6 @@ export function createApiClient(customHeaders: Record<string, string> = {}) {
 
 export const api = createApiClient();
 
-// Endpoint helpers (mirrors backend handler filenames)
-export * from './casting';
 export * from './hooks/useAdminEvents';
 export * from './hooks/useProviderRequests';
 export * from './hooks/useRemoteEvents';

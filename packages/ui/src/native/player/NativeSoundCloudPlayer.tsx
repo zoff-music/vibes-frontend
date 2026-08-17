@@ -216,10 +216,10 @@ export function NativeSoundCloudPlayer({
 
   return (
     <View
+      className="overflow-hidden"
       style={{
         backgroundColor: blankArtworkColor,
         height,
-        overflow: 'hidden',
         width,
       }}
     >

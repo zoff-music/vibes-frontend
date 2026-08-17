@@ -1,3 +1,4 @@
+import { getHttpError } from '@vibes/api';
 import type { AdminRoomResult } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../../http.server';
@@ -47,12 +48,29 @@ export async function loader({
     },
     { headers },
   );
+  if (error || !roomResult) {
+    const status = error ? getHttpError(error)?.response.status : null;
+    if (status === 401 || status === 403) {
+      return {
+        roomResult: { rooms: [], from, to: from, total: 0, count: 0 },
+        roomSearch: {
+          q,
+          sortBy,
+          order,
+          from,
+          to,
+          pageSize: to - from + 1,
+        },
+      };
+    }
+    throw new Response('Admin rooms temporarily unavailable', {
+      status: 503,
+      statusText: 'Admin rooms temporarily unavailable',
+    });
+  }
 
   return {
-    roomResult:
-      error || !roomResult
-        ? { rooms: [], from, to: from, total: 0, count: 0 }
-        : roomResult,
+    roomResult,
     roomSearch: {
       q,
       sortBy,

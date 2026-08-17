@@ -1,4 +1,4 @@
-import { getRateLimitMessage } from '@vibes/api';
+import { getRateLimitMessage, getRequestErrorMessage } from '@vibes/api';
 import type { ActionFunctionArgs } from 'react-router';
 import { getServerApi } from '../../../http.server';
 
@@ -28,10 +28,10 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error || !user) {
       const rateLimitMessage = error ? getRateLimitMessage(error) : null;
       return {
-        error:
-          rateLimitMessage ??
-          error?.message ??
+        error: await getRequestErrorMessage(
+          error,
           'Failed to create the admin user.',
+        ),
         ...(rateLimitMessage && { rateLimitMessage }),
       };
     }
@@ -54,10 +54,10 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error) {
       const rateLimitMessage = getRateLimitMessage(error);
       return {
-        error:
-          rateLimitMessage ??
-          error.message ??
+        error: await getRequestErrorMessage(
+          error,
           'Failed to reset the admin password.',
+        ),
         ...(rateLimitMessage && { rateLimitMessage }),
       };
     }
@@ -78,10 +78,10 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error) {
       const rateLimitMessage = getRateLimitMessage(error);
       return {
-        error:
-          rateLimitMessage ??
-          error.message ??
+        error: await getRequestErrorMessage(
+          error,
           'Failed to delete the admin user.',
+        ),
         ...(rateLimitMessage && { rateLimitMessage }),
       };
     }

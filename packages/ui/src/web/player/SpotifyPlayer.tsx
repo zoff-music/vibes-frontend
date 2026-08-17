@@ -1,6 +1,7 @@
 import {
   classNames,
   type Song,
+  safeWrap,
   safeWrapAsync,
   usePlaybackStore,
 } from '@vibes/shared';
@@ -64,8 +65,17 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
   const lastCallbackPositionRef = useRef<number | null>(null);
   const lastCallbackTrackURIRef = useRef<string | null>(null);
   const lastReportedSeekAtRef = useRef(0);
+  const lastReportedAlignmentRef = useRef<boolean | null>(null);
   const synchronizationQueueRef = useRef(Promise.resolve());
   const lastResetVersionRef = useRef(resetVersion);
+  const oauthCleanupRef = useRef<(() => void) | null>(null);
+
+  useEffect(
+    () => () => {
+      oauthCleanupRef.current?.();
+    },
+    [],
+  );
 
   useEffect(() => {
     if (providerSong?.sourceType === 'spotify') {
@@ -256,6 +266,7 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
 
   useEffect(() => {
     if (!isActive || !isReady || !onLocalAlignmentChange) return;
+    lastReportedAlignmentRef.current = null;
 
     const interval = setInterval(() => {
       const localPositionMs = lastCallbackPositionRef.current;
@@ -284,6 +295,10 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
             elapsedMs -
             playbackStore.getAuthoritativePositionMs(),
         ) <= ALIGNED_POSITION_TOLERANCE_MS;
+      if (lastReportedAlignmentRef.current === isAligned) {
+        return;
+      }
+      lastReportedAlignmentRef.current = isAligned;
       onLocalAlignmentChange(isAligned);
     }, ALIGNMENT_SAMPLE_MS);
 
@@ -300,17 +315,29 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
-    const popup = window.open(
-      '/api/v1/authorizations/spotify',
-      'SpotifyAuth',
-      `width=${width},height=${height},left=${left},top=${top}`,
+    oauthCleanupRef.current?.();
+    const [popupError, popup] = safeWrap(() =>
+      window.open(
+        '/api/v1/authorizations/spotify',
+        'SpotifyAuth',
+        `width=${width},height=${height},left=${left},top=${top}`,
+      ),
     );
+    if (popupError || !popup) {
+      setError('The Spotify sign-in window could not be opened.');
+      return;
+    }
 
     let timer: ReturnType<typeof setInterval> | null = null;
 
     const cleanup = () => {
       if (timer) clearInterval(timer);
       window.removeEventListener('message', handleMessage);
+      oauthCleanupRef.current = null;
+    };
+
+    const completeAuthorization = () => {
+      cleanup();
       onRequestToken?.('spotify', true);
       setError(null);
     };
@@ -325,17 +352,18 @@ const SpotifyPlayerComponent: React.FC<Props> = ({
         console.log(
           '[SpotifyPlayer] OAuth success message received, cleaning up',
         );
-        cleanup();
-        popup?.close();
+        completeAuthorization();
+        popup.close();
       }
     };
 
     window.addEventListener('message', handleMessage);
+    oauthCleanupRef.current = cleanup;
 
     timer = setInterval(() => {
-      if (popup?.closed) {
+      if (popup.closed) {
         console.log('[SpotifyPlayer] Popup closed detected via polling');
-        cleanup();
+        completeAuthorization();
       }
     }, 500);
   };

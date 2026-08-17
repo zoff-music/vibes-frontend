@@ -1,3 +1,5 @@
+import { Button } from '@vibes/ui/web';
+
 export function EmbedRoomErrorBoundary() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-theme p-4 text-theme">
@@ -6,6 +8,14 @@ export function EmbedRoomErrorBoundary() {
         <p className="mt-2 text-theme-muted text-xs">
           Check the room name and try again.
         </p>
+        <Button
+          className="mt-5"
+          onClick={() => window.location.reload()}
+          type="button"
+          variant="tertiary"
+        >
+          Reload player
+        </Button>
       </div>
     </main>
   );

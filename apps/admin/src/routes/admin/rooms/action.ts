@@ -1,10 +1,12 @@
-import { getRateLimitMessage } from '@vibes/api';
+import { getRateLimitMessage, getRequestErrorMessage } from '@vibes/api';
+import type { AdminRoomSummary } from '@vibes/models';
 import type { ActionFunctionArgs } from 'react-router';
 import { getServerApi } from '../../../http.server';
 
 export interface AdminRoomsActionData {
   error?: string;
   rateLimitMessage?: string;
+  rooms?: AdminRoomSummary[];
   success?: boolean;
 }
 
@@ -18,7 +20,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === 'renameRoom') {
     const name = String(formData.get('name') ?? '').trim();
-    const [error] = await serverApi.patch(
+    const [error, rooms] = await serverApi.patch(
       '/admin/rooms/{id}',
       { id: roomID },
       { name },
@@ -27,16 +29,16 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error) {
       const rateLimitMessage = getRateLimitMessage(error);
       return {
-        error: rateLimitMessage ?? error.message ?? 'Failed to rename room.',
+        error: await getRequestErrorMessage(error, 'Failed to rename room.'),
         ...(rateLimitMessage && { rateLimitMessage }),
       };
     }
 
-    return { success: true };
+    return { rooms: rooms ?? [], success: true };
   }
 
   if (intent === 'clearPassword') {
-    const [error] = await serverApi.patch(
+    const [error, rooms] = await serverApi.patch(
       '/admin/rooms/{id}',
       { id: roomID },
       { clearAdminPassword: true },
@@ -45,17 +47,19 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error) {
       const rateLimitMessage = getRateLimitMessage(error);
       return {
-        error:
-          rateLimitMessage ?? error.message ?? 'Failed to clear room password.',
+        error: await getRequestErrorMessage(
+          error,
+          'Failed to clear room password.',
+        ),
         ...(rateLimitMessage && { rateLimitMessage }),
       };
     }
 
-    return { success: true };
+    return { rooms: rooms ?? [], success: true };
   }
 
   if (intent === 'deleteRoom') {
-    const [error] = await serverApi.delete(
+    const [error, rooms] = await serverApi.delete(
       '/admin/rooms/{id}',
       { id: roomID },
       { headers },
@@ -63,12 +67,12 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error) {
       const rateLimitMessage = getRateLimitMessage(error);
       return {
-        error: rateLimitMessage ?? error.message ?? 'Failed to delete room.',
+        error: await getRequestErrorMessage(error, 'Failed to delete room.'),
         ...(rateLimitMessage && { rateLimitMessage }),
       };
     }
 
-    return { success: true };
+    return { rooms: rooms ?? [], success: true };
   }
 
   return { error: 'Unsupported room action.' };

@@ -1,4 +1,4 @@
-import { api, getRateLimitMessage } from '@vibes/api';
+import { api, getRateLimitMessage, getRequestErrorMessage } from '@vibes/api';
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import type { RoomsCreateLoaderData } from './loader';
 
@@ -31,7 +31,7 @@ export async function clientLoader({
     if (err || exists === null) {
       return {
         checkedName: trimmedName,
-        ...getLoaderError(err, 'Could not check this name'),
+        ...(await getLoaderError(err, 'Could not check this name')),
       };
     }
     return { checkedName: trimmedName, roomNameExists: exists };
@@ -41,13 +41,13 @@ export async function clientLoader({
   return loaderData;
 }
 
-function getLoaderError(
+async function getLoaderError(
   err: Error | null,
   fallbackMessage: string,
-): RoomsCreateLoaderData {
+): Promise<RoomsCreateLoaderData> {
   const rateLimitMessage = err ? getRateLimitMessage(err) : null;
   return {
-    error: rateLimitMessage ?? err?.message ?? fallbackMessage,
+    error: await getRequestErrorMessage(err, fallbackMessage),
     ...(rateLimitMessage && { rateLimitMessage }),
   };
 }
