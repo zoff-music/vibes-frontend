@@ -21,6 +21,8 @@ web-build/
 *.tsbuildinfo
 output/
 tmp/
+**/credentials.json
+**/credentials/
 
 # Mobile generated output
 .expo/
