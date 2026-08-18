@@ -5,8 +5,6 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { CastButton } from '@/components/cast-button';
 import {
   Button,
   Card,
@@ -29,6 +27,7 @@ import {
 } from '@/providers/app-provider';
 import type { RoomPlaybackActionData } from '@/routes/rooms.$id.playback/action';
 import type { RoomQueueActionData } from '@/routes/rooms.$id.queue/action';
+import { CastButton } from './cast-button';
 
 export function RoomScreen() {
   const {
@@ -321,10 +320,8 @@ export function RoomScreen() {
         tabletLayout.isTabletLandscape && 'h-20 py-0',
       )}
     >
-      <View className="min-w-0 flex-1 flex-row items-baseline gap-2 overflow-hidden">
-        <View className="shrink-0">
-          <Copy muted>NOW IN</Copy>
-        </View>
+      <View className="min-w-0 flex-1 gap-0.5 overflow-hidden">
+        <Copy muted>NOW IN</Copy>
         <Text
           className="min-w-0 flex-1 font-heading text-3xl text-mobile-text dark:text-mobile-dark-text"
           ellipsizeMode="tail"
@@ -351,7 +348,7 @@ export function RoomScreen() {
   if (compactRoomHeader) {
     roomHeader = (
       <View className="h-[76px] w-full flex-row items-center gap-3 px-4">
-        <View className="min-w-0 flex-1 flex-row items-baseline gap-2 overflow-hidden">
+        <View className="min-w-0 flex-1 gap-0.5 overflow-hidden">
           <View className="shrink-0 flex-row items-center gap-2">
             <Copy muted>NOW IN</Copy>
             <View className="size-2 rounded-full bg-accent" />

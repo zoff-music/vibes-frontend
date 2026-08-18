@@ -1,6 +1,10 @@
 import type { RouteModule } from '@vibes/native-router';
 
-const expoRouteContext = require.context('../app', true, /^\.\/.*\.[jt]sx?$/);
+const renderedRouteContext = require.context(
+  '../routes',
+  true,
+  /^\.\/.*\/route\.[jt]sx$/,
+);
 const resourceContext = require.context(
   '../routes',
   true,
@@ -9,19 +13,15 @@ const resourceContext = require.context(
 
 export function createRouteManifest() {
   const routes = new Map<string, RouteModule>();
-  addRoutes(routes, expoRouteContext, getExpoRouteId);
-  addRoutes(routes, resourceContext, getResourceRouteId);
+  addRoutes(routes, renderedRouteContext);
+  addRoutes(routes, resourceContext);
   return routes;
 }
 
-function addRoutes(
-  routes: Map<string, RouteModule>,
-  context: RequireContext,
-  getRouteId: (key: string) => string | null,
-) {
+function addRoutes(routes: Map<string, RouteModule>, context: RequireContext) {
   for (const key of context.keys().sort()) {
     const routeId = getRouteId(key);
-    if (!routeId) continue;
+    if (routeId === '_layout') continue;
     if (routes.has(routeId)) {
       throw new Error(`Duplicate native route ID: ${routeId}`);
     }
@@ -29,25 +29,10 @@ function addRoutes(
   }
 }
 
-function getExpoRouteId(key: string) {
-  const path = key.replace(/^\.\//, '').replace(/\.[jt]sx?$/, '');
-  const segments = path.split('/');
-  if (segments.some((segment) => segment === '_layout')) return null;
-  if (segments.some((segment) => segment.startsWith('+'))) return null;
-  const routeSegments = segments
-    .filter((segment) => !segment.startsWith('('))
-    .map((segment) => {
-      const parameter = segment.match(/^\[(.+)\]$/)?.[1];
-      return parameter ? `$${parameter}` : segment;
-    });
-  if (routeSegments.at(-1) === 'index') routeSegments.pop();
-  return routeSegments.length === 0 ? '_index' : routeSegments.join('.');
-}
-
-function getResourceRouteId(key: string) {
+function getRouteId(key: string) {
   return key
     .replace(/^\.\//, '')
-    .replace(/\/resource\.[jt]s$/, '')
+    .replace(/\/(?:route\.[jt]sx|resource\.[jt]s)$/, '')
     .replaceAll('/', '.');
 }
 
