@@ -1,9 +1,9 @@
-import { RemoteControl } from '@/components/remote-control';
-import { RemotePairing } from '@/components/remote-pairing';
 import { useControllerRemote } from '@/hooks/use-controller-remote';
 import { useRoomSession } from '@/providers/app-provider';
+import { RemoteControl } from './remote-control';
+import { RemotePairing } from './remote-pairing';
 
-export default function RemoteScreen() {
+export function RemoteScreen() {
   const { providers } = useRoomSession();
   const [controller, controllerActions] = useControllerRemote();
 

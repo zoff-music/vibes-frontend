@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 
 const reactRouterSourceDirectories = [
@@ -69,6 +69,46 @@ function hasClientRequestCall(source) {
 }
 
 const violations = [];
+
+for (const file of listSourceFiles('apps/mobile/src/app')) {
+  const repositoryPath = relative('.', file);
+  const source = readFileSync(file, 'utf8');
+  if (/\b(?:class|const|function|let|var)\b|<[A-Z][A-Za-z0-9.]*/.test(source)) {
+    violations.push(
+      `${repositoryPath}: Expo Router files must be re-export-only adapters`,
+    );
+  }
+  const routeTargets = [...source.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)];
+  if (routeTargets.length === 0) {
+    violations.push(
+      `${repositoryPath}: Expo Router adapter must re-export a route module`,
+    );
+  }
+  for (const match of routeTargets) {
+    const target = match[1];
+    if (!target.startsWith('@/routes/') || !target.endsWith('/route')) {
+      violations.push(
+        `${repositoryPath}: Expo Router adapters may only re-export src/routes/*/route.tsx`,
+      );
+      continue;
+    }
+    const targetFile = join(
+      'apps/mobile/src',
+      `${target.replace(/^@\//, '')}.tsx`,
+    );
+    if (!existsSync(targetFile)) {
+      violations.push(`${repositoryPath}: missing route module ${targetFile}`);
+    }
+  }
+}
+
+for (const file of listSourceFiles('apps/mobile/src/routes')) {
+  if (!/(?:^|\/)(?:component|components)\.tsx$/.test(file)) continue;
+  violations.push(
+    `${relative('.', file)}: route pages must be named route.tsx; route-specific components belong in a components directory`,
+  );
+}
+
 const allowedApiHooks = new Set([
   'useAdminEvents',
   'useRemoteEvents',

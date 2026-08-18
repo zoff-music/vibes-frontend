@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AnimatedLogo } from '@/components/animated-logo';
-import { CreateRoomSheet } from '@/components/create-room-sheet';
 import {
   Button,
   Card,
@@ -16,14 +14,16 @@ import {
   Heading,
   Screen,
 } from '@/components/native';
-import { RoomScreen } from '@/components/room-screen';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
 import type { DiscoveryData } from '@/routes/_index/loader';
 import type { CreateRoomActionData } from '@/routes/rooms.create/action';
+import { AnimatedLogo } from './animated-logo';
+import { CreateRoomSheet } from './create-room-sheet';
+import { RoomScreen } from './room-screen';
 
-export default function RoomsRoute() {
+export function RoomsScreen() {
   const theme = useAppTheme();
   const { controllerRemote, loading, providers, room, roomId } =
     useRoomSession();

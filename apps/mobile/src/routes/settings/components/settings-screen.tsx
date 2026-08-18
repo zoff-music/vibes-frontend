@@ -10,7 +10,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { DeviceRemoteSettings } from '@/components/device-remote-settings';
 import {
   Card,
   ContentColumn,
@@ -29,8 +28,9 @@ import {
   useRoomSession,
 } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
+import { DeviceRemoteSettings } from './device-remote-settings';
 
-export default function SettingsScreen() {
+export function SettingsScreen() {
   const { playerEnabled, playerPreferenceLoaded } = usePlaybackSession();
   const { providers, room } = useRoomSession();
   const { setPlayerEnabled } = usePlaybackActions();
