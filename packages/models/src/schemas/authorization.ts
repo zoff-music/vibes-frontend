@@ -5,15 +5,6 @@ export const authorizationsListSchema = yup
   .required();
 export type AuthorizationsList = yup.InferType<typeof authorizationsListSchema>;
 
-export const spotifyTokenSchema = yup.object({
-  access_token: yup.string().required(),
-  token_type: yup.string().required(),
-  scope: yup.string().required(),
-  expires_in: yup.number().required(),
-  refresh_token: yup.string().optional(),
-});
-export type SpotifyToken = yup.InferType<typeof spotifyTokenSchema>;
-
 export const providerTokenSchema = yup.object({
   accessToken: yup.string().required(),
   expiresAt: yup.string().required(),

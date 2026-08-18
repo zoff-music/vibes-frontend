@@ -15,7 +15,6 @@ interface TerminalPlayerControlsProps {
   isPlaying: boolean;
   isSkipping: boolean;
   onAddSong: () => void;
-  onConnectSpotify: () => void;
   onOpenCast: () => void;
   onPause: () => void;
   onPlay: () => void;
@@ -24,7 +23,6 @@ interface TerminalPlayerControlsProps {
   onToggleMuted: () => void;
   onVolumeChange: (volume: number) => void;
   showReset: boolean;
-  showSpotifyConnect: boolean;
   volume: number;
 }
 
@@ -37,7 +35,6 @@ export function TerminalPlayerControls({
   isPlaying,
   isSkipping,
   onAddSong,
-  onConnectSpotify,
   onOpenCast,
   onPause,
   onPlay,
@@ -46,7 +43,6 @@ export function TerminalPlayerControls({
   onToggleMuted,
   onVolumeChange,
   showReset,
-  showSpotifyConnect,
   volume,
 }: TerminalPlayerControlsProps) {
   useTerminalShortcuts([
@@ -59,11 +55,6 @@ export function TerminalPlayerControls({
     { disabled: !showReset, key: 'F3', onTrigger: onReset },
     { key: 'F4', onTrigger: onOpenCast },
     { key: 'F5', onTrigger: onAddSong },
-    {
-      disabled: !showSpotifyConnect,
-      key: 'F6',
-      onTrigger: onConnectSpotify,
-    },
   ]);
 
   return (
@@ -111,11 +102,6 @@ export function TerminalPlayerControls({
         <TerminalButton aria-keyshortcuts="F5" onClick={onAddSong}>
           [F5] ADD SONG
         </TerminalButton>
-        {showSpotifyConnect && (
-          <TerminalButton aria-keyshortcuts="F6" onClick={onConnectSpotify}>
-            [F6] SPOTIFY LINK
-          </TerminalButton>
-        )}
       </div>
 
       <TerminalSlider

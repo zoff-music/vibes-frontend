@@ -266,14 +266,13 @@ The app supports multiple music providers:
 
 ```typescript
 // Source types
-type SourceType = 'youtube' | 'spotify' | 'soundcloud';
+type SourceType = 'youtube' | 'soundcloud';
 
 // Provider authentication
-const { getToken, isAuthenticated } = useProviderToken('spotify');
+const { getToken, isAuthenticated } = useProviderToken('soundcloud');
 
 // Search across providers
 const [error, results] = await api.get('/youtube/search', {}, { q: 'never gonna give you up' });
-const [error, results] = await api.get('/spotify/search', {}, { q: 'never gonna give you up' });
 const [error, results] = await api.get('/soundcloud/search', {}, { q: 'never gonna give you up' });
 ```
 

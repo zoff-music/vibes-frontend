@@ -13,9 +13,4 @@ export * from './schemas/songs';
 export * from './schemas/stats';
 export * from './schemas/youtube';
 
-// Export types that are not schemas (if any remained as pure types)
-// Export inferred types and interfaces
 export * from './types/casting';
-// react-player.d.ts is a declaration file, doesn't need export in index.ts for value usage,
-// but might need to be included in tsconfig or referenced.
-// For now, let's just export casting.

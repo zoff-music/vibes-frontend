@@ -30,9 +30,6 @@ export function createProviderSearchRequest(client: ApiClient) {
         })),
       ];
     }
-    if (provider === 'spotify') {
-      return client.get('/spotify/search', { $search: { q: query } }, options);
-    }
     return client.get('/soundcloud/search', { $search: { q: query } }, options);
   };
 }
@@ -52,9 +49,6 @@ export function createProviderTrackRequest(client: ApiClient) {
       if (error) return [error, null];
       return [null, { ...video, source: 'youtube' }];
     }
-    if (provider === 'spotify') {
-      return client.get('/spotify/tracks/{id}', { id: source }, options);
-    }
     return client.get(
       '/soundcloud/tracks',
       { $search: { url: source } },
@@ -71,9 +65,6 @@ export function createProviderPlaylistRequest(client: ApiClient) {
   ): ApiResult<MusicPlaylist> => {
     if (provider === 'youtube') {
       return client.get('/youtube/playlists/{id}', { id: source }, options);
-    }
-    if (provider === 'spotify') {
-      return client.get('/spotify/playlists/{id}', { id: source }, options);
     }
     return client.get(
       '/soundcloud/playlists',

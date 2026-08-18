@@ -64,6 +64,46 @@ describe('NativeRouter', () => {
     router.dispose();
   });
 
+  test('keeps a persistent route until it is explicitly disposed', async () => {
+    let loads = 0;
+    const router = createRouter({
+      loader: async () => {
+        loads += 1;
+        return { data: loads, error: '' };
+      },
+    });
+    router.persist('test');
+    const unsubscribe = router.subscribe('test', {}, () => undefined);
+    await router.load('test');
+
+    unsubscribe();
+    await Bun.sleep(150);
+
+    expect(router.getSnapshot('test', {}).loaderData).toBe(1);
+    expect((await router.load<number>('test')).data).toBe(1);
+
+    router.disposeRoute('test');
+
+    expect(router.getSnapshot('test', {}).loaderInitialized).toBe(false);
+    router.dispose();
+  });
+
+  test('hydrates a route without repeating its loader', async () => {
+    let loads = 0;
+    const router = createRouter({
+      loader: async () => {
+        loads += 1;
+        return { data: loads, error: '' };
+      },
+    });
+
+    router.hydrateRoute('test', 42);
+
+    expect((await router.load<number>('test')).data).toBe(42);
+    expect(loads).toBe(0);
+    router.dispose();
+  });
+
   test('runs independent fetcher actions without shared route cancellation', async () => {
     const completed: string[] = [];
     const router = createRouter({

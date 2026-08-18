@@ -45,7 +45,7 @@ export function useControllerPairing({
   const [pairingCode, setPairingCode] = useState('');
   const [scannerVisible, setScannerVisible] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
-  const pairingFetcher = useFetcher<ControllerRemoteActionData>({
+  const [, pairingFetcher] = useFetcher<ControllerRemoteActionData>({
     routeId: 'remotes.controller.$id',
   });
 

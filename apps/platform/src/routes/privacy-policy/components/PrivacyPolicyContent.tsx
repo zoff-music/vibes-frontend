@@ -17,8 +17,7 @@ export function PrivacyPolicyContent({
 }: PrivacyPolicyContentProps) {
   const hasYouTube = providers.includes('youtube');
   const hasSoundCloud = providers.includes('soundcloud');
-  const hasSpotify = providers.includes('spotify');
-  const hasProviders = hasYouTube || hasSoundCloud || hasSpotify;
+  const hasProviders = hasYouTube || hasSoundCloud;
 
   return (
     <LegalDocument
@@ -139,37 +138,6 @@ export function PrivacyPolicyContent({
                 and{' '}
                 <LegalLink href="https://soundcloud.com/terms-of-use">
                   Terms of Use
-                </LegalLink>
-                .
-              </p>
-            </LegalSubsection>
-          )}
-
-          {hasSpotify && (
-            <LegalSubsection title="Spotify">
-              <p>
-                Zoff can search Spotify&apos;s catalogue and play Spotify
-                content for eligible Spotify users. Zoff may process search
-                terms and catalogue information such as track, artist, album,
-                artwork, duration, and Spotify identifiers.
-              </p>
-              <p>
-                Spotify playback requires the user to connect a Spotify account.
-                Zoff receives and stores OAuth access and refresh tokens needed
-                to provide the connected playback feature. Zoff does not receive
-                or store the user&apos;s Spotify password. Tokens are associated
-                with the user&apos;s pseudonymous Zoff session and are not
-                shared with other room participants.
-              </p>
-              <p>
-                Users can revoke Zoff&apos;s access from their Spotify account
-                settings. Spotify processes information under the{' '}
-                <LegalLink href="https://www.spotify.com/legal/privacy-policy/">
-                  Spotify Privacy Policy
-                </LegalLink>{' '}
-                and{' '}
-                <LegalLink href="https://www.spotify.com/legal/end-user-agreement/">
-                  Spotify Terms of Use
                 </LegalLink>
                 .
               </p>

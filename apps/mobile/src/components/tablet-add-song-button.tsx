@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AddSongSheet } from '@/components/add-song-sheet';
 import { IconButton } from '@/components/native';
@@ -21,24 +21,10 @@ export function TabletAddSongButton() {
           onPress={() => setAddSongVisible(true)}
         />
       </View>
-      <Modal
-        animationType="slide"
-        presentationStyle="fullScreen"
-        supportedOrientations={[
-          'portrait',
-          'portrait-upside-down',
-          'landscape',
-          'landscape-left',
-          'landscape-right',
-        ]}
+      <AddSongSheet
         visible={addSongVisible}
-        onRequestClose={() => setAddSongVisible(false)}
-      >
-        <AddSongSheet
-          visible={addSongVisible}
-          onClose={() => setAddSongVisible(false)}
-        />
-      </Modal>
+        onClose={() => setAddSongVisible(false)}
+      />
     </>
   );
 }

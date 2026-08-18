@@ -196,13 +196,6 @@ export const youTubeProviderIcon = {
   ],
 } satisfies IconDefinition;
 
-export const spotifyProviderIcon = {
-  viewBox: squareViewBox,
-  paths: [
-    'M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.4-2.1-10.6-1.2-.4.2-.8-.1-.9-.5-.1-.4.2-.8.6-.9 4.6-1 8.5-.6 11.6 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.9.6-1.3.3-3.2-2-8.2-2.6-11.9-1.4-.5.1-1-.1-1.2-.6-.1-.5.2-1 .7-1.1 4.3-1.3 9.7-.6 13.4 1.6.4.2.6.8.3 1.2zm.1-3.3C15.2 8.4 8.8 8.2 5.2 9.3c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4 4.3-1.3 11.3-1 15.7 1.6.5.3.7 1 .4 1.6-.3.4-1 .6-1.5.3z',
-  ],
-} satisfies IconDefinition;
-
 export const soundCloudProviderIcon = {
   viewBox: squareViewBox,
   paths: [

@@ -1,24 +1,17 @@
 import { api, getRequestErrorMessage } from '@vibes/api';
-import type {
-  PlaybackState,
-  ProviderToken,
-  SkipActionResponse,
-} from '@vibes/models';
+import type { PlaybackState, SkipActionResponse } from '@vibes/models';
 import { safeWrap } from '@vibes/shared';
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface EmbedActionData {
   error?: string;
-  intent: 'providerToken' | 'resetPlayback' | 'skip' | 'voteSong';
+  intent: 'resetPlayback' | 'skip' | 'voteSong';
   playback?: PlaybackState;
-  provider?: 'spotify' | 'youtube';
-  providerToken?: ProviderToken;
   skip?: SkipActionResponse;
 }
 
 interface EmbedActionRequest {
-  intent: 'providerToken' | 'resetPlayback' | 'skip' | 'voteSong';
-  provider?: 'spotify' | 'youtube';
+  intent: 'resetPlayback' | 'skip' | 'voteSong';
   songId?: string;
 }
 
@@ -51,29 +44,6 @@ export async function clientAction({
       intent: body.intent,
       playback: skip.playback,
       skip,
-    };
-  }
-
-  if (body.intent === 'providerToken') {
-    if (!body.provider) {
-      return { error: 'Provider is required', intent: body.intent };
-    }
-    const [error, providerToken] = await api.get('/tokens/{provider}', {
-      provider: body.provider,
-    });
-    if (error || !providerToken) {
-      return {
-        error: await getRequestErrorMessage(
-          error,
-          'Could not get provider token',
-        ),
-        intent: body.intent,
-      };
-    }
-    return {
-      intent: body.intent,
-      provider: body.provider,
-      providerToken,
     };
   }
 

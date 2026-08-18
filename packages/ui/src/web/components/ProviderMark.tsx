@@ -2,8 +2,6 @@ import { classNames, type SourceType } from '@vibes/shared';
 import { getProviderDisplayName } from '../../shared';
 import soundCloudDark from '../assets/providers/soundcloud-dark.png';
 import soundCloudLight from '../assets/providers/soundcloud-light.png';
-import spotifyDark from '../assets/providers/spotify-dark.svg';
-import spotifyLight from '../assets/providers/spotify-light.svg';
 import youTubeDark from '../assets/providers/youtube-dark.svg';
 import youTubeLight from '../assets/providers/youtube-light.svg';
 
@@ -45,10 +43,6 @@ const providerMarks: Record<
   soundcloud: {
     dark: soundCloudDark,
     light: soundCloudLight,
-  },
-  spotify: {
-    dark: spotifyDark,
-    light: spotifyLight,
   },
   youtube: {
     dark: youTubeDark,

@@ -17,9 +17,6 @@ interface Props {
   onLocalInteraction: () => void;
   onStartPlayback: () => void;
   positionMs: number;
-  requestProviderToken: (provider: 'spotify', force?: boolean) => void;
-  spotifyTokenLoading: boolean;
-  spotifyToken: string | null;
   songs: Song[];
 }
 
@@ -32,9 +29,6 @@ export function EmbedPlayerCard({
   onLocalInteraction,
   onStartPlayback,
   positionMs,
-  requestProviderToken,
-  spotifyTokenLoading,
-  spotifyToken,
   songs,
 }: Props) {
   const { boundedPositionMs, progress } = getPlaybackPresentation(
@@ -63,10 +57,7 @@ export function EmbedPlayerCard({
           onLocalAlignmentChange={onLocalAlignmentChange}
           onLocalInteraction={onLocalInteraction}
           onLocalPlay={onStartPlayback}
-          requestProviderToken={requestProviderToken}
-          spotifyTokenLoading={spotifyTokenLoading}
           songs={songs}
-          spotifyToken={spotifyToken}
         />
         {currentSong &&
           currentSong.sourceType !== 'youtube' &&

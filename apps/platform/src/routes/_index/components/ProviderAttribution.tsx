@@ -37,16 +37,14 @@ export function ProviderAttribution({ providers }: ProviderAttributionProps) {
   );
 }
 
-const orderedProviders: SourceType[] = ['youtube', 'soundcloud', 'spotify'];
+const orderedProviders: SourceType[] = ['youtube', 'soundcloud'];
 
 const providerNames: Record<SourceType, string> = {
   soundcloud: 'SoundCloud',
-  spotify: 'Spotify',
   youtube: 'YouTube',
 };
 
 const providerURLs: Record<SourceType, string> = {
   soundcloud: 'https://soundcloud.com',
-  spotify: 'https://open.spotify.com',
   youtube: 'https://www.youtube.com',
 };

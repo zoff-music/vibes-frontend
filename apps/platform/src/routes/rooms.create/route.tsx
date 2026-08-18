@@ -17,7 +17,6 @@ import {
   CloseIcon,
   DiceIcon,
   SoundCloudIcon,
-  SpotifyIcon,
   Toggle,
   YouTubeIcon,
 } from '@vibes/ui/web';
@@ -837,6 +836,5 @@ interface ProviderOption {
 
 const providerOptions: ProviderOption[] = [
   { id: 'youtube', Icon: YouTubeIcon, variant: 'red' },
-  { id: 'spotify', Icon: SpotifyIcon, variant: 'green' },
   { id: 'soundcloud', Icon: SoundCloudIcon, variant: 'orange' },
 ];

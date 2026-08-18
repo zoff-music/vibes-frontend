@@ -48,7 +48,6 @@ const QueueListComponent: React.FC<Props> = ({
         {visibleSongs.map((song, index) => (
           <motion.div
             key={song.id}
-            layout="position"
             initial={{ opacity: 0, scale: 0.96, y: 14 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, x: 24 }}

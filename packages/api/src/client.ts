@@ -61,7 +61,6 @@ import {
   skipVoteUpdateSchema,
   songSchema,
   songsListSchema,
-  spotifyTokenSchema,
   sseQuerySchema,
   statsSchema,
   usersUpdateSchema,
@@ -285,11 +284,6 @@ const endpoints = {
       response: musicPlaylistSchema,
     },
   },
-  '/spotify/playlists/{id}': {
-    get: {
-      response: musicPlaylistSchema,
-    },
-  },
   '/rooms/{id}/events': {
     sse: {
       $search: sseQuerySchema.optional(),
@@ -311,16 +305,6 @@ const endpoints = {
   '/tokens/{provider}': {
     get: {
       response: providerTokenSchema,
-    },
-  },
-  '/authorizations/spotify/token': {
-    get: {
-      response: spotifyTokenSchema,
-    },
-  },
-  '/authorizations/spotify': {
-    get: {
-      response: messageResponseSchema,
     },
   },
   '/authorizations/youtube': {
@@ -445,17 +429,6 @@ const endpoints = {
         connected: connectedSchema,
         admin_rooms_update: adminRoomsSchema,
       },
-    },
-  },
-  '/spotify/search': {
-    get: {
-      $search: searchQuerySchema,
-      response: searchResponseSchema,
-    },
-  },
-  '/spotify/tracks/{id}': {
-    get: {
-      response: searchResultSchema,
     },
   },
   '/soundcloud/search': {

@@ -7,7 +7,6 @@
     "./web": "./src/web/index.ts",
     "./web/components/DebugConsole": "./src/web/components/DebugConsole.tsx",
     "./web/player/SoundCloudPlayer": "./src/web/player/SoundCloudPlayer.tsx",
-    "./web/player/SpotifyPlayer": "./src/web/player/SpotifyPlayer.tsx",
     "./web/player/VideoPlayer": "./src/web/player/VideoPlayer.tsx",
     "./konami": "./src/konami/index.ts",
     "./konami/boot": "./src/konami/boot.ts",
@@ -29,9 +28,12 @@
     "react-native-webview": "13.16.1",
     "react-native-svg": "^15.15.4",
     "react-native-qrcode-svg": "^6.3.21",
-    "react-native-youtube-iframe": "2.4.1",
-    "react-player": "^3.4.0",
-    "react-spotify-web-playback": "^0.14.7"
+    "react-native-youtube-iframe": "2.4.1"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@vibes/models": "workspace:*",

@@ -1,6 +1,7 @@
 import type { Room } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { useEffect, useState } from 'react';
+import { Modal } from 'react-native';
 
 import { SearchSheet } from '@/components/search-sheet';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
@@ -15,7 +16,7 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
   const { controllerRemote, room, songs } = useRoomSession();
   const { refresh } = useRoomActions();
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
-  const roomFetcher = useFetcher<ControllerRemoteData>({
+  const [, roomFetcher] = useFetcher<ControllerRemoteData>({
     params: {
       controllerToken: controllerRemote?.controllerToken ?? '',
       id: controllerRemote?.id ?? '',
@@ -97,23 +98,37 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
   };
 
   return (
-    <SearchSheet
-      canGenerate={canGenerate}
-      generationUnavailableReason={generationUnavailableReason}
-      providersOverride={targetRoom?.settings.enabledSources ?? []}
-      roomIdOverride={roomId}
-      {...(controllerRemote
-        ? {
-            remoteCredentials: {
-              controllerToken: controllerRemote.controllerToken,
-              remoteId: controllerRemote.id,
-            },
-          }
-        : {})}
+    <Modal
+      animationType="slide"
+      presentationStyle="pageSheet"
+      supportedOrientations={[
+        'portrait',
+        'portrait-upside-down',
+        'landscape',
+        'landscape-left',
+        'landscape-right',
+      ]}
       visible={visible}
-      onAdded={refreshSession}
-      onClose={onClose}
-      onGenerated={refreshSession}
-    />
+      onRequestClose={onClose}
+    >
+      <SearchSheet
+        canGenerate={canGenerate}
+        generationUnavailableReason={generationUnavailableReason}
+        providersOverride={targetRoom?.settings.enabledSources ?? []}
+        roomIdOverride={roomId}
+        {...(controllerRemote
+          ? {
+              remoteCredentials: {
+                controllerToken: controllerRemote.controllerToken,
+                remoteId: controllerRemote.id,
+              },
+            }
+          : {})}
+        visible={visible}
+        onAdded={refreshSession}
+        onClose={onClose}
+        onGenerated={refreshSession}
+      />
+    </Modal>
   );
 }

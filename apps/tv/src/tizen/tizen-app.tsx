@@ -6,7 +6,7 @@ import type {
   Song,
 } from '@vibes/models';
 import { synchronizeServerClock } from '@vibes/shared';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useRevalidator, useSubmit } from 'react-router';
 import { tizenApi } from '@/tizen/api';
 import type { TizenSessionLoaderData } from '@/tizen/routes/session/loader';
@@ -36,6 +36,13 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
   const [listenerCount, setListenerCount] = useState(
     loaderData.snapshot?.room.userCount ?? 0,
   );
+  useEffect(() => {
+    const snapshot = loaderData.snapshot;
+    setRoom(snapshot?.room ?? null);
+    setSongs(snapshot?.songs ?? []);
+    setPlayback(snapshot?.playback ?? emptyPlaybackState);
+    setListenerCount(snapshot?.room.userCount ?? 0);
+  }, [loaderData.snapshot]);
   const callbacks = useMemo(
     () => ({
       onConnected: synchronizeServerClock,

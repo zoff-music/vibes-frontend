@@ -8,6 +8,7 @@ import type { RemoteStatus } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
 import type { RoomSnapshot } from '@/data-router/room-snapshot';
 import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
+import { normalizeMobileSnapshot } from '@/lib/mobile-content';
 
 export interface ControllerRemoteData {
   remote: RemoteStatus;
@@ -62,11 +63,11 @@ export async function loader({
       ),
     };
   }
-  const snapshot: RoomSnapshot = {
+  const snapshot: RoomSnapshot = normalizeMobileSnapshot({
     playback: playbackResult[1],
     room: roomResult[1],
     songs: songsResult[1],
-  };
+  });
   return {
     data: { remote, snapshot },
     error: '',

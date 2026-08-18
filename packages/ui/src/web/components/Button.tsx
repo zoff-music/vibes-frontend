@@ -56,7 +56,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         'border border-error/40 bg-transparent text-error hover:bg-error/10',
       red: 'border border-red-400 bg-youtube text-white shadow-youtube hover:bg-red-500',
       green:
-        'border border-green-300 bg-spotify-bright text-on-spotify shadow-spotify hover:bg-green-400',
+        'border border-green-300 bg-green-500 text-green-950 shadow-lg shadow-green-500/30 hover:bg-green-400',
       orange:
         'border border-orange-300 bg-soundcloud text-on-soundcloud shadow-soundcloud hover:bg-orange-400',
       cyan: 'border border-cyan-200 bg-secondary text-on-secondary shadow-cyan hover:bg-cyan-300',

@@ -101,22 +101,18 @@ export async function clientAction({
       return { error: 'Enter at least 3 characters.', intent };
     }
     const [error, searchResults] =
-      provider === 'youtube'
-        ? await client.get('/youtube/search', {
-            $search: { q: query },
-          })
-        : provider === 'soundcloud'
-          ? await client.get('/soundcloud/search', { $search: { q: query } })
-          : await client.get('/spotify/search', { $search: { q: query } });
+      provider === 'soundcloud'
+        ? await client.get('/soundcloud/search', { $search: { q: query } })
+        : await client.get('/youtube/search', { $search: { q: query } });
     if (error || !searchResults) return errorResult(intent, error);
     return { intent, searchResults };
   }
 
   if (intent === 'addSong') {
-    const sourceType = String(formData.get('sourceType') ?? 'youtube') as
-      | 'soundcloud'
-      | 'spotify'
-      | 'youtube';
+    const sourceType = String(formData.get('sourceType') ?? 'youtube');
+    if (!isSourceType(sourceType)) {
+      return { error: 'That music provider is not supported.', intent };
+    }
     const [error] = await client.post(
       '/rooms/{id}/songs',
       { id: roomId },

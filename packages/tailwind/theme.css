@@ -21,12 +21,8 @@
   --spacing-player-lg-min: 25rem;
   --spacing-settings-max: 70vh;
 
-  --color-spotify: #1db954;
-  --color-spotify-bright: #1ed760;
-  --color-spotify-surface: #121212;
   --color-youtube: #ff0000;
   --color-soundcloud: #ff5500;
-  --color-on-spotify: #07150b;
   --color-on-soundcloud: #1c0900;
   --color-on-secondary: #04151a;
 
@@ -46,11 +42,8 @@
   --shadow-playback-badge: 0 0 22px rgba(0, 0, 0, 0.28);
   --shadow-error: 0 0 20px rgba(239, 68, 68, 0.4);
   --shadow-youtube: 0 0 16px rgba(255, 0, 0, 0.35);
-  --shadow-spotify: 0 0 16px rgba(30, 215, 96, 0.3);
   --shadow-soundcloud: 0 0 16px rgba(255, 85, 0, 0.3);
   --shadow-cyan: 0 0 16px rgba(0, 217, 255, 0.3);
-  --shadow-spotify-cover: 0 0 40px rgba(29, 185, 84, 0.4);
-  --shadow-spotify-pulse: 0 0 12px rgba(29, 185, 84, 0.8);
 
   --scale-press: 0.98;
 

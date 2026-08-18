@@ -30,7 +30,7 @@ export function PersistentRoomPlayer() {
     setLocalPlaying,
   } = usePlaybackActions();
   const { setError } = useRoomActions();
-  const { submit } = useFetcher<RoomPlaybackActionData>({
+  const [, { submit }] = useFetcher<RoomPlaybackActionData>({
     params: { id: roomId },
     routeId: 'rooms.$id.playback',
   });

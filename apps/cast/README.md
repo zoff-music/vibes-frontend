@@ -54,8 +54,8 @@ pnpm lint
 
 ## 🛠 Features
 
-- **Multi-Provider Playback**: Support for YouTube (IFrame), Spotify (Web Playback SDK), and SoundCloud (Widget)
-- **Authentication Bridge**: Receives Spotify and SoundCloud tokens from the sender app via `LOAD` interceptors
+- **Multi-Provider Playback**: Support for YouTube (IFrame) and SoundCloud (Widget)
+- **Authentication Bridge**: Receives provider state from the sender app via `LOAD` interceptors
 - **Global State**: Synchronizes with the backend via a shared Zustand store (`@vibes/shared`)
 - **Premium UI**: Dark-mode primary interface with glassmorphism and smooth animations
 - **Data Router**: Loader/action request orchestration with recoverable route errors

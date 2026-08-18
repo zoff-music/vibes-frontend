@@ -27,7 +27,7 @@ export function useProgressiveList(
         if (!entries.some((entry) => entry.isIntersecting)) return;
         setVisibleCount((current) => Math.min(itemCount, current + batchSize));
       },
-      { rootMargin: '400px 0px' },
+      { rootMargin: '240px 0px' },
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
@@ -36,4 +36,4 @@ export function useProgressiveList(
   return [visibleCount, sentinelRef] as const;
 }
 
-const defaultBatchSize = 24;
+const defaultBatchSize = 12;

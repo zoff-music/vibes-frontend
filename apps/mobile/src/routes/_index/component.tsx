@@ -2,7 +2,7 @@ import type { PublicRoom } from '@vibes/models';
 import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import { classNames } from '@vibes/shared';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AnimatedLogo } from '@/components/animated-logo';
@@ -29,7 +29,7 @@ export default function RoomsRoute() {
     useRoomSession();
   const { setError, setRoomId, startGeneratedRoom } = useRoomActions();
   const discovery = useRouteLoaderData<DiscoveryData>('_index');
-  const createRoomFetcher = useFetcher<CreateRoomActionData>({
+  const [, createRoomFetcher] = useFetcher<CreateRoomActionData>({
     routeId: 'rooms.create',
   });
   const submitCreateRoom = createRoomFetcher.submit;
@@ -54,6 +54,7 @@ export default function RoomsRoute() {
     }
     const result = await setRoomId(roomName);
     if (result === 'joined') {
+      Keyboard.dismiss();
       return;
     }
     if (result === 'notFound') {
@@ -102,6 +103,7 @@ export default function RoomsRoute() {
       setError(result.error || 'Could not start playlist generation.');
       return;
     }
+    Keyboard.dismiss();
     await startGeneratedRoom(result.data.roomId);
   };
 
@@ -114,6 +116,7 @@ export default function RoomsRoute() {
   const handleCreated = async (roomName: string, roomPassword: string) => {
     const result = await setRoomId(roomName, roomPassword);
     if (result !== 'joined') return false;
+    Keyboard.dismiss();
     return true;
   };
 

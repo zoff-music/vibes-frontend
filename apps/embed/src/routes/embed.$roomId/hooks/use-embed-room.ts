@@ -243,42 +243,6 @@ export function useEmbedLocalPlayback({
   };
 }
 
-export function useEmbedSpotifyToken() {
-  const fetcher = useFetcher<EmbedActionData>();
-  const requestedRef = useRef(false);
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (fetcher.state !== 'idle' || !fetcher.data) return;
-    if (fetcher.data.error) {
-      requestedRef.current = false;
-      return;
-    }
-    if (
-      fetcher.data.intent !== 'providerToken' ||
-      fetcher.data.provider !== 'spotify' ||
-      !fetcher.data.providerToken
-    ) {
-      return;
-    }
-    setToken(fetcher.data.providerToken.accessToken);
-  }, [fetcher.data, fetcher.state]);
-
-  const requestToken = useCallback(
-    (provider: 'spotify', force = false) => {
-      if (!force && requestedRef.current) return;
-      requestedRef.current = true;
-      fetcher.submit(
-        { intent: 'providerToken', provider },
-        { encType: 'application/json', method: 'post' },
-      );
-    },
-    [fetcher],
-  );
-
-  return { loading: fetcher.state !== 'idle', requestToken, token };
-}
-
 export function getEmbedPlaybackCapabilities(
   options: EmbedOptions,
   currentSong: Song | null,

@@ -349,6 +349,5 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
 const providerNames: Record<Song['sourceType'], string> = {
   soundcloud: 'SoundCloud',
-  spotify: 'Spotify',
   youtube: 'YouTube',
 };

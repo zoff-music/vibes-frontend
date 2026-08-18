@@ -38,7 +38,7 @@ of inactivity.
 2. Verify the development build on an Android TV emulator and a physical TV.
 3. Confirm the Leanback launcher, 320×180 banner, landscape orientation, and
    remote focus order.
-4. Verify YouTube, SoundCloud, and Spotify only when enabled by the backend.
+4. Verify YouTube and SoundCloud only when enabled by the backend.
 5. Verify the QR code and all safe-area boundaries at 1920×1080.
 6. Build the production AAB through EAS.
 7. Upload the first AAB manually to Google Play before enabling API submission.

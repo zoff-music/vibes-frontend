@@ -19,6 +19,7 @@ import {
   Screen,
 } from '@/components/native';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
+import { Toast } from '@/components/toast';
 import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import {
@@ -36,7 +37,8 @@ export default function SettingsScreen() {
   const { forgetRoomAdminPassword, refresh, rememberRoomAdminPassword } =
     useRoomActions();
   const [roomSettingsVisible, setRoomSettingsVisible] = useState(false);
-  const [{ preference }, setPreference] = useThemePreference();
+  const [{ preference, warning: themeWarning }, setPreference] =
+    useThemePreference();
   const theme = useAppTheme();
   return (
     <Screen>
@@ -100,6 +102,7 @@ export default function SettingsScreen() {
                     />
                   </View>
                 </Card>
+                <Toast message={themeWarning} />
               </View>
               <DeviceRemoteSettings />
               <View className="gap-2">

@@ -1,4 +1,5 @@
 import type { RemoteStatus, Room, Song } from '@vibes/models';
+import { usePlaybackStore } from '@vibes/shared';
 import {
   Button,
   PauseIcon,
@@ -22,25 +23,27 @@ interface RemotePlaybackControlsProps {
   canSeek: boolean;
   currentSong: Song | null;
   fetcher: ReturnType<typeof useFetcher<ControllerActionData>>;
+  initialPositionMs: number;
   isMachineSongCurrent: boolean;
   isPlaying: boolean;
   onAddSong: () => void;
   remoteStatus?: RemoteStatus;
   room: Room;
-  serverPositionMs: number;
 }
 
 export function RemotePlaybackControls({
   canSeek,
   currentSong,
   fetcher,
+  initialPositionMs,
   isMachineSongCurrent,
   isPlaying,
   onAddSong,
   remoteStatus,
   room,
-  serverPositionMs,
 }: RemotePlaybackControlsProps) {
+  const serverPositionMs =
+    usePlaybackStore((state) => state.actualPositionMs) ?? initialPositionMs;
   const durationMs = (currentSong?.duration ?? 0) * millisecondsPerSecond;
   const [positionMs, setPositionMs] = useState(serverPositionMs);
   const [seekPositionMs, setSeekPositionMs] = useState(serverPositionMs);

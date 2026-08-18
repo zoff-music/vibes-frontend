@@ -2,6 +2,7 @@ import { createRoomPlaybackRequests, createRoomReadRequests } from '@vibes/api';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
 import type { RoomSnapshot } from '@/data-router/room-snapshot';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
+import { normalizeMobileSnapshot } from '@/lib/mobile-content';
 
 const readRequests = createRoomReadRequests(mobileApi);
 const playbackRequests = createRoomPlaybackRequests(mobileApi);
@@ -25,11 +26,11 @@ export async function loader({
     };
   }
   return {
-    data: {
+    data: normalizeMobileSnapshot({
       playback: playbackResult[1],
       room: roomResult[1],
       songs: songsResult[1],
-    },
+    }),
     error: '',
   };
 }

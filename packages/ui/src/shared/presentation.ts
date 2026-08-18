@@ -39,7 +39,6 @@ export function getQueueRemainderLabel(
 export function getProviderDisplayName(provider: string): string {
   if (provider === 'youtube') return 'YouTube';
   if (provider === 'soundcloud') return 'SoundCloud';
-  if (provider === 'spotify') return 'Spotify';
   return provider;
 }
 

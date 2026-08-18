@@ -21,7 +21,7 @@ export function TizenSessionRoute() {
   const navigation = useNavigation();
   return (
     <TizenApp
-      key={`${loaderData.roomId || 'landing'}:${loaderData.loadedAt}`}
+      key={loaderData.roomId || 'landing'}
       actionError={actionData?.error ?? ''}
       loaderData={loaderData}
       loading={navigation.state !== 'idle'}

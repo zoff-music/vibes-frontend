@@ -9,7 +9,11 @@ import type {
   RoomGenerationUpdate,
   Song,
 } from '@vibes/models';
-import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
+import {
+  useFetcher,
+  useRouteLoaderData,
+  useRouter,
+} from '@vibes/native-router';
 import { synchronizeServerClock } from '@vibes/shared';
 import type { PropsWithChildren } from 'react';
 import {
@@ -28,6 +32,12 @@ import { useMachineRemote } from '@/hooks/use-machine-remote';
 import { usePlaybackRuntime } from '@/hooks/use-playback-runtime';
 import { usePlayerPreference } from '@/hooks/use-player-preference';
 import { mobileApi } from '@/lib/api';
+import {
+  filterMobileSongs,
+  isMobileProvider,
+  normalizeMobilePlayback,
+  normalizeMobileRoom,
+} from '@/lib/mobile-content';
 import type { DiscoveryData } from '@/routes/_index/loader';
 import type { StoredRemoteSession } from '@/routes/remotes.session/loader';
 import type { RoomSessionActionData } from '@/routes/rooms.$id.session/action';
@@ -112,11 +122,12 @@ interface MachineRemoteState {
 const RoomNavigationContext = createContext<RoomNavigationState | null>(null);
 const MachineRemoteContext = createContext<MachineRemoteState | null>(null);
 export function AppProvider({ children }: PropsWithChildren) {
-  const roomLoader = useFetcher<RoomSnapshot>({ routeId: 'rooms.$id' });
-  const roomSessionAction = useFetcher<RoomSessionActionData>({
+  const nativeRouter = useRouter();
+  const [, roomLoader] = useFetcher<RoomSnapshot>({ routeId: 'rooms.$id' });
+  const [, roomSessionAction] = useFetcher<RoomSessionActionData>({
     routeId: 'rooms.$id.session',
   });
-  const remoteSessionFetcher = useFetcher<boolean>({
+  const [, remoteSessionFetcher] = useFetcher<boolean>({
     routeId: 'remotes.session',
   });
   const { showToast } = useToast();
@@ -128,8 +139,11 @@ export function AppProvider({ children }: PropsWithChildren) {
   const discovery = useRouteLoaderData<DiscoveryData>('_index');
   const providers = discovery?.providers ?? [];
   const [playerPreference, setPlayerEnabled] = usePlayerPreference();
-  const { enabled: playerEnabled, loaded: playerPreferenceLoaded } =
-    playerPreference;
+  const {
+    enabled: playerEnabled,
+    loaded: playerPreferenceLoaded,
+    warning: playerPreferenceWarning,
+  } = playerPreference;
   const storedRemoteSession = useRouteLoaderData<StoredRemoteSession | null>(
     'remotes.session',
   );
@@ -172,6 +186,10 @@ export function AppProvider({ children }: PropsWithChildren) {
     if (discovery?.warning) showToast(discovery.warning);
   }, [discovery?.warning, showToast]);
 
+  useEffect(() => {
+    if (playerPreferenceWarning) showToast(playerPreferenceWarning);
+  }, [playerPreferenceWarning, showToast]);
+
   const rememberRoomAdminPassword = useCallback(
     async (adminRoomId: string, password: string) => {
       if (!password) return;
@@ -193,6 +211,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   }, []);
 
   const leaveRoom = useCallback(async () => {
+    if (roomId) nativeRouter.disposeRoute('rooms.$id', { id: roomId });
     pendingGeneratedRoomRef.current = '';
     setRoomIdValue('');
     setRoom(null);
@@ -200,7 +219,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     roomModeRef.current = null;
     clearPlayback();
     setError('');
-  }, [clearPlayback]);
+  }, [clearPlayback, nativeRouter, roomId]);
 
   const clearControllerRemote = useCallback(async () => {
     setControllerRemote(null);
@@ -234,7 +253,7 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   const applyRoomUpdate = useCallback((incomingRoom: Room) => {
     let nextRoom = getLocallyAuthorizedRoom(
-      incomingRoom,
+      normalizeMobileRoom(incomingRoom),
       authenticatedRoomIdsRef.current.has(incomingRoom.id),
     );
     if (pendingGeneratedRoomRef.current === incomingRoom.id) {
@@ -255,6 +274,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       return;
     }
     const snapshot = result.data;
+    nativeRouter.hydrateRoute('rooms.$id', snapshot, { id: roomId });
 
     const generationPending = pendingGeneratedRoomRef.current === roomId;
     if (
@@ -269,7 +289,13 @@ export function AppProvider({ children }: PropsWithChildren) {
     synchronizeServerClock(snapshot.playback.serverTimeMs);
     applyPlaybackUpdate(snapshot.playback);
     setError('');
-  }, [applyPlaybackUpdate, applyRoomUpdate, roomId, roomLoader.load]);
+  }, [
+    applyPlaybackUpdate,
+    applyRoomUpdate,
+    nativeRouter,
+    roomId,
+    roomLoader.load,
+  ]);
 
   useAppResume(refresh);
 
@@ -298,6 +324,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         return notFound ? 'notFound' : 'error';
       }
       const { snapshot, warning } = result.data;
+      nativeRouter.hydrateRoute('rooms.$id', snapshot, { id: normalized });
       setRoomIdValue(normalized);
       if (snapshot.room.isAdmin) {
         authenticatedRoomIdsRef.current.add(normalized);
@@ -317,6 +344,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       applyPlaybackUpdate,
       applyRoomUpdate,
       clearLocalOverrides,
+      nativeRouter,
       roomSessionAction.submit,
     ],
   );
@@ -411,15 +439,18 @@ export function AppProvider({ children }: PropsWithChildren) {
     () => ({
       onConnected: synchronizeServerClock,
       onGenerationUpdate: handleGenerationUpdate,
-      onPlaybackUpdate: applyPlaybackUpdate,
+      onPlaybackUpdate: (nextPlayback: PlaybackState) =>
+        applyPlaybackUpdate(normalizeMobilePlayback(nextPlayback)),
       onRoomUpdate: applyRoomUpdate,
       onSongAdded: (song: Song) => {
+        if (!isMobileProvider(song.sourceType)) return;
         setSongs((current) => {
           if (current.some((item) => item.id === song.id)) return current;
           return [...current, song];
         });
       },
-      onSongsUpdate: setSongs,
+      onSongsUpdate: (nextSongs: Song[]) =>
+        setSongs(filterMobileSongs(nextSongs)),
       onUsersUpdate: handleUsersUpdate,
     }),
     [

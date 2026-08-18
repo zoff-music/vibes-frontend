@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { useToast } from '@/components/toast';
+import { mobileProviders } from '@/lib/mobile-content';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
 import type { SearchActionData } from '@/routes/rooms.$id.search/action';
 import type { SearchData } from '@/routes/rooms.$id.search/loader';
@@ -75,7 +76,7 @@ export function useMusicSearch({
   const [error, setError] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
   const targetRoomId = roomIdOverride ?? roomId;
-  const searchLoader = useFetcher<SearchData>({
+  const [, searchLoader] = useFetcher<SearchData>({
     params: {
       controllerToken: remoteCredentials?.controllerToken ?? '',
       remoteId: remoteCredentials?.remoteId ?? '',
@@ -83,7 +84,7 @@ export function useMusicSearch({
     },
     routeId: 'rooms.$id.search',
   });
-  const searchAction = useFetcher<SearchActionData>({
+  const [, searchAction] = useFetcher<SearchActionData>({
     params: {
       controllerToken: remoteCredentials?.controllerToken ?? '',
       remoteId: remoteCredentials?.remoteId ?? '',
@@ -92,7 +93,7 @@ export function useMusicSearch({
     routeId: 'rooms.$id.search',
   });
   const roomProviders = providersOverride ?? providers;
-  const enabledProviders = supportedProviders.filter(
+  const enabledProviders = mobileProviders.filter(
     (source) => providers.includes(source) && roomProviders.includes(source),
   );
 
@@ -283,5 +284,3 @@ export function useMusicSearch({
     { add, addPlaylist, search, setProvider, toggleAIMode, updateQuery },
   ];
 }
-
-const supportedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];

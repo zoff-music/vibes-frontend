@@ -68,7 +68,6 @@ export default function RemoteController() {
   const room = useRoomStore((state) => state.room) ?? loaderData.room;
   const songs = useQueueStore((state) => state.songs);
   const currentSongFromStore = usePlaybackStore((state) => state.currentSong);
-  const actualPositionMs = usePlaybackStore((state) => state.actualPositionMs);
   const playbackIsPlaying = usePlaybackStore((state) => state.isPlaying);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setHost = useRoomStore((state) => state.setHost);
@@ -79,8 +78,6 @@ export default function RemoteController() {
   const usersCount = useRoomStore((state) => state.usersCount);
   const setSession = useRoomStore((state) => state.setSession);
   const currentSong = currentSongFromStore ?? loaderData.playback?.currentSong;
-  const serverPositionMs =
-    actualPositionMs ?? loaderData.playback?.positionMs ?? 0;
   const isMachineSongCurrent = Boolean(
     currentSong?.id && remoteStatus?.currentSongId === currentSong.id,
   );
@@ -298,12 +295,12 @@ export default function RemoteController() {
             canSeek={canSeek}
             currentSong={currentSong ?? null}
             fetcher={actionFetcher}
+            initialPositionMs={loaderData.playback?.positionMs ?? 0}
             isMachineSongCurrent={isMachineSongCurrent}
             isPlaying={isPlaying}
             onAddSong={() => setShowSearch(true)}
             {...(remoteStatus ? { remoteStatus } : {})}
             room={room}
-            serverPositionMs={serverPositionMs}
           />
 
           <section className="panel-strong min-w-0 rounded-3xl p-4 sm:p-5">

@@ -12,7 +12,6 @@ import type {
   CastingTokenResponse,
   MusicPlaylist,
   PlaybackState,
-  ProviderToken,
   Room,
   RoomGenerationUpdate,
   RoomUpdate,
@@ -31,7 +30,6 @@ export type RoomActionIntent =
   | 'generatePlaylist'
   | 'joinRoom'
   | 'playback'
-  | 'providerToken'
   | 'providerPlaylist'
   | 'providerTrack'
   | 'removeSong'
@@ -53,8 +51,7 @@ export interface RoomActionData {
   generation?: RoomGenerationUpdate;
   playback?: PlaybackState;
   playlist?: MusicPlaylist;
-  provider?: 'soundcloud' | 'spotify' | 'youtube';
-  providerToken?: ProviderToken;
+  provider?: 'soundcloud' | 'youtube';
   room?: Room;
   searchResults?: SearchResponse | YouTubeSearchResponse;
   session?: SessionResponse;
@@ -69,7 +66,7 @@ interface RoomActionRequest {
   password?: string;
   positionMs?: number;
   prompt?: string;
-  provider?: 'soundcloud' | 'spotify' | 'youtube';
+  provider?: 'soundcloud' | 'youtube';
   room?: RoomUpdate;
   song?: AddSongRequest;
   songId?: string;
@@ -272,19 +269,6 @@ export async function clientAction({
     return { intent: body.intent };
   }
 
-  if (body.intent === 'providerToken') {
-    if (!body.provider) {
-      return { error: 'Provider is required', intent: body.intent };
-    }
-    const [error, providerToken] = await api.get('/tokens/{provider}', {
-      provider: body.provider,
-    });
-    if (error || !providerToken) {
-      return createErrorData(body.intent, error);
-    }
-    return { intent: body.intent, provider: body.provider, providerToken };
-  }
-
   if (body.intent === 'providerTrack') {
     if (!body.provider) {
       return { error: 'Provider is required', intent: body.intent };
@@ -309,19 +293,6 @@ export async function clientAction({
       };
     }
 
-    if (body.provider === 'spotify') {
-      if (!body.songId) {
-        return { error: 'Track ID is required', intent: body.intent };
-      }
-      const [error, track] = await api.get('/spotify/tracks/{id}', {
-        id: body.songId,
-      });
-      if (error || !track) {
-        return createErrorData(body.intent, error);
-      }
-      return { intent: body.intent, track };
-    }
-
     if (!body.providerUrl) {
       return { error: 'SoundCloud URL is required', intent: body.intent };
     }
@@ -344,19 +315,6 @@ export async function clientAction({
         return { error: 'Playlist ID is required', intent: body.intent };
       }
       const [error, playlist] = await api.get('/youtube/playlists/{id}', {
-        id: body.songId,
-      });
-      if (error || !playlist) {
-        return createErrorData(body.intent, error);
-      }
-      return { intent: body.intent, playlist };
-    }
-
-    if (body.provider === 'spotify') {
-      if (!body.songId) {
-        return { error: 'Playlist ID is required', intent: body.intent };
-      }
-      const [error, playlist] = await api.get('/spotify/playlists/{id}', {
         id: body.songId,
       });
       if (error || !playlist) {
@@ -395,16 +353,6 @@ export async function clientAction({
 
     if (body.provider === 'youtube') {
       const [error, searchResults] = await api.get('/youtube/search', {
-        $search: { q: prompt },
-      });
-      if (error || !searchResults) {
-        return createErrorData(body.intent, error);
-      }
-      return { intent: body.intent, searchResults };
-    }
-
-    if (body.provider === 'spotify') {
-      const [error, searchResults] = await api.get('/spotify/search', {
         $search: { q: prompt },
       });
       if (error || !searchResults) {

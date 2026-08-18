@@ -37,15 +37,15 @@ export function useControllerCommands({
   setRemote,
 }: ControllerCommandsOptions): readonly [string, ControllerCommandActions] {
   const [nextRoomId, setNextRoomId] = useState('');
-  const remoteAction = useFetcher<ControllerRemoteActionData>({
+  const [, remoteAction] = useFetcher<ControllerRemoteActionData>({
     params: { controllerToken, id: remoteId },
     routeId: 'remotes.controller.$id',
   });
-  const playbackAction = useFetcher<ControllerPlaybackActionData>({
+  const [, playbackAction] = useFetcher<ControllerPlaybackActionData>({
     params: { controllerToken, id: remoteId },
     routeId: 'remotes.controller.$id.playback',
   });
-  const queueAction = useFetcher<ControllerQueueActionData>({
+  const [, queueAction] = useFetcher<ControllerQueueActionData>({
     params: { controllerToken, id: remoteId },
     routeId: 'remotes.controller.$id.queue',
   });

@@ -39,8 +39,8 @@ export interface TvSessionState {
 
 export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
   const discovery = useLoaderData<DiscoveryData>();
-  const roomFetcher = useFetcher<RoomSnapshot>({ routeId: 'rooms.$id' });
-  const createFetcher = useFetcher<CreateRoomData>({
+  const [, roomFetcher] = useFetcher<RoomSnapshot>({ routeId: 'rooms.$id' });
+  const [createFetcherState, createFetcher] = useFetcher<CreateRoomData>({
     routeId: 'rooms.create',
   });
   const submitCreate = createFetcher.submit;
@@ -150,7 +150,7 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
       error: requestError || discovery?.warning || '',
       hydrating: discovery === null,
       listenerCount,
-      loading: roomLoading || createFetcher.state === 'submitting',
+      loading: roomLoading || createFetcherState.state === 'submitting',
       playback,
       providers,
       publicRooms,

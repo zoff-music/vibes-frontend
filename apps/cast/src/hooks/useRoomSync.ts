@@ -21,7 +21,6 @@ interface UseRoomSyncProps {
   setStatusText: (text: string) => void;
   setRoomMode: (mode: string | null) => void;
   setError: (err: string | null) => void;
-  setSpotifyToken: (token: string | null) => void;
   setEnabledProviders: (providers: string[]) => void;
   updateMediaMetadata: (song: Song) => void;
 }
@@ -37,7 +36,6 @@ export function useRoomSync({
   setStatusText,
   setRoomMode,
   setError,
-  setSpotifyToken,
   setEnabledProviders,
   updateMediaMetadata,
 }: UseRoomSyncProps) {
@@ -52,18 +50,13 @@ export function useRoomSync({
     }
     if (!snapshot) return;
 
-    setError(
-      snapshot.spotifyTokenUnavailable
-        ? 'Connected, but Spotify could not be prepared.'
-        : null,
-    );
+    setError(null);
     setRoomInfo({
       name: snapshot.room.name,
       participantCount: snapshot.room.userCount ?? 0,
     });
     setRoomMode(snapshot.room.mode);
     setEnabledProviders(snapshot.providers);
-    setSpotifyToken(snapshot.spotifyAccessToken);
     setQueue(snapshot.songs.map((song) => normalizeSong(song)));
 
     if (!snapshot.playback.currentSong) return;
@@ -85,7 +78,6 @@ export function useRoomSync({
     setQueue,
     setRoomInfo,
     setRoomMode,
-    setSpotifyToken,
     setStatusText,
     snapshot,
     updateMediaMetadata,

@@ -4,7 +4,6 @@ import {
   useEmbedLocalPlayback,
   useEmbedRoomActions,
   useEmbedRoomState,
-  useEmbedSpotifyToken,
 } from '../hooks/use-embed-room';
 import type { EmbedLoaderData } from '../loader';
 import { EmbedPlayerCard } from './player-card';
@@ -19,7 +18,6 @@ export function EmbedRoomView({ loaderData }: Props) {
   const { roomId, options } = loaderData;
   const roomState = useEmbedRoomState(loaderData);
   const actions = useEmbedRoomActions({ roomMode: roomState.room.mode });
-  const spotify = useEmbedSpotifyToken();
   const capabilities = getEmbedPlaybackCapabilities(
     options,
     roomState.currentSong,
@@ -55,9 +53,6 @@ export function EmbedRoomView({ loaderData }: Props) {
       onLocalInteraction={localPlayback.handleLocalPlayerInteraction}
       onStartPlayback={localPlayback.handlePlay}
       positionMs={positionMs}
-      requestProviderToken={spotify.requestToken}
-      spotifyTokenLoading={spotify.loading}
-      spotifyToken={spotify.token}
       songs={songs}
     />
   );

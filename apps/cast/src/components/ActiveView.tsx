@@ -1,5 +1,5 @@
 import { resolveSongThumbnail } from '@vibes/shared';
-import { SoundCloudIcon, SpotifyIcon, YouTubeIcon } from '@vibes/ui/web';
+import { SoundCloudIcon, YouTubeIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import { useCast } from './CastProvider';
@@ -44,16 +44,12 @@ export const ActiveView: React.FC = () => {
             </div>
 
             <div className="cast-track-provider flex shrink-0 items-center justify-center pr-2">
-              {currentSong.sourceType === 'spotify' && (
-                <SpotifyIcon className="h-8 w-8 text-theme-muted" />
-              )}
               {currentSong.sourceType === 'soundcloud' && (
                 <SoundCloudIcon className="h-8 w-8 text-theme-muted" />
               )}
-              {currentSong.sourceType !== 'spotify' &&
-                currentSong.sourceType !== 'soundcloud' && (
-                  <YouTubeIcon className="h-8 w-8 text-theme-muted" />
-                )}
+              {currentSong.sourceType !== 'soundcloud' && (
+                <YouTubeIcon className="h-8 w-8 text-theme-muted" />
+              )}
             </div>
           </div>
 

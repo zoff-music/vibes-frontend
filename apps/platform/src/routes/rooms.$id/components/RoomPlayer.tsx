@@ -20,7 +20,6 @@ import React, {
   Suspense,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -51,11 +50,7 @@ interface PlayerProps {
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   appContext?: 'platform' | 'cast';
-  accessToken?: string | null;
-  isFetchingToken?: boolean;
-  onRequestToken?: (provider: 'spotify', force?: boolean) => void;
   preloadSong?: Song | null;
-  tokenError?: string | null;
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
@@ -67,7 +62,6 @@ interface PlayerProps {
 type PlayerComponent = ComponentType<PlayerProps>;
 
 interface PlayerLoadErrors {
-  spotify: string | null;
   soundcloud: string | null;
   video: string | null;
 }
@@ -127,7 +121,6 @@ export const RoomPlayer = React.memo(
   }: RoomPlayerProps) => {
     /* 1. Hooks */
     const playbackFetcher = useFetcher<RoomActionData>();
-    const tokenFetcher = useFetcher<RoomActionData>();
     const songs = useQueueStore((state) => state.songs);
     const { isConnected, castDeviceName } = useCasting(roomId);
     const { volume, setVolume, toggleMuted } = usePersistentPlayerVolume();
@@ -165,22 +158,10 @@ export const RoomPlayer = React.memo(
     const canControlRoomPlayback =
       displayRoom?.mode !== 'host' || hasHostPlaybackAuthority;
 
-    const hasSpotifySongs = useMemo(
-      () => songs.some((s) => s.sourceType === 'spotify'),
-      [songs],
-    );
-
     const currentSourceType = currentSong?.sourceType ?? null;
-    const needsSpotifyPlayer = currentSourceType === 'spotify';
     const needsSoundCloudPlayer = currentSourceType === 'soundcloud';
-    const needsVideoPlayer =
-      currentSourceType !== null &&
-      currentSourceType !== 'spotify' &&
-      currentSourceType !== 'soundcloud';
+    const needsVideoPlayer = currentSourceType === 'youtube';
     const enabledSources = displayRoom?.settings.enabledSources ?? [];
-    const shouldPrepareSpotifyPlayer =
-      needsSpotifyPlayer ||
-      (providers.includes('spotify') && enabledSources.includes('spotify'));
     const shouldPrepareSoundCloudPlayer =
       needsSoundCloudPlayer ||
       (providers.includes('soundcloud') &&
@@ -188,15 +169,11 @@ export const RoomPlayer = React.memo(
     const shouldPrepareVideoPlayer =
       needsVideoPlayer ||
       (providers.includes('youtube') && enabledSources.includes('youtube'));
-    const preloadSpotifySong =
-      songs.find((song) => song.sourceType === 'spotify') ?? null;
     const preloadSoundCloudSong =
       songs.find((song) => song.sourceType === 'soundcloud') ?? null;
     const preloadVideoSong =
       songs.find((song) => song.sourceType === 'youtube') ?? null;
 
-    const [SpotifyPlayerComponent, setSpotifyPlayerComponent] =
-      useState<PlayerComponent | null>(null);
     const [SoundCloudPlayerComponent, setSoundCloudPlayerComponent] =
       useState<PlayerComponent | null>(null);
     const [VideoPlayerComponent, setVideoPlayerComponent] =
@@ -207,11 +184,7 @@ export const RoomPlayer = React.memo(
           initialPlayback?.currentSong?.sourceType === 'soundcloud'),
     );
     const [isSkipPending, setIsSkipPending] = useState(false);
-    const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
-    const [tokenError, setTokenError] = useState<string | null>(null);
-    const spotifyTokenAttemptedRef = useRef(false);
     const [playerLoadErrors, setPlayerLoadErrors] = useState<PlayerLoadErrors>({
-      spotify: null,
       soundcloud: null,
       video: null,
     });
@@ -316,65 +289,14 @@ export const RoomPlayer = React.memo(
       onSkip: skip,
     });
 
-    const requestProviderToken = useCallback(
-      (provider: 'spotify', force = false) => {
-        if (!force && spotifyTokenAttemptedRef.current) return;
-        spotifyTokenAttemptedRef.current = true;
-        tokenFetcher.submit(
-          { force, intent: 'providerToken', provider },
-          { encType: 'application/json', method: 'post' },
-        );
-      },
-      [tokenFetcher],
-    );
-
-    const handleConnectSpotify = useCallback(() => {
-      const width = 600;
-      const height = 800;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
-
-      const popup = window.open(
-        '/api/v1/authorizations/spotify',
-        'SpotifyAuth',
-        `width=${width},height=${height},left=${left},top=${top}`,
-      );
-
-      const handleMessage = (event: MessageEvent) => {
-        if (event.origin !== window.location.origin) return;
-        if (!popup || event.source !== popup) return;
-        if (
-          event.data?.type === 'oauth-success' &&
-          event.data?.provider === 'spotify'
-        ) {
-          requestProviderToken('spotify', true);
-          popup?.close();
-          window.removeEventListener('message', handleMessage);
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-
-      const timer = setInterval(() => {
-        if (popup?.closed) {
-          window.removeEventListener('message', handleMessage);
-          clearInterval(timer);
-          requestProviderToken('spotify', true);
-        }
-      }, 1000);
-    }, [requestProviderToken]);
-
     /* 4. Effects */
     useEffect(() => {
       setPlayerLoadErrors((prev) => ({
         ...prev,
-        spotify: currentSong?.sourceType === 'spotify' ? null : prev.spotify,
         soundcloud:
           currentSong?.sourceType === 'soundcloud' ? null : prev.soundcloud,
         video:
-          currentSong &&
-          currentSong.sourceType !== 'spotify' &&
-          currentSong.sourceType !== 'soundcloud'
+          currentSong && currentSong.sourceType === 'youtube'
             ? null
             : prev.video,
       }));
@@ -420,54 +342,7 @@ export const RoomPlayer = React.memo(
       setPlaybackState,
     ]);
 
-    useEffect(() => {
-      if (tokenFetcher.state !== 'idle' || !tokenFetcher.data) return;
-      if (tokenFetcher.data.intent !== 'providerToken') return;
-      if (tokenFetcher.data.error || !tokenFetcher.data.providerToken) {
-        setTokenError(tokenFetcher.data.error ?? 'Failed to fetch token');
-        return;
-      }
-      setTokenError(null);
-      if (tokenFetcher.data.provider === 'spotify') {
-        setSpotifyToken(tokenFetcher.data.providerToken.accessToken);
-      }
-    }, [tokenFetcher.data, tokenFetcher.state]);
-
     /* 5. Render */
-
-    useEffect(() => {
-      if (!shouldPrepareSpotifyPlayer || SpotifyPlayerComponent) return;
-
-      let isMounted = true;
-      const loadSpotifyPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(
-          import('@vibes/ui/web/player/SpotifyPlayer'),
-        );
-        const resolvedComponent = module?.SpotifyPlayer;
-        if (!isMounted || loadErr || !resolvedComponent) {
-          if (loadErr) {
-            console.error('[RoomPlayer] Spotify player load failed', loadErr);
-            setPlayerLoadErrors((prev) => ({
-              ...prev,
-              spotify: 'Failed to load Spotify player',
-            }));
-          } else if (!resolvedComponent) {
-            setPlayerLoadErrors((prev) => ({
-              ...prev,
-              spotify: 'Spotify player unavailable',
-            }));
-          }
-          return;
-        }
-        setSpotifyPlayerComponent(() => resolvedComponent);
-      };
-
-      loadSpotifyPlayer();
-
-      return () => {
-        isMounted = false;
-      };
-    }, [shouldPrepareSpotifyPlayer, SpotifyPlayerComponent]);
 
     useEffect(() => {
       if (!shouldPrepareSoundCloudPlayer || SoundCloudPlayerComponent) return;
@@ -549,23 +424,18 @@ export const RoomPlayer = React.memo(
       };
     }, [roomId]);
 
-    const isSpotifyTrack = currentSong?.sourceType === 'spotify';
     const isSoundCloudTrack = currentSong?.sourceType === 'soundcloud';
     const isVideoTrack = currentSong
-      ? currentSong.sourceType !== 'spotify' &&
-        currentSong.sourceType !== 'soundcloud'
+      ? currentSong.sourceType === 'youtube'
       : false;
     const isPlayerMissing =
-      (isSpotifyTrack && !SpotifyPlayerComponent) ||
       (isSoundCloudTrack && !SoundCloudPlayerComponent) ||
       (isVideoTrack && !VideoPlayerComponent);
-    const currentPlayerError = isSpotifyTrack
-      ? playerLoadErrors.spotify
-      : isSoundCloudTrack
-        ? playerLoadErrors.soundcloud
-        : isVideoTrack
-          ? playerLoadErrors.video
-          : null;
+    const currentPlayerError = isSoundCloudTrack
+      ? playerLoadErrors.soundcloud
+      : isVideoTrack
+        ? playerLoadErrors.video
+        : null;
 
     return (
       <div
@@ -646,37 +516,6 @@ export const RoomPlayer = React.memo(
               </div>
             </div>
           )}
-          {SpotifyPlayerComponent && (
-            <div
-              className={classNames(
-                'absolute inset-0',
-                (!isSpotifyTrack || isConnected) &&
-                  'pointer-events-none opacity-0',
-              )}
-            >
-              <SpotifyPlayerComponent
-                onLocalAlignmentChange={setLocalPlaybackAligned}
-                {...((hasHostPlaybackAuthority ||
-                  displayRoom?.mode === 'server') && {
-                  onLocalPause: handleLocalPause,
-                  onLocalPlay: handleLocalPlay,
-                })}
-                {...((hasHostPlaybackAuthority ||
-                  displayRoom?.mode === 'server') && {
-                  onLocalSeek: handleLocalSeek,
-                })}
-                {...(hasHostPlaybackAuthority && {
-                  onEnded: handleEnded,
-                })}
-                isVisible={!isConnected && isSpotifyTrack}
-                accessToken={spotifyToken}
-                isFetchingToken={tokenFetcher.state !== 'idle'}
-                onRequestToken={requestProviderToken}
-                preloadSong={preloadSpotifySong}
-                tokenError={tokenError}
-              />
-            </div>
-          )}
           {SoundCloudPlayerComponent && (
             <div
               className={classNames(
@@ -755,8 +594,6 @@ export const RoomPlayer = React.memo(
             onOpenCast={onOpenCast}
             isCasting={isConnected}
             castDeviceName={castDeviceName}
-            showSpotifyConnect={hasSpotifySongs && !spotifyToken}
-            onConnectSpotify={handleConnectSpotify}
             mobileTrailingContent={
               <UserCount
                 initialCount={displayRoom?.userCount ?? 0}
@@ -782,7 +619,6 @@ export const RoomPlayer = React.memo(
               isPlaying={isPlaying && !isPlaybackBlocked}
               isSkipping={isSkipPending}
               onAddSong={onAddSong}
-              onConnectSpotify={handleConnectSpotify}
               onOpenCast={onOpenCast}
               onPause={pause}
               onPlay={play}
@@ -791,7 +627,6 @@ export const RoomPlayer = React.memo(
               onToggleMuted={toggleMuted}
               onVolumeChange={setVolume}
               showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
-              showSpotifyConnect={hasSpotifySongs && !spotifyToken}
               volume={volume}
             />
           </Suspense>

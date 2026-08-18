@@ -37,7 +37,7 @@ export function CreateRoomSheet({
   providers,
   visible,
 }: CreateRoomSheetProps) {
-  const { submit } = useFetcher<CreateRoomActionData>({
+  const [, { submit }] = useFetcher<CreateRoomActionData>({
     routeId: 'rooms.create',
   });
   const [name, setName] = useState(initialName);
