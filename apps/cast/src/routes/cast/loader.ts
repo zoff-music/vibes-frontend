@@ -13,8 +13,6 @@ export interface CastRoomSnapshot {
   providers: Providers;
   room: Room;
   songs: Song[];
-  spotifyAccessToken: string | null;
-  spotifyTokenUnavailable: boolean;
 }
 
 export interface CastLoaderData {
@@ -60,23 +58,6 @@ async function loadSnapshot(
   const enabledProviders = providers.filter((provider) =>
     room.settings.enabledSources.includes(provider),
   );
-  if (!enabledProviders.includes('spotify')) {
-    return [
-      null,
-      {
-        playback,
-        providers: enabledProviders,
-        room,
-        songs,
-        spotifyAccessToken: null,
-        spotifyTokenUnavailable: false,
-      },
-    ];
-  }
-
-  const [tokenError, token] = await client.get('/tokens/{provider}', {
-    provider: 'spotify',
-  });
   return [
     null,
     {
@@ -84,8 +65,6 @@ async function loadSnapshot(
       providers: enabledProviders,
       room,
       songs,
-      spotifyAccessToken: token?.accessToken ?? null,
-      spotifyTokenUnavailable: Boolean(tokenError || !token),
     },
   ];
 }

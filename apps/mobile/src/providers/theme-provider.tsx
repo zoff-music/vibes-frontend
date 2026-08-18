@@ -9,12 +9,14 @@ import {
   useState,
 } from 'react';
 import { Appearance, useColorScheme } from 'react-native';
+import type { ThemeActionData } from '@/routes/preferences.theme/action';
 
 export type ThemePreference = 'auto' | 'dark' | 'light';
 
 interface ThemeState {
   preference: ThemePreference;
   resolvedScheme: 'dark' | 'light';
+  warning: string;
 }
 
 type ThemeContextValue = readonly [
@@ -25,13 +27,14 @@ type ThemeContextValue = readonly [
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function AppThemeProvider({ children }: PropsWithChildren) {
-  const preferenceFetcher = useFetcher<ThemePreference>({
+  const [, preferenceFetcher] = useFetcher<ThemeActionData>({
     routeId: 'preferences.theme',
   });
   const systemScheme = useColorScheme();
   const loadedPreference =
     useRouteLoaderData<ThemePreference>('preferences.theme');
   const [preference, setPreferenceValue] = useState<ThemePreference>('auto');
+  const [warning, setWarning] = useState('');
 
   useEffect(() => {
     if (!loadedPreference) return;
@@ -46,9 +49,12 @@ export function AppThemeProvider({ children }: PropsWithChildren) {
       const result = await preferenceFetcher.submit(nextPreference);
       if (!result.data) return;
       Appearance.setColorScheme(
-        result.data === 'auto' ? 'unspecified' : result.data,
+        result.data.preference === 'auto'
+          ? 'unspecified'
+          : result.data.preference,
       );
-      setPreferenceValue(result.data);
+      setPreferenceValue(result.data.preference);
+      setWarning(result.data.warning);
     },
     [preferenceFetcher.submit],
   );
@@ -61,8 +67,8 @@ export function AppThemeProvider({ children }: PropsWithChildren) {
       : preference;
 
   const value = useMemo<ThemeContextValue>(
-    () => [{ preference, resolvedScheme }, setPreference],
-    [preference, resolvedScheme, setPreference],
+    () => [{ preference, resolvedScheme, warning }, setPreference],
+    [preference, resolvedScheme, setPreference, warning],
   );
 
   return (

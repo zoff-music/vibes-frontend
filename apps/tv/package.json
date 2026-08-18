@@ -18,32 +18,42 @@
     "typecheck": "tsc --noEmit",
     "validate": "EXPO_TV=1 expo config --type public && tsc --noEmit && pnpm tizen:build"
   },
+  "expo": {
+    "install": {
+      "exclude": [
+        "react",
+        "react-dom",
+        "react-native"
+      ]
+    }
+  },
   "dependencies": {
     "@expo-google-fonts/pixelify-sans": "^0.4.2",
     "@react-native-tvos/config-tv": "^0.1.6",
     "@vibes/api": "workspace:*",
-    "@vibes/ui": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/native-router": "workspace:*",
     "@vibes/shared": "workspace:*",
+    "@vibes/ui": "workspace:*",
     "@vitejs/plugin-react": "latest",
-    "expo": "~57.0.11",
-    "expo-asset": "~57.0.9",
+    "expo": "~57.0.14",
+    "expo-asset": "~57.0.12",
     "expo-font": "~57.0.1",
-    "expo-image": "~57.0.2",
+    "expo-image": "~57.0.3",
     "nativewind": "5.0.0-preview.4",
     "qrcode": "^1.5.4",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "react-router": "8.3.0",
     "react-native": "npm:react-native-tvos@0.86.2-0",
     "react-native-css": "3.0.7",
-    "react-native-reanimated": "4.5.1",
     "react-native-qrcode-svg": "^6.3.21",
+    "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-svg": "^15.15.4",
     "react-native-webview": "13.16.1",
+    "react-native-worklets": "0.10.1",
     "react-native-youtube-iframe": "2.4.1",
+    "react-router": "8.3.0",
     "tailwindcss": "catalog:",
     "vite": "8.1.3"
   },

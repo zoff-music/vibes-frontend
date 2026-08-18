@@ -151,7 +151,7 @@ const VideoPlayerComponent = ({
   useEffect(() => {
     return subscribeToPlaybackGestureUnlock(() => {
       const playbackState = usePlaybackStore.getState();
-      const [error] = safeWrap(() => {
+      safeWrap(() => {
         if (playbackState.currentSong?.sourceType !== 'youtube') {
           const player = playerRef.current;
           if (!player) return;
@@ -163,12 +163,12 @@ const VideoPlayerComponent = ({
           return;
         }
         claimProviderPlayback('youtube');
-        playerRef.current?.unMute();
-        playerRef.current?.setVolume(desiredVolumeRef.current);
+        const player = playerRef.current;
+        if (!player) return;
+        setIsMutedState(
+          applyPlayerVolume(player, desiredVolumeRef.current, true),
+        );
       });
-      if (!error && playbackState.currentSong?.sourceType === 'youtube') {
-        setIsMutedState(false);
-      }
       setHasUserStartedPlayback(true);
       setNeedsUserGesture(false);
     });
@@ -251,8 +251,9 @@ const VideoPlayerComponent = ({
     const [err] = safeWrap(() => {
       if (shouldReset) {
         claimProviderPlayback('youtube');
-        player.unMute();
-        player.setVolume(desiredVolumeRef.current);
+        setIsMutedState(
+          applyPlayerVolume(player, desiredVolumeRef.current, true),
+        );
         lastResetVersionRef.current = resetVersion;
       }
       if (shouldSynchronizePosition) {
@@ -292,9 +293,9 @@ const VideoPlayerComponent = ({
           player.setVolume(desiredVolumeRef.current);
           setIsMutedState(true);
         } else if (hasUserStartedPlayback) {
-          player.unMute();
-          player.setVolume(desiredVolumeRef.current);
-          setIsMutedState(false);
+          setIsMutedState(
+            applyPlayerVolume(player, desiredVolumeRef.current, true),
+          );
         }
         expectedPlayingStateRef.current = true;
         player.playVideo();
@@ -412,11 +413,9 @@ const VideoPlayerComponent = ({
     const [error] = safeWrap(() => {
       const player = playerRef.current;
       if (!player) return;
-      player.setVolume(desiredVolume);
-      if (hasUserStartedPlayback) {
-        player.unMute();
-        setIsMutedState(false);
-      }
+      setIsMutedState(
+        applyPlayerVolume(player, desiredVolume, hasUserStartedPlayback),
+      );
       observedPlaybackRef.current = null;
     });
     if (error && DEBUG) {
@@ -481,9 +480,9 @@ const VideoPlayerComponent = ({
       if (!player || player.getPlayerState() !== YOUTUBE_STATE_PLAYING) return;
       const [err] = safeWrap(() => {
         claimProviderPlayback('youtube');
-        player.unMute();
-        player.setVolume(desiredVolumeRef.current);
-        setIsMutedState(false);
+        setIsMutedState(
+          applyPlayerVolume(player, desiredVolumeRef.current, true),
+        );
       });
       if (err && DEBUG) {
         debugLog('cast-playing-volume-error', { error: err.message });
@@ -526,9 +525,9 @@ const VideoPlayerComponent = ({
           player.setVolume(desiredVolumeRef.current);
           setIsMutedState(true);
         } else if (isPlaybackGestureUnlocked()) {
-          player.unMute();
-          player.setVolume(desiredVolumeRef.current);
-          setIsMutedState(false);
+          setIsMutedState(
+            applyPlayerVolume(player, desiredVolumeRef.current, true),
+          );
         }
         const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
         const startSeconds = actualPositionMs > 0 ? actualPositionMs / 1000 : 0;
@@ -652,9 +651,9 @@ const VideoPlayerComponent = ({
       const [prepareErr] = safeWrap(() => {
         claimProviderPlayback('youtube');
         if (player.getPlayerState() === YOUTUBE_STATE_PLAYING) {
-          player.unMute();
-          player.setVolume(desiredVolumeRef.current);
-          setIsMutedState(false);
+          setIsMutedState(
+            applyPlayerVolume(player, desiredVolumeRef.current, true),
+          );
           return;
         }
         player.mute();
@@ -723,9 +722,9 @@ const VideoPlayerComponent = ({
             event.target.mute();
             setIsMutedState(true);
           } else {
-            event.target.unMute();
-            event.target.setVolume(desiredVolumeRef.current);
-            setIsMutedState(false);
+            setIsMutedState(
+              applyPlayerVolume(event.target, desiredVolumeRef.current, true),
+            );
           }
           event.target.playVideo();
         });
@@ -760,10 +759,15 @@ const VideoPlayerComponent = ({
           (isCastReceiver || isPlaybackGestureUnlocked())
         ) {
           const [unmuteError] = safeWrap(() => {
-            playerRef.current?.unMute();
-            playerRef.current?.setVolume(desiredVolumeRef.current);
+            const player = playerRef.current;
+            if (!player) return;
+            setIsMutedState(
+              applyPlayerVolume(player, desiredVolumeRef.current, true),
+            );
           });
-          if (!unmuteError) setIsMutedState(false);
+          if (unmuteError && DEBUG) {
+            debugLog('playing-volume-error', { error: unmuteError.message });
+          }
         }
       }
 
@@ -798,8 +802,11 @@ const VideoPlayerComponent = ({
         if (isCastReceiver && state === YOUTUBE_STATE_PLAYING && muted) {
           const [unmuteErr] = safeWrap(() => {
             claimProviderPlayback('youtube');
-            playerRef.current?.unMute();
-            playerRef.current?.setVolume(desiredVolumeRef.current);
+            const player = playerRef.current;
+            if (!player) return;
+            setIsMutedState(
+              applyPlayerVolume(player, desiredVolumeRef.current, true),
+            );
           });
           if (unmuteErr && DEBUG) {
             debugLog('cast-unmute-error', { error: unmuteErr.message });
@@ -817,7 +824,9 @@ const VideoPlayerComponent = ({
         if (!resolvedMuted) {
           setNeedsUserGesture(false);
         } else {
-          setNeedsUserGesture(!isCastReceiver);
+          setNeedsUserGesture(
+            !isCastReceiver && desiredVolumeRef.current > MIN_VOLUME,
+          );
         }
         const expectedPlayingState = expectedPlayingStateRef.current;
         if (state === YOUTUBE_STATE_PLAYING && expectedPlayingState === true) {
@@ -1022,7 +1031,7 @@ const VideoPlayerComponent = ({
     !isCastReceiver &&
     (!hasUserStartedPlayback ||
       needsUserGesture ||
-      (shouldPlay && isMutedState)) &&
+      (shouldPlay && isMutedState && desiredVolume > MIN_VOLUME)) &&
     !error;
 
   const handleUserGesturePlay = useCallback(() => {
@@ -1034,8 +1043,9 @@ const VideoPlayerComponent = ({
     markPlaybackGestureUnlocked();
     const [err] = safeWrap(() => {
       claimProviderPlayback('youtube');
-      player.unMute();
-      setIsMutedState(false);
+      setIsMutedState(
+        applyPlayerVolume(player, desiredVolumeRef.current, true),
+      );
       suppressLoadUntilRef.current = Date.now() + 2000;
       if (videoId) {
         lastLoadedVideoIdRef.current = videoId;
@@ -1150,6 +1160,21 @@ const MAX_AUTOPLAY_RETRIES = 12;
 const MAX_VOLUME = 100;
 
 const MIN_VOLUME = 0;
+
+function applyPlayerVolume(
+  player: YouTubePlayerRef,
+  volume: number,
+  allowAudio: boolean,
+): boolean {
+  player.setVolume(volume);
+  const shouldMute = !allowAudio || volume === MIN_VOLUME;
+  if (shouldMute) {
+    player.mute();
+    return true;
+  }
+  player.unMute();
+  return false;
+}
 
 const YOUTUBE_STATE_PAUSED = 2;
 

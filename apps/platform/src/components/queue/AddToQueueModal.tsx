@@ -13,7 +13,6 @@ import {
   parseProviderTrackLink,
   resolveSongThumbnail,
   type SourceType,
-  usePlaybackStore,
   useQueueStore,
 } from '@vibes/shared';
 import {
@@ -37,7 +36,6 @@ import {
   SearchIcon,
   SoundCloudIcon,
   SparklesIcon,
-  SpotifyIcon,
   Tooltip,
   YouTubeIcon,
 } from '@vibes/ui/web';
@@ -112,8 +110,6 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [existingPlaylistCount, setExistingPlaylistCount] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const songs = useQueueStore((state) => state.songs);
-  const currentSong = usePlaybackStore((state) => state.currentSong);
-
   const songCountCutoff = roomGenerationMaxExistingSongs + 1;
   const isAboveSongLimit = songs.length >= songCountCutoff;
   const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
@@ -138,13 +134,8 @@ export const AddToQueueModal: React.FC<Props> = ({
   const canGenerate = !generationUnavailableReason;
   const isGenerationSubmitting = generationFetcher.state !== 'idle';
 
-  const hasSpotifySongs =
-    songs.some((s) => s.sourceType === 'spotify') ||
-    currentSong?.sourceType === 'spotify';
-
   const enabledSources = room.settings.enabledSources ?? [
     'youtube',
-    'spotify',
     'soundcloud',
   ];
 
@@ -810,23 +801,6 @@ export const AddToQueueModal: React.FC<Props> = ({
         )}
       </div>
 
-      {/* Spotify Disclaimer */}
-      {!isAIMode && selectedProvider === 'spotify' && !hasSpotifySongs && (
-        <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
-          <div className="flex gap-3">
-            <div className="mt-0.5 text-orange-400">
-              <InfoIcon className="h-5 w-5" />
-            </div>
-            <p className="text-sm text-theme-muted leading-relaxed">
-              <span className="text-2xs text-orange-400">Note:</span> By adding
-              Spotify, viewers are required to have{' '}
-              <span className="font-semibold text-theme">Spotify Premium</span>{' '}
-              to view content.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* SoundCloud Disclaimer */}
       {!isAIMode && selectedProvider === 'soundcloud' && (
         <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
@@ -1159,10 +1133,6 @@ interface ProviderIconProps {
 }
 
 const ProviderIcon: React.FC<ProviderIconProps> = ({ className, provider }) => {
-  if (provider === 'spotify') {
-    return <SpotifyIcon className={className} />;
-  }
-
   if (provider === 'soundcloud') {
     return <SoundCloudIcon className={className} />;
   }
@@ -1268,11 +1238,10 @@ const PlaybackRestrictionNotice: React.FC<PlaybackRestrictionNoticeProps> = ({
   );
 };
 
-const orderedProviders: SourceType[] = ['youtube', 'spotify', 'soundcloud'];
+const orderedProviders: SourceType[] = ['youtube', 'soundcloud'];
 
 const providerNames: Record<SourceType, string> = {
   soundcloud: 'SoundCloud',
-  spotify: 'Spotify',
   youtube: 'YouTube',
 };
 

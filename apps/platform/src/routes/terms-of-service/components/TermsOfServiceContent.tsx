@@ -16,7 +16,6 @@ export function TermsOfServiceContent({
 }: TermsOfServiceContentProps) {
   const hasYouTube = providers.includes('youtube');
   const hasSoundCloud = providers.includes('soundcloud');
-  const hasSpotify = providers.includes('spotify');
 
   return (
     <LegalDocument
@@ -121,25 +120,6 @@ export function TermsOfServiceContent({
             and respect uploader and rightsholder permissions. Zoff does not
             own, license, or grant additional rights in SoundCloud content and
             is not endorsed by SoundCloud.
-          </p>
-        </LegalSection>
-      )}
-
-      {hasSpotify && (
-        <LegalSection title="Spotify">
-          <p>
-            Spotify functionality is subject to the{' '}
-            <LegalLink href="https://www.spotify.com/legal/end-user-agreement/">
-              Spotify Terms of Use
-            </LegalLink>
-            . Playback eligibility, including any Premium requirement, is
-            determined by Spotify. Spotify and its licensors retain all rights
-            in Spotify content.
-          </p>
-          <p>
-            Users must not copy, capture, redistribute, synchronize, modify, or
-            otherwise exploit Spotify content through Zoff. Zoff is not endorsed
-            by Spotify.
           </p>
         </LegalSection>
       )}

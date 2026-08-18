@@ -44,12 +44,13 @@ export function RoomScreen() {
   const router = useRouter();
   const tabletLayout = useTabletLandscapeLayout();
   const { width } = tabletLayout;
+  const compactRoomHeader = width < roomHeaderBreakpoint;
   const [notice, setNotice] = useState('');
-  const { submit: submitPlayback } = useFetcher<RoomPlaybackActionData>({
+  const [, { submit: submitPlayback }] = useFetcher<RoomPlaybackActionData>({
     params: { id: roomId },
     routeId: 'rooms.$id.playback',
   });
-  const { submit: submitQueue } = useFetcher<RoomQueueActionData>({
+  const [, { submit: submitQueue }] = useFetcher<RoomQueueActionData>({
     params: { id: roomId },
     routeId: 'rooms.$id.queue',
   });
@@ -313,48 +314,78 @@ export function RoomScreen() {
     );
   }
 
+  let roomHeader = (
+    <View
+      className={classNames(
+        'w-full flex-row items-center justify-between gap-3 self-center px-4 py-3',
+        tabletLayout.isTabletLandscape && 'h-20 py-0',
+      )}
+    >
+      <View className="min-w-0 flex-1 overflow-hidden">
+        <Copy muted>NOW IN</Copy>
+        <Text
+          className="max-w-full font-heading text-3xl text-mobile-text dark:text-mobile-dark-text"
+          ellipsizeMode="tail"
+          numberOfLines={1}
+        >
+          {room.name}
+        </Text>
+      </View>
+      <View className="shrink-0 flex-row items-center justify-end gap-2">
+        <Button label="Leave" tone="secondary" onPress={() => void leave()} />
+        <View className="h-13 flex-row items-center gap-2 rounded-xl border border-mobile-border bg-mobile-card/90 px-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
+          <View className="size-2 rounded-full bg-accent" />
+          <Copy>{room.userCount ?? 0}</Copy>
+        </View>
+        <IconButton
+          accessibilityLabel="Share room"
+          icon="share"
+          onPress={() => void share()}
+        />
+        <CastButton />
+      </View>
+    </View>
+  );
+  if (compactRoomHeader) {
+    roomHeader = (
+      <View className="h-[76px] w-full flex-row items-center gap-3 px-4">
+        <View className="min-w-0 flex-1 overflow-hidden">
+          <View className="flex-row items-center gap-2">
+            <Copy muted>NOW IN</Copy>
+            <View className="size-2 rounded-full bg-accent" />
+            <Copy muted>{room.userCount ?? 0}</Copy>
+          </View>
+          <Text
+            className="max-w-full font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+            ellipsizeMode="tail"
+            numberOfLines={1}
+          >
+            {room.name}
+          </Text>
+        </View>
+        <View className="shrink-0 flex-row items-center gap-2">
+          <Button label="Leave" tone="secondary" onPress={() => void leave()} />
+          <IconButton
+            accessibilityLabel="Share room"
+            icon="share"
+            onPress={() => void share()}
+          />
+          <CastButton />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <Screen gridPaused={playback?.isPlaying === false}>
-      <SafeAreaView edges={['top']}>
-        <View
-          className={classNames(
-            'w-full flex-row items-center justify-between gap-3 self-center px-4 py-3',
-            tabletLayout.isTabletLandscape && 'h-20 py-0',
-          )}
-          {...(tabletLayout.isTabletPortrait
-            ? { style: { width: tabletLayout.portraitContentWidth } }
-            : {})}
-        >
-          <View className="min-w-0 flex-1">
-            <Copy muted>NOW IN</Copy>
-            <Text
-              className={classNames(
-                'font-heading text-mobile-text text-xl dark:text-mobile-dark-text',
-                width >= roomHeaderBreakpoint && 'text-3xl',
-              )}
-              numberOfLines={1}
-            >
-              {room.name}
-            </Text>
-          </View>
-          <View className="shrink-0 flex-row items-center justify-end gap-2">
-            <Button
-              label="Leave"
-              tone="secondary"
-              onPress={() => void leave()}
-            />
-            <View className="h-13 flex-row items-center gap-2 rounded-xl border border-mobile-border bg-mobile-card/90 px-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
-              <View className="size-2 rounded-full bg-accent" />
-              <Copy>{room.userCount ?? 0}</Copy>
-            </View>
-            <IconButton
-              accessibilityLabel="Share room"
-              icon="share"
-              onPress={() => void share()}
-            />
-            <CastButton />
-          </View>
-        </View>
+      <SafeAreaView
+        className="w-full self-center"
+        edges={['top']}
+        {...(tabletLayout.isTabletPortrait
+          ? { style: { width: tabletLayout.portraitContentWidth } }
+          : {})}
+      >
+        {roomHeader}
       </SafeAreaView>
       <View className="min-h-0 flex-1">{content}</View>
     </Screen>

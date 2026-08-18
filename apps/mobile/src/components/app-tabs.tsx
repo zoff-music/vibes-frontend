@@ -29,7 +29,7 @@ export default function AppTabs() {
       }
       iconColor={{ default: theme.muted, selected: theme.pink }}
       minimizeBehavior="onScrollDown"
-      tintColor={theme.accent}
+      tintColor={theme.pink}
       labelStyle={{
         default: {
           color: theme.muted,

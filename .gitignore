@@ -19,6 +19,8 @@ web-build/
 **/.react-router/
 **/web-build/
 *.tsbuildinfo
+output/
+tmp/
 
 # Mobile generated output
 .expo/

@@ -14,20 +14,29 @@ import {
 import '@/tizen/tizen.css';
 
 const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Samsung TV root is unavailable.');
-const router = createHashRouter([
-  {
-    action,
-    Component: TizenSessionRoute,
-    errorElement: <TizenRecoveryView />,
-    HydrateFallback: TizenHydrateFallback,
-    loader,
-    path: '/',
-    shouldRevalidate,
-  },
-]);
-createRoot(rootElement).render(
-  <TizenErrorBoundary>
-    <RouterProvider router={router} />
-  </TizenErrorBoundary>,
-);
+if (!rootElement) {
+  const fallback = document.createElement('main');
+  fallback.className =
+    'flex h-full items-center justify-center bg-tv-background p-16 text-center text-tv-text';
+  fallback.textContent =
+    'The TV screen could not start. Restart Zoff to try again.';
+  document.body.replaceChildren(fallback);
+}
+if (rootElement) {
+  const router = createHashRouter([
+    {
+      action,
+      Component: TizenSessionRoute,
+      errorElement: <TizenRecoveryView />,
+      HydrateFallback: TizenHydrateFallback,
+      loader,
+      path: '/',
+      shouldRevalidate,
+    },
+  ]);
+  createRoot(rootElement).render(
+    <TizenErrorBoundary>
+      <RouterProvider router={router} />
+    </TizenErrorBoundary>,
+  );
+}

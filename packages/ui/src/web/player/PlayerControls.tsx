@@ -10,7 +10,6 @@ import {
   PlusIcon,
   ResetIcon,
   SkipIcon,
-  SpotifyIcon,
   VolumeIcon,
   VolumeMutedIcon,
 } from '../icons';
@@ -29,8 +28,6 @@ interface Props {
   onOpenCast: () => void;
   isCasting: boolean;
   castDeviceName?: string | null;
-  showSpotifyConnect?: boolean;
-  onConnectSpotify?: () => void;
   mobileTrailingContent?: React.ReactNode;
   volume: number;
   onVolumeChange: (volume: number) => void;
@@ -108,8 +105,6 @@ const PlayerControlsComponent: React.FC<Props> = ({
   onOpenCast,
   isCasting,
   castDeviceName,
-  showSpotifyConnect,
-  onConnectSpotify,
   mobileTrailingContent,
   volume,
   onVolumeChange,
@@ -229,7 +224,6 @@ const PlayerControlsComponent: React.FC<Props> = ({
         <div
           className={classNames(
             'hidden min-w-0 items-center gap-4 sm:ml-auto sm:flex sm:w-auto',
-            showSpotifyConnect && onConnectSpotify && 'flex w-full',
           )}
         >
           <div className="hidden sm:block">
@@ -240,20 +234,6 @@ const PlayerControlsComponent: React.FC<Props> = ({
               onToggleMuted={onToggleMuted}
             />
           </div>
-          {showSpotifyConnect && onConnectSpotify && (
-            <Button
-              onClick={onConnectSpotify}
-              variant="tertiary"
-              className="h-12 min-w-0 flex-1 gap-2 px-3 sm:flex-none sm:px-4"
-              title="Connect Spotify"
-            >
-              <SpotifyIcon className="h-6 w-6 shrink-0" />
-              <span className="truncate font-display text-xs tracking-display">
-                Connect Spotify
-              </span>
-            </Button>
-          )}
-
           <div className="hidden sm:block">
             <Button
               onClick={onAddSong}

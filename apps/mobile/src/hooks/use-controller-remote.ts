@@ -16,6 +16,12 @@ import { useControllerPairing } from '@/hooks/use-controller-pairing';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { createRemoteApi } from '@/lib/api';
 import {
+  filterMobileSongs,
+  isMobileProvider,
+  normalizeMobilePlayback,
+  normalizeMobileRoom,
+} from '@/lib/mobile-content';
+import {
   useControllerSessionActions,
   useRoomSession,
 } from '@/providers/app-provider';
@@ -94,7 +100,7 @@ export function useControllerRemote(): readonly [
     session: controllerRemote,
     setError,
   });
-  const remoteLoader = useFetcher<ControllerRemoteData>({
+  const [, remoteLoader] = useFetcher<ControllerRemoteData>({
     params: { controllerToken, id: remoteId },
     routeId: 'remotes.controller.$id',
   });
@@ -160,10 +166,10 @@ export function useControllerRemote(): readonly [
       return;
     }
     if (!snapshot) return;
-    setRoom(snapshot.room);
-    setSongs(snapshot.songs);
+    setRoom(normalizeMobileRoom(snapshot.room));
+    setSongs(filterMobileSongs(snapshot.songs));
     synchronizeServerClock(snapshot.playback.serverTimeMs);
-    setPlayback(snapshot.playback);
+    setPlayback(normalizeMobilePlayback(snapshot.playback));
     setError('');
   }, [
     activateControllerRemote,
@@ -216,17 +222,19 @@ export function useControllerRemote(): readonly [
       onConnected: synchronizeServerClock,
       onPlaybackUpdate: (nextPlayback: PlaybackState) => {
         synchronizeServerClock(nextPlayback.serverTimeMs);
-        setPlayback(nextPlayback);
+        setPlayback(normalizeMobilePlayback(nextPlayback));
       },
       onReconnect: () => void refresh(),
-      onRoomUpdate: setRoom,
+      onRoomUpdate: (nextRoom: Room) => setRoom(normalizeMobileRoom(nextRoom)),
       onSongAdded: (song: Song) => {
+        if (!isMobileProvider(song.sourceType)) return;
         setSongs((current) => {
           if (current.some((item) => item.id === song.id)) return current;
           return [...current, song];
         });
       },
-      onSongsUpdate: setSongs,
+      onSongsUpdate: (nextSongs: Song[]) =>
+        setSongs(filterMobileSongs(nextSongs)),
       onUsersUpdate: (count: number) => {
         setRoom((current) => {
           if (!current) return current;

@@ -27,7 +27,7 @@ The app deliberately has no Expo web target.
   public rooms.
 - Play, pause, host seek, skip, vote, search, and add songs or provider
   playlists from pasted links.
-- Official embedded players for enabled YouTube, Spotify, and SoundCloud
+- Official embedded players for enabled YouTube and SoundCloud
   tracks. YouTube uses `react-native-youtube-iframe`, which wraps the official
   IFrame Player API and exposes player state, error, and seek controls to the
   native app.
@@ -175,7 +175,7 @@ Before the first store build:
    screenshots, support URL, and the Zoff privacy-policy URL.
 4. Verify the registered Cast receiver `1FAF5D9F` remains published and that its
    sender configuration permits the production iOS and Android apps.
-5. Complete provider-policy review. YouTube, Spotify, and SoundCloud playback is
+5. Complete provider-policy review. YouTube and SoundCloud playback is
    intentionally rendered through their official controls; do not replace it
    with extracted media URLs.
 6. Review the copy-ready App Store packet in `docs/app-store/`, including its
@@ -186,6 +186,7 @@ Create and submit production builds:
 
 ```sh
 pnpm dlx eas-cli build --profile production --platform all
+pnpm dlx eas-cli build --profile production --platform ios --local
 pnpm dlx eas-cli submit --profile production --platform ios
 pnpm dlx eas-cli submit --profile production --platform android
 ```

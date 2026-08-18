@@ -36,7 +36,7 @@ export const DEFAULT_ROOM_SETTINGS: DefaultRoomSettings = {
   removeOnPlay: false,
   loopQueue: true,
   allowDuplicates: false,
-  enabledSources: ['youtube', 'spotify', 'soundcloud'],
+  enabledSources: ['youtube', 'soundcloud'],
   onlyAdminAddSongs: false,
   public: false,
 };

@@ -42,7 +42,7 @@ export function usePlaybackRuntime({
   PlaybackRuntimeState,
   PlaybackRuntimeActions,
 ] {
-  const playbackLoader = useFetcher<PlaybackState>({
+  const [, playbackLoader] = useFetcher<PlaybackState>({
     routeId: 'rooms.$id.playback',
   });
   const [playback, setPlayback] = useState<PlaybackState | null>(null);

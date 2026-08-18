@@ -69,10 +69,10 @@ export function AndroidFloatingNavigation() {
       {canAddSongs && (
         <Pressable
           accessibilityLabel="Add song"
-          className="size-16 items-center justify-center rounded-full border border-mobile-border/70 bg-mobile-card/95 shadow-black/20 shadow-lg active:bg-primary/15 dark:border-mobile-dark-border/70 dark:bg-mobile-dark-card/95"
+          className="size-16 items-center justify-center rounded-full border border-primary bg-primary shadow-lg shadow-primary/30 active:opacity-80"
           onPress={() => router.push('/add')}
         >
-          <ZoffIcon color={theme.muted} name="add" size={26} />
+          <ZoffIcon color="#ffffff" name="add" size={26} />
         </Pressable>
       )}
     </View>

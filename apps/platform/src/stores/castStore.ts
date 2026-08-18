@@ -238,9 +238,6 @@ export const useCastStore = create<CastState>((set, get) => ({
       case 'youtube':
         contentId = `https://www.youtube.com/watch?v=${song.sourceId}`;
         break;
-      case 'spotify':
-        contentId = `spotify:track:${song.sourceId}`;
-        break;
       case 'soundcloud':
         contentId = buildSoundCloudContentId(song.sourceId);
         break;

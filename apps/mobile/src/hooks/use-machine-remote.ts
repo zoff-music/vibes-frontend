@@ -37,10 +37,10 @@ export function useMachineRemote({
   MachineRemoteState,
   MachineRemoteActions,
 ] {
-  const remoteLoader = useFetcher<RemoteStatus>({
+  const [, remoteLoader] = useFetcher<RemoteStatus>({
     routeId: 'remotes.machine',
   });
-  const remoteAction = useFetcher<MachineRemoteActionData>({
+  const [, remoteAction] = useFetcher<MachineRemoteActionData>({
     routeId: 'remotes.machine',
   });
   const [machinePairing, setMachinePairing] = useState<RemotePairing | null>(

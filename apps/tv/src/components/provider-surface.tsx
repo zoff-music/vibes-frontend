@@ -1,10 +1,8 @@
 import type { Song } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
-import { Image } from 'expo-image';
 import { useCallback, useEffect, useState } from 'react';
 import { type LayoutChangeEvent, Text, View } from 'react-native';
-import { WebView } from 'react-native-webview';
 
 interface ProviderSurfaceProps {
   isPlaying: boolean;
@@ -110,34 +108,6 @@ export function ProviderSurface({
           />
         </View>
       )}
-      {song.sourceType === 'spotify' && (
-        <WebView
-          allowsFullscreenVideo
-          className="z-3"
-          mediaPlaybackRequiresUserAction={false}
-          source={{
-            uri: `https://open.spotify.com/embed/track/${encodeURIComponent(song.sourceId)}?utm_source=zoff`,
-          }}
-        />
-      )}
-      {song.sourceType !== 'youtube' &&
-        song.sourceType !== 'soundcloud' &&
-        song.sourceType !== 'spotify' && (
-          <>
-            <Image
-              className="absolute inset-0 h-full w-full opacity-45"
-              contentFit="cover"
-              source={{ uri: song.thumbnailUrl }}
-            />
-            <View className="absolute inset-0 items-center justify-center bg-black/45">
-              <Image
-                className="h-72 w-72 rounded-3xl"
-                contentFit="cover"
-                source={{ uri: song.thumbnailUrl }}
-              />
-            </View>
-          </>
-        )}
     </View>
   );
 }

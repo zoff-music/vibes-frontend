@@ -42,15 +42,15 @@ export function RoomSettingsSheet({
   room,
   visible,
 }: RoomSettingsSheetProps) {
-  const roomSessionFetcher = useFetcher<RoomSessionActionData>({
+  const [, roomSessionFetcher] = useFetcher<RoomSessionActionData>({
     params: { id: room.id },
     routeId: 'rooms.$id.session',
   });
-  const roomSettingsFetcher = useFetcher<RoomSettingsActionData>({
+  const [, roomSettingsFetcher] = useFetcher<RoomSettingsActionData>({
     params: { id: room.id },
     routeId: 'rooms.$id.settings',
   });
-  const remoteFetcher = useFetcher<ControllerRoomActionData>({
+  const [, remoteFetcher] = useFetcher<ControllerRoomActionData>({
     params: { controllerToken: controllerToken ?? '', id: remoteId ?? '' },
     routeId: 'remotes.controller.$id.room',
   });

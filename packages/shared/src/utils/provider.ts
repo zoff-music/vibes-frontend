@@ -21,10 +21,6 @@ export const getProviderTrackUrl = (
     return `https://www.youtube.com/watch?v=${sourceId}`;
   }
 
-  if (provider === 'spotify') {
-    return `https://open.spotify.com/track/${sourceId}`;
-  }
-
   if (!providerUrl) {
     return null;
   }
@@ -71,18 +67,6 @@ export const parseProviderTrackLink = (
     };
   }
 
-  if (
-    (hostname === 'open.spotify.com' ||
-      hostname.endsWith('.open.spotify.com')) &&
-    pathSegments[0] === 'track' &&
-    /^[A-Za-z0-9]+$/.test(pathSegments[1] ?? '')
-  ) {
-    return {
-      provider: 'spotify',
-      sourceId: pathSegments[1],
-    };
-  }
-
   const isSoundCloudHost =
     hostname === 'soundcloud.com' || hostname.endsWith('.soundcloud.com');
   const isSoundCloudTrack =
@@ -122,18 +106,6 @@ export const parseProviderPlaylistLink = (
     return {
       provider: 'youtube',
       sourceId: youtubePlaylistId,
-    };
-  }
-
-  if (
-    (hostname === 'open.spotify.com' ||
-      hostname.endsWith('.open.spotify.com')) &&
-    pathSegments[0] === 'playlist' &&
-    /^[A-Za-z0-9]+$/.test(pathSegments[1] ?? '')
-  ) {
-    return {
-      provider: 'spotify',
-      sourceId: pathSegments[1],
     };
   }
 

@@ -1,4 +1,4 @@
-import type { SearchResult } from '@vibes/models';
+import type { SearchResult, SourceType } from '@vibes/models';
 import {
   Button,
   CloseIcon,
@@ -26,9 +26,7 @@ export function SongSearchModal({
   providers,
   roomId,
 }: Props) {
-  const [provider, setProvider] = useState<
-    'soundcloud' | 'spotify' | 'youtube'
-  >('youtube');
+  const [provider, setProvider] = useState<SourceType>('youtube');
   const rawResults =
     fetcher.data?.intent === 'search' ? (fetcher.data.searchResults ?? []) : [];
   const results: SearchResult[] = rawResults.map((result) => ({

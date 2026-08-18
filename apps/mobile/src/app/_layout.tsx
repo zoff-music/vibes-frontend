@@ -22,10 +22,7 @@ import { Route } from '@vibes/native-router';
 import { AndroidFloatingNavigation } from '@/components/android-floating-navigation';
 import AppTabs from '@/components/app-tabs';
 import { DeviceOrientationLock } from '@/components/device-orientation-lock';
-import {
-  ActiveRoomKeepAwake,
-  PersistentRoomPlayer,
-} from '@/components/persistent-room-player';
+import { ActiveRoomKeepAwake } from '@/components/persistent-room-player';
 import { TabletAddSongButton } from '@/components/tablet-add-song-button';
 import { TabletTopNavigation } from '@/components/tablet-top-navigation';
 import { ToastProvider } from '@/components/toast';
@@ -130,7 +127,6 @@ function RoomRuntime() {
       <AppTabs />
       <AndroidFloatingNavigation />
       <TabletTopNavigation />
-      {playerPreferenceLoaded && playerEnabled && <PersistentRoomPlayer />}
       <TabletAddSongButton />
     </>
   );

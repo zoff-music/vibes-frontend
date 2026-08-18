@@ -1,7 +1,7 @@
 import { safeWrapAsync } from '@vibes/shared';
 import * as SecureStore from 'expo-secure-store';
 
-const secureStorageTimeoutMs = 750;
+const secureStorageTimeoutMs = 5_000;
 
 function rejectAfterTimeout(): Promise<never> {
   return new Promise((_, reject) => {

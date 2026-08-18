@@ -57,18 +57,6 @@ export function TizenProviderSurface({
     );
   }
 
-  if (song.sourceType === 'spotify') {
-    const src = `https://open.spotify.com/embed/track/${encodeURIComponent(song.sourceId)}?utm_source=zoff`;
-    return (
-      <iframe
-        allow="autoplay; encrypted-media"
-        className="h-full w-full border-0"
-        src={src}
-        title={song.title}
-      />
-    );
-  }
-
   return (
     <div className="relative flex h-full items-center justify-center overflow-hidden bg-black">
       <img

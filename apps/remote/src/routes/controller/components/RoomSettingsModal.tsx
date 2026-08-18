@@ -1,3 +1,4 @@
+import type { SourceType } from '@vibes/models';
 import {
   Button,
   CloseIcon,
@@ -170,9 +171,7 @@ export function RoomSettingsModal({ fetcher, isOpen, onClose, room }: Props) {
                     >
                       <ProviderIcon
                         className="h-4 w-4"
-                        provider={
-                          provider as 'soundcloud' | 'spotify' | 'youtube'
-                        }
+                        provider={provider as SourceType}
                       />
                       {provider}
                     </Button>

@@ -1,10 +1,5 @@
 import type { AdminRoomSummary } from '@vibes/models';
-import {
-  Button,
-  SoundCloudIcon,
-  SpotifyIcon,
-  YouTubeIcon,
-} from '@vibes/ui/web';
+import { Button, SoundCloudIcon, YouTubeIcon } from '@vibes/ui/web';
 import type { ChangeEvent, JSX, KeyboardEvent, MouseEvent } from 'react';
 
 interface AdminRoomCardProps {
@@ -147,6 +142,5 @@ export function AdminRoomCard({
 
 const sourceIcons: Record<string, JSX.Element> = {
   youtube: <YouTubeIcon className="h-4 w-4 text-red-500" />,
-  spotify: <SpotifyIcon className="h-4 w-4 text-green-500" />,
   soundcloud: <SoundCloudIcon className="h-4 w-4 text-orange-500" />,
 };

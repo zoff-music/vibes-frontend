@@ -19,7 +19,7 @@ export function CastButton() {
   const theme = useAppTheme();
   const [{ resolvedScheme }] = useThemePreference();
   const { roomId } = useRoomSession();
-  const { submit } = useFetcher<CastingTokenResponse>({
+  const [, { submit }] = useFetcher<CastingTokenResponse>({
     params: { roomId },
     routeId: 'cast.$roomId',
   });

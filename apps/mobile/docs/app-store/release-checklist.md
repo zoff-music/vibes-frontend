@@ -35,7 +35,6 @@ pnpm --filter @vibes/mobile exec expo export --platform ios --output-dir /tmp/zo
 - [ ] Test room creation, join, search, add, vote, skip, pause/play, and settings.
 - [ ] Test light and dark appearance on iPhone and iPad.
 - [ ] Test YouTube and SoundCloud playback for providers enabled in production.
-- [ ] Test Spotify if it is globally enabled before submission.
 - [ ] Test QR/manual remote pairing on physical devices.
 - [ ] Test Google Cast discovery and playback on a physical device and receiver.
 - [ ] Confirm no screenshots, logs, or metadata contain secrets or private room data.
@@ -46,7 +45,7 @@ Create the production build only after the checklist above is complete:
 
 ```sh
 cd apps/mobile
-pnpm dlx eas-cli build --profile production --platform ios
+pnpm dlx eas-cli build --profile production --platform ios --local
 pnpm dlx eas-cli submit --profile production --platform ios
 ```
 

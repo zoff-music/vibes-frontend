@@ -28,7 +28,6 @@ import {
   soundCloudProviderIcon,
   sparklesIcon,
   spinnerIcon,
-  spotifyProviderIcon,
   sunIcon,
   trashIcon,
   volumeIcon,
@@ -145,10 +144,6 @@ export const CastIcon = ({ showDot, ...props }: CastIconProps) => (
 
 export const RemoteIcon = (props: IconProps) => (
   <DefinitionIcon definition={remoteIcon} aria-hidden="true" {...props} />
-);
-
-export const SpotifyIcon = (props: IconProps) => (
-  <DefinitionIcon definition={spotifyProviderIcon} {...props} />
 );
 
 export const YouTubeIcon = (props: IconProps) => (

@@ -15,7 +15,6 @@ import {
   RemoteIcon,
   ShareIcon,
   SoundCloudIcon,
-  SpotifyIcon,
   SunIcon,
   Toggle,
   YouTubeIcon,
@@ -606,6 +605,5 @@ interface ProviderOption {
 
 const providerOptions: ProviderOption[] = [
   { id: 'youtube', Icon: YouTubeIcon, variant: 'red' },
-  { id: 'spotify', Icon: SpotifyIcon, variant: 'green' },
   { id: 'soundcloud', Icon: SoundCloudIcon, variant: 'orange' },
 ];

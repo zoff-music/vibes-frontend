@@ -22,9 +22,7 @@
     "qrcode.react": "4.2.0",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "react-player": "3.4.0",
-    "react-router": "8.3.0",
-    "react-spotify-web-playback": "0.14.7"
+    "react-router": "8.3.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.13",

@@ -13,17 +13,16 @@ interface MetroRequire extends NodeRequire {
   ) => RouteContext;
 }
 
-const metroRequire = require as MetroRequire;
-const renderedRouteContext = metroRequire.context(
+const renderedRouteContext = (require as MetroRequire).context(
   '../routes',
   true,
   /^\.\/.*\/route\.[jt]sx$/,
-);
-const resourceContext = metroRequire.context(
+) as RouteContext;
+const resourceContext = (require as MetroRequire).context(
   '../routes',
   true,
   /^\.\/.*\/resource\.[jt]s$/,
-);
+) as RouteContext;
 
 export function createRouteManifest() {
   const routes = new Map<string, RouteModule>();

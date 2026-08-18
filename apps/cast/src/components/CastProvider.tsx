@@ -31,7 +31,6 @@ interface CastContextType {
   castToken: string | null;
   error: string | null;
   apiUrl: string;
-  spotifyToken: string | null;
   enabledProviders: string[];
   reportPlaybackFailure: (songId: string) => void;
 }
@@ -50,7 +49,6 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
   const [error, setError] = useState<string | null>(null);
   const [statusText, setStatusText] = useState('Ready for Casting');
   const [roomMode, setRoomMode] = useState<string | null>(null);
-  const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
   const [enabledProviders, setEnabledProviders] = useState<string[]>([]);
   const [colorScheme, setColorScheme] = useState<ResolvedColorScheme>(
     getInitialColorScheme,
@@ -126,7 +124,6 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
     setStatusText,
     setRoomMode,
     setError,
-    setSpotifyToken,
     setEnabledProviders,
     updateMediaMetadata,
   });
@@ -209,7 +206,6 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
         castToken: castToken || null,
         error,
         apiUrl: API_BASE_URL,
-        spotifyToken,
         enabledProviders,
         reportPlaybackFailure,
       }}

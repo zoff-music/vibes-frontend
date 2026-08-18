@@ -17,7 +17,6 @@ export interface TizenRoomSnapshot {
 
 export interface TizenSessionLoaderData {
   error: string;
-  loadedAt: number;
   providers: Providers;
   publicRooms: PublicRoom[];
   roomId: string;
@@ -37,7 +36,6 @@ export async function loader({
   if (!roomId) {
     return {
       error: '',
-      loadedAt: Date.now(),
       providers,
       publicRooms,
       roomId: '',
@@ -61,7 +59,6 @@ export async function loader({
         requestError,
         'Could not load that room.',
       ),
-      loadedAt: Date.now(),
       providers,
       publicRooms,
       roomId: '',
@@ -71,7 +68,6 @@ export async function loader({
 
   return {
     error: '',
-    loadedAt: Date.now(),
     providers,
     publicRooms,
     roomId,

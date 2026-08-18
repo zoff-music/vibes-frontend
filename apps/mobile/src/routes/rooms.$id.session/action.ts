@@ -99,13 +99,11 @@ async function openRoom(
   signal: AbortSignal,
   password = '',
 ): Promise<DataResult<RoomSessionActionData>> {
-  const [storageError, storedPassword] = await getSecureValue(
+  const [, storedPassword] = await getSecureValue(
     getRoomAdminPasswordStorageKey(roomId),
   );
   const adminPassword = password || storedPassword || '';
-  let warning = storageError
-    ? 'Room opened, but the saved admin password could not be read.'
-    : '';
+  let warning = '';
   let authenticated = false;
   if (adminPassword) {
     const [error] = await lifecycleRequests.joinRoom(roomId, adminPassword, {

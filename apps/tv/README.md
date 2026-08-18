@@ -30,7 +30,7 @@ media streams is not a supported or policy-compliant replacement.
 - Generate a new room and playlist from the AI prompt toggle.
 - Browse up to six currently active public rooms.
 - Live room, listener, playback, generation, and queue updates over SSE.
-- Official YouTube, SoundCloud, and Spotify provider surfaces.
+- Official YouTube and SoundCloud provider surfaces.
 - Cast-style current track, five-song queue, listener count, votes, and a QR
   code linking directly to the room.
 - Directional focus and visible focus feedback for television remotes.

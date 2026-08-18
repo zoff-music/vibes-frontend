@@ -18,6 +18,7 @@ export class NativeRouter {
   readonly #controllers = new Map<string, AbortController>();
   readonly #inFlightLoads = new Map<string, Promise<DataResult<unknown>>>();
   readonly #listeners = new Map<string, Set<() => void>>();
+  readonly #persistentRoutes = new Set<string>();
   readonly #routes: ReadonlyMap<string, RouteModule>;
   readonly #states = new Map<string, RouteState>();
 
@@ -32,6 +33,7 @@ export class NativeRouter {
     this.#cleanupTimers.clear();
     this.#inFlightLoads.clear();
     this.#listeners.clear();
+    this.#persistentRoutes.clear();
   }
 
   getRoute(routeId: string) {
@@ -42,6 +44,45 @@ export class NativeRouter {
     return (
       this.#states.get(createRouteKey(routeId, params)) ?? IDLE_ROUTE_STATE
     );
+  }
+
+  hydrateRoute<Data>(routeId: string, data: Data, params: Params = {}) {
+    const routeKey = createRouteKey(routeId, params);
+    const currentState = this.#states.get(routeKey) ?? IDLE_ROUTE_STATE;
+    this.#setState(routeKey, {
+      ...currentState,
+      loaderData: data,
+      loaderError: '',
+      loaderInitialized: true,
+      loaderState: 'idle',
+      navigationState:
+        currentState.actionState === 'submitting' ? 'submitting' : 'idle',
+      unexpectedError: false,
+    });
+  }
+
+  persist(routeId: string, params: Params = {}) {
+    const routeKey = createRouteKey(routeId, params);
+    this.#persistentRoutes.add(routeKey);
+    const cleanupTimer = this.#cleanupTimers.get(routeKey);
+    if (!cleanupTimer) return;
+    clearTimeout(cleanupTimer);
+    this.#cleanupTimers.delete(routeKey);
+  }
+
+  disposeRoute(routeId: string, params: Params = {}) {
+    const routeKey = createRouteKey(routeId, params);
+    this.#persistentRoutes.delete(routeKey);
+    const cleanupTimer = this.#cleanupTimers.get(routeKey);
+    if (cleanupTimer) clearTimeout(cleanupTimer);
+    this.#cleanupTimers.delete(routeKey);
+    this.#controllers.get(routeKey)?.abort();
+    this.#controllers.get(`${routeKey}:action`)?.abort();
+    this.#controllers.delete(routeKey);
+    this.#controllers.delete(`${routeKey}:action`);
+    this.#inFlightLoads.delete(routeKey);
+    this.#states.delete(routeKey);
+    this.#notify(routeKey);
   }
 
   load<Data>(routeId: string, params: Params = {}, force = false) {
@@ -95,8 +136,14 @@ export class NativeRouter {
       listeners.delete(listener);
       if (listeners.size > 0) return;
       this.#listeners.delete(routeKey);
+      if (this.#persistentRoutes.has(routeKey)) return;
       const timer = setTimeout(() => {
-        if (this.#listeners.has(routeKey)) return;
+        if (
+          this.#listeners.has(routeKey) ||
+          this.#persistentRoutes.has(routeKey)
+        ) {
+          return;
+        }
         this.#controllers.get(routeKey)?.abort();
         this.#controllers.get(`${routeKey}:action`)?.abort();
         this.#controllers.delete(routeKey);

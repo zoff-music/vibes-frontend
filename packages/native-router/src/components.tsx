@@ -44,10 +44,16 @@ export function RouterProvider({
 
 interface RouteProps extends PropsWithChildren {
   params?: Params;
+  persistent?: boolean;
   routeId: string;
 }
 
-export function Route({ children, params = {}, routeId }: RouteProps) {
+export function Route({
+  children,
+  params = {},
+  persistent = false,
+  routeId,
+}: RouteProps) {
   const router = useRouter();
   const stableParams = useStableParams(params);
   const state = useRouteState(routeId, stableParams, true);
@@ -60,6 +66,9 @@ export function Route({ children, params = {}, routeId }: RouteProps) {
     () => ({ params: stableParams, routeId }),
     [routeId, stableParams],
   );
+  useEffect(() => {
+    if (persistent) router.persist(routeId, stableParams);
+  }, [persistent, routeId, router, stableParams]);
   let content: ReactNode = children;
   if (children === undefined && route?.default) {
     const RouteComponent = route.default;
@@ -252,14 +261,15 @@ export function useFetcher<Data = unknown>(options: FetcherOptions = {}) {
   );
   if (!routeId)
     throw new Error('useFetcher requires a routeId or a parent Route.');
-  return {
-    Form: BoundForm,
-    data,
-    error,
-    load,
-    state,
-    submit,
-  };
+  const fetcherState = useMemo(
+    () => ({ data, error, state }),
+    [data, error, state],
+  );
+  const fetcherOperations = useMemo(
+    () => ({ Form: BoundForm, load, submit }),
+    [BoundForm, load, submit],
+  );
+  return [fetcherState, fetcherOperations] as const;
 }
 
 export function useRouter() {

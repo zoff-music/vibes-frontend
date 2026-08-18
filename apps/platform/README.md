@@ -46,7 +46,7 @@ pnpm test
 ## 🛠 Features
 
 - **Collaborative Queue**: Real-time voting, reordering, and removal of tracks
-- **Smart Search**: Unified search across YouTube, Spotify, and SoundCloud with debouncing and autocomplete
+- **Smart Search**: Unified search across YouTube and SoundCloud with debouncing and autocomplete
 - **Synchronized Playback**: Leveraging Server-Sent Events (SSE) to keep all participants in perfect sync
 - **Device Management**: Seamlessly switch playback between your browser and local Chromecast devices
 - **Social Integration**: Shareable room links and generated QR codes for easy joining

@@ -2,12 +2,12 @@ import * as yup from 'yup';
 
 export const sourceTypeSchema = yup
   .string()
-  .oneOf(['youtube', 'spotify', 'soundcloud'])
+  .oneOf(['youtube', 'soundcloud'])
   .required();
 export type SourceType = yup.InferType<typeof sourceTypeSchema>;
 
 export function isSourceType(value: string): value is SourceType {
-  return value === 'youtube' || value === 'spotify' || value === 'soundcloud';
+  return value === 'youtube' || value === 'soundcloud';
 }
 
 export const playbackRestrictionSchema = yup

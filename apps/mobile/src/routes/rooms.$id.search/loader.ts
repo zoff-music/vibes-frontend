@@ -10,6 +10,7 @@ import {
   parseProviderTrackLink,
 } from '@vibes/shared';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
+import { isMobileProvider } from '@/lib/mobile-content';
 
 export interface SearchData {
   playlist: MusicPlaylist | null;
@@ -29,6 +30,9 @@ export async function loader({
       : mobileApi;
   const playlistLink = parseProviderPlaylistLink(query);
   if (playlistLink) {
+    if (!isMobileProvider(playlistLink.provider)) {
+      return { data: null, error: 'This provider is not available on mobile.' };
+    }
     const source = playlistLink.sourceId ?? playlistLink.providerUrl ?? '';
     const [error, playlist] = await createProviderPlaylistRequest(client)(
       playlistLink.provider,
@@ -49,6 +53,9 @@ export async function loader({
   }
   const trackLink = parseProviderTrackLink(query);
   if (trackLink) {
+    if (!isMobileProvider(trackLink.provider)) {
+      return { data: null, error: 'This provider is not available on mobile.' };
+    }
     const source = trackLink.sourceId ?? trackLink.providerUrl ?? '';
     const [error, track] = await createProviderTrackRequest(client)(
       trackLink.provider,
@@ -80,6 +87,6 @@ async function failure(
 }
 
 function getProvider(value: string | undefined): SourceType {
-  if (value === 'spotify' || value === 'soundcloud') return value;
+  if (value === 'soundcloud') return value;
   return 'youtube';
 }
