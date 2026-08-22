@@ -15,14 +15,20 @@ catalogs:
 
 overrides:
   body-parser: 1.20.6
+  deepmerge-ts: 8.0.2
   esbuild: 0.28.1
-  js-yaml: 3.15.0
+  image-size: 1.2.1
+  js-yaml: 3.15.1
   lightningcss: 1.30.1
-  postcss: 8.5.18
+  nanoid: 3.3.18
+  postcss: 8.5.26
   undici: 6.27.0
   uuid: 11.1.1
   valibot: 1.4.2
   vite: 8.1.3
+
+patchedDependencies:
+  image-size@1.2.1: 6702a63ca388c5acebd2a1d1cb2112ddbda8497891b445675cb70a6a60f35659
 
 importers:
 
@@ -153,7 +159,7 @@ importers:
         version: 2.3.13
       '@csstools/postcss-cascade-layers':
         specifier: 5.0.2
-        version: 5.0.2(postcss@8.5.18)
+        version: 5.0.2(postcss@8.5.26)
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.3(vite@8.1.3(@types/node@25.0.10)(jiti@2.7.0)(terser@5.46.0)(yaml@2.9.0))
@@ -382,8 +388,8 @@ importers:
         specifier: ~19.2.16
         version: 19.2.16
       postcss:
-        specifier: 8.5.18
-        version: 8.5.18
+        specifier: 8.5.26
+        version: 8.5.26
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
@@ -616,8 +622,8 @@ importers:
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.16)
       postcss:
-        specifier: 8.5.18
-        version: 8.5.18
+        specifier: 8.5.26
+        version: 8.5.26
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
@@ -1579,7 +1585,7 @@ packages:
     resolution: {integrity: sha512-nWBE08nhO8uWl6kSAeCx4im7QfVko3zLrtgWZY4/bP87zrSPpSyN/3W3TDqz1jJuH+kbKOHXg5rJnK+ZVYcFFg==}
     engines: {node: '>=18'}
     peerDependencies:
-      postcss: 8.5.18
+      postcss: 8.5.26
 
   '@csstools/selector-specificity@5.0.0':
     resolution: {integrity: sha512-PCqQV3c4CoVm3kdPhyeZ07VmBRdH2EpMFA/pd9OASpOEC3aXNGoqPDAZ80D0cLpMBxnmk0+yNhGsEx31hq7Gtw==}
@@ -3083,10 +3089,12 @@ packages:
   '@xmldom/xmldom@0.8.13':
     resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@xmldom/xmldom@0.9.10':
     resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==}
     engines: {node: '>=14.6'}
+    deprecated: this version has critical issues, please update to the latest version
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -3691,9 +3699,9 @@ packages:
       babel-plugin-macros:
         optional: true
 
-  deepmerge-ts@4.3.0:
-    resolution: {integrity: sha512-if3ZYdkD2dClhnXR5reKtG98cwyaRT1NeugQoAPTTfsOpV9kqyeiBF9Qa5RHjemb3KzD5ulqygv6ED3t5j9eJw==}
-    engines: {node: '>=12.4.0'}
+  deepmerge-ts@8.0.2:
+    resolution: {integrity: sha512-uqbvqLUMrc6p0MO+WBRtTxY55hmyh94WRwI5a++PZe54X+bfVh59FSN7uWCBCW1CCVjzjnrwzfI8zidE2obMMw==}
+    engines: {node: '>=16.9.0'}
 
   deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
@@ -4400,8 +4408,8 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@3.15.0:
-    resolution: {integrity: sha512-ttBQIIQPDeLjpPOohtUdXuXUVoA2uIB6fEH9HyJ7234s5mBJ5wTx20njxplLZQgLaOfpmPQA7X2t5AX6tIPbog==}
+  js-yaml@3.15.1:
+    resolution: {integrity: sha512-S99WuO3HlhO3XN41EtYUNl9zzXjoJx7QvmipxsJVxtCBT0YHEFy+iOJhjSvrmV12nYhWpZaM8lPHkJm0yUMbag==}
     hasBin: true
 
   jsc-safe-url@0.2.4:
@@ -4742,8 +4750,8 @@ packages:
       react: '*'
       react-dom: '*'
 
-  nanoid@3.3.12:
-    resolution: {integrity: sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==}
+  nanoid@3.3.18:
+    resolution: {integrity: sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -4928,8 +4936,8 @@ packages:
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
-  postcss@8.5.18:
-    resolution: {integrity: sha512-xdB1oSLHbz1vRWgCDalrCqEFTWzFlhqFC5tIHLMOSUIjhm3XXQ1qrFy8S/ESr1JYRRXqM3c1QFiMZUJdUTqyMQ==}
+  postcss@8.5.26:
+    resolution: {integrity: sha512-u82N74LFzG8ca+dD8puPnplTXoGH4fTPpVGuIbt36G3qvNlkvfD0lEAZSxaly3KX8TS/L1A1gsCEmvKmBcVbkQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   prettier@3.8.3:
@@ -6816,10 +6824,10 @@ snapshots:
   '@biomejs/cli-win32-x64@2.4.16':
     optional: true
 
-  '@csstools/postcss-cascade-layers@5.0.2(postcss@8.5.18)':
+  '@csstools/postcss-cascade-layers@5.0.2(postcss@8.5.26)':
     dependencies:
       '@csstools/selector-specificity': 5.0.0(postcss-selector-parser@7.1.4)
-      postcss: 8.5.18
+      postcss: 8.5.26
       postcss-selector-parser: 7.1.4
 
   '@csstools/selector-specificity@5.0.0(postcss-selector-parser@7.1.4)':
@@ -7079,7 +7087,7 @@ snapshots:
       jsc-safe-url: 0.2.4
       lightningcss: 1.30.1
       picomatch: 4.0.4
-      postcss: 8.5.18
+      postcss: 8.5.26
       resolve-from: 5.0.0
     optionalDependencies:
       expo: 57.0.11(@babel/core@7.29.7)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.8)(expo-router@57.0.11)(react-dom@19.2.7(react@19.2.7))(react-native-tvos@0.86.2-0)(react-native-web@0.21.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-native-webview@13.16.1(react-native-tvos@0.86.2-0)(react@19.2.7))(react-native-worklets@0.10.1(@babel/core@7.29.7)(@react-native/metro-config@0.86.2(@babel/core@7.29.7))(react-native-tvos@0.86.2-0)(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
@@ -7227,13 +7235,13 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.29.7
       chalk: 4.1.2
-      js-yaml: 3.15.0
+      js-yaml: 3.15.1
 
   '@gilbarbara/deep-equal@0.3.1': {}
 
   '@gilbarbara/react-range-slider@0.7.0(react@19.2.7)':
     dependencies:
-      deepmerge-ts: 4.3.0
+      deepmerge-ts: 8.0.2
       react: 19.2.7
 
   '@grpc/grpc-js@1.14.4':
@@ -8256,7 +8264,7 @@ snapshots:
       '@alloc/quick-lru': 5.2.0
       '@tailwindcss/node': 4.3.3
       '@tailwindcss/oxide': 4.3.3
-      postcss: 8.5.18
+      postcss: 8.5.26
       tailwindcss: 4.3.3
 
   '@tailwindcss/vite@4.3.3(vite@8.1.3(@types/node@25.0.10)(jiti@2.7.0)(terser@5.46.0)(yaml@2.9.0))':
@@ -9341,7 +9349,7 @@ snapshots:
 
   dedent@1.7.2: {}
 
-  deepmerge-ts@4.3.0: {}
+  deepmerge-ts@8.0.2: {}
 
   deepmerge@4.3.1: {}
 
@@ -9608,7 +9616,7 @@ snapshots:
       expo-symbols: 57.0.2(expo-font@57.0.1)(expo@57.0.11)(react-native-tvos@0.86.2-0)(react@19.2.7)
       fast-deep-equal: 3.1.3
       invariant: 2.2.4
-      nanoid: 3.3.12
+      nanoid: 3.3.18
       query-string: 7.1.3
       react: 19.2.7
       react-fast-compare: 3.2.2
@@ -10032,7 +10040,7 @@ snapshots:
 
   ignore@5.3.2: {}
 
-  image-size@1.2.1:
+  image-size@1.2.1(patch_hash=6702a63ca388c5acebd2a1d1cb2112ddbda8497891b445675cb70a6a60f35659):
     dependencies:
       queue: 6.0.2
 
@@ -10123,7 +10131,7 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@3.15.0:
+  js-yaml@3.15.1:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
@@ -10421,7 +10429,7 @@ snapshots:
       flow-enums-runtime: 0.0.6
       graceful-fs: 4.2.11
       hermes-parser: 0.35.0
-      image-size: 1.2.1
+      image-size: 1.2.1(patch_hash=6702a63ca388c5acebd2a1d1cb2112ddbda8497891b445675cb70a6a60f35659)
       invariant: 2.2.4
       jest-worker: 29.7.0
       jsc-safe-url: 0.2.4
@@ -10520,7 +10528,7 @@ snapshots:
       stacktrace-js: 2.0.2
       stylis: 4.4.0
 
-  nanoid@3.3.12: {}
+  nanoid@3.3.18: {}
 
   native-promise-only@0.8.1: {}
 
@@ -10675,9 +10683,9 @@ snapshots:
   postcss-value-parser@4.2.0:
     optional: true
 
-  postcss@8.5.18:
+  postcss@8.5.26:
     dependencies:
-      nanoid: 3.3.12
+      nanoid: 3.3.18
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -11598,7 +11606,7 @@ snapshots:
     dependencies:
       lightningcss: 1.30.1
       picomatch: 4.0.4
-      postcss: 8.5.18
+      postcss: 8.5.26
       rolldown: 1.1.4
       tinyglobby: 0.2.17
     optionalDependencies:
@@ -11612,7 +11620,7 @@ snapshots:
     dependencies:
       lightningcss: 1.30.1
       picomatch: 4.0.4
-      postcss: 8.5.18
+      postcss: 8.5.26
       rolldown: 1.1.4
       tinyglobby: 0.2.17
     optionalDependencies:
@@ -11626,7 +11634,7 @@ snapshots:
     dependencies:
       lightningcss: 1.30.1
       picomatch: 4.0.4
-      postcss: 8.5.18
+      postcss: 8.5.26
       rolldown: 1.1.4
       tinyglobby: 0.2.17
     optionalDependencies:
