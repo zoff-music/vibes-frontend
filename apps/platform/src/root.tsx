@@ -23,6 +23,10 @@ export const meta: MetaFunction = () => [
     name: 'description',
     content: 'Shared music rooms, made for listening together.',
   },
+  {
+    name: 'apple-itunes-app',
+    content: 'app-id=6799954460',
+  },
 ];
 
 export function shouldRevalidate() {

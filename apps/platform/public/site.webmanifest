@@ -21,6 +21,14 @@
   "background_color": "#000000",
   "orientation": "any",
   "display": "standalone",
+  "prefer_related_applications": true,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=me.zoff.mobile",
+      "id": "me.zoff.mobile"
+    }
+  ],
   "scope": "/",
   "dir": "auto",
   "lang": "en"
