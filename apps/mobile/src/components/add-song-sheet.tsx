@@ -114,6 +114,7 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
       <SearchSheet
         canGenerate={canGenerate}
         generationUnavailableReason={generationUnavailableReason}
+        playlistImportAllowed={targetRoom?.settings.playlistImport ?? false}
         providersOverride={targetRoom?.settings.enabledSources ?? []}
         roomIdOverride={roomId}
         {...(controllerRemote

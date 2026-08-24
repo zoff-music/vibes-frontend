@@ -39,4 +39,5 @@ export const DEFAULT_ROOM_SETTINGS: DefaultRoomSettings = {
   enabledSources: ['youtube', 'soundcloud'],
   onlyAdminAddSongs: false,
   public: false,
+  playlistImport: true,
 };

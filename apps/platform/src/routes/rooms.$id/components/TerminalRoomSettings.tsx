@@ -66,6 +66,7 @@ export function TerminalRoomSettings({
       | 'democraticSkip'
       | 'loopQueue'
       | 'onlyAdminAddSongs'
+      | 'playlistImport'
       | 'public'
       | 'removeOnPlay'
       | 'skipAllowed'
@@ -146,6 +147,14 @@ export function TerminalRoomSettings({
               if (checked && !room.hasPassword && !adminPassword) return;
               updateBooleanSetting('onlyAdminAddSongs', checked);
             }}
+          />
+          <TerminalToggle
+            checked={room.settings.playlistImport}
+            disabled={accessRestricted}
+            label="PLAYLIST IMPORT"
+            onChange={(checked) =>
+              updateBooleanSetting('playlistImport', checked)
+            }
           />
           <TerminalToggle
             checked={room.settings.public}

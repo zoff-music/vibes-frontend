@@ -337,6 +337,11 @@ export const AddToQueueModal: React.FC<Props> = ({
 
     const providerPlaylistLink = parseProviderPlaylistLink(trimmedQuery);
     if (providerPlaylistLink) {
+      if (!room.settings.playlistImport) {
+        setIsSearching(false);
+        setError('Playlist importing is disabled in this room');
+        return;
+      }
       if (!providerList.includes(providerPlaylistLink.provider)) {
         setIsSearching(false);
         setError(
@@ -492,6 +497,10 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const handleAddPlaylist = () => {
+    if (!room.settings.playlistImport) {
+      setError('Playlist importing is disabled in this room');
+      return;
+    }
     if (!previewPlaylist || justAdded || previewPlaylist.tracks.length === 0)
       return;
 
@@ -763,7 +772,9 @@ export const AddToQueueModal: React.FC<Props> = ({
             <p className="mt-1 text-theme-muted text-xs">
               {isAIMode
                 ? 'Describe the playlist you want AI to build'
-                : 'Search by title, or paste a song or playlist link'}
+                : room.settings.playlistImport
+                  ? 'Search by title, or paste a song or playlist link'
+                  : 'Search by title, or paste a song link'}
             </p>
           </div>
           <Button

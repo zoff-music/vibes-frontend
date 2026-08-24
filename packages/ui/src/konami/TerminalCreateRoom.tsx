@@ -14,6 +14,7 @@ type BooleanRoomSetting = keyof Pick<
   | 'democraticSkip'
   | 'loopQueue'
   | 'onlyAdminAddSongs'
+  | 'playlistImport'
   | 'public'
   | 'removeOnPlay'
   | 'skipAllowed'
@@ -204,6 +205,13 @@ export function TerminalCreateRoom({
                   label="ADMINS ONLY ADD"
                   onChange={(checked) =>
                     onBooleanSettingChange('onlyAdminAddSongs', checked)
+                  }
+                />
+                <TerminalToggle
+                  checked={settings.playlistImport}
+                  label="PLAYLIST IMPORT"
+                  onChange={(checked) =>
+                    onBooleanSettingChange('playlistImport', checked)
                   }
                 />
                 <TerminalToggle

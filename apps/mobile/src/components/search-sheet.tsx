@@ -23,6 +23,7 @@ interface SearchSheetProps {
   onAdded?: () => Promise<void>;
   onClose: () => void;
   onGenerated: () => Promise<void>;
+  playlistImportAllowed: boolean;
   providersOverride?: Providers;
   remoteCredentials?: SearchRemoteCredentials;
   roomIdOverride?: string;
@@ -35,6 +36,7 @@ export function SearchSheet({
   onAdded,
   onClose,
   onGenerated,
+  playlistImportAllowed,
   providersOverride,
   remoteCredentials,
   roomIdOverride,
@@ -58,6 +60,7 @@ export function SearchSheet({
     generationUnavailableReason,
     onClose,
     onGenerated,
+    playlistImportAllowed,
     ...(onAdded ? { onAdded } : {}),
     ...(providersOverride ? { providersOverride } : {}),
     ...(remoteCredentials ? { remoteCredentials } : {}),
@@ -88,7 +91,9 @@ export function SearchSheet({
               <Copy muted>
                 {isAIMode
                   ? 'Describe the playlist you want AI to build.'
-                  : 'Search or paste a song or playlist link.'}
+                  : playlistImportAllowed
+                    ? 'Search or paste a song or playlist link.'
+                    : 'Search or paste a song link.'}
               </Copy>
             </View>
           </View>

@@ -155,6 +155,14 @@ export function RoomConfiguration({
           />
           <Divider />
           <SettingsSwitch
+            description="Allow adding playlists from provider links."
+            disabled={disabled}
+            label="Playlist import"
+            value={settings.playlistImport}
+            onValueChange={(value) => updateSetting('playlistImport', value)}
+          />
+          <Divider />
+          <SettingsSwitch
             description={publicDescription}
             disabled={disabled || !hasPassword}
             label="Public while active"

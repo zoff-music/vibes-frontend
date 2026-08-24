@@ -425,6 +425,23 @@ export const RoomSettingsMenu = ({
               />
             </div>
 
+            <div className="group flex items-center justify-between">
+              <Toggle
+                label="Playlist Import"
+                description="Allow adding playlists from links"
+                disabled={room?.hasPassword && !isAdmin}
+                checked={room?.settings.playlistImport ?? true}
+                onChange={(checked) =>
+                  room &&
+                  updateRoomSettings({
+                    ...room.settings,
+                    playlistImport: checked,
+                  })
+                }
+                variant="plain-full"
+              />
+            </div>
+
             <div className="rounded-xl border border-secondary/25 bg-secondary/5 p-3">
               <Toggle
                 label="Public Room"
