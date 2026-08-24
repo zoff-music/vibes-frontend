@@ -1,4 +1,6 @@
+import { useRouter } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import {
   zoffAndroidIconSources,
@@ -10,6 +12,7 @@ import { useRoomNavigation } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 export default function AppTabs() {
+  const router = useRouter();
   const [{ resolvedScheme }] = useThemePreference();
   const theme = useAppTheme();
   const tabletLayout = useTabletLandscapeLayout();
@@ -19,6 +22,12 @@ export default function AppTabs() {
   const hidesNativeTabs = Platform.OS === 'android';
   const iconSources =
     Platform.OS === 'android' ? zoffAndroidIconSources : zoffIconSources;
+
+  useEffect(() => {
+    router.prefetch('/remote');
+    router.prefetch('/settings');
+  }, [router]);
+
   return (
     <NativeTabs
       hidden={hidesNativeTabs}

@@ -90,6 +90,7 @@ interface NativeButtonProps extends PropsWithChildren {
   iconColor?: string;
   label?: string;
   onPress: () => void;
+  pressFeedback?: boolean;
   preferred?: boolean;
   size?: NativeControlSize;
   tone?: NativeControlTone;
@@ -104,6 +105,7 @@ export function NativeButton({
   iconColor,
   label,
   onPress,
+  pressFeedback = false,
   preferred = false,
   size = 'default',
   tone = 'primary',
@@ -122,6 +124,7 @@ export function NativeButton({
       accessibilityRole="button"
       className={classNames(
         'flex-row items-center justify-center border active:opacity-70',
+        pressFeedback && 'active:scale-95',
         size === 'default' && 'min-h-13 gap-2 rounded-xl px-4',
         size === 'large' && 'min-h-24 gap-5 rounded-2xl border-2 px-10 py-5',
         tone === 'primary' && 'border-primary bg-primary',
@@ -189,6 +192,7 @@ interface NativeIconButtonProps {
   icon: ZoffIconName;
   iconColor?: string;
   onPress: () => void;
+  pressFeedback?: boolean;
   size?: NativeControlSize;
 }
 
@@ -198,6 +202,7 @@ export function NativeIconButton({
   icon,
   iconColor = '#e8dff5',
   onPress,
+  pressFeedback = false,
   size = 'default',
 }: NativeIconButtonProps) {
   const [focused, setFocused] = useState(false);
@@ -207,6 +212,7 @@ export function NativeIconButton({
       accessibilityRole="button"
       className={classNames(
         'items-center justify-center border border-native-border bg-native-surface active:opacity-70 dark:border-native-dark-border dark:bg-native-dark-surface',
+        pressFeedback && 'active:scale-90',
         size === 'default' && 'size-13 rounded-xl',
         size === 'large' && 'size-24 rounded-2xl border-2',
         focused && 'border-accent bg-accent',

@@ -206,6 +206,7 @@ export function RoomScreen() {
           {playerEnabled && current && showsPlaybackReset && (
             <IconButton
               accessibilityLabel="Reset playback"
+              feedback
               icon="reset"
               onPress={() => void resetLocalPlayback()}
             />
@@ -216,6 +217,7 @@ export function RoomScreen() {
             <View className="flex-1">
               <Button
                 disabled={!canControlPlayback}
+                feedback
                 icon={playback?.isPlaying ? 'pause' : 'play'}
                 label={playback?.isPlaying ? 'Pause' : 'Play'}
                 tone="secondary"
@@ -227,6 +229,7 @@ export function RoomScreen() {
           )}
           <View className="flex-1">
             <Button
+              feedback
               icon="skip"
               label="Skip"
               tone="secondary"

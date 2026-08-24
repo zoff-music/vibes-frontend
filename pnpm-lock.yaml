@@ -296,6 +296,9 @@ importers:
       expo-font:
         specifier: ~57.0.1
         version: 57.0.1(expo@57.0.14)(react-native-tvos@0.86.2-0)(react@19.2.7)
+      expo-haptics:
+        specifier: ~57.0.1
+        version: 57.0.1(expo@57.0.14)
       expo-image:
         specifier: ~57.0.3
         version: 57.0.3(expo@57.0.14)(react-native-tvos@0.86.2-0)(react-native-web@0.21.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
@@ -3777,6 +3780,11 @@ packages:
       expo: '*'
       react: '*'
       react-native: '*'
+
+  expo-haptics@57.0.1:
+    resolution: {integrity: sha512-8VhbnxlIrfXjP0syZr1JT197nafYicQu9119adOJnX62osU9Cw+PdDnAx/6LxuKJRzQdwxOMq7b7eWjhNL5zAQ==}
+    peerDependencies:
+      expo: '*'
 
   expo-image@57.0.3:
     resolution: {integrity: sha512-EYfV8tIQxXLQPHhgZxc+bESUn2NcVw1U0RM28qqFeFfHyD1sBpIYJC2JTy24OtfBowYVoUyTvgf2ykWydiZVCw==}
@@ -9155,6 +9163,10 @@ snapshots:
       expo: 57.0.14(@babel/core@7.29.7)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.11)(expo-router@57.0.14)(react-dom@19.2.7(react@19.2.7))(react-native-tvos@0.86.2-0)(react-native-web@0.21.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-native-webview@13.16.1(react-native-tvos@0.86.2-0)(react@19.2.7))(react-native-worklets@0.10.1(@babel/core@7.29.7)(@react-native/metro-config@0.86.2(@babel/core@7.29.7))(react-native-tvos@0.86.2-0)(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
       react: 19.2.7
       react-native: react-native-tvos@0.86.2-0(@babel/core@7.29.7)(@react-native/metro-config@0.86.2(@babel/core@7.29.7))(@types/react@19.2.16)(react-native-tvos@0.86.2-0)(react@19.2.7)
+
+  expo-haptics@57.0.1(expo@57.0.14):
+    dependencies:
+      expo: 57.0.14(@babel/core@7.29.7)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.11)(expo-router@57.0.14)(react-dom@19.2.7(react@19.2.7))(react-native-tvos@0.86.2-0)(react-native-web@0.21.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-native-webview@13.16.1(react-native-tvos@0.86.2-0)(react@19.2.7))(react-native-worklets@0.10.1(@babel/core@7.29.7)(@react-native/metro-config@0.86.2(@babel/core@7.29.7))(react-native-tvos@0.86.2-0)(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
 
   expo-image@57.0.3(expo@57.0.14)(react-native-tvos@0.86.2-0)(react-native-web@0.21.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7):
     dependencies:

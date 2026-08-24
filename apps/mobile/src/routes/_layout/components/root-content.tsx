@@ -2,7 +2,10 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ActiveRoomKeepAwake } from '@/components/persistent-room-player';
+import {
+  ActiveRoomKeepAwake,
+  PersistentRoomPlayer,
+} from '@/components/persistent-room-player';
 import { ToastProvider } from '@/components/toast';
 import {
   AppProvider,
@@ -46,6 +49,9 @@ function RoomRuntime() {
     <>
       {hasActiveSession && playerPreferenceLoaded && playerEnabled && (
         <ActiveRoomKeepAwake />
+      )}
+      {room && playerPreferenceLoaded && playerEnabled && (
+        <PersistentRoomPlayer />
       )}
       <DeviceOrientationLock />
       <AppTabs />

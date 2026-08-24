@@ -108,6 +108,7 @@ export function RemoteControl({
                     <View className="flex-row gap-2">
                       <View className="flex-1">
                         <Button
+                          feedback
                           icon={displayedIsPlaying ? 'pause' : 'play'}
                           label={displayedIsPlaying ? 'Pause' : 'Play'}
                           onPress={() =>
@@ -119,6 +120,7 @@ export function RemoteControl({
                       </View>
                       <View className="flex-1">
                         <Button
+                          feedback
                           icon="skip"
                           label="Skip"
                           tone="secondary"

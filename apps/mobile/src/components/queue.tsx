@@ -13,6 +13,7 @@ import Animated, {
 import { Copy, Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 
 interface QueueProps {
   contained?: boolean;
@@ -50,7 +51,10 @@ const QueueItem = memo(function QueueItem({
     <Pressable
       accessibilityLabel={`Vote for ${song.title}`}
       className="min-h-18 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
-      onPress={() => onVote(song)}
+      onPress={() => {
+        void triggerSelectionFeedback();
+        onVote(song);
+      }}
     >
       <Text className="w-5 text-center font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
         {index + 1}
@@ -102,6 +106,7 @@ const QueueItem = memo(function QueueItem({
               accessibilityLabel={`Delete ${song.title}`}
               className="w-20 items-center justify-center rounded-2xl border-2 border-error bg-error active:opacity-70"
               onPress={() => {
+                void triggerSelectionFeedback();
                 swipeable.close();
                 onDelete(song);
               }}
