@@ -20,6 +20,7 @@ import {
   tabletNavigationHeight,
   useTabletLandscapeLayout,
 } from '@/hooks/use-tablet-landscape-layout';
+import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 
 interface ScreenProps extends PropsWithChildren {
   gridPaused?: boolean;
@@ -65,6 +66,7 @@ export const Copy = NativeCopy;
 interface ButtonProps {
   accessibilityLabel?: string;
   disabled?: boolean;
+  feedback?: boolean;
   icon?: ZoffIconName;
   label: string;
   onPress: () => void;
@@ -74,6 +76,7 @@ interface ButtonProps {
 interface IconButtonProps {
   accessibilityLabel: string;
   disabled?: boolean;
+  feedback?: boolean;
   icon: ZoffIconName;
   size?: 'default' | 'large';
   onPress: () => void;
@@ -82,6 +85,7 @@ interface IconButtonProps {
 export function IconButton({
   accessibilityLabel,
   disabled,
+  feedback = false,
   icon,
   size = 'default',
   onPress,
@@ -93,7 +97,11 @@ export function IconButton({
       disabled={disabled}
       icon={icon}
       iconColor={theme.text}
-      onPress={onPress}
+      onPress={() => {
+        if (feedback) void triggerSelectionFeedback();
+        onPress();
+      }}
+      pressFeedback={feedback}
       size={size}
     />
   );
@@ -102,6 +110,7 @@ export function IconButton({
 export function Button({
   accessibilityLabel,
   disabled,
+  feedback = false,
   icon,
   label,
   onPress,
@@ -122,7 +131,11 @@ export function Button({
       icon={icon}
       iconColor={iconColor}
       label={label}
-      onPress={onPress}
+      onPress={() => {
+        if (feedback) void triggerSelectionFeedback();
+        onPress();
+      }}
+      pressFeedback={feedback}
       tone={tone}
     />
   );
