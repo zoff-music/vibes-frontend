@@ -30,6 +30,7 @@ interface UseMusicSearchOptions {
   onAdded?: () => Promise<void>;
   onClose: () => void;
   onGenerated: () => Promise<void>;
+  playlistImportAllowed: boolean;
   providersOverride?: Providers;
   remoteCredentials?: SearchRemoteCredentials;
   roomIdOverride?: string;
@@ -61,6 +62,7 @@ export function useMusicSearch({
   onAdded,
   onClose,
   onGenerated,
+  playlistImportAllowed,
   providersOverride,
   remoteCredentials,
   roomIdOverride,
@@ -172,6 +174,10 @@ export function useMusicSearch({
     }
     const playlistLink = parseProviderPlaylistLink(trimmedQuery);
     const trackLink = parseProviderTrackLink(trimmedQuery);
+    if (playlistLink && !playlistImportAllowed) {
+      setError('Playlist importing is disabled in this room.');
+      return;
+    }
     if (!playlistLink && !trackLink && trimmedQuery.length < 3) {
       setError('Search needs at least 3 characters.');
       return;
@@ -236,6 +242,10 @@ export function useMusicSearch({
   };
 
   const addPlaylist = async () => {
+    if (!playlistImportAllowed) {
+      setError('Playlist importing is disabled in this room.');
+      return;
+    }
     if (!targetRoomId) {
       setError('Join a room before adding a playlist.');
       return;

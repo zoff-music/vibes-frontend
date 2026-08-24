@@ -71,6 +71,7 @@ export async function clientAction({
       enabledSources: readEnabledSources(formData),
       onlyAdminAddSongs: readBoolean(formData, 'onlyAdminAddSongs'),
       public: isPublic,
+      playlistImport: readBoolean(formData, 'playlistImport'),
     },
   });
   if (err || !room) {

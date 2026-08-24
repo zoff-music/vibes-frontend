@@ -12,6 +12,7 @@ export const roomSettingsSchema = yup.object({
   enabledSources: yup.array(sourceTypeSchema.required()).required(),
   onlyAdminAddSongs: yup.boolean().optional(),
   public: yup.boolean().required(),
+  playlistImport: yup.boolean().required(),
 });
 export type RoomSettings = yup.InferType<typeof roomSettingsSchema>;
 

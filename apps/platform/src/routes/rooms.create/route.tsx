@@ -432,6 +432,11 @@ const CreateRoom: React.FC = () => {
                 value={reservation?.token ?? ''}
               />
               <input name="mode" type="hidden" value={mode} />
+              <input
+                name="playlistImport"
+                type="hidden"
+                value={String(settings.playlistImport)}
+              />
               {settings.enabledSources.map((source) => (
                 <input
                   key={source}
@@ -756,6 +761,16 @@ const CreateRoom: React.FC = () => {
                       }
                       updateSetting('onlyAdminAddSongs', checked);
                     }}
+                  />
+
+                  <Toggle
+                    name="playlistImport"
+                    label="PLAYLIST IMPORT"
+                    description="Allow adding playlists from links"
+                    checked={settings.playlistImport}
+                    onChange={(checked) =>
+                      updateSetting('playlistImport', checked)
+                    }
                   />
                 </div>
               </div>
