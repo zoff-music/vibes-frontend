@@ -25,6 +25,7 @@ export interface ControllerPairingActions {
   handleScan: (result: BarcodeScanningResult) => void;
   openScanner: () => Promise<void>;
   pair: () => Promise<void>;
+  pairWithToken: (remoteId: string, pairingToken: string) => Promise<void>;
   setPairingCode: (code: string) => void;
   setRemoteId: (remoteId: string) => void;
   setScannerVisible: (visible: boolean) => void;
@@ -98,6 +99,21 @@ export function useControllerPairing({
     setScannerVisible(true);
   }, [permission?.granted, requestPermission, setError]);
 
+  const pairWithToken = useCallback(
+    async (nextRemoteId: string, pairingToken: string) => {
+      setRemoteId(nextRemoteId);
+      setScannerVisible(false);
+      const result = await pairingFetcher.submit(
+        { intent: 'pair', pairingToken },
+        { params: { id: nextRemoteId } },
+      );
+      if (!(await applyPairing(nextRemoteId, result.data))) {
+        setError(result.error || 'Could not pair this remote.');
+      }
+    },
+    [applyPairing, pairingFetcher.submit, setError],
+  );
+
   const handleScan = useCallback(
     ({ data }: BarcodeScanningResult) => {
       const [urlError, url] = safeWrap(() => new URL(data));
@@ -111,20 +127,9 @@ export function useControllerPairing({
         setError('That QR code is missing its remote pairing details.');
         return;
       }
-      setRemoteId(scannedRemoteId);
-      setScannerVisible(false);
-      const submitPairing = async () => {
-        const result = await pairingFetcher.submit(
-          { intent: 'pair', pairingToken },
-          { params: { id: scannedRemoteId } },
-        );
-        if (!(await applyPairing(scannedRemoteId, result.data))) {
-          setError(result.error || 'Could not pair this remote.');
-        }
-      };
-      void submitPairing();
+      void pairWithToken(scannedRemoteId, pairingToken);
     },
-    [applyPairing, pairingFetcher.submit, setError],
+    [pairWithToken, setError],
   );
 
   const clearCredentials = useCallback(() => {
@@ -141,6 +146,7 @@ export function useControllerPairing({
       handleScan,
       openScanner,
       pair,
+      pairWithToken,
       setPairingCode,
       setRemoteId,
       setScannerVisible,
