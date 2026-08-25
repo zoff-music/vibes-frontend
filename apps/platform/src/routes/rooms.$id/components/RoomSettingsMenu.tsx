@@ -13,10 +13,10 @@ import {
   CircleHalfIcon,
   MoonIcon,
   RemoteIcon,
+  SegmentedToggle,
   ShareIcon,
   SoundCloudIcon,
   SunIcon,
-  Toggle,
   YouTubeIcon,
 } from '@vibes/ui/web';
 import { motion } from 'framer-motion';
@@ -303,7 +303,7 @@ export const RoomSettingsMenu = ({
             )}
 
             <div className="group flex items-center justify-between">
-              <Toggle
+              <SegmentedToggle
                 label="Allow Skip"
                 description={
                   room?.mode === 'host'
@@ -326,7 +326,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="group flex items-center justify-between">
-              <Toggle
+              <SegmentedToggle
                 label="Democratic Skip"
                 description={
                   room?.mode === 'host'
@@ -349,7 +349,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="group flex items-center justify-between">
-              <Toggle
+              <SegmentedToggle
                 label="Loop Queue"
                 description="Cycled back to end"
                 disabled={room?.hasPassword && !isAdmin}
@@ -366,7 +366,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="group flex items-center justify-between">
-              <Toggle
+              <SegmentedToggle
                 label="Allow Duplicates"
                 description="Same song multiple times"
                 disabled={room?.hasPassword && !isAdmin}
@@ -383,7 +383,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="group flex items-center justify-between">
-              <Toggle
+              <SegmentedToggle
                 label="Remove Played"
                 description="Removed after play"
                 disabled={room?.hasPassword && !isAdmin}
@@ -400,7 +400,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="group flex items-center justify-between">
-              <Toggle
+              <SegmentedToggle
                 label="Admins Only Add"
                 description="Only admins add songs"
                 disabled={room?.hasPassword && !isAdmin}
@@ -426,7 +426,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="group flex items-center justify-between">
-              <Toggle
+              <SegmentedToggle
                 label="Playlist Import"
                 description="Allow adding playlists from links"
                 disabled={room?.hasPassword && !isAdmin}
@@ -443,7 +443,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="rounded-xl border border-secondary/25 bg-secondary/5 p-3">
-              <Toggle
+              <SegmentedToggle
                 label="Public Room"
                 description={publicRoomDescription}
                 disabled={!canChangePublicRoom}
