@@ -1,0 +1,24 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "LD5V872A6N.me.zoff.mobile",
+        "paths": [
+          "NOT /add",
+          "NOT /admin",
+          "NOT /callback",
+          "NOT /casting",
+          "NOT /embed",
+          "NOT /privacy-policy",
+          "NOT /remote",
+          "NOT /remotes",
+          "NOT /security",
+          "NOT /settings",
+          "NOT /terms-of-service",
+          "/*"
+        ]
+      }
+    ]
+  }
+}

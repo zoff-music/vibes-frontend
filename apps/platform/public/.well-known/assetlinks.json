@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "me.zoff.mobile",
+      "sha256_cert_fingerprints": [
+        "61:74:12:3F:44:2E:BE:65:C0:9B:5D:DD:7C:80:B1:F1:82:A4:A2:05:37:E5:E7:E5:5E:FD:F6:E3:4A:FD:72:0E"
+      ]
+    }
+  }
+]

@@ -38,6 +38,9 @@ startServer({
     staticDir: path.join(staticDir, 'assets'),
   },
   metricsSkipPaths: ['/assets/'],
+  staticContentTypes: {
+    '/.well-known/apple-app-site-association': 'application/json',
+  },
   operationName,
   serviceName,
   mode: {

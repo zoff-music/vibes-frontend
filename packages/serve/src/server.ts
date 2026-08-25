@@ -54,6 +54,7 @@ export interface ServerConfig {
     staticDir: string;
   };
   metricsSkipPaths?: string[];
+  staticContentTypes?: Record<string, string>;
   bodySizeLimitBytes?: number;
   frameAllowedPath?: string;
   operationName: (req: Request) => string;
@@ -75,6 +76,14 @@ function resolveBodySizeLimitBytes(config: ServerConfig) {
 }
 
 async function setupRoutes(app: express.Express, config: ServerConfig) {
+  app.use((req, res, next) => {
+    const contentType = config.staticContentTypes?.[req.path];
+    if (contentType) {
+      res.type(contentType);
+    }
+    next();
+  });
+
   if (config.dev) {
     const { createRequestHandler } = await import('@react-router/express');
     const vite = await import('vite');
