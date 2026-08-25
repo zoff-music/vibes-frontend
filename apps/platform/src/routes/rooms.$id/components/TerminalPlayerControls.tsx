@@ -126,6 +126,7 @@ export function TerminalPlayerControls({
           </TerminalButton>
         }
         value={volume}
+        wheelStep={VOLUME_WHEEL_STEP}
       />
 
       {isCasting && castDeviceName && (
@@ -136,3 +137,5 @@ export function TerminalPlayerControls({
     </TerminalSection>
   );
 }
+
+const VOLUME_WHEEL_STEP = 5;
