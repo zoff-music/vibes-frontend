@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zoff",
     "slug": "vibes-mobile",
-    "version": "0.2.8",
+    "version": "0.2.9",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "zoff",
@@ -10,6 +10,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "me.zoff.mobile",
+      "associatedDomains": ["applinks:zoff.me"],
       "icon": "./assets/images/icon.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -26,6 +27,20 @@
     },
     "android": {
       "package": "me.zoff.mobile",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": ["BROWSABLE", "DEFAULT"],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "zoff.me",
+              "pathPattern": "/.*"
+            }
+          ]
+        }
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#120b1e",
         "foregroundImage": "./assets/images/icon.png"

@@ -1,7 +1,7 @@
 {
   "name": "@vibes/mobile",
   "main": "expo-router/entry",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "dependencies": {
     "@expo-google-fonts/pixelify-sans": "^0.4.2",
     "@expo/metro-runtime": "~57.0.11",

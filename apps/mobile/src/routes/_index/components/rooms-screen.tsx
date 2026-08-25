@@ -1,7 +1,8 @@
 import type { PublicRoom } from '@vibes/models';
 import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import { classNames } from '@vibes/shared';
-import { useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,6 +25,8 @@ import { CreateRoomSheet } from './create-room-sheet';
 import { RoomScreen } from './room-screen';
 
 export function RoomsScreen() {
+  const searchParams = useLocalSearchParams<{ roomId?: string | string[] }>();
+  const router = useRouter();
   const theme = useAppTheme();
   const { controllerRemote, loading, providers, room, roomId } =
     useRoomSession();
@@ -38,30 +41,45 @@ export function RoomsScreen() {
   const [createVisible, setCreateVisible] = useState(false);
   const [isAIMode, setIsAIMode] = useState(false);
   const [generationLoading, setGenerationLoading] = useState(false);
+  const consumedRoomLinkRef = useRef('');
 
   useEffect(() => setValue(roomId), [roomId]);
 
-  const joinRoom = async (roomName: string) => {
-    if (!roomName.trim()) {
-      setError('Enter a room name.');
-      return;
-    }
-    if (controllerRemote) {
-      setError(
-        'Disconnect the active remote before joining a room on this device.',
-      );
-      return;
-    }
-    const result = await setRoomId(roomName);
-    if (result === 'joined') {
-      Keyboard.dismiss();
-      return;
-    }
-    if (result === 'notFound') {
-      setError('');
-      setCreateVisible(true);
-    }
-  };
+  const joinRoom = useCallback(
+    async (roomName: string) => {
+      if (!roomName.trim()) {
+        setError('Enter a room name.');
+        return;
+      }
+      if (controllerRemote) {
+        setError(
+          'Disconnect the active remote before joining a room on this device.',
+        );
+        return;
+      }
+      const result = await setRoomId(roomName);
+      if (result === 'joined') {
+        Keyboard.dismiss();
+        return;
+      }
+      if (result === 'notFound') {
+        setError('');
+        setCreateVisible(true);
+      }
+    },
+    [controllerRemote, setError, setRoomId],
+  );
+
+  useEffect(() => {
+    const linkedRoomId = Array.isArray(searchParams.roomId)
+      ? searchParams.roomId[0]
+      : searchParams.roomId;
+    if (!linkedRoomId || consumedRoomLinkRef.current === linkedRoomId) return;
+
+    consumedRoomLinkRef.current = linkedRoomId;
+    setValue(linkedRoomId);
+    void joinRoom(linkedRoomId).finally(() => router.replace('/'));
+  }, [joinRoom, router, searchParams.roomId]);
 
   const submitRoom = () => {
     if (controllerRemote) {
