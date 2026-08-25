@@ -9,6 +9,7 @@ export * from './components/ProviderIcon';
 export * from './components/ProviderMark';
 export * from './components/queue/QueueItem';
 export * from './components/queue/QueueList';
+export * from './components/SegmentedToggle';
 export * from './components/Text';
 export * from './components/Toast';
 export * from './components/ToastViewport';

@@ -440,7 +440,7 @@ export const RoomPlayer = React.memo(
     return (
       <div
         className={classNames(
-          'space-y-6 lg:col-span-3 lg:flex lg:h-full lg:flex-col',
+          'min-w-0 space-y-6 lg:col-span-3 lg:flex lg:h-full lg:flex-col',
           terminalMode &&
             '!h-fit !space-y-4 lg:!col-span-2 lg:!block lg:!h-fit',
         )}

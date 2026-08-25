@@ -667,13 +667,13 @@ export default function Room() {
       <motion.div
         animate={roomEntryVisibleState}
         className={classNames(
-          'room-entry relative min-h-screen overflow-x-hidden lg:h-screen lg:overflow-hidden',
+          'room-entry relative min-h-screen w-full min-w-0 overflow-x-hidden lg:h-dvh lg:overflow-hidden',
           isPartyScreen && 'bg-theme',
         )}
         initial={roomEntryInitial}
         transition={roomEntryTransition}
       >
-        <div className="relative z-10 flex min-h-screen flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
+        <div className="relative z-10 flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden lg:h-dvh lg:overflow-hidden">
           {!isPartyScreen && (
             <RoomHeader
               adminError={adminError}
@@ -710,7 +710,7 @@ export default function Room() {
 
           <div
             key="room-content"
-            className="flex-1 overflow-visible lg:overflow-hidden"
+            className="min-h-0 min-w-0 flex-1 overflow-visible lg:overflow-hidden"
           >
             {showGenerationProgress && (
               <RoomGenerationProgress isFailed={false} />
@@ -722,11 +722,11 @@ export default function Room() {
                 )}
                 <div
                   className={classNames(
-                    'mx-auto items-start gap-8 px-4 lg:grid',
+                    'mx-auto w-full min-w-0 items-start gap-8 px-4 lg:grid',
                     !isPartyScreen &&
-                      'max-w-7xl py-8 lg:h-[calc(100vh-var(--room-header-height,73px))] lg:grid-cols-5 lg:py-6',
+                      'max-w-7xl py-8 lg:h-[calc(100dvh-var(--room-header-height,73px))] lg:grid-cols-5 lg:py-6',
                     isPartyScreen &&
-                      'max-w-none py-4 lg:h-screen lg:grid-cols-5 lg:p-6',
+                      'max-w-none py-4 lg:h-dvh lg:grid-cols-5 lg:p-6',
                   )}
                 >
                   <RoomPlayer

@@ -16,8 +16,8 @@ import {
   CheckIcon,
   CloseIcon,
   DiceIcon,
+  SegmentedToggle,
   SoundCloudIcon,
-  Toggle,
   YouTubeIcon,
 } from '@vibes/ui/web';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
@@ -696,7 +696,7 @@ const CreateRoom: React.FC = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <Toggle
+                  <SegmentedToggle
                     name="skipAllowed"
                     label="ALLOW SKIP"
                     description="Anyone can skip songs"
@@ -706,7 +706,7 @@ const CreateRoom: React.FC = () => {
                     }
                   />
 
-                  <Toggle
+                  <SegmentedToggle
                     name="democraticSkip"
                     label="DEMOCRATIC SKIP"
                     description="Require votes to skip"
@@ -716,7 +716,7 @@ const CreateRoom: React.FC = () => {
                     }
                   />
 
-                  <Toggle
+                  <SegmentedToggle
                     name="loopQueue"
                     label="LOOP QUEUE"
                     description="Restart when queue ends"
@@ -724,7 +724,7 @@ const CreateRoom: React.FC = () => {
                     onChange={(checked) => updateSetting('loopQueue', checked)}
                   />
 
-                  <Toggle
+                  <SegmentedToggle
                     name="removeOnPlay"
                     label="REMOVE PLAYED"
                     description="Removed after play"
@@ -734,7 +734,7 @@ const CreateRoom: React.FC = () => {
                     }
                   />
 
-                  <Toggle
+                  <SegmentedToggle
                     name="allowDuplicates"
                     label="ALLOW DUPLICATES"
                     description="Same song multiple times"
@@ -744,7 +744,7 @@ const CreateRoom: React.FC = () => {
                     }
                   />
 
-                  <Toggle
+                  <SegmentedToggle
                     name="onlyAdminAddSongs"
                     label="ADMINS ONLY ADD"
                     description="Only admins can add songs"
@@ -763,7 +763,7 @@ const CreateRoom: React.FC = () => {
                     }}
                   />
 
-                  <Toggle
+                  <SegmentedToggle
                     name="playlistImport"
                     label="PLAYLIST IMPORT"
                     description="Allow adding playlists from links"
@@ -779,7 +779,7 @@ const CreateRoom: React.FC = () => {
                 <h2 className="mb-6 font-pixel text-caption text-theme-muted tracking-banner">
                   VISIBILITY
                 </h2>
-                <Toggle
+                <SegmentedToggle
                   name="public"
                   label="PUBLIC ROOM"
                   description={publicRoomDescription}
