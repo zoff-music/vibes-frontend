@@ -34,6 +34,7 @@ export interface ControllerRemoteActions {
   handleScan: (result: BarcodeScanningResult) => void;
   openScanner: () => Promise<void>;
   pair: () => Promise<void>;
+  pairWithToken: (remoteId: string, pairingToken: string) => Promise<void>;
   refresh: () => Promise<void>;
   remove: (song: Song) => Promise<void>;
   seek: (positionMs: number) => Promise<void>;
@@ -91,6 +92,7 @@ export function useControllerRemote(): readonly [
       handleScan,
       openScanner,
       pair,
+      pairWithToken,
       setPairingCode,
       setRemoteId,
       setScannerVisible,
@@ -277,6 +279,7 @@ export function useControllerRemote(): readonly [
       handleScan,
       openScanner,
       pair,
+      pairWithToken,
       refresh,
       remove,
       seek,

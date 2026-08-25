@@ -11,6 +11,8 @@ export function redirectSystemPath({ path }: SystemPathEvent) {
       (url.hostname === zoffHostname || url.hostname === zoffWwwHostname);
 
     if (isZoffWebUrl) {
+      const remoteRoute = getRemoteRoute(url);
+      if (remoteRoute) return remoteRoute;
       const roomId = getRoomId(url.pathname);
       if (roomId) return getRoomRoute(roomId);
       return url.toString();
@@ -24,6 +26,21 @@ export function redirectSystemPath({ path }: SystemPathEvent) {
   } catch {
     return '/';
   }
+}
+
+function getRemoteRoute(url: URL) {
+  const pathSegments = url.pathname.split('/').filter(Boolean);
+  if (pathSegments[0] !== remotePathSegment) return '';
+  if (pathSegments.length > remotePathSegmentCount) return '';
+
+  const remoteId =
+    url.searchParams.get(remoteIdSearchParam) ?? pathSegments[1] ?? '';
+  const pairingToken = url.searchParams.get(pairingTokenSearchParam) ?? '';
+  const searchParams = new URLSearchParams();
+  if (remoteId) searchParams.set(remoteIdSearchParam, remoteId);
+  if (pairingToken) searchParams.set(pairingTokenSearchParam, pairingToken);
+  const query = searchParams.toString();
+  return query ? `/remote?${query}` : '/remote';
 }
 
 function getCustomSchemeRoomId(url: URL) {
@@ -51,6 +68,10 @@ function getRoomRoute(roomId: string) {
 
 const nativeBaseUrl = 'zoff://app';
 const nativeHostname = 'app';
+const pairingTokenSearchParam = 'pair';
+const remoteIdSearchParam = 'remoteId';
+const remotePathSegment = 'remotes';
+const remotePathSegmentCount = 2;
 const roomPathSegmentCount = 1;
 const zoffHostname = 'zoff.me';
 const zoffProtocol = 'zoff:';
