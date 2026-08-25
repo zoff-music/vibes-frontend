@@ -47,9 +47,33 @@ const VolumeControl = ({
   onVolumeChange,
   onToggleMuted,
 }: VolumeControlProps) => {
+  const controlRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const control = controlRef.current;
+    if (!control) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      if (event.deltaY === 0) return;
+
+      event.preventDefault();
+      const adjustment =
+        event.deltaY < 0 ? VOLUME_WHEEL_STEP : -VOLUME_WHEEL_STEP;
+      const nextVolume = Math.min(
+        MAX_VOLUME,
+        Math.max(MIN_VOLUME, volume + adjustment),
+      );
+      onVolumeChange(nextVolume);
+    };
+
+    control.addEventListener('wheel', handleWheel, { passive: false });
+    return () => control.removeEventListener('wheel', handleWheel);
+  }, [onVolumeChange, volume]);
+
   return (
     <div
       className={classNames('flex h-11 min-w-0 items-center gap-2', className)}
+      ref={controlRef}
     >
       <Button
         aria-label={volume === 0 ? 'Unmute player' : 'Mute player'}
@@ -90,6 +114,10 @@ const VolumeControl = ({
     </div>
   );
 };
+
+const MIN_VOLUME = 0;
+const MAX_VOLUME = 100;
+const VOLUME_WHEEL_STEP = 5;
 
 const PlayerControlsComponent: React.FC<Props> = ({
   isPlaying,
