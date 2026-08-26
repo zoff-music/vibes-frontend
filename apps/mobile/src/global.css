@@ -6,9 +6,9 @@
 @source "../../../packages/ui/src/native";
 
 @theme {
-  --font-heading: "Pixelify Sans Bold";
-  --font-heading: "Pixelify Sans Bold";
-  --font-sans: "Pixelify Sans Bold";
+  --font-heading: "Jersey 15";
+  --font-heading: "Jersey 15";
+  --font-sans: "Jersey 15";
   --color-accent: #00b4d4;
   --color-error: #d91465;
   --color-success: #1f9d62;

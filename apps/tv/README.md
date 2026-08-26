@@ -108,7 +108,7 @@ pnpm --filter @vibes/tv tizen:build
 ```
 
 The output is written to `apps/tv/dist/tizen` and includes `config.xml`, the
-application icon, bundled Pixelify Sans font, JavaScript, and CSS. In Tizen
+application icon, bundled Jersey 15 font, JavaScript, and CSS. In Tizen
 Studio:
 
 1. Import `apps/tv/dist/tizen` as an existing Tizen web project.

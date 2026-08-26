@@ -73,17 +73,17 @@ export function addVibesUtilities({ addBase, addUtilities }) {
       letterSpacing: '0.1em',
     },
     '.font-display': {
-      fontFamily: '"Pixelify Sans", sans-serif',
+      fontFamily: '"Jersey 15", sans-serif',
       letterSpacing: '0.08em',
     },
     '.font-body': {
-      fontFamily: '"Pixelify Sans", "Zen Maru Gothic", system-ui, sans-serif',
+      fontFamily: '"Jersey 15", "Zen Maru Gothic", system-ui, sans-serif',
     },
     '.font-mono': {
-      fontFamily: '"Pixelify Sans", "Courier New", monospace',
+      fontFamily: '"Jersey 15", "Courier New", monospace',
     },
     '.font-pixel': {
-      fontFamily: '"Pixelify Sans", cursive',
+      fontFamily: '"Jersey 15", cursive',
       letterSpacing: '0.05em',
     },
     '.font-wide': {

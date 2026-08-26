@@ -1,7 +1,4 @@
-import {
-  PixelifySans_700Bold,
-  useFonts,
-} from '@expo-google-fonts/pixelify-sans';
+import { Jersey15_400Regular, useFonts } from '@expo-google-fonts/jersey-15';
 import { Route } from '@vibes/native-router';
 import { safeWrapAsync } from '@vibes/shared';
 import { setAudioModeAsync } from 'expo-audio';
@@ -16,7 +13,7 @@ export { ErrorBoundary } from './components/root-error-boundary';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    'Pixelify Sans Bold': PixelifySans_700Bold,
+    'Jersey 15': Jersey15_400Regular,
   });
 
   useEffect(() => {

@@ -32,9 +32,9 @@ export default {
         'text-inverse': '#ffffff',
       },
       fontFamily: {
-        body: ['"Pixelify Sans"', 'monospace'],
-        heading: ['"Pixelify Sans"', 'monospace'],
-        mono: ['"Pixelify Sans"', 'monospace'],
+        body: ['"Jersey 15"', 'monospace'],
+        heading: ['"Jersey 15"', 'monospace'],
+        mono: ['"Jersey 15"', 'monospace'],
       },
       borderRadius: {
         sm: '6px',
