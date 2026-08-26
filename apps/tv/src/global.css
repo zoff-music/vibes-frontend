@@ -6,8 +6,8 @@
 @source "../../../packages/ui/src/native";
 
 @theme {
-  --font-heading: "Pixelify Sans Bold";
-  --font-sans: "Pixelify Sans Bold";
+  --font-heading: "Jersey 15";
+  --font-sans: "Jersey 15";
   --color-tv-background: #120b1e;
   --color-tv-card: #1a102a;
   --color-tv-surface: #211435;

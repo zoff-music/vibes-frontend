@@ -6,10 +6,10 @@
 @source inline("hidden inline sm:hidden sm:inline md:hidden md:inline lg:hidden lg:inline xl:hidden xl:inline space-y-3");
 
 @font-face {
-  font-family: "Pixelify Sans";
+  font-family: "Jersey 15";
   font-style: normal;
   font-weight: 400 700;
-  src: url("@expo-google-fonts/pixelify-sans/700Bold/PixelifySans_700Bold.ttf")
+  src: url("@expo-google-fonts/jersey-15/400Regular/Jersey15_400Regular.ttf")
     format("truetype");
 }
 

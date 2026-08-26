@@ -1,7 +1,4 @@
-import {
-  PixelifySans_700Bold,
-  useFonts,
-} from '@expo-google-fonts/pixelify-sans';
+import { Jersey15_400Regular, useFonts } from '@expo-google-fonts/jersey-15';
 import { useEffect, useState } from 'react';
 import { BackHandler, StatusBar, View } from 'react-native';
 import { TvHydrateFallback } from '@/components/tv-hydrate-fallback';
@@ -16,7 +13,7 @@ export { loader } from './loader';
 
 export default function TvIndexRoute() {
   const [fontsLoaded] = useFonts({
-    'Pixelify Sans Bold': PixelifySans_700Bold,
+    'Jersey 15': Jersey15_400Regular,
   });
   const [session, sessionActions] = useTvSession();
   const [isAIMode, setIsAIMode] = useState(false);

@@ -42,12 +42,12 @@ export default function AppTabs() {
       labelStyle={{
         default: {
           color: theme.muted,
-          fontFamily: 'Pixelify Sans Bold',
+          fontFamily: 'Jersey 15',
           fontSize: 11,
         },
         selected: {
           color: theme.text,
-          fontFamily: 'Pixelify Sans Bold',
+          fontFamily: 'Jersey 15',
           fontSize: 11,
         },
       }}

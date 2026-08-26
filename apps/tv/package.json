@@ -1,6 +1,6 @@
 {
   "name": "@vibes/tv",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": true,
   "main": "src/index.ts",
   "scripts": {
@@ -28,7 +28,7 @@
     }
   },
   "dependencies": {
-    "@expo-google-fonts/pixelify-sans": "^0.4.2",
+    "@expo-google-fonts/jersey-15": "0.4.1",
     "@react-native-tvos/config-tv": "^0.1.6",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",

@@ -46,15 +46,10 @@ export default {
         error: '#ff2e63',
       },
       fontFamily: {
-        body: [
-          '"Pixelify Sans"',
-          '"Zen Maru Gothic"',
-          'system-ui',
-          'sans-serif',
-        ],
-        heading: ['"Pixelify Sans"', 'sans-serif'],
-        mono: ['"Pixelify Sans"', '"Courier New"', 'monospace'],
-        pixel: ['"Pixelify Sans"', 'cursive'],
+        body: ['"Jersey 15"', '"Zen Maru Gothic"', 'system-ui', 'sans-serif'],
+        heading: ['"Jersey 15"', 'sans-serif'],
+        mono: ['"Jersey 15"', '"Courier New"', 'monospace'],
+        pixel: ['"Jersey 15"', 'cursive'],
         japanese: ['"Zen Maru Gothic"', '"Hiragino Sans"', 'sans-serif'],
       },
       fontSize: {
