@@ -73,17 +73,18 @@ export function addVibesUtilities({ addBase, addUtilities }) {
       letterSpacing: '0.1em',
     },
     '.font-display': {
-      fontFamily: '"Jersey 15", sans-serif',
+      fontFamily: '"MSW98UI", "MS Sans Serif", Tahoma, sans-serif',
       letterSpacing: '0.08em',
     },
     '.font-body': {
-      fontFamily: '"Jersey 15", "Zen Maru Gothic", system-ui, sans-serif',
+      fontFamily:
+        '"MSW98UI", "MS Sans Serif", Tahoma, "Zen Maru Gothic", system-ui, sans-serif',
     },
     '.font-mono': {
-      fontFamily: '"Jersey 15", "Courier New", monospace',
+      fontFamily: '"MSW98UI", "Lucida Console", "Courier New", monospace',
     },
     '.font-pixel': {
-      fontFamily: '"Jersey 15", cursive',
+      fontFamily: '"MSW98UI", "MS Sans Serif", Tahoma, sans-serif',
       letterSpacing: '0.05em',
     },
     '.font-wide': {

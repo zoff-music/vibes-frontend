@@ -46,10 +46,17 @@ export default {
         error: '#ff2e63',
       },
       fontFamily: {
-        body: ['"Jersey 15"', '"Zen Maru Gothic"', 'system-ui', 'sans-serif'],
-        heading: ['"Jersey 15"', 'sans-serif'],
-        mono: ['"Jersey 15"', '"Courier New"', 'monospace'],
-        pixel: ['"Jersey 15"', 'cursive'],
+        body: [
+          '"MSW98UI"',
+          '"MS Sans Serif"',
+          'Tahoma',
+          '"Zen Maru Gothic"',
+          'system-ui',
+          'sans-serif',
+        ],
+        heading: ['"MSW98UI"', '"MS Sans Serif"', 'Tahoma', 'sans-serif'],
+        mono: ['"MSW98UI"', '"Lucida Console"', '"Courier New"', 'monospace'],
+        pixel: ['"MSW98UI"', '"MS Sans Serif"', 'Tahoma', 'sans-serif'],
         japanese: ['"Zen Maru Gothic"', '"Hiragino Sans"', 'sans-serif'],
       },
       fontSize: {

@@ -32,9 +32,9 @@ export default {
         'text-inverse': '#ffffff',
       },
       fontFamily: {
-        body: ['"Jersey 15"', 'monospace'],
-        heading: ['"Jersey 15"', 'monospace'],
-        mono: ['"Jersey 15"', 'monospace'],
+        body: ['"MSW98UI"', '"MS Sans Serif"', 'Tahoma', 'sans-serif'],
+        heading: ['"MSW98UI"', '"MS Sans Serif"', 'Tahoma', 'sans-serif'],
+        mono: ['"MSW98UI"', '"Lucida Console"', '"Courier New"', 'monospace'],
       },
       borderRadius: {
         sm: '6px',
