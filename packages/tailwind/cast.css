@@ -6,11 +6,20 @@
 @source inline("hidden inline sm:hidden sm:inline md:hidden md:inline lg:hidden lg:inline xl:hidden xl:inline space-y-3");
 
 @font-face {
-  font-family: "Jersey 15";
+  font-family: "MSW98UI";
   font-style: normal;
-  font-weight: 400 700;
-  src: url("@expo-google-fonts/jersey-15/400Regular/Jersey15_400Regular.ttf")
-    format("truetype");
+  font-weight: 400;
+  font-display: swap;
+  src: url("../ui/src/shared/assets/fonts/MSW98UI-Regular.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "MSW98UI";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../ui/src/shared/assets/fonts/MSW98UI-Bold.woff2") format("woff2");
 }
 
 @layer base {
