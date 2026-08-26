@@ -2,8 +2,8 @@
 @import "../../../../packages/tailwind/theme.css";
 
 @theme {
-  --font-heading: "Jersey 15", monospace;
-  --font-sans: "Jersey 15", monospace;
+  --font-heading: "MSW98UI", "MS Sans Serif", Tahoma, sans-serif;
+  --font-sans: "MSW98UI", "MS Sans Serif", Tahoma, sans-serif;
   --color-tv-background: #120b1e;
   --color-tv-card: #1a102a;
   --color-tv-surface: #211435;
@@ -15,11 +15,19 @@
 }
 
 @font-face {
-  font-family: "Jersey 15";
+  font-family: "MSW98UI";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../../../../packages/ui/src/shared/assets/fonts/MSW98UI-Regular.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "MSW98UI";
   font-style: normal;
   font-weight: 700;
-  src: url("@expo-google-fonts/jersey-15/400Regular/Jersey15_400Regular.ttf")
-    format("truetype");
+  src: url("../../../../packages/ui/src/shared/assets/fonts/MSW98UI-Bold.woff2")
+    format("woff2");
 }
 
 html,

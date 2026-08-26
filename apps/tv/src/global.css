@@ -6,8 +6,8 @@
 @source "../../../packages/ui/src/native";
 
 @theme {
-  --font-heading: "Jersey 15";
-  --font-sans: "Jersey 15";
+  --font-heading: "MSW98UI";
+  --font-sans: "MSW98UI";
   --color-tv-background: #120b1e;
   --color-tv-card: #1a102a;
   --color-tv-surface: #211435;

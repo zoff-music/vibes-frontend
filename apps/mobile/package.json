@@ -1,9 +1,8 @@
 {
   "name": "@vibes/mobile",
   "main": "expo-router/entry",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "dependencies": {
-    "@expo-google-fonts/jersey-15": "0.4.1",
     "@expo/metro-runtime": "~57.0.11",
     "@react-native-community/slider": "5.2.0",
     "@vibes/api": "workspace:*",
