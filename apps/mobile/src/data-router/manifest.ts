@@ -1,15 +1,28 @@
 import type { RouteModule } from '@vibes/native-router';
 
-const renderedRouteContext = require.context(
+interface RouteContext {
+  (key: string): unknown;
+  keys: () => string[];
+}
+
+interface MetroRequire extends NodeRequire {
+  context: (
+    directory: string,
+    useSubdirectories: boolean,
+    pattern: RegExp,
+  ) => RouteContext;
+}
+
+const renderedRouteContext = (require as MetroRequire).context(
   '../routes',
   true,
   /^\.\/.*\/route\.[jt]sx$/,
-);
-const resourceContext = require.context(
+) as RouteContext;
+const resourceContext = (require as MetroRequire).context(
   '../routes',
   true,
   /^\.\/.*\/resource\.[jt]s$/,
-);
+) as RouteContext;
 
 export function createRouteManifest() {
   const routes = new Map<string, RouteModule>();
@@ -18,7 +31,7 @@ export function createRouteManifest() {
   return routes;
 }
 
-function addRoutes(routes: Map<string, RouteModule>, context: RequireContext) {
+function addRoutes(routes: Map<string, RouteModule>, context: RouteContext) {
   for (const key of context.keys().sort()) {
     const routeId = getRouteId(key);
     if (routeId === '_layout') continue;
@@ -34,9 +47,4 @@ function getRouteId(key: string) {
     .replace(/^\.\//, '')
     .replace(/\/(?:route\.[jt]sx|resource\.[jt]s)$/, '')
     .replaceAll('/', '.');
-}
-
-interface RequireContext {
-  (key: string): unknown;
-  keys: () => string[];
 }

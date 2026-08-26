@@ -1,3 +1,4 @@
+import { msw98uiFontFamily } from '@vibes/ui/shared';
 import { useRouter } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useEffect } from 'react';
@@ -42,12 +43,12 @@ export default function AppTabs() {
       labelStyle={{
         default: {
           color: theme.muted,
-          fontFamily: 'Jersey 15',
+          fontFamily: msw98uiFontFamily,
           fontSize: 11,
         },
         selected: {
           color: theme.text,
-          fontFamily: 'Jersey 15',
+          fontFamily: msw98uiFontFamily,
           fontSize: 11,
         },
       }}

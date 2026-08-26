@@ -248,9 +248,6 @@ importers:
 
   apps/mobile:
     dependencies:
-      '@expo-google-fonts/jersey-15':
-        specifier: 0.4.1
-        version: 0.4.1
       '@expo/metro-runtime':
         specifier: ~57.0.11
         version: 57.0.11(@expo/log-box@57.0.3)(expo@57.0.14)(react-dom@19.2.7(react@19.2.7))(react-native-tvos@0.86.2-0)(react@19.2.7)
@@ -515,9 +512,6 @@ importers:
 
   apps/tv:
     dependencies:
-      '@expo-google-fonts/jersey-15':
-        specifier: 0.4.1
-        version: 0.4.1
       '@react-native-tvos/config-tv':
         specifier: ^0.1.6
         version: 0.1.6(expo@57.0.14)
@@ -1603,9 +1597,6 @@ packages:
 
   '@emnapi/wasi-threads@1.2.2':
     resolution: {integrity: sha512-c95qOXkHdydNKhscBTebqEC1CVAZpyqOfVfBzQ1qgzyl3gfeldUjIggDbIZgDKsHLgnsM+igH7TJ/eAasaVuMA==}
-
-  '@expo-google-fonts/jersey-15@0.4.1':
-    resolution: {integrity: sha512-Nebi0Vh+ns30PD0XNHRNy65ABs0oCWxpJbcj4wdth35vcZed0cbQE4pDg50c70VNpyRIw8aWPL4Zbf+NTaXlNQ==}
 
   '@expo-google-fonts/material-symbols@0.4.42':
     resolution: {integrity: sha512-KZmHZRcthJ3KFZZlpzHjopA9guZgWR9fb3uVZlTR0BNlvG2pw1bnYBCpkze2PB0vRllwGhAM7lWXsfmcWCbXYg==}
@@ -6623,8 +6614,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
-
-  '@expo-google-fonts/jersey-15@0.4.1': {}
 
   '@expo-google-fonts/material-symbols@0.4.42': {}
 

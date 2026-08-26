@@ -1,4 +1,5 @@
-import { Jersey15_400Regular, useFonts } from '@expo-google-fonts/jersey-15';
+import { msw98uiBoldFontFamily, msw98uiFontFamily } from '@vibes/ui/shared';
+import { useFonts } from 'expo-font';
 import { useEffect, useState } from 'react';
 import { BackHandler, StatusBar, View } from 'react-native';
 import { TvHydrateFallback } from '@/components/tv-hydrate-fallback';
@@ -13,7 +14,8 @@ export { loader } from './loader';
 
 export default function TvIndexRoute() {
   const [fontsLoaded] = useFonts({
-    'Jersey 15': Jersey15_400Regular,
+    [msw98uiFontFamily]: require('../../../../../packages/ui/src/shared/assets/fonts/MSW98UI-Regular.ttf'),
+    [msw98uiBoldFontFamily]: require('../../../../../packages/ui/src/shared/assets/fonts/MSW98UI-Bold.ttf'),
   });
   const [session, sessionActions] = useTvSession();
   const [isAIMode, setIsAIMode] = useState(false);

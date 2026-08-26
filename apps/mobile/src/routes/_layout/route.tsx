@@ -1,7 +1,8 @@
-import { Jersey15_400Regular, useFonts } from '@expo-google-fonts/jersey-15';
 import { Route } from '@vibes/native-router';
 import { safeWrapAsync } from '@vibes/shared';
+import { msw98uiBoldFontFamily, msw98uiFontFamily } from '@vibes/ui/shared';
 import { setAudioModeAsync } from 'expo-audio';
+import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import '@/global.css';
 import { AppRouterProvider } from '@/data-router/provider';
@@ -13,7 +14,8 @@ export { ErrorBoundary } from './components/root-error-boundary';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    'Jersey 15': Jersey15_400Regular,
+    [msw98uiFontFamily]: require('../../../../../packages/ui/src/shared/assets/fonts/MSW98UI-Regular.ttf'),
+    [msw98uiBoldFontFamily]: require('../../../../../packages/ui/src/shared/assets/fonts/MSW98UI-Bold.ttf'),
   });
 
   useEffect(() => {
