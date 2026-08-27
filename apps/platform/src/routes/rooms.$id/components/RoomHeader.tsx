@@ -10,11 +10,8 @@ import {
   ArrowLeftIcon,
   Button,
   CastIcon,
-  CircleHalfIcon,
-  MoonIcon,
   SettingsIcon,
   ShareIcon,
-  SunIcon,
   Tooltip,
 } from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -89,7 +86,6 @@ interface RoomHeaderProps {
   onOpenCast: () => void;
   isCasting: boolean;
   castDeviceName?: string | null;
-  themeId: string;
   currentTheme: Theme;
   onToggleDarkMode: () => void;
   showSettings: boolean;
@@ -122,7 +118,6 @@ export const RoomHeader = React.memo(
     onOpenCast,
     isCasting,
     castDeviceName,
-    themeId,
     currentTheme,
     onToggleDarkMode,
     showSettings,
@@ -259,27 +254,6 @@ export const RoomHeader = React.memo(
                   initialCount={displayRoom?.userCount ?? 0}
                   roomId={roomId}
                 />
-              </div>
-
-              <div className="hidden sm:block">
-                <Tooltip
-                  className="inline-flex"
-                  content={`Theme: ${currentTheme.name}`}
-                  side="bottom"
-                >
-                  <Button
-                    onClick={onToggleDarkMode}
-                    variant={themeId === 'auto' ? 'tertiary' : 'secondary'}
-                    size="icon"
-                    aria-label={`Theme: ${currentTheme.name}`}
-                  >
-                    {themeId === 'light' && <SunIcon className="h-5 w-5" />}
-                    {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
-                    {themeId === 'auto' && (
-                      <CircleHalfIcon className="h-5 w-5" />
-                    )}
-                  </Button>
-                </Tooltip>
               </div>
 
               <div className="relative hidden sm:block">
