@@ -423,7 +423,7 @@ export const RoomSettingsMenu = ({
               />
             </div>
 
-            <div className="rounded-xl border border-secondary/25 bg-secondary/5 p-3">
+            <div className="group flex items-center justify-between">
               <SegmentedToggle
                 label="Public Room"
                 description={publicRoomDescription}
@@ -432,12 +432,6 @@ export const RoomSettingsMenu = ({
                 onChange={handlePublicRoomChange}
                 variant="plain-full"
               />
-              {room?.settings.public && (
-                <p className="mt-2 text-3xs text-theme-subtle">
-                  This room can appear under Live now while someone is
-                  listening.
-                </p>
-              )}
             </div>
 
             <div className="border-theme border-t pt-4">
