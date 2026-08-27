@@ -10,7 +10,7 @@ export interface AdminActionData {
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = String(formData.get('intent') ?? '');
-  let setCookieHeader = '';
+  let setCookieHeaders: string[] = [];
   const serverApi = getServerApi(request, {
     fetchLifecycle: {
       afterResponse(apiRequest, response) {
@@ -18,7 +18,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return;
         }
 
-        setCookieHeader = response.headers.get('set-cookie') ?? '';
+        setCookieHeaders = response.headers.getSetCookie();
       },
     },
   });
@@ -34,7 +34,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return redirect('/admin', {
-      headers: getResponseHeaders(setCookieHeader),
+      headers: getResponseHeaders(setCookieHeaders),
     });
   }
 
@@ -58,7 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return redirect('/admin', {
-    headers: getResponseHeaders(setCookieHeader),
+    headers: getResponseHeaders(setCookieHeaders),
   });
 }
 
@@ -70,12 +70,15 @@ function getActionError(error: Error | null, fallback: string) {
   };
 }
 
-function getResponseHeaders(setCookieHeader: string) {
-  if (!setCookieHeader) {
+function getResponseHeaders(setCookieHeaders: string[]) {
+  if (setCookieHeaders.length === 0) {
     return undefined;
   }
 
-  return {
-    'Set-Cookie': setCookieHeader,
-  };
+  const headers = new Headers();
+  for (const setCookieHeader of setCookieHeaders) {
+    headers.append('Set-Cookie', setCookieHeader);
+  }
+
+  return headers;
 }
