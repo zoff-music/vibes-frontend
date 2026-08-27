@@ -1,4 +1,4 @@
-import type { RemoteStatus } from '@vibes/models';
+import type { RemoteStatus, SessionProfile } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../http.server';
 import { getKonamiModeFromCookies } from '../ssr/konamiMode.server';
@@ -17,19 +17,24 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const cspNonce = (context as RootContext | undefined)?.cspNonce;
   const headers: Record<string, string> = {};
   if (cookieHeader) headers.Cookie = cookieHeader;
-  const [remoteError, remote] = await getServerApi(request).get(
-    '/remotes',
-    null,
-    { headers },
-  );
+  const serverApi = getServerApi(request);
+  const [remoteResult, profileResult] = await Promise.all([
+    serverApi.get('/remotes', null, { headers }),
+    serverApi.get('/sessions', null, { headers }),
+  ]);
+  const [remoteError, remote] = remoteResult;
+  const [profileError, profile] = profileResult;
   const remoteStatus: RemoteStatus =
     remoteError || !remote ? createEmptyRemoteStatus() : remote;
+  const sessionProfile: SessionProfile | null =
+    profileError || !profile ? null : profile;
   return {
     theme,
     embedBasePath,
     cspNonce,
     konamiEnabled,
     remoteStatus,
+    sessionProfile,
   };
 }
 

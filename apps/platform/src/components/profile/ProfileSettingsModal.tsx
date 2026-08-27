@@ -7,7 +7,8 @@ import {
   SunIcon,
 } from '@vibes/ui/web';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { useFetcher } from 'react-router';
+import { useFetcher, useRouteLoaderData } from 'react-router';
+import type { RootLoaderData } from '../../root';
 import type { ProfileRouteData } from '../../routes/profile/clientLoader';
 import { useThemeStore } from '../../stores/themeStore';
 
@@ -21,24 +22,33 @@ export function ProfileSettingsModal({
   onClose,
 }: ProfileSettingsModalProps) {
   const fetcher = useFetcher<ProfileRouteData>();
+  const rootData = useRouteLoaderData<RootLoaderData>('root');
   const inputRef = useRef<HTMLInputElement>(null);
-  const [name, setName] = useState('');
+  const initialProfile = rootData?.sessionProfile;
+  const [name, setName] = useState(initialProfile?.name ?? '');
   const themeId = useThemeStore((state) => state.themeId);
   const setTheme = useThemeStore((state) => state.setTheme);
 
   useEffect(() => {
-    if (isOpen && fetcher.state === 'idle' && !fetcher.data) {
+    if (
+      isOpen &&
+      fetcher.state === 'idle' &&
+      !fetcher.data &&
+      !initialProfile
+    ) {
       void fetcher.load('/resources/profile');
     }
-  }, [fetcher, isOpen]);
+  }, [fetcher, initialProfile, isOpen]);
 
   useEffect(() => {
-    if (fetcher.data?.profile) {
-      setName(fetcher.data.profile.name);
+    const profile = fetcher.data?.profile ?? initialProfile;
+    if (profile) {
+      setName(profile.name);
     }
-  }, [fetcher.data]);
+  }, [fetcher.data, initialProfile]);
 
-  const isLoading = fetcher.state === 'loading' && !fetcher.data?.profile;
+  const isLoading =
+    fetcher.state === 'loading' && !fetcher.data?.profile && !initialProfile;
   const isSaving = fetcher.state === 'submitting';
 
   return (
@@ -108,11 +118,12 @@ export function ProfileSettingsModal({
                 {fetcher.data.error}
               </p>
             )}
-            {fetcher.data?.profile && !fetcher.data.error && (
-              <p className="text-theme-subtle text-xs">
-                New songs will show “Added by {fetcher.data.profile.name}”.
-              </p>
-            )}
+            {(fetcher.data?.profile || initialProfile) &&
+              !fetcher.data?.error && (
+                <p className="text-theme-subtle text-xs">
+                  New songs will show “Added by {name}”.
+                </p>
+              )}
             <Button
               className="w-full"
               disabled={isLoading || isSaving || !name.trim()}
