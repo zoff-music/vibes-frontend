@@ -198,7 +198,7 @@ export default function Room() {
 
   const [isSSR, setIsSSR] = useState(true);
   const shouldReduceMotion = useReducedMotion();
-  const { themeId, currentTheme } = useThemeDisplay();
+  const { currentTheme } = useThemeDisplay();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -563,7 +563,6 @@ export default function Room() {
             onOpenCast={handleOpenCast}
             isCasting={isCasting}
             castDeviceName={castDeviceName}
-            themeId={themeId}
             currentTheme={currentTheme}
             onToggleDarkMode={handleToggleDarkMode}
             showSettings={showSettings}
@@ -691,7 +690,6 @@ export default function Room() {
               onOpenCast={handleOpenCast}
               isCasting={isCasting}
               castDeviceName={castDeviceName}
-              themeId={themeId}
               currentTheme={currentTheme}
               onToggleDarkMode={handleToggleDarkMode}
               showSettings={showSettings}
