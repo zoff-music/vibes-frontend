@@ -173,21 +173,21 @@ export function ProfileSettingsModal({
             <ThemeButton
               active={themeId === 'auto'}
               defaultTheme
-              icon={<CircleHalfIcon className="h-5 w-5" />}
+              icon={<CircleHalfIcon className="block h-5 w-5" />}
               label="Auto"
               onSelect={() => setTheme('auto')}
               value="auto"
             />
             <ThemeButton
               active={themeId === 'light'}
-              icon={<SunIcon className="h-5 w-5" />}
+              icon={<SunIcon className="block h-5 w-5" />}
               label="Light"
               onSelect={() => setTheme('light')}
               value="light"
             />
             <ThemeButton
               active={themeId === 'dark'}
-              icon={<MoonIcon className="h-5 w-5" />}
+              icon={<MoonIcon className="block h-5 w-5" />}
               label="Dark"
               onSelect={() => setTheme('dark')}
               value="dark"
@@ -236,8 +236,8 @@ function ThemeButton({
               : 'text-theme-muted hover:bg-theme-surface hover:text-theme',
         )}
       >
-        {icon}
-        <span>{label}</span>
+        <span className="flex h-5 items-center justify-center">{icon}</span>
+        <span className="leading-none">{label}</span>
       </span>
     </label>
   );
