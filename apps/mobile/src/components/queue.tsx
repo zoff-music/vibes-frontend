@@ -81,6 +81,14 @@ const QueueItem = memo(function QueueItem({
         >
           {song.artist ?? song.sourceType}
         </Text>
+        {song.addedBy && (
+          <Text
+            className="font-heading text-2xs text-mobile-muted dark:text-mobile-dark-muted"
+            numberOfLines={1}
+          >
+            Added by {song.addedBy}
+          </Text>
+        )}
       </View>
       <View className="flex-row items-center gap-1.5 rounded-xl bg-accent/10 px-2.5 py-2">
         <ZoffIcon color={theme.accent} name="vote" size={16} />

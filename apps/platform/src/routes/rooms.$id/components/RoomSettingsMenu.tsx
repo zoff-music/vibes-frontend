@@ -14,6 +14,7 @@ import {
   MoonIcon,
   RemoteIcon,
   SegmentedToggle,
+  SettingsIcon,
   ShareIcon,
   SoundCloudIcon,
   SunIcon,
@@ -29,6 +30,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { ProfileSettingsModal } from '../../../components/profile/ProfileSettingsModal';
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import type { Theme } from '../../../stores/themeStore';
 
@@ -76,6 +78,7 @@ export const RoomSettingsMenu = ({
   const { openRemoteControl } = useRemoteControl();
   const [wobblePassword, setWobblePassword] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
   const adminSectionRef = useRef<HTMLDivElement>(null);
   const scrollPanelRef = useRef<HTMLDivElement>(null);
   const canChangePublicRoom = Boolean(room?.hasPassword && isAdmin);
@@ -245,8 +248,28 @@ export const RoomSettingsMenu = ({
           className="h-full overflow-y-scroll overscroll-contain p-5 sm:max-h-settings-max"
         >
           <div className="space-y-4">
+            <Button
+              className="hidden w-full gap-2 font-pixel text-xs sm:flex"
+              onClick={() => setShowProfileSettings(true)}
+              variant="tertiary"
+            >
+              <SettingsIcon className="h-4 w-4" />
+              Your name
+            </Button>
+            <ProfileSettingsModal
+              isOpen={showProfileSettings}
+              onClose={() => setShowProfileSettings(false)}
+            />
             <div className="space-y-3 sm:hidden">
               <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={() => setShowProfileSettings(true)}
+                  variant="tertiary"
+                  className="w-full gap-2 font-pixel text-xs"
+                >
+                  <SettingsIcon className="h-4 w-4" />
+                  Your name
+                </Button>
                 <Button
                   onClick={handleShareRoom}
                   variant="tertiary"
@@ -263,8 +286,6 @@ export const RoomSettingsMenu = ({
                   <RemoteIcon className="h-4 w-4" />
                   Remote control
                 </Button>
-              </div>
-              <div className="flex items-center">
                 <Button
                   onClick={onToggleDarkMode}
                   variant={themeId === 'auto' ? 'tertiary' : 'secondary'}

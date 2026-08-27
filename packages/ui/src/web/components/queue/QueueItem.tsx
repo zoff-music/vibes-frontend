@@ -92,6 +92,11 @@ const QueueItemComponent: React.FC<Props> = ({
             </Tooltip>
           )}
         </div>
+        {song.addedBy && (
+          <p className="mt-1 truncate text-2xs text-theme-subtle">
+            Added by {song.addedBy}
+          </p>
+        )}
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-1.5">

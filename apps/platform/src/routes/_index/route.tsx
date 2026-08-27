@@ -3,6 +3,7 @@ import {
   Button,
   CircleHalfIcon,
   MoonIcon,
+  SettingsIcon,
   SunIcon,
   Tooltip,
 } from '@vibes/ui/web';
@@ -11,6 +12,7 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { SiteFooter } from '../../components/legal/SiteFooter';
+import { ProfileSettingsModal } from '../../components/profile/ProfileSettingsModal';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
@@ -88,6 +90,7 @@ export default function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
   const [isAIMode, setIsAIMode] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
@@ -183,21 +186,28 @@ export default function Home() {
 
   if (konamiEnabled) {
     return (
-      <Suspense fallback={null}>
-        <LazyTerminalHome
-          isAIMode={isAIMode}
-          onJoinRoom={handleJoinRoom}
-          onRoomCodeChange={handleRoomCodeChange}
-          onStartSession={handleStartSession}
-          onToggleAIMode={handleToggleAIMode}
-          pendingRoomSlug={pendingRoomSlug}
-          placeholder={placeholder}
-          providers={providers}
-          publicRooms={publicRooms}
-          roomCode={roomCode}
-          totalListeners={totalListeners}
+      <>
+        <Suspense fallback={null}>
+          <LazyTerminalHome
+            isAIMode={isAIMode}
+            onJoinRoom={handleJoinRoom}
+            onOpenProfileSettings={() => setShowProfileSettings(true)}
+            onRoomCodeChange={handleRoomCodeChange}
+            onStartSession={handleStartSession}
+            onToggleAIMode={handleToggleAIMode}
+            pendingRoomSlug={pendingRoomSlug}
+            placeholder={placeholder}
+            providers={providers}
+            publicRooms={publicRooms}
+            roomCode={roomCode}
+            totalListeners={totalListeners}
+          />
+        </Suspense>
+        <ProfileSettingsModal
+          isOpen={showProfileSettings}
+          onClose={() => setShowProfileSettings(false)}
         />
-      </Suspense>
+      </>
     );
   }
 
@@ -213,7 +223,22 @@ export default function Home() {
     >
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6 sm:py-10">
         <div className="crt-frame relative w-full max-w-3xl rounded-frame p-6 sm:p-10">
-          <div className="absolute top-6 right-6 z-20 sm:top-10 sm:right-10">
+          <div className="absolute top-6 right-6 z-20 flex gap-2 sm:top-10 sm:right-10">
+            <Tooltip
+              align="end"
+              className="inline-flex"
+              content="Your name"
+              side="bottom"
+            >
+              <Button
+                aria-label="Open your name settings"
+                onClick={() => setShowProfileSettings(true)}
+                size="icon"
+                variant="tertiary"
+              >
+                <SettingsIcon className="h-5 w-5" />
+              </Button>
+            </Tooltip>
             <Tooltip
               align="end"
               className="inline-flex"
@@ -232,6 +257,11 @@ export default function Home() {
               </Button>
             </Tooltip>
           </div>
+
+          <ProfileSettingsModal
+            isOpen={showProfileSettings}
+            onClose={() => setShowProfileSettings(false)}
+          />
 
           <div className="text-center">
             <h1

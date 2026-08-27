@@ -173,8 +173,10 @@ export function NativeButton({
 
 interface NativeFieldProps {
   accessibilityLabel?: string;
-  autoCapitalize?: 'none' | 'sentences';
+  autoCapitalize?: 'none' | 'sentences' | 'words';
+  editable?: boolean;
   inputClassName?: string;
+  maxLength?: number;
   onChangeText: (value: string) => void;
   onSubmitEditing?: () => void;
   placeholder: string;
