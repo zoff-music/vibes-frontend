@@ -1,20 +1,11 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
-import {
-  Button,
-  CircleHalfIcon,
-  MoonIcon,
-  SettingsIcon,
-  SunIcon,
-  Tooltip,
-} from '@vibes/ui/web';
+import { Button, SettingsIcon, Tooltip } from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { SiteFooter } from '../../components/legal/SiteFooter';
 import { ProfileSettingsModal } from '../../components/profile/ProfileSettingsModal';
-import { useThemeDisplay } from '../../hooks/useThemeDisplay';
-import { useThemeStore } from '../../stores/themeStore';
 import { getPreviousPath } from '../../utils/navigationHistory';
 import { clientAction } from './action';
 import { HomeRoomControls } from './components/HomeRoomControls';
@@ -95,8 +86,6 @@ export default function Home() {
   const isTabVisible = usePageVisibility();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
-  const { themeId, currentTheme } = useThemeDisplay();
   const previousPath = getPreviousPath();
   const konamiEnabled = useKonamiMode();
   const previousRoomId = previousPath?.match(/^\/([^/]+)$/)?.[1];
@@ -110,10 +99,6 @@ export default function Home() {
     : isAIMode
       ? 'Describe the music you want...'
       : 'Enter Room Name...';
-
-  const handleToggleDarkMode = useCallback(() => {
-    toggleDarkMode();
-  }, [toggleDarkMode]);
 
   useEffect(() => {
     if (!isTabVisible) return;
@@ -227,33 +212,16 @@ export default function Home() {
             <Tooltip
               align="end"
               className="inline-flex"
-              content="Your name"
+              content="Settings"
               side="bottom"
             >
               <Button
-                aria-label="Open your name settings"
+                aria-label="Open settings"
                 onClick={() => setShowProfileSettings(true)}
                 size="icon"
                 variant="tertiary"
               >
                 <SettingsIcon className="h-5 w-5" />
-              </Button>
-            </Tooltip>
-            <Tooltip
-              align="end"
-              className="inline-flex"
-              content={`Theme: ${currentTheme.name}`}
-              side="bottom"
-            >
-              <Button
-                aria-label={`Theme: ${currentTheme.name}`}
-                onClick={handleToggleDarkMode}
-                size="icon"
-                variant={themeId === 'auto' ? 'tertiary' : 'secondary'}
-              >
-                {themeId === 'light' && <SunIcon className="h-5 w-5" />}
-                {themeId === 'dark' && <MoonIcon className="h-5 w-5" />}
-                {themeId === 'auto' && <CircleHalfIcon className="h-5 w-5" />}
               </Button>
             </Tooltip>
           </div>

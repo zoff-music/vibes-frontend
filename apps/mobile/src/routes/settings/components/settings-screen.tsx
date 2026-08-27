@@ -53,8 +53,8 @@ export function SettingsScreen() {
                 <Copy muted>DEVICE</Copy>
                 <Card>
                   <SettingsRow
-                    description="Shown beside songs you add in every room."
-                    label="Your name"
+                    description="Choose how your song additions are credited."
+                    label="Display name"
                     onPress={() => setProfileSettingsVisible(true)}
                   />
                   <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />

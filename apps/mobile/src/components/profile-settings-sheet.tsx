@@ -76,9 +76,9 @@ export function ProfileSettingsSheet({
       <Screen>
         <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
           <View className="flex-row items-center justify-between gap-4 px-5 py-4">
-            <Heading>Your name</Heading>
+            <Heading>Profile</Heading>
             <IconButton
-              accessibilityLabel="Close name settings"
+              accessibilityLabel="Close profile settings"
               icon="close"
               onPress={onClose}
             />
@@ -86,8 +86,8 @@ export function ProfileSettingsSheet({
           <View className="gap-4 px-5">
             <Card>
               <Copy>
-                This name shows who added songs. It follows this device across
-                all rooms, and names do not need to be unique.
+                Your display name appears beside songs you add and follows this
+                device across every room. It does not need to be unique.
               </Copy>
               <Field
                 autoCapitalize="words"
@@ -96,17 +96,17 @@ export function ProfileSettingsSheet({
                 onChangeText={setName}
                 onSubmitEditing={() => void save()}
                 placeholder={
-                  loading && !name ? 'Finding your name…' : 'Your name'
+                  loading && !name ? 'Loading your profile…' : 'Display name'
                 }
                 value={name}
               />
               {error ? <Copy muted>{error}</Copy> : null}
               {name ? (
-                <Copy muted>Songs you add will be credited to {name}.</Copy>
+                <Copy muted>New songs will show “Added by {name}”.</Copy>
               ) : null}
               <Button
                 disabled={loading || !name.trim()}
-                label={loading ? 'Saving…' : 'Save name'}
+                label={loading ? 'Saving…' : 'Save profile'}
                 onPress={() => void save()}
               />
             </Card>
