@@ -717,14 +717,6 @@ const CreateRoom: React.FC = () => {
                   />
 
                   <SegmentedToggle
-                    name="loopQueue"
-                    label="LOOP QUEUE"
-                    description="Restart when queue ends"
-                    checked={settings.loopQueue}
-                    onChange={(checked) => updateSetting('loopQueue', checked)}
-                  />
-
-                  <SegmentedToggle
                     name="removeOnPlay"
                     label="REMOVE PLAYED"
                     description="Removed after play"

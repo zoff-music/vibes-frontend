@@ -34,7 +34,6 @@ export const DEFAULT_ROOM_SETTINGS: DefaultRoomSettings = {
   skipVoteThreshold: 0.5,
   maxContinuousAdds: 3,
   removeOnPlay: false,
-  loopQueue: true,
   allowDuplicates: false,
   enabledSources: ['youtube', 'soundcloud'],
   onlyAdminAddSongs: false,

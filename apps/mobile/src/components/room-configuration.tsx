@@ -123,14 +123,6 @@ export function RoomConfiguration({
           />
           <Divider />
           <SettingsSwitch
-            description="Restart from the first song when the queue ends."
-            disabled={disabled}
-            label="Loop queue"
-            value={settings.loopQueue}
-            onValueChange={(value) => updateSetting('loopQueue', value)}
-          />
-          <Divider />
-          <SettingsSwitch
             description="Remove each song after it plays."
             disabled={disabled}
             label="Remove played"
