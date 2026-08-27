@@ -10,14 +10,11 @@ import { classNames } from '@vibes/shared';
 import {
   Button,
   ChevronDownIcon,
-  CircleHalfIcon,
-  MoonIcon,
   RemoteIcon,
   SegmentedToggle,
   SettingsIcon,
   ShareIcon,
   SoundCloudIcon,
-  SunIcon,
   YouTubeIcon,
 } from '@vibes/ui/web';
 import { motion } from 'framer-motion';
@@ -32,15 +29,11 @@ import {
 } from 'react';
 import { ProfileSettingsModal } from '../../../components/profile/ProfileSettingsModal';
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
-import type { Theme } from '../../../stores/themeStore';
 
 interface RoomSettingsMenuProps {
   adminError: string | null;
   showSettings: boolean;
   onClose: () => void;
-  themeId: string;
-  currentTheme: Theme;
-  onToggleDarkMode: () => void;
   onShareRoom: () => void;
   room: Room | null;
   displayRoom: Room | null;
@@ -59,9 +52,6 @@ export const RoomSettingsMenu = ({
   adminError,
   showSettings,
   onClose,
-  themeId,
-  currentTheme,
-  onToggleDarkMode,
   onShareRoom,
   room,
   displayRoom,
@@ -255,7 +245,7 @@ export const RoomSettingsMenu = ({
                 variant="tertiary"
               >
                 <SettingsIcon className="h-4 w-4" />
-                Your name
+                Device
               </Button>
             </div>
             <ProfileSettingsModal
@@ -270,7 +260,7 @@ export const RoomSettingsMenu = ({
                   className="w-full gap-2 font-pixel text-xs"
                 >
                   <SettingsIcon className="h-4 w-4" />
-                  Your name
+                  Device
                 </Button>
                 <Button
                   onClick={handleShareRoom}
@@ -283,25 +273,10 @@ export const RoomSettingsMenu = ({
                 <Button
                   onClick={handleOpenRemoteControl}
                   variant="tertiary"
-                  className="w-full gap-2 font-pixel text-xs"
+                  className="col-span-2 w-full gap-2 font-pixel text-xs"
                 >
                   <RemoteIcon className="h-4 w-4" />
                   Remote control
-                </Button>
-                <Button
-                  onClick={onToggleDarkMode}
-                  variant={themeId === 'auto' ? 'tertiary' : 'secondary'}
-                  className="w-full gap-2 font-pixel text-xs"
-                  title={`Theme: ${currentTheme.name}`}
-                >
-                  <div className="flex h-4 w-4 items-center justify-center">
-                    {themeId === 'light' && <SunIcon className="h-4 w-4" />}
-                    {themeId === 'dark' && <MoonIcon className="h-4 w-4" />}
-                    {themeId === 'auto' && (
-                      <CircleHalfIcon className="h-4 w-4" />
-                    )}
-                  </div>
-                  {currentTheme.name}
                 </Button>
               </div>
             </div>
