@@ -12,7 +12,6 @@ type BooleanRoomSetting = keyof Pick<
   RoomSettings,
   | 'allowDuplicates'
   | 'democraticSkip'
-  | 'loopQueue'
   | 'onlyAdminAddSongs'
   | 'playlistImport'
   | 'public'
@@ -176,13 +175,6 @@ export function TerminalCreateRoom({
                   label="DEMOCRATIC SKIP"
                   onChange={(checked) =>
                     onBooleanSettingChange('democraticSkip', checked)
-                  }
-                />
-                <TerminalToggle
-                  checked={settings.loopQueue}
-                  label="LOOP QUEUE"
-                  onChange={(checked) =>
-                    onBooleanSettingChange('loopQueue', checked)
                   }
                 />
                 <TerminalToggle

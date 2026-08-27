@@ -110,11 +110,6 @@ export function RoomSettingsModal({ fetcher, isOpen, onClose, room }: Props) {
             label="Democratic skip"
           />
           <Toggle
-            checked={room.settings.loopQueue}
-            onChange={(value) => updateSetting('loopQueue', value)}
-            label="Loop queue"
-          />
-          <Toggle
             checked={room.settings.removeOnPlay}
             onChange={(value) => updateSetting('removeOnPlay', value)}
             label="Remove played"

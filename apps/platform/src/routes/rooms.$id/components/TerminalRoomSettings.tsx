@@ -66,7 +66,6 @@ export function TerminalRoomSettings({
       RoomSettings,
       | 'allowDuplicates'
       | 'democraticSkip'
-      | 'loopQueue'
       | 'onlyAdminAddSongs'
       | 'playlistImport'
       | 'public'
@@ -118,12 +117,6 @@ export function TerminalRoomSettings({
             onChange={(checked) =>
               updateBooleanSetting('democraticSkip', checked)
             }
-          />
-          <TerminalToggle
-            checked={room.settings.loopQueue}
-            disabled={accessRestricted}
-            label="LOOP QUEUE"
-            onChange={(checked) => updateBooleanSetting('loopQueue', checked)}
           />
           <TerminalToggle
             checked={room.settings.allowDuplicates}

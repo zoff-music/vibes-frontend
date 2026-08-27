@@ -348,23 +348,6 @@ export const RoomSettingsMenu = ({
 
             <div className="group flex items-center justify-between">
               <SegmentedToggle
-                label="Loop Queue"
-                description="Cycled back to end"
-                disabled={room?.hasPassword && !isAdmin}
-                checked={room?.settings.loopQueue ?? false}
-                onChange={(checked) =>
-                  room &&
-                  updateRoomSettings({
-                    ...room.settings,
-                    loopQueue: checked,
-                  })
-                }
-                variant="plain-full"
-              />
-            </div>
-
-            <div className="group flex items-center justify-between">
-              <SegmentedToggle
                 label="Allow Duplicates"
                 description="Same song multiple times"
                 disabled={room?.hasPassword && !isAdmin}

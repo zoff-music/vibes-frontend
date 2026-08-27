@@ -135,7 +135,6 @@ export async function clientAction({
     let settings = {};
     if (setting === 'skipAllowed') settings = { skipAllowed: value };
     if (setting === 'democraticSkip') settings = { democraticSkip: value };
-    if (setting === 'loopQueue') settings = { loopQueue: value };
     if (setting === 'removeOnPlay') settings = { removeOnPlay: value };
     if (setting === 'allowDuplicates') settings = { allowDuplicates: value };
     if (setting === 'onlyAdminAddSongs') {

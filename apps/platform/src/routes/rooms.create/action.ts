@@ -65,7 +65,6 @@ export async function clientAction({
     settings: {
       skipAllowed: readBoolean(formData, 'skipAllowed'),
       democraticSkip: readBoolean(formData, 'democraticSkip'),
-      loopQueue: readBoolean(formData, 'loopQueue'),
       removeOnPlay: readBoolean(formData, 'removeOnPlay'),
       allowDuplicates: readBoolean(formData, 'allowDuplicates'),
       enabledSources: readEnabledSources(formData),

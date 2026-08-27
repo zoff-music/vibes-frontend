@@ -7,7 +7,6 @@ export const roomSettingsSchema = yup.object({
   skipVoteThreshold: yup.number().required(),
   maxContinuousAdds: yup.number().required(),
   removeOnPlay: yup.boolean().required(),
-  loopQueue: yup.boolean().required(),
   allowDuplicates: yup.boolean().required(),
   enabledSources: yup.array(sourceTypeSchema.required()).required(),
   onlyAdminAddSongs: yup.boolean().optional(),

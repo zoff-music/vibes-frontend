@@ -18,7 +18,7 @@
           "cast",
           "rooms"
         ],
-        "releaseNotes": "Provider support is now limited to YouTube and SoundCloud, with playback through their official maintained players. This release also improves room, settings, queue, and remote reliability.",
+        "releaseNotes": "Room queues now always cycle while preserving the existing option to remove songs after playback. The redundant queue-loop setting has been removed throughout the app.",
         "promoText": "Create a shared room, shape the queue together, cast to a bigger screen, or use your phone as a remote.",
         "marketingUrl": "https://zoff.me",
         "supportUrl": "https://github.com/zoff-music/vibes-frontend/issues",
