@@ -221,7 +221,7 @@ export function TerminalRoomSettings({
                 [THEME] {currentTheme.name}
               </TerminalButton>
               <TerminalButton onClick={() => setShowProfileSettings(true)}>
-                [YOUR NAME]
+                [DEVICE]
               </TerminalButton>
             </div>
           </div>
