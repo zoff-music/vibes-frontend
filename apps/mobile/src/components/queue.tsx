@@ -81,14 +81,6 @@ const QueueItem = memo(function QueueItem({
         >
           {song.artist ?? song.sourceType}
         </Text>
-        {song.addedBy && (
-          <Text
-            className="font-heading text-2xs text-mobile-muted dark:text-mobile-dark-muted"
-            numberOfLines={1}
-          >
-            Added by {song.addedBy}
-          </Text>
-        )}
       </View>
       <View className="flex-row items-center gap-1.5 rounded-xl bg-accent/10 px-2.5 py-2">
         <ZoffIcon color={theme.accent} name="vote" size={16} />
@@ -99,7 +91,7 @@ const QueueItem = memo(function QueueItem({
     </Pressable>
   );
 
-  if (!providerUrl && !onDelete) {
+  if (!song.addedBy && !providerUrl && !onDelete) {
     return row;
   }
 
@@ -109,6 +101,19 @@ const QueueItem = memo(function QueueItem({
       overshootRight={false}
       renderRightActions={(_progress, _translation, swipeable) => (
         <View className="ml-2 flex-row gap-2">
+          {song.addedBy && (
+            <View className="w-28 items-center justify-center rounded-2xl border-2 border-mobile-border bg-mobile-surface px-2 dark:border-mobile-dark-border dark:bg-mobile-dark-surface">
+              <Text className="font-heading text-2xs text-mobile-muted uppercase dark:text-mobile-dark-muted">
+                Added by
+              </Text>
+              <Text
+                className="mt-1 font-heading text-mobile-text text-xs dark:text-mobile-dark-text"
+                numberOfLines={1}
+              >
+                {song.addedBy}
+              </Text>
+            </View>
+          )}
           {onDelete && (
             <Pressable
               accessibilityLabel={`Delete ${song.title}`}
