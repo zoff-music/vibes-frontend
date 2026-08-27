@@ -1,4 +1,4 @@
-import { classNames } from '@vibes/shared';
+import { classNames, showToast } from '@vibes/shared';
 import {
   Button,
   CircleHalfIcon,
@@ -25,6 +25,7 @@ export function ProfileSettingsModal({
   const fetcher = useFetcher<ProfileRouteData>();
   const rootData = useRouteLoaderData<RootLoaderData>('root');
   const inputRef = useRef<HTMLInputElement>(null);
+  const wasSavingRef = useRef(false);
   const initialProfile = rootData?.sessionProfile;
   const [name, setName] = useState(initialProfile?.name ?? '');
   const themeId = useThemeStore((state) => state.themeId);
@@ -47,6 +48,22 @@ export function ProfileSettingsModal({
       setName(profile.name);
     }
   }, [fetcher.data, initialProfile]);
+
+  useEffect(() => {
+    if (fetcher.state === 'submitting') {
+      wasSavingRef.current = true;
+      return;
+    }
+
+    if (fetcher.state !== 'idle' || !wasSavingRef.current) {
+      return;
+    }
+
+    wasSavingRef.current = false;
+    if (fetcher.data?.profile && !fetcher.data.error) {
+      showToast('Profile saved', 'success');
+    }
+  }, [fetcher.data, fetcher.state]);
 
   const isLoading =
     fetcher.state === 'loading' && !fetcher.data?.profile && !initialProfile;
@@ -122,7 +139,7 @@ export function ProfileSettingsModal({
             {(fetcher.data?.profile || initialProfile) &&
               !fetcher.data?.error && (
                 <p className="text-theme-subtle text-xs">
-                  New songs will show “Added by {name}”.
+                  Songs you add will be credited to {name}.
                 </p>
               )}
             <Button
