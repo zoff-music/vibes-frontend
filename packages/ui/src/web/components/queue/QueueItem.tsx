@@ -45,7 +45,7 @@ const QueueItemComponent: React.FC<Props> = ({
   const voteCount = song.voteCount || 0;
 
   return (
-    <article className="group flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface p-3 transition-colors hover:border-theme-strong sm:gap-3">
+    <article className="group group/attribution relative flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface p-3 transition-colors hover:border-theme-strong sm:gap-3">
       <div className="w-5 shrink-0 text-center sm:w-6">
         <span className="text-theme-subtle text-xs">{position}</span>
       </div>
@@ -92,11 +92,6 @@ const QueueItemComponent: React.FC<Props> = ({
             </Tooltip>
           )}
         </div>
-        {song.addedBy && (
-          <p className="mt-1 truncate text-2xs text-theme-subtle">
-            Added by {song.addedBy}
-          </p>
-        )}
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
@@ -156,6 +151,15 @@ const QueueItemComponent: React.FC<Props> = ({
           </Tooltip>
         )}
       </div>
+
+      {song.addedBy && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-full left-1/2 z-100 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-theme bg-theme-surface px-2.5 py-1.5 font-pixel text-3xs text-theme opacity-0 shadow-xl transition-opacity group-focus-within/attribution:opacity-100 group-hover/attribution:opacity-100"
+        >
+          Added by {song.addedBy}
+        </span>
+      )}
     </article>
   );
 };
