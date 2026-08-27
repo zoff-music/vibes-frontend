@@ -56,6 +56,7 @@ import {
   searchQuerySchema,
   searchResponseSchema,
   searchResultSchema,
+  sessionProfileSchema,
   sessionResponseSchema,
   skipActionResponseSchema,
   skipVoteUpdateSchema,
@@ -63,6 +64,7 @@ import {
   songsListSchema,
   sseQuerySchema,
   statsSchema,
+  updateSessionProfileRequestSchema,
   usersUpdateSchema,
   youTubeSearchQuerySchema,
   youTubeSearchResponseSchema,
@@ -159,6 +161,15 @@ export const API_BASE_URL = `${API_URL}${API_BASE_PATH}`.replace(
 ); // Remove double slashes except after protocol
 
 const endpoints = {
+  '/sessions': {
+    get: {
+      response: sessionProfileSchema,
+    },
+    patch: {
+      request: updateSessionProfileRequestSchema,
+      response: sessionProfileSchema,
+    },
+  },
   '/rooms': {
     post: {
       request: createRoomRequestSchema,

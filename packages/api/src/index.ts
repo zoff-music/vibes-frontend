@@ -8,4 +8,5 @@ export * from './remoteEvents';
 export * from './requests/providerRequests';
 export * from './requests/remoteRequests';
 export * from './requests/roomRequests';
+export * from './requests/sessionRequests';
 export * from './roomEvents';

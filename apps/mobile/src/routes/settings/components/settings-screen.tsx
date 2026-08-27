@@ -17,6 +17,7 @@ import {
   Heading,
   Screen,
 } from '@/components/native';
+import { ProfileSettingsSheet } from '@/components/profile-settings-sheet';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
 import { Toast } from '@/components/toast';
 import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
@@ -37,6 +38,7 @@ export function SettingsScreen() {
   const { forgetRoomAdminPassword, refresh, rememberRoomAdminPassword } =
     useRoomActions();
   const [roomSettingsVisible, setRoomSettingsVisible] = useState(false);
+  const [profileSettingsVisible, setProfileSettingsVisible] = useState(false);
   const [{ preference, warning: themeWarning }, setPreference] =
     useThemePreference();
   const theme = useAppTheme();
@@ -50,6 +52,12 @@ export function SettingsScreen() {
               <View className="gap-2">
                 <Copy muted>DEVICE</Copy>
                 <Card>
+                  <SettingsRow
+                    description="Shown beside songs you add in every room."
+                    label="Your name"
+                    onPress={() => setProfileSettingsVisible(true)}
+                  />
+                  <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
                   <Copy muted>APPEARANCE</Copy>
                   <View className="flex-row gap-2">
                     <View className="flex-1">
@@ -169,6 +177,10 @@ export function SettingsScreen() {
                   onUpdated={refresh}
                 />
               )}
+              <ProfileSettingsSheet
+                visible={profileSettingsVisible}
+                onClose={() => setProfileSettingsVisible(false)}
+              />
             </View>
           </ContentColumn>
         </ScrollView>

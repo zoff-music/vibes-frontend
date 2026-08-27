@@ -14,7 +14,8 @@ import {
   TerminalModal,
   TerminalToggle,
 } from '@vibes/ui/konami';
-import type { KeyboardEvent, RefObject } from 'react';
+import { type KeyboardEvent, type RefObject, useState } from 'react';
+import { ProfileSettingsModal } from '../../../components/profile/ProfileSettingsModal';
 import type { Theme } from '../../../stores/themeStore';
 
 interface TerminalRoomSettingsProps {
@@ -56,6 +57,7 @@ export function TerminalRoomSettings({
   updateRoom,
   updateRoomSettings,
 }: TerminalRoomSettingsProps) {
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
   if (!room) return null;
 
   const accessRestricted = room.hasPassword && !isAdmin;
@@ -218,8 +220,16 @@ export function TerminalRoomSettings({
               <TerminalButton onClick={onToggleDarkMode}>
                 [THEME] {currentTheme.name}
               </TerminalButton>
+              <TerminalButton onClick={() => setShowProfileSettings(true)}>
+                [YOUR NAME]
+              </TerminalButton>
             </div>
           </div>
+
+          <ProfileSettingsModal
+            isOpen={showProfileSettings}
+            onClose={() => setShowProfileSettings(false)}
+          />
 
           {!isAdmin && (
             <TerminalField

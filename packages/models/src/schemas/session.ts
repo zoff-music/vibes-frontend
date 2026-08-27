@@ -26,3 +26,15 @@ export const createSessionRequestSchema = yup.object({
 export type CreateSessionRequest = yup.InferType<
   typeof createSessionRequestSchema
 >;
+
+export const sessionProfileSchema = yup.object({
+  name: yup.string().required(),
+});
+export type SessionProfile = yup.InferType<typeof sessionProfileSchema>;
+
+export const updateSessionProfileRequestSchema = yup.object({
+  name: yup.string().trim().min(1).max(30).required(),
+});
+export type UpdateSessionProfileRequest = yup.InferType<
+  typeof updateSessionProfileRequestSchema
+>;

@@ -34,6 +34,7 @@ import type { HomeActionData } from '../action';
 interface TerminalHomeProps {
   isAIMode: boolean;
   onJoinRoom: (roomId?: string) => void;
+  onOpenProfileSettings: () => void;
   onRoomCodeChange: (value: string) => void;
   onStartSession: () => void;
   onToggleAIMode: () => void;
@@ -48,6 +49,7 @@ interface TerminalHomeProps {
 export function TerminalHome({
   isAIMode,
   onJoinRoom,
+  onOpenProfileSettings,
   onRoomCodeChange,
   onStartSession,
   onToggleAIMode,
@@ -123,6 +125,9 @@ export function TerminalHome({
               </TerminalButton>
               <TerminalButton aria-keyshortcuts="F2" onClick={onToggleAIMode}>
                 {isAIMode ? '[F2] ROOM UPLINK' : '[F2] AI PLAYLIST'}
+              </TerminalButton>
+              <TerminalButton onClick={onOpenProfileSettings}>
+                [PROFILE]
               </TerminalButton>
             </>
           }
