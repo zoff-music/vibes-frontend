@@ -21,4 +21,15 @@ export const palette = {
     surface: '#f2ddff',
     text: '#2a1840',
   },
+  terminal: {
+    accent: '#71f5ad',
+    background: '#010705',
+    border: '#55ffad',
+    card: '#010c08',
+    danger: '#ff718e',
+    muted: '#a6ffd0',
+    pink: '#71f5ad',
+    surface: '#03150d',
+    text: '#dffff0',
+  },
 } as const;

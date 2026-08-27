@@ -13,6 +13,7 @@ export function AppRouterProvider({ children }: PropsWithChildren) {
 }
 
 const initialMatches = [
+  { routeId: 'preferences.konami' },
   { routeId: 'preferences.theme' },
   { routeId: 'preferences.player' },
   { routeId: '_index' },

@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
+import { useKonamiMode } from '@/providers/konami-mode-provider';
 
 export function TabletTopNavigation() {
   const insets = useSafeAreaInsets();
@@ -12,8 +13,11 @@ export function TabletTopNavigation() {
   const router = useRouter();
   const tabletLayout = useTabletLandscapeLayout();
   const { hasRoom } = useRoomNavigation();
+  const { enabled: konamiEnabled } = useKonamiMode();
 
-  if (Platform.OS !== 'android' || !tabletLayout.isTablet) return null;
+  if (Platform.OS !== 'android' || !tabletLayout.isTablet || konamiEnabled) {
+    return null;
+  }
 
   const items = [
     { href: '/', label: hasRoom ? 'Room' : 'Rooms' },

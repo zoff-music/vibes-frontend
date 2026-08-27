@@ -7,6 +7,7 @@ import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
+import { useKonamiMode } from '@/providers/konami-mode-provider';
 
 interface NavigationItem {
   href: '/' | '/remote' | '/settings';
@@ -21,8 +22,9 @@ export function AndroidFloatingNavigation() {
   const theme = useAppTheme();
   const { isTablet } = useTabletLandscapeLayout();
   const { canAddSongs, hasRoom } = useRoomNavigation();
+  const { enabled: konamiEnabled } = useKonamiMode();
 
-  if (Platform.OS !== 'android' || isTablet) return null;
+  if (Platform.OS !== 'android' || isTablet || konamiEnabled) return null;
 
   const items: NavigationItem[] = [
     { href: '/', icon: 'home', label: hasRoom ? 'Room' : 'Rooms' },
