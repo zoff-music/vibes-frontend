@@ -248,14 +248,16 @@ export const RoomSettingsMenu = ({
           className="h-full overflow-y-scroll overscroll-contain p-5 sm:max-h-settings-max"
         >
           <div className="space-y-4">
-            <Button
-              className="hidden w-full gap-2 font-pixel text-xs sm:flex"
-              onClick={() => setShowProfileSettings(true)}
-              variant="tertiary"
-            >
-              <SettingsIcon className="h-4 w-4" />
-              Your name
-            </Button>
+            <div className="hidden sm:block">
+              <Button
+                className="w-full gap-2 font-pixel text-xs"
+                onClick={() => setShowProfileSettings(true)}
+                variant="tertiary"
+              >
+                <SettingsIcon className="h-4 w-4" />
+                Your name
+              </Button>
+            </div>
             <ProfileSettingsModal
               isOpen={showProfileSettings}
               onClose={() => setShowProfileSettings(false)}
