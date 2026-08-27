@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import {
   Button,
   CircleHalfIcon,
@@ -148,24 +149,31 @@ export function ProfileSettingsModal({
           <p className="mt-2 text-theme-muted text-xs">
             Follow your device or keep Zoff in one theme.
           </p>
-          <div className="mt-4 grid grid-cols-3 gap-2" role="radiogroup">
+          <div
+            className="mt-4 grid grid-cols-3 rounded-2xl border border-theme bg-black/5 p-1 dark:bg-white/5"
+            role="radiogroup"
+          >
             <ThemeButton
               active={themeId === 'auto'}
+              defaultTheme
               icon={<CircleHalfIcon className="h-5 w-5" />}
               label="Auto"
-              onClick={() => setTheme('auto')}
+              onSelect={() => setTheme('auto')}
+              value="auto"
             />
             <ThemeButton
               active={themeId === 'light'}
               icon={<SunIcon className="h-5 w-5" />}
               label="Light"
-              onClick={() => setTheme('light')}
+              onSelect={() => setTheme('light')}
+              value="light"
             />
             <ThemeButton
               active={themeId === 'dark'}
               icon={<MoonIcon className="h-5 w-5" />}
               label="Dark"
-              onClick={() => setTheme('dark')}
+              onSelect={() => setTheme('dark')}
+              value="dark"
             />
           </div>
         </section>
@@ -176,23 +184,44 @@ export function ProfileSettingsModal({
 
 interface ThemeButtonProps {
   active: boolean;
+  defaultTheme?: boolean;
   icon: ReactNode;
   label: string;
-  onClick: () => void;
+  onSelect: () => void;
+  value: string;
 }
 
-function ThemeButton({ active, icon, label, onClick }: ThemeButtonProps) {
+function ThemeButton({
+  active,
+  defaultTheme = false,
+  icon,
+  label,
+  onSelect,
+  value,
+}: ThemeButtonProps) {
   return (
-    <Button
-      aria-checked={active}
-      className="min-w-0 flex-col gap-2 px-2 py-3 text-xs"
-      onClick={onClick}
-      role="radio"
-      size="none"
-      variant={active ? 'tertiary-active' : 'tertiary'}
-    >
-      {icon}
-      <span>{label}</span>
-    </Button>
+    <label className="min-w-0 cursor-pointer">
+      <input
+        checked={active}
+        className="peer sr-only"
+        name="profile-theme"
+        onChange={onSelect}
+        type="radio"
+        value={value}
+      />
+      <span
+        className={classNames(
+          'flex min-h-16 min-w-0 flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-2 font-pixel text-xs transition-all peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-secondary',
+          active && !defaultTheme
+            ? 'bg-secondary text-on-secondary shadow-secondary-soft'
+            : active
+              ? 'bg-theme-surface text-theme shadow-soft'
+              : 'text-theme-muted hover:bg-theme-surface hover:text-theme',
+        )}
+      >
+        {icon}
+        <span>{label}</span>
+      </span>
+    </label>
   );
 }
