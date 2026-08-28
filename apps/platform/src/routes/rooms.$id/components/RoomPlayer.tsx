@@ -213,6 +213,53 @@ export const RoomPlayer = React.memo(
       performPlaybackAction('pause');
     }, [performPlaybackAction]);
 
+    useEffect(() => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (
+          event.code !== 'Space' ||
+          event.repeat ||
+          event.altKey ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey
+        ) {
+          return;
+        }
+
+        const target = event.target;
+        if (
+          target instanceof HTMLElement &&
+          target.closest(
+            'input, textarea, select, button, a, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="slider"]',
+          )
+        ) {
+          return;
+        }
+
+        const canPlay =
+          canControlRoomPlayback && Boolean(currentSong || songs.length > 0);
+        if (!canPlay) return;
+
+        event.preventDefault();
+        if (isPlaying && !isPlaybackBlocked) {
+          pause();
+          return;
+        }
+        play();
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [
+      canControlRoomPlayback,
+      currentSong,
+      isPlaybackBlocked,
+      isPlaying,
+      pause,
+      play,
+      songs.length,
+    ]);
+
     const handleLocalPause = useCallback(() => {
       if (displayRoom?.mode === 'host') {
         pause();
