@@ -102,17 +102,16 @@ const QueueItem = memo(function QueueItem({
       renderRightActions={(_progress, _translation, swipeable) => (
         <View className="ml-2 h-18 flex-row items-stretch gap-2">
           {song.addedBy && (
-            <View className="w-28 items-center justify-center overflow-hidden rounded-2xl border-2 border-mobile-border bg-mobile-surface px-2 dark:border-mobile-dark-border dark:bg-mobile-dark-surface">
-              <View className="size-6 items-center justify-center rounded-lg bg-accent/10">
-                <Text className="font-heading text-accent text-xs uppercase">
-                  {song.addedBy.slice(0, 1)}
-                </Text>
-              </View>
+            <View className="w-28 items-center justify-center overflow-hidden rounded-2xl border-2 border-mobile-border bg-mobile-surface px-2 pb-2 dark:border-mobile-dark-border dark:bg-mobile-dark-surface">
+              <Text className="text-center font-heading text-2xs text-mobile-muted uppercase leading-3 dark:text-mobile-dark-muted">
+                Added by
+              </Text>
               <Text
-                className="mt-1 text-center font-heading text-mobile-text text-xs dark:text-mobile-dark-text"
+                className="mt-1 text-center font-heading text-mobile-text text-xs leading-4 dark:text-mobile-dark-text"
+                ellipsizeMode="tail"
                 numberOfLines={1}
               >
-                {`By ${song.addedBy}`}
+                {song.addedBy}
               </Text>
             </View>
           )}
