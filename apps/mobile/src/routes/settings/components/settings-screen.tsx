@@ -419,17 +419,22 @@ function ThemeButton({ active, icon, label, onPress }: ThemeButtonProps) {
       accessibilityState={{ checked: active }}
       className={classNames(
         'min-h-12 flex-row items-center justify-center gap-2 rounded-xl border px-2',
-        active && 'border-accent bg-accent/15',
-        !active &&
+        !konamiEnabled && active && 'border-accent bg-accent/15',
+        !konamiEnabled &&
+          !active &&
           'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
-        konamiEnabled && 'rounded-none border-[#55ffad] bg-[#010c08]',
-        konamiEnabled && active && 'bg-[#71f5ad]/15',
+        konamiEnabled &&
+          !active &&
+          'rounded-none border-[#71f5ad]/40 bg-[#010705]',
+        konamiEnabled &&
+          active &&
+          'rounded-none border-[#71f5ad] bg-[#71f5ad]/15',
       )}
       onPress={onPress}
     >
       <View className="size-5 items-center justify-center">
         <ZoffIcon
-          color={active ? theme.accent : theme.text}
+          color={konamiEnabled ? '#71f5ad' : active ? theme.accent : theme.text}
           name={icon}
           size={18}
         />

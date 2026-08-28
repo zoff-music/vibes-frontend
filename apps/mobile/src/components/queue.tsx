@@ -50,7 +50,7 @@ const QueueItem = memo(function QueueItem({
   const row = (
     <Pressable
       accessibilityLabel={`Vote for ${song.title}`}
-      className="min-h-18 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
+      className="h-18 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
       onPress={() => {
         void triggerSelectionFeedback();
         onVote(song);
@@ -100,17 +100,19 @@ const QueueItem = memo(function QueueItem({
       enableTrackpadTwoFingerGesture
       overshootRight={false}
       renderRightActions={(_progress, _translation, swipeable) => (
-        <View className="ml-2 flex-row gap-2">
+        <View className="ml-2 h-18 flex-row items-stretch gap-2">
           {song.addedBy && (
-            <View className="w-28 items-center justify-center rounded-2xl border-2 border-mobile-border bg-mobile-surface px-2 dark:border-mobile-dark-border dark:bg-mobile-dark-surface">
-              <Text className="font-heading text-2xs text-mobile-muted uppercase dark:text-mobile-dark-muted">
-                Added by
-              </Text>
+            <View className="w-28 items-center justify-center overflow-hidden rounded-2xl border-2 border-mobile-border bg-mobile-surface px-2 dark:border-mobile-dark-border dark:bg-mobile-dark-surface">
+              <View className="size-6 items-center justify-center rounded-lg bg-accent/10">
+                <Text className="font-heading text-accent text-xs uppercase">
+                  {song.addedBy.slice(0, 1)}
+                </Text>
+              </View>
               <Text
-                className="mt-1 font-heading text-mobile-text text-xs dark:text-mobile-dark-text"
+                className="mt-1 text-center font-heading text-mobile-text text-xs dark:text-mobile-dark-text"
                 numberOfLines={1}
               >
-                {song.addedBy}
+                {`By ${song.addedBy}`}
               </Text>
             </View>
           )}

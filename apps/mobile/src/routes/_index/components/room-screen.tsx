@@ -323,10 +323,10 @@ export function RoomScreen() {
         tabletLayout.isTabletLandscape && 'h-20 py-0',
       )}
     >
-      <View className="min-w-0 flex-1 gap-0.5 overflow-hidden">
+      <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">
         <Copy muted>NOW IN</Copy>
         <Text
-          className="min-w-0 flex-1 font-heading text-3xl text-mobile-text dark:text-mobile-dark-text"
+          className="min-w-0 font-heading text-3xl text-mobile-text dark:text-mobile-dark-text"
           ellipsizeMode="tail"
           numberOfLines={1}
         >
@@ -351,14 +351,14 @@ export function RoomScreen() {
   if (compactRoomHeader) {
     roomHeader = (
       <View className="h-[76px] w-full flex-row items-center gap-3 px-4">
-        <View className="min-w-0 flex-1 gap-0.5 overflow-hidden">
+        <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">
           <View className="shrink-0 flex-row items-center gap-2">
             <Copy muted>NOW IN</Copy>
             <View className="size-2 rounded-full bg-accent" />
             <Copy muted>{room.userCount ?? 0}</Copy>
           </View>
           <Text
-            className="min-w-0 flex-1 font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+            className="min-w-0 font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
             ellipsizeMode="tail"
             numberOfLines={1}
           >
