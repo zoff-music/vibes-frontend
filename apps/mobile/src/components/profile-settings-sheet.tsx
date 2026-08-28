@@ -14,12 +14,16 @@ import {
 } from '@/components/native';
 
 interface ProfileSettingsSheetProps {
+  initialProfile: SessionProfile | null;
   onClose: () => void;
+  onSaved: (profile: SessionProfile) => void;
   visible: boolean;
 }
 
 export function ProfileSettingsSheet({
+  initialProfile,
   onClose,
+  onSaved,
   visible,
 }: ProfileSettingsSheetProps) {
   const [, profileFetcher] = useFetcher<SessionProfile>({
@@ -35,6 +39,12 @@ export function ProfileSettingsSheet({
     wasVisible.current = visible;
     if (!opened) return;
 
+    if (initialProfile) {
+      setName(initialProfile.name);
+      setError('');
+      return;
+    }
+
     const loadProfile = async () => {
       setLoading(true);
       setError('');
@@ -47,7 +57,7 @@ export function ProfileSettingsSheet({
       setName(result.data.name);
     };
     void loadProfile();
-  }, [profileFetcher.load, visible]);
+  }, [initialProfile, profileFetcher.load, visible]);
 
   const save = async () => {
     const trimmedName = name.trim();
@@ -64,6 +74,8 @@ export function ProfileSettingsSheet({
       return;
     }
     setName(result.data.name);
+    onSaved(result.data);
+    onClose();
   };
 
   return (

@@ -10,6 +10,7 @@ import {
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
+import { useKonamiMode } from '@/providers/konami-mode-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 export default function AppTabs() {
@@ -18,6 +19,7 @@ export default function AppTabs() {
   const theme = useAppTheme();
   const tabletLayout = useTabletLandscapeLayout();
   const { canAddSongs, hasRoom } = useRoomNavigation();
+  const { enabled: konamiEnabled } = useKonamiMode();
   const showsFloatingAddButton = tabletLayout.isTablet;
   const hidesAddTab = Platform.OS === 'ios' && showsFloatingAddButton;
   const hidesNativeTabs = Platform.OS === 'android';
@@ -31,7 +33,7 @@ export default function AppTabs() {
 
   return (
     <NativeTabs
-      hidden={hidesNativeTabs}
+      hidden={hidesNativeTabs || konamiEnabled}
       blurEffect={
         resolvedScheme === 'light'
           ? 'systemMaterialLight'

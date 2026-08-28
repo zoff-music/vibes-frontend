@@ -1,4 +1,9 @@
 export { NativeAnimatedLogo } from './components/NativeAnimatedLogo';
+export type { NativePresentationMode } from './components/NativePresentationContext';
+export {
+  NativePresentationProvider,
+  useNativePresentation,
+} from './components/NativePresentationContext';
 export type {
   NativeControlSize,
   NativeControlTone,
