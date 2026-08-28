@@ -1,3 +1,5 @@
+import { classNames } from '@vibes/shared';
+import { useNativePresentation } from '@vibes/ui/native';
 import { useEffect, useState } from 'react';
 import { Animated, useWindowDimensions, View } from 'react-native';
 
@@ -6,6 +8,7 @@ interface NativeRetroGridProps {
 }
 
 export function NativeRetroGrid({ paused = false }: NativeRetroGridProps) {
+  const terminal = useNativePresentation() === 'terminal';
   const { height, width } = useWindowDimensions();
   const [gridOffset] = useState(() => new Animated.Value(0));
   const gridHeight = Math.max(height * 1.3, minimumGridHeight);
@@ -45,7 +48,10 @@ export function NativeRetroGrid({ paused = false }: NativeRetroGridProps) {
       >
         {gridColumns.map((position) => (
           <View
-            className="absolute inset-y-0 w-px bg-primary/25 dark:bg-primary/30"
+            className={classNames(
+              'absolute inset-y-0 w-px bg-primary/25 dark:bg-primary/30',
+              terminal && 'bg-[#55ffad]/15 dark:bg-[#55ffad]/15',
+            )}
             key={`column-${position}`}
             style={{ left: `${position}%` }}
           />
@@ -60,7 +66,10 @@ export function NativeRetroGrid({ paused = false }: NativeRetroGridProps) {
         >
           {gridRows.map((position) => (
             <View
-              className="absolute inset-x-0 h-px bg-accent/25 dark:bg-accent/30"
+              className={classNames(
+                'absolute inset-x-0 h-px bg-accent/25 dark:bg-accent/30',
+                terminal && 'bg-[#55ffad]/15 dark:bg-[#55ffad]/15',
+              )}
               key={`row-${position}`}
               style={{ top: position }}
             />

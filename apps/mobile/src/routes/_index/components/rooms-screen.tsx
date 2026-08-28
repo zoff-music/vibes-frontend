@@ -18,16 +18,19 @@ import {
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
+import { useKonamiMode } from '@/providers/konami-mode-provider';
 import type { DiscoveryData } from '@/routes/_index/loader';
 import type { CreateRoomActionData } from '@/routes/rooms.create/action';
 import { AnimatedLogo } from './animated-logo';
 import { CreateRoomSheet } from './create-room-sheet';
 import { RoomScreen } from './room-screen';
+import { TerminalRoomsHome } from './terminal-rooms-home';
 
 export function RoomsScreen() {
   const searchParams = useLocalSearchParams<{ roomId?: string | string[] }>();
   const router = useRouter();
   const theme = useAppTheme();
+  const { enabled: konamiEnabled } = useKonamiMode();
   const { controllerRemote, loading, providers, room, roomId } =
     useRoomSession();
   const { setError, setRoomId, startGeneratedRoom } = useRoomActions();
@@ -188,6 +191,30 @@ export function RoomsScreen() {
   }
   if (loading) {
     submitLabel = 'Checking room…';
+  }
+
+  if (konamiEnabled) {
+    return (
+      <TerminalRoomsHome
+        generationLoading={generationLoading}
+        isAIMode={isAIMode}
+        loading={loading}
+        providers={providers}
+        publicRooms={publicRooms}
+        submitLabel={submitLabel}
+        value={value}
+        onChangeValue={(nextValue) => {
+          setValue(nextValue);
+          setError('');
+        }}
+        onJoinRoom={(roomName) => {
+          setValue(roomName);
+          void joinRoom(roomName);
+        }}
+        onSubmit={submitRoom}
+        onToggleAIMode={toggleAIMode}
+      />
+    );
   }
 
   return (

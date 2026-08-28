@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import {
   NativeButton,
   NativeCard,
@@ -5,6 +6,7 @@ import {
   NativeField,
   NativeHeading,
   NativeIconButton,
+  useNativePresentation,
 } from '@vibes/ui/native';
 import type { PropsWithChildren, ReactNode } from 'react';
 import {
@@ -27,14 +29,34 @@ interface ScreenProps extends PropsWithChildren {
 }
 
 export function Screen({ children, gridPaused = false }: ScreenProps) {
+  const terminal = useNativePresentation() === 'terminal';
   const tabletLayout = useTabletLandscapeLayout();
   const reservesTabletNavigation =
     Platform.OS === 'android' && tabletLayout.isTablet;
   return (
-    <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
+    <View
+      className={classNames(
+        'flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background',
+        terminal && 'bg-[#010705] dark:bg-[#010705]',
+      )}
+    >
       <NativeRetroGrid paused={gridPaused} />
+      {terminal && (
+        <View
+          className="pointer-events-none absolute inset-0 z-10 opacity-20"
+          pointerEvents="none"
+        >
+          {terminalScanLines.map((top) => (
+            <View
+              className="absolute inset-x-0 h-px bg-[#8cffc5]/20"
+              key={top}
+              style={{ top }}
+            />
+          ))}
+        </View>
+      )}
       <View
-        className="flex-1"
+        className="z-20 flex-1"
         {...(reservesTabletNavigation && {
           style: { paddingTop: tabletNavigationHeight },
         })}
@@ -163,3 +185,5 @@ const tabletContentColumnStyle = {
   alignSelf: 'center' as const,
   maxWidth: 760,
 };
+
+const terminalScanLines = Array.from({ length: 260 }, (_, index) => index * 4);

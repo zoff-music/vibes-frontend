@@ -5,7 +5,13 @@ import zoffLogo from '@/assets/images/icon.png';
 import { Button, Card, Copy } from '@/components/native';
 import { useMachineRemoteSettings } from '@/providers/app-provider';
 
-export function DeviceRemoteSettings() {
+interface DeviceRemoteSettingsProps {
+  hideLabel?: boolean;
+}
+
+export function DeviceRemoteSettings({
+  hideLabel = false,
+}: DeviceRemoteSettingsProps) {
   const {
     disableMachineRemote,
     enableMachineRemote,
@@ -18,7 +24,7 @@ export function DeviceRemoteSettings() {
 
   return (
     <View className="gap-3">
-      <Copy muted>REMOTE CONTROL</Copy>
+      {!hideLabel && <Copy muted>REMOTE CONTROL</Copy>}
       <Card>
         <Copy muted>
           Allow one paired device to control this app without becoming another
