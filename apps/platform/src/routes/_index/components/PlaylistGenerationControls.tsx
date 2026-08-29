@@ -143,8 +143,9 @@ export function PlaylistGenerationControls({
         disabled={!prompt.trim() || isGenerating}
         variant="secondary"
         size="large"
+        contentAlignment="between"
         className={classNames(
-          'relative w-full justify-between gap-3 overflow-hidden text-left font-pixel',
+          'relative h-16 w-full gap-3 overflow-hidden font-pixel',
           isGenerating && 'animate-ai-button-glow disabled:opacity-100',
         )}
       >
