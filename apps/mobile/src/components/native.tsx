@@ -1,4 +1,3 @@
-import { classNames } from '@vibes/shared';
 import {
   NativeButton,
   NativeCard,
@@ -8,6 +7,7 @@ import {
   NativeIconButton,
   useNativePresentation,
 } from '@vibes/ui/native';
+import { vars } from 'nativewind';
 import type { PropsWithChildren, ReactNode } from 'react';
 import {
   ActivityIndicator,
@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { NativeRetroGrid } from '@/components/native-retro-grid';
 import type { ZoffIconName } from '@/components/zoff-icon';
+import { terminalThemeVariables } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import {
   tabletNavigationHeight,
@@ -30,15 +31,14 @@ interface ScreenProps extends PropsWithChildren {
 
 export function Screen({ children, gridPaused = false }: ScreenProps) {
   const terminal = useNativePresentation() === 'terminal';
+  const terminalVariables = vars(terminalThemeVariables);
   const tabletLayout = useTabletLandscapeLayout();
   const reservesTabletNavigation =
     Platform.OS === 'android' && tabletLayout.isTablet;
   return (
     <View
-      className={classNames(
-        'flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background',
-        terminal && 'bg-[#010705] dark:bg-[#010705]',
-      )}
+      className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background"
+      {...(terminal ? { style: terminalVariables } : {})}
     >
       <NativeRetroGrid paused={gridPaused} />
       {terminal && (
