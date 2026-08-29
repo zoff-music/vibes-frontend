@@ -144,23 +144,23 @@ export function PlaylistGenerationControls({
         variant="secondary"
         size="large"
         className={classNames(
-          'relative w-full gap-3 overflow-hidden font-pixel',
+          'relative w-full justify-between gap-3 overflow-hidden text-left font-pixel',
           isGenerating && 'animate-ai-button-glow disabled:opacity-100',
         )}
       >
         {isGenerating && (
           <span className="absolute inset-y-0 w-1/3 animate-ai-button-shimmer bg-linear-to-r from-transparent via-white/35 to-transparent" />
         )}
+        <span className="relative">
+          {isGenerating ? generationMessage : 'Generate Room'}
+        </span>
         <span
           className={classNames(
-            'relative',
+            'relative shrink-0',
             isGenerating && 'animate-ai-sparkles',
           )}
         >
           <SparklesIcon className="h-5 w-5" />
-        </span>
-        <span className="relative">
-          {isGenerating ? generationMessage : 'Generate Room'}
         </span>
       </Button>
     </div>

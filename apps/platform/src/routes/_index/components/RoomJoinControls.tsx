@@ -90,12 +90,15 @@ export function RoomJoinControls({
       </div>
 
       <Button
-        className="h-16 w-full gap-4 font-pixel"
+        className={classNames(
+          'h-16 w-full gap-4 font-pixel',
+          !hasRoomCode && 'justify-between text-left',
+        )}
         onClick={handleSubmit}
         size="large"
         variant={hasRoomCode ? 'secondary' : 'primary'}
       >
-        {actionLabel}
+        <span>{actionLabel}</span>
         {!hasRoomCode && (
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white">
             +
