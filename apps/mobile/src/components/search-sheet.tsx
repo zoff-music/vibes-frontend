@@ -1,6 +1,7 @@
 import type { Providers } from '@vibes/models';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { useNativePresentation } from '@vibes/ui/native';
 import { getProviderDisplayName } from '@vibes/ui/shared';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -43,6 +44,7 @@ export function SearchSheet({
   visible,
 }: SearchSheetProps) {
   const theme = useAppTheme();
+  const terminal = useNativePresentation() === 'terminal';
   const [
     {
       enabledProviders,
@@ -78,7 +80,13 @@ export function SearchSheet({
         >
           <View className="mb-6">
             <View className="min-h-13 flex-row items-center justify-between">
-              <Text className="font-heading text-2xl text-mobile-text dark:text-mobile-dark-text">
+              <Text
+                className={classNames(
+                  'font-heading text-2xl',
+                  !terminal && 'text-mobile-text dark:text-mobile-dark-text',
+                  terminal && 'text-[#dffff0]',
+                )}
+              >
                 {isAIMode ? 'Fill playlist' : 'Add music'}
               </Text>
               <IconButton
@@ -98,20 +106,39 @@ export function SearchSheet({
             </View>
           </View>
           {!isAIMode && (
-            <View className="mb-4 flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
+            <View
+              className={classNames(
+                'mb-4 flex-row border p-1',
+                !terminal &&
+                  'rounded-2xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                terminal && 'border-[#55ffad] bg-[#010c08]',
+              )}
+            >
               {enabledProviders.map((source) => (
                 <Pressable
                   accessibilityRole="tab"
                   accessibilityState={{ selected: provider === source }}
                   key={source}
                   className={classNames(
-                    'min-h-11 flex-1 items-center justify-center rounded-xl px-3',
-                    provider === source && 'bg-accent',
+                    'min-h-11 flex-1 items-center justify-center px-3',
+                    !terminal && 'rounded-xl',
+                    !terminal && provider === source && 'bg-accent',
+                    terminal &&
+                      provider === source &&
+                      'border border-[#55ffad] bg-[#71f5ad]',
                     provider !== source && 'bg-transparent',
                   )}
                   onPress={() => setProvider(source)}
                 >
-                  <Text className="font-heading text-mobile-text text-sm dark:text-mobile-dark-text">
+                  <Text
+                    className={classNames(
+                      'font-heading text-sm',
+                      !terminal &&
+                        'text-mobile-text dark:text-mobile-dark-text',
+                      terminal && provider !== source && 'text-[#dffff0]',
+                      terminal && provider === source && 'text-[#03150d]',
+                    )}
+                  >
                     {getProviderDisplayName(source)}
                   </Text>
                 </Pressable>
@@ -122,6 +149,9 @@ export function SearchSheet({
             <View className="min-w-0 flex-1">
               <Field
                 autoCapitalize={isAIMode ? 'sentences' : 'none'}
+                inputClassName="max-h-13 overflow-hidden"
+                multiline={false}
+                numberOfLines={1}
                 value={query}
                 onChangeText={updateQuery}
                 onSubmitEditing={() => void search()}
@@ -142,16 +172,22 @@ export function SearchSheet({
                   checked: isAIMode,
                 }}
                 className={classNames(
-                  'size-13 items-center justify-center rounded-xl border active:opacity-70',
-                  isAIMode && 'border-accent bg-accent',
+                  'size-13 items-center justify-center border active:opacity-70',
+                  !terminal && 'rounded-xl',
+                  !terminal && isAIMode && 'border-accent bg-accent',
+                  terminal && isAIMode && 'border-[#55ffad] bg-[#71f5ad]',
                   !isAIMode &&
+                    !terminal &&
                     'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                  !isAIMode && terminal && 'border-[#55ffad] bg-[#010c08]',
                   !canGenerate && 'opacity-45',
                 )}
                 onPress={toggleAIMode}
               >
                 <ZoffIcon
-                  color={isAIMode ? '#ffffff' : theme.text}
+                  color={
+                    isAIMode ? (terminal ? '#03150d' : '#ffffff') : theme.text
+                  }
                   name="sparkles"
                   size={22}
                 />

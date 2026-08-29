@@ -3,9 +3,28 @@ import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import { classNames } from '@vibes/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import {
+  Keyboard,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  FadeIn,
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import zoffLogo from '@/assets/images/splash-icon.png';
 import {
   Button,
   Card,
@@ -35,18 +54,105 @@ export function RoomsScreen() {
     useRoomSession();
   const { setError, setRoomId, startGeneratedRoom } = useRoomActions();
   const discovery = useRouteLoaderData<DiscoveryData>('_index');
+  const [, discoveryFetcher] = useFetcher<DiscoveryData>({ routeId: '_index' });
   const [, createRoomFetcher] = useFetcher<CreateRoomActionData>({
     routeId: 'rooms.create',
   });
   const submitCreateRoom = createRoomFetcher.submit;
   const [value, setValue] = useState(roomId);
-  const publicRooms = discovery?.publicRooms ?? [];
+  const [discoveryData, setDiscoveryData] = useState(discovery);
+  const publicRooms = discoveryData?.publicRooms ?? [];
   const [createVisible, setCreateVisible] = useState(false);
   const [isAIMode, setIsAIMode] = useState(false);
   const [generationLoading, setGenerationLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const consumedRoomLinkRef = useRef('');
+  const hadRoomRef = useRef(Boolean(room && roomId));
+  const refreshLogoOpacity = useSharedValue(0);
+  const refreshLogoRotation = useSharedValue(0);
+  const refreshLogoTranslateY = useSharedValue(-56);
 
   useEffect(() => setValue(roomId), [roomId]);
+  useEffect(() => setDiscoveryData(discovery), [discovery]);
+
+  const refreshDiscovery = useCallback(async () => {
+    setRefreshing(true);
+    const result = await discoveryFetcher.load();
+    if (result.data) setDiscoveryData(result.data);
+    setRefreshing(false);
+  }, [discoveryFetcher]);
+
+  useEffect(() => {
+    const hasRoom = Boolean(room && roomId);
+    const leftRoom = hadRoomRef.current && !hasRoom;
+    hadRoomRef.current = hasRoom;
+    if (leftRoom) void refreshDiscovery();
+  }, [refreshDiscovery, room, roomId]);
+
+  useEffect(() => {
+    if (refreshing) {
+      refreshLogoOpacity.value = withTiming(1, { duration: 120 });
+      refreshLogoTranslateY.value = withTiming(0, { duration: 140 });
+      refreshLogoRotation.value = withRepeat(
+        withTiming(refreshLogoRotation.value + 360, {
+          duration: 1600,
+          easing: Easing.linear,
+        }),
+        -1,
+      );
+      return;
+    }
+
+    cancelAnimation(refreshLogoRotation);
+    refreshLogoOpacity.value = withTiming(0, { duration: 180 });
+    refreshLogoTranslateY.value = withTiming(-56, { duration: 220 });
+  }, [
+    refreshLogoOpacity,
+    refreshLogoRotation,
+    refreshLogoTranslateY,
+    refreshing,
+  ]);
+
+  const refreshLogoStyle = useAnimatedStyle(() => ({
+    opacity: refreshLogoOpacity.value,
+    transform: [
+      { translateY: refreshLogoTranslateY.value },
+      { rotate: `${refreshLogoRotation.value}deg` },
+    ],
+  }));
+
+  const refreshLogo = (
+    <View className="pointer-events-none absolute top-2 right-0 left-0 z-20 items-center">
+      <Animated.Image
+        className="size-12 rounded-full"
+        source={zoffLogo}
+        style={refreshLogoStyle}
+      />
+    </View>
+  );
+
+  const refreshControl = (
+    <RefreshControl
+      colors={['transparent']}
+      progressBackgroundColor="transparent"
+      refreshing={refreshing}
+      tintColor="transparent"
+      onRefresh={() => void refreshDiscovery()}
+    />
+  );
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (refreshing) return;
+    const pullDistance = Math.min(
+      Math.max(-event.nativeEvent.contentOffset.y, 0),
+      refreshPullDistance,
+    );
+    const pullProgress = pullDistance / refreshPullDistance;
+    refreshLogoOpacity.value = pullProgress;
+    refreshLogoRotation.value = pullProgress * refreshPullRotation;
+    refreshLogoTranslateY.value =
+      -refreshLogoHiddenOffset + pullProgress * refreshLogoHiddenOffset;
+  };
 
   const joinRoom = useCallback(
     async (roomName: string) => {
@@ -201,6 +307,8 @@ export function RoomsScreen() {
         loading={loading}
         providers={providers}
         publicRooms={publicRooms}
+        refreshControl={refreshControl}
+        refreshLogo={refreshLogo}
         submitLabel={submitLabel}
         value={value}
         onChangeValue={(nextValue) => {
@@ -211,6 +319,7 @@ export function RoomsScreen() {
           setValue(roomName);
           void joinRoom(roomName);
         }}
+        onScroll={handleScroll}
         onSubmit={submitRoom}
         onToggleAIMode={toggleAIMode}
       />
@@ -220,9 +329,13 @@ export function RoomsScreen() {
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']}>
+        {refreshLogo}
         <ScrollView
           contentContainerClassName="px-4 pt-3 pb-28"
           keyboardShouldPersistTaps="handled"
+          onScroll={handleScroll}
+          refreshControl={refreshControl}
+          scrollEventThrottle={16}
         >
           <ContentColumn>
             <Animated.View className="gap-5" entering={FadeIn.duration(180)}>
@@ -325,3 +438,6 @@ export function RoomsScreen() {
 }
 
 const roomsPerRow = 2;
+const refreshLogoHiddenOffset = 56;
+const refreshPullDistance = 80;
+const refreshPullRotation = 160;

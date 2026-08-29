@@ -1,6 +1,13 @@
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import {
+  Pressable,
+  type RefreshControlProps,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, ContentColumn, Field, Screen } from '@/components/native';
@@ -17,10 +24,17 @@ interface TerminalRoomsHomeProps {
   loading: boolean;
   onChangeValue: (value: string) => void;
   onJoinRoom: (roomId: string) => void;
+  onScroll: (
+    event: Parameters<
+      NonNullable<ComponentProps<typeof ScrollView>['onScroll']>
+    >[0],
+  ) => void;
   onSubmit: () => void;
   onToggleAIMode: () => void;
   providers: string[];
   publicRooms: PublicRoom[];
+  refreshControl: ReactElement<RefreshControlProps>;
+  refreshLogo: ReactNode;
   submitLabel: string;
   value: string;
 }
@@ -31,10 +45,13 @@ export function TerminalRoomsHome({
   loading,
   onChangeValue,
   onJoinRoom,
+  onScroll,
   onSubmit,
   onToggleAIMode,
   providers,
   publicRooms,
+  refreshControl,
+  refreshLogo,
   submitLabel,
   value,
 }: TerminalRoomsHomeProps) {
@@ -46,9 +63,13 @@ export function TerminalRoomsHome({
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']}>
+        {refreshLogo}
         <ScrollView
           contentContainerClassName="px-3 pt-3 pb-40"
           keyboardShouldPersistTaps="handled"
+          onScroll={onScroll}
+          refreshControl={refreshControl}
+          scrollEventThrottle={16}
         >
           <ContentColumn>
             <NativeTerminalShell

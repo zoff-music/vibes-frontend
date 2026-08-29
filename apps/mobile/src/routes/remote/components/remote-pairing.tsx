@@ -1,7 +1,8 @@
+import { classNames } from '@vibes/shared';
+import { useNativePresentation } from '@vibes/ui/native';
 import { CameraView } from 'expo-camera';
-import { Modal, ScrollView, Text, View } from 'react-native';
+import { Modal, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import {
   Button,
   Card,
@@ -13,6 +14,7 @@ import {
 } from '@/components/native';
 import { Toast, ToastViewport } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
+import { useAppTheme } from '@/hooks/use-app-theme';
 import type {
   ControllerRemoteActions,
   ControllerRemoteState,
@@ -27,6 +29,9 @@ export function RemotePairing({
   controller,
   controllerActions,
 }: RemotePairingProps) {
+  const theme = useAppTheme();
+  const terminal = useNativePresentation() === 'terminal';
+
   return (
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']}>
@@ -37,13 +42,19 @@ export function RemotePairing({
           <ContentColumn>
             <View className="gap-5">
               <View className="items-center gap-2 px-6">
-                <View className="mb-2 size-16 items-center justify-center rounded-3xl border border-accent/40 bg-accent/10">
-                  <ZoffIcon color="#00b4d4" name="remote" size={30} />
+                <View
+                  className={classNames(
+                    'mb-2 size-16 items-center justify-center border',
+                    !terminal && 'rounded-3xl border-accent/40 bg-accent/10',
+                    terminal && 'border-[#55ffad] bg-[#03150d]',
+                  )}
+                >
+                  <ZoffIcon color={theme.accent} name="remote" size={30} />
                 </View>
                 <Heading>Pair a remote</Heading>
-                <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                <Copy muted>
                   Control another Zoff screen without becoming another listener.
-                </Text>
+                </Copy>
               </View>
               <Card>
                 <Copy muted>PAIR THIS PHONE</Copy>
@@ -54,9 +65,21 @@ export function RemotePairing({
                   onPress={() => void controllerActions.openScanner()}
                 />
                 <View className="flex-row items-center gap-3">
-                  <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
+                  <View
+                    className={classNames(
+                      'h-px flex-1',
+                      !terminal && 'bg-accent',
+                      terminal && 'bg-[#55ffad]',
+                    )}
+                  />
                   <Copy muted>OR ENTER A CODE</Copy>
-                  <View className="h-px flex-1 bg-mobile-border dark:bg-mobile-dark-border" />
+                  <View
+                    className={classNames(
+                      'h-px flex-1',
+                      !terminal && 'bg-accent',
+                      terminal && 'bg-[#55ffad]',
+                    )}
+                  />
                 </View>
                 <Field
                   accessibilityLabel="Remote ID"
