@@ -1,6 +1,9 @@
 import { NativePresentationProvider } from '@vibes/ui/native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
+import { vars } from 'nativewind';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NativeKonamiBoot } from '@/components/native-konami-boot';
@@ -9,6 +12,7 @@ import {
   PersistentRoomPlayer,
 } from '@/components/persistent-room-player';
 import { ToastProvider } from '@/components/toast';
+import { palette, terminalThemeVariables } from '@/constants/theme';
 import {
   AppProvider,
   usePlaybackSession,
@@ -26,9 +30,21 @@ import { TerminalNavigation } from './terminal-navigation';
 export function RootContent() {
   const [{ resolvedScheme }] = useThemePreference();
   const { booting, completeBoot, enabled } = useKonamiMode();
+  const terminalVariables = vars(terminalThemeVariables);
+
+  useEffect(() => {
+    const background = enabled
+      ? palette.terminal.background
+      : palette[resolvedScheme].background;
+    void SystemUI.setBackgroundColorAsync(background);
+  }, [enabled, resolvedScheme]);
+
   return (
     <NativePresentationProvider mode={enabled ? 'terminal' : 'default'}>
-      <GestureHandlerRootView className="flex-1 bg-mobile-background dark:bg-mobile-dark-background">
+      <GestureHandlerRootView
+        className="flex-1 bg-mobile-background dark:bg-mobile-dark-background"
+        {...(enabled ? { style: terminalVariables } : {})}
+      >
         <SafeAreaProvider>
           <ThemeProvider
             value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
