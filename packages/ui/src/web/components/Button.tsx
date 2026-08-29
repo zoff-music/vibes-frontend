@@ -16,12 +16,15 @@ export type ButtonVariant =
 
 export type ButtonSize = 'none' | 'small' | 'medium' | 'large' | 'icon';
 
+export type ButtonContentAlignment = 'center' | 'between';
+
 interface Props
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
   title?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
+  contentAlignment?: ButtonContentAlignment;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, Props>(
@@ -32,6 +35,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       variant = 'primary',
       size = 'medium',
       loading = false,
+      contentAlignment = 'center',
       disabled = false,
       type = 'button',
       className = '',
@@ -40,7 +44,12 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
     ref,
   ) => {
     const baseClasses =
-      'inline-flex cursor-pointer items-center justify-center font-normal transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme disabled:cursor-not-allowed disabled:opacity-50';
+      'inline-flex cursor-pointer items-center font-normal transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme disabled:cursor-not-allowed disabled:opacity-50';
+
+    const contentAlignmentClasses: Record<ButtonContentAlignment, string> = {
+      center: 'justify-center',
+      between: 'justify-between text-left',
+    };
 
     const variantClasses: Record<ButtonVariant, string> = {
       primary:
@@ -74,6 +83,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
 
     const classes = classNames(
       baseClasses,
+      contentAlignmentClasses[contentAlignment],
       variantClasses[variant],
       sizeClasses[size],
       className,
