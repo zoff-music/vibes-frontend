@@ -27,6 +27,7 @@ import { PlaybackProgress } from './PlaybackProgress';
 interface RoomQueueProps {
   roomId: string;
   isSSR: boolean;
+  onAddSong?: () => void;
   isAdmin?: boolean;
   initialPlayback?: PlaybackState;
   initialSongs?: Song[];
@@ -37,6 +38,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
   ({
     roomId,
     isSSR,
+    onAddSong,
     isAdmin,
     initialPlayback,
     initialSongs,
@@ -337,6 +339,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               roomId={roomId}
               onVote={handleVote}
               onRemove={handleRemove}
+              onEmptyClick={onAddSong}
               isAdmin={isAdmin}
               votingSongId={votingSongId}
             />

@@ -1,5 +1,6 @@
 import type { Song } from '@vibes/models';
-import { getProviderTrackUrl, safeWrapAsync } from '@vibes/shared';
+import { classNames, getProviderTrackUrl, safeWrapAsync } from '@vibes/shared';
+import { useNativePresentation } from '@vibes/ui/native';
 import { Image } from 'expo-image';
 import { memo, type ReactElement, useCallback } from 'react';
 import type { ListRenderItemInfo } from 'react-native';
@@ -38,6 +39,7 @@ const QueueItem = memo(function QueueItem({
   song,
 }: QueueItemProps) {
   const theme = useAppTheme();
+  const terminal = useNativePresentation() === 'terminal';
   const providerUrl = getProviderTrackUrl(
     song.sourceType,
     song.sourceId,
@@ -50,13 +52,25 @@ const QueueItem = memo(function QueueItem({
   const row = (
     <Pressable
       accessibilityLabel={`Vote for ${song.title}`}
-      className="h-18 flex-row items-center gap-3 rounded-2xl border border-mobile-border bg-mobile-card p-3 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
+      className={classNames(
+        'h-18 flex-row items-center gap-3 border p-3',
+        !terminal &&
+          'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
+        terminal &&
+          'border-[#55ffad]/45 bg-[#010c08] active:border-[#71f5ad] active:bg-[#03150d]',
+      )}
       onPress={() => {
         void triggerSelectionFeedback();
         onVote(song);
       }}
     >
-      <Text className="w-5 text-center font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
+      <Text
+        className={classNames(
+          'w-5 text-center font-heading text-xs',
+          !terminal && 'text-mobile-muted dark:text-mobile-dark-muted',
+          terminal && 'text-[#a6ffd0]/65',
+        )}
+      >
         {index + 1}
       </Text>
       <View className="size-13 overflow-hidden rounded-xl bg-black">
@@ -71,20 +85,40 @@ const QueueItem = memo(function QueueItem({
       <View className="min-w-0 flex-1 gap-1">
         <Text
           numberOfLines={1}
-          className="font-bold font-heading text-mobile-text text-sm dark:text-mobile-dark-text"
+          className={classNames(
+            'font-bold font-heading text-sm',
+            !terminal && 'text-mobile-text dark:text-mobile-dark-text',
+            terminal && 'text-[#dffff0]',
+          )}
         >
           {song.title}
         </Text>
         <Text
           numberOfLines={1}
-          className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted"
+          className={classNames(
+            'font-heading text-xs',
+            !terminal && 'text-mobile-muted dark:text-mobile-dark-muted',
+            terminal && 'text-[#a6ffd0]/65',
+          )}
         >
           {song.artist ?? song.sourceType}
         </Text>
       </View>
-      <View className="flex-row items-center gap-1.5 rounded-xl bg-accent/10 px-2.5 py-2">
+      <View
+        className={classNames(
+          'flex-row items-center gap-1.5 px-2.5 py-2',
+          !terminal && 'rounded-xl bg-accent/10',
+          terminal && 'border border-[#55ffad]/45 bg-[#03150d]',
+        )}
+      >
         <ZoffIcon color={theme.accent} name="vote" size={16} />
-        <Text className="font-heading text-accent text-xs">
+        <Text
+          className={classNames(
+            'font-heading text-xs',
+            !terminal && 'text-accent',
+            terminal && 'text-[#71f5ad]',
+          )}
+        >
           {song.voteCount ?? 0}
         </Text>
       </View>
@@ -102,12 +136,29 @@ const QueueItem = memo(function QueueItem({
       renderRightActions={(_progress, _translation, swipeable) => (
         <View className="ml-2 h-18 flex-row items-stretch gap-2">
           {song.addedBy && (
-            <View className="w-28 items-center justify-center overflow-hidden rounded-2xl border-2 border-mobile-border bg-mobile-surface px-2 pb-2 dark:border-mobile-dark-border dark:bg-mobile-dark-surface">
-              <Text className="text-center font-heading text-2xs text-mobile-muted uppercase leading-3 dark:text-mobile-dark-muted">
+            <View
+              className={classNames(
+                'w-28 items-center justify-center overflow-hidden border-2 px-2 pb-2',
+                !terminal &&
+                  'rounded-2xl border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
+                terminal && 'border-[#55ffad] bg-[#03150d]',
+              )}
+            >
+              <Text
+                className={classNames(
+                  'text-center font-heading text-2xs uppercase leading-3',
+                  !terminal && 'text-mobile-muted dark:text-mobile-dark-muted',
+                  terminal && 'text-[#a6ffd0]/65',
+                )}
+              >
                 Added by
               </Text>
               <Text
-                className="mt-1 text-center font-heading text-mobile-text text-xs leading-4 dark:text-mobile-dark-text"
+                className={classNames(
+                  'mt-1 text-center font-heading text-xs leading-4',
+                  !terminal && 'text-mobile-text dark:text-mobile-dark-text',
+                  terminal && 'text-[#dffff0]',
+                )}
                 ellipsizeMode="tail"
                 numberOfLines={1}
               >

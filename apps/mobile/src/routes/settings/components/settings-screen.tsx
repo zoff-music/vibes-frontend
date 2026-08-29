@@ -495,7 +495,15 @@ function SettingsRow({
         {description && <Copy muted>{description}</Copy>}
       </View>
       {!disabled && showDisclosure && (
-        <Text className="font-heading text-2xl text-accent">›</Text>
+        <Text
+          className={classNames(
+            'font-heading text-2xl',
+            !konamiEnabled && 'text-accent',
+            konamiEnabled && 'text-[#71f5ad]',
+          )}
+        >
+          ›
+        </Text>
       )}
     </Pressable>
   );

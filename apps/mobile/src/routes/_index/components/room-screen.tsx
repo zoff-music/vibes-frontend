@@ -1,6 +1,7 @@
 import type { Song } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { classNames, safeWrapAsync } from '@vibes/shared';
+import { useNativePresentation } from '@vibes/ui/native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Share, Text, View } from 'react-native';
@@ -37,6 +38,7 @@ export function RoomScreen() {
     playerEnabled,
     playerPreferenceLoaded,
   } = usePlaybackSession();
+  const terminal = useNativePresentation() === 'terminal';
   const { room, roomId, songs } = useRoomSession();
   const { resetLocalPlayback, setLocalPlaying } = usePlaybackActions();
   const { leaveRoom, setError } = useRoomActions();
@@ -180,7 +182,14 @@ export function RoomScreen() {
   let roomDetails = null;
   if (room.isGenerating && !playerEnabled) {
     roomDetails = (
-      <View className="h-56 overflow-hidden rounded-2xl border border-accent/60 bg-mobile-card dark:bg-mobile-dark-card">
+      <View
+        className={classNames(
+          'h-56 overflow-hidden border',
+          !terminal &&
+            'rounded-2xl border-accent/60 bg-mobile-card dark:bg-mobile-dark-card',
+          terminal && 'border-[#55ffad] bg-[#010c08]',
+        )}
+      >
         <RoomGenerationProgress />
       </View>
     );
@@ -197,7 +206,11 @@ export function RoomScreen() {
             <Copy muted>NOW PLAYING</Copy>
             <Text
               numberOfLines={1}
-              className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+              className={classNames(
+                'font-heading text-xl',
+                !terminal && 'text-mobile-text dark:text-mobile-dark-text',
+                terminal && 'text-[#dffff0]',
+              )}
             >
               {current?.title ?? 'Nothing playing'}
             </Text>
@@ -285,7 +298,12 @@ export function RoomScreen() {
           {roomDetails}
         </View>
         <View
-          className="min-h-0 overflow-hidden rounded-2xl border border-mobile-border bg-mobile-card/80 dark:border-mobile-dark-border dark:bg-mobile-dark-card/80"
+          className={classNames(
+            'min-h-0 overflow-hidden border',
+            !terminal &&
+              'rounded-2xl border-mobile-border bg-mobile-card/80 dark:border-mobile-dark-border dark:bg-mobile-dark-card/80',
+            terminal && 'border-[#55ffad] bg-[#010c08]/95',
+          )}
           style={{ width: tabletLayout.playlistPaneWidth }}
         >
           <Queue
@@ -326,7 +344,11 @@ export function RoomScreen() {
       <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">
         <Copy muted>NOW IN</Copy>
         <Text
-          className="min-w-0 font-heading text-3xl text-mobile-text dark:text-mobile-dark-text"
+          className={classNames(
+            'min-w-0 font-heading text-3xl',
+            !terminal && 'text-mobile-text dark:text-mobile-dark-text',
+            terminal && 'text-[#dffff0]',
+          )}
           ellipsizeMode="tail"
           numberOfLines={1}
         >
@@ -335,8 +357,21 @@ export function RoomScreen() {
       </View>
       <View className="shrink-0 flex-row items-center justify-end gap-2">
         <Button label="Leave" tone="secondary" onPress={() => void leave()} />
-        <View className="h-13 flex-row items-center gap-2 rounded-xl border border-mobile-border bg-mobile-card/90 px-4 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90">
-          <View className="size-2 rounded-full bg-accent" />
+        <View
+          className={classNames(
+            'h-13 flex-row items-center gap-2 border px-4',
+            !terminal &&
+              'rounded-xl border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
+            terminal && 'border-[#55ffad] bg-[#010c08]',
+          )}
+        >
+          <View
+            className={classNames(
+              'size-2',
+              !terminal && 'rounded-full bg-accent',
+              terminal && 'bg-[#71f5ad]',
+            )}
+          />
           <Copy>{room.userCount ?? 0}</Copy>
         </View>
         <IconButton
@@ -354,11 +389,21 @@ export function RoomScreen() {
         <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">
           <View className="shrink-0 flex-row items-center gap-2">
             <Copy muted>NOW IN</Copy>
-            <View className="size-2 rounded-full bg-accent" />
+            <View
+              className={classNames(
+                'size-2',
+                !terminal && 'rounded-full bg-accent',
+                terminal && 'bg-[#71f5ad]',
+              )}
+            />
             <Copy muted>{room.userCount ?? 0}</Copy>
           </View>
           <Text
-            className="min-w-0 font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+            className={classNames(
+              'min-w-0 font-heading text-xl',
+              !terminal && 'text-mobile-text dark:text-mobile-dark-text',
+              terminal && 'text-[#dffff0]',
+            )}
             ellipsizeMode="tail"
             numberOfLines={1}
           >

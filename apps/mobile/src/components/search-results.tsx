@@ -1,5 +1,6 @@
 import type { SearchResult, SourceType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { useNativePresentation } from '@vibes/ui/native';
 import { getProviderDisplayName } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
 import { Pressable, Text, View } from 'react-native';
@@ -21,6 +22,8 @@ export function SearchResults({
   provider,
   results,
 }: SearchResultsProps) {
+  const terminal = useNativePresentation() === 'terminal';
+
   return (
     <View>
       {results.map((result, index) => (
@@ -33,7 +36,13 @@ export function SearchResults({
           >
             <Pressable
               accessibilityLabel={`Add ${result.title}`}
-              className="min-h-19 flex-row items-center gap-4 rounded-2xl border border-mobile-border bg-mobile-card p-4 active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface"
+              className={classNames(
+                'min-h-19 flex-row items-center gap-4 border p-4',
+                !terminal &&
+                  'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
+                terminal &&
+                  'border-[#55ffad]/45 bg-[#010c08] active:border-[#71f5ad] active:bg-[#03150d]',
+              )}
               onPress={() => void onAdd(result)}
             >
               <View className="h-14 w-18 overflow-hidden rounded-xl bg-black">
@@ -46,19 +55,38 @@ export function SearchResults({
               <View className="min-w-0 flex-1 gap-1">
                 <Text
                   numberOfLines={2}
-                  className="font-bold font-heading text-mobile-text text-sm dark:text-mobile-dark-text"
+                  className={classNames(
+                    'font-bold font-heading text-sm',
+                    !terminal && 'text-mobile-text dark:text-mobile-dark-text',
+                    terminal && 'text-[#dffff0]',
+                  )}
                 >
                   {result.title}
                 </Text>
                 <Text
                   numberOfLines={1}
-                  className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted"
+                  className={classNames(
+                    'font-heading text-xs',
+                    !terminal &&
+                      'text-mobile-muted dark:text-mobile-dark-muted',
+                    terminal && 'text-[#a6ffd0]/65',
+                  )}
                 >
                   {result.channelTitle ?? getProviderDisplayName(result.source)}
                 </Text>
               </View>
-              <View className="size-10 items-center justify-center rounded-xl bg-primary">
-                <ZoffIcon color="#ffffff" name="add" size={16} />
+              <View
+                className={classNames(
+                  'size-10 items-center justify-center',
+                  !terminal && 'rounded-xl bg-primary',
+                  terminal && 'border border-[#55ffad] bg-[#71f5ad]',
+                )}
+              >
+                <ZoffIcon
+                  color={terminal ? '#03150d' : '#ffffff'}
+                  name="add"
+                  size={16}
+                />
               </View>
             </Pressable>
           </Animated.View>

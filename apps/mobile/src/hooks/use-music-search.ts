@@ -275,8 +275,9 @@ export function useMusicSearch({
       setError(result.error);
       return;
     }
-    if (onAdded) await onAdded();
-    if (!onAdded) await refresh();
+    showToast(
+      `Queued ${result.data?.queuedCount ?? playlist.tracks.length} songs. They will appear as the playlist is imported.`,
+    );
     onClose();
   };
 

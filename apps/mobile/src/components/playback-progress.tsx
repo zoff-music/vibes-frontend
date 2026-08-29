@@ -1,4 +1,6 @@
 import Slider from '@react-native-community/slider';
+import { classNames } from '@vibes/shared';
+import { useNativePresentation } from '@vibes/ui/native';
 import {
   formatPlaybackMilliseconds,
   getPlaybackPresentation,
@@ -21,6 +23,7 @@ export function PlaybackProgress({
   seekable = false,
 }: PlaybackProgressProps) {
   const theme = useAppTheme();
+  const terminal = useNativePresentation() === 'terminal';
   const durationMs = duration * 1_000;
   const { boundedPositionMs, progress } = getPlaybackPresentation(
     position,
@@ -54,10 +57,19 @@ export function PlaybackProgress({
             min: 0,
             now: boundedPositionMs,
           }}
-          className="my-3 h-1.5 overflow-hidden rounded-full bg-mobile-surface dark:bg-mobile-dark-surface"
+          className={classNames(
+            'my-3 h-1.5 overflow-hidden',
+            !terminal &&
+              'rounded-full bg-mobile-surface dark:bg-mobile-dark-surface',
+            terminal && 'bg-[#03150d]',
+          )}
         >
           <View
-            className="h-full rounded-full bg-accent"
+            className={classNames(
+              'h-full',
+              !terminal && 'rounded-full bg-accent',
+              terminal && 'bg-[#71f5ad]',
+            )}
             style={{ width: `${progress * 100}%` }}
           />
         </View>

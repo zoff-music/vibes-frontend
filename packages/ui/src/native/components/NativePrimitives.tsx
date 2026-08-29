@@ -202,6 +202,8 @@ interface NativeFieldProps {
   editable?: boolean;
   inputClassName?: string;
   maxLength?: number;
+  multiline?: boolean;
+  numberOfLines?: number;
   onChangeText: (value: string) => void;
   onSubmitEditing?: () => void;
   placeholder: string;
@@ -296,7 +298,7 @@ export const NativeField = forwardRef<TextInput, NativeFieldProps>(
             Boolean(trailingAction) && (size === 'large' ? 'pr-24' : 'pr-16'),
             inputClassName,
           )}
-          placeholderTextColor="#826b9a"
+          placeholderTextColor={terminal ? '#a6ffd0' : '#826b9a'}
           returnKeyType="go"
         />
         {trailingAction && (

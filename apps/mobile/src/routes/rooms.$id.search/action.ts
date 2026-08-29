@@ -26,7 +26,8 @@ type SearchActionInput =
     };
 
 export interface SearchActionData {
-  intent: 'success';
+  intent: 'playlistQueued' | 'success';
+  queuedCount?: number;
 }
 
 export async function action({
@@ -55,19 +56,30 @@ export async function action({
     return { data: { intent: 'success' }, error: '' };
   }
   const requests = createQueueAddRequests(client);
-  const [error] =
-    input.intent === 'addSong'
-      ? await requests.addSong(roomId, input.request, { signal })
-      : await requests.addPlaylist(roomId, input.request, { signal });
-  if (error) {
-    return failure(
-      error,
-      input.intent === 'addSong'
-        ? 'Could not add this song.'
-        : 'Could not add this playlist.',
-    );
+  if (input.intent === 'addSong') {
+    const [error] = await requests.addSong(roomId, input.request, { signal });
+    if (error) return failure(error, 'Could not add this song.');
+
+    return { data: { intent: 'success' }, error: '' };
   }
-  return { data: { intent: 'success' }, error: '' };
+
+  const [error, playlistImport] = await requests.addPlaylist(
+    roomId,
+    input.request,
+    { signal },
+  );
+  if (error) return failure(error, 'Could not queue this playlist.');
+  if (!playlistImport) {
+    return { data: null, error: 'Could not queue this playlist.' };
+  }
+
+  return {
+    data: {
+      intent: 'playlistQueued',
+      queuedCount: playlistImport.queuedCount,
+    },
+    error: '',
+  };
 }
 
 async function failure(

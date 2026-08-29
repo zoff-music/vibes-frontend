@@ -35,7 +35,13 @@ export function NativeRetroGrid({ paused = false }: NativeRetroGridProps) {
   }, [gridOffset, paused]);
 
   return (
-    <View className="absolute inset-0 overflow-hidden" pointerEvents="none">
+    <View
+      className={classNames(
+        'absolute inset-0 overflow-hidden',
+        terminal && 'bg-[#010705]',
+      )}
+      pointerEvents="none"
+    >
       <View
         className="absolute opacity-45"
         style={{

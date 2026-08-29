@@ -42,12 +42,26 @@ export function RootContent() {
   return (
     <NativePresentationProvider mode={enabled ? 'terminal' : 'default'}>
       <GestureHandlerRootView
-        className="flex-1 bg-mobile-background dark:bg-mobile-dark-background"
-        {...(enabled ? { style: terminalVariables } : {})}
+        className={
+          enabled
+            ? 'flex-1 bg-[#010705]'
+            : 'flex-1 bg-mobile-background dark:bg-mobile-dark-background'
+        }
+        {...(enabled
+          ? {
+              style: [terminalVariables, terminalRootBackgroundStyle],
+            }
+          : {})}
       >
         <SafeAreaProvider>
           <ThemeProvider
-            value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
+            value={
+              enabled
+                ? terminalNavigationTheme
+                : resolvedScheme === 'light'
+                  ? DefaultTheme
+                  : DarkTheme
+            }
           >
             <ToastProvider>
               <AppProvider>
@@ -66,6 +80,23 @@ export function RootContent() {
     </NativePresentationProvider>
   );
 }
+
+const terminalRootBackgroundStyle = {
+  backgroundColor: palette.terminal.background,
+};
+
+const terminalNavigationTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: palette.terminal.background,
+    border: palette.terminal.border,
+    card: palette.terminal.card,
+    notification: palette.terminal.accent,
+    primary: palette.terminal.accent,
+    text: palette.terminal.text,
+  },
+};
 
 function RoomRuntime() {
   const { controllerRemote, room } = useRoomSession();

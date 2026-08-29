@@ -37,8 +37,16 @@ export function Screen({ children, gridPaused = false }: ScreenProps) {
     Platform.OS === 'android' && tabletLayout.isTablet;
   return (
     <View
-      className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background"
-      {...(terminal ? { style: terminalVariables } : {})}
+      className={
+        terminal
+          ? 'flex-1 overflow-hidden bg-[#010705]'
+          : 'flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background'
+      }
+      {...(terminal
+        ? {
+            style: [terminalVariables, terminalScreenBackgroundStyle],
+          }
+        : {})}
     >
       <NativeRetroGrid paused={gridPaused} />
       {terminal && (
@@ -179,6 +187,8 @@ export function Empty({ children, loading }: EmptyProps) {
     </View>
   );
 }
+
+const terminalScreenBackgroundStyle = { backgroundColor: '#010705' };
 
 const tabletWidth = 768;
 const tabletContentColumnStyle = {

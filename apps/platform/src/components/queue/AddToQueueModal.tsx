@@ -106,8 +106,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     useState<PlaylistPreview | null>(null);
   const [justAdded, setJustAdded] = useState(false);
   const [addOutcome, setAddOutcome] = useState<AddSongOutcome | null>(null);
-  const [addedPlaylistCount, setAddedPlaylistCount] = useState(0);
-  const [existingPlaylistCount, setExistingPlaylistCount] = useState(0);
+  const [queuedPlaylistCount, setQueuedPlaylistCount] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const songs = useQueueStore((state) => state.songs);
   const songCountCutoff = roomGenerationMaxExistingSongs + 1;
@@ -165,8 +164,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         setError(null);
         setJustAdded(false);
         setAddOutcome(null);
-        setAddedPlaylistCount(0);
-        setExistingPlaylistCount(0);
+        setQueuedPlaylistCount(0);
       }, 300);
     }
   }, [isVisible]);
@@ -292,13 +290,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         return;
       }
 
-      const addedCount = songFetcher.data.addPlaylist.results.filter(
-        (result) => result.outcome === 'added',
-      ).length;
-      setAddedPlaylistCount(addedCount);
-      setExistingPlaylistCount(
-        songFetcher.data.addPlaylist.results.length - addedCount,
-      );
+      setQueuedPlaylistCount(songFetcher.data.addPlaylist.queuedCount);
       setJustAdded(true);
       const timeout = window.setTimeout(onClose, 1600);
       return () => window.clearTimeout(timeout);
@@ -563,16 +555,9 @@ export const AddToQueueModal: React.FC<Props> = ({
     successTitle = 'Song already exists, vote already counted';
     successDescription = 'Your existing vote is still counted';
   }
-  if (existingPlaylistCount > 0) {
-    successTitle = 'Playlist songs are already in the queue';
-    successDescription = 'All of these songs were already in the queue';
-  }
-  if (addedPlaylistCount > 0) {
-    successTitle = `Added ${addedPlaylistCount} songs to the queue!`;
-    successDescription = 'The playlist is ready for everyone in the room';
-    if (existingPlaylistCount > 0) {
-      successDescription = `${existingPlaylistCount} songs were already in the queue`;
-    }
+  if (queuedPlaylistCount > 0) {
+    successTitle = `Queued ${queuedPlaylistCount} songs`;
+    successDescription = 'Songs will appear as the playlist is imported';
   }
 
   if (!isVisible) return null;

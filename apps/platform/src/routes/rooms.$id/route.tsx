@@ -596,6 +596,7 @@ export default function Room() {
               <RoomQueue
                 roomId={id}
                 isSSR={isSSR}
+                onAddSong={handleAddSong}
                 isAdmin={isAdmin}
                 initialPlayback={loaderData.playback}
                 initialSongs={loaderData.songs}
@@ -739,6 +740,7 @@ export default function Room() {
                     <RoomQueue
                       roomId={id}
                       isSSR={isSSR}
+                      onAddSong={handleAddSong}
                       isAdmin={isAdmin}
                       initialPlayback={loaderData.playback}
                       initialSongs={loaderData.songs}
@@ -750,6 +752,7 @@ export default function Room() {
                         <RoomQueue
                           roomId={id}
                           isSSR={isSSR}
+                          onAddSong={handleAddSong}
                           isAdmin={isAdmin}
                           initialPlayback={loaderData.playback}
                           initialSongs={loaderData.songs}
