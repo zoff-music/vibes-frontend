@@ -1,5 +1,11 @@
+import { getRoomAnalyticsPath } from '@vibes/api';
 import { NativePresentationProvider } from '@vibes/ui/native';
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+  usePathname,
+} from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { vars } from 'nativewind';
@@ -13,6 +19,7 @@ import {
 } from '@/components/persistent-room-player';
 import { ToastProvider } from '@/components/toast';
 import { palette, terminalThemeVariables } from '@/constants/theme';
+import { mobileAnalytics } from '@/lib/analytics';
 import {
   AppProvider,
   usePlaybackSession,
@@ -104,6 +111,7 @@ function RoomRuntime() {
   const hasActiveSession = Boolean(room || controllerRemote?.roomId);
   return (
     <>
+      <MobileAnalytics />
       {hasActiveSession && playerPreferenceLoaded && playerEnabled && (
         <ActiveRoomKeepAwake />
       )}
@@ -118,4 +126,23 @@ function RoomRuntime() {
       <TerminalNavigation />
     </>
   );
+}
+
+function MobileAnalytics() {
+  const pathname = usePathname();
+  const { controllerRemote, roomId } = useRoomSession();
+  const analyticsPath = roomId
+    ? getRoomAnalyticsPath(roomId)
+    : controllerRemote?.roomId
+      ? getRoomAnalyticsPath(controllerRemote.roomId)
+      : pathname;
+
+  useEffect(() => {
+    void mobileAnalytics.trackPageview({
+      path: analyticsPath,
+      surface: 'mobile',
+    });
+  }, [analyticsPath]);
+
+  return null;
 }

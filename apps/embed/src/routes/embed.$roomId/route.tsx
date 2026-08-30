@@ -1,3 +1,5 @@
+import { getRoomAnalyticsPath, plausibleClient } from '@vibes/api';
+import { useEffect } from 'react';
 import { useLoaderData } from 'react-router';
 import { clientAction } from './action';
 import { embedRoomClientLoader } from './clientLoader';
@@ -18,5 +20,13 @@ export { shouldRevalidate };
 
 export default function EmbedRoomRoute() {
   const loaderData = useLoaderData<typeof loader>();
+
+  useEffect(() => {
+    void plausibleClient.trackPageview({
+      path: getRoomAnalyticsPath(loaderData.roomId),
+      surface: 'embed',
+    });
+  }, [loaderData.roomId]);
+
   return <EmbedRoomView loaderData={loaderData} />;
 }

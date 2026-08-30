@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zoff TV",
     "slug": "vibes-tv",
-    "version": "0.1.10",
+    "version": "0.1.11",
     "orientation": "landscape",
     "icon": "./assets/icon.png",
     "scheme": "zoff-tv",

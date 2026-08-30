@@ -1,9 +1,11 @@
+import { getRoomAnalyticsPath } from '@vibes/api';
 import { msw98uiBoldFontFamily, msw98uiFontFamily } from '@vibes/ui/shared';
 import { useFonts } from 'expo-font';
 import { useEffect, useState } from 'react';
 import { BackHandler, StatusBar, View } from 'react-native';
 import { TvHydrateFallback } from '@/components/tv-hydrate-fallback';
 import { useTvSession } from '@/hooks/use-tv-session';
+import { tvAnalytics } from '@/lib/analytics';
 import { LandingScreen } from '@/screens/landing-screen';
 import { RoomScreen } from '@/screens/room-screen';
 import '@/global.css';
@@ -19,6 +21,11 @@ export default function TvIndexRoute() {
   });
   const [session, sessionActions] = useTvSession();
   const [isAIMode, setIsAIMode] = useState(false);
+
+  useEffect(() => {
+    const path = session.roomId ? getRoomAnalyticsPath(session.roomId) : '/tv';
+    void tvAnalytics.trackPageview({ path, surface: 'tv' });
+  }, [session.roomId]);
 
   useEffect(() => {
     if (!session.roomId) return;
