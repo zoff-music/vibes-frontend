@@ -1,25 +1,23 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-export const emptyObjectSchema = yup.object({}).nullable().optional();
-export type EmptyObject = yup.InferType<typeof emptyObjectSchema>;
+export const emptyObjectSchema = z.compile(z.object({}).nullable().optional());
+export type EmptyObject = z.infer<typeof emptyObjectSchema>;
 
-export const connectedSchema = yup.object({
-  time: yup.number().required(),
-});
-export type Connected = yup.InferType<typeof connectedSchema>;
+export const connectedSchema = z.compile(z.object({ time: z.number() }));
+export type Connected = z.infer<typeof connectedSchema>;
 
-export const eventCursorSchema = yup.object({
-  id: yup.string().required(),
-});
-export type EventCursor = yup.InferType<typeof eventCursorSchema>;
+export const eventCursorSchema = z.compile(z.object({ id: z.string() }));
+export type EventCursor = z.infer<typeof eventCursorSchema>;
 
-export const messageResponseSchema = yup.string();
-export type MessageResponse = yup.InferType<typeof messageResponseSchema>;
+export const messageResponseSchema = z.compile(z.string());
+export type MessageResponse = z.infer<typeof messageResponseSchema>;
 
-export const errorCodeResponseSchema = yup.object({
-  namespace: yup.string().required(),
-  error: yup.string().required(),
-  message: yup.string().required(),
-  propagate: yup.boolean().optional(),
-});
-export type ErrorCodeResponse = yup.InferType<typeof errorCodeResponseSchema>;
+export const errorCodeResponseSchema = z.compile(
+  z.object({
+    namespace: z.string(),
+    error: z.string(),
+    message: z.string(),
+    propagate: z.boolean().optional(),
+  }),
+);
+export type ErrorCodeResponse = z.infer<typeof errorCodeResponseSchema>;

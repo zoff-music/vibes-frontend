@@ -15,8 +15,7 @@
   "dependencies": {
     "@vibes/models": "workspace:*",
     "@vibes/shared": "workspace:*",
-    "wiretyped": "0.3.4",
-    "yup": "1.7.1"
+    "wiretyped": "0.3.4"
   },
   "peerDependencies": {
     "react": "^19.2.7"

@@ -1,9 +1,11 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-export const statsSchema = yup.object({
-  totalListeners: yup.number().integer().min(0).required(),
-  totalSongs: yup.number().integer().min(0).required(),
-  totalRooms: yup.number().integer().min(0).required(),
-});
+export const statsSchema = z.compile(
+  z.object({
+    totalListeners: z.int().min(0),
+    totalSongs: z.int().min(0),
+    totalRooms: z.int().min(0),
+  }),
+);
 
-export type Stats = yup.InferType<typeof statsSchema>;
+export type Stats = z.infer<typeof statsSchema>;

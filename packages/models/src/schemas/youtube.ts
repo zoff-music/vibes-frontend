@@ -1,23 +1,25 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 import { playbackRestrictionSchema } from './songs';
 
-export const youTubeVideoSchema = yup.object({
-  id: yup.string().required(),
-  providerUrl: yup.string().optional(),
-  title: yup.string().required(),
-  channelTitle: yup.string().required(),
-  thumbnailUrl: yup.string().required(),
-  duration: yup.string().optional(), // ISO 8601 duration
-  playbackRestriction: playbackRestrictionSchema,
-});
-export type YouTubeVideo = yup.InferType<typeof youTubeVideoSchema>;
+export const youTubeVideoSchema = z.compile(
+  z.object({
+    id: z.string(),
+    providerUrl: z.string().optional(),
+    title: z.string(),
+    channelTitle: z.string(),
+    thumbnailUrl: z.string(),
+    duration: z.string().optional(),
+    playbackRestriction: playbackRestrictionSchema,
+  }),
+);
+export type YouTubeVideo = z.infer<typeof youTubeVideoSchema>;
 
-export const youTubeSearchResponseSchema = yup.array(youTubeVideoSchema);
-export type YouTubeSearchResponse = yup.InferType<
-  typeof youTubeSearchResponseSchema
->;
+export const youTubeSearchResponseSchema = z.compile(
+  z.array(youTubeVideoSchema),
+);
+export type YouTubeSearchResponse = z.infer<typeof youTubeSearchResponseSchema>;
 
-export const youTubeSearchQuerySchema = yup.object({
-  q: yup.string().trim().min(3).required(),
-});
-export type YouTubeSearchQuery = yup.InferType<typeof youTubeSearchQuerySchema>;
+export const youTubeSearchQuerySchema = z.compile(
+  z.object({ q: z.string().trim().min(3) }),
+);
+export type YouTubeSearchQuery = z.infer<typeof youTubeSearchQuerySchema>;

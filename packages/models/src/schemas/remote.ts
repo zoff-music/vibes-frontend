@@ -1,69 +1,70 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-export const remoteStatusSchema = yup.object({
-  enabled: yup.boolean().required(),
-  id: yup.string().default(''),
-  currentRoomId: yup.string().default(''),
-  currentSongId: yup.string().default(''),
-  playbackPositionMs: yup.number().default(0),
-  playbackIsPlaying: yup.boolean().default(false),
-  playbackObservedAt: yup.string().default(''),
-  online: yup.boolean().required(),
-  paired: yup.boolean().default(false),
-});
-export type RemoteStatus = yup.InferType<typeof remoteStatusSchema>;
+const remoteStatusShape = {
+  enabled: z.boolean(),
+  id: z.string().default(''),
+  currentRoomId: z.string().default(''),
+  currentSongId: z.string().default(''),
+  playbackPositionMs: z.number().default(0),
+  playbackIsPlaying: z.boolean().default(false),
+  playbackObservedAt: z.string().default(''),
+  online: z.boolean(),
+  paired: z.boolean().default(false),
+};
 
-export const remoteSessionSchema = remoteStatusSchema.concat(
-  yup.object({
-    controllerToken: yup.string().required(),
+export const remoteStatusSchema = z.compile(z.object(remoteStatusShape));
+export type RemoteStatus = z.infer<typeof remoteStatusSchema>;
+
+export const remoteSessionSchema = z.compile(
+  z.object({ ...remoteStatusShape, controllerToken: z.string() }),
+);
+export type RemoteSession = z.infer<typeof remoteSessionSchema>;
+
+export const remotePairingSchema = z.compile(
+  z.object({
+    id: z.string(),
+    currentRoomId: z.string().default(''),
+    currentSongId: z.string().default(''),
+    playbackPositionMs: z.number().default(0),
+    playbackIsPlaying: z.boolean().default(false),
+    playbackObservedAt: z.string().default(''),
+    pairingExpiresAt: z.string(),
+    lastSeenAt: z.string(),
+    pairingToken: z.string(),
+    pairingCode: z.string(),
   }),
 );
-export type RemoteSession = yup.InferType<typeof remoteSessionSchema>;
+export type RemotePairing = z.infer<typeof remotePairingSchema>;
 
-export const remotePairingSchema = yup.object({
-  id: yup.string().required(),
-  currentRoomId: yup.string().default(''),
-  currentSongId: yup.string().default(''),
-  playbackPositionMs: yup.number().default(0),
-  playbackIsPlaying: yup.boolean().default(false),
-  playbackObservedAt: yup.string().default(''),
-  pairingExpiresAt: yup.string().required(),
-  lastSeenAt: yup.string().required(),
-  pairingToken: yup.string().required(),
-  pairingCode: yup.string().required(),
-});
-export type RemotePairing = yup.InferType<typeof remotePairingSchema>;
+export const remotePairingRequestSchema = z.compile(
+  z.object({
+    pairingToken: z.string().optional(),
+    pairingCode: z.string().optional(),
+  }),
+);
+export type RemotePairingRequest = z.infer<typeof remotePairingRequestSchema>;
 
-export const remotePairingRequestSchema = yup.object({
-  pairingToken: yup.string().optional(),
-  pairingCode: yup.string().optional(),
-});
-export type RemotePairingRequest = yup.InferType<
-  typeof remotePairingRequestSchema
->;
+export const remoteUpdateRequestSchema = z.compile(
+  z.object({
+    roomId: z.string().optional(),
+    currentSongId: z.string().optional(),
+    playbackPositionMs: z.number().optional(),
+    playbackIsPlaying: z.boolean().optional(),
+  }),
+);
+export type RemoteUpdateRequest = z.infer<typeof remoteUpdateRequestSchema>;
 
-export const remoteUpdateRequestSchema = yup.object({
-  roomId: yup.string().optional(),
-  currentSongId: yup.string().optional(),
-  playbackPositionMs: yup.number().optional(),
-  playbackIsPlaying: yup.boolean().optional(),
-});
-export type RemoteUpdateRequest = yup.InferType<
-  typeof remoteUpdateRequestSchema
->;
-
-export const remoteEventSchema = yup.object({
-  type: yup
-    .string()
-    .oneOf(['remote_room_update', 'remote_state_update'])
-    .required(),
-  roomId: yup.string().default(''),
-  origin: yup.string().oneOf(['machine', 'controller']).required(),
-  online: yup.boolean().default(true),
-  paired: yup.boolean().default(false),
-  currentSongId: yup.string().default(''),
-  playbackPositionMs: yup.number().default(0),
-  playbackIsPlaying: yup.boolean().default(false),
-  playbackObservedAt: yup.string().default(''),
-});
-export type RemoteEvent = yup.InferType<typeof remoteEventSchema>;
+export const remoteEventSchema = z.compile(
+  z.object({
+    type: z.enum(['remote_room_update', 'remote_state_update']),
+    roomId: z.string().default(''),
+    origin: z.enum(['machine', 'controller']),
+    online: z.boolean().default(true),
+    paired: z.boolean().default(false),
+    currentSongId: z.string().default(''),
+    playbackPositionMs: z.number().default(0),
+    playbackIsPlaying: z.boolean().default(false),
+    playbackObservedAt: z.string().default(''),
+  }),
+);
+export type RemoteEvent = z.infer<typeof remoteEventSchema>;

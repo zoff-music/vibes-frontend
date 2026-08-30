@@ -1,95 +1,101 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 import { sourceTypeSchema } from './songs';
 
-export const roomSettingsSchema = yup.object({
-  skipAllowed: yup.boolean().required(),
-  democraticSkip: yup.boolean().required(),
-  skipVoteThreshold: yup.number().required(),
-  maxContinuousAdds: yup.number().required(),
-  removeOnPlay: yup.boolean().required(),
-  allowDuplicates: yup.boolean().required(),
-  enabledSources: yup.array(sourceTypeSchema.required()).required(),
-  onlyAdminAddSongs: yup.boolean().optional(),
-  public: yup.boolean().required(),
-  playlistImport: yup.boolean().required(),
-});
-export type RoomSettings = yup.InferType<typeof roomSettingsSchema>;
+const roomSettingsShape = {
+  skipAllowed: z.boolean(),
+  democraticSkip: z.boolean(),
+  skipVoteThreshold: z.number(),
+  maxContinuousAdds: z.number(),
+  removeOnPlay: z.boolean(),
+  allowDuplicates: z.boolean(),
+  enabledSources: z.array(sourceTypeSchema),
+  onlyAdminAddSongs: z.boolean().optional(),
+  public: z.boolean(),
+  playlistImport: z.boolean(),
+};
 
-export const roomSchema = yup.object({
-  id: yup.string().required(),
-  name: yup.string().required(),
-  mode: yup
-    .string()
-    .transform((value) => (!value ? 'server' : value))
-    .oneOf(['server', 'host'])
-    .default('server'),
-  hostId: yup.string().nullable().optional(),
-  createdAt: yup.string().required(),
-  hasPassword: yup.boolean().required(),
-  settings: roomSettingsSchema.required(),
-  userCount: yup.number().optional(),
-  userId: yup.string().optional(),
-  isAdmin: yup.boolean().optional(),
-  activeSources: yup.array(sourceTypeSchema.required()).optional(),
-  isGenerating: yup.boolean().default(false),
-  generationCount: yup.number().integer().min(0).default(0),
-  roomGenerationMaxDailyCount: yup.number().integer().min(1).required(),
-  roomGenerationMaxExistingSongs: yup.number().integer().min(0).required(),
-  generationError: yup.string().optional(),
-});
-export type Room = yup.InferType<typeof roomSchema>;
+export const roomSettingsSchema = z.compile(z.object(roomSettingsShape));
+export type RoomSettings = z.infer<typeof roomSettingsSchema>;
 
-export const roomHostUpdateSchema = yup.object({
-  userId: yup.string().required(),
-  message: yup.string().required(),
-});
-export type RoomHostUpdate = yup.InferType<typeof roomHostUpdateSchema>;
+const roomModeSchema = z.preprocess(
+  (value) => value || 'server',
+  z.enum(['server', 'host']).default('server'),
+);
 
-export const roomNameReservationSchema = yup.object({
-  name: yup.string().required(),
-  token: yup.string().required(),
-  expiresAt: yup.string().required(),
-});
-export type RoomNameReservation = yup.InferType<
-  typeof roomNameReservationSchema
->;
+export const roomSchema = z.compile(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    mode: roomModeSchema,
+    hostId: z.string().nullable().optional(),
+    createdAt: z.string(),
+    hasPassword: z.boolean(),
+    settings: roomSettingsSchema,
+    userCount: z.number().optional(),
+    userId: z.string().optional(),
+    isAdmin: z.boolean().optional(),
+    activeSources: z.array(sourceTypeSchema).optional(),
+    isGenerating: z.boolean().default(false),
+    generationCount: z.int().min(0).default(0),
+    roomGenerationMaxDailyCount: z.int().min(1),
+    roomGenerationMaxExistingSongs: z.int().min(0),
+    generationError: z.string().optional(),
+  }),
+);
+export type Room = z.infer<typeof roomSchema>;
 
-export const roomNameReservationRequestSchema = yup.object({
-  name: yup.string().optional(),
-});
-export type RoomNameReservationRequest = yup.InferType<
+export const roomHostUpdateSchema = z.compile(
+  z.object({ userId: z.string(), message: z.string() }),
+);
+export type RoomHostUpdate = z.infer<typeof roomHostUpdateSchema>;
+
+export const roomNameReservationSchema = z.compile(
+  z.object({ name: z.string(), token: z.string(), expiresAt: z.string() }),
+);
+export type RoomNameReservation = z.infer<typeof roomNameReservationSchema>;
+
+export const roomNameReservationRequestSchema = z.compile(
+  z.object({ name: z.string().optional() }),
+);
+export type RoomNameReservationRequest = z.infer<
   typeof roomNameReservationRequestSchema
 >;
 
-export const usersUpdateSchema = yup.number().required();
+export const usersUpdateSchema = z.compile(z.number());
 
-export const createRoomRequestSchema = yup.object({
-  name: yup.string().required(),
-  mode: yup.string().oneOf(['server', 'host']).optional(),
-  password: yup.string().optional(),
-  reservationToken: yup.string().optional(),
-  settings: roomSettingsSchema.partial().optional(),
-});
-export type CreateRoomRequest = yup.InferType<typeof createRoomRequestSchema>;
+const partialRoomSettingsSchema = z.object(roomSettingsShape).partial();
 
-export const createRoomResponseSchema = yup.object({
-  id: yup.string().required(),
-});
-export type CreateRoomResponse = yup.InferType<typeof createRoomResponseSchema>;
+export const createRoomRequestSchema = z.compile(
+  z.object({
+    name: z.string(),
+    mode: z.enum(['server', 'host']).optional(),
+    password: z.string().optional(),
+    reservationToken: z.string().optional(),
+    settings: partialRoomSettingsSchema.optional(),
+  }),
+);
+export type CreateRoomRequest = z.infer<typeof createRoomRequestSchema>;
 
-export const roomUpdateSchema = yup.object({
-  name: yup.string().optional(),
-  mode: yup.string().oneOf(['server', 'host']).optional(),
-  settings: roomSettingsSchema.partial().optional(),
-});
-export type RoomUpdate = yup.InferType<typeof roomUpdateSchema>;
+export const createRoomResponseSchema = z.compile(z.object({ id: z.string() }));
+export type CreateRoomResponse = z.infer<typeof createRoomResponseSchema>;
 
-export const publicRoomSchema = yup.object({
-  id: yup.string().required(),
-  name: yup.string().required(),
-  listenerCount: yup.number().integer().min(1).required(),
-  songCount: yup.number().integer().min(0).required(),
-});
-export type PublicRoom = yup.InferType<typeof publicRoomSchema>;
+export const roomUpdateSchema = z.compile(
+  z.object({
+    name: z.string().optional(),
+    mode: z.enum(['server', 'host']).optional(),
+    settings: partialRoomSettingsSchema.optional(),
+  }),
+);
+export type RoomUpdate = z.infer<typeof roomUpdateSchema>;
 
-export const publicRoomsSchema = yup.array(publicRoomSchema).required();
+export const publicRoomSchema = z.compile(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    listenerCount: z.int().min(1),
+    songCount: z.int().min(0),
+  }),
+);
+export type PublicRoom = z.infer<typeof publicRoomSchema>;
+
+export const publicRoomsSchema = z.compile(z.array(publicRoomSchema));

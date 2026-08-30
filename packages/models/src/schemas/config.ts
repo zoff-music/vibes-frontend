@@ -1,7 +1,5 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 import { sourceTypeSchema } from './songs';
 
-export const providersSchema = yup
-  .array(sourceTypeSchema.required())
-  .required();
-export type Providers = yup.InferType<typeof providersSchema>;
+export const providersSchema = z.compile(z.array(sourceTypeSchema));
+export type Providers = z.infer<typeof providersSchema>;
