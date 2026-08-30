@@ -65,7 +65,7 @@ export async function getAPIErrorMessage(error: Error) {
   }
 
   const [validationError, parsedBody] = safeWrap(() =>
-    errorCodeResponseSchema.validateSync(body),
+    errorCodeResponseSchema.parse(body),
   );
   if (validationError || !parsedBody?.propagate) {
     return null;

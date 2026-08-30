@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 import {
   castDeviceSchema,
   castDeviceTypeSchema,
@@ -9,15 +9,14 @@ import {
 } from '../schemas/casting';
 
 // Inferred Types
-export type CastDeviceType = yup.InferType<typeof castDeviceTypeSchema>;
-export type CastSessionState = yup.InferType<typeof castSessionStateSchema>;
-export type CastDevice = yup.InferType<typeof castDeviceSchema>;
-export type CastSession = yup.InferType<typeof castSessionSchema>;
-export type MediaInfo = yup.InferType<typeof mediaInfoSchema>;
-export type CastError = Omit<
-  yup.InferType<typeof castErrorSchema>,
-  'details'
-> & { details?: unknown };
+export type CastDeviceType = z.infer<typeof castDeviceTypeSchema>;
+export type CastSessionState = z.infer<typeof castSessionStateSchema>;
+export type CastDevice = z.infer<typeof castDeviceSchema>;
+export type CastSession = z.infer<typeof castSessionSchema>;
+export type MediaInfo = z.infer<typeof mediaInfoSchema>;
+export type CastError = Omit<z.infer<typeof castErrorSchema>, 'details'> & {
+  details?: unknown;
+};
 
 // Interfaces (Non-schema types)
 export interface CastManager {

@@ -30,7 +30,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 - `apps/mobile`: native-only Expo Router app for iOS and Android phones/tablets.
 - `apps/tv`: one TV product with a shared session layer, delivered through an Expo Android TV renderer and a Samsung TV DOM renderer.
 - `packages/api`: the transport package and the only package that owns `wiretyped`, backend REST calls, typed request capabilities, SSE plumbing, and narrowly scoped reusable SSE hooks.
-- `packages/models`: shared Yup schemas and derived domain types.
+- `packages/models`: shared compiled Zod 4 schemas and derived domain types.
 - `packages/shared`: platform-neutral utilities, hooks, stores, constants, and safe wrappers.
 - `packages/ui/web`: DOM components and provider players.
 - `packages/ui/native`: React Native primitives and official native provider-player wrappers shared by mobile and Android TV.

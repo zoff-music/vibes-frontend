@@ -49,7 +49,7 @@ apps/cast/src/
 
 packages/
 ├── api/                   # API client
-├── models/                # Shared types and Yup schemas
+├── models/                # Shared types and compiled Zod 4 schemas
 ├── shared/                # Utilities, hooks, stores
 │   ├── src/utils/wrap.ts  # safeWrap utilities
 │   ├── src/stores/        # Shared Zustand stores (playbackStore)

@@ -71,8 +71,6 @@ import {
   youTubeVideoSchema,
 } from '@vibes/models';
 
-export * as yup from 'yup';
-
 import {
   getHttpError,
   RequestClient,

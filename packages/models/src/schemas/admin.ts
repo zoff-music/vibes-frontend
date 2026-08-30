@@ -1,115 +1,122 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-export const adminRoomSummarySchema = yup.object({
-  id: yup.string().required(),
-  name: yup.string().required(),
-  userCount: yup.number().required(),
-  songCount: yup.number().required(),
-  activeSources: yup.array(yup.string().required()).required(),
-  hasAdminPassword: yup.boolean().required(),
-});
-export type AdminRoomSummary = yup.InferType<typeof adminRoomSummarySchema>;
+export const adminRoomSummarySchema = z.compile(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    userCount: z.number(),
+    songCount: z.number(),
+    activeSources: z.array(z.string()),
+    hasAdminPassword: z.boolean(),
+  }),
+);
+export type AdminRoomSummary = z.infer<typeof adminRoomSummarySchema>;
 
-export const adminRoomsSchema = yup.array(adminRoomSummarySchema).required();
-export type AdminRooms = yup.InferType<typeof adminRoomsSchema>;
+export const adminRoomsSchema = z.compile(z.array(adminRoomSummarySchema));
+export type AdminRooms = z.infer<typeof adminRoomsSchema>;
 
-export const adminRoomResultSchema = yup.object({
-  rooms: adminRoomsSchema,
-  from: yup.number().required(),
-  to: yup.number().required(),
-  total: yup.number().required(),
-  count: yup.number().required(),
-});
-export type AdminRoomResult = yup.InferType<typeof adminRoomResultSchema>;
+export const adminRoomResultSchema = z.compile(
+  z.object({
+    rooms: adminRoomsSchema,
+    from: z.number(),
+    to: z.number(),
+    total: z.number(),
+    count: z.number(),
+  }),
+);
+export type AdminRoomResult = z.infer<typeof adminRoomResultSchema>;
 
-export const adminRoomSearchSchema = yup.object({
-  q: yup.string().optional(),
-  sortBy: yup.string().oneOf(['listeners', 'songs']).optional(),
-  order: yup.string().oneOf(['asc', 'desc']).optional(),
-  from: yup.number().integer().min(0).optional(),
-  to: yup.number().integer().min(0).optional(),
-});
+export const adminRoomSearchSchema = z.compile(
+  z.object({
+    q: z.string().optional(),
+    sortBy: z.enum(['listeners', 'songs']).optional(),
+    order: z.enum(['asc', 'desc']).optional(),
+    from: z.int().min(0).optional(),
+    to: z.int().min(0).optional(),
+  }),
+);
 
-export const adminLoginRequestSchema = yup.object({
-  username: yup.string().required(),
-  password: yup.string().required(),
-});
-export type AdminLoginRequest = yup.InferType<typeof adminLoginRequestSchema>;
+export const adminLoginRequestSchema = z.compile(
+  z.object({ username: z.string(), password: z.string() }),
+);
+export type AdminLoginRequest = z.infer<typeof adminLoginRequestSchema>;
 
-export const adminUserSchema = yup.object({
-  id: yup.string().required(),
-  username: yup.string().required(),
-  createdAt: yup.string().required(),
-  updatedAt: yup.string().required(),
-});
-export type AdminUser = yup.InferType<typeof adminUserSchema>;
+export const adminUserSchema = z.compile(
+  z.object({
+    id: z.string(),
+    username: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  }),
+);
+export type AdminUser = z.infer<typeof adminUserSchema>;
 
-export const adminUsersSchema = yup.array(adminUserSchema).required();
-export type AdminUsers = yup.InferType<typeof adminUsersSchema>;
+export const adminUsersSchema = z.compile(z.array(adminUserSchema));
+export type AdminUsers = z.infer<typeof adminUsersSchema>;
 
-export const adminCreateUserRequestSchema = yup.object({
-  username: yup.string().required(),
-  password: yup.string().required(),
-});
-export type AdminCreateUserRequest = yup.InferType<
+export const adminCreateUserRequestSchema = z.compile(
+  z.object({ username: z.string(), password: z.string() }),
+);
+export type AdminCreateUserRequest = z.infer<
   typeof adminCreateUserRequestSchema
 >;
 
-export const adminUpdateUserRequestSchema = yup.object({
-  password: yup.string().required(),
-});
-export type AdminUpdateUserRequest = yup.InferType<
+export const adminUpdateUserRequestSchema = z.compile(
+  z.object({ password: z.string() }),
+);
+export type AdminUpdateUserRequest = z.infer<
   typeof adminUpdateUserRequestSchema
 >;
 
-export const adminUpdateRoomRequestSchema = yup.object({
-  name: yup.string().optional(),
-  clearAdminPassword: yup.boolean().optional(),
-});
-export type AdminUpdateRoomRequest = yup.InferType<
+export const adminUpdateRoomRequestSchema = z.compile(
+  z.object({
+    name: z.string().optional(),
+    clearAdminPassword: z.boolean().optional(),
+  }),
+);
+export type AdminUpdateRoomRequest = z.infer<
   typeof adminUpdateRoomRequestSchema
 >;
 
-export const adminSessionResponseSchema = yup.object({
-  authorized: yup.boolean().required(),
-  user: adminUserSchema.optional(),
-});
-export type AdminSessionResponse = yup.InferType<
-  typeof adminSessionResponseSchema
->;
+export const adminSessionResponseSchema = z.compile(
+  z.object({ authorized: z.boolean(), user: adminUserSchema.optional() }),
+);
+export type AdminSessionResponse = z.infer<typeof adminSessionResponseSchema>;
 
-export const adminSearchUsagePointSchema = yup.object({
-  window: yup.string().oneOf(['hour', 'day']).required(),
-  timestamp: yup.string().required(),
-  provider: yup.string().required(),
-  total: yup.number().required(),
-  unique: yup.number().required(),
-  cached: yup.number().required(),
-  live: yup.number().required(),
-});
-export type AdminSearchUsagePoint = yup.InferType<
-  typeof adminSearchUsagePointSchema
->;
+export const adminSearchUsagePointSchema = z.compile(
+  z.object({
+    window: z.enum(['hour', 'day']),
+    timestamp: z.string(),
+    provider: z.string(),
+    total: z.number(),
+    unique: z.number(),
+    cached: z.number(),
+    live: z.number(),
+  }),
+);
+export type AdminSearchUsagePoint = z.infer<typeof adminSearchUsagePointSchema>;
 
-export const adminSearchUsageSchema = yup
-  .object({
-    points: yup.array(adminSearchUsagePointSchema).required(),
-    generatedAt: yup.string().required(),
-  })
-  .required();
-export type AdminSearchUsage = yup.InferType<typeof adminSearchUsageSchema>;
+export const adminSearchUsageSchema = z.compile(
+  z.object({
+    points: z.array(adminSearchUsagePointSchema),
+    generatedAt: z.string(),
+  }),
+);
+export type AdminSearchUsage = z.infer<typeof adminSearchUsageSchema>;
 
-export const listenerUsagePointSchema = yup.object({
-  window: yup.string().oneOf(['hour', 'day', 'week', 'month']).required(),
-  timestamp: yup.string().required(),
-  listeners: yup.number().required(),
-});
-export type ListenerUsagePoint = yup.InferType<typeof listenerUsagePointSchema>;
+export const listenerUsagePointSchema = z.compile(
+  z.object({
+    window: z.enum(['hour', 'day', 'week', 'month']),
+    timestamp: z.string(),
+    listeners: z.number(),
+  }),
+);
+export type ListenerUsagePoint = z.infer<typeof listenerUsagePointSchema>;
 
-export const adminListenerUsageSchema = yup
-  .object({
-    points: yup.array(listenerUsagePointSchema).required(),
-    generatedAt: yup.string().required(),
-  })
-  .required();
-export type AdminListenerUsage = yup.InferType<typeof adminListenerUsageSchema>;
+export const adminListenerUsageSchema = z.compile(
+  z.object({
+    points: z.array(listenerUsagePointSchema),
+    generatedAt: z.string(),
+  }),
+);
+export type AdminListenerUsage = z.infer<typeof adminListenerUsageSchema>;

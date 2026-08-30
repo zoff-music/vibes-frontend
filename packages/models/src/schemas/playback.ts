@@ -1,47 +1,52 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 import { songSchema } from './songs';
 
-export const playbackStateSchema = yup.object({
-  currentSong: songSchema.nullable().defined(),
-  isPlaying: yup.boolean().required(),
-  positionMs: yup.number().required(),
-  updatedAt: yup.string().required(),
-  serverTimeMs: yup.number().required(),
-});
-export type PlaybackState = yup.InferType<typeof playbackStateSchema>;
+export const playbackStateSchema = z.compile(
+  z.object({
+    currentSong: songSchema.nullable(),
+    isPlaying: z.boolean(),
+    positionMs: z.number(),
+    updatedAt: z.string(),
+    serverTimeMs: z.number(),
+  }),
+);
+export type PlaybackState = z.infer<typeof playbackStateSchema>;
 
-export const roomActionRequestSchema = yup.object({
-  action: yup
-    .string()
-    .oneOf(['play', 'pause', 'seek', 'skip', 'vote'])
-    .required(),
-  positionMs: yup.number().optional(),
-});
-export type RoomActionRequest = yup.InferType<typeof roomActionRequestSchema>;
+export const roomActionRequestSchema = z.compile(
+  z.object({
+    action: z.enum(['play', 'pause', 'seek', 'skip', 'vote']),
+    positionMs: z.number().optional(),
+  }),
+);
+export type RoomActionRequest = z.infer<typeof roomActionRequestSchema>;
 
-export const playbackFailureRequestSchema = yup.object({
-  songId: yup.string().required(),
-});
-export type PlaybackFailureRequest = yup.InferType<
+export const playbackFailureRequestSchema = z.compile(
+  z.object({ songId: z.string() }),
+);
+export type PlaybackFailureRequest = z.infer<
   typeof playbackFailureRequestSchema
 >;
 
-export const skipActionResponseSchema = yup.object({
-  action: yup.string().oneOf(['skip']).required(),
-  skipped: yup.boolean().required(),
-  voted: yup.boolean().required(),
-  alreadyVoted: yup.boolean().required(),
-  currentVotes: yup.number().required(),
-  requiredVotes: yup.number().required(),
-  nextSong: songSchema.nullable().defined(),
-  playback: playbackStateSchema.required(),
-});
-export type SkipActionResponse = yup.InferType<typeof skipActionResponseSchema>;
+export const skipActionResponseSchema = z.compile(
+  z.object({
+    action: z.literal('skip'),
+    skipped: z.boolean(),
+    voted: z.boolean(),
+    alreadyVoted: z.boolean(),
+    currentVotes: z.number(),
+    requiredVotes: z.number(),
+    nextSong: songSchema.nullable(),
+    playback: playbackStateSchema,
+  }),
+);
+export type SkipActionResponse = z.infer<typeof skipActionResponseSchema>;
 
-export const skipVoteUpdateSchema = yup.object({
-  userId: yup.string().required(),
-  songId: yup.string().required(),
-  currentVotes: yup.number().required(),
-  requiredVotes: yup.number().required(),
-});
-export type SkipVoteUpdate = yup.InferType<typeof skipVoteUpdateSchema>;
+export const skipVoteUpdateSchema = z.compile(
+  z.object({
+    userId: z.string(),
+    songId: z.string(),
+    currentVotes: z.number(),
+    requiredVotes: z.number(),
+  }),
+);
+export type SkipVoteUpdate = z.infer<typeof skipVoteUpdateSchema>;

@@ -1,87 +1,84 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-// Enums / Unions
-export const castDeviceTypeSchema = yup
-  .string()
-  .oneOf(['chromecast', 'airplay', 'dlna'])
-  .required();
-export const castSessionStateSchema = yup
-  .string()
-  .oneOf(['connecting', 'connected', 'syncing', 'error', 'disconnected'])
-  .required();
+export const castDeviceTypeSchema = z.compile(
+  z.enum(['chromecast', 'airplay', 'dlna']),
+);
+export const castSessionStateSchema = z.compile(
+  z.enum(['connecting', 'connected', 'syncing', 'error', 'disconnected']),
+);
 
-// Schemas
-export const castDeviceSchema = yup.object({
-  id: yup.string().required(),
-  name: yup.string().required(),
-  type: castDeviceTypeSchema,
-  capabilities: yup.array().of(yup.string().required()).defined().default([]),
-  isAvailable: yup.boolean().required(),
-  lastSeen: yup.date().required(),
-});
+export const castDeviceSchema = z.compile(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    type: castDeviceTypeSchema,
+    capabilities: z.array(z.string()).default([]),
+    isAvailable: z.boolean(),
+    lastSeen: z.date(),
+  }),
+);
 
-export const castSessionSchema = yup.object({
-  id: yup.string().required(),
-  deviceId: yup.string().required(),
-  deviceName: yup.string().required(),
-  deviceType: castDeviceTypeSchema,
-  state: castSessionStateSchema,
-  startedAt: yup.date().required(),
-  lastSyncAt: yup.date().optional(),
-  mediaSessionId: yup.string().optional(),
-});
+export const castSessionSchema = z.compile(
+  z.object({
+    id: z.string(),
+    deviceId: z.string(),
+    deviceName: z.string(),
+    deviceType: castDeviceTypeSchema,
+    state: castSessionStateSchema,
+    startedAt: z.date(),
+    lastSyncAt: z.date().optional(),
+    mediaSessionId: z.string().optional(),
+  }),
+);
 
-export const mediaInfoSchema = yup.object({
-  contentId: yup.string().required(),
-  contentType: yup.string().required(),
-  streamType: yup.string().oneOf(['BUFFERED', 'LIVE']).required(),
-  metadata: yup
-    .object({
-      title: yup.string().required(),
-      artist: yup.string().optional(),
-      albumArtist: yup.string().optional(),
-      albumName: yup.string().optional(),
-      images: yup
-        .array()
-        .of(
-          yup
-            .object({
-              url: yup.string().required(),
-              height: yup.number().optional(),
-              width: yup.number().optional(),
-            })
-            .required(),
+export const mediaInfoSchema = z.compile(
+  z.object({
+    contentId: z.string(),
+    contentType: z.string(),
+    streamType: z.enum(['BUFFERED', 'LIVE']),
+    metadata: z.object({
+      title: z.string(),
+      artist: z.string().optional(),
+      albumArtist: z.string().optional(),
+      albumName: z.string().optional(),
+      images: z
+        .array(
+          z.object({
+            url: z.string(),
+            height: z.number().optional(),
+            width: z.number().optional(),
+          }),
         )
         .optional(),
-    })
-    .required(),
-  duration: yup.number().optional(),
-});
+    }),
+    duration: z.number().optional(),
+  }),
+);
 
-export const castErrorSchema = yup.object({
-  code: yup.string().required(),
-  description: yup.string().required(),
-  details: yup.mixed().optional(),
-});
+export const castErrorSchema = z.compile(
+  z.object({
+    code: z.string(),
+    description: z.string(),
+    details: z.unknown().optional(),
+  }),
+);
 
-export const createCastingTokenRequestSchema = yup.object({
-  roomId: yup.string().required(),
-});
-export type CreateCastingTokenRequest = yup.InferType<
+export const createCastingTokenRequestSchema = z.compile(
+  z.object({ roomId: z.string() }),
+);
+export type CreateCastingTokenRequest = z.infer<
   typeof createCastingTokenRequestSchema
 >;
 
-export const castingTokenResponseSchema = yup.object({
-  token: yup.string().required(),
-  expiresAt: yup.string().required(),
-  roomId: yup.string().required(),
-});
-export type CastingTokenResponse = yup.InferType<
-  typeof castingTokenResponseSchema
->;
+export const castingTokenResponseSchema = z.compile(
+  z.object({ token: z.string(), expiresAt: z.string(), roomId: z.string() }),
+);
+export type CastingTokenResponse = z.infer<typeof castingTokenResponseSchema>;
 
-export const sseQuerySchema = yup.object({
-  castReceiver: yup.string().optional(),
-  casterId: yup.string().optional(),
-  lastEventId: yup.string().optional(),
-});
+export const sseQuerySchema = z.compile(
+  z.object({
+    castReceiver: z.string().optional(),
+    casterId: z.string().optional(),
+    lastEventId: z.string().optional(),
+  }),
+);

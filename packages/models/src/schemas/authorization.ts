@@ -1,12 +1,9 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-export const authorizationsListSchema = yup
-  .array(yup.string().required())
-  .required();
-export type AuthorizationsList = yup.InferType<typeof authorizationsListSchema>;
+export const authorizationsListSchema = z.compile(z.array(z.string()));
+export type AuthorizationsList = z.infer<typeof authorizationsListSchema>;
 
-export const providerTokenSchema = yup.object({
-  accessToken: yup.string().required(),
-  expiresAt: yup.string().required(),
-});
-export type ProviderToken = yup.InferType<typeof providerTokenSchema>;
+export const providerTokenSchema = z.compile(
+  z.object({ accessToken: z.string(), expiresAt: z.string() }),
+);
+export type ProviderToken = z.infer<typeof providerTokenSchema>;
