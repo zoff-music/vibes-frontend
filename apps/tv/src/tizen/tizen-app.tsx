@@ -1,4 +1,8 @@
-import { useRoomEvents } from '@vibes/api';
+import {
+  getRoomAnalyticsPath,
+  plausibleClient,
+  useRoomEvents,
+} from '@vibes/api';
 import type {
   PlaybackState,
   Room,
@@ -36,6 +40,12 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
   const [listenerCount, setListenerCount] = useState(
     loaderData.snapshot?.room.userCount ?? 0,
   );
+  useEffect(() => {
+    const path = loaderData.roomId
+      ? getRoomAnalyticsPath(loaderData.roomId)
+      : '/tv';
+    void plausibleClient.trackPageview({ path, surface: 'tv' });
+  }, [loaderData.roomId]);
   useEffect(() => {
     const snapshot = loaderData.snapshot;
     setRoom(snapshot?.room ?? null);

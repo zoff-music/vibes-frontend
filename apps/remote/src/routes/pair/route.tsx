@@ -1,3 +1,4 @@
+import { plausibleClient } from '@vibes/api';
 import { safeWrap, safeWrapAsync } from '@vibes/shared';
 import { Button, Input } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
@@ -20,6 +21,13 @@ export default function PairRemote() {
 
   const pairingToken = searchParams.get('pair') ?? '';
   const scannedRemoteId = searchParams.get('remoteId') ?? '';
+
+  useEffect(() => {
+    void plausibleClient.trackPageview({
+      path: '/remotes',
+      surface: 'remote',
+    });
+  }, []);
 
   useEffect(() => {
     if (

@@ -1,4 +1,10 @@
-import { createApiClient, useRemoteEvents, useRoomEvents } from '@vibes/api';
+import {
+  createApiClient,
+  getRoomAnalyticsPath,
+  plausibleClient,
+  useRemoteEvents,
+  useRoomEvents,
+} from '@vibes/api';
 import type { PlaybackState, RemoteEvent, RemoteStatus } from '@vibes/models';
 import {
   showToast,
@@ -85,6 +91,11 @@ export default function RemoteController() {
     () => createApiClient({ 'X-Zoff-Remote-ID': remoteId }),
     [remoteId],
   );
+
+  useEffect(() => {
+    const path = room?.id ? getRoomAnalyticsPath(room.id) : '/remotes';
+    void plausibleClient.trackPageview({ path, surface: 'remote' });
+  }, [room?.id]);
 
   useEffect(() => {
     if (loaderData.room) setRoom(loaderData.room);

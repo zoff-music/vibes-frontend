@@ -1,4 +1,6 @@
+import { getRoomAnalyticsPath, plausibleClient } from '@vibes/api';
 import { DebugConsole, ToastViewport } from '@vibes/ui/web';
+import { useEffect } from 'react';
 import { ActiveView } from './components/ActiveView';
 import { CastErrorBoundary } from './components/CastErrorBoundary';
 import { CastProvider, useCast } from './components/CastProvider';
@@ -6,7 +8,12 @@ import { IdleView } from './components/IdleView';
 import type { CastLoaderData } from './routes/cast/loader';
 
 const CastAppContent = () => {
-  const { currentSong, debugMode } = useCast();
+  const { currentSong, debugMode, roomId } = useCast();
+
+  useEffect(() => {
+    const path = roomId ? getRoomAnalyticsPath(roomId) : '/casting/receiver';
+    void plausibleClient.trackPageview({ path, surface: 'cast' });
+  }, [roomId]);
 
   return (
     <>
