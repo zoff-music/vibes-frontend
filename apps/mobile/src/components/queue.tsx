@@ -138,7 +138,7 @@ const QueueItem = memo(function QueueItem({
           {song.addedBy && (
             <View
               className={classNames(
-                'w-28 items-center justify-center overflow-hidden border-2 px-2 pb-2',
+                'h-full w-28 items-center justify-center gap-0.5 overflow-hidden border-2 px-2',
                 !terminal &&
                   'rounded-2xl border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
                 terminal && 'border-[#55ffad] bg-[#03150d]',
@@ -146,7 +146,7 @@ const QueueItem = memo(function QueueItem({
             >
               <Text
                 className={classNames(
-                  'text-center font-heading text-2xs uppercase leading-3',
+                  'w-full text-center font-heading text-xs leading-4',
                   !terminal && 'text-mobile-muted dark:text-mobile-dark-muted',
                   terminal && 'text-[#a6ffd0]/65',
                 )}
@@ -155,7 +155,7 @@ const QueueItem = memo(function QueueItem({
               </Text>
               <Text
                 className={classNames(
-                  'mt-1 text-center font-heading text-xs leading-4',
+                  'w-full text-center font-heading text-sm leading-4',
                   !terminal && 'text-mobile-text dark:text-mobile-dark-text',
                   terminal && 'text-[#dffff0]',
                 )}
@@ -185,14 +185,30 @@ const QueueItem = memo(function QueueItem({
           {providerUrl && (
             <Pressable
               accessibilityLabel={`Open ${song.title} externally`}
-              className="w-20 items-center justify-center rounded-2xl border-2 border-accent bg-accent active:opacity-70"
+              className={classNames(
+                'w-20 items-center justify-center border-2 active:opacity-70',
+                !terminal && 'rounded-2xl border-accent bg-accent',
+                terminal && 'border-[#55ffad] bg-[#010c08]',
+              )}
               onPress={() => {
                 swipeable.close();
                 void openExternally();
               }}
             >
-              <ZoffIcon color="#ffffff" name="external" size={20} />
-              <Text className="mt-1 font-heading text-white text-xs">Open</Text>
+              <ZoffIcon
+                color={terminal ? '#71f5ad' : '#ffffff'}
+                name="external"
+                size={20}
+              />
+              <Text
+                className={classNames(
+                  'mt-1 font-heading text-xs',
+                  !terminal && 'text-white',
+                  terminal && 'text-[#dffff0]',
+                )}
+              >
+                Open
+              </Text>
             </Pressable>
           )}
         </View>
