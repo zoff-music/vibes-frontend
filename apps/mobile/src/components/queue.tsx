@@ -185,14 +185,30 @@ const QueueItem = memo(function QueueItem({
           {providerUrl && (
             <Pressable
               accessibilityLabel={`Open ${song.title} externally`}
-              className="w-20 items-center justify-center rounded-2xl border-2 border-accent bg-accent active:opacity-70"
+              className={classNames(
+                'w-20 items-center justify-center border-2 active:opacity-70',
+                !terminal && 'rounded-2xl border-accent bg-accent',
+                terminal && 'border-[#55ffad] bg-[#010c08]',
+              )}
               onPress={() => {
                 swipeable.close();
                 void openExternally();
               }}
             >
-              <ZoffIcon color="#ffffff" name="external" size={20} />
-              <Text className="mt-1 font-heading text-white text-xs">Open</Text>
+              <ZoffIcon
+                color={terminal ? '#71f5ad' : '#ffffff'}
+                name="external"
+                size={20}
+              />
+              <Text
+                className={classNames(
+                  'mt-1 font-heading text-xs',
+                  !terminal && 'text-white',
+                  terminal && 'text-[#dffff0]',
+                )}
+              >
+                Open
+              </Text>
             </Pressable>
           )}
         </View>
