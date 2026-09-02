@@ -55,6 +55,7 @@
     },
     "plugins": [
       "./plugins/with-react-native-svg-node-modules.cjs",
+      "./plugins/with-react-native-build-properties.cjs",
       "expo-router",
       [
         "expo-audio",
