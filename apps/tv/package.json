@@ -23,7 +23,13 @@
       "exclude": [
         "react",
         "react-dom",
-        "react-native"
+        "react-native",
+        "react-native-reanimated",
+        "react-native-safe-area-context",
+        "react-native-svg",
+        "react-native-webview",
+        "react-native-worklets",
+        "typescript"
       ]
     }
   },

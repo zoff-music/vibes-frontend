@@ -82,5 +82,6 @@ minimumReleaseAgeExclude:
   - expo@57.0.14
   - '@expo/metro-runtime@57.0.11'
 patchedDependencies:
+  react-native-tvos@0.87.0-0rc3: patches/react-native-tvos@0.87.0-0rc3.patch
   react-native-screens@4.27.0: patches/react-native-screens@4.27.0.patch
   react-native-webview@14.0.1: patches/react-native-webview@14.0.1.patch
