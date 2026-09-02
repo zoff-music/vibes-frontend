@@ -1,6 +1,7 @@
 import {
   context,
   propagation,
+  SpanKind,
   SpanStatusCode,
   trace,
 } from '@opentelemetry/api';
@@ -107,7 +108,7 @@ export function createTracingMiddleware(options: MiddlewareOptions) {
     const name = operationName(req);
     const extracted = propagation.extract(context.active(), req.headers);
     const tracer = trace.getTracer(serviceName);
-    const span = tracer.startSpan(name, undefined, extracted);
+    const span = tracer.startSpan(name, { kind: SpanKind.SERVER }, extracted);
 
     return context.with(trace.setSpan(extracted, span), () => {
       res.on('finish', () => {
