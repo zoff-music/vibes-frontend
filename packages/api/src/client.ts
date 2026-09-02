@@ -60,6 +60,8 @@ import {
   sessionResponseSchema,
   skipActionResponseSchema,
   skipVoteUpdateSchema,
+  songIdUpdateSchema,
+  songPositionUpdateSchema,
   songSchema,
   songsListSchema,
   sseQuerySchema,
@@ -89,6 +91,7 @@ export type { ApiFetchLifecycle };
 export { getHttpError };
 
 const API_BASE_PATH = '/api/v1';
+const API_V2_BASE_PATH = '/api/v2';
 const defaultRestTimeoutMs = 10_000;
 
 function readEnvValue(name: string) {
@@ -454,6 +457,28 @@ const endpoints = {
   },
 } as const satisfies RequestDefinitions;
 
+const v2Endpoints = {
+  '/rooms/{id}/events': {
+    sse: {
+      $search: sseQuerySchema.optional(),
+      events: {
+        connected: connectedSchema,
+        event_cursor: eventCursorSchema,
+        playback_update: playbackStateSchema,
+        songs_snapshot: songsListSchema,
+        song_added: songSchema,
+        song_updated: songPositionUpdateSchema,
+        song_removed: songIdUpdateSchema,
+        skip_vote: skipVoteUpdateSchema,
+        settings_update: roomSchema,
+        users_update: usersUpdateSchema,
+        generation_update: roomGenerationUpdateSchema,
+        new_host: roomHostUpdateSchema,
+      },
+    },
+  },
+} as const satisfies RequestDefinitions;
+
 export interface ApiClientOptions {
   customHeaders?: Record<string, string>;
   fetcher?: ApiFetch;
@@ -476,6 +501,8 @@ export type ApiClient = RequestClient<typeof endpoints> & {
     options?: RoomExistsOptions,
   ) => Promise<[Error | null, boolean | null]>;
 };
+
+export type ApiV2Client = RequestClient<typeof v2Endpoints>;
 
 function resolveApiBaseUrl(baseUrl: string) {
   const normalized = baseUrl.endsWith(API_BASE_PATH)
@@ -527,3 +554,35 @@ export function createApiClient(customHeaders: Record<string, string> = {}) {
 }
 
 export const api = createApiClient();
+
+export function createApiV2ClientWithBaseUrl(
+  baseUrl: string,
+  options: ApiClientOptions = {},
+): ApiV2Client {
+  const { customHeaders = {}, fetcher, fetchLifecycle } = options;
+  const normalizedBaseUrl = baseUrl.endsWith(API_V2_BASE_PATH)
+    ? baseUrl
+    : `${baseUrl}${API_V2_BASE_PATH}`;
+  const resolvedBaseUrl = normalizedBaseUrl.replace(/([^:]\/)\/+/g, '$1');
+
+  return new RequestClient({
+    fetchProvider: createApiFetchProvider(fetchLifecycle, fetcher),
+    hostname: resolvedBaseUrl,
+    baseUrl: resolvedBaseUrl,
+    endpoints: v2Endpoints,
+    validation: true,
+    fetchOpts: {
+      timeout: getRestTimeoutMs(),
+      credentials: 'include',
+      headers: { ...customHeaders },
+    },
+  });
+}
+
+export function createApiV2Client(
+  customHeaders: Record<string, string> = {},
+): ApiV2Client {
+  return createApiV2ClientWithBaseUrl(API_URL, { customHeaders });
+}
+
+export const apiV2 = createApiV2Client();

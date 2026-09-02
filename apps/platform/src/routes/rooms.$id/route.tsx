@@ -1,4 +1,4 @@
-import { useRoomEvents } from '@vibes/api';
+import { useRoomEventsV2 } from '@vibes/api';
 import type { RoomGenerationUpdate } from '@vibes/models';
 import {
   classNames,
@@ -186,6 +186,8 @@ export default function Room() {
   const usersCount = useRoomStore((state) => state.usersCount);
   const songs = useQueueStore((state) => state.songs);
   const setSongs = useQueueStore((state) => state.setSongs);
+  const positionSong = useQueueStore((state) => state.positionSong);
+  const removeSong = useQueueStore((state) => state.removeSong);
   const addSong = useQueueStore((state) => state.addSong);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const currentSong = usePlaybackStore((state) => state.currentSong);
@@ -285,13 +287,18 @@ export default function Room() {
         addSong(song);
         showToast(`"${song.title}" added to queue`, 'success');
       },
+      onSongRemoved: ({ id: songId }: { id: string }) => removeSong(songId),
+      onSongUpdated: ({ song, position }: { song: Song; position: number }) =>
+        positionSong(song, position),
       onSongsUpdate: setSongs,
       onUsersUpdate: setUsersCount,
     }),
     [
       addSong,
       handleGenerationUpdate,
+      positionSong,
       revalidate,
+      removeSong,
       setHost,
       setPlaybackState,
       setRoom,
@@ -299,7 +306,7 @@ export default function Room() {
       setUsersCount,
     ],
   );
-  useRoomEvents(id, sseCallbacks);
+  useRoomEventsV2(id, sseCallbacks);
 
   const handleToggleDarkMode = useCallback(() => {
     toggleDarkMode();

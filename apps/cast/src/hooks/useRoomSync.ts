@@ -1,7 +1,7 @@
 import {
-  createApiClient,
-  type RoomSSEMessage,
-  subscribeRoomEvents,
+  createApiV2Client,
+  type RoomSSEV2Message,
+  subscribeRoomEventsV2,
 } from '@vibes/api';
 import type { Song } from '@vibes/models';
 import { synchronizeServerClock, usePlaybackStore } from '@vibes/shared';
@@ -16,7 +16,7 @@ interface UseRoomSyncProps {
   castToken: string | null;
   loadError: string | null;
   snapshot: CastRoomSnapshot | null;
-  setQueue: (queue: QueueItem[]) => void;
+  setQueue: React.Dispatch<React.SetStateAction<QueueItem[]>>;
   setRoomInfo: React.Dispatch<React.SetStateAction<RoomInfo | null>>;
   setStatusText: (text: string) => void;
   setRoomMode: (mode: string | null) => void;
@@ -86,13 +86,13 @@ export function useRoomSync({
   useEffect(() => {
     if (!roomId || !castToken) return;
 
-    const api = createApiClient({ Authorization: `Bearer ${castToken}` });
+    const api = createApiV2Client({ Authorization: `Bearer ${castToken}` });
     const availableProviders = snapshot?.providers ?? [];
     let isMounted = true;
     let unsubscribe: (() => void) | null = null;
 
     const connect = async () => {
-      const [err, stop] = await subscribeRoomEvents(
+      const [err, stop] = await subscribeRoomEventsV2(
         api,
         roomId,
         (result) => {
@@ -103,7 +103,7 @@ export function useRoomSync({
           }
           if (!message || !isMounted) return;
 
-          const typedMessage: RoomSSEMessage = message;
+          const typedMessage: RoomSSEV2Message = message;
 
           switch (typedMessage.type) {
             case 'connected':
@@ -131,13 +131,39 @@ export function useRoomSync({
               setIsPlaying(data.isPlaying);
               break;
             }
-            case 'songs_update':
+            case 'songs_snapshot':
               if (Array.isArray(typedMessage.data)) {
                 const normalizedQueue = typedMessage.data.map((s) =>
                   normalizeSong(s),
                 );
                 setQueue(normalizedQueue);
               }
+              break;
+            case 'song_added': {
+              const song = normalizeSong(typedMessage.data);
+              setQueue((current) => {
+                if (current.some((item) => item.id === song.id)) return current;
+                return [...current, song];
+              });
+              break;
+            }
+            case 'song_updated': {
+              const song = normalizeSong(typedMessage.data.song);
+              setQueue((current) => {
+                const queue = current.filter((item) => item.id !== song.id);
+                const position = Math.min(
+                  Math.max(typedMessage.data.position, 0),
+                  queue.length,
+                );
+                queue.splice(position, 0, song);
+                return queue;
+              });
+              break;
+            }
+            case 'song_removed':
+              setQueue((current) =>
+                current.filter((item) => item.id !== typedMessage.data.id),
+              );
               break;
             case 'settings_update':
               setRoomMode(typedMessage.data.mode);
