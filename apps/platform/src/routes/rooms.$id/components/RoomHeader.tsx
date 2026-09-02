@@ -84,6 +84,7 @@ interface RoomHeaderProps {
   onShareRoom: () => void;
   onOpenPartyScreen: () => void;
   onOpenCast: () => void;
+  showCast: boolean;
   isCasting: boolean;
   castDeviceName?: string | null;
   currentTheme: Theme;
@@ -116,6 +117,7 @@ export const RoomHeader = React.memo(
     onShareRoom,
     onOpenPartyScreen,
     onOpenCast,
+    showCast,
     isCasting,
     castDeviceName,
     currentTheme,
@@ -309,38 +311,40 @@ export const RoomHeader = React.memo(
                 <RemoteControlButton />
               </div>
 
-              <div className="sm:hidden">
-                <Tooltip
-                  className="inline-flex"
-                  content={
-                    isCasting && castDeviceName
-                      ? `Casting to ${castDeviceName}`
-                      : 'Cast'
-                  }
-                  side="bottom"
-                >
-                  <Button
-                    onClick={onOpenCast}
-                    variant={isCasting ? 'secondary' : 'tertiary'}
-                    size="icon"
-                    aria-label={
+              {showCast && (
+                <div className="sm:hidden">
+                  <Tooltip
+                    className="inline-flex"
+                    content={
                       isCasting && castDeviceName
                         ? `Casting to ${castDeviceName}`
                         : 'Cast'
                     }
+                    side="bottom"
                   >
-                    <CastIcon
-                      className={classNames(
-                        'h-5 w-5 transition-colors',
-                        isCasting && 'text-primary',
-                        !isCasting &&
-                          'text-theme-muted group-hover:text-primary',
-                      )}
-                      showDot={isCasting}
-                    />
-                  </Button>
-                </Tooltip>
-              </div>
+                    <Button
+                      onClick={onOpenCast}
+                      variant={isCasting ? 'secondary' : 'tertiary'}
+                      size="icon"
+                      aria-label={
+                        isCasting && castDeviceName
+                          ? `Casting to ${castDeviceName}`
+                          : 'Cast'
+                      }
+                    >
+                      <CastIcon
+                        className={classNames(
+                          'h-5 w-5 transition-colors',
+                          isCasting && 'text-primary',
+                          !isCasting &&
+                            'text-theme-muted group-hover:text-primary',
+                        )}
+                        showDot={isCasting}
+                      />
+                    </Button>
+                  </Tooltip>
+                </div>
+              )}
 
               <div className="relative sm:ml-1">
                 <Tooltip

@@ -26,6 +26,7 @@ import React, {
 import { useFetcher } from 'react-router';
 import { useCasting } from '../../../hooks/useCasting';
 import { usePersistentPlayerVolume } from '../../../hooks/usePersistentPlayerVolume';
+import { useCastStore } from '../../../stores/castStore';
 import type { RoomActionData } from '../action';
 import { UserCount } from './UserCount';
 
@@ -123,6 +124,7 @@ export const RoomPlayer = React.memo(
     const playbackFetcher = useFetcher<RoomActionData>();
     const songs = useQueueStore((state) => state.songs);
     const { isConnected, castDeviceName } = useCasting(roomId);
+    const showCast = useCastStore((state) => state.isInitialized);
     const { volume, setVolume, toggleMuted } = usePersistentPlayerVolume();
 
     // Granular store subscriptions
@@ -639,6 +641,7 @@ export const RoomPlayer = React.memo(
             onReset={reset}
             onAddSong={onAddSong}
             onOpenCast={onOpenCast}
+            showCast={showCast}
             isCasting={isConnected}
             castDeviceName={castDeviceName}
             mobileTrailingContent={
@@ -674,6 +677,7 @@ export const RoomPlayer = React.memo(
               onToggleMuted={toggleMuted}
               onVolumeChange={setVolume}
               showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
+              showCast={showCast}
               volume={volume}
             />
           </Suspense>

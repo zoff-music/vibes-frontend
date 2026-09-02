@@ -21,6 +21,20 @@ export function filterMobileSongs(songs: Song[]) {
   return songs.filter((song) => isMobileProvider(song.sourceType));
 }
 
+export function positionMobileSong(
+  songs: Song[],
+  song: Song,
+  position: number,
+): Song[] {
+  const nextSongs = songs.filter((item) => item.id !== song.id);
+  if (!isMobileProvider(song.sourceType)) return nextSongs;
+
+  const boundedPosition = Math.min(Math.max(position, 0), nextSongs.length);
+  nextSongs.splice(boundedPosition, 0, song);
+
+  return nextSongs;
+}
+
 export function normalizeMobilePlayback(
   playback: PlaybackState,
 ): PlaybackState {

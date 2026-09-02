@@ -1,7 +1,7 @@
 import {
   getRoomAnalyticsPath,
   plausibleClient,
-  useRoomEvents,
+  useRoomEventsV2,
 } from '@vibes/api';
 import type {
   PlaybackState,
@@ -12,7 +12,7 @@ import type {
 import { synchronizeServerClock } from '@vibes/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useRevalidator, useSubmit } from 'react-router';
-import { tizenApi } from '@/tizen/api';
+import { tizenApiV2 } from '@/tizen/api';
 import type { TizenSessionLoaderData } from '@/tizen/routes/session/loader';
 import { TizenLanding } from '@/tizen/tizen-landing';
 import { TizenRoom } from '@/tizen/tizen-room';
@@ -85,12 +85,26 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
           return [...current, song];
         });
       },
+      onSongRemoved: ({ id }: { id: string }) => {
+        setSongs((current) => current.filter((song) => song.id !== id));
+      },
+      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
+        setSongs((current) => {
+          const nextSongs = current.filter((item) => item.id !== song.id);
+          const boundedPosition = Math.min(
+            Math.max(position, 0),
+            nextSongs.length,
+          );
+          nextSongs.splice(boundedPosition, 0, song);
+          return nextSongs;
+        });
+      },
       onSongsUpdate: setSongs,
       onUsersUpdate: setListenerCount,
     }),
     [revalidator.revalidate],
   );
-  useRoomEvents(loaderData.roomId || undefined, callbacks, tizenApi);
+  useRoomEventsV2(loaderData.roomId || undefined, callbacks, tizenApiV2);
 
   const submitRoomAction = useCallback(
     (intent: 'generate' | 'joinOrCreate', value: string) => {

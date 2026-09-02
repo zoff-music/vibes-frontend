@@ -1,4 +1,4 @@
-import { useRoomEvents } from '@vibes/api';
+import { useRoomEventsV2 } from '@vibes/api';
 import type {
   PlaybackState,
   Room,
@@ -12,7 +12,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useMemo } from 'react';
-import { tvApi } from '@/lib/api';
+import { tvApiV2 } from '@/lib/api';
 
 export function useTvRoomEvents(roomId: string) {
   const callbacks = useMemo(
@@ -44,6 +44,12 @@ export function useTvRoomEvents(roomId: string) {
       onSongAdded: (song: Song) => {
         useQueueStore.getState().addSong(song);
       },
+      onSongRemoved: ({ id }: { id: string }) => {
+        useQueueStore.getState().removeSong(id);
+      },
+      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
+        useQueueStore.getState().positionSong(song, position);
+      },
       onSongsUpdate: (songs: Song[]) => {
         useQueueStore.getState().setSongs(songs);
       },
@@ -53,5 +59,5 @@ export function useTvRoomEvents(roomId: string) {
     }),
     [],
   );
-  useRoomEvents(roomId || undefined, callbacks, tvApi);
+  useRoomEventsV2(roomId || undefined, callbacks, tvApiV2);
 }

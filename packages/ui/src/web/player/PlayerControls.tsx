@@ -26,6 +26,7 @@ interface Props {
   onSkip: () => void;
   onAddSong: () => void;
   onOpenCast: () => void;
+  showCast: boolean;
   isCasting: boolean;
   castDeviceName?: string | null;
   mobileTrailingContent?: React.ReactNode;
@@ -131,6 +132,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
   onSkip,
   onAddSong,
   onOpenCast,
+  showCast,
   isCasting,
   castDeviceName,
   mobileTrailingContent,
@@ -205,7 +207,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Tooltip>
         )}
 
-        <div className="hidden sm:block">
+        <div className={classNames('hidden', showCast && 'sm:block')}>
           <Tooltip
             className="inline-flex"
             content={

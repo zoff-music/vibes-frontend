@@ -11,6 +11,7 @@ import {
   safeWrapAsync,
 } from '@vibes/shared';
 import { create } from 'zustand';
+import { isGoogleCastSupportedBrowser } from '../services/cast/constants';
 
 type CastManagerInstance = typeof import('../services/cast')['castManager'];
 
@@ -44,6 +45,7 @@ const buildSoundCloudContentId = (sourceId: string) => {
 
 interface CastState {
   // State
+  isSupported: boolean;
   isInitialized: boolean;
   availableDevices: CastDevice[];
   currentSession: CastSession | null;
@@ -71,6 +73,7 @@ interface CastState {
 
 export const useCastStore = create<CastState>((set, get) => ({
   // Initial state
+  isSupported: isGoogleCastSupportedBrowser(),
   isInitialized: false,
   availableDevices: [],
   currentSession: null,
@@ -80,6 +83,7 @@ export const useCastStore = create<CastState>((set, get) => ({
 
   // Actions
   initialize: async () => {
+    if (!get().isSupported) return;
     if (get().isInitialized || isCastInitializationStarted) return;
 
     isCastInitializationStarted = true;
@@ -122,6 +126,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       isCastInitializationStarted = false;
       console.error('Failed to initialize casting:', error);
       set({
+        isSupported: false,
         lastError: {
           code: 'INITIALIZATION_FAILED',
           description: 'Failed to initialize casting system',
@@ -133,6 +138,7 @@ export const useCastStore = create<CastState>((set, get) => ({
 
     console.log('[Cast] store initialize:devices', devices);
     set({
+      isSupported: true,
       isInitialized: true,
       availableDevices: devices || [],
     });

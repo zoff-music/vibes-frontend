@@ -1,11 +1,16 @@
 import {
-  createApiClient,
+  createApiV2Client,
   getRoomAnalyticsPath,
   plausibleClient,
   useRemoteEvents,
-  useRoomEvents,
+  useRoomEventsV2,
 } from '@vibes/api';
-import type { PlaybackState, RemoteEvent, RemoteStatus } from '@vibes/models';
+import type {
+  PlaybackState,
+  RemoteEvent,
+  RemoteStatus,
+  Song,
+} from '@vibes/models';
 import {
   showToast,
   synchronizeServerClock,
@@ -80,6 +85,8 @@ export default function RemoteController() {
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
   const setSongs = useQueueStore((state) => state.setSongs);
   const addSong = useQueueStore((state) => state.addSong);
+  const removeSong = useQueueStore((state) => state.removeSong);
+  const positionSong = useQueueStore((state) => state.positionSong);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const usersCount = useRoomStore((state) => state.usersCount);
   const setSession = useRoomStore((state) => state.setSession);
@@ -88,7 +95,7 @@ export default function RemoteController() {
     currentSong?.id && remoteStatus?.currentSongId === currentSong.id,
   );
   const remoteClient = useMemo(
-    () => createApiClient({ 'X-Zoff-Remote-ID': remoteId }),
+    () => createApiV2Client({ 'X-Zoff-Remote-ID': remoteId }),
     [remoteId],
   );
 
@@ -174,12 +181,17 @@ export default function RemoteController() {
       onReconnect: revalidator.revalidate,
       onRoomUpdate: setRoom,
       onSongAdded: addSong,
+      onSongRemoved: ({ id }: { id: string }) => removeSong(id),
+      onSongUpdated: ({ song, position }: { song: Song; position: number }) =>
+        positionSong(song, position),
       onSongsUpdate: setSongs,
       onUsersUpdate: setUsersCount,
     }),
     [
       addSong,
+      positionSong,
       revalidator.revalidate,
+      removeSong,
       setHost,
       setPlaybackState,
       setRoom,
@@ -187,7 +199,7 @@ export default function RemoteController() {
       setUsersCount,
     ],
   );
-  useRoomEvents(room?.id, callbacks, remoteClient);
+  useRoomEventsV2(room?.id, callbacks, remoteClient);
 
   const handleRoomInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRoomInput(event.target.value.toLowerCase());
