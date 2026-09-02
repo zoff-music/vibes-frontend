@@ -343,111 +343,108 @@ export function RoomsScreen() {
     <Screen>
       <SafeAreaView className="flex-1" edges={['top']}>
         {refreshLogo}
-        <View className="flex-1">
-          <ScrollView
-            contentContainerClassName="px-4 pt-3 pb-28"
-            keyboardShouldPersistTaps="handled"
-            onContentSizeChange={scrollEdgeFades.onContentSizeChange}
-            onLayout={scrollEdgeFades.onLayout}
-            onScroll={scrollEdgeFades.onScroll}
-            refreshControl={refreshControl}
-            scrollEventThrottle={16}
-          >
-            <ContentColumn>
-              <Animated.View className="gap-5" entering={FadeIn.duration(180)}>
-                <View className="items-center gap-3 py-3">
-                  <AnimatedLogo />
-                  <View className="items-center gap-1">
-                    <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
-                      Listen together
-                    </Text>
-                    <Text className="px-5 text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                      Shared rooms, synchronized playback, and a queue everyone
-                      can shape.
-                    </Text>
-                    <Text className="font-heading text-mobile-muted/70 text-xs tracking-widest dark:text-mobile-dark-muted/70">
-                      音楽は共有するもの
-                    </Text>
-                  </View>
+        <ScrollView
+          contentContainerClassName="px-4 pt-3 pb-28"
+          keyboardShouldPersistTaps="handled"
+          onContentSizeChange={scrollEdgeFades.onContentSizeChange}
+          onLayout={scrollEdgeFades.onLayout}
+          onScroll={scrollEdgeFades.onScroll}
+          refreshControl={refreshControl}
+          scrollEventThrottle={16}
+        >
+          <ContentColumn>
+            <Animated.View className="gap-5" entering={FadeIn.duration(180)}>
+              <View className="items-center gap-3 py-3">
+                <AnimatedLogo />
+                <View className="items-center gap-1">
+                  <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
+                    Listen together
+                  </Text>
+                  <Text className="px-5 text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                    Shared rooms, synchronized playback, and a queue everyone
+                    can shape.
+                  </Text>
+                  <Text className="font-heading text-mobile-muted/70 text-xs tracking-widest dark:text-mobile-dark-muted/70">
+                    音楽は共有するもの
+                  </Text>
                 </View>
-                <Card>
-                  <View className="gap-1">
-                    <Copy muted>
-                      {isAIMode ? 'BUILD YOUR SIGNAL' : 'FIND YOUR SIGNAL'}
-                    </Copy>
-                    <Heading>
-                      {isAIMode ? 'Generate a room' : 'Join a room'}
-                    </Heading>
-                  </View>
-                  <Field
-                    autoCapitalize="none"
-                    value={value}
-                    onChangeText={(nextValue) => {
-                      setValue(nextValue);
-                      setError('');
-                    }}
-                    onSubmitEditing={submitRoom}
-                    placeholder={
-                      isAIMode
-                        ? 'Late-night synthwave for a rainy drive'
-                        : 'Room name'
-                    }
-                    trailingAction={
-                      <Pressable
-                        accessibilityLabel={
-                          isAIMode ? 'Turn off AI mode' : 'Generate with AI'
-                        }
-                        accessibilityRole="switch"
-                        accessibilityState={{ checked: isAIMode }}
-                        className={classNames(
-                          'size-11 items-center justify-center rounded-xl border active:opacity-70',
-                          isAIMode && 'border-accent bg-accent',
-                          !isAIMode &&
-                            'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-                        )}
-                        onPress={toggleAIMode}
-                      >
-                        <ZoffIcon
-                          color={isAIMode ? '#ffffff' : theme.text}
-                          name="sparkles"
-                          size={22}
-                        />
-                      </Pressable>
-                    }
-                  />
-                  <Button
-                    disabled={loading || generationLoading}
-                    label={submitLabel}
-                    onPress={submitRoom}
-                  />
-                  {room && <Copy muted>Currently in {room.name}</Copy>}
-                </Card>
-                <View className="gap-3">
-                  <View className="flex-row items-center gap-2 px-1">
-                    <View className="size-2 rounded-full bg-accent" />
-                    <Copy muted>LIVE NOW</Copy>
-                  </View>
-                  <View className="flex-row flex-wrap gap-3">
-                    {publicRooms.map(renderPublicRoom)}
-                    {publicRooms.length === 0 && (
-                      <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
-                        <Copy muted>
-                          No public rooms are live. Start one and set the
-                          signal.
-                        </Copy>
-                      </View>
-                    )}
-                  </View>
+              </View>
+              <Card>
+                <View className="gap-1">
+                  <Copy muted>
+                    {isAIMode ? 'BUILD YOUR SIGNAL' : 'FIND YOUR SIGNAL'}
+                  </Copy>
+                  <Heading>
+                    {isAIMode ? 'Generate a room' : 'Join a room'}
+                  </Heading>
                 </View>
-              </Animated.View>
-            </ContentColumn>
-          </ScrollView>
-          <ScrollEdgeFades
-            backgroundColor={theme.background}
-            bottomVisible={scrollEdgeFades.bottomVisible}
-            topVisible={scrollEdgeFades.topVisible}
-          />
-        </View>
+                <Field
+                  autoCapitalize="none"
+                  value={value}
+                  onChangeText={(nextValue) => {
+                    setValue(nextValue);
+                    setError('');
+                  }}
+                  onSubmitEditing={submitRoom}
+                  placeholder={
+                    isAIMode
+                      ? 'Late-night synthwave for a rainy drive'
+                      : 'Room name'
+                  }
+                  trailingAction={
+                    <Pressable
+                      accessibilityLabel={
+                        isAIMode ? 'Turn off AI mode' : 'Generate with AI'
+                      }
+                      accessibilityRole="switch"
+                      accessibilityState={{ checked: isAIMode }}
+                      className={classNames(
+                        'size-11 items-center justify-center rounded-xl border active:opacity-70',
+                        isAIMode && 'border-accent bg-accent',
+                        !isAIMode &&
+                          'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                      )}
+                      onPress={toggleAIMode}
+                    >
+                      <ZoffIcon
+                        color={isAIMode ? '#ffffff' : theme.text}
+                        name="sparkles"
+                        size={22}
+                      />
+                    </Pressable>
+                  }
+                />
+                <Button
+                  disabled={loading || generationLoading}
+                  label={submitLabel}
+                  onPress={submitRoom}
+                />
+                {room && <Copy muted>Currently in {room.name}</Copy>}
+              </Card>
+              <View className="gap-3">
+                <View className="flex-row items-center gap-2 px-1">
+                  <View className="size-2 rounded-full bg-accent" />
+                  <Copy muted>LIVE NOW</Copy>
+                </View>
+                <View className="flex-row flex-wrap gap-3">
+                  {publicRooms.map(renderPublicRoom)}
+                  {publicRooms.length === 0 && (
+                    <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
+                      <Copy muted>
+                        No public rooms are live. Start one and set the signal.
+                      </Copy>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </Animated.View>
+          </ContentColumn>
+        </ScrollView>
+        <ScrollEdgeFades
+          backgroundColor={theme.background}
+          bottomVisible={scrollEdgeFades.bottomVisible}
+          topVisible={scrollEdgeFades.topVisible}
+        />
         <CreateRoomSheet
           initialName={value}
           providers={providers}
