@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { safeWrapAsync } from '@vibes/shared/wrap';
 import compression from 'compression';
 import express, { type Request } from 'express';
@@ -139,8 +138,8 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     }),
   );
   app.use(basePath, express.static(config.staticDir, { maxAge: '1h' }));
-  app.get(`${basePath}/*`, (_req, res) => {
-    res.sendFile(path.resolve(config.staticDir, fallbackFile));
+  app.get(`${basePath}/*splat`, (_req, res) => {
+    res.sendFile(fallbackFile, { root: config.staticDir });
   });
 }
 

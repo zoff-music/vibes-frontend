@@ -1,10 +1,10 @@
-import express, { type Request, type Response } from 'express';
 import {
   Counter,
   collectDefaultMetrics,
   Histogram,
   Registry,
-} from 'prom-client';
+} from '@prometheus-io/client';
+import express, { type Request, type Response } from 'express';
 
 const buckets = [
   0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10,

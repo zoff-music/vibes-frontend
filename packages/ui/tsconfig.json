@@ -8,6 +8,7 @@
     "types": ["vite/client", "react"],
 
     "moduleResolution": "bundler",
+    "customConditions": ["react-native-legacy-deep-imports"],
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
