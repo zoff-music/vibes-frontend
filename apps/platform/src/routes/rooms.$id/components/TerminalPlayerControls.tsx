@@ -23,6 +23,7 @@ interface TerminalPlayerControlsProps {
   onToggleMuted: () => void;
   onVolumeChange: (volume: number) => void;
   showReset: boolean;
+  showCast: boolean;
   volume: number;
 }
 
@@ -43,6 +44,7 @@ export function TerminalPlayerControls({
   onToggleMuted,
   onVolumeChange,
   showReset,
+  showCast,
   volume,
 }: TerminalPlayerControlsProps) {
   useTerminalShortcuts([
@@ -53,7 +55,7 @@ export function TerminalPlayerControls({
     },
     { disabled: !canSkip || isSkipping, key: 'F2', onTrigger: onSkip },
     { disabled: !showReset, key: 'F3', onTrigger: onReset },
-    { key: 'F4', onTrigger: onOpenCast },
+    { disabled: !showCast, key: 'F4', onTrigger: onOpenCast },
     { key: 'F5', onTrigger: onAddSong },
   ]);
 
@@ -96,9 +98,11 @@ export function TerminalPlayerControls({
           </TerminalButton>
         )}
         {!showReset && <TerminalButton disabled>[F3] SYNCED</TerminalButton>}
-        <TerminalButton aria-keyshortcuts="F4" onClick={onOpenCast}>
-          [F4] {isCasting ? 'CAST ON' : 'CAST'}
-        </TerminalButton>
+        {showCast && (
+          <TerminalButton aria-keyshortcuts="F4" onClick={onOpenCast}>
+            [F4] {isCasting ? 'CAST ON' : 'CAST'}
+          </TerminalButton>
+        )}
         <TerminalButton aria-keyshortcuts="F5" onClick={onAddSong}>
           [F5] ADD SONG
         </TerminalButton>

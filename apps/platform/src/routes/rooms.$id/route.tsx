@@ -193,6 +193,7 @@ export default function Room() {
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const currentSong = usePlaybackStore((state) => state.currentSong);
   const initializeCast = useCastStore((state) => state.initialize);
+  const isCastSupported = useCastStore((state) => state.isSupported);
   const isCastInitialized = useCastStore((state) => state.isInitialized);
   const isCasting = useCastStore((state) => state.isConnected);
   const castDeviceName = useCastStore(
@@ -253,10 +254,10 @@ export default function Room() {
   }, [loaderData.room.id, setMachineRoomId]);
 
   useEffect(() => {
-    if (isCastInitialized) return;
+    if (!isCastSupported || isCastInitialized) return;
 
     void initializeCast();
-  }, [initializeCast, isCastInitialized]);
+  }, [initializeCast, isCastInitialized, isCastSupported]);
 
   const handleGenerationUpdate = useCallback((update: RoomGenerationUpdate) => {
     if (update.status === 'generating') {
@@ -572,6 +573,7 @@ export default function Room() {
             onShareRoom={handleShareRoom}
             onOpenPartyScreen={handleOpenPartyScreen}
             onOpenCast={handleOpenCast}
+            showCast={isCastInitialized}
             isCasting={isCasting}
             castDeviceName={castDeviceName}
             currentTheme={currentTheme}
@@ -700,6 +702,7 @@ export default function Room() {
               onShareRoom={handleShareRoom}
               onOpenPartyScreen={handleOpenPartyScreen}
               onOpenCast={handleOpenCast}
+              showCast={isCastInitialized}
               isCasting={isCasting}
               castDeviceName={castDeviceName}
               currentTheme={currentTheme}

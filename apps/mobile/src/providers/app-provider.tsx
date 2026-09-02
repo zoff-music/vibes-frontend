@@ -1,4 +1,4 @@
-import { useRemoteEvents, useRoomEvents } from '@vibes/api';
+import { useRemoteEvents, useRoomEventsV2 } from '@vibes/api';
 import type {
   PlaybackState,
   Providers,
@@ -31,12 +31,13 @@ import { useAppResume } from '@/hooks/use-app-resume';
 import { useMachineRemote } from '@/hooks/use-machine-remote';
 import { usePlaybackRuntime } from '@/hooks/use-playback-runtime';
 import { usePlayerPreference } from '@/hooks/use-player-preference';
-import { mobileApi } from '@/lib/api';
+import { mobileApi, mobileApiV2 } from '@/lib/api';
 import {
   filterMobileSongs,
   isMobileProvider,
   normalizeMobilePlayback,
   normalizeMobileRoom,
+  positionMobileSong,
 } from '@/lib/mobile-content';
 import type { DiscoveryData } from '@/routes/_index/loader';
 import type { StoredRemoteSession } from '@/routes/remotes.session/loader';
@@ -449,6 +450,12 @@ export function AppProvider({ children }: PropsWithChildren) {
           return [...current, song];
         });
       },
+      onSongRemoved: ({ id }: { id: string }) => {
+        setSongs((current) => current.filter((song) => song.id !== id));
+      },
+      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
+        setSongs((current) => positionMobileSong(current, song, position));
+      },
       onSongsUpdate: (nextSongs: Song[]) =>
         setSongs(filterMobileSongs(nextSongs)),
       onUsersUpdate: handleUsersUpdate,
@@ -461,7 +468,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     ],
   );
 
-  useRoomEvents(roomId || undefined, roomEventCallbacks, mobileApi);
+  useRoomEventsV2(roomId || undefined, roomEventCallbacks, mobileApiV2);
 
   useRemoteEvents({
     client: mobileApi,

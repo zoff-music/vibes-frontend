@@ -1,4 +1,4 @@
-import { useRemoteEvents, useRoomEvents } from '@vibes/api';
+import { useRemoteEvents, useRoomEventsV2 } from '@vibes/api';
 import type {
   PlaybackState,
   RemoteEvent,
@@ -14,12 +14,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useControllerCommands } from '@/hooks/use-controller-commands';
 import { useControllerPairing } from '@/hooks/use-controller-pairing';
 import { useLivePosition } from '@/hooks/use-live-position';
-import { createRemoteApi } from '@/lib/api';
+import { createRemoteApi, createRemoteApiV2 } from '@/lib/api';
 import {
   filterMobileSongs,
   isMobileProvider,
   normalizeMobilePlayback,
   normalizeMobileRoom,
+  positionMobileSong,
 } from '@/lib/mobile-content';
 import {
   useControllerSessionActions,
@@ -108,6 +109,10 @@ export function useControllerRemote(): readonly [
   });
   const client = useMemo(
     () => createRemoteApi(remoteId, controllerToken),
+    [controllerToken, remoteId],
+  );
+  const roomEventsClient = useMemo(
+    () => createRemoteApiV2(remoteId, controllerToken),
     [controllerToken, remoteId],
   );
   const livePosition = useLivePosition(
@@ -235,6 +240,12 @@ export function useControllerRemote(): readonly [
           return [...current, song];
         });
       },
+      onSongRemoved: ({ id }: { id: string }) => {
+        setSongs((current) => current.filter((song) => song.id !== id));
+      },
+      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
+        setSongs((current) => positionMobileSong(current, song, position));
+      },
       onSongsUpdate: (nextSongs: Song[]) =>
         setSongs(filterMobileSongs(nextSongs)),
       onUsersUpdate: (count: number) => {
@@ -246,7 +257,11 @@ export function useControllerRemote(): readonly [
     }),
     [refresh],
   );
-  useRoomEvents(remote?.currentRoomId || undefined, roomEventCallbacks, client);
+  useRoomEventsV2(
+    remote?.currentRoomId || undefined,
+    roomEventCallbacks,
+    roomEventsClient,
+  );
 
   const disconnect = async () => {
     setRemote(null);

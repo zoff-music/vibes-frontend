@@ -27,3 +27,12 @@ export const LOCAL_EMULATOR_ENABLED = (() => {
 export const LOCAL_EMULATOR_DEVICE_ID = 'local-cast-emulator';
 
 export const CAST_DEVICE_PICKER_ID = 'chromecast-available';
+
+export const isGoogleCastSupportedBrowser = () => {
+  if (LOCAL_EMULATOR_ENABLED) return true;
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return false;
+  }
+
+  return /(?:Chrome|Chromium|Edg)\//.test(navigator.userAgent);
+};
