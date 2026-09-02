@@ -37,6 +37,7 @@ import { useRemoteControl } from '../../components/remote/RemoteControlProvider'
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useCastStore } from '../../stores/castStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
 import { PartyScreenJoinCard } from './components/PartyScreenJoinCard';
@@ -407,7 +408,10 @@ export default function Room() {
   }, [adminFetcher, adminPassword]);
 
   const handleLeave = useCallback(() => {
-    navigate('/', { state: { fromRoom: true }, viewTransition: true });
+    navigate('/', {
+      state: { fromRoom: true },
+      viewTransition: canUseViewTransition(),
+    });
   }, [navigate]);
 
   useEffect(() => {

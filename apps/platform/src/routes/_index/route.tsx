@@ -7,6 +7,7 @@ import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { SiteFooter } from '../../components/legal/SiteFooter';
 import { ProfileSettingsModal } from '../../components/profile/ProfileSettingsModal';
 import { getPreviousPath } from '../../utils/navigationHistory';
+import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction } from './action';
 import { HomeRoomControls } from './components/HomeRoomControls';
 import { JoiningRoomState } from './components/JoiningRoomState';
@@ -149,11 +150,11 @@ export default function Home() {
     if (!requestedRoomId.trim()) return;
     const slug = requestedRoomId.trim().toLowerCase().replace(/\s+/g, '-');
     setPendingRoomSlug(slug);
-    navigate(`/${slug}`, { viewTransition: true });
+    navigate(`/${slug}`, { viewTransition: canUseViewTransition() });
   };
 
   const handleStartSession = () => {
-    navigate('/rooms/create', { viewTransition: true });
+    navigate('/rooms/create', { viewTransition: canUseViewTransition() });
   };
 
   const handleToggleAIMode = () => {

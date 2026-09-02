@@ -29,6 +29,7 @@ import {
 import { Link, useFetcher, useNavigate } from 'react-router';
 import type { RemoteControlActionData } from '../../routes/remote-control/action';
 import { createEmptyRemoteStatus } from '../../utils/remoteStatus';
+import { canUseViewTransition } from '../../utils/viewTransition';
 import { useKonamiMode } from '../konami/KonamiModeContext';
 
 interface RemoteControlContextValue {
@@ -102,7 +103,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     (event: { origin: string; roomId: string }) => {
       if (event.origin !== 'controller' || !event.roomId) return;
       navigate(`/${encodeURIComponent(event.roomId)}`, {
-        viewTransition: true,
+        viewTransition: canUseViewTransition(),
       });
     },
     [navigate],
