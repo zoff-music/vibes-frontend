@@ -8,6 +8,7 @@ WORKDIR /src
 RUN npm install -g pnpm@${PNPM_VERSION}
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml biome.json tsconfig.json ./
+COPY patches ./patches
 COPY apps/remote/package.json apps/remote/package.json
 COPY apps/platform/package.json apps/platform/package.json
 COPY apps/cast/package.json apps/cast/package.json
