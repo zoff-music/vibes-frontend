@@ -1,5 +1,6 @@
 import { AlertCircleIcon, Button } from '@vibes/ui/web';
 import { useNavigate } from 'react-router';
+import { canUseViewTransition } from '../../../utils/viewTransition';
 
 interface RoomErrorViewProps {
   isRoomNotFound: boolean;
@@ -34,7 +35,7 @@ export function RoomErrorView({
             <Button
               onClick={() =>
                 navigate(`/rooms/create?name=${encodeURIComponent(roomId)}`, {
-                  viewTransition: true,
+                  viewTransition: canUseViewTransition(),
                 })
               }
               variant="primary"

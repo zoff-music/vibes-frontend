@@ -7,6 +7,7 @@ interface QueueState {
   setSongs: (songs: Song[]) => void;
   addSong: (song: Song) => void;
   removeSong: (songId: string) => void;
+  positionSong: (song: Song, position: number) => void;
   updateSong: (song: Song) => void;
 }
 
@@ -29,6 +30,14 @@ export const useQueueStore = create<QueueState>((set) => ({
     set((state) => ({
       songs: state.songs.filter((s) => s.id !== songId),
     })),
+
+  positionSong: (song, position) =>
+    set((state) => {
+      const songs = state.songs.filter((item) => item.id !== song.id);
+      const boundedPosition = Math.min(Math.max(position, 0), songs.length);
+      songs.splice(boundedPosition, 0, song);
+      return { songs };
+    }),
 
   updateSong: (song) =>
     set((state) => ({

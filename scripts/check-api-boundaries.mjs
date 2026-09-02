@@ -113,6 +113,7 @@ const allowedApiHooks = new Set([
   'useAdminEvents',
   'useRemoteEvents',
   'useRoomEvents',
+  'useRoomEventsV2',
 ]);
 const allowedApiHookFiles = new Set(
   [...allowedApiHooks].map(

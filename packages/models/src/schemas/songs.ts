@@ -68,3 +68,14 @@ export type AddPlaylistResponse = z.infer<typeof addPlaylistResponseSchema>;
 
 export const songsListSchema = z.compile(z.array(songSchema));
 export type SongsList = z.infer<typeof songsListSchema>;
+
+export const songIdUpdateSchema = z.compile(z.object({ id: z.string() }));
+export type SongIdUpdate = z.infer<typeof songIdUpdateSchema>;
+
+export const songPositionUpdateSchema = z.compile(
+  z.object({
+    song: songSchema,
+    position: z.int().min(0),
+  }),
+);
+export type SongPositionUpdate = z.infer<typeof songPositionUpdateSchema>;

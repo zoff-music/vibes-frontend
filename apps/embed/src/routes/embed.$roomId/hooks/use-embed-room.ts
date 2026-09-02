@@ -1,4 +1,4 @@
-import { useRoomEvents } from '@vibes/api';
+import { useRoomEventsV2 } from '@vibes/api';
 import type { Room, Song } from '@vibes/models';
 import {
   synchronizeServerClock,
@@ -31,6 +31,8 @@ export function useEmbedRoomState(loaderData: EmbedLoaderData) {
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
   const setSongs = useQueueStore((state) => state.setSongs);
   const addSong = useQueueStore((state) => state.addSong);
+  const positionSong = useQueueStore((state) => state.positionSong);
+  const removeSong = useQueueStore((state) => state.removeSong);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const [hydratedRoomId, setHydratedRoomId] = useState<string | null>(null);
   const revalidate = useRevalidator().revalidate;
@@ -58,12 +60,17 @@ export function useEmbedRoomState(loaderData: EmbedLoaderData) {
       onReconnect: revalidate,
       onRoomUpdate: setRoom,
       onSongAdded: addSong,
+      onSongRemoved: ({ id }: { id: string }) => removeSong(id),
+      onSongUpdated: ({ song, position }: { song: Song; position: number }) =>
+        positionSong(song, position),
       onSongsUpdate: setSongs,
       onUsersUpdate: setUsersCount,
     }),
     [
       addSong,
+      positionSong,
       revalidate,
+      removeSong,
       setHost,
       setPlaybackState,
       setRoom,
@@ -71,7 +78,7 @@ export function useEmbedRoomState(loaderData: EmbedLoaderData) {
       setUsersCount,
     ],
   );
-  useRoomEvents(loaderData.roomId, sseCallbacks);
+  useRoomEventsV2(loaderData.roomId, sseCallbacks);
 
   useEffect(() => {
     setRoom(loaderData.room);
