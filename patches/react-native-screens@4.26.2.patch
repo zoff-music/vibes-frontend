@@ -1,0 +1,46 @@
+diff --git a/ios/tabs/host/RNSTabBarController.mm b/ios/tabs/host/RNSTabBarController.mm
+index 481a9e6d5367ff6cad083b001d8b1dd780918b47..4b45ac537a26682de5a3e3f544aca296f089939f 100644
+--- a/ios/tabs/host/RNSTabBarController.mm
++++ b/ios/tabs/host/RNSTabBarController.mm
+@@ -20,6 +20,27 @@ static constexpr NSUInteger kMinCountOfVCsForMoreVCPresence = 6;
+ @interface RNSTabBarController () <UITabBarControllerDelegate, UINavigationControllerDelegate>
+ @end
+ 
++@interface RNSInstantTabTransitionAnimator : NSObject <UIViewControllerAnimatedTransitioning>
++@end
++
++@implementation RNSInstantTabTransitionAnimator
++
++- (NSTimeInterval)transitionDuration:(nullable id<UIViewControllerContextTransitioning>)transitionContext
++{
++  return 0;
++}
++
++- (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext
++{
++  UIViewController *toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
++  UIView *toView = [transitionContext viewForKey:UITransitionContextToViewKey] ?: toViewController.view;
++  toView.frame = [transitionContext finalFrameForViewController:toViewController];
++  [[transitionContext containerView] addSubview:toView];
++  [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
++}
++
++@end
++
+ @interface RNSTabBarController ()
+ 
+ /// Consulted by the ISA-swizzled `pushViewController:animated:` on `moreNavigationController`
+@@ -194,6 +215,13 @@ static void rns_pushViewController(__unsafe_unretained id self,
+   RNSLog(@"TabBar: %@ didSelectItem: %@", tabBar, item);
+ }
+ 
++- (nullable id<UIViewControllerAnimatedTransitioning>)tabBarController:(UITabBarController *)tabBarController
++            animationControllerForTransitionFromViewController:(UIViewController *)fromVC
++                                              toViewController:(UIViewController *)toVC
++{
++  return [RNSInstantTabTransitionAnimator new];
++}
++
+ - (void)setSelectedIndex:(NSUInteger)selectedIndex
+ {
+   [super setSelectedIndex:selectedIndex];
