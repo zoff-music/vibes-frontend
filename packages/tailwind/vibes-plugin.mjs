@@ -238,6 +238,18 @@ export function addVibesUtilities({ addBase, addUtilities }) {
     '.text-theme-subtle': {
       color: 'var(--theme-text-subtle)',
     },
+    '.fill-theme-muted': {
+      fill: 'var(--theme-text-muted)',
+    },
+    '.fill-theme-subtle': {
+      fill: 'var(--theme-text-subtle)',
+    },
+    '.stroke-theme': {
+      stroke: 'var(--theme-border)',
+    },
+    '.stroke-theme-strong': {
+      stroke: 'var(--theme-border-strong)',
+    },
     '.bg-theme-surface': {
       backgroundColor: 'var(--theme-bg-surface)',
     },

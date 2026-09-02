@@ -107,11 +107,11 @@ export function SearchUsageChart({
   };
 
   return (
-    <div className="glass mb-4 rounded-2xl border-2 border-ink/10 p-5 dark:border-gray-700">
+    <div className="panel-surface mb-4 rounded-2xl border border-theme p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="font-bold text-lg">Search activity</h3>
-          <p className="text-ink/50 text-xs dark:text-gray-500">
+          <p className="text-theme-subtle text-xs">
             Searches in each {selectedWindow === 'hour' ? 'hour' : 'day'}. Quiet
             intervals are shown as zero.
           </p>
@@ -162,17 +162,17 @@ export function SearchUsageChart({
       </fieldset>
 
       <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <p className="font-black text-2xl text-ink dark:text-white">
+        <p className="font-black text-2xl text-theme">
           {shownUsage.total.toLocaleString()} searches
         </p>
-        <p className="text-ink/50 text-xs dark:text-gray-500">
+        <p className="text-theme-subtle text-xs">
           in the displayed {selectedWindow === 'hour' ? '24 hours' : '30 days'}{' '}
           · {shownUsage.live.toLocaleString()} live ·{' '}
           {shownUsage.cached.toLocaleString()} cached
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-4 text-ink/60 text-xs dark:text-gray-400">
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-theme-muted text-xs">
         <span className="inline-flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-primary" />
           Total
@@ -188,7 +188,7 @@ export function SearchUsageChart({
       </div>
 
       {!generatedAt && (
-        <p className="py-16 text-center text-ink/50 text-sm dark:text-gray-500">
+        <p className="py-16 text-center text-sm text-theme-subtle">
           Search activity is unavailable.
         </p>
       )}
@@ -204,14 +204,14 @@ export function SearchUsageChart({
             {yTicks.map((tick) => (
               <g key={tick}>
                 <line
-                  className="stroke-ink/10 dark:stroke-gray-700"
+                  className="stroke-theme"
                   x1={chartLeft}
                   x2={chartRight}
                   y1={yScale(tick)}
                   y2={yScale(tick)}
                 />
                 <text
-                  className="fill-ink/50 text-xs dark:fill-gray-500"
+                  className="fill-theme-subtle text-xs"
                   textAnchor="end"
                   x={chartLeft - chartAxisGap}
                   y={yScale(tick) + chartTickOffset}
@@ -222,7 +222,7 @@ export function SearchUsageChart({
             ))}
             {xTicks.map((tick) => (
               <text
-                className="fill-ink/50 text-xs dark:fill-gray-500"
+                className="fill-theme-subtle text-xs"
                 key={tick.toISOString()}
                 textAnchor="middle"
                 x={xScale(tick)}
@@ -288,7 +288,7 @@ export function SearchUsageChart({
             {hoveredBucket && (
               <g pointerEvents="none">
                 <rect
-                  className="fill-theme-surface stroke-ink/20 dark:stroke-gray-600"
+                  className="fill-theme-surface stroke-theme-strong"
                   height={tooltipHeight}
                   rx={tooltipRadius}
                   width={tooltipWidth}
@@ -296,7 +296,7 @@ export function SearchUsageChart({
                   y={tooltipTop}
                 />
                 <text
-                  className="fill-ink/60 text-xs dark:fill-gray-400"
+                  className="fill-theme-muted text-xs"
                   x={hoveredX + tooltipPadding}
                   y={tooltipTop + tooltipTimestampOffset}
                 >

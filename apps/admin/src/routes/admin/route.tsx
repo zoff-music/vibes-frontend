@@ -64,14 +64,14 @@ export default function AdminLayout() {
 
   if (!session.authorized || !session.user) {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-surface px-6 py-12 text-ink dark:bg-gray-900 dark:text-white">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-theme px-6 py-12 text-theme">
         <div className="relative z-10 w-full max-w-md">
-          <div className="glass rounded-3xl border-2 border-ink/10 p-8 dark:border-gray-700">
+          <div className="panel-strong rounded-3xl border border-theme-strong p-8">
             <div className="mb-6 text-center">
               <h1 className="mb-2 font-black text-3xl tracking-tight">
                 Admin Access
               </h1>
-              <p className="text-ink/60 text-sm dark:text-gray-400">
+              <p className="text-sm text-theme-muted">
                 Sign in with your admin account.
               </p>
             </div>
@@ -79,12 +79,12 @@ export default function AdminLayout() {
             <fetcher.Form className="space-y-4" method="post">
               <input name="intent" type="hidden" value="login" />
               <label className="block">
-                <span className="mb-2 block font-semibold text-ink/80 text-xs uppercase tracking-widest dark:text-gray-400">
+                <span className="mb-2 block font-semibold text-theme-muted text-xs uppercase tracking-widest">
                   Username
                 </span>
                 <input
                   autoComplete="username"
-                  className="w-full rounded-xl border-2 border-ink/20 bg-surface px-4 py-3 font-mono text-base text-ink transition-all placeholder:text-ink/40 focus:border-primary focus:shadow-focus-primary focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500"
+                  className="w-full rounded-xl border-2 border-theme bg-theme-surface px-4 py-3 font-mono text-base text-theme transition-all placeholder:text-theme-subtle focus:border-primary focus:shadow-focus-primary focus:outline-hidden"
                   disabled={isSubmitting}
                   maxLength={64}
                   minLength={3}
@@ -98,12 +98,12 @@ export default function AdminLayout() {
               </label>
 
               <label className="block">
-                <span className="mb-2 block font-semibold text-ink/80 text-xs uppercase tracking-widest dark:text-gray-400">
+                <span className="mb-2 block font-semibold text-theme-muted text-xs uppercase tracking-widest">
                   Password
                 </span>
                 <input
                   autoComplete="current-password"
-                  className="w-full rounded-xl border-2 border-ink/20 bg-surface px-4 py-3 font-mono text-base text-ink transition-all placeholder:text-ink/40 focus:border-primary focus:shadow-focus-primary focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500"
+                  className="w-full rounded-xl border-2 border-theme bg-theme-surface px-4 py-3 font-mono text-base text-theme transition-all placeholder:text-theme-subtle focus:border-primary focus:shadow-focus-primary focus:outline-hidden"
                   disabled={isSubmitting}
                   maxLength={128}
                   minLength={16}
@@ -142,12 +142,12 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-surface px-4 py-8 text-ink sm:px-6 dark:bg-gray-900 dark:text-white">
+    <div className="min-h-screen overflow-x-hidden bg-theme px-4 py-8 text-theme sm:px-6">
       <div className="mx-auto max-w-5xl space-y-8">
-        <header className="glass rounded-2xl border-2 border-ink/10 p-4 dark:border-gray-700">
+        <header className="panel-strong rounded-2xl border border-theme-strong p-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-ink/50 text-xs uppercase tracking-widest dark:text-gray-500">
+              <p className="text-theme-subtle text-xs uppercase tracking-widest">
                 Zoff administration
               </p>
               <p className="font-black text-2xl tracking-tight">
@@ -165,7 +165,7 @@ export default function AdminLayout() {
 
           <nav
             aria-label="Admin navigation"
-            className="mt-4 flex flex-wrap gap-2 border-ink/10 border-t pt-4 dark:border-gray-700"
+            className="mt-4 flex flex-wrap gap-2 border-theme border-t pt-4"
           >
             <NavLink className={getNavigationClassName} end to="/admin">
               Overview
@@ -187,10 +187,10 @@ export default function AdminLayout() {
 
 function getNavigationClassName({ isActive }: NavLinkRenderProps) {
   if (isActive) {
-    return 'cursor-pointer rounded-xl bg-primary px-4 py-2 font-bold text-sm text-white';
+    return 'cursor-pointer rounded-xl bg-primary px-4 py-2 font-bold text-sm text-text-inverse';
   }
 
-  return 'cursor-pointer rounded-xl bg-ink/5 px-4 py-2 font-bold text-ink/60 text-sm transition-colors hover:bg-ink/10 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700';
+  return 'cursor-pointer rounded-xl border border-theme bg-theme-surface px-4 py-2 font-bold text-sm text-theme-muted transition-colors hover:border-theme-strong hover:text-theme';
 }
 
 export function ErrorBoundary() {
