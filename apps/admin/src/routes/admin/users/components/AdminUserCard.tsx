@@ -31,7 +31,7 @@ export function AdminUserCard({
   const isResetting = admin.id === resetAdminID;
 
   return (
-    <article className="glass rounded-2xl border-2 border-ink/10 p-5 dark:border-gray-700">
+    <article className="panel-surface rounded-2xl border border-theme p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -42,7 +42,7 @@ export function AdminUserCard({
               </span>
             )}
           </div>
-          <p className="mt-1 text-ink/50 text-xs dark:text-gray-500">
+          <p className="mt-1 text-theme-subtle text-xs">
             Created {adminDateFormatter.format(new Date(admin.createdAt))}
           </p>
         </div>
@@ -71,19 +71,19 @@ export function AdminUserCard({
 
       {isResetting && (
         <form
-          className="mt-4 flex flex-col gap-3 border-ink/10 border-t pt-4 sm:flex-row sm:items-end dark:border-gray-700"
+          className="mt-4 flex flex-col gap-3 border-theme border-t pt-4 sm:flex-row sm:items-end"
           method="post"
           onSubmit={onResetPassword}
         >
           <input name="intent" type="hidden" value="resetPassword" />
           <input name="adminId" type="hidden" value={admin.id} />
           <label className="min-w-0 flex-1">
-            <span className="mb-2 block font-semibold text-ink/80 text-xs uppercase tracking-widest dark:text-gray-400">
+            <span className="mb-2 block font-semibold text-theme-muted text-xs uppercase tracking-widest">
               New password
             </span>
             <input
               autoComplete="new-password"
-              className="w-full rounded-xl border border-ink/15 bg-surface px-4 py-3 font-mono text-base text-ink outline-hidden transition-colors focus:border-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+              className="w-full rounded-xl border border-theme bg-theme-surface px-4 py-3 font-mono text-base text-theme outline-hidden transition-colors focus:border-primary"
               disabled={isSubmitting}
               maxLength={128}
               minLength={16}

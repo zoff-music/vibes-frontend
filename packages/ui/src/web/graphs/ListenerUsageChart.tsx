@@ -68,11 +68,11 @@ export function ListenerUsageChart({
   };
 
   return (
-    <div className="glass mb-4 rounded-2xl border-2 border-ink/10 p-5 dark:border-gray-700">
+    <div className="panel-surface mb-4 rounded-2xl border border-theme p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="font-bold text-lg">Listener activity</h3>
-          <p className="text-ink/50 text-xs dark:text-gray-500">
+          <p className="text-theme-subtle text-xs">
             Peak concurrent listeners in each interval. Missing intervals had no
             listeners.
           </p>
@@ -83,9 +83,9 @@ export function ListenerUsageChart({
               aria-pressed={selectedWindow === window.id}
               className={classNames(
                 'rounded-lg px-3 py-2 font-bold text-xs',
-                selectedWindow === window.id && 'bg-primary text-white',
+                selectedWindow === window.id && 'bg-primary text-text-inverse',
                 selectedWindow !== window.id &&
-                  'bg-ink/5 text-ink/60 transition-colors hover:bg-ink/10 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700',
+                  'border border-theme bg-theme-surface text-theme-muted transition-colors hover:border-theme-strong hover:text-theme',
               )}
               key={window.id}
               onClick={handleWindowChange}
@@ -100,20 +100,16 @@ export function ListenerUsageChart({
 
       <div className="mt-4 flex gap-6">
         <div>
-          <p className="text-ink/50 text-xs uppercase tracking-wider dark:text-gray-500">
+          <p className="text-theme-subtle text-xs uppercase tracking-wider">
             Latest bucket
           </p>
-          <p className="font-black text-2xl text-ink dark:text-white">
-            {currentListeners}
-          </p>
+          <p className="font-black text-2xl text-theme">{currentListeners}</p>
         </div>
         <div>
-          <p className="text-ink/50 text-xs uppercase tracking-wider dark:text-gray-500">
+          <p className="text-theme-subtle text-xs uppercase tracking-wider">
             Peak
           </p>
-          <p className="font-black text-2xl text-ink dark:text-white">
-            {highestListeners}
-          </p>
+          <p className="font-black text-2xl text-theme">{highestListeners}</p>
         </div>
       </div>
 
@@ -128,14 +124,14 @@ export function ListenerUsageChart({
             {yTicks.map((tick) => (
               <g key={tick}>
                 <line
-                  className="stroke-ink/10 dark:stroke-gray-700"
+                  className="stroke-theme"
                   x1={chartLeft}
                   x2={chartRight}
                   y1={yScale(tick)}
                   y2={yScale(tick)}
                 />
                 <text
-                  className="fill-ink/50 text-xs dark:fill-gray-500"
+                  className="fill-theme-subtle text-xs"
                   textAnchor="end"
                   x={chartLeft - chartAxisGap}
                   y={yScale(tick) + chartTickOffset}
@@ -146,7 +142,7 @@ export function ListenerUsageChart({
             ))}
             {xTicks.map((tick) => (
               <text
-                className="fill-ink/50 text-xs dark:fill-gray-500"
+                className="fill-theme-subtle text-xs"
                 key={tick.toISOString()}
                 textAnchor="middle"
                 x={xScale(tick)}
@@ -193,7 +189,7 @@ export function ListenerUsageChart({
             {hoveredBucket && (
               <g pointerEvents="none">
                 <rect
-                  className="fill-theme-surface stroke-ink/20 dark:stroke-gray-600"
+                  className="fill-theme-surface stroke-theme-strong"
                   height={tooltipHeight}
                   rx={tooltipRadius}
                   width={tooltipWidth}
@@ -201,7 +197,7 @@ export function ListenerUsageChart({
                   y={tooltipTop}
                 />
                 <text
-                  className="fill-ink/60 text-xs dark:fill-gray-400"
+                  className="fill-theme-muted text-xs"
                   x={hoveredX + tooltipPadding}
                   y={tooltipTop + tooltipTimestampOffset}
                 >

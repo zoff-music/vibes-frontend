@@ -207,7 +207,7 @@ export default function AdminRooms() {
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-black text-3xl tracking-tight">Rooms</h1>
-          <p className="text-ink/60 text-sm dark:text-gray-400">
+          <p className="text-sm text-theme-muted">
             {hasRooms
               ? `${liveRoomResult.total} rooms, ${totalViewers} listeners on this page`
               : roomSearch.q
@@ -260,7 +260,7 @@ export default function AdminRooms() {
         aria-label="Room pagination"
         className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
-        <p className="text-ink/60 text-sm dark:text-gray-400">
+        <p className="text-sm text-theme-muted">
           {liveRoomResult.total === 0
             ? 'No rooms'
             : `${liveRoomResult.from + 1}–${liveRoomResult.to + 1} of ${liveRoomResult.total}`}

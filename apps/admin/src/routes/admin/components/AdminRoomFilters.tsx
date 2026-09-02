@@ -47,11 +47,11 @@ export function AdminRoomFilters({
 
   return (
     <form
-      className="glass flex flex-col gap-3 rounded-2xl border-2 border-ink/10 p-4 sm:flex-row dark:border-gray-700"
+      className="panel-surface flex flex-col gap-3 rounded-2xl border border-theme p-4 sm:flex-row"
       onSubmit={handleSearch}
     >
       <input
-        className="min-w-0 flex-1 rounded-xl border border-ink/15 bg-surface px-4 py-3 text-base text-ink outline-hidden transition-colors placeholder:text-ink/40 focus:border-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+        className="min-w-0 flex-1 rounded-xl border border-theme bg-theme-surface px-4 py-3 text-base text-theme outline-hidden transition-colors placeholder:text-theme-subtle focus:border-primary"
         disabled={disabled}
         maxLength={roomQueryMaximumLength}
         onChange={handleQueryChange}
@@ -61,7 +61,7 @@ export function AdminRoomFilters({
       />
       <select
         aria-label="Sort rooms"
-        className="rounded-xl border border-ink/15 bg-surface px-4 py-3 text-base text-ink outline-hidden transition-colors focus:border-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+        className="rounded-xl border border-theme bg-theme-surface px-4 py-3 text-base text-theme outline-hidden transition-colors focus:border-primary"
         disabled={disabled}
         onChange={handleSort}
         value={`${search.sortBy}:${search.order}`}
