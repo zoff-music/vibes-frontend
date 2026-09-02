@@ -1,0 +1,17 @@
+diff --git a/index.d.ts b/index.d.ts
+index 10b9c145b920a6a2ba1fb09bd72150328fafe211..092cced16bf4cf65a99215f72bd139488f158f08 100644
+--- a/index.d.ts
++++ b/index.d.ts
+@@ -3,7 +3,10 @@ import { IOSWebViewProps, AndroidWebViewProps, WindowsWebViewProps } from './lib
+ 
+ export { FileDownload, WebViewMessageEvent, WebViewNavigation } from './lib/WebViewTypes';
+ 
+-export type WebViewProps = IOSWebViewProps & AndroidWebViewProps & WindowsWebViewProps;
++export type WebViewProps =
++  | IOSWebViewProps
++  | AndroidWebViewProps
++  | WindowsWebViewProps;
+ 
+-declare class WebView<P = undefined> extends Component<WebViewProps & P> {
++declare class WebView<P = object> extends Component<WebViewProps & P> {
+   /**

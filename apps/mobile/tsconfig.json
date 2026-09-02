@@ -1,6 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "customConditions": ["react-native-legacy-deep-imports"],
     "strict": true,
     "paths": {
       "@/*": ["./src/*"],

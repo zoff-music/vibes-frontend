@@ -2,11 +2,11 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "allowJs": false,
-    "baseUrl": ".",
+    "customConditions": ["react-native-legacy-deep-imports"],
     "ignoreDeprecations": "6.0",
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "strict": true
   },
