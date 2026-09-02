@@ -77,3 +77,5 @@ minimumReleaseAgeExclude:
   - expo-splash-screen@57.0.7
   - expo@57.0.14
   - '@expo/metro-runtime@57.0.11'
+patchedDependencies:
+  react-native-screens@4.26.2: patches/react-native-screens@4.26.2.patch

@@ -85,7 +85,10 @@ export function RoomsScreen() {
 
   const refreshDiscovery = useCallback(async () => {
     setRefreshing(true);
-    const result = await discoveryFetcher.load();
+    const [result] = await Promise.all([
+      discoveryFetcher.load(),
+      waitForMinimumRefreshSpin(),
+    ]);
     if (result.data) setDiscoveryData(result.data);
     setRefreshing(false);
   }, [discoveryFetcher]);
@@ -103,7 +106,7 @@ export function RoomsScreen() {
       refreshLogoTranslateY.value = withTiming(0, { duration: 140 });
       refreshLogoRotation.value = withRepeat(
         withTiming(refreshLogoRotation.value + 360, {
-          duration: 1600,
+          duration: refreshLogoRotationDurationMs,
           easing: Easing.linear,
         }),
         -1,
@@ -458,6 +461,14 @@ export function RoomsScreen() {
 }
 
 const roomsPerRow = 2;
+const refreshLogoRotationDurationMs = 1200;
+const minimumRefreshSpinDurationMs = refreshLogoRotationDurationMs + 200;
+
+function waitForMinimumRefreshSpin(): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, minimumRefreshSpinDurationMs);
+  });
+}
 const refreshLogoHiddenOffset = 56;
 const refreshLogoTopSpacing = 12;
 const refreshPullDistance = 80;
