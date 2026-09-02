@@ -1,0 +1,19 @@
+diff --git a/rn-get-polyfills.js b/rn-get-polyfills.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..5a9bddc0959cbc3b5fa7335a085a515005434d7a
+--- /dev/null
++++ b/rn-get-polyfills.js
+@@ -0,0 +1,13 @@
++/**
++ * Copyright (c) Meta Platforms, Inc. and affiliates.
++ *
++ * This source code is licensed under the MIT license found in the
++ * LICENSE file in the root directory of this source tree.
++ *
++ * @flow strict-local
++ * @format
++ */
++
++'use strict';
++
++module.exports = require('@react-native/js-polyfills');
