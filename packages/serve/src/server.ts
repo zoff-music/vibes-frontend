@@ -147,6 +147,7 @@ export async function startServer(config: ServerConfig) {
   const sdk = initTracing(config.serviceName);
 
   const app = express();
+  app.set('trust proxy', 1);
   app.use(
     createBodySizeLimitMiddleware({
       maxBytes: resolveBodySizeLimitBytes(config),
