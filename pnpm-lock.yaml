@@ -25,7 +25,7 @@ overrides:
   vite: 8.2.2
 
 patchedDependencies:
-  react-native-screens@4.27.0: 911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c
+  react-native-screens@4.26.2: 911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c
   react-native-webview@14.0.1: 4d8feb0be219a14012adbaab4fd6a848ed6f3af5ce663a1dbcac009e64e88207
 
 importers:
@@ -308,7 +308,7 @@ importers:
         version: 57.0.9(expo@57.0.19)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1)
       expo-router:
         specifier: ~57.0.18
-        version: 57.0.18(f3e23351714e6f741f7c05b768d89a30)
+        version: 57.0.18(e14f00568f1be89deb1d4e791a94977a)
       expo-screen-orientation:
         specifier: ~57.0.2
         version: 57.0.2(expo@57.0.19)(react-native-tvos@0.86.2-0)
@@ -352,8 +352,8 @@ importers:
         specifier: ~5.9.1
         version: 5.9.1(react-native-tvos@0.86.2-0)(react@19.2.8)
       react-native-screens:
-        specifier: ~4.27.0
-        version: 4.27.0(patch_hash=911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c)(react-native-tvos@0.86.2-0)(react@19.2.8)
+        specifier: 4.26.2
+        version: 4.26.2(patch_hash=911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c)(react-native-tvos@0.86.2-0)(react@19.2.8)
       react-native-svg:
         specifier: ^15.15.5
         version: 15.15.5(react-native-tvos@0.86.2-0)(react@19.2.8)
@@ -4728,8 +4728,8 @@ packages:
       react: '*'
       react-native: '*'
 
-  react-native-screens@4.27.0:
-    resolution: {integrity: sha512-IUukKYilhKhdJqGh59BmxrAjgIO84CaOkdowEY20+RmapOAFpqS//xOIcq2iqDQ4xVoxuwCHGWhY/Tbz6lTblA==}
+  react-native-screens@4.26.2:
+    resolution: {integrity: sha512-2XnWsZToKj76trGtEZzx5ELD/qOICFEprEeUntImmitQFVUkea27fiWdUSITArI356Y1qynpXZINW+Unbhky/A==}
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -6410,7 +6410,7 @@ snapshots:
       ws: 8.21.3
       zod: 3.25.76
     optionalDependencies:
-      expo-router: 57.0.18(f3e23351714e6f741f7c05b768d89a30)
+      expo-router: 57.0.18(e14f00568f1be89deb1d4e791a94977a)
       react-native: react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1)
     transitivePeerDependencies:
       - '@expo/dom-webview'
@@ -6687,7 +6687,7 @@ snapshots:
       react: 19.2.8
     optionalDependencies:
       '@expo/metro-runtime': 57.0.15(@expo/log-box@57.0.4)(expo@57.0.19)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0)(react@19.2.8)
-      expo-router: 57.0.18(f3e23351714e6f741f7c05b768d89a30)
+      expo-router: 57.0.18(e14f00568f1be89deb1d4e791a94977a)
       react-dom: 19.2.8(react@19.2.8)
     transitivePeerDependencies:
       - supports-color
@@ -8792,7 +8792,7 @@ snapshots:
     dependencies:
       react-native: react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1)
 
-  expo-router@57.0.18(f3e23351714e6f741f7c05b768d89a30):
+  expo-router@57.0.18(e14f00568f1be89deb1d4e791a94977a):
     dependencies:
       '@expo/log-box': 57.0.4(@expo/dom-webview@57.0.1)(expo@57.0.19)(react-native-tvos@0.86.2-0)(react@19.2.8)
       '@expo/metro-runtime': 57.0.15(@expo/log-box@57.0.4)(expo@57.0.19)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0)(react@19.2.8)
@@ -8821,7 +8821,7 @@ snapshots:
       react-native: react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1)
       react-native-drawer-layout: 4.2.10(react-native-gesture-handler@3.2.1(react-native-tvos@0.86.2-0)(react@19.2.8))(react-native-reanimated@4.6.0(react-native-tvos@0.86.2-0)(react-native-worklets@0.12.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8))(react-native-tvos@0.86.2-0)(react@19.2.8)
       react-native-safe-area-context: 5.9.1(react-native-tvos@0.86.2-0)(react@19.2.8)
-      react-native-screens: 4.27.0(patch_hash=911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c)(react-native-tvos@0.86.2-0)(react@19.2.8)
+      react-native-screens: 4.26.2(patch_hash=911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c)(react-native-tvos@0.86.2-0)(react@19.2.8)
       server-only: 0.0.1
       sf-symbols-typescript: 2.2.0
       shallowequal: 1.1.0
@@ -9928,7 +9928,7 @@ snapshots:
       react: 19.2.8
       react-native: react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1)
 
-  react-native-screens@4.27.0(patch_hash=911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c)(react-native-tvos@0.86.2-0)(react@19.2.8):
+  react-native-screens@4.26.2(patch_hash=911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c)(react-native-tvos@0.86.2-0)(react@19.2.8):
     dependencies:
       react: 19.2.8
       react-freeze: 1.0.4(react@19.2.8)

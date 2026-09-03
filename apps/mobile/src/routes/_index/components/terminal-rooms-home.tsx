@@ -67,7 +67,7 @@ export function TerminalRoomsHome({
 
   return (
     <Screen>
-      <SafeAreaView className="flex-1" edges={['top']}>
+      <SafeAreaView edges={['top']} style={safeAreaStyle}>
         {refreshLogo}
         <ScrollView
           contentContainerClassName="px-3 pt-3 pb-40"
@@ -254,6 +254,7 @@ export function TerminalRoomsHome({
 }
 
 const terminalBackgroundColor = '#010705';
+const safeAreaStyle = { flex: 1 };
 
 function TerminalRegister({ label, value }: { label: string; value: string }) {
   return (
