@@ -39,7 +39,7 @@ export function RemoteControl({
 
   return (
     <Screen>
-      <SafeAreaView className="flex-1" edges={['top']}>
+      <SafeAreaView edges={['top']} style={safeAreaStyle}>
         {room && (
           <>
             <Queue
@@ -159,3 +159,5 @@ export function RemoteControl({
     </Screen>
   );
 }
+
+const safeAreaStyle = { flex: 1 };

@@ -207,43 +207,45 @@ export function SettingsScreen() {
   if (konamiEnabled) {
     return (
       <Screen>
-        <SafeAreaView className="flex-1" edges={['top']}>
-          <ScrollView
-            contentContainerClassName="p-3 pb-28"
-            key="terminal-settings"
-            onContentSizeChange={scrollEdgeFades.onContentSizeChange}
-            onLayout={scrollEdgeFades.onLayout}
-            onScroll={scrollEdgeFades.onScroll}
-            scrollEventThrottle={16}
-          >
-            <ContentColumn>
-              <NativeTerminalShell
-                channel="SYSTEM CONFIG"
-                title="SETTINGS"
-                footer={
-                  <>
-                    <Text className="font-heading text-[#a6ffd0]/65 text-xs uppercase tracking-widest">
-                      SIGNAL LOCKED
-                    </Text>
-                    <Text className="font-heading text-[#a6ffd0]/65 text-xs uppercase tracking-widest">
-                      KONAMI LINK ACTIVE
-                    </Text>
-                  </>
-                }
-              >
-                <NativeTerminalToolbar
-                  description="LOCAL DEVICE / ROOM / LINK PARAMETERS"
-                  title="ZOFF / SYSTEM CONFIG"
-                />
-                {settingsContent}
-              </NativeTerminalShell>
-            </ContentColumn>
-          </ScrollView>
-          <ScrollEdgeFades
-            backgroundColor={theme.background}
-            bottomVisible={scrollEdgeFades.bottomVisible}
-            topVisible={scrollEdgeFades.topVisible}
-          />
+        <SafeAreaView edges={['top']} style={safeAreaStyle}>
+          <View className="flex-1">
+            <ScrollView
+              contentContainerClassName="p-3 pb-28"
+              key="terminal-settings"
+              onContentSizeChange={scrollEdgeFades.onContentSizeChange}
+              onLayout={scrollEdgeFades.onLayout}
+              onScroll={scrollEdgeFades.onScroll}
+              scrollEventThrottle={16}
+            >
+              <ContentColumn>
+                <NativeTerminalShell
+                  channel="SYSTEM CONFIG"
+                  title="SETTINGS"
+                  footer={
+                    <>
+                      <Text className="font-heading text-[#a6ffd0]/65 text-xs uppercase tracking-widest">
+                        SIGNAL LOCKED
+                      </Text>
+                      <Text className="font-heading text-[#a6ffd0]/65 text-xs uppercase tracking-widest">
+                        KONAMI LINK ACTIVE
+                      </Text>
+                    </>
+                  }
+                >
+                  <NativeTerminalToolbar
+                    description="LOCAL DEVICE / ROOM / LINK PARAMETERS"
+                    title="ZOFF / SYSTEM CONFIG"
+                  />
+                  {settingsContent}
+                </NativeTerminalShell>
+              </ContentColumn>
+            </ScrollView>
+            <ScrollEdgeFades
+              backgroundColor={theme.background}
+              bottomVisible={scrollEdgeFades.bottomVisible}
+              topVisible={scrollEdgeFades.topVisible}
+            />
+          </View>
           {room && (
             <RoomSettingsSheet
               providers={providers}
@@ -267,162 +269,166 @@ export function SettingsScreen() {
   }
   return (
     <Screen>
-      <SafeAreaView className="flex-1" edges={['top']}>
-        <ScrollView
-          contentContainerClassName="gap-4 p-4 pb-28"
-          onContentSizeChange={scrollEdgeFades.onContentSizeChange}
-          onLayout={scrollEdgeFades.onLayout}
-          onScroll={scrollEdgeFades.onScroll}
-          scrollEventThrottle={16}
-        >
-          <ContentColumn>
-            <View className="gap-4">
-              <Heading>Settings</Heading>
-              <View className="gap-2">
-                <Copy muted>DEVICE</Copy>
-                <Card>
-                  <SettingsRow
-                    description="Choose how your song additions are credited."
-                    label={profile?.name ?? 'Display name'}
-                    onPress={() => setProfileSettingsVisible(true)}
-                  />
-                  <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
-                  <Copy muted>APPEARANCE</Copy>
-                  <View className="flex-row gap-2">
-                    <View className="flex-1">
-                      <ThemeButton
-                        active={preference === 'auto'}
-                        icon="auto"
-                        label="Auto"
-                        onPress={() => void setPreference('auto')}
+      <SafeAreaView edges={['top']} style={safeAreaStyle}>
+        <View className="flex-1">
+          <ScrollView
+            contentContainerClassName="gap-4 p-4 pb-28"
+            onContentSizeChange={scrollEdgeFades.onContentSizeChange}
+            onLayout={scrollEdgeFades.onLayout}
+            onScroll={scrollEdgeFades.onScroll}
+            scrollEventThrottle={16}
+          >
+            <ContentColumn>
+              <View className="gap-4">
+                <Heading>Settings</Heading>
+                <View className="gap-2">
+                  <Copy muted>DEVICE</Copy>
+                  <Card>
+                    <SettingsRow
+                      description="Choose how your song additions are credited."
+                      label={profile?.name ?? 'Display name'}
+                      onPress={() => setProfileSettingsVisible(true)}
+                    />
+                    <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                    <Copy muted>APPEARANCE</Copy>
+                    <View className="flex-row gap-2">
+                      <View className="flex-1">
+                        <ThemeButton
+                          active={preference === 'auto'}
+                          icon="auto"
+                          label="Auto"
+                          onPress={() => void setPreference('auto')}
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <ThemeButton
+                          active={preference === 'light'}
+                          icon="sun"
+                          label="Light"
+                          onPress={() => void setPreference('light')}
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <ThemeButton
+                          active={preference === 'dark'}
+                          icon="moon"
+                          label="Dark"
+                          onPress={() => void setPreference('dark')}
+                        />
+                      </View>
+                    </View>
+                    <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                    <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
+                      <View className="min-w-0 flex-1 gap-1">
+                        <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
+                          Player enabled
+                        </Text>
+                        <Copy muted>
+                          Load music and video players on this device while in a
+                          room.
+                        </Copy>
+                      </View>
+                      <Switch
+                        disabled={!playerPreferenceLoaded}
+                        ios_backgroundColor={theme.surface}
+                        trackColor={{
+                          false: theme.surface,
+                          true: theme.accent,
+                        }}
+                        value={playerEnabled}
+                        onValueChange={(enabled) =>
+                          void setPlayerEnabled(enabled)
+                        }
                       />
                     </View>
-                    <View className="flex-1">
-                      <ThemeButton
-                        active={preference === 'light'}
-                        icon="sun"
-                        label="Light"
-                        onPress={() => void setPreference('light')}
-                      />
-                    </View>
-                    <View className="flex-1">
-                      <ThemeButton
-                        active={preference === 'dark'}
-                        icon="moon"
-                        label="Dark"
-                        onPress={() => void setPreference('dark')}
-                      />
-                    </View>
-                  </View>
-                  <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
-                  <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
-                    <View className="min-w-0 flex-1 gap-1">
-                      <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
-                        Player enabled
-                      </Text>
-                      <Copy muted>
-                        Load music and video players on this device while in a
-                        room.
-                      </Copy>
-                    </View>
-                    <Switch
-                      disabled={!playerPreferenceLoaded}
-                      ios_backgroundColor={theme.surface}
-                      trackColor={{
-                        false: theme.surface,
-                        true: theme.accent,
-                      }}
-                      value={playerEnabled}
-                      onValueChange={(enabled) =>
-                        void setPlayerEnabled(enabled)
+                  </Card>
+                  <Toast message={themeWarning} />
+                  <Toast message={konamiWarning} />
+                </View>
+                <DeviceRemoteSettings />
+                <View className="gap-2">
+                  <Copy muted>ROOM</Copy>
+                  <Card>
+                    <SettingsRow
+                      description={
+                        room
+                          ? `${room.mode} mode · ${room.settings.enabledSources.join(', ')}`
+                          : 'Join a room to configure it.'
+                      }
+                      disabled={!room}
+                      label={room?.name ?? 'No active room'}
+                      onPress={() => setRoomSettingsVisible(true)}
+                    />
+                  </Card>
+                </View>
+                <View className="gap-2">
+                  <Copy muted>MUSIC PROVIDERS</Copy>
+                  <Card>
+                    <Copy>
+                      {providers.length
+                        ? providers.join(' · ')
+                        : 'No providers enabled'}
+                    </Copy>
+                    <Copy muted>
+                      Playback uses each provider’s official embedded player and
+                      controls.
+                    </Copy>
+                  </Card>
+                </View>
+                <View className="gap-2">
+                  <Copy muted>ABOUT</Copy>
+                  <Card>
+                    <SettingsRow
+                      label="Privacy policy"
+                      onPress={() =>
+                        void Linking.openURL('https://zoff.me/privacy-policy')
                       }
                     />
-                  </View>
-                </Card>
-                <Toast message={themeWarning} />
-                <Toast message={konamiWarning} />
-              </View>
-              <DeviceRemoteSettings />
-              <View className="gap-2">
-                <Copy muted>ROOM</Copy>
-                <Card>
-                  <SettingsRow
-                    description={
-                      room
-                        ? `${room.mode} mode · ${room.settings.enabledSources.join(', ')}`
-                        : 'Join a room to configure it.'
-                    }
-                    disabled={!room}
-                    label={room?.name ?? 'No active room'}
-                    onPress={() => setRoomSettingsVisible(true)}
+                    <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                    <SettingsRow
+                      label="Terms of service"
+                      onPress={() =>
+                        void Linking.openURL('https://zoff.me/terms-of-service')
+                      }
+                    />
+                    <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                    <SettingsRow
+                      description={
+                        Constants.expoConfig?.version ?? 'development'
+                      }
+                      label="Zoff Mobile"
+                      onPress={handleVersionPress}
+                      showDisclosure={false}
+                      testID="app-version-card"
+                    />
+                  </Card>
+                </View>
+                {room && (
+                  <RoomSettingsSheet
+                    providers={providers}
+                    room={room}
+                    visible={roomSettingsVisible}
+                    onAuthenticated={rememberRoomAdminPassword}
+                    onClose={() => setRoomSettingsVisible(false)}
+                    onLoggedOut={forgetRoomAdminPassword}
+                    onUpdated={refresh}
                   />
-                </Card>
-              </View>
-              <View className="gap-2">
-                <Copy muted>MUSIC PROVIDERS</Copy>
-                <Card>
-                  <Copy>
-                    {providers.length
-                      ? providers.join(' · ')
-                      : 'No providers enabled'}
-                  </Copy>
-                  <Copy muted>
-                    Playback uses each provider’s official embedded player and
-                    controls.
-                  </Copy>
-                </Card>
-              </View>
-              <View className="gap-2">
-                <Copy muted>ABOUT</Copy>
-                <Card>
-                  <SettingsRow
-                    label="Privacy policy"
-                    onPress={() =>
-                      void Linking.openURL('https://zoff.me/privacy-policy')
-                    }
-                  />
-                  <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
-                  <SettingsRow
-                    label="Terms of service"
-                    onPress={() =>
-                      void Linking.openURL('https://zoff.me/terms-of-service')
-                    }
-                  />
-                  <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
-                  <SettingsRow
-                    description={Constants.expoConfig?.version ?? 'development'}
-                    label="Zoff Mobile"
-                    onPress={handleVersionPress}
-                    showDisclosure={false}
-                    testID="app-version-card"
-                  />
-                </Card>
-              </View>
-              {room && (
-                <RoomSettingsSheet
-                  providers={providers}
-                  room={room}
-                  visible={roomSettingsVisible}
-                  onAuthenticated={rememberRoomAdminPassword}
-                  onClose={() => setRoomSettingsVisible(false)}
-                  onLoggedOut={forgetRoomAdminPassword}
-                  onUpdated={refresh}
+                )}
+                <ProfileSettingsSheet
+                  initialProfile={profile}
+                  visible={profileSettingsVisible}
+                  onClose={() => setProfileSettingsVisible(false)}
+                  onSaved={handleProfileSaved}
                 />
-              )}
-              <ProfileSettingsSheet
-                initialProfile={profile}
-                visible={profileSettingsVisible}
-                onClose={() => setProfileSettingsVisible(false)}
-                onSaved={handleProfileSaved}
-              />
-            </View>
-          </ContentColumn>
-        </ScrollView>
-        <ScrollEdgeFades
-          backgroundColor={theme.background}
-          bottomVisible={scrollEdgeFades.bottomVisible}
-          topVisible={scrollEdgeFades.topVisible}
-        />
+              </View>
+            </ContentColumn>
+          </ScrollView>
+          <ScrollEdgeFades
+            backgroundColor={theme.background}
+            bottomVisible={scrollEdgeFades.bottomVisible}
+            topVisible={scrollEdgeFades.topVisible}
+          />
+        </View>
       </SafeAreaView>
     </Screen>
   );
@@ -535,3 +541,4 @@ function SettingsRow({
 }
 
 const konamiTapCount = 29;
+const safeAreaStyle = { flex: 1 };

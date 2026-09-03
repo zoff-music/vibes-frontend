@@ -73,7 +73,7 @@ export function SearchSheet({
 
   return (
     <Screen>
-      <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
+      <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
         <ScrollView
           contentContainerClassName="w-full max-w-3xl self-center px-5 pt-4 pb-32"
           keyboardShouldPersistTaps="handled"
@@ -247,3 +247,5 @@ export function SearchSheet({
     </Screen>
   );
 }
+
+const safeAreaStyle = { flex: 1 };

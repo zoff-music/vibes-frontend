@@ -34,7 +34,7 @@ export function RemotePairing({
 
   return (
     <Screen>
-      <SafeAreaView className="flex-1" edges={['top']}>
+      <SafeAreaView edges={['top']} style={safeAreaStyle}>
         <ScrollView
           contentContainerClassName="flex-grow justify-center gap-5 p-4 pb-28"
           keyboardShouldPersistTaps="handled"
@@ -120,7 +120,7 @@ export function RemotePairing({
               className="absolute inset-0"
               onBarcodeScanned={controllerActions.handleScan}
             />
-            <SafeAreaView className="flex-1 justify-between">
+            <SafeAreaView className="justify-between" style={safeAreaStyle}>
               <View className="items-center gap-3 px-6 pt-8">
                 <Heading>Scan remote QR code</Heading>
                 <Copy muted>Point the camera at the pairing code.</Copy>
@@ -141,3 +141,5 @@ export function RemotePairing({
     </Screen>
   );
 }
+
+const safeAreaStyle = { flex: 1 };

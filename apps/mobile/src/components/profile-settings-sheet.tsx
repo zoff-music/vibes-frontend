@@ -86,7 +86,7 @@ export function ProfileSettingsSheet({
       onRequestClose={onClose}
     >
       <Screen>
-        <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
+        <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
           <View className="flex-row items-center justify-between gap-4 px-5 py-4">
             <Heading>Profile</Heading>
             <IconButton
@@ -128,3 +128,5 @@ export function ProfileSettingsSheet({
     </Modal>
   );
 }
+
+const safeAreaStyle = { flex: 1 };
