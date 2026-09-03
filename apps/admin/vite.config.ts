@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
+import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
+import { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig(({ command }) => {
@@ -10,7 +12,11 @@ export default defineConfig(({ command }) => {
 
   return {
     base: isBuild ? '/admin/' : '/',
-    plugins: [tailwindcss(), reactRouter()],
+    plugins: [
+      tailwindcss(),
+      babel({ presets: [reactCompilerPreset()] }),
+      reactRouter(),
+    ],
     root: '.',
     publicDir: 'public',
     server: {

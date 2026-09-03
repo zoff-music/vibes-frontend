@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
+import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
+import { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ command, mode }) => {
@@ -11,7 +13,11 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: command === 'build' ? '/remotes/' : '/',
-    plugins: [tailwindcss(), reactRouter()],
+    plugins: [
+      tailwindcss(),
+      babel({ presets: [reactCompilerPreset()] }),
+      reactRouter(),
+    ],
     root: '.',
     server: {
       port: 3007,

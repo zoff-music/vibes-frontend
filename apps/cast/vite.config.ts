@@ -1,13 +1,15 @@
 import path from 'node:path';
 import postcssCascadeLayers from '@csstools/postcss-cascade-layers';
+import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import legacy from '@vitejs/plugin-legacy';
-import react from '@vitejs/plugin-react';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import type { PluginOption } from 'vite';
 import { defineConfig, loadEnv } from 'vite';
 
 const plugins: PluginOption[] = [
   tailwindcss(),
+  babel({ presets: [reactCompilerPreset()] }),
   react(),
   legacy({
     targets: ['chrome >= 80'],
