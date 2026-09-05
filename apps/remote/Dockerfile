@@ -1,11 +1,17 @@
 ARG NODE_VERSION=26.8.1
-ARG PNPM_VERSION=11.25.0
+ARG PNPM_VERSION=12.3.4
 
 FROM node:${NODE_VERSION}-bookworm-slim AS deps
 
+ARG PNPM_VERSION
+
 WORKDIR /src
 
-RUN npm install -g pnpm@${PNPM_VERSION}
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libatomic1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g pnpm@${PNPM_VERSION} \
+    && test "$(pnpm --version)" = "${PNPM_VERSION}"
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml biome.json tsconfig.json ./
 COPY patches ./patches
