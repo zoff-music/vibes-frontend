@@ -28,6 +28,10 @@ remote-control clients, built with pnpm workspaces.
 
 ## Development
 
+Use Node.js 26.8.1 or newer and pnpm 12.3.4, pinned in `package.json`.
+The Docker build stages use the same pnpm version and install `libatomic1`,
+which its native Linux executable requires on Debian slim images.
+
 ```bash
 # Install dependencies
 pnpm install
