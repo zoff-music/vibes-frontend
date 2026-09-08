@@ -107,11 +107,11 @@ export function RoomConfiguration({
         <Copy muted>PLAYBACK</Copy>
         <Card>
           <SettingsSwitch
-            description="Anyone can request the next song."
+            description="Only room admins can skip songs."
             disabled={disabled}
-            label="Allow skip"
-            value={settings.skipAllowed}
-            onValueChange={(value) => updateSetting('skipAllowed', value)}
+            label="Admins Only Skip"
+            value={!settings.skipAllowed}
+            onValueChange={(value) => updateSetting('skipAllowed', !value)}
           />
           <Divider />
           <SettingsSwitch

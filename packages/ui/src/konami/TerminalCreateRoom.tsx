@@ -164,10 +164,10 @@ export function TerminalCreateRoom({
 
               <TerminalSection label="ROOM FLAGS" status="EDITABLE">
                 <TerminalToggle
-                  checked={settings.skipAllowed}
-                  label="ALLOW SKIP"
+                  checked={!settings.skipAllowed}
+                  label="ADMINS ONLY SKIP"
                   onChange={(checked) =>
-                    onBooleanSettingChange('skipAllowed', checked)
+                    onBooleanSettingChange('skipAllowed', !checked)
                   }
                 />
                 <TerminalToggle

@@ -159,6 +159,9 @@ export const RoomPlayer = React.memo(
         (!!displayRoom.userId && displayRoom.hostId === displayRoom.userId));
     const canControlRoomPlayback =
       displayRoom?.mode !== 'host' || hasHostPlaybackAuthority;
+    const canSkipSong =
+      canControlRoomPlayback &&
+      (isAdmin || Boolean(displayRoom?.settings.skipAllowed));
 
     const currentSourceType = currentSong?.sourceType ?? null;
     const needsSoundCloudPlayer = currentSourceType === 'soundcloud';
@@ -330,7 +333,7 @@ export const RoomPlayer = React.memo(
     useMediaSession({
       canPlay:
         canControlRoomPlayback && Boolean(currentSong || songs.length > 0),
-      canSkip: Boolean(currentSong),
+      canSkip: canSkipSong && Boolean(currentSong),
       currentSong,
       isPlaying: isPlaying && !isPlaybackBlocked,
       onPause: pause,
@@ -632,7 +635,7 @@ export const RoomPlayer = React.memo(
             canPlay={
               canControlRoomPlayback && Boolean(currentSong || songs.length > 0)
             }
-            canSkip={canControlRoomPlayback && Boolean(currentSong)}
+            canSkip={canSkipSong && Boolean(currentSong)}
             isSkipping={isSkipPending}
             showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
             onPlay={play}
@@ -662,7 +665,7 @@ export const RoomPlayer = React.memo(
                 canControlRoomPlayback &&
                 Boolean(currentSong || songs.length > 0)
               }
-              canSkip={canControlRoomPlayback && Boolean(currentSong)}
+              canSkip={canSkipSong && Boolean(currentSong)}
               castDeviceName={castDeviceName}
               currentSong={currentSong}
               isCasting={isConnected}

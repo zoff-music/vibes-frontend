@@ -434,6 +434,11 @@ const CreateRoom: React.FC = () => {
               />
               <input name="mode" type="hidden" value={mode} />
               <input
+                name="skipAllowed"
+                type="hidden"
+                value={String(settings.skipAllowed)}
+              />
+              <input
                 name="playlistImport"
                 type="hidden"
                 value={String(settings.playlistImport)}
@@ -471,6 +476,11 @@ const CreateRoom: React.FC = () => {
           value={reservation?.token ?? ''}
         />
         <input type="hidden" name="mode" value={mode} />
+        <input
+          name="skipAllowed"
+          type="hidden"
+          value={String(settings.skipAllowed)}
+        />
         {settings.enabledSources.map((source) => (
           <input
             key={source}
@@ -698,12 +708,11 @@ const CreateRoom: React.FC = () => {
 
                 <div className="space-y-4">
                   <SegmentedToggle
-                    name="skipAllowed"
-                    label="ALLOW SKIP"
-                    description="Anyone can skip songs"
-                    checked={settings.skipAllowed}
+                    label="ADMINS ONLY SKIP"
+                    description="Only room admins can skip songs"
+                    checked={!settings.skipAllowed}
                     onChange={(checked) =>
-                      updateSetting('skipAllowed', checked)
+                      updateSetting('skipAllowed', !checked)
                     }
                   />
 

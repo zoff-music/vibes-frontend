@@ -89,6 +89,8 @@ export function RoomScreen() {
     room.mode === 'host' &&
     (room.isAdmin || (Boolean(room.userId) && room.hostId === room.userId));
   const canControlPlayback = room.mode === 'server' || hasHostPlaybackAuthority;
+  const canSkip =
+    canControlPlayback && (room.isAdmin || room.settings.skipAllowed);
 
   const sendAction = async (action: 'play' | 'pause') => {
     if (room.mode === 'server') {
@@ -103,7 +105,7 @@ export function RoomScreen() {
   const skip = async () => {
     const result = await submitPlayback({ intent: 'skip' });
     if (result.data?.intent !== 'skip') {
-      setError(result.error || 'Could not skip.');
+      setError(result.error || 'Failed to skip. Please try again.');
       return;
     }
     const { response } = result.data;
@@ -245,6 +247,7 @@ export function RoomScreen() {
               feedback
               icon="skip"
               label="Skip"
+              disabled={!canSkip}
               tone="secondary"
               onPress={() => void skip()}
             />
