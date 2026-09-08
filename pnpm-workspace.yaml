@@ -67,7 +67,7 @@ minimumReleaseAgeExclude:
   - '@typescript/typescript-win32-arm64@7.0.2'
   - '@typescript/typescript-win32-x64@7.0.2'
   - typescript@7.0.2
-  - '@expo/cli@57.0.16'
+  - '@expo/cli@57.0.16 || 57.0.23'
   - '@expo/config@57.0.8'
   - '@expo/fingerprint@0.20.8'
   - '@expo/inline-modules@0.1.6'
@@ -77,10 +77,16 @@ minimumReleaseAgeExclude:
   - expo-dev-client@57.0.13 || 57.0.18
   - expo-dev-launcher@57.0.13 || 57.0.19
   - expo-dev-menu@57.0.13 || 57.0.18
-  - expo-router@57.0.14
+  - expo-router@57.0.14 || 57.0.20
   - expo-splash-screen@57.0.7
-  - expo@57.0.14
+  - expo@57.0.14 || 57.0.21
   - '@expo/metro-runtime@57.0.11'
+  - '@expo/metro-file-map@57.0.3'
+  - '@expo/ui@57.0.17'
+  - babel-preset-expo@57.0.11
+  - expo-glass-effect@57.0.2
+  - expo-modules-core@57.0.17
+  - expo-modules-jsi@57.1.0
 patchedDependencies:
   react-native-screens@4.26.2: patches/react-native-screens@4.26.2.patch
   react-native-webview@14.0.1: patches/react-native-webview@14.0.1.patch

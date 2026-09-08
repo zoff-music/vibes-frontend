@@ -41,7 +41,7 @@
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "@vitejs/plugin-react": "latest",
-    "expo": "~57.0.19",
+    "expo": "~57.0.21",
     "expo-asset": "~57.0.16",
     "expo-font": "~57.0.3",
     "expo-image": "~57.0.4",
