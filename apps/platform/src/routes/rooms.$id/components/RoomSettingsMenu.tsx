@@ -29,6 +29,7 @@ import {
 } from 'react';
 import { ProfileSettingsModal } from '../../../components/profile/ProfileSettingsModal';
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
+import { useAdminLoginFocus } from '../../../hooks/useAdminLoginFocus';
 
 interface RoomSettingsMenuProps {
   adminError: string | null;
@@ -41,6 +42,7 @@ interface RoomSettingsMenuProps {
   updateRoomSettings: (settings: RoomSettings) => void;
   updateRoom: (data: RoomUpdate) => void;
   adminPassword: string;
+  focusAdminLogin: boolean;
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
@@ -59,6 +61,7 @@ export const RoomSettingsMenu = ({
   updateRoomSettings,
   updateRoom,
   adminPassword,
+  focusAdminLogin,
   onAdminPasswordChange,
   onJoinAdmin,
   isAuthenticating,
@@ -66,6 +69,7 @@ export const RoomSettingsMenu = ({
   providers,
 }: RoomSettingsMenuProps) => {
   const { openRemoteControl } = useRemoteControl();
+  const adminPasswordRef = useAdminLoginFocus(focusAdminLogin);
   const [wobblePassword, setWobblePassword] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
@@ -526,6 +530,7 @@ export const RoomSettingsMenu = ({
                 <div className="flex gap-2">
                   <input
                     type="password"
+                    ref={adminPasswordRef}
                     value={adminPassword}
                     onChange={(e) => onAdminPasswordChange(e.target.value)}
                     placeholder={

@@ -206,6 +206,7 @@ export default function Room() {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [focusAdminLogin, setFocusAdminLogin] = useState(false);
   const [showDeviceSelector, setShowDeviceSelector] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [isGenerating, setIsGenerating] = useState(
@@ -348,7 +349,15 @@ export default function Room() {
   }, [searchParams, setSearchParams]);
 
   const handleToggleSettings = useCallback(() => {
+    setFocusAdminLogin(false);
     setShowSettings((current) => !current);
+  }, []);
+
+  const handleOpenAdminLogin = useCallback(() => {
+    setIsAddModalVisible(false);
+    setShowShare(false);
+    setFocusAdminLogin(true);
+    setShowSettings(true);
   }, []);
 
   const handleCloseSettings = useCallback(() => {
@@ -579,6 +588,7 @@ export default function Room() {
             currentTheme={currentTheme}
             onToggleDarkMode={handleToggleDarkMode}
             showSettings={showSettings}
+            focusAdminLogin={focusAdminLogin}
             onToggleSettings={handleToggleSettings}
             onCloseSettings={handleCloseSettings}
             settingsButtonRef={settingsButtonRef}
@@ -656,6 +666,7 @@ export default function Room() {
                 providers={loaderData.providers}
                 isVisible={isAddModalVisible}
                 onClose={handleCloseAddSong}
+                onOpenAdminLogin={handleOpenAdminLogin}
                 generationCount={displayRoom.generationCount}
                 roomGenerationMaxDailyCount={
                   displayRoom.roomGenerationMaxDailyCount
@@ -708,6 +719,7 @@ export default function Room() {
               currentTheme={currentTheme}
               onToggleDarkMode={handleToggleDarkMode}
               showSettings={showSettings}
+              focusAdminLogin={focusAdminLogin}
               onToggleSettings={handleToggleSettings}
               onCloseSettings={handleCloseSettings}
               settingsButtonRef={settingsButtonRef}
@@ -807,6 +819,7 @@ export default function Room() {
                 providers={loaderData.providers}
                 isVisible={isAddModalVisible}
                 onClose={handleCloseAddSong}
+                onOpenAdminLogin={handleOpenAdminLogin}
                 generationCount={displayRoom.generationCount}
                 roomGenerationMaxDailyCount={
                   displayRoom.roomGenerationMaxDailyCount

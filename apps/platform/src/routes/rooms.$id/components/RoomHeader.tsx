@@ -96,6 +96,7 @@ interface RoomHeaderProps {
   settingsMenuRef: RefObject<HTMLDivElement | null>;
   adminError: string | null;
   adminPassword: string;
+  focusAdminLogin: boolean;
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
@@ -129,6 +130,7 @@ export const RoomHeader = React.memo(
     settingsMenuRef,
     adminError,
     adminPassword,
+    focusAdminLogin,
     onAdminPasswordChange,
     onJoinAdmin,
     isAuthenticating,
@@ -207,6 +209,7 @@ export const RoomHeader = React.memo(
               <LazyTerminalRoomSettings
                 adminError={adminError}
                 adminPassword={adminPassword}
+                focusAdminLogin={focusAdminLogin}
                 currentTheme={currentTheme}
                 displayRoom={displayRoom}
                 isAdmin={isAdmin}
@@ -376,6 +379,7 @@ export const RoomHeader = React.memo(
                       updateRoomSettings={updateRoomSettings}
                       updateRoom={updateRoom}
                       adminPassword={adminPassword}
+                      focusAdminLogin={focusAdminLogin}
                       onAdminPasswordChange={onAdminPasswordChange}
                       onJoinAdmin={onJoinAdmin}
                       isAuthenticating={isAuthenticating}

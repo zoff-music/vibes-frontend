@@ -16,11 +16,13 @@ import {
 } from '@vibes/ui/konami';
 import { type KeyboardEvent, type RefObject, useState } from 'react';
 import { ProfileSettingsModal } from '../../../components/profile/ProfileSettingsModal';
+import { useAdminLoginFocus } from '../../../hooks/useAdminLoginFocus';
 import type { Theme } from '../../../stores/themeStore';
 
 interface TerminalRoomSettingsProps {
   adminError: string | null;
   adminPassword: string;
+  focusAdminLogin: boolean;
   currentTheme: Theme;
   displayRoom: Room | null;
   isAdmin: boolean;
@@ -41,6 +43,7 @@ interface TerminalRoomSettingsProps {
 export function TerminalRoomSettings({
   adminError,
   adminPassword,
+  focusAdminLogin,
   currentTheme,
   displayRoom,
   isAdmin,
@@ -58,6 +61,7 @@ export function TerminalRoomSettings({
   updateRoomSettings,
 }: TerminalRoomSettingsProps) {
   const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const adminPasswordRef = useAdminLoginFocus(focusAdminLogin);
   if (!room) return null;
 
   const accessRestricted = room.hasPassword && !isAdmin;
@@ -240,6 +244,7 @@ export function TerminalRoomSettings({
                     displayRoom?.hasPassword ? 'PASSWORD' : 'SET PASSWORD'
                   }
                   type="password"
+                  ref={adminPasswordRef}
                   value={adminPassword}
                 />
                 <TerminalButton
