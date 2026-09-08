@@ -48,6 +48,7 @@ interface Props {
   providers: Providers;
   isVisible: boolean;
   onClose: () => void;
+  onOpenAdminLogin: () => void;
   generationCount: number;
   roomGenerationMaxDailyCount: number;
   roomGenerationMaxExistingSongs: number;
@@ -83,6 +84,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   providers,
   isVisible,
   onClose,
+  onOpenAdminLogin,
   generationCount,
   roomGenerationMaxDailyCount,
   roomGenerationMaxExistingSongs,
@@ -631,6 +633,16 @@ export const AddToQueueModal: React.FC<Props> = ({
           {error && (
             <TerminalFeedback className="mt-3" tone="error">
               ERROR: {error}
+              {songFetcher.data?.error === error &&
+                songFetcher.data.errorAction === 'adminLogin' && (
+                  <button
+                    type="button"
+                    className="ml-1 underline underline-offset-4 focus-visible:outline-2"
+                    onClick={onOpenAdminLogin}
+                  >
+                    Log in as room admin
+                  </button>
+                )}
             </TerminalFeedback>
           )}
           {!canGenerate && (
@@ -920,7 +932,19 @@ export const AddToQueueModal: React.FC<Props> = ({
         {error && (
           <div className="mt-3 flex animate-slide-down items-start gap-2 text-error text-sm">
             <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>{error}</span>
+            <span>
+              {error}
+              {songFetcher.data?.error === error &&
+                songFetcher.data.errorAction === 'adminLogin' && (
+                  <button
+                    type="button"
+                    className="ml-1 underline underline-offset-4 focus-visible:outline-2"
+                    onClick={onOpenAdminLogin}
+                  >
+                    Log in as room admin
+                  </button>
+                )}
+            </span>
           </div>
         )}
 

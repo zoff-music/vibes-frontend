@@ -48,7 +48,7 @@ export function getRateLimitMessage(error: Error) {
   return getRateLimitMessageFromResponse(response);
 }
 
-export async function getAPIErrorMessage(error: Error) {
+export async function getAPIErrorResponse(error: Error) {
   const response = getHttpError(error)?.response;
   if (!response) {
     return null;
@@ -71,7 +71,12 @@ export async function getAPIErrorMessage(error: Error) {
     return null;
   }
 
-  return parsedBody.message;
+  return parsedBody;
+}
+
+export async function getAPIErrorMessage(error: Error) {
+  const body = await getAPIErrorResponse(error);
+  return body?.message ?? null;
 }
 
 export async function getRequestErrorMessage(

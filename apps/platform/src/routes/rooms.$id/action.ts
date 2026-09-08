@@ -1,6 +1,6 @@
 import {
   api,
-  getAPIErrorMessage,
+  getAPIErrorResponse,
   getHttpError,
   getRateLimitMessage,
 } from '@vibes/api';
@@ -47,6 +47,7 @@ export interface RoomActionData {
     token: CastingTokenResponse;
   };
   error?: string;
+  errorAction?: 'adminLogin';
   intent: RoomActionIntent;
   generation?: RoomGenerationUpdate;
   playback?: PlaybackState;
@@ -75,9 +76,12 @@ interface RoomActionRequest {
 }
 
 async function createErrorData(intent: RoomActionIntent, error: Error | null) {
-  const apiErrorMessage = error ? await getAPIErrorMessage(error) : null;
+  const apiError = error ? await getAPIErrorResponse(error) : null;
   const status = error ? getHttpError(error)?.response.status : null;
   let permissionError: string | null = null;
+  if (apiError?.error === 'song_room_admin_required') {
+    permissionError = 'Only room admins can add songs here.';
+  }
   if (
     intent === 'generatePlaylist' &&
     (status === UNAUTHORIZED_STATUS || status === FORBIDDEN_STATUS)
@@ -89,8 +93,11 @@ async function createErrorData(intent: RoomActionIntent, error: Error | null) {
     error:
       permissionError ??
       (error && getRateLimitMessage(error)) ??
-      apiErrorMessage ??
+      apiError?.message ??
       'The request failed',
+    ...(apiError?.error === 'song_room_admin_required' && {
+      errorAction: 'adminLogin' as const,
+    }),
     intent,
   } satisfies RoomActionData;
 }
