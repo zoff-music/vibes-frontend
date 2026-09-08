@@ -109,10 +109,12 @@ export function TerminalRoomSettings({
             ROOM FLAGS
           </h3>
           <TerminalToggle
-            checked={room.settings.skipAllowed}
-            disabled={accessRestricted || room.mode === 'host'}
-            label="ALLOW SKIP"
-            onChange={(checked) => updateBooleanSetting('skipAllowed', checked)}
+            checked={!room.settings.skipAllowed}
+            disabled={accessRestricted}
+            label="ADMINS ONLY SKIP"
+            onChange={(checked) =>
+              updateBooleanSetting('skipAllowed', !checked)
+            }
           />
           <TerminalToggle
             checked={room.settings.democraticSkip}

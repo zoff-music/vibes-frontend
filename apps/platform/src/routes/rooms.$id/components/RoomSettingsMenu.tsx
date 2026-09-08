@@ -298,29 +298,23 @@ export const RoomSettingsMenu = ({
                   </span>
                 </div>
                 <p className="mt-1 text-theme-muted text-xs">
-                  In host mode, only the host can skip songs. Skip settings are
-                  disabled.
+                  In host mode, the host and room admins control skipping.
+                  Admins Only Skip restricts it to room admins.
                 </p>
               </div>
             )}
 
             <div className="group flex items-center justify-between">
               <SegmentedToggle
-                label="Allow Skip"
-                description={
-                  room?.mode === 'host'
-                    ? 'Host controls skipping'
-                    : 'Anyone can skip'
-                }
-                disabled={
-                  (room?.hasPassword && !isAdmin) || room?.mode === 'host'
-                }
-                checked={room?.settings.skipAllowed ?? false}
+                label="Admins Only Skip"
+                description="Only room admins can skip songs"
+                disabled={room?.hasPassword && !isAdmin}
+                checked={!(room?.settings.skipAllowed ?? true)}
                 onChange={(checked) =>
                   room &&
                   updateRoomSettings({
                     ...room.settings,
-                    skipAllowed: checked,
+                    skipAllowed: !checked,
                   })
                 }
                 variant="plain-full"

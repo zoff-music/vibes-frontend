@@ -35,7 +35,7 @@ export async function action({
   );
   if (input.intent === 'skip') {
     const [error] = await requests.skip(input.roomId, { signal });
-    if (error) return failure(error, 'Could not skip playback.');
+    if (error) return failure(error, 'Failed to skip. Please try again.');
     return { data: { intent: 'success' }, error: '' };
   }
   const [error, playback] = await requests.updatePlayback(
