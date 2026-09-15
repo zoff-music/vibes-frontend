@@ -80,7 +80,10 @@ async function createErrorData(intent: RoomActionIntent, error: Error | null) {
   const status = error ? getHttpError(error)?.response.status : null;
   let permissionError: string | null = null;
   if (apiError?.error === 'song_room_admin_required') {
-    permissionError = 'Only room admins can add songs here.';
+    permissionError =
+      intent === 'addPlaylist'
+        ? 'Only room admins can import playlists here.'
+        : 'Only room admins can add songs here.';
   }
   if (intent === 'skip' && !apiError) {
     if (status === UNAUTHORIZED_STATUS) {
@@ -103,9 +106,10 @@ async function createErrorData(intent: RoomActionIntent, error: Error | null) {
       permissionError ??
       (error && getRateLimitMessage(error)) ??
       apiError?.message ??
-      (intent === 'skip'
-        ? 'Failed to skip. Please try again.'
-        : 'The request failed'),
+      ((intent === 'skip' && 'Failed to skip. Please try again.') ||
+        (intent === 'addPlaylist' &&
+          'Failed to import the playlist. Please try again.') ||
+        'The request failed'),
     ...(apiError?.error === 'song_room_admin_required' && {
       errorAction: 'adminLogin' as const,
     }),
