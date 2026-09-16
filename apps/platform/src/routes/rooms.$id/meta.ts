@@ -24,6 +24,11 @@ export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
 
   return [
     { title },
+    {
+      tagName: 'link',
+      rel: 'canonical',
+      href: `https://zoff.me/${encodeURIComponent(loaderData.room.id)}`,
+    },
     { name: 'description', content: description },
     { property: 'og:type', content: 'website' },
     { property: 'og:site_name', content: 'Zoff' },

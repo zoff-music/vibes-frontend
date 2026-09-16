@@ -2,6 +2,9 @@ import { index, route } from '@react-router/dev/routes';
 
 export default [
   index('./routes/_index/route.tsx'),
+  route('robots.txt', './routes/robots/loader.ts'),
+  route('sitemap.xml', './routes/sitemap/loader.ts'),
+  route('discover/:topic', './routes/discover/route.tsx'),
   route('.well-known/security.txt', './routes/security-txt/loader.ts'),
   route('privacy-policy', './routes/privacy-policy/route.tsx'),
   route('security', './routes/security/route.tsx'),

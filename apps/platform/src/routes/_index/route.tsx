@@ -13,9 +13,11 @@ import { HomeRoomControls } from './components/HomeRoomControls';
 import { JoiningRoomState } from './components/JoiningRoomState';
 import { LegalAcknowledgement } from './components/LegalAcknowledgement';
 import { PlaylistGenerationControls } from './components/PlaylistGenerationControls';
+import { ProductIntroduction } from './components/ProductIntroduction';
 import { ProviderAttribution } from './components/ProviderAttribution';
 import { loader } from './loader';
 
+export { meta } from './meta';
 export { clientAction, loader };
 
 const ANIMATED_WORDS = [
@@ -189,6 +191,9 @@ export default function Home() {
             totalListeners={totalListeners}
           />
         </Suspense>
+        <div className="product-content">
+          <ProductIntroduction />
+        </div>
         <ProfileSettingsModal
           isOpen={showProfileSettings}
           onClose={() => setShowProfileSettings(false)}
@@ -237,7 +242,10 @@ export default function Home() {
               className="vhs-tear vhs-tear-strong glow-text font-wide text-4xl text-theme leading-none sm:text-5xl"
               data-text="ゾフ"
             >
-              ゾフ
+              <span aria-hidden="true">ゾフ</span>
+              <span className="sr-only">
+                Zoff — Shared music rooms, made for listening together
+              </span>
             </h1>
             <p className="mt-3 font-pixel text-sm text-theme-muted sm:text-base">
               Shared music rooms, made for listening together
@@ -277,6 +285,7 @@ export default function Home() {
           <LegalAcknowledgement />
         </div>
       </div>
+      <ProductIntroduction />
       <SiteFooter />
       <AnimatePresence>
         {pendingRoomSlug && <JoiningRoomState roomId={pendingRoomSlug} />}

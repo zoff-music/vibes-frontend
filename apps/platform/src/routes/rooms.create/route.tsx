@@ -37,6 +37,7 @@ import { clientLoader } from './clientLoader';
 import type { RoomsCreateLoaderData } from './loader';
 
 export { loader } from './loader';
+export { meta } from './meta';
 export { clientAction, clientLoader };
 
 const LazyTerminalCreateRoom = lazy(() =>

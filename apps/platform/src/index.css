@@ -2,6 +2,22 @@
 @source "./";
 @source not "./components/konami";
 
+html[data-konami-mode="terminal"] .product-content {
+  --theme-bg: #010705;
+  --theme-bg-surface: #071b12;
+  --theme-panel-bg: #020e09;
+  --theme-panel-border: #40805c;
+  --theme-border: #40805c;
+  --theme-text: #e0ffef;
+  --theme-text-muted: #a6d9be;
+  --theme-text-subtle: #93bba6;
+  --theme-shadow: transparent;
+}
+
+html[data-konami-mode="terminal"] .product-content .panel-surface {
+  @apply rounded-none;
+}
+
 @keyframes platform-background-gradient-drift {
   0%,
   100% {

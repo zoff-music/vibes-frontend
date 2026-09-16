@@ -1,10 +1,9 @@
 import type { MetaFunction } from 'react-router';
+import { pageMetadata } from '../../seo/metadata';
 
-export const securityMeta: MetaFunction = () => [
-  { title: 'Security Policy | Zoff' },
-  {
-    name: 'description',
-    content:
-      'How to report security vulnerabilities to Zoff and the rules for good-faith research.',
-  },
-];
+export const securityMeta: MetaFunction = () =>
+  pageMetadata(
+    '/security',
+    'Security Policy | Zoff',
+    'How to report security vulnerabilities to Zoff and the rules for good-faith research.',
+  );
