@@ -11,6 +11,7 @@ import { Outlet, useLocation, useRouteLoaderData } from 'react-router';
 import { KonamiBootLoader } from './components/konami/KonamiBootLoader';
 import { KonamiModeProvider } from './components/konami/KonamiModeContext';
 import { Background } from './components/layout/Background';
+import { SiteLayout } from './components/layout/SiteLayout';
 import { RemoteControlProvider } from './components/remote/RemoteControlProvider';
 import type { RootLoaderData } from './root/loader';
 import { useThemeStore } from './stores/themeStore';
@@ -76,7 +77,9 @@ export function App() {
         {!konamiEnabled && <Background />}
         <KonamiBootLoader enabled={konamiEnabled} />
         <RemoteControlProvider initialRemote={rootData?.remoteStatus}>
-          <Outlet />
+          <SiteLayout>
+            <Outlet />
+          </SiteLayout>
         </RemoteControlProvider>
       </KonamiModeProvider>
     </MotionConfig>

@@ -71,10 +71,10 @@ export function PlaylistGenerationControls({
   };
 
   return (
-    <div className="mt-8 space-y-5">
+    <div className="min-w-0 space-y-5">
       <div
         className={classNames(
-          'panel-surface rounded-3xl p-6 transition-all duration-500',
+          'rounded-2xl transition-all duration-500',
           isGenerating &&
             'animate-pulse border-secondary/70 shadow-secondary-panel',
         )}

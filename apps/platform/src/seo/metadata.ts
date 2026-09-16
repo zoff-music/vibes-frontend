@@ -29,7 +29,8 @@ export function pageMetadata(
     { property: 'og:image:height', content: '630' },
     {
       property: 'og:image:alt',
-      content: 'Zoff — Listen together. One shared music queue.',
+      content:
+        'Zoff — Good music. Better together. One room. Everyone’s soundtrack.',
     },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: title },
@@ -37,7 +38,8 @@ export function pageMetadata(
     { name: 'twitter:image', content: image },
     {
       name: 'twitter:image:alt',
-      content: 'Zoff — Listen together. One shared music queue.',
+      content:
+        'Zoff — Good music. Better together. One room. Everyone’s soundtrack.',
     },
   ];
 }

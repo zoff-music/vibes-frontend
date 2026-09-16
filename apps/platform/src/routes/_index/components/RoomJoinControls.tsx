@@ -59,7 +59,6 @@ export function RoomJoinControls({
         </label>
         <div className="relative">
           <input
-            autoFocus
             id="room-name"
             type="text"
             placeholder={placeholder}

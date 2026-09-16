@@ -2,7 +2,7 @@
 @source "./";
 @source not "./components/konami";
 
-html[data-konami-mode="terminal"] .product-content {
+html[data-konami-mode="terminal"] :is(.product-content, .site-footer) {
   --theme-bg: #010705;
   --theme-bg-surface: #071b12;
   --theme-panel-bg: #020e09;
@@ -14,8 +14,24 @@ html[data-konami-mode="terminal"] .product-content {
   --theme-shadow: transparent;
 }
 
-html[data-konami-mode="terminal"] .product-content .panel-surface {
+html[data-konami-mode="terminal"]
+  :is(.product-content, .site-footer)
+  .panel-surface {
   @apply rounded-none;
+}
+
+html[data-konami-mode="terminal"]
+  .product-content
+  :is(.text-primary, .text-secondary) {
+  @apply text-[#71f5ad];
+}
+
+html[data-konami-mode="terminal"] .product-content .bg-primary {
+  @apply bg-[#71f5ad] text-[#03150d];
+}
+
+html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
+  @apply bg-[#a6d9be];
 }
 
 @keyframes platform-background-gradient-drift {

@@ -1,21 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
-    <linearGradient id="background" x2="1" y2="1">
-      <stop stop-color="#190c2b"/>
-      <stop offset="1" stop-color="#071c29"/>
-    </linearGradient>
+    <radialGradient id="record-glow"><stop stop-color="#ff2e97" stop-opacity=".12"/><stop offset="1" stop-color="#ff2e97" stop-opacity="0"/></radialGradient>
+    <pattern id="scanlines" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 3H4" stroke="#ffffff" stroke-opacity=".018"/></pattern>
   </defs>
-  <rect width="1200" height="630" fill="url(#background)"/>
-  <g fill="none" stroke="#71d7e8" opacity=".12">
-    <path d="M0 460H1200M0 510H1200M0 570H1200M100 630L470 410M350 630L535 410M600 630V410M850 630L665 410M1100 630L730 410"/>
+  <rect width="1200" height="630" fill="#120b1e"/>
+  <ellipse cx="933" cy="268" rx="300" ry="285" fill="url(#record-glow)"/>
+  <g fill="none" stroke-width="1">
+    <path d="M0 452H1200M0 493H1200M0 539H1200M0 591H1200" stroke="#00d9ff" opacity=".12"/>
+    <path d="M-120 630L420 428M120 630L480 428M360 630L540 428M600 630V428M840 630L660 428M1080 630L720 428M1320 630L780 428" stroke="#ff2e97" opacity=".18"/>
   </g>
-  <rect x="48" y="48" width="1104" height="534" rx="34" fill="#190e2b" fill-opacity=".85" stroke="#a393bb" stroke-opacity=".35"/>
-  <g font-family="Arial, Helvetica, sans-serif">
-    <text x="96" y="146" fill="#ff289d" font-size="44" font-weight="700" letter-spacing="10">ZOFF</text>
-    <text x="96" y="263" fill="#fcf5ff" font-size="72" font-weight="700">Listen together.</text>
-    <text x="96" y="345" fill="#fcf5ff" font-size="60" font-weight="700">One shared music queue.</text>
-    <text x="96" y="420" fill="#c6b7d6" font-size="28">Add songs. Vote. Share the room.</text>
-    <text x="96" y="518" fill="#71d7e8" font-size="27">zoff.me</text>
-    <text x="1104" y="518" fill="#c6b7d6" font-size="23" text-anchor="end">Free · No account required</text>
+  <path d="M64 46H310" stroke="#ff2e97" stroke-width="3"/>
+  <path d="M310 46H1136" stroke="#00d9ff" stroke-opacity=".35"/>
+  <g font-family="MSW98UI">
+    <text x="64" y="106" fill="#bfa8d6" font-size="22" letter-spacing="3">ZOFF / SHARED MUSIC ROOMS</text>
+    <text x="67" y="240" fill="#00d9ff" font-size="76">Good music.</text>
+    <text x="63" y="238" fill="#ff2e97" font-size="76">Good music.</text>
+    <text x="65" y="237" fill="#f6ebff" font-size="76">Good music.</text>
+    <text x="64" y="327" fill="#f6ebff" font-size="76">Better together.</text>
+    <text x="66" y="389" fill="#bfa8d6" font-size="28">One room. Everyone’s soundtrack.</text>
   </g>
+  <circle cx="933" cy="268" r="176" fill="none" stroke="#67427e" stroke-opacity=".35"/>
+  <circle cx="933" cy="268" r="166" fill="none" stroke="#00d9ff" stroke-opacity=".2" stroke-dasharray="2 10"/>
+  <image href="../../public/logo.png" x="777" y="112" width="312" height="312"/>
+  <g font-family="MSW98UI">
+    <text x="933" y="468" fill="#bfa8d6" font-size="18" letter-spacing="3" text-anchor="middle">LISTEN TOGETHER</text>
+    <path d="M64 518H1136" stroke="#67427e" stroke-opacity=".65"/>
+    <circle cx="71" cy="569" r="6" fill="#00d9ff"/>
+    <text x="91" y="577" fill="#f6ebff" font-size="25">Free. No account required.</text>
+    <text x="1136" y="580" fill="#00d9ff" font-size="38" text-anchor="end">zoff.me</text>
+  </g>
+  <rect width="1200" height="630" fill="url(#scanlines)" pointer-events="none"/>
 </svg>
