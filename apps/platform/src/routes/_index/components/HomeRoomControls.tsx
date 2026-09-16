@@ -1,5 +1,3 @@
-import type { PublicRoom } from '@vibes/models';
-import { PublicRoomDiscovery } from './PublicRoomDiscovery';
 import { RoomJoinControls } from './RoomJoinControls';
 
 interface HomeRoomControlsProps {
@@ -9,7 +7,6 @@ interface HomeRoomControlsProps {
   onToggleAIMode: () => void;
   placeholder: string;
   roomCode: string;
-  rooms: PublicRoom[];
 }
 
 export function HomeRoomControls({
@@ -19,7 +16,6 @@ export function HomeRoomControls({
   onToggleAIMode,
   placeholder,
   roomCode,
-  rooms,
 }: HomeRoomControlsProps) {
   const handleJoinRoom = () => {
     onJoinRoom();
@@ -28,7 +24,6 @@ export function HomeRoomControls({
   return (
     <section aria-label="Join a room" className="min-w-0">
       <RoomJoinControls
-        contained={false}
         onJoinRoom={handleJoinRoom}
         onRoomCodeChange={onRoomCodeChange}
         onStartSession={onStartSession}
@@ -36,7 +31,6 @@ export function HomeRoomControls({
         placeholder={placeholder}
         roomCode={roomCode}
       />
-      <PublicRoomDiscovery onJoinRoom={onJoinRoom} rooms={rooms} />
     </section>
   );
 }

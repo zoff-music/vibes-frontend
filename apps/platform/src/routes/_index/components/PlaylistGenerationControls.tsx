@@ -71,7 +71,7 @@ export function PlaylistGenerationControls({
   };
 
   return (
-    <div className="min-w-0 space-y-5">
+    <div className="min-w-0 space-y-3">
       <div
         className={classNames(
           'rounded-2xl transition-all duration-500',
@@ -81,9 +81,9 @@ export function PlaylistGenerationControls({
       >
         <label
           htmlFor="playlist-prompt"
-          className="mb-3 block font-pixel text-2xs text-theme-muted tracking-label"
+          className="mb-2 block font-pixel text-sm text-theme-muted"
         >
-          PLAYLIST PROMPT
+          Describe your soundtrack
         </label>
         <div className="relative">
           <input
@@ -93,7 +93,7 @@ export function PlaylistGenerationControls({
             value={prompt}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-14 pl-4 font-mono text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-14 w-full rounded-2xl border border-theme bg-theme-surface pr-14 pl-4 font-mono text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30 disabled:cursor-not-allowed disabled:opacity-60"
             maxLength={generatedPlaylistPromptMaxLength}
             disabled={isGenerating}
           />
@@ -141,11 +141,11 @@ export function PlaylistGenerationControls({
       <Button
         onClick={handleGenerateRoom}
         disabled={!prompt.trim() || isGenerating}
-        variant="secondary"
+        variant="primary"
         size="large"
         contentAlignment="between"
         className={classNames(
-          'relative h-16 w-full gap-3 overflow-hidden font-pixel',
+          'relative h-14 w-full gap-3 overflow-hidden font-pixel',
           isGenerating && 'animate-ai-button-glow disabled:opacity-100',
         )}
       >

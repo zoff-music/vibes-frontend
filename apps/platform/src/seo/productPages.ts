@@ -170,7 +170,7 @@ export const productPages: ProductPage[] = [
       },
       {
         title: 'Android phones and tablets',
-        body: 'Find Zoff — Shared Music Queue on Google Play. Open a room by name, build the queue with friends and choose whether this device plays music or only participates in controlling the room.',
+        body: 'Find Zoff on Google Play. Open a room by name, build the queue with friends and choose whether this device plays music or only participates in controlling the room.',
       },
       {
         title: 'Android TV and casting',

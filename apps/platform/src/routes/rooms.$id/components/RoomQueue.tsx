@@ -111,7 +111,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
         return;
       }
 
-      showToast('Vote added — queue updated', 'success');
+      showToast('Vote added. Queue updated.', 'success');
       setVotingSongId(null);
     }, [voteFetcher.data, voteFetcher.state, votingSongId]);
 

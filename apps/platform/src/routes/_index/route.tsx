@@ -11,10 +11,8 @@ import { clientAction } from './action';
 import { HomeLanding } from './components/HomeLanding';
 import { HomeRoomControls } from './components/HomeRoomControls';
 import { JoiningRoomState } from './components/JoiningRoomState';
-import { LegalAcknowledgement } from './components/LegalAcknowledgement';
 import { PlaylistGenerationControls } from './components/PlaylistGenerationControls';
 import { ProductIntroduction } from './components/ProductIntroduction';
-import { ProviderAttribution } from './components/ProviderAttribution';
 import { loader } from './loader';
 
 export { meta } from './meta';
@@ -219,6 +217,9 @@ export default function Home() {
       initial={{ opacity: 1 }}
     >
       <HomeLanding
+        onJoinRoom={handleJoinRoom}
+        providers={providers}
+        publicRooms={publicRooms}
         statsAvailable={statsAvailable}
         totalListeners={totalListeners}
         totalRooms={totalRooms}
@@ -249,7 +250,6 @@ export default function Home() {
             onToggleAIMode={handleToggleAIMode}
             placeholder={placeholder}
             roomCode={roomCode}
-            rooms={publicRooms}
           />
         )}
         {isAIMode && (
@@ -260,8 +260,6 @@ export default function Home() {
             prompt={roomCode}
           />
         )}
-        <ProviderAttribution providers={providers} />
-        <LegalAcknowledgement />
       </HomeLanding>
       <ProfileSettingsModal
         isOpen={showProfileSettings}

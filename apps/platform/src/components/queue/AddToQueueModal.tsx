@@ -1269,9 +1269,9 @@ const playbackRestrictionMessages: Record<
   Exclude<PlaybackRestriction, undefined>,
   string
 > = {
-  age: 'Age-restricted — may not play in Zoff or on Chromecast.',
+  age: 'Age-restricted. May not play in Zoff or on Chromecast.',
   embedding: 'YouTube limits embedded playback for this video.',
-  region: 'Region-restricted — availability depends on location.',
+  region: 'Region-restricted. Availability depends on location.',
 };
 
 const playbackRestrictionLabels: Record<
