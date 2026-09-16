@@ -77,6 +77,25 @@ The platform app includes comprehensive SSR support via `server.tsx`:
 
 ## 🧩 Technical Stack
 
+### Public product pages and search metadata
+
+The homepage and `/rooms/create` have route-specific titles, descriptions,
+canonical URLs and social previews. `/discover/listen-together`,
+`/discover/shared-music-queue`, `/discover/party-music`, `/discover/music-room`,
+`/discover/tv` and `/discover/apps` are server-rendered product pages. The
+`/discover/` prefix avoids claiming existing single-segment room names.
+
+Product copy lives in `src/seo/productPages.ts`; adding a page there also adds
+its navigation link and sitemap entry. Keep descriptions factual and public.
+`/sitemap.xml` contains only stable product and policy URLs, never live rooms
+or session data. `/robots.txt` points to this sitemap. The homepage identifies
+the application and its store listings with SoftwareApplication JSON-LD.
+
+Social metadata uses a content-hashed PNG from `src/assets/social-card.png`;
+its editable vector source is alongside it. Regenerate the PNG at 1200×630
+after changing the SVG. Verify page metadata in server-rendered HTML, including
+canonical URLs without tracking parameters, rather than relying on hydration.
+
 - **Framework**: React 19 + TypeScript with SSR streaming
 - **Runtime**: Node.js for production serving
 - **State Management**: Zustand for high-performance, selective store subscriptions (playback, UI, auth)

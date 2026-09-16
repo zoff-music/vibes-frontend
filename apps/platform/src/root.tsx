@@ -18,14 +18,10 @@ export type { RootLoaderData } from './root/loader';
 export { loader };
 
 export const meta: MetaFunction = () => [
-  { title: 'ゾフ - Shared Music Queue' },
+  { title: 'Zoff — Shared Music Queue & Listening Rooms' },
   {
     name: 'description',
     content: 'Shared music rooms, made for listening together.',
-  },
-  {
-    name: 'apple-itunes-app',
-    content: 'app-id=6799954460',
   },
 ];
 
@@ -58,6 +54,7 @@ export function Layout({ children }: Props) {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="apple-itunes-app" content="app-id=6799954460" />
         <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
         <link rel="stylesheet" href={stylesUrl} />
         {konamiEnabled && <link rel="stylesheet" href={retroStylesUrl} />}
