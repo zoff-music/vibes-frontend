@@ -15,25 +15,23 @@ export function ProviderAttribution({ providers }: ProviderAttributionProps) {
   }
 
   return (
-    <div className="mt-5 border-theme border-t pt-4">
-      <p className="mb-3 text-center font-pixel text-2xs text-theme-subtle tracking-label">
-        MUSIC FROM
-      </p>
-      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
-        {activeProviders.map((provider) => (
-          <a
-            aria-label={`Open ${providerNames[provider]}`}
-            className="flex h-7 cursor-pointer items-center rounded-md px-1 opacity-75 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-            href={providerURLs[provider]}
-            key={provider}
-            rel="noreferrer"
-            target="_blank"
-          >
-            <ProviderMark className="h-5 max-w-24" provider={provider} />
-          </a>
-        ))}
-      </div>
-    </div>
+    <nav
+      aria-label="Music providers"
+      className="flex flex-wrap items-center gap-x-4 gap-y-2"
+    >
+      {activeProviders.map((provider) => (
+        <a
+          aria-label={`Open ${providerNames[provider]}`}
+          className="flex min-h-11 cursor-pointer items-center rounded-lg px-2 opacity-75 transition-colors hover:bg-theme-surface hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+          href={providerURLs[provider]}
+          key={provider}
+          rel="noreferrer"
+          target="_blank"
+        >
+          <ProviderMark className="h-5 max-w-24" provider={provider} />
+        </a>
+      ))}
+    </nav>
   );
 }
 

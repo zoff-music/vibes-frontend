@@ -20,7 +20,7 @@ export function pageMetadata(
     { name: 'description', content: description },
     { tagName: 'link', rel: 'canonical', href: url },
     { property: 'og:type', content: 'website' },
-    { property: 'og:site_name', content: 'Zoff — Shared Music Queue' },
+    { property: 'og:site_name', content: 'Zoff | Shared Music Queue' },
     { property: 'og:title', content: title },
     { property: 'og:description', content: description },
     { property: 'og:url', content: url },
@@ -30,7 +30,7 @@ export function pageMetadata(
     {
       property: 'og:image:alt',
       content:
-        'Zoff — Good music. Better together. One room. Everyone’s soundtrack.',
+        'Zoff. Good music. Better together. One room. Everyone’s soundtrack.',
     },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: title },
@@ -39,7 +39,7 @@ export function pageMetadata(
     {
       name: 'twitter:image:alt',
       content:
-        'Zoff — Good music. Better together. One room. Everyone’s soundtrack.',
+        'Zoff. Good music. Better together. One room. Everyone’s soundtrack.',
     },
   ];
 }

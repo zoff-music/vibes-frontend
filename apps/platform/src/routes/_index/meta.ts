@@ -9,7 +9,7 @@ import {
 export const meta: MetaFunction = () => [
   ...pageMetadata(
     '/',
-    'Zoff — Listen to Music Together | Shared Music Rooms',
+    'Zoff | Listen to Music Together | Shared Music Rooms',
     'Listen to music together with Zoff. Create a free shared music room, build a collaborative queue, vote on songs and sync playback. No account required.',
   ),
   {
@@ -17,7 +17,7 @@ export const meta: MetaFunction = () => [
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
       '@id': `${siteUrl}/#app`,
-      name: 'Zoff — Shared Music Queue',
+      name: 'Zoff | Shared Music Queue',
       alternateName: ['Zoff', 'ゾフ'],
       applicationCategory: 'MultimediaApplication',
       operatingSystem: 'Web, Android, iOS, Android TV',

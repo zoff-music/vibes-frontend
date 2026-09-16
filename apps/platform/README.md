@@ -101,6 +101,10 @@ The homepage combines the room controls, loader-provided community statistics,
 short product sections and real app captures. Statistics reuse the homepage
 loader's existing `/stats` request; presentation components make no API calls.
 Failed statistics requests hide the numbers instead of presenting false zeros.
+Keep the first screen focused on room entry and a short product description.
+Supporting content and community statistics remain server-rendered below the
+hero. Public room shortcuts appear only when rooms are available, outside the
+entry controls. Use concise UI and SEO copy without em dashes.
 `SiteLayout` provides the shared footer on non-room pages, including error
 pages. Room route IDs explicitly opt out so playback layouts stay unchanged.
 

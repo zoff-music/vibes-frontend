@@ -74,7 +74,7 @@ export function ProductIntroduction() {
           </p>
           <p className="mt-3 text-sm text-theme-muted leading-relaxed">
             Keep playback synchronized across devices, or let a host lead. Room
-            controls decide who can add and skip—so the soundtrack stays
+            controls decide who can add and skip, so the soundtrack stays
             collaborative, not chaotic.
           </p>
           <Link

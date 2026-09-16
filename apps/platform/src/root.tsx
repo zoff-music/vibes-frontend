@@ -19,7 +19,7 @@ export type { RootLoaderData } from './root/loader';
 export { loader };
 
 export const meta: MetaFunction = () => [
-  { title: 'Zoff — Shared Music Queue & Listening Rooms' },
+  { title: 'Zoff | Shared Music Queue & Listening Rooms' },
   {
     name: 'description',
     content: 'Shared music rooms, made for listening together.',

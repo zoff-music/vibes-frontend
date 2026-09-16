@@ -1,7 +1,6 @@
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
-import { motion } from 'framer-motion';
 import type { MouseEvent } from 'react';
 
 interface PublicRoomDiscoveryProps {
@@ -17,14 +16,20 @@ export function PublicRoomDiscovery({
     onJoinRoom(event.currentTarget.value);
   };
 
+  if (rooms.length === 0) return null;
+
   return (
-    <div className="mt-4">
-      <div className="mb-2 flex items-center">
-        <span className="flex items-center gap-2 font-pixel text-3xs text-secondary tracking-label">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
-          Live now
-        </span>
-      </div>
+    <section aria-labelledby="live-rooms-heading" className="mt-6">
+      <h2
+        id="live-rooms-heading"
+        className="mb-3 flex items-center gap-2 font-pixel text-sm text-theme-muted normal-case tracking-normal"
+      >
+        <span
+          aria-hidden="true"
+          className="h-1.5 w-1.5 rounded-full bg-secondary"
+        />
+        Live rooms
+      </h2>
 
       <div
         className={classNames(
@@ -33,43 +38,33 @@ export function PublicRoomDiscovery({
           rooms.length >= 3 && 'sm:grid-cols-3',
         )}
       >
-        {rooms.length === 0 && (
-          <p className="rounded-xl border border-theme bg-theme px-4 py-5 text-center text-theme-muted text-xs">
-            No public rooms are live. Start one and set the signal.
-          </p>
-        )}
-        {rooms.map((room, index) => (
-          <motion.div
+        {rooms.map((room) => (
+          <Button
             key={room.id}
-            animate={{ opacity: 1, x: 0 }}
-            initial={{ opacity: 0, x: -8 }}
-            transition={{ delay: index * 0.05, duration: 0.18 }}
+            onClick={handleJoinRoom}
+            size="none"
+            variant="ghost"
+            contentAlignment="between"
+            value={room.id}
+            className="group min-h-16 w-full gap-3 rounded-2xl border border-theme bg-theme-surface px-4 py-3 transition-colors hover:border-secondary/50 hover:bg-theme-hover"
           >
-            <Button
-              onClick={handleJoinRoom}
-              size="none"
-              variant="ghost"
-              value={room.id}
-              className="group min-h-15 w-full justify-between gap-3 rounded-xl border border-theme bg-theme px-3 py-2.5 text-left transition-colors hover:border-secondary/50 hover:bg-theme-hover"
-            >
-              <span className="flex w-full items-center gap-3">
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-pixel text-theme text-xs">
-                    {room.name}
-                  </span>
-                  <span className="mt-1 block text-3xs text-theme-muted">
-                    {room.listenerCount} listening · {room.songCount}{' '}
-                    {room.songCount === 1 ? 'song' : 'songs'}
-                  </span>
+            <span className="flex w-full items-center gap-3">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-pixel text-sm text-theme">
+                  {room.name}
                 </span>
-                <span className="shrink-0 font-pixel text-3xs text-secondary">
-                  Join →
+                <span className="mt-1 block text-theme-muted text-xs">
+                  {room.listenerCount} listening · {room.songCount}{' '}
+                  {room.songCount === 1 ? 'song' : 'songs'}
                 </span>
               </span>
-            </Button>
-          </motion.div>
+              <span className="shrink-0 font-pixel text-secondary text-xs">
+                Join →
+              </span>
+            </span>
+          </Button>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
