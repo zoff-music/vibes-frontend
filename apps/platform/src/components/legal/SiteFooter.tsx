@@ -1,41 +1,35 @@
 import { ExternalLinkIcon } from '@vibes/ui/web';
-import { Link } from 'react-router';
+import { NavLink } from 'react-router';
 
 export function SiteFooter() {
   return (
-    <footer className="relative z-30 w-full shrink-0 px-5 pb-3">
+    <footer className="site-footer relative z-10 w-full shrink-0 px-4 pt-8 pb-4 sm:px-6 sm:pb-6">
       <nav
         aria-label="Site links"
-        className="panel-surface mx-auto flex w-full max-w-3xl items-center justify-evenly rounded-full border border-theme p-1 shadow-lg backdrop-blur"
+        className="panel-surface mx-auto grid w-full max-w-6xl grid-cols-4 gap-1 rounded-3xl border border-theme p-1.5 backdrop-blur"
       >
         <a
-          className="group flex min-h-11 items-center gap-1 rounded-full px-2 py-2 font-pixel text-3xs text-theme-subtle tracking-label transition-colors hover:bg-theme hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:gap-1.5 sm:px-3 sm:text-2xs"
+          className={footerLinkClassName}
           href="https://github.com/zoff-music"
           rel="noreferrer"
           target="_blank"
         >
           GitHub
-          <ExternalLinkIcon className="h-3 w-3 transition-transform group-hover:translate-x-px group-hover:-translate-y-px" />
+          <ExternalLinkIcon className="h-3 w-3 shrink-0" />
         </a>
-        <Link
-          className="flex min-h-11 items-center rounded-full px-2 py-2 font-pixel text-3xs text-theme-subtle tracking-label transition-colors hover:bg-theme hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-3 sm:text-2xs"
-          to="/security"
-        >
+        <NavLink className={footerLinkClassName} to="/security">
           Security
-        </Link>
-        <Link
-          className="flex min-h-11 items-center rounded-full px-2 py-2 font-pixel text-3xs text-theme-subtle tracking-label transition-colors hover:bg-theme hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-3 sm:text-2xs"
-          to="/privacy-policy"
-        >
+        </NavLink>
+        <NavLink className={footerLinkClassName} to="/privacy-policy">
           Privacy
-        </Link>
-        <Link
-          className="flex min-h-11 items-center rounded-full px-2 py-2 font-pixel text-3xs text-theme-subtle tracking-label transition-colors hover:bg-theme hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-3 sm:text-2xs"
-          to="/terms-of-service"
-        >
+        </NavLink>
+        <NavLink className={footerLinkClassName} to="/terms-of-service">
           Terms
-        </Link>
+        </NavLink>
       </nav>
     </footer>
   );
 }
+
+const footerLinkClassName =
+  'flex min-h-14 w-full cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-2 py-4 font-pixel text-xs text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:bg-theme-surface aria-[current=page]:text-theme sm:text-sm';

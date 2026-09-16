@@ -4,11 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
-import { SiteFooter } from '../../components/legal/SiteFooter';
 import { ProfileSettingsModal } from '../../components/profile/ProfileSettingsModal';
 import { getPreviousPath } from '../../utils/navigationHistory';
 import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction } from './action';
+import { HomeLanding } from './components/HomeLanding';
 import { HomeRoomControls } from './components/HomeRoomControls';
 import { JoiningRoomState } from './components/JoiningRoomState';
 import { LegalAcknowledgement } from './components/LegalAcknowledgement';
@@ -75,8 +75,14 @@ const LazyTerminalHome = lazy(async () => {
 });
 
 export default function Home() {
-  const { providers, publicRooms, totalListeners } =
-    useLoaderData<typeof loader>();
+  const {
+    providers,
+    publicRooms,
+    totalListeners,
+    totalRooms,
+    totalSongs,
+    statsAvailable,
+  } = useLoaderData<typeof loader>();
   const [roomCode, setRoomCode] = useState('');
   const [placeholderText, setPlaceholderText] = useState('');
   const [wordIndex, setWordIndex] = useState(0);
@@ -191,7 +197,7 @@ export default function Home() {
             totalListeners={totalListeners}
           />
         </Suspense>
-        <div className="product-content">
+        <div className="product-content relative z-10 px-5 sm:px-6">
           <ProductIntroduction />
         </div>
         <ProfileSettingsModal
@@ -206,87 +212,61 @@ export default function Home() {
     <motion.div
       animate={{ opacity: 1 }}
       className={classNames(
-        'home-entry relative flex min-h-dvh w-full flex-col items-center overflow-x-hidden',
+        'home-entry relative w-full',
         shouldFadeIn && 'animate-fade-in',
         pendingRoomSlug && 'pointer-events-none',
       )}
       initial={{ opacity: 1 }}
     >
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6 sm:py-10">
-        <div className="crt-frame relative w-full max-w-3xl rounded-frame p-6 sm:p-10">
-          <div className="absolute top-6 right-6 z-20 flex gap-2 sm:top-10 sm:right-10">
-            <Tooltip
-              align="end"
-              className="inline-flex"
-              content="Settings"
-              side="bottom"
+      <HomeLanding
+        statsAvailable={statsAvailable}
+        totalListeners={totalListeners}
+        totalRooms={totalRooms}
+        totalSongs={totalSongs}
+        settingsControl={
+          <Tooltip
+            align="end"
+            className="inline-flex"
+            content="Settings"
+            side="bottom"
+          >
+            <Button
+              aria-label="Open settings"
+              onClick={() => setShowProfileSettings(true)}
+              size="icon"
+              variant="tertiary"
             >
-              <Button
-                aria-label="Open settings"
-                onClick={() => setShowProfileSettings(true)}
-                size="icon"
-                variant="tertiary"
-              >
-                <SettingsIcon className="h-5 w-5" />
-              </Button>
-            </Tooltip>
-          </div>
-
-          <ProfileSettingsModal
-            isOpen={showProfileSettings}
-            onClose={() => setShowProfileSettings(false)}
+              <SettingsIcon className="h-5 w-5" />
+            </Button>
+          </Tooltip>
+        }
+      >
+        {!isAIMode && (
+          <HomeRoomControls
+            onJoinRoom={handleJoinRoom}
+            onRoomCodeChange={handleRoomCodeChange}
+            onStartSession={handleStartSession}
+            onToggleAIMode={handleToggleAIMode}
+            placeholder={placeholder}
+            roomCode={roomCode}
+            rooms={publicRooms}
           />
-
-          <div className="text-center">
-            <h1
-              className="vhs-tear vhs-tear-strong glow-text font-wide text-4xl text-theme leading-none sm:text-5xl"
-              data-text="ゾフ"
-            >
-              <span aria-hidden="true">ゾフ</span>
-              <span className="sr-only">
-                Zoff — Shared music rooms, made for listening together
-              </span>
-            </h1>
-            <p className="mt-3 font-pixel text-sm text-theme-muted sm:text-base">
-              Shared music rooms, made for listening together
-            </p>
-            <p className="jp-art mt-2 text-theme-subtle text-xs">
-              音楽は共有するもの
-            </p>
-            {/* lol i aint fucking showing these terrible stats, so lets just drop the embarrassment */}
-            {totalListeners > 10 && (
-              <p className="mt-4 font-pixel text-theme-muted text-xs sm:text-sm">
-                The signal is live. Join {totalListeners} other listeners across
-                the airwaves
-              </p>
-            )}
-          </div>
-
-          {!isAIMode && (
-            <HomeRoomControls
-              onJoinRoom={handleJoinRoom}
-              onRoomCodeChange={handleRoomCodeChange}
-              onStartSession={handleStartSession}
-              onToggleAIMode={handleToggleAIMode}
-              placeholder={placeholder}
-              roomCode={roomCode}
-              rooms={publicRooms}
-            />
-          )}
-          {isAIMode && (
-            <PlaylistGenerationControls
-              onPromptChange={handleRoomCodeChange}
-              onToggleAIMode={handleToggleAIMode}
-              placeholder={placeholder}
-              prompt={roomCode}
-            />
-          )}
-          <ProviderAttribution providers={providers} />
-          <LegalAcknowledgement />
-        </div>
-      </div>
-      <ProductIntroduction />
-      <SiteFooter />
+        )}
+        {isAIMode && (
+          <PlaylistGenerationControls
+            onPromptChange={handleRoomCodeChange}
+            onToggleAIMode={handleToggleAIMode}
+            placeholder={placeholder}
+            prompt={roomCode}
+          />
+        )}
+        <ProviderAttribution providers={providers} />
+        <LegalAcknowledgement />
+      </HomeLanding>
+      <ProfileSettingsModal
+        isOpen={showProfileSettings}
+        onClose={() => setShowProfileSettings(false)}
+      />
       <AnimatePresence>
         {pendingRoomSlug && <JoiningRoomState roomId={pendingRoomSlug} />}
       </AnimatePresence>

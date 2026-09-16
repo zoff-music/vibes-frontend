@@ -11,6 +11,7 @@ import {
 } from 'react-router';
 import { App } from './App';
 import { PlatformErrorView } from './components/errors/PlatformErrorView';
+import { SiteLayout } from './components/layout/SiteLayout';
 import stylesUrl from './index.css?url';
 import { loader, type RootLoaderData } from './root/loader';
 
@@ -100,9 +101,11 @@ export default function Root() {
 export function ErrorBoundary() {
   useRouteError();
   return (
-    <PlatformErrorView
-      message="Something went wrong. Reload the page or return home."
-      title="Zoff is temporarily unavailable"
-    />
+    <SiteLayout>
+      <PlatformErrorView
+        message="Something went wrong. Reload the page or return home."
+        title="Zoff is temporarily unavailable"
+      />
+    </SiteLayout>
   );
 }

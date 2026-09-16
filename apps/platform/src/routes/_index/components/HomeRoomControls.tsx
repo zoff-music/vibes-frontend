@@ -26,10 +26,7 @@ export function HomeRoomControls({
   };
 
   return (
-    <section
-      aria-label="Join a room"
-      className="panel-surface mt-8 rounded-3xl p-4 sm:p-6"
-    >
+    <section aria-label="Join a room" className="min-w-0">
       <RoomJoinControls
         contained={false}
         onJoinRoom={handleJoinRoom}

@@ -86,7 +86,8 @@ canonical URLs and social previews. `/discover/listen-together`,
 `/discover/` prefix avoids claiming existing single-segment room names.
 
 Product copy lives in `src/seo/productPages.ts`; adding a page there also adds
-its navigation link and sitemap entry. Keep descriptions factual and public.
+its sitemap entry. Keep the lightweight navigation list in
+`src/seo/productNavigation.ts` in sync. Keep descriptions factual and public.
 `/sitemap.xml` contains only stable product and policy URLs, never live rooms
 or session data. `/robots.txt` points to this sitemap. The homepage identifies
 the application and its store listings with SoftwareApplication JSON-LD.
@@ -95,6 +96,19 @@ Social metadata uses a content-hashed PNG from `src/assets/social-card.png`;
 its editable vector source is alongside it. Regenerate the PNG at 1200×630
 after changing the SVG. Verify page metadata in server-rendered HTML, including
 canonical URLs without tracking parameters, rather than relying on hydration.
+
+The homepage combines the room controls, loader-provided community statistics,
+short product sections and real app captures. Statistics reuse the homepage
+loader's existing `/stats` request; presentation components make no API calls.
+Failed statistics requests hide the numbers instead of presenting false zeros.
+`SiteLayout` provides the shared footer on non-room pages, including error
+pages. Room route IDs explicitly opt out so playback layouts stay unchanged.
+
+The optimized WebP images in `src/assets/product/` come from the Android TV
+`electro` room capture and the mobile App Store search/remote captures already
+in this repository. They are illustrative app captures, not a live room feed.
+The social card uses the real circular logo and bundled MSW98UI font;
+render its SVG with those local resources embedded when regenerating the PNG.
 
 - **Framework**: React 19 + TypeScript with SSR streaming
 - **Runtime**: Node.js for production serving
