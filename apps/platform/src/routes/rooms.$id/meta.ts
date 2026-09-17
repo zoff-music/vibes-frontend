@@ -4,7 +4,10 @@ import { createRoomShareDescription, createRoomShareTitle } from './share';
 
 export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
   if (!loaderData) {
-    return [{ title: 'Zoff - Shared Music Room' }];
+    return [
+      { title: 'Zoff - Shared Music Room' },
+      { name: 'robots', content: 'noindex, follow' },
+    ];
   }
 
   const currentSong = loaderData.playback?.currentSong ?? null;
@@ -24,6 +27,7 @@ export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
 
   return [
     { title },
+    { name: 'robots', content: 'noindex, follow' },
     {
       tagName: 'link',
       rel: 'canonical',
