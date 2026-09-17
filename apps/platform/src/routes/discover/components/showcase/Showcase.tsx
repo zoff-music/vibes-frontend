@@ -31,11 +31,13 @@ export function Showcase({
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 overflow-hidden"
+        className="scene-atmosphere pointer-events-none absolute -inset-6 overflow-hidden"
       >
-        <div className="scene-aurora absolute -top-12 -right-16 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-        <div className="scene-aurora scene-aurora-offset absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-secondary/15 blur-3xl" />
-        <div className="scene-floor absolute inset-x-0 bottom-0 h-48 opacity-30" />
+        <div className="scene-aurora absolute top-8 right-0 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+        <div className="scene-aurora scene-aurora-offset absolute bottom-8 left-0 h-64 w-64 rounded-full bg-secondary/15 blur-3xl" />
+        <div className="scene-floor-fade absolute inset-x-0 bottom-6 h-56 opacity-30">
+          <div className="scene-floor absolute inset-0" />
+        </div>
       </div>
       <div className="scene-header relative flex items-center justify-between gap-3 px-5 pt-4 sm:px-7 sm:pt-5">
         <p className="font-pixel text-primary text-xs tracking-widest">

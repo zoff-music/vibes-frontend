@@ -43,10 +43,10 @@ export function PublicRoomDiscovery({
             key={room.id}
             onClick={handleJoinRoom}
             size="none"
-            variant="ghost"
+            variant="tertiary"
             contentAlignment="between"
             value={room.id}
-            className="group min-h-16 w-full gap-3 rounded-2xl border border-theme bg-theme-surface px-4 py-3 transition-colors hover:border-secondary/50 hover:bg-theme-hover"
+            className="group min-h-16 w-full gap-3 rounded-2xl px-4 py-3 shadow-sm transition-colors hover:bg-theme-hover"
           >
             <span className="flex w-full items-center gap-3">
               <span className="min-w-0 flex-1">

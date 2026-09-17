@@ -49,7 +49,7 @@ export function SiteHero({
           {children}
         </div>
         {aside && (
-          <div className="min-w-0 border-theme border-t pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8 lg:pl-12 [&_.music-scene]:rounded-none [&_.music-scene]:border-0 [&_.music-scene]:bg-transparent [&_.music-scene]:shadow-none [&_.scene-content]:px-0 [&_.scene-content]:pb-0 [&_.scene-header]:px-0 [&_.scene-header]:pt-0">
+          <div className="min-w-0 border-theme border-t pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8 lg:pl-12 [&_.music-scene]:overflow-visible [&_.music-scene]:rounded-none [&_.music-scene]:border-0 [&_.music-scene]:bg-transparent [&_.music-scene]:shadow-none [&_.scene-content]:px-0 [&_.scene-content]:pb-0 [&_.scene-header]:px-0 [&_.scene-header]:pt-0">
             {aside}
           </div>
         )}

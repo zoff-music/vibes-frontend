@@ -9,11 +9,11 @@ interface RoomModeSceneProps {
 
 export function RoomModeScene({ hostMode }: RoomModeSceneProps) {
   return (
-    <div aria-hidden="true" className="mb-6">
+    <div aria-hidden="true" className="scene-mode-timeline mb-6">
       <p className="font-pixel text-secondary text-xs tracking-wider">
         {hostMode ? 'THE HOST CALLS THE SHOTS' : 'THE QUEUE KEEPS GOING'}
       </p>
-      <div className="mt-5 grid">
+      <div className="mt-5 grid overflow-hidden">
         <div
           className={classNames(
             'col-start-1 row-start-1',
