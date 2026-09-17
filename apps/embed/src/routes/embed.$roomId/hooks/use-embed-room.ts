@@ -163,6 +163,7 @@ export function useEmbedRoomActions({ roomMode }: EmbedActionOptions) {
 }
 
 interface EmbedPlaybackOptions {
+  autoplay: boolean;
   canPlay: boolean;
   canSkip: boolean;
   currentSong: Song | null;
@@ -173,6 +174,7 @@ interface EmbedPlaybackOptions {
 }
 
 export function useEmbedLocalPlayback({
+  autoplay,
   canPlay,
   canSkip,
   currentSong,
@@ -184,6 +186,7 @@ export function useEmbedLocalPlayback({
   const [hasLocalPlayerInteraction, setHasLocalPlayerInteraction] =
     useState(false);
   const interactionRoomIdRef = useRef(roomId);
+  const autoplayRoomIdRef = useRef<string | null>(null);
   const setLocalPlaybackAligned = usePlaybackStore(
     (state) => state.setLocalPlaybackAligned,
   );
@@ -198,9 +201,17 @@ export function useEmbedLocalPlayback({
   }, [roomId]);
 
   useEffect(() => {
-    if (hasLocalPlayerInteraction || !currentSong?.id || !isPlaying) return;
+    if (!autoplay || !canPlay || autoplayRoomIdRef.current === roomId) return;
+    autoplayRoomIdRef.current = roomId;
+    setLocalPlayingState(true, roomMode);
+  }, [autoplay, canPlay, roomId, roomMode, setLocalPlayingState]);
+
+  useEffect(() => {
+    if (autoplay || hasLocalPlayerInteraction || !currentSong?.id || !isPlaying)
+      return;
     setLocalPlayingState(false, roomMode);
   }, [
+    autoplay,
     currentSong?.id,
     hasLocalPlayerInteraction,
     isPlaying,
@@ -225,10 +236,17 @@ export function useEmbedLocalPlayback({
   }, [handlePause, handlePlay, isPlaying]);
   const handleLocalAlignmentChange = useCallback(
     (isAligned: boolean) => {
-      if (!hasLocalPlayerInteraction) return;
+      if (!autoplay && !hasLocalPlayerInteraction) return;
       setLocalPlaybackAligned(isAligned);
     },
-    [hasLocalPlayerInteraction, setLocalPlaybackAligned],
+    [autoplay, hasLocalPlayerInteraction, setLocalPlaybackAligned],
+  );
+  const handleNeedsUserGestureChange = useCallback(
+    (needsGesture: boolean) => {
+      if (!autoplay || !needsGesture) return;
+      setLocalPlayingState(false, roomMode);
+    },
+    [autoplay, roomMode, setLocalPlayingState],
   );
 
   useMediaSession({
@@ -243,6 +261,7 @@ export function useEmbedLocalPlayback({
 
   return {
     handleLocalAlignmentChange,
+    handleNeedsUserGestureChange,
     handleLocalPlayerInteraction: () => setHasLocalPlayerInteraction(true),
     handlePlay,
     handlePlayPause,

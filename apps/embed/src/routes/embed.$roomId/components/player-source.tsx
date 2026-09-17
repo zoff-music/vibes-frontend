@@ -13,11 +13,13 @@ const LazyVideoPlayer = lazy(async () => {
 });
 
 interface Props {
+  autoplay: boolean;
   currentSong: Song | null;
   enabledProviders: string[];
   onLocalAlignmentChange: (isAligned: boolean) => void;
   onLocalInteraction: () => void;
   onLocalPlay: () => void;
+  onNeedsUserGestureChange: (needsGesture: boolean) => void;
   songs: Song[];
 }
 
@@ -35,11 +37,13 @@ function PlayerLoading() {
 }
 
 function EmbedPlayerSourceComponent({
+  autoplay,
   currentSong,
   enabledProviders,
   onLocalAlignmentChange,
   onLocalInteraction,
   onLocalPlay,
+  onNeedsUserGestureChange,
   songs,
 }: Props) {
   const isSoundCloudActive = currentSong?.sourceType === 'soundcloud';
@@ -82,12 +86,14 @@ function EmbedPlayerSourceComponent({
         >
           <Suspense fallback={isYouTubeActive && <PlayerLoading />}>
             <LazyVideoPlayer
+              allowUnmutedAutoplay={autoplay}
               isVisible={isYouTubeActive}
               fill
               appContext="platform"
               onLocalAlignmentChange={onLocalAlignmentChange}
               onLocalPause={onLocalInteraction}
               onLocalPlay={onLocalPlay}
+              onNeedsUserGestureChange={onNeedsUserGestureChange}
               onLocalSeek={onLocalInteraction}
               onLocalVolumeChange={onLocalInteraction}
               preloadSong={preloadYouTubeSong}
@@ -104,11 +110,14 @@ function EmbedPlayerSourceComponent({
         >
           <Suspense fallback={isSoundCloudActive && <PlayerLoading />}>
             <LazySoundCloudPlayer
+              allowUnmutedAutoplay={autoplay}
+              showInitialPlaybackOverlay
               isVisible={isSoundCloudActive}
               fill
               onLocalAlignmentChange={onLocalAlignmentChange}
               onLocalPause={onLocalInteraction}
-              onLocalPlay={onLocalInteraction}
+              onLocalPlay={onLocalPlay}
+              onNeedsUserGestureChange={onNeedsUserGestureChange}
               onLocalSeek={onLocalInteraction}
               onLocalVolumeChange={onLocalInteraction}
               preloadSong={preloadSoundCloudSong}
@@ -120,12 +129,4 @@ function EmbedPlayerSourceComponent({
   );
 }
 
-export const EmbedPlayerSource = memo(
-  EmbedPlayerSourceComponent,
-  (previous, next) =>
-    previous.currentSong?.sourceType === next.currentSong?.sourceType &&
-    previous.currentSong?.sourceId === next.currentSong?.sourceId &&
-    previous.onLocalAlignmentChange === next.onLocalAlignmentChange &&
-    previous.onLocalInteraction === next.onLocalInteraction &&
-    previous.onLocalPlay === next.onLocalPlay,
-);
+export const EmbedPlayerSource = memo(EmbedPlayerSourceComponent);
