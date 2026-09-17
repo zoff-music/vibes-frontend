@@ -201,13 +201,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     setIsSearching(false);
 
     if (searchFetcher.data.error) {
-      setError(
-        searchFetcher.data.intent === 'providerTrack'
-          ? 'Could not load that track'
-          : searchFetcher.data.intent === 'providerPlaylist'
-            ? 'Could not load that playlist'
-            : searchFetcher.data.error,
-      );
+      setError(searchFetcher.data.error);
       setSearchResults([]);
       setShowResults(false);
       return;

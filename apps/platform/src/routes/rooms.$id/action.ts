@@ -109,6 +109,8 @@ async function createErrorData(intent: RoomActionIntent, error: Error | null) {
       ((intent === 'skip' && 'Failed to skip. Please try again.') ||
         (intent === 'addPlaylist' &&
           'Failed to import the playlist. Please try again.') ||
+        (intent === 'providerTrack' && 'Could not load that track.') ||
+        (intent === 'providerPlaylist' && 'Could not load that playlist.') ||
         'The request failed'),
     ...(apiError?.error === 'song_room_admin_required' && {
       errorAction: 'adminLogin' as const,
