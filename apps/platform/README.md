@@ -91,6 +91,12 @@ its sitemap entry. Keep the lightweight navigation list in
 `/sitemap.xml` contains only stable product and policy URLs, never live rooms
 or session data. `/robots.txt` points to this sitemap. The homepage identifies
 the application and its store listings with SoftwareApplication JSON-LD.
+Actual room pages use `noindex, follow`, including party/share variants and
+the missing-loader-data fallback, while retaining their social-preview metadata.
+Keep room URLs crawlable in `robots.txt` so crawlers can read the directive.
+Room-creation URLs with `?name=` retain their form prefill and declare the clean
+`https://zoff.me/rooms/create` URL as canonical. Do not remove useful query
+parameters or apply `noindex` to these alternate product-page URLs.
 
 Social metadata uses a content-hashed PNG from `src/assets/social-card.png`;
 its editable vector source is alongside it. Regenerate the PNG at 1200×630
@@ -103,7 +109,10 @@ loader's existing `/stats` request; presentation components make no API calls.
 Failed statistics requests hide the numbers instead of presenting false zeros.
 Keep the first screen focused on room entry and a short product description.
 Supporting content and community statistics remain server-rendered below the
-hero. Public room shortcuts appear only when rooms are available, outside the
+hero. `HomeLanding` already renders `ProductIntroduction` for the
+normal homepage; the terminal branch renders it separately. Do not duplicate it
+in the normal route or remove its `explore-zoff` anchor.
+Public room shortcuts appear only when rooms are available, outside the
 entry controls. Use the solid tertiary button surface for room rows so the
 decorative page grid cannot show through them. Use concise UI and SEO copy
 without em dashes.
