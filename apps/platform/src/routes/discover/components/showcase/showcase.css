@@ -3,6 +3,23 @@
   --scene-cyan: #00d9ff;
 }
 
+/* Fade decoration in its own plane, never the text, controls or record rings. */
+.scene-atmosphere {
+  mask-image: radial-gradient(
+    ellipse closest-side,
+    black 45%,
+    transparent 100%
+  );
+}
+
+.scene-floor-fade {
+  mask-image: radial-gradient(
+    ellipse closest-side,
+    black 30%,
+    transparent 100%
+  );
+}
+
 .scene-floor {
   background-image:
     linear-gradient(var(--scene-pink) 1px, transparent 1px),
@@ -10,7 +27,6 @@
   background-size: 40px 40px;
   transform: perspective(200px) rotateX(45deg) scale(1.8);
   transform-origin: bottom;
-  mask-image: linear-gradient(transparent, black);
 }
 
 .scene-grooves {
