@@ -83,6 +83,10 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   }
 }
 
+.platform-background-motion-paused {
+  animation-play-state: paused;
+}
+
 @keyframes dice-roll {
   0% {
     transform: rotate(0deg) scale(1);
