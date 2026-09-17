@@ -918,12 +918,16 @@ const VideoPlayerComponent = ({
       !allowUnmutedAutoplay ||
       !isReady ||
       !shouldPlay ||
-      playerState === YOUTUBE_STATE_PLAYING
+      playerState === YOUTUBE_STATE_PLAYING ||
+      playerState === YOUTUBE_STATE_BUFFERING
     )
       return;
     const timeout = setTimeout(() => {
       const player = playerRef.current;
-      if (!player || player.getPlayerState() === YOUTUBE_STATE_PLAYING) return;
+      if (!player) return;
+      const state = player.getPlayerState();
+      if (state === YOUTUBE_STATE_PLAYING || state === YOUTUBE_STATE_BUFFERING)
+        return;
       setNeedsUserGesture(true);
     }, AUTOPLAY_CONFIRMATION_MS);
     return () => clearTimeout(timeout);
