@@ -51,12 +51,13 @@ export function RoomJoinControls({
           Room name
         </label>
         <div className="flex h-14 min-w-0 items-center rounded-2xl border border-theme bg-theme-surface transition-colors focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/30">
-          <span
+          <label
             aria-hidden="true"
-            className="shrink-0 pl-4 text-sm text-theme-subtle"
+            htmlFor="room-name"
+            className="flex h-full shrink-0 cursor-text items-center pl-4 text-sm text-theme-subtle"
           >
             zoff.me/
-          </span>
+          </label>
           <input
             id="room-name"
             type="text"
