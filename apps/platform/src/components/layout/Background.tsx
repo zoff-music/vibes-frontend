@@ -1,12 +1,14 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { useLocation } from 'react-router';
+import { useLocation, useMatches } from 'react-router';
 import { useThemeStore } from '../../stores/themeStore';
 
 export function Background() {
   const location = useLocation();
+  const matches = useMatches();
   const isWarping = useThemeStore((state) => state.isWarping);
   const isTabVisible = usePageVisibility();
   const isHome = location.pathname === '/';
+  const showGrid = matches.some((match) => gridRouteIds.has(match.id));
 
   // Only show the sun on Home and CreateRoom pages
   const showSun = isHome || location.pathname === '/rooms/create';
@@ -39,7 +41,7 @@ export function Background() {
         />
       )}
 
-      {isHome && (
+      {showGrid && (
         <div
           className={classNames(
             'absolute bottom-0 left-1/2 h-[100vh] w-[200%] origin-bottom overflow-hidden transition-opacity duration-500 [backface-visibility:hidden] [mask-image:linear-gradient(to_top,black_30%,transparent_95%)] [transform:translateX(-50%)_perspective(600px)_rotateX(60deg)]',
@@ -59,3 +61,12 @@ export function Background() {
     </div>
   );
 }
+
+const gridRouteIds = new Set([
+  'routes/_index/route',
+  'routes/discover/route',
+  'routes/rooms.create/route',
+  'routes/security/route',
+  'routes/privacy-policy/route',
+  'routes/terms-of-service/route',
+]);
