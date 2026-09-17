@@ -2,7 +2,10 @@ import { Button } from '@vibes/ui/web';
 
 export function EmbedRoomErrorBoundary() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-theme p-4 text-theme">
+    <main
+      className="flex h-full min-h-0 items-center justify-center overflow-auto overscroll-none bg-theme p-4 text-theme"
+      data-embed-scroll
+    >
       <div className="panel-strong rounded-2xl border border-theme p-8 text-center">
         <p className="font-pixel text-sm">Room unavailable</p>
         <p className="mt-2 text-theme-muted text-xs">

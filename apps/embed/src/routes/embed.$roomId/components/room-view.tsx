@@ -64,7 +64,7 @@ export function EmbedRoomView({ loaderData }: Props) {
     Boolean(currentSong) && room.mode !== 'host' && room.settings.skipAllowed;
 
   return (
-    <main className="h-dvh overflow-hidden bg-theme text-theme">
+    <main className="h-full min-h-0 overflow-hidden bg-theme text-theme">
       <section className="flex h-full w-full flex-col overflow-hidden border border-theme bg-theme">
         <EmbedRoomHeader
           canControlPlayback={Boolean(currentSong)}
@@ -83,7 +83,7 @@ export function EmbedRoomView({ loaderData }: Props) {
         />
 
         {showPlayerAndPlaylist && (
-          <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.2fr)_minmax(0,0.8fr)] gap-4 p-4 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] md:grid-rows-1">
+          <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.2fr)_minmax(0,0.8fr)] gap-4 overflow-hidden p-4 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] md:grid-rows-1">
             {player}
             <EmbedPlaylist
               songs={queuedSongs}
@@ -98,7 +98,7 @@ export function EmbedRoomView({ loaderData }: Props) {
           </div>
         )}
         {showPlaylistOnly && (
-          <div className="min-h-0 flex-1 p-3 sm:p-4">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4">
             <EmbedPlaylist
               songs={queuedSongs}
               votingEnabled={options.vote}

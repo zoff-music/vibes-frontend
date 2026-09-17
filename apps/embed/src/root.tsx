@@ -1,4 +1,4 @@
-import { parseColorScheme } from '@vibes/shared';
+import { classNames, parseColorScheme } from '@vibes/shared';
 import type { ReactNode } from 'react';
 import {
   Links,
@@ -9,6 +9,7 @@ import {
 } from 'react-router';
 import { App } from './App';
 import logoUrl from './assets/logo.png';
+import { useEmbedScrollContainment } from './hooks/use-embed-scroll-containment';
 import stylesUrl from './index.css?url';
 import { EmbedRoomErrorBoundary } from './routes/embed.$roomId/components/error-boundary';
 
@@ -31,8 +32,12 @@ interface Props {
 }
 
 export function Layout({ children }: Props) {
+  useEmbedScrollContainment();
   const { stylesheetUrl, colorScheme } = useLoaderData<typeof loader>();
-  const className = colorSchemeClasses[colorScheme];
+  const className = classNames(
+    'h-full overflow-hidden overscroll-none',
+    colorSchemeClasses[colorScheme],
+  );
   const colorSchemeContent =
     colorScheme === 'auto' ? 'light dark' : colorScheme;
   return (
@@ -51,8 +56,10 @@ export function Layout({ children }: Props) {
         <Meta />
         <Links />
       </head>
-      <body>
-        <div id="root">{children}</div>
+      <body className="h-full overflow-hidden overscroll-none">
+        <div id="root" className="h-full overflow-hidden overscroll-none">
+          {children}
+        </div>
         <Scripts />
       </body>
     </html>
