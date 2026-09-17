@@ -114,6 +114,15 @@ in this repository. They are illustrative app captures, not a live room feed.
 The social card uses the real circular logo and bundled MSW98UI font;
 render its SVG with those local resources embedded when regenerating the PNG.
 
+Discovery pages use topic-specific previews rather than repeating the same
+image. The playlist-generation demo is explicitly illustrative and makes no
+provider or generation requests. Its examples link to `/?mode=ai` for real
+generation through the homepage action. Keep interactive preview geometry
+stable, make animation finite and user-triggered, and respect reduced motion.
+Accordion bodies remain in server-rendered HTML while their height animates.
+Policy pages share the site header and navigation; their document wording and
+revision dates must not change as part of presentation-only updates.
+
 - **Framework**: React 19 + TypeScript with SSR streaming
 - **Runtime**: Node.js for production serving
 - **State Management**: Zustand for high-performance, selective store subscriptions (playback, UI, auth)

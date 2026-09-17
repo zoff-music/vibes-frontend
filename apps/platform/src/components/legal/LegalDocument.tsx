@@ -1,10 +1,18 @@
+import { classNames } from '@vibes/shared';
 import {
   terminalButtonClassName,
   useTerminalShortcuts,
 } from '@vibes/ui/konami';
-import { lazy, type ReactNode, Suspense } from 'react';
-import { Link, useNavigate } from 'react-router';
+import {
+  Children,
+  isValidElement,
+  lazy,
+  type ReactNode,
+  Suspense,
+} from 'react';
+import { Link, NavLink, useNavigate } from 'react-router';
 import { useKonamiMode } from '../konami/KonamiModeContext';
+import { SiteHeader } from '../seo/SiteHeader';
 
 const LazyTerminalShell = lazy(() =>
   import('@vibes/ui/konami').then((module) => ({
@@ -84,36 +92,85 @@ export function LegalDocument({
     );
   }
 
+  const sections = Children.toArray(children).flatMap((child) => {
+    if (
+      !isValidElement<LegalSectionProps>(child) ||
+      child.type !== LegalSection
+    ) {
+      return [];
+    }
+    return [child.props.title];
+  });
+
   return (
-    <main className="relative z-10 min-h-screen px-6 py-16 sm:py-24">
-      <div className="mx-auto max-w-4xl">
-        <Link
-          className="font-pixel text-theme-muted text-xs tracking-label transition-colors hover:text-theme"
-          to="/"
-        >
-          ← Back to Zoff
-        </Link>
+    <div className="relative z-10 text-theme">
+      <SiteHeader />
+      <main className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-6">
+        <header className="pt-6 pb-8 sm:pt-10 sm:pb-10">
+          <p className="font-pixel text-2xs text-primary tracking-label">
+            ZOFF / POLICIES
+          </p>
+          <h1 className="mt-5 font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl">
+            {title}
+          </h1>
+          <p className="mt-5 max-w-2xl text-lg text-theme-muted leading-relaxed">
+            {description}
+          </p>
+          <p className="mt-4 text-theme-subtle text-xs">
+            Last updated: {updatedAt}
+          </p>
+        </header>
 
-        <article className="crt-frame mt-8 rounded-frame p-6 sm:p-10">
-          <header className="border-theme border-b pb-8">
-            <p className="font-pixel text-secondary text-xs tracking-label">
-              ZOFF LEGAL
-            </p>
-            <h1 className="mt-4 font-pixel text-3xl text-theme sm:text-4xl">
-              {title}
-            </h1>
-            <p className="mt-4 max-w-3xl text-theme-muted leading-7">
-              {description}
-            </p>
-            <p className="mt-4 text-theme-subtle text-xs">
-              Last updated: {updatedAt}
-            </p>
-          </header>
-
-          <div className="mt-8 space-y-10">{children}</div>
-        </article>
-      </div>
-    </main>
+        <div className="grid items-start gap-6 border-theme border-t pt-6 lg:grid-cols-4 lg:gap-10 lg:pt-8">
+          <aside className="lg:sticky lg:top-6">
+            <nav
+              aria-label="Zoff policies"
+              className="grid grid-cols-3 gap-2 lg:grid-cols-1"
+            >
+              {policyLinks.map((policy) => (
+                <NavLink
+                  key={policy.path}
+                  to={policy.path}
+                  className={({ isActive }) =>
+                    classNames(
+                      'flex min-h-12 items-center justify-center rounded-xl border px-3 py-3 font-pixel text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary lg:justify-start lg:px-4',
+                      isActive
+                        ? 'border-secondary/50 bg-secondary/10 text-theme'
+                        : 'border-theme bg-theme-surface text-theme-muted hover:border-secondary/50 hover:text-theme',
+                    )
+                  }
+                >
+                  {policy.label}
+                </NavLink>
+              ))}
+            </nav>
+            <nav aria-label="On this page" className="mt-8 hidden lg:block">
+              <p className="mb-3 px-3 font-pixel text-theme-subtle text-xs">
+                On this page
+              </p>
+              <ul className="space-y-1">
+                {sections.map((section) => (
+                  <li key={section}>
+                    <a
+                      href={`#${sectionId(section)}`}
+                      className="block rounded-xl px-3 py-3 text-sm text-theme-muted leading-relaxed transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    >
+                      {section}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+          <article
+            aria-label={title}
+            className="panel-surface min-w-0 space-y-8 rounded-3xl border border-theme p-6 sm:p-8 lg:col-span-3 lg:p-10"
+          >
+            {children}
+          </article>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -134,8 +191,11 @@ export function LegalSection({ children, title }: LegalSectionProps) {
   }
 
   return (
-    <section className="space-y-4">
-      <h2 className="font-pixel text-lg text-theme tracking-display">
+    <section
+      id={sectionId(title)}
+      className="scroll-mt-8 space-y-4 border-theme border-b pb-8 last:border-b-0 last:pb-0"
+    >
+      <h2 className="font-pixel text-theme text-xl normal-case tracking-normal">
         {title}
       </h2>
       <div className="space-y-4 text-theme-muted leading-7">{children}</div>
@@ -159,12 +219,22 @@ export function LegalSubsection({ children, title }: LegalSubsectionProps) {
 
   return (
     <section className="space-y-3 pt-2">
-      <h3 className="font-pixel text-base text-theme tracking-display">
+      <h3 className="font-pixel text-lg text-theme normal-case tracking-normal">
         {title}
       </h3>
       <div className="space-y-4">{children}</div>
     </section>
   );
+}
+
+const policyLinks = [
+  { path: '/security', label: 'Security' },
+  { path: '/privacy-policy', label: 'Privacy' },
+  { path: '/terms-of-service', label: 'Terms' },
+];
+
+function sectionId(title: string) {
+  return `policy-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
 
 export function LegalLink({ children, href }: LegalLinkProps) {

@@ -1,16 +1,7 @@
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
-import { classNames, usePageVisibility } from '@vibes/shared';
-import {
-  playlistGenerationMessageIntervalMs,
-  playlistGenerationMessages,
-} from '@vibes/ui/shared';
-import { AlertCircleIcon, Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
-import {
-  type ChangeEvent,
-  type KeyboardEvent,
-  useEffect,
-  useState,
-} from 'react';
+import { classNames, showToast } from '@vibes/shared';
+import { Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
+import { type ChangeEvent, type KeyboardEvent, useEffect } from 'react';
 import { useFetcher } from 'react-router';
 import type { HomeActionData } from '../action';
 
@@ -28,24 +19,13 @@ export function PlaylistGenerationControls({
   prompt,
 }: PlaylistGenerationControlsProps) {
   const fetcher = useFetcher<HomeActionData>();
-  const isTabVisible = usePageVisibility();
   const isGenerating = fetcher.state !== 'idle';
-  const [generationMessageIndex, setGenerationMessageIndex] = useState(0);
-  const generationMessage = playlistGenerationMessages[generationMessageIndex];
 
   useEffect(() => {
-    if (!isGenerating || !isTabVisible) {
-      return;
+    if (fetcher.data?.error) {
+      showToast(fetcher.data.error, 'error');
     }
-
-    const interval = window.setInterval(() => {
-      setGenerationMessageIndex(
-        (current) => (current + 1) % playlistGenerationMessages.length,
-      );
-    }, playlistGenerationMessageIntervalMs);
-
-    return () => window.clearInterval(interval);
-  }, [isGenerating, isTabVisible]);
+  }, [fetcher.data]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onPromptChange(event.target.value);
@@ -57,7 +37,6 @@ export function PlaylistGenerationControls({
       return;
     }
 
-    setGenerationMessageIndex(0);
     fetcher.submit(
       { intent: 'generateRoom', prompt: normalizedPrompt },
       { method: 'post' },
@@ -79,12 +58,17 @@ export function PlaylistGenerationControls({
             'animate-pulse border-secondary/70 shadow-secondary-panel',
         )}
       >
-        <label
-          htmlFor="playlist-prompt"
-          className="mb-2 block font-pixel text-sm text-theme-muted"
-        >
-          Describe your soundtrack
-        </label>
+        <div className="mb-2 flex h-5 items-center justify-between gap-3">
+          <label
+            htmlFor="playlist-prompt"
+            className="font-pixel text-sm text-theme-muted"
+          >
+            Playlist idea
+          </label>
+          <span className="shrink-0 text-theme-subtle text-xs tabular-nums">
+            {prompt.length}/{generatedPlaylistPromptMaxLength}
+          </span>
+        </div>
         <div className="relative">
           <input
             id="playlist-prompt"
@@ -116,26 +100,6 @@ export function PlaylistGenerationControls({
             </Tooltip>
           </span>
         </div>
-        <div className="mt-3 flex justify-between gap-4 text-theme-subtle text-xs">
-          <span aria-live="polite">
-            {isGenerating
-              ? generationMessage
-              : 'Generates a playlist based on your suggestion'}
-          </span>
-          <span className="tabular-nums">
-            {prompt.length}/{generatedPlaylistPromptMaxLength}
-          </span>
-        </div>
-        {fetcher.data?.error && (
-          <div
-            aria-live="polite"
-            className="mt-3 flex items-start gap-2 text-error text-sm"
-            role="alert"
-          >
-            <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>{fetcher.data.error}</span>
-          </div>
-        )}
       </div>
 
       <Button
@@ -152,8 +116,8 @@ export function PlaylistGenerationControls({
         {isGenerating && (
           <span className="absolute inset-y-0 w-1/3 animate-ai-button-shimmer bg-linear-to-r from-transparent via-white/35 to-transparent" />
         )}
-        <span className="relative">
-          {isGenerating ? generationMessage : 'Generate Room'}
+        <span className="relative" aria-live="polite">
+          {isGenerating ? 'Generating…' : 'Generate room'}
         </span>
         <span
           className={classNames(

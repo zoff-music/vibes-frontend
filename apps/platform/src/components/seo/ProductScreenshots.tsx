@@ -55,7 +55,6 @@ export function ProductScreenshots({ kind = 'room' }: ProductScreenshotsProps) {
           />
           ELECTRO / ZOFF ON TV
         </span>
-        <span aria-hidden="true">↗</span>
       </div>
       <img
         src={electroTv}

@@ -2,7 +2,12 @@ import { classNames, usePageVisibility } from '@vibes/shared';
 import { Button, SettingsIcon, Tooltip } from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { useLoaderData, useNavigate, useNavigationType } from 'react-router';
+import {
+  useLoaderData,
+  useNavigate,
+  useNavigationType,
+  useSearchParams,
+} from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { ProfileSettingsModal } from '../../components/profile/ProfileSettingsModal';
 import { getPreviousPath } from '../../utils/navigationHistory';
@@ -87,7 +92,8 @@ export default function Home() {
   const [charIndex, setCharIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
-  const [isAIMode, setIsAIMode] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
   const isTabVisible = usePageVisibility();
@@ -217,6 +223,7 @@ export default function Home() {
       initial={{ opacity: 1 }}
     >
       <HomeLanding
+        isAIMode={isAIMode}
         onJoinRoom={handleJoinRoom}
         providers={providers}
         publicRooms={publicRooms}

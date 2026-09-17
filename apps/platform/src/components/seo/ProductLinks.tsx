@@ -1,14 +1,25 @@
+import { classNames } from '@vibes/shared';
 import { ArrowRightIcon } from '@vibes/ui/web';
 import { Link } from 'react-router';
 import { productNavigation } from '../../seo/productNavigation';
 
-export function ProductLinks() {
+interface ProductLinksProps {
+  slugs?: readonly string[];
+}
+
+export function ProductLinks({ slugs }: ProductLinksProps) {
+  const pages = productNavigation.filter(
+    (page) => !slugs || slugs.includes(page.slug),
+  );
   return (
     <nav
       aria-label="Explore Zoff"
-      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
+      className={classNames(
+        'grid gap-2 sm:grid-cols-2',
+        pages.length > 2 && 'lg:grid-cols-3',
+      )}
     >
-      {productNavigation.map((page) => (
+      {pages.map((page) => (
         <Link
           key={page.slug}
           to={`/discover/${page.slug}`}
