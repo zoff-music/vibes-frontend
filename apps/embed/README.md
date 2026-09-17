@@ -22,6 +22,34 @@ which can override the intended surface in the generated stylesheet.
 Every queue card shows its vote icon and count, including zero votes. Disabling
 voting removes the action and invitation to vote, not the existing vote totals.
 
+## Scrolling inside an iframe
+
+Keep `html`, `body`, and `#root` at the iframe's full height with hidden
+overflow and `overscroll-none`. The queue owns its bounded vertical scroll
+area in both the combined and playlist-only layouts. Do not let a playlist-only
+wrapper grow with the queue and clip later rows outside the iframe.
+
+Set overscroll behavior inside the document, not just on the host's iframe
+element. Keep it on the queue too, so reaching either end does not bounce into
+blank space or chain wheel/touch scrolling to the surrounding page. Loading
+and error content must use the same height boundary.
+
+Keep the queue and vote badges positioned with `relative`. Absolute screen-reader
+labels and exiting queue rows must stay inside their local containing blocks;
+otherwise invisible content can extend the document's scroll height beyond the
+iframe even when its visible ancestors use `overflow-hidden`.
+
+Browser engines can still forward gestures across iframe scroll boundaries,
+especially when the content does not overflow. The document-scoped
+`useEmbedScrollContainment` hook prevents wheel and single-touch drag defaults
+only when a `data-embed-scroll` area cannot scroll further in that direction.
+It leaves normal queue scrolling, pinch zoom, and events within provider iframes alone.
+Mark any additional internally scrollable area with `data-embed-scroll`.
+
+Verify short and long queues in narrow and wide iframes: the queue must reach
+its last song while the embed document and host page remain stationary when
+scrolling over it. Scrolling outside the iframe should still work normally.
+
 ## Options and verification
 
 Boolean query parameters `player`, `playlist`, `skip`, and `vote` control the

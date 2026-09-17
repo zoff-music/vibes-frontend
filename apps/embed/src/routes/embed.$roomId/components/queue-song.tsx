@@ -28,7 +28,7 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
           {formatPlaybackSeconds(song.duration)}
         </span>
       </span>
-      <span className="flex shrink-0 items-center gap-1.5 rounded-lg border border-secondary/20 bg-secondary/10 px-2 py-1.5 text-theme text-xs">
+      <span className="relative flex shrink-0 items-center gap-1.5 rounded-lg border border-secondary/20 bg-secondary/10 px-2 py-1.5 text-theme text-xs">
         <VoteIcon aria-hidden="true" className="h-3.5 w-3.5 text-secondary" />
         {voteCount}
         <span className="sr-only"> votes</span>
