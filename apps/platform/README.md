@@ -105,8 +105,13 @@ Keep the first screen focused on room entry and a short product description.
 Supporting content and community statistics remain server-rendered below the
 hero. Public room shortcuts appear only when rooms are available, outside the
 entry controls. Use concise UI and SEO copy without em dashes.
-`SiteLayout` provides the shared footer on non-room pages, including error
-pages. Room route IDs explicitly opt out so playback layouts stay unchanged.
+`SiteLayout` owns the shared logo header, navigation, personal-settings control
+and footer on non-room pages, including error pages. Do not add page-specific
+brand variants. `SitePage` owns the common content grid, and `SiteHero` gives the
+homepage, guides, policies and room-creation form the same framed surface,
+heading scale, padding and responsive columns. Room route IDs explicitly opt
+out so playback layouts stay unchanged. Existing terminal screens retain their
+own terminal chrome.
 
 The optimized WebP images in `src/assets/product/` come from the Android TV
 `electro` room capture and the mobile App Store search/remote captures already
@@ -120,8 +125,12 @@ Playlist generation links to `/?mode=ai` for the real homepage action.
 Scenes start automatically when visible, pause offscreen or in background tabs,
 and expose a pause control. Reduced motion keeps their static poster state.
 Keep their geometry stable and animate transforms and opacity instead of layout.
-The real circular logo is used in subpage headers and as a spinning record label.
+The real circular logo is used in the shared header and as a spinning record label.
 All guides use the same ordered navigation, with the current guide highlighted.
+Showcases sit inside the shared hero without another outer card. Server-mode
+previews advance tracks automatically; host-mode previews show play, pause and
+skip commands with playback waiting between commands. Both reserve the same
+space when switching modes and respect the showcase pause/reduced-motion rules.
 Accordion bodies remain in server-rendered HTML while their height animates.
 Policy pages share the site header and navigation; their document wording and
 revision dates must not change as part of presentation-only updates.

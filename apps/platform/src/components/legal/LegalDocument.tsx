@@ -12,7 +12,8 @@ import {
 } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
 import { useKonamiMode } from '../konami/KonamiModeContext';
-import { SiteHeader } from '../seo/SiteHeader';
+import { SiteHero } from '../layout/SiteHero';
+import { SitePage } from '../layout/SitePage';
 
 const LazyTerminalShell = lazy(() =>
   import('@vibes/ui/konami').then((module) => ({
@@ -103,29 +104,17 @@ export function LegalDocument({
   });
 
   return (
-    <div className="relative z-10 text-theme">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-6">
-        <header className="pt-6 pb-8 sm:pt-10 sm:pb-10">
-          <p className="font-pixel text-2xs text-primary tracking-label">
-            ZOFF / POLICIES
-          </p>
-          <h1 className="mt-5 font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl">
-            {title}
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg text-theme-muted leading-relaxed">
-            {description}
-          </p>
-          <p className="mt-4 text-theme-subtle text-xs">
-            Last updated: {updatedAt}
-          </p>
-        </header>
-
-        <div className="grid items-start gap-6 border-theme border-t pt-6 lg:grid-cols-4 lg:gap-10 lg:pt-8">
-          <aside className="lg:sticky lg:top-6">
+    <SitePage>
+      <SiteHero
+        id="policy-heading"
+        eyebrow="POLICIES"
+        title={title}
+        description={description}
+        footer={
+          <>
             <nav
               aria-label="Zoff policies"
-              className="grid grid-cols-3 gap-2 lg:grid-cols-1"
+              className="grid w-full grid-cols-3 gap-2 sm:w-auto"
             >
               {policyLinks.map((policy) => (
                 <NavLink
@@ -133,7 +122,7 @@ export function LegalDocument({
                   to={policy.path}
                   className={({ isActive }) =>
                     classNames(
-                      'flex min-h-12 items-center justify-center rounded-xl border px-3 py-3 font-pixel text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary lg:justify-start lg:px-4',
+                      'flex min-h-12 items-center justify-center rounded-xl border px-3 py-3 font-pixel text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-5',
                       isActive
                         ? 'border-secondary/50 bg-secondary/10 text-theme'
                         : 'border-theme bg-theme-surface text-theme-muted hover:border-secondary/50 hover:text-theme',
@@ -144,33 +133,40 @@ export function LegalDocument({
                 </NavLink>
               ))}
             </nav>
-            <nav aria-label="On this page" className="mt-8 hidden lg:block">
-              <p className="mb-3 px-3 font-pixel text-theme-subtle text-xs">
-                On this page
-              </p>
-              <ul className="space-y-1">
-                {sections.map((section) => (
-                  <li key={section}>
-                    <a
-                      href={`#${sectionId(section)}`}
-                      className="block rounded-xl px-3 py-3 text-sm text-theme-muted leading-relaxed transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-                    >
-                      {section}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </aside>
-          <article
-            aria-label={title}
-            className="panel-surface min-w-0 space-y-8 rounded-3xl border border-theme p-6 sm:p-8 lg:col-span-3 lg:p-10"
-          >
-            {children}
-          </article>
-        </div>
-      </main>
-    </div>
+            <p className="text-theme-subtle text-xs">
+              Last updated: {updatedAt}
+            </p>
+          </>
+        }
+      />
+      <div className="grid items-start gap-6 pt-10 sm:pt-16 lg:grid-cols-4 lg:gap-10">
+        <aside className="hidden lg:sticky lg:top-6 lg:block">
+          <nav aria-label="On this page" className="mt-8 hidden lg:block">
+            <p className="mb-3 px-3 font-pixel text-theme-subtle text-xs">
+              On this page
+            </p>
+            <ul className="space-y-1">
+              {sections.map((section) => (
+                <li key={section}>
+                  <a
+                    href={`#${sectionId(section)}`}
+                    className="block rounded-xl px-3 py-3 text-sm text-theme-muted leading-relaxed transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                  >
+                    {section}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+        <article
+          aria-label={title}
+          className="panel-surface min-w-0 space-y-8 rounded-frame border border-theme p-6 sm:p-8 lg:col-span-3 lg:p-10"
+        >
+          {children}
+        </article>
+      </div>
+    </SitePage>
   );
 }
 

@@ -3,10 +3,10 @@ import { NavLink } from 'react-router';
 
 export function SiteFooter() {
   return (
-    <footer className="site-footer relative z-10 w-full shrink-0 px-4 pt-8 pb-4 sm:px-6 sm:pb-6">
+    <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 sm:px-6 sm:pb-6">
       <nav
         aria-label="Site links"
-        className="panel-surface mx-auto grid w-full max-w-6xl grid-cols-4 gap-1 rounded-3xl border border-theme p-1.5 backdrop-blur"
+        className="panel-surface grid w-full grid-cols-4 gap-1 rounded-3xl border border-theme p-1.5 backdrop-blur"
       >
         <a
           className={footerLinkClassName}

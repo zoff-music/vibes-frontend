@@ -1,5 +1,4 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { Button, SettingsIcon, Tooltip } from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import {
@@ -231,23 +230,6 @@ export default function Home() {
         totalListeners={totalListeners}
         totalRooms={totalRooms}
         totalSongs={totalSongs}
-        settingsControl={
-          <Tooltip
-            align="end"
-            className="inline-flex"
-            content="Settings"
-            side="bottom"
-          >
-            <Button
-              aria-label="Open settings"
-              onClick={() => setShowProfileSettings(true)}
-              size="icon"
-              variant="tertiary"
-            >
-              <SettingsIcon className="h-5 w-5" />
-            </Button>
-          </Tooltip>
-        }
       >
         {!isAIMode && (
           <HomeRoomControls
@@ -268,10 +250,6 @@ export default function Home() {
           />
         )}
       </HomeLanding>
-      <ProfileSettingsModal
-        isOpen={showProfileSettings}
-        onClose={() => setShowProfileSettings(false)}
-      />
       <AnimatePresence>
         {pendingRoomSlug && <JoiningRoomState roomId={pendingRoomSlug} />}
       </AnimatePresence>

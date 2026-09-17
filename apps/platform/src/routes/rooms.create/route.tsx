@@ -29,6 +29,8 @@ import {
   useSearchParams,
 } from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
+import { SiteHero } from '../../components/layout/SiteHero';
+import { SitePage } from '../../components/layout/SitePage';
 import { useThemeStore } from '../../stores/themeStore';
 import { canUseViewTransition } from '../../utils/viewTransition';
 import type { RoomsCreateActionData } from './action';
@@ -462,13 +464,13 @@ const CreateRoom: React.FC = () => {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-start overflow-hidden">
+    <SitePage>
       <createFetcher.Form
         ref={createFormRef}
         method="post"
         action="/rooms/create"
         onSubmit={handleCreate}
-        className="relative z-10 mx-auto mt-24 flex w-full max-w-6xl flex-col px-3 pb-16 sm:mt-[min(26.5vh_,_230px)] sm:px-6 sm:pb-24"
+        className="relative z-10 flex w-full flex-col"
       >
         <input type="hidden" name="intent" value="createRoom" />
         <input
@@ -504,20 +506,15 @@ const CreateRoom: React.FC = () => {
           </div>
         </div>
 
-        <div className="crt-frame rounded-frame p-3 sm:p-10">
-          <div className="mb-10 text-center">
-            <h1 className="font-pixel text-3xl text-theme sm:text-4xl">
-              CREATE A SESSION
-            </h1>
-            <p className="mt-3 font-pixel text-sm text-theme-muted">
-              Build a listening room in seconds.
-            </p>
-            <p className="jp-art mt-2 text-theme-subtle text-xs">
-              セッションを作成
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 lg:items-start">
+        <SiteHero
+          id="create-heading"
+          title="Create a session"
+          description="Build a listening room in seconds."
+        >
+          <p className="jp-art mt-2 text-theme-subtle text-xs" lang="ja">
+            セッションを作成
+          </p>
+          <div className="mt-8 grid gap-4 sm:gap-6 lg:grid-cols-2 lg:items-start">
             <div className="space-y-4 sm:space-y-6">
               {/* 1. SESSION NAME */}
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
@@ -830,9 +827,9 @@ const CreateRoom: React.FC = () => {
               </>
             )}
           </Button>
-        </div>
+        </SiteHero>
       </createFetcher.Form>
-    </div>
+    </SitePage>
   );
 };
 

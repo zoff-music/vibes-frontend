@@ -37,7 +37,7 @@ export function Showcase({
         <div className="scene-aurora scene-aurora-offset absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-secondary/15 blur-3xl" />
         <div className="scene-floor absolute inset-x-0 bottom-0 h-48 opacity-30" />
       </div>
-      <div className="relative flex items-center justify-between gap-3 px-5 pt-4 sm:px-7 sm:pt-5">
+      <div className="scene-header relative flex items-center justify-between gap-3 px-5 pt-4 sm:px-7 sm:pt-5">
         <p className="font-pixel text-primary text-xs tracking-widest">
           {label}
         </p>

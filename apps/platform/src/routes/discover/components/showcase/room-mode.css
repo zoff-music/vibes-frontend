@@ -1,0 +1,167 @@
+.scene-mode-track-next {
+  opacity: 0;
+}
+.scene-mode-progress {
+  transform: scaleX(0.4);
+}
+
+.music-scene[data-animated="true"] .scene-server-progress {
+  animation: scene-server-progress 10s linear infinite;
+}
+.music-scene[data-animated="true"] .scene-server-track-first {
+  animation: scene-server-track-first 10s steps(1, end) infinite;
+}
+.music-scene[data-animated="true"] .scene-server-track-next {
+  animation: scene-server-track-next 10s steps(1, end) infinite;
+}
+.music-scene[data-animated="true"] .scene-host-progress {
+  animation: scene-host-progress 12s linear infinite;
+}
+.music-scene[data-animated="true"] .scene-host-levels {
+  animation: scene-host-levels 12s steps(1, end) infinite;
+}
+.music-scene[data-animated="true"] .scene-host-track-first {
+  animation: scene-host-track-first 12s steps(1, end) infinite;
+}
+.music-scene[data-animated="true"] .scene-host-track-next {
+  animation: scene-host-track-next 12s steps(1, end) infinite;
+}
+.music-scene[data-animated="true"] .scene-host-play {
+  animation: scene-host-play 12s ease-out infinite;
+}
+.music-scene[data-animated="true"] .scene-host-pause {
+  animation: scene-host-pause 12s ease-out infinite;
+}
+.music-scene[data-animated="true"] .scene-host-skip {
+  animation: scene-host-skip 12s ease-out infinite;
+}
+
+@keyframes scene-server-progress {
+  0%,
+  50%,
+  100% {
+    transform: scaleX(0);
+  }
+  49.9%,
+  99.9% {
+    transform: scaleX(1);
+  }
+}
+@keyframes scene-server-track-first {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes scene-server-track-next {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes scene-host-progress {
+  0%,
+  16% {
+    transform: scaleX(0.06);
+  }
+  46%,
+  68% {
+    transform: scaleX(0.46);
+  }
+  68.1% {
+    transform: scaleX(0);
+  }
+  92%,
+  100% {
+    transform: scaleX(0.32);
+  }
+}
+@keyframes scene-host-levels {
+  0%,
+  46%,
+  92%,
+  100% {
+    transform: scaleY(0.06);
+    opacity: 0.4;
+  }
+  16%,
+  68% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+@keyframes scene-host-track-first {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 0;
+  }
+}
+@keyframes scene-host-track-next {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  68% {
+    opacity: 1;
+  }
+}
+@keyframes scene-host-play {
+  0%,
+  10%,
+  32%,
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  16%,
+  22% {
+    transform: scale(0.92);
+    color: var(--scene-cyan);
+    border-color: var(--scene-cyan);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--scene-cyan) 25%, transparent);
+  }
+}
+@keyframes scene-host-pause {
+  0%,
+  40%,
+  61%,
+  86%,
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  46%,
+  51%,
+  92%,
+  96% {
+    transform: scale(0.92);
+    color: var(--scene-pink);
+    border-color: var(--scene-pink);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--scene-pink) 25%, transparent);
+  }
+}
+@keyframes scene-host-skip {
+  0%,
+  62%,
+  82%,
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  68%,
+  73% {
+    transform: scale(0.92);
+    color: var(--scene-cyan);
+    border-color: var(--scene-cyan);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--scene-cyan) 25%, transparent);
+  }
+}
