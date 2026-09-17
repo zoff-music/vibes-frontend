@@ -50,10 +50,10 @@ export function PlaylistGenerationControls({
   };
 
   return (
-    <div className="min-w-0 space-y-3">
+    <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_13rem] md:items-end">
       <div
         className={classNames(
-          'rounded-2xl transition-all duration-500',
+          'min-w-0 rounded-2xl transition-shadow duration-500',
           isGenerating &&
             'animate-pulse border-secondary/70 shadow-secondary-panel',
         )}

@@ -492,7 +492,7 @@ export const RoomPlayer = React.memo(
     return (
       <div
         className={classNames(
-          'min-w-0 space-y-6 lg:col-span-3 lg:flex lg:h-full lg:flex-col',
+          'min-w-0 space-y-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-6 lg:space-y-0',
           terminalMode &&
             '!h-fit !space-y-4 lg:!col-span-2 lg:!block lg:!h-fit',
         )}
@@ -507,7 +507,7 @@ export const RoomPlayer = React.memo(
         <div
           aria-hidden={terminalMode}
           className={classNames(
-            'crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:min-h-player-lg-min lg:flex-1',
+            'crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
             terminalMode &&
               '!fixed !top-0 !-left-[200vw] !h-[360px] !min-h-0 !w-[640px] !flex-none !opacity-0 pointer-events-none',
           )}
@@ -520,6 +520,7 @@ export const RoomPlayer = React.memo(
               )}
             >
               <VideoPlayerComponent
+                fill
                 onLocalAlignmentChange={setLocalPlaybackAligned}
                 {...((hasHostPlaybackAuthority ||
                   displayRoom?.mode === 'server') && {

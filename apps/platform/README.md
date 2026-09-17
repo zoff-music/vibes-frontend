@@ -115,14 +115,18 @@ and footer on non-room pages, including error pages. Do not add page-specific
 brand variants. `SitePage` owns the common content grid, and `SiteHero` gives the
 homepage, guides, policies and room-creation form the same framed surface,
 heading scale and padding. The homepage uses its centered desktop layout:
-headline above a bounded room-entry column, with no vertical divider. Guides
-keep their split desktop layout for animated previews. Both preserve the
+wide headline above a bounded, single-row room-entry strip, with no vertical
+divider. The room and playlist-idea fields share the same action-column geometry
+to avoid shifting content when changing entry modes. The provider/legal strip
+has no separate desktop divider. Guides keep their split desktop layout for
+animated previews. Both preserve the
 existing mobile stack. Room route IDs explicitly opt out so playback layouts
 stay unchanged. Existing terminal screens retain their own terminal chrome.
 
-The optimized WebP images in `src/assets/product/` come from the Android TV
-`electro` room capture and the mobile App Store search/remote captures already
-in this repository. They are illustrative app captures, not a live room feed.
+The optimized WebP images in `src/assets/product/` show the `electro` room's
+party screen and the mobile App Store search/remote captures. Keep the room
+capture at its full aspect ratio, with explicit dimensions and lazy loading.
+They are illustrative app captures, not a live room feed.
 The social card uses the real circular logo and bundled MSW98UI font;
 render its SVG with those local resources embedded when regenerating the PNG.
 
@@ -142,9 +146,19 @@ skip commands in a six-second sequence, with a short pause and a visible resume
 before skipping. Both reserve the same space when switching modes and respect
 the showcase pause/reduced-motion rules. Glow and grid layers fade on all edges
 independently of the content; the shared hero, not the inset scene, owns clipping.
-Accordion bodies remain in server-rendered HTML while their height animates.
+Accordion bodies remain in server-rendered HTML while a CSS grid row animates
+open and closed, with reduced-motion support. Keep backdrop filters off the
+resizing accordion surface so moving neighboring text does not leave paint
+trails. Do not animate text opacity while changing the panel's geometry.
 Policy pages share the site header and navigation; their document wording and
 revision dates must not change as part of presentation-only updates.
+
+Desktop rooms use the available viewport space below the header, rather than
+subtracting a cached header measurement. The player has a shrinkable media row
+and a separate, content-sized control row in normal and party views. Keep the
+provider mounted when changing views. Header measurement belongs to the header's
+own lifecycle and is used only to position mobile share/settings panels; clear
+it when the header unmounts and measure again when it returns.
 
 - **Framework**: React 19 + TypeScript with SSR streaming
 - **Runtime**: Node.js for production serving

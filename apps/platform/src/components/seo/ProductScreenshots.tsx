@@ -1,4 +1,4 @@
-import electroTv from '../../assets/product/electro-tv.webp?url';
+import electroParty from '../../assets/product/electro-party.webp?url';
 import mobileRemote from '../../assets/product/mobile-remote.webp?url';
 import mobileSearch from '../../assets/product/mobile-search.webp?url';
 
@@ -53,16 +53,16 @@ export function ProductScreenshots({ kind = 'room' }: ProductScreenshotsProps) {
             aria-hidden="true"
             className="h-1.5 w-1.5 rounded-full bg-[#00d9ff]"
           />
-          ELECTRO / ZOFF ON TV
+          ELECTRO / PARTY SCREEN
         </span>
       </div>
       <img
-        src={electroTv}
+        src={electroParty}
         width={1120}
-        height={630}
+        height={732}
         loading="lazy"
         decoding="async"
-        alt="The electro room on Zoff for Android TV, with the music player, shared queue, votes and a QR code to join"
+        alt="The electro room in Zoff's party screen, with the music player, shared queue, votes and a QR code to join"
         className="block h-auto w-full"
       />
       <figcaption className="border-white/10 border-t px-4 py-3 text-[#bfa8d6] text-xs">

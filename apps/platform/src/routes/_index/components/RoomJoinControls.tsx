@@ -42,8 +42,8 @@ export function RoomJoinControls({
   };
 
   return (
-    <div className="space-y-3">
-      <div>
+    <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_13rem] md:items-end">
+      <div className="min-w-0">
         <label
           htmlFor="room-name"
           className="mb-2 flex h-5 items-center font-pixel text-sm text-theme-muted"

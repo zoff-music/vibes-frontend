@@ -133,7 +133,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
         </div>
         <section
           aria-label="More about this setup"
-          className="panel-surface overflow-hidden rounded-frame border border-theme"
+          className="product-accordion isolate overflow-hidden rounded-frame border border-theme bg-theme-surface shadow-sm"
         >
           {page.sections.slice(2).map((section) => (
             <ProductAccordion key={section.title} {...section} />
@@ -143,7 +143,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
       <section
         id="explore-zoff"
         aria-labelledby="keep-exploring-heading"
-        className="scroll-mt-6 pt-12"
+        className="relative isolate scroll-mt-6 pt-12"
       >
         <h2
           id="keep-exploring-heading"

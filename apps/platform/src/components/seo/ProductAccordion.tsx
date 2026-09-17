@@ -1,13 +1,11 @@
 import { classNames } from '@vibes/shared';
 import { Button, PlusIcon } from '@vibes/ui/web';
-import { motion, useReducedMotion } from 'framer-motion';
 import { useId, useState } from 'react';
 import type { ProductSection } from '../../seo/productPages';
 
 export function ProductAccordion({ title, body }: ProductSection) {
   const id = useId();
   const [isOpen, setIsOpen] = useState(false);
-  const reduceMotion = useReducedMotion();
 
   return (
     <section className="border-theme border-b last:border-b-0">
@@ -32,21 +30,22 @@ export function ProductAccordion({ title, body }: ProductSection) {
           />
         </Button>
       </h2>
-      <motion.div
+      <section
         id={`${id}-content`}
-        role="region"
         aria-labelledby={`${id}-heading`}
         aria-hidden={!isOpen}
         inert={!isOpen}
-        initial={false}
-        animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
-        transition={{ duration: reduceMotion ? 0 : 0.24, ease: 'easeInOut' }}
-        className="overflow-hidden"
+        className={classNames(
+          'grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none',
+          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
       >
-        <p className="max-w-3xl px-5 pb-6 text-sm text-theme-muted leading-relaxed sm:px-7">
-          {body}
-        </p>
-      </motion.div>
+        <div className="min-h-0 overflow-hidden">
+          <p className="max-w-3xl px-5 pb-6 text-sm text-theme-muted leading-relaxed sm:px-7">
+            {body}
+          </p>
+        </div>
+      </section>
     </section>
   );
 }
