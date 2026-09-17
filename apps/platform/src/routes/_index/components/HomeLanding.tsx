@@ -36,6 +36,7 @@ export function HomeLanding({
     <SitePage>
       <SiteHero
         id="home-heading"
+        layout="centered"
         title={
           <>
             Good music.
@@ -47,7 +48,7 @@ export function HomeLanding({
         aside={
           <>
             {children}
-            <p className="mt-3 min-h-8 text-theme-muted text-xs">
+            <p className="mt-3 min-h-8 text-theme-muted text-xs md:text-center">
               Always free. No Zoff account, ever.
             </p>
           </>

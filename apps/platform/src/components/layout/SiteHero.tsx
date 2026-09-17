@@ -9,6 +9,7 @@ interface SiteHeroProps {
   children?: ReactNode;
   aside?: ReactNode;
   footer?: ReactNode;
+  layout?: 'split' | 'centered';
 }
 
 export function SiteHero({
@@ -19,7 +20,10 @@ export function SiteHero({
   children,
   aside,
   footer,
+  layout = 'split',
 }: SiteHeroProps) {
+  const centered = layout === 'centered';
+
   return (
     <section
       aria-labelledby={id}
@@ -27,11 +31,18 @@ export function SiteHero({
     >
       <div
         className={classNames(
-          'grid items-center gap-7 p-6 sm:gap-8 sm:p-8 lg:gap-12 lg:p-10',
-          Boolean(aside) && 'md:grid-cols-2',
+          'grid items-center gap-7 p-6 sm:gap-8 sm:p-8 lg:p-10',
+          centered && 'md:justify-items-center',
+          !centered && 'lg:gap-12',
+          !centered && Boolean(aside) && 'md:grid-cols-2',
         )}
       >
-        <div className="min-w-0">
+        <div
+          className={classNames(
+            'min-w-0',
+            centered && 'md:mx-auto md:w-full md:max-w-2xl md:text-center',
+          )}
+        >
           {eyebrow && (
             <p className="mb-4 font-pixel text-2xs text-primary tracking-label">
               {eyebrow}
@@ -43,19 +54,35 @@ export function SiteHero({
           >
             {title}
           </h1>
-          <p className="mt-4 max-w-xl text-base text-theme-muted leading-relaxed sm:text-lg">
+          <p
+            className={classNames(
+              'mt-4 max-w-xl text-base text-theme-muted leading-relaxed sm:text-lg',
+              centered && 'md:mx-auto',
+            )}
+          >
             {description}
           </p>
           {children}
         </div>
         {aside && (
-          <div className="min-w-0 border-theme border-t pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8 lg:pl-12 [&_.music-scene]:overflow-visible [&_.music-scene]:rounded-none [&_.music-scene]:border-0 [&_.music-scene]:bg-transparent [&_.music-scene]:shadow-none [&_.scene-content]:px-0 [&_.scene-content]:pb-0 [&_.scene-header]:px-0 [&_.scene-header]:pt-0">
+          <div
+            className={classNames(
+              'min-w-0 border-theme border-t pt-6 md:border-t-0 md:pt-0 [&_.music-scene]:overflow-visible [&_.music-scene]:rounded-none [&_.music-scene]:border-0 [&_.music-scene]:bg-transparent [&_.music-scene]:shadow-none [&_.scene-content]:px-0 [&_.scene-content]:pb-0 [&_.scene-header]:px-0 [&_.scene-header]:pt-0',
+              centered && 'md:mx-auto md:w-full md:max-w-lg',
+              !centered && 'md:border-l md:pl-8 lg:pl-12',
+            )}
+          >
             {aside}
           </div>
         )}
       </div>
       {footer && (
-        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-theme border-t px-6 py-3 sm:px-8 lg:px-10">
+        <div
+          className={classNames(
+            'flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-theme border-t px-6 py-3 sm:px-8 lg:px-10',
+            centered && 'md:justify-center',
+          )}
+        >
           {footer}
         </div>
       )}
