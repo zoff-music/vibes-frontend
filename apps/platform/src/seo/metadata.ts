@@ -14,6 +14,25 @@ export function pageMetadata(
 ): MetaDescriptor[] {
   const url = new URL(path, siteUrl).href;
   const image = new URL(socialCardUrl, siteUrl).href;
+  const isHome = path === '/';
+  const breadcrumb = {
+    '@type': 'BreadcrumbList',
+    '@id': `${url}#breadcrumb`,
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Zoff',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: title.replace(/\s+\|\s+Zoff$/, ''),
+        item: url,
+      },
+    ],
+  };
 
   return [
     { title },
@@ -40,6 +59,35 @@ export function pageMetadata(
       name: 'twitter:image:alt',
       content:
         'Zoff. Good music. Better together. One room. Everyone’s soundtrack.',
+    },
+    {
+      'script:ld+json': {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebSite',
+            '@id': `${siteUrl}/#website`,
+            url: `${siteUrl}/`,
+            name: 'Zoff',
+            alternateName: ['Zoff | Shared Music Queue', 'ゾフ'],
+            inLanguage: 'en',
+            about: { '@id': `${siteUrl}/#app` },
+          },
+          {
+            '@type': 'WebPage',
+            '@id': `${url}#webpage`,
+            url,
+            name: title,
+            description,
+            inLanguage: 'en',
+            isPartOf: { '@id': `${siteUrl}/#website` },
+            about: { '@id': `${siteUrl}/#app` },
+            ...(isHome && { mainEntity: { '@id': `${siteUrl}/#app` } }),
+            ...(!isHome && { breadcrumb: { '@id': breadcrumb['@id'] } }),
+          },
+          ...(!isHome ? [breadcrumb] : []),
+        ],
+      },
     },
   ];
 }

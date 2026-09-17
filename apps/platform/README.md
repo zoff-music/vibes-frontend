@@ -97,6 +97,19 @@ its sitemap entry. Keep the lightweight navigation list in
 `/sitemap.xml` contains only stable product and policy URLs, never live rooms
 or session data. `/robots.txt` points to this sitemap. The homepage identifies
 the application and its store listings with SoftwareApplication JSON-LD.
+All these public pages also use server-rendered WebSite and WebPage JSON-LD,
+with stable canonical `@id` references to the same website and application.
+Non-home pages have a two-step BreadcrumbList from the homepage to the current
+page, matching the site's actual navigation without inventing an intermediate
+`/discover` landing page. Descriptions reuse the page's existing metadata.
+Keep query parameters out of these identities, including room-name prefill.
+Do not add this product markup to live rooms, embeds, operational routes, or
+error pages. Do not invent ratings, reviews, or unsupported search actions.
+The application identity is valid Schema.org markup; Google software-app rich
+results additionally require genuine rating/review data, which Zoff does not
+currently publish on these pages. Structured data does not guarantee a rich
+result. Follow the [Google structured data guidelines](https://developers.google.com/search/docs/appearance/structured-data/sd-policies)
+and [software-app requirements](https://developers.google.com/search/docs/appearance/structured-data/software-app).
 Actual room pages use `noindex, follow`, including party/share variants and
 the missing-loader-data fallback, while retaining their social-preview metadata.
 Keep room URLs crawlable in `robots.txt` so crawlers can read the directive.
