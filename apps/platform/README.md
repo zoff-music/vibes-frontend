@@ -122,6 +122,11 @@ has no separate desktop divider. Guides keep their split desktop layout for
 animated previews. Both preserve the
 existing mobile stack. Room route IDs explicitly opt out so playback layouts
 stay unchanged. Existing terminal screens retain their own terminal chrome.
+The perspective grid is shared by the homepage, discovery guides, room-creation
+page and security/privacy/terms pages on desktop and mobile. Its route-ID allowlist
+excludes both room routes, including party view, so playback never mounts that
+background layer. Pause motion in hidden tabs and keep a static grid for reduced
+motion. Terminal mode keeps its own background without the grid.
 
 The optimized WebP images in `src/assets/product/` show the `electro` room's
 party screen and the mobile App Store search/remote captures. Keep the room

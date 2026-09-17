@@ -70,7 +70,9 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
     animation: platform-background-gradient-drift 12s ease-in-out infinite;
     will-change: transform;
   }
+}
 
+@media (prefers-reduced-motion: no-preference) {
   .platform-background-grid-motion {
     animation: platform-background-grid-scroll 2s linear infinite;
     will-change: transform;
@@ -79,6 +81,10 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   .platform-background-grid-warp {
     animation-duration: 80ms;
   }
+}
+
+.platform-background-motion-paused {
+  animation-play-state: paused;
 }
 
 @keyframes dice-roll {

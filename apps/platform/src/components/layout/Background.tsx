@@ -1,12 +1,14 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { useLocation } from 'react-router';
+import { useLocation, useMatches } from 'react-router';
 import { useThemeStore } from '../../stores/themeStore';
 
 export function Background() {
   const location = useLocation();
+  const matches = useMatches();
   const isWarping = useThemeStore((state) => state.isWarping);
   const isTabVisible = usePageVisibility();
   const isHome = location.pathname === '/';
+  const showGrid = matches.some((match) => gridRouteIds.has(match.id));
 
   // Only show the sun on Home and CreateRoom pages
   const showSun = isHome || location.pathname === '/rooms/create';
@@ -20,7 +22,7 @@ export function Background() {
             isHome &&
               'platform-background-gradient-motion -inset-[12%] [background-size:140%_140%]',
             !isHome && 'inset-0',
-            !isTabVisible && '[animation-play-state:paused]',
+            !isTabVisible && 'platform-background-motion-paused',
           )}
         />
       </div>
@@ -39,7 +41,7 @@ export function Background() {
         />
       )}
 
-      {isHome && (
+      {showGrid && (
         <div
           className={classNames(
             'absolute bottom-0 left-1/2 h-[100vh] w-[200%] origin-bottom overflow-hidden transition-opacity duration-500 [backface-visibility:hidden] [mask-image:linear-gradient(to_top,black_30%,transparent_95%)] [transform:translateX(-50%)_perspective(600px)_rotateX(60deg)]',
@@ -51,7 +53,7 @@ export function Background() {
             className={classNames(
               'platform-background-grid-motion absolute -top-20 right-0 left-0 h-[calc(100%+5rem)] bg-[length:80px_80px] bg-[linear-gradient(to_right,rgba(255,105,180,0)_0px,rgba(255,105,180,0.45)_1px,rgba(255,105,180,0)_2px),linear-gradient(to_bottom,rgba(0,217,255,0)_0px,rgba(0,217,255,0.45)_1px,rgba(0,217,255,0)_2px)]',
               isWarping && 'platform-background-grid-warp',
-              !isTabVisible && '[animation-play-state:paused]',
+              !isTabVisible && 'platform-background-motion-paused',
             )}
           />
         </div>
@@ -59,3 +61,12 @@ export function Background() {
     </div>
   );
 }
+
+const gridRouteIds = new Set([
+  'routes/_index/route',
+  'routes/discover/route',
+  'routes/rooms.create/route',
+  'routes/security/route',
+  'routes/privacy-policy/route',
+  'routes/terms-of-service/route',
+]);
