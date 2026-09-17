@@ -39,16 +39,17 @@ export function HomeLanding({
         layout="centered"
         title={
           <>
-            Good music.
-            <br />
-            <span className="text-theme-muted">Better together.</span>
+            Good music.{' '}
+            <span className="block text-theme-muted md:inline">
+              Better together.
+            </span>
           </>
         }
         description="Listen together in a shared music room."
         aside={
           <>
             {children}
-            <p className="mt-3 min-h-8 text-theme-muted text-xs md:text-center">
+            <p className="mt-3 text-theme-muted text-xs md:text-center">
               Always free. No Zoff account, ever.
             </p>
           </>

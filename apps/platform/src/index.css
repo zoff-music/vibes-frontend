@@ -18,7 +18,7 @@ html[data-konami-mode="terminal"] :is(.product-content, .site-footer) {
 
 html[data-konami-mode="terminal"]
   :is(.product-content, .site-footer)
-  :is(.panel-surface, .site-hero) {
+  :is(.panel-surface, .site-hero, .product-accordion) {
   @apply rounded-none;
 }
 

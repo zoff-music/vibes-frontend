@@ -143,6 +143,29 @@ export const RoomHeader = React.memo(
     const setRoom = useRoomStore((state) => state.setRoom);
     const { openRemoteControl } = useRemoteControl();
 
+    useEffect(() => {
+      const header = headerRef.current;
+      if (!header) return;
+
+      const updateHeaderHeight = () => {
+        document.documentElement.style.setProperty(
+          '--room-header-height',
+          `${header.getBoundingClientRect().height}px`,
+        );
+      };
+      updateHeaderHeight();
+
+      const resizeObserver = new ResizeObserver(updateHeaderHeight);
+      resizeObserver.observe(header);
+      window.addEventListener('resize', updateHeaderHeight);
+
+      return () => {
+        resizeObserver.disconnect();
+        window.removeEventListener('resize', updateHeaderHeight);
+        document.documentElement.style.removeProperty('--room-header-height');
+      };
+    }, [headerRef]);
+
     const updateRoom = useCallback(
       (room: RoomUpdate) => {
         settingsFetcher.submit(
@@ -235,7 +258,7 @@ export const RoomHeader = React.memo(
     return (
       <div
         ref={headerRef}
-        className="panel-surface sticky top-0 z-20 border-theme border-b px-4 py-3 sm:py-4"
+        className="panel-surface sticky top-0 z-20 shrink-0 border-theme border-b px-4 py-3 sm:py-4"
       >
         <div className="mx-auto max-w-7xl">
           <div className="relative flex items-center">
