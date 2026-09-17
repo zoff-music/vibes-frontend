@@ -24,6 +24,8 @@ export const meta: MetaFunction = () => [
       description:
         'Create shared music rooms, listen together, build collaborative queues and vote on what plays next.',
       url: siteUrl,
+      mainEntityOfPage: { '@id': `${siteUrl}/#webpage` },
+      isAccessibleForFree: true,
       image: `${siteUrl}/logo.png`,
       sameAs: [appStoreUrl, playStoreUrl, 'https://github.com/zoff-music'],
       offers: {
