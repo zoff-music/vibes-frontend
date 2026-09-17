@@ -1,3 +1,4 @@
+import { DEFAULT_SONG_THUMBNAIL } from '@vibes/shared';
 import { PlusIcon, VoteIcon } from '@vibes/ui/web';
 import { Equalizer } from './showcase/Equalizer';
 import { Record } from './showcase/Record';
@@ -58,9 +59,13 @@ export function PartyPreview() {
           </div>
           <div className="relative h-36">
             <div className="scene-party-first absolute inset-x-0 top-0 flex h-17 items-center gap-3 rounded-xl border border-theme bg-theme-surface p-2">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-                <span className="h-6 w-6 rounded-full border-4 border-primary" />
-              </span>
+              <img
+                src={DEFAULT_SONG_THUMBNAIL}
+                alt=""
+                width={44}
+                height={44}
+                className="h-11 w-11 shrink-0 rounded-xl border border-theme bg-theme-surface object-cover"
+              />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-pixel text-sm text-theme">
                   Golden hour
@@ -74,9 +79,13 @@ export function PartyPreview() {
               </span>
             </div>
             <div className="scene-party-second absolute inset-x-0 top-0 flex h-17 items-center gap-3 rounded-xl border border-secondary/40 bg-theme-surface p-2 shadow-secondary-soft">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-secondary/15">
-                <span className="h-6 w-6 rotate-45 border-4 border-secondary" />
-              </span>
+              <img
+                src={DEFAULT_SONG_THUMBNAIL}
+                alt=""
+                width={44}
+                height={44}
+                className="h-11 w-11 shrink-0 rounded-xl border border-theme bg-theme-surface object-cover"
+              />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-pixel text-sm text-theme">
                   Night drive

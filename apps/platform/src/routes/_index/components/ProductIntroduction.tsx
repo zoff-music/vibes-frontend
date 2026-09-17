@@ -73,9 +73,9 @@ export function ProductIntroduction() {
             with votes to help shape what plays next.
           </p>
           <p className="mt-3 text-sm text-theme-muted leading-relaxed">
-            Keep playback synchronized across devices, or let a host lead. Room
-            controls decide who can add and skip, so the soundtrack stays
-            collaborative, not chaotic.
+            Every room has its own settings. Choose who can add or skip songs,
+            let playback run automatically or give a host control, and protect
+            admin controls with a room password.
           </p>
           <Link
             className={storyLinkClassName}
@@ -165,7 +165,7 @@ const steps = [
     number: '01',
     title: 'Make a room',
     description:
-      'Choose a name and your room controls. Start listening in your browser, without creating a Zoff account.',
+      'Creating and joining rooms is always free. You never need a Zoff account. Pick a name and make it yours.',
   },
   {
     number: '02',

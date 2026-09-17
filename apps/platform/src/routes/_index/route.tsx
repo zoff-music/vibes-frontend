@@ -222,7 +222,6 @@ export default function Home() {
       initial={{ opacity: 1 }}
     >
       <HomeLanding
-        isAIMode={isAIMode}
         onJoinRoom={handleJoinRoom}
         providers={providers}
         publicRooms={publicRooms}
