@@ -1,17 +1,21 @@
 import { ArrowRightIcon } from '@vibes/ui/web';
 import { Link } from 'react-router';
+import { ProductAccordion } from '../../../components/seo/ProductAccordion';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { ProductScreenshots } from '../../../components/seo/ProductScreenshots';
 import { SiteHeader } from '../../../components/seo/SiteHeader';
 import { appStoreUrl, playStoreUrl } from '../../../seo/metadata';
 import type { ProductPage } from '../../../seo/productPages';
+import { ListeningPreview } from './ListeningPreview';
+import { PartyPreview } from './PartyPreview';
+import { PlaylistIdeaPreview } from './PlaylistIdeaPreview';
+import { RoomModePreview } from './RoomModePreview';
 
 interface ProductPageContentProps {
   page: ProductPage;
 }
 
 export function ProductPageContent({ page }: ProductPageContentProps) {
-  const showApps = page.slug === 'apps' || page.slug === 'listen-together';
   return (
     <div className="product-content relative z-10 text-theme">
       <SiteHeader />
@@ -28,16 +32,20 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
               <p className="mt-5 max-w-lg text-lg text-theme-muted leading-relaxed">
                 {page.introduction}
               </p>
-              <Link
-                to="/rooms/create"
-                className="mt-7 flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-2xl bg-primary px-5 py-4 font-pixel text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-              >
-                Create a music room{' '}
-                <ArrowRightIcon className="h-4 w-4 shrink-0" />
-              </Link>
-              <p className="mt-3 text-theme-muted text-xs">
-                Free to start. No Zoff account needed.
-              </p>
+              {page.slug !== 'apps' && (
+                <Link
+                  to="/rooms/create"
+                  className="mt-7 flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-2xl bg-primary px-5 py-4 font-pixel text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                >
+                  {page.actionLabel}
+                  <ArrowRightIcon className="h-4 w-4 shrink-0" />
+                </Link>
+              )}
+              {page.slug !== 'apps' && (
+                <p className="mt-3 text-theme-muted text-xs">
+                  Free to start. No Zoff account needed.
+                </p>
+              )}
               {page.slug === 'apps' && (
                 <nav
                   aria-label="Download Zoff"
@@ -51,11 +59,66 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
                   </a>
                 </nav>
               )}
+              {page.slug === 'apps' && (
+                <Link
+                  to="/"
+                  className="mt-3 flex min-h-12 items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                >
+                  {page.actionLabel}
+                  <ArrowRightIcon className="h-4 w-4 shrink-0" />
+                </Link>
+              )}
             </div>
             <div className="min-w-0">
-              <ProductScreenshots kind={showApps ? 'apps' : 'room'} />
+              {page.slug === 'listen-together' && <ListeningPreview />}
+              {page.slug === 'shared-music-queue' && <PlaylistIdeaPreview />}
+              {page.slug === 'party-music' && <PartyPreview />}
+              {page.slug === 'music-room' && <RoomModePreview />}
+              {page.slug === 'tv' && <ProductScreenshots />}
+              {page.slug === 'apps' && <ProductScreenshots kind="apps" />}
             </div>
           </header>
+          {page.slug === 'shared-music-queue' && (
+            <section
+              aria-labelledby="playlist-generation-heading"
+              className="panel-surface mb-8 grid items-center gap-6 rounded-3xl border border-theme p-6 sm:p-8 lg:grid-cols-3"
+            >
+              <div className="lg:col-span-2">
+                <p className="font-pixel text-2xs text-primary tracking-label">
+                  LESS BLANK QUEUE. MORE MUSIC.
+                </p>
+                <h2
+                  id="playlist-generation-heading"
+                  className="mt-3 font-pixel text-2xl normal-case tracking-tight"
+                >
+                  Have a mood, not a track list?
+                </h2>
+                <p className="mt-3 max-w-2xl text-theme-muted leading-relaxed">
+                  Describe a genre, an occasion or the energy you want. Zoff’s
+                  AI playlist generator uses your idea to find music from the
+                  enabled providers and start a room. It is a starting point,
+                  not a locked playlist: add your favorites and let your friends
+                  shape what comes next.
+                </p>
+              </div>
+              <div>
+                <Link
+                  to="/?mode=ai"
+                  className="flex min-h-14 w-full items-center justify-between gap-4 rounded-2xl bg-primary px-5 py-4 font-pixel text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                >
+                  Try playlist generation
+                  <ArrowRightIcon
+                    aria-hidden="true"
+                    className="h-4 w-4 shrink-0"
+                  />
+                </Link>
+                <p className="mt-3 text-theme-subtle text-xs leading-relaxed">
+                  Suggestions can miss the mark. You stay in control of the
+                  queue.
+                </p>
+              </div>
+            </section>
+          )}
           <div className="grid gap-6 border-theme border-t py-8 sm:grid-cols-2 sm:gap-10 sm:py-10">
             {page.sections.slice(0, 2).map((section, index) => (
               <section key={section.title} className="flex gap-4">
@@ -81,23 +144,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
             className="panel-surface overflow-hidden rounded-3xl border border-theme"
           >
             {page.sections.slice(2).map((section) => (
-              <details
-                key={section.title}
-                className="group border-theme border-b last:border-b-0"
-              >
-                <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 px-5 py-5 font-pixel text-base text-theme transition-colors hover:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-7">
-                  {section.title}
-                  <span
-                    aria-hidden="true"
-                    className="shrink-0 text-secondary transition-transform group-open:rotate-45"
-                  >
-                    +
-                  </span>
-                </summary>
-                <p className="max-w-3xl px-5 pb-6 text-sm text-theme-muted leading-relaxed sm:px-7">
-                  {section.body}
-                </p>
-              </details>
+              <ProductAccordion key={section.title} {...section} />
             ))}
           </section>
         </article>
@@ -106,9 +153,9 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
             id="keep-exploring-heading"
             className="mb-5 font-pixel text-2xl normal-case tracking-tight"
           >
-            Find your kind of together.
+            Related guides
           </h2>
-          <ProductLinks />
+          <ProductLinks slugs={page.relatedSlugs} />
         </section>
       </main>
     </div>

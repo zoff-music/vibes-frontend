@@ -18,12 +18,14 @@ interface HomeLandingProps
     | 'publicRooms'
   > {
   children: ReactNode;
+  isAIMode: boolean;
   settingsControl: ReactNode;
   onJoinRoom: (roomId: string) => void;
 }
 
 export function HomeLanding({
   children,
+  isAIMode,
   settingsControl,
   totalRooms,
   totalSongs,
@@ -57,8 +59,13 @@ export function HomeLanding({
             </div>
             <div className="min-w-0 border-theme border-t pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8 lg:pl-12">
               {children}
-              <p className="mt-3 text-theme-subtle text-xs">
-                Free. No account required.
+              <p
+                className="mt-3 min-h-8 text-theme-subtle text-xs"
+                aria-live="polite"
+              >
+                {isAIMode
+                  ? 'Describe a mood. AI builds the playlist.'
+                  : 'Free. No account required.'}
               </p>
             </div>
           </div>

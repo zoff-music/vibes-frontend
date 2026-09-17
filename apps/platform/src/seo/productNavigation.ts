@@ -2,31 +2,31 @@ export const productNavigation = [
   {
     slug: 'listen-together',
     label: 'Listen together',
-    caption: 'Same track. Different places.',
+    caption: 'Sync playback across separate devices.',
   },
   {
     slug: 'shared-music-queue',
     label: 'Shared music queue',
-    caption: 'Let everyone pick the next one.',
+    caption: 'Add, vote, import or generate with AI.',
   },
   {
     slug: 'party-music',
     label: 'Party music',
-    caption: 'More requests. Less phone passing.',
+    caption: 'One player. Guest requests. Host controls.',
   },
   {
     slug: 'music-room',
     label: 'Music rooms',
-    caption: 'Make a space for your sound.',
+    caption: 'Playback modes and room permissions.',
   },
   {
     slug: 'tv',
     label: 'Music on TV',
-    caption: 'Give the room a bigger screen.',
+    caption: 'Cast, Android TV and paired remotes.',
   },
   {
     slug: 'apps',
     label: 'Get the apps',
-    caption: 'Your room, wherever you are.',
+    caption: 'iOS, Android and browser options.',
   },
 ];

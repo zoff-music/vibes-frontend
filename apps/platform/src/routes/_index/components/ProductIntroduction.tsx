@@ -143,12 +143,11 @@ export function ProductIntroduction() {
             id="find-your-moment-heading"
             className="font-pixel text-2xl normal-case tracking-tight sm:text-3xl"
           >
-            Late-night calls. Good company. One more song.
+            Choose your setup.
           </h2>
           <p className="max-w-xl text-sm text-theme-muted leading-relaxed">
-            For parties, gaming sessions, a shared workspace or listening
-            together from different places. Find the setup that fits your
-            people.
+            Listening remotely, hosting a party, or setting up a TV? Start with
+            the guide for your session.
           </p>
         </div>
         <ProductLinks />

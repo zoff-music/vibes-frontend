@@ -46,7 +46,7 @@ export function RoomJoinControls({
       <div>
         <label
           htmlFor="room-name"
-          className="mb-2 block font-pixel text-sm text-theme-muted"
+          className="mb-2 flex h-5 items-center font-pixel text-sm text-theme-muted"
         >
           Room name
         </label>

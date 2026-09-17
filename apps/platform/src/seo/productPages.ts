@@ -10,6 +10,8 @@ export interface ProductPage {
   description: string;
   heading: string;
   introduction: string;
+  actionLabel: string;
+  relatedSlugs: string[];
   sections: ProductSection[];
 }
 
@@ -21,8 +23,10 @@ export const productPages: ProductPage[] = [
     description:
       'Listen to music with friends online. Start a free Zoff room, share the link and build a queue together with synchronized playback and song voting.',
     heading: 'Listen together, from anywhere',
+    actionLabel: 'Start listening',
+    relatedSlugs: ['shared-music-queue', 'apps'],
     introduction:
-      'A call with friends, a late-night gaming session or a quiet afternoon apart: bring everyone into the same music room. Zoff gives your group one shared queue, so choosing the next track becomes part of spending time together.',
+      'Different headphones. Same track. Share a room link with your friends and keep the music in sync while you chat or game.',
     sections: [
       {
         title: 'One room, wherever you are',
@@ -47,10 +51,12 @@ export const productPages: ProductPage[] = [
     label: 'Shared music queue',
     title: 'Shared Music Queue & Collaborative Playlists | Zoff',
     description:
-      'Build a shared music queue with friends. Add tracks, vote on what plays next and manage a collaborative listening room with Zoff. Free, no account needed.',
+      'Build a shared music queue with friends. Add tracks, vote on what plays next or generate a playlist from a mood with AI. Free, no account needed.',
     heading: 'A music queue everyone can shape',
+    actionLabel: 'Build a shared queue',
+    relatedSlugs: ['party-music', 'music-room'],
     introduction:
-      'Stop passing one person’s phone around. A Zoff room gives everyone a shared view of what is playing and what comes next, with song suggestions and votes arriving in the same queue.',
+      'Bring a song, import a playlist, or describe a mood and let AI get the queue started. Then let everyone add their own picks and vote.',
     sections: [
       {
         title: 'Add a song, not another message',
@@ -77,8 +83,10 @@ export const productPages: ProductPage[] = [
     description:
       'Give your party a shared music queue. Guests suggest songs from their phones while you keep control of playback, skipping and additions with Zoff.',
     heading: 'Your party. Everyone’s soundtrack.',
+    actionLabel: 'Set up a party room',
+    relatedSlugs: ['tv', 'shared-music-queue'],
     introduction:
-      'Let guests help choose the music without crowding around the speakers. Open a Zoff room on your playback device, share the room link and turn everyone’s suggestions into one party queue.',
+      'One device on the speakers. Everyone else on requests. Give guests the room link, not your unlocked phone.',
     sections: [
       {
         title: 'One player for the room',
@@ -104,9 +112,11 @@ export const productPages: ProductPage[] = [
     title: 'Create an Online Music Room | Zoff',
     description:
       'Create an online music room for friends, gaming or a shared workspace. Choose playback controls, share the link and build a collaborative queue in Zoff.',
-    heading: 'A shared space for your music',
+    heading: 'Your room. Your ground rules.',
+    actionLabel: 'Configure a music room',
+    relatedSlugs: ['listen-together', 'party-music'],
     introduction:
-      'A Zoff music room brings the player, queue and group controls together behind one link. Use it for a recurring listening session, a background soundtrack or a spontaneous catch-up with friends.',
+      'Let the queue run automatically or put a host in charge. Set up a music room around how your group likes to listen.',
     sections: [
       {
         title: 'Create and share',
@@ -132,9 +142,11 @@ export const productPages: ProductPage[] = [
     title: 'Shared Music on TV & Chromecast | Zoff',
     description:
       'Put your Zoff music room on a bigger screen. Use supported casting or Android TV, then share the queue with friends and control playback from your phone.',
-    heading: 'A bigger screen for the same room',
+    heading: 'Put the queue on the big screen.',
+    actionLabel: 'Create a room for your TV',
+    relatedSlugs: ['apps', 'party-music'],
     introduction:
-      'Keep the music visible while everyone joins from their own devices. A TV can become the room’s main player, while phones are used for song suggestions, votes and remote control.',
+      'Use Android TV or supported casting for playback. Keep your phone free for finding the next song or controlling the player.',
     sections: [
       {
         title: 'Cast from a supported device',
@@ -160,9 +172,11 @@ export const productPages: ProductPage[] = [
     title: 'Zoff Apps for iOS, Android & Android TV',
     description:
       'Get Zoff for iOS and Android, explore Android TV, or listen in your browser. Join shared music rooms, add songs and control your player from your phone.',
-    heading: 'Your music room, on your devices',
+    heading: 'Small screen. Full control.',
+    actionLabel: 'Use Zoff in your browser',
+    relatedSlugs: ['tv', 'listen-together'],
     introduction:
-      'Start in a browser, join from your phone or put the room on a TV. Zoff keeps the shared queue at the center, so everyone can choose the device that suits the session.',
+      'Add a track from the sofa, vote from the kitchen, or pair your phone as a remote. Get Zoff for iOS and Android.',
     sections: [
       {
         title: 'iPhone and iPad',
