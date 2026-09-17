@@ -37,7 +37,7 @@ export function HomeLanding({
 }: HomeLandingProps) {
   return (
     <>
-      <SiteHeader action={settingsControl} />
+      <SiteHeader action={settingsControl} brand="wordmark" />
       <main className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-4 sm:px-6">
         <section
           aria-labelledby="home-heading"

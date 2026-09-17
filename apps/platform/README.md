@@ -114,11 +114,14 @@ in this repository. They are illustrative app captures, not a live room feed.
 The social card uses the real circular logo and bundled MSW98UI font;
 render its SVG with those local resources embedded when regenerating the PNG.
 
-Discovery pages use topic-specific previews rather than repeating the same
-image. The playlist-generation demo is explicitly illustrative and makes no
-provider or generation requests. Its examples link to `/?mode=ai` for real
-generation through the homepage action. Keep interactive preview geometry
-stable, make animation finite and user-triggered, and respect reduced motion.
+Discovery pages use topic-specific animated scenes rather than repeating the
+same image. They are illustrations and make no provider or generation requests.
+Playlist generation links to `/?mode=ai` for the real homepage action.
+Scenes start automatically when visible, pause offscreen or in background tabs,
+and expose a pause control. Reduced motion keeps their static poster state.
+Keep their geometry stable and animate transforms and opacity instead of layout.
+The real circular logo is used in subpage headers and as a spinning record label.
+All guides use the same ordered navigation, with the current guide highlighted.
 Accordion bodies remain in server-rendered HTML while their height animates.
 Policy pages share the site header and navigation; their document wording and
 revision dates must not change as part of presentation-only updates.
