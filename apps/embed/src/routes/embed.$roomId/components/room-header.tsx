@@ -44,7 +44,7 @@ export function EmbedRoomHeader({
   const usersCount = useRoomStore((state) => state.usersCount);
 
   return (
-    <header className="flex items-center justify-between border-theme border-b px-4 py-3">
+    <header className="flex items-center justify-between border-theme border-b bg-theme-elevated px-4 py-3">
       <div className="flex min-w-0 items-center gap-2">
         <h1 className="min-w-0 truncate font-pixel text-sm text-theme">
           {room.name}

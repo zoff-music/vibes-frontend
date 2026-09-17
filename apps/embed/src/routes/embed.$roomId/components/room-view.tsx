@@ -65,7 +65,7 @@ export function EmbedRoomView({ loaderData }: Props) {
 
   return (
     <main className="h-dvh overflow-hidden bg-theme text-theme">
-      <section className="panel-strong flex h-full w-full flex-col overflow-hidden">
+      <section className="flex h-full w-full flex-col overflow-hidden border border-theme bg-theme">
         <EmbedRoomHeader
           canControlPlayback={Boolean(currentSong)}
           canSkip={canSkip}
