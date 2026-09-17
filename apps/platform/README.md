@@ -2,6 +2,17 @@
 
 The primary web application for the Vibes ecosystem. It serves as the main interface for users to create rooms, manage queues, and control synchronized playback across devices with full server-side rendering support.
 
+## Embed sharing
+
+The room's **Embed player** settings include an **Autoplay** toggle, off by
+default. Enabling it adds `autoplay=true` to the embed URL, keeps the iframe's
+`allow="autoplay; encrypted-media"` permission, and uses eager loading so the
+player can start when the host page loads. Disabling the player also disables
+autoplay in the generated code. Existing embeds remain click-to-play.
+
+Autoplay requests sound, not muted playback. Browsers and host-page permissions
+can still require a click; keep that limitation visible beside the toggle.
+
 ## Visual preview
 
 ### Landing page
