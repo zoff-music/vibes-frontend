@@ -291,8 +291,15 @@ export default function Room() {
         showToast(`"${song.title}" added to queue`, 'success');
       },
       onSongRemoved: ({ id: songId }: { id: string }) => removeSong(songId),
-      onSongUpdated: ({ song, position }: { song: Song; position: number }) =>
-        positionSong(song, position),
+      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
+        const isNewSong = !useQueueStore
+          .getState()
+          .songs.some((item) => item.id === song.id);
+        positionSong(song, position);
+        if (isNewSong) {
+          showToast(`"${song.title}" added to queue`, 'success');
+        }
+      },
       onSongsUpdate: setSongs,
       onUsersUpdate: setUsersCount,
     }),

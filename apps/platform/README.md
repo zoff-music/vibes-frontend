@@ -69,6 +69,12 @@ The platform app includes comprehensive SSR support via `server.tsx`:
 3. **Client Hydration**: React takes over with pre-populated stores
 4. **Real-time Updates**: SSE maintains synchronization after hydration
 
+The v2 `song_updated` event inserts missing songs or repositions existing songs
+at the backend-provided index. It also carries manually added songs, whose
+automatic vote may place them ahead of the unvoted queue. Show the addition
+notification only when the song is absent before applying that event, so votes
+and replayed updates do not produce duplicate addition notifications.
+
 ### Route Handling
 - **`/`**: Home page with room creation and joining
 - **`/room/create`**: Room creation with optional `?name=` parameter
