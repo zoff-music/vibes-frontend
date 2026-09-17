@@ -26,6 +26,7 @@ interface Props {
 export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [player, setPlayer] = useState(true);
+  const [autoplay, setAutoplay] = useState(false);
   const [playlist, setPlaylist] = useState(true);
   const [skip, setSkip] = useState(true);
   const [vote, setVote] = useState(true);
@@ -40,13 +41,25 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
     if (err || !embedUrl) return '';
 
     embedUrl.searchParams.set('player', String(player));
+    embedUrl.searchParams.set('autoplay', String(player && autoplay));
     embedUrl.searchParams.set('playlist', String(playlist));
     embedUrl.searchParams.set('skip', String(skip));
     embedUrl.searchParams.set('vote', String(vote));
     embedUrl.searchParams.set('theme', theme);
 
-    return `<iframe src="${embedUrl.toString()}" title="Zoff room ${roomId}" width="100%" height="480" loading="lazy" frameborder="0" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
-  }, [embedBasePath, player, playlist, roomId, skip, theme, url, vote]);
+    const loading = player && autoplay ? 'eager' : 'lazy';
+    return `<iframe src="${embedUrl.toString()}" title="Zoff room ${roomId}" width="100%" height="480" loading="${loading}" frameborder="0" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  }, [
+    autoplay,
+    embedBasePath,
+    player,
+    playlist,
+    roomId,
+    skip,
+    theme,
+    url,
+    vote,
+  ]);
 
   const handleThemeChange = (event: MouseEvent<HTMLButtonElement>) => {
     setTheme(parseColorScheme(event.currentTarget.value));
@@ -146,6 +159,29 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
                 description="Show upcoming songs from the room queue."
               />
             </div>
+          </section>
+
+          <section aria-labelledby="embed-playback-title">
+            <h3
+              id="embed-playback-title"
+              className="mb-3 font-pixel text-2xs text-theme tracking-display"
+            >
+              Playback
+            </h3>
+            <Toggle
+              checked={player && autoplay}
+              disabled={!player}
+              onChange={(enabled) => {
+                setAutoplay(enabled);
+                setCopied(false);
+              }}
+              label="Autoplay"
+              description="Start playing with sound when the page loads. Off by default."
+            />
+            <p className="mt-2 text-theme-muted text-xs">
+              Requires the player. Some browsers still require a click before
+              playing sound.
+            </p>
           </section>
 
           <section aria-labelledby="embed-controls-title">
