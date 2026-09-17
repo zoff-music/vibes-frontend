@@ -114,9 +114,11 @@ not to a Zoff account; explain that in the existing room-control copy.
 and footer on non-room pages, including error pages. Do not add page-specific
 brand variants. `SitePage` owns the common content grid, and `SiteHero` gives the
 homepage, guides, policies and room-creation form the same framed surface,
-heading scale, padding and responsive columns. Room route IDs explicitly opt
-out so playback layouts stay unchanged. Existing terminal screens retain their
-own terminal chrome.
+heading scale and padding. The homepage uses its centered desktop layout:
+headline above a bounded room-entry column, with no vertical divider. Guides
+keep their split desktop layout for animated previews. Both preserve the
+existing mobile stack. Room route IDs explicitly opt out so playback layouts
+stay unchanged. Existing terminal screens retain their own terminal chrome.
 
 The optimized WebP images in `src/assets/product/` come from the Android TV
 `electro` room capture and the mobile App Store search/remote captures already
