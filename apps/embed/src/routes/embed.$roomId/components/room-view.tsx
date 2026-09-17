@@ -24,6 +24,7 @@ export function EmbedRoomView({ loaderData }: Props) {
   );
   const localPlayback = useEmbedLocalPlayback({
     ...capabilities,
+    autoplay: options.player && options.autoplay,
     currentSong: roomState.currentSong,
     isPlaying: roomState.isPlaying,
     onSkip: actions.handleSkip,
@@ -45,12 +46,13 @@ export function EmbedRoomView({ loaderData }: Props) {
   );
   const player = options.player && (
     <EmbedPlayerCard
+      autoplay={options.autoplay}
       currentSong={currentSong}
       durationMs={durationMs}
       enabledProviders={enabledProviders}
-      hasLocalPlayerInteraction={localPlayback.hasLocalPlayerInteraction}
       onLocalAlignmentChange={localPlayback.handleLocalAlignmentChange}
       onLocalInteraction={localPlayback.handleLocalPlayerInteraction}
+      onNeedsUserGestureChange={localPlayback.handleNeedsUserGestureChange}
       onStartPlayback={localPlayback.handlePlay}
       positionMs={positionMs}
       songs={songs}

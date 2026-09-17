@@ -62,6 +62,7 @@ interface SoundCloudApi {
 }
 
 interface Props {
+  allowUnmutedAutoplay?: boolean;
   appContext?: 'platform' | 'cast';
   isVisible?: boolean;
   onEnded?: () => void;
@@ -78,6 +79,7 @@ interface Props {
 }
 
 const SoundCloudPlayerComponent: React.FC<Props> = ({
+  allowUnmutedAutoplay = false,
   isVisible = true,
   onEnded,
   fill = false,
@@ -89,6 +91,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   volume = MAX_VOLUME,
 }) => {
   const currentSong = usePlaybackStore((state) => state.currentSong);
+  const isPlaying = usePlaybackStore((state) => state.isPlaying);
   const resetVersion = usePlaybackStore((state) => state.resetVersion);
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
   const candidateProviderSong =
@@ -110,6 +113,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const isActiveRef = useRef(isActive);
   const providerSongRef = useRef(providerSong);
   const showInitialPlaybackOverlayRef = useRef(showInitialPlaybackOverlay);
+  const allowUnmutedAutoplayRef = useRef(allowUnmutedAutoplay);
+  const needsUserGestureRef = useRef(false);
   const prewarmingRef = useRef(false);
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSynchronizedUpdateRef = useRef<string | null>(null);
@@ -128,10 +133,13 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   );
   const [isWidgetPlaying, setIsWidgetPlaying] = useState(false);
   const [isWidgetMuted, setIsWidgetMuted] = useState(true);
+  const [needsUserGesture, setNeedsUserGesture] = useState(false);
 
   isActiveRef.current = isActive;
   providerSongRef.current = providerSong;
   showInitialPlaybackOverlayRef.current = showInitialPlaybackOverlay;
+  allowUnmutedAutoplayRef.current = allowUnmutedAutoplay;
+  needsUserGestureRef.current = needsUserGesture;
   if (!initialSourceIdRef.current && providerSong) {
     initialSourceIdRef.current = providerSong.sourceId;
     loadedSourceIdRef.current = providerSong.sourceId;
@@ -144,7 +152,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       playbackState.currentSong?.sourceType === 'soundcloud' &&
       playbackState.currentSong.sourceId === loadedSourceIdRef.current &&
       playbackState.isPlaying &&
-      (!showInitialPlaybackOverlayRef.current || isPlaybackGestureUnlocked())
+      !needsUserGestureRef.current &&
+      (!showInitialPlaybackOverlayRef.current ||
+        allowUnmutedAutoplayRef.current ||
+        isPlaybackGestureUnlocked())
     );
   }, []);
 
@@ -327,7 +338,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   useEffect(() => {
     const widget = widgetRef.current;
     if (!widget || !isReady || loadingSourceIdRef.current) return;
-    if (shouldWidgetPlay()) {
+    if (isActive && isPlaying && !needsUserGesture && shouldWidgetPlay()) {
       playWidget(widget);
       return;
     }
@@ -336,7 +347,45 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     widget.pause();
     setIsWidgetPlaying(false);
     setIsWidgetMuted(true);
-  }, [isReady, shouldWidgetPlay, playWidget]);
+  }, [
+    isReady,
+    isPlaying,
+    isActive,
+    needsUserGesture,
+    shouldWidgetPlay,
+    playWidget,
+  ]);
+
+  useEffect(() => {
+    if (
+      !allowUnmutedAutoplay ||
+      !isActive ||
+      !isReady ||
+      !isPlaying ||
+      isWidgetPlaying ||
+      needsUserGesture
+    )
+      return;
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      widgetRef.current?.isPaused((isPaused) => {
+        if (cancelled || !isPaused) return;
+        needsUserGestureRef.current = true;
+        setNeedsUserGesture(true);
+      });
+    }, AUTOPLAY_CONFIRMATION_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [
+    allowUnmutedAutoplay,
+    isActive,
+    isReady,
+    isPlaying,
+    isWidgetPlaying,
+    needsUserGesture,
+  ]);
 
   useEffect(() => {
     const widget = widgetRef.current;
@@ -415,9 +464,11 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const handleUserGesturePlay = useCallback(() => {
     const widget = widgetRef.current;
     if (!widget) return;
+    needsUserGestureRef.current = false;
+    setNeedsUserGesture(false);
     setIsPlaybackUnlocked(true);
-    markPlaybackGestureUnlocked();
     onLocalPlay?.();
+    markPlaybackGestureUnlocked();
     const playbackState = usePlaybackStore.getState();
     playbackState.updateActualPosition();
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
@@ -427,7 +478,11 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   }, [onLocalPlay, playWidget]);
 
   const showClickToPlay =
-    isActive && showInitialPlaybackOverlay && !isPlaybackUnlocked;
+    isActive &&
+    (needsUserGesture ||
+      (showInitialPlaybackOverlay &&
+        !isPlaybackUnlocked &&
+        !allowUnmutedAutoplay));
 
   useEffect(() => {
     if (!isActive) return;
@@ -500,6 +555,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 export const SoundCloudPlayer = memo(
   SoundCloudPlayerComponent,
   (previous, next) =>
+    previous.allowUnmutedAutoplay === next.allowUnmutedAutoplay &&
     previous.appContext === next.appContext &&
     previous.isVisible === next.isVisible &&
     previous.onEnded === next.onEnded &&
@@ -521,6 +577,7 @@ const MIN_VOLUME = 0;
 const PREWARM_PLAY_TIME_MS = 100;
 const PAUSE_RECOVERY_DELAY_MS = 350;
 const VOLUME_SAMPLE_MS = 2000;
+const AUTOPLAY_CONFIRMATION_MS = 5000;
 
 const SOUNDCLOUD_WIDGET_OPTIONS = {
   hide_related: true,

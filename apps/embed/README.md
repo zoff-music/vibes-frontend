@@ -53,8 +53,18 @@ scrolling over it. Scrolling outside the iframe should still work normally.
 ## Options and verification
 
 Boolean query parameters `player`, `playlist`, `skip`, and `vote` control the
-visible content and actions. Room permissions still apply. Embedded playback
-requires a visitor interaction.
+visible content and actions. Room permissions still apply.
+
+Playback waits for a visitor interaction by default. Only `autoplay=true`
+opts into unmuted playback on load; omitted, false, or unrecognized values keep
+autoplay off. The option has no effect when `player=false`. Autoplay changes
+only this embed's local playback, never the room's shared playback state.
+
+Keep `allow="autoplay; encrypted-media"` on the host iframe. The host must permit
+autoplay in its Permissions Policy too. Browser policies can still block
+audible autoplay: request sound through the official provider SDK, then show
+the click-to-play overlay when playback is blocked. Never silently fall back
+to muted autoplay or mark an automatic attempt as a visitor gesture.
 
 Check light, dark, and automatic themes with player and playlist together,
 player only, playlist only, and voting disabled. Queue cards should retain

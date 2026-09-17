@@ -20,6 +20,7 @@ import {
 } from './providerPlaybackCoordinator';
 
 interface Props {
+  allowUnmutedAutoplay?: boolean;
   isVisible?: boolean;
   onEnded?: () => void;
   fill?: boolean;
@@ -40,6 +41,8 @@ interface YouTubeVideoData {
 }
 
 interface YouTubePlayerRef {
+  addEventListener: (event: string, listener: () => void) => void;
+  removeEventListener: (event: string, listener: () => void) => void;
   seekTo: (seconds: number, allowSeekAhead?: boolean) => void;
   getCurrentTime: () => number;
   getVideoData: () => YouTubeVideoData;
@@ -67,6 +70,7 @@ interface ObservedPlayback {
 }
 
 const VideoPlayerComponent = ({
+  allowUnmutedAutoplay = false,
   isVisible = true,
   onEnded,
   fill = false,
@@ -94,6 +98,7 @@ const VideoPlayerComponent = ({
   const initialVideoIdRef = useRef<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsUserGesture, setNeedsUserGesture] = useState(false);
 
   const autoPlayRetryRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoPlayKickCountRef = useRef(0);
@@ -111,7 +116,8 @@ const VideoPlayerComponent = ({
   desiredVolumeRef.current = desiredVolume;
   const isYouTubeActive =
     isVisible && currentSong?.sourceType === 'youtube' && !!currentSong;
-  const shouldPlay = isYouTubeActive && isPlaying;
+  const shouldPlay =
+    isYouTubeActive && isPlaying && !(allowUnmutedAutoplay && needsUserGesture);
   const candidateVideoId =
     currentSong?.sourceType === 'youtube'
       ? currentSong.sourceId
@@ -127,7 +133,7 @@ const VideoPlayerComponent = ({
   const [hasUserStartedPlayback, setHasUserStartedPlayback] = useState(
     isPlaybackGestureUnlocked,
   );
-  const [needsUserGesture, setNeedsUserGesture] = useState(false);
+  const canPlayAudio = hasUserStartedPlayback || allowUnmutedAutoplay;
   const [isMutedState, setIsMutedState] = useState(false);
   const [playerState, setPlayerState] = useState(YOUTUBE_STATE_UNSTARTED);
   const [castPlayerSize, setCastPlayerSize] = useState<PlayerSize | null>(null);
@@ -208,14 +214,14 @@ const VideoPlayerComponent = ({
     if (!playerRef.current) {
       setIsReady(false);
     }
-    if (isYouTubeActive && !hasUserStartedPlayback && !isCastReceiver) {
+    if (isYouTubeActive && !canPlayAudio && !isCastReceiver) {
       setNeedsUserGesture(true);
     }
     debugLog('song-change', { currentSongId: currentSong?.id });
   }, [
     currentSong?.id,
     isYouTubeActive,
-    hasUserStartedPlayback,
+    canPlayAudio,
     isCastReceiver,
     debugLog,
   ]);
@@ -292,7 +298,7 @@ const VideoPlayerComponent = ({
           player.mute();
           player.setVolume(desiredVolumeRef.current);
           setIsMutedState(true);
-        } else if (hasUserStartedPlayback) {
+        } else if (canPlayAudio) {
           setIsMutedState(
             applyPlayerVolume(player, desiredVolumeRef.current, true),
           );
@@ -313,7 +319,7 @@ const VideoPlayerComponent = ({
     isCastReceiver,
     isReady,
     isYouTubeActive,
-    hasUserStartedPlayback,
+    canPlayAudio,
     resetVersion,
     shouldPlay,
     updatedAt,
@@ -353,7 +359,7 @@ const VideoPlayerComponent = ({
           state,
         };
 
-        if (!previous || !hasUserStartedPlayback) {
+        if (!previous || !canPlayAudio) {
           return;
         }
 
@@ -405,7 +411,7 @@ const VideoPlayerComponent = ({
     isYouTubeActive,
     onLocalAlignmentChange,
     onLocalSeek,
-    hasUserStartedPlayback,
+    canPlayAudio,
   ]);
 
   useEffect(() => {
@@ -413,9 +419,7 @@ const VideoPlayerComponent = ({
     const [error] = safeWrap(() => {
       const player = playerRef.current;
       if (!player) return;
-      setIsMutedState(
-        applyPlayerVolume(player, desiredVolume, hasUserStartedPlayback),
-      );
+      setIsMutedState(applyPlayerVolume(player, desiredVolume, canPlayAudio));
       observedPlaybackRef.current = null;
     });
     if (error && DEBUG) {
@@ -424,7 +428,7 @@ const VideoPlayerComponent = ({
   }, [
     debugLog,
     desiredVolume,
-    hasUserStartedPlayback,
+    canPlayAudio,
     isCastReceiver,
     isReady,
     isYouTubeActive,
@@ -436,12 +440,7 @@ const VideoPlayerComponent = ({
   }, [isYouTubeActive]);
 
   useEffect(() => {
-    if (
-      !isReady ||
-      !isYouTubeActive ||
-      isCastReceiver ||
-      hasUserStartedPlayback
-    ) {
+    if (!isReady || !isYouTubeActive || isCastReceiver || canPlayAudio) {
       return;
     }
 
@@ -462,13 +461,7 @@ const VideoPlayerComponent = ({
     );
 
     return () => clearInterval(interval);
-  }, [
-    debugLog,
-    hasUserStartedPlayback,
-    isCastReceiver,
-    isReady,
-    isYouTubeActive,
-  ]);
+  }, [debugLog, canPlayAudio, isCastReceiver, isReady, isYouTubeActive]);
 
   useEffect(() => {
     if (!isCastReceiver || !isReady || !isYouTubeActive || !shouldPlay) {
@@ -524,7 +517,7 @@ const VideoPlayerComponent = ({
           player.mute();
           player.setVolume(desiredVolumeRef.current);
           setIsMutedState(true);
-        } else if (isPlaybackGestureUnlocked()) {
+        } else if (allowUnmutedAutoplay || isPlaybackGestureUnlocked()) {
           setIsMutedState(
             applyPlayerVolume(player, desiredVolumeRef.current, true),
           );
@@ -549,7 +542,7 @@ const VideoPlayerComponent = ({
         debugLog('kick-error', { reason, error: err.message });
       }
     },
-    [isCastReceiver, videoId, shouldPlay, debugLog],
+    [allowUnmutedAutoplay, isCastReceiver, videoId, shouldPlay, debugLog],
   );
 
   useEffect(() => {
@@ -718,7 +711,7 @@ const VideoPlayerComponent = ({
       if (usePlaybackStore.getState().isPlaying) {
         const [err] = safeWrap(() => {
           claimProviderPlayback('youtube');
-          if (!hasUserStartedPlayback) {
+          if (!canPlayAudio) {
             event.target.mute();
             setIsMutedState(true);
           } else {
@@ -733,7 +726,7 @@ const VideoPlayerComponent = ({
         }
       }
     },
-    [debugLog, forceAutoplay, hasUserStartedPlayback, isCastReceiver],
+    [debugLog, forceAutoplay, canPlayAudio, isCastReceiver],
   );
 
   const handleStateChange = useCallback(
@@ -756,7 +749,9 @@ const VideoPlayerComponent = ({
         claimProviderPlayback('youtube');
         if (
           playbackState.currentSong?.sourceType === 'youtube' &&
-          (isCastReceiver || isPlaybackGestureUnlocked())
+          (isCastReceiver ||
+            allowUnmutedAutoplay ||
+            isPlaybackGestureUnlocked())
         ) {
           const [unmuteError] = safeWrap(() => {
             const player = playerRef.current;
@@ -813,7 +808,7 @@ const VideoPlayerComponent = ({
           }
           muted = playerRef.current?.isMuted?.() ?? false;
         }
-        if (!isCastReceiver && !hasUserStartedPlayback && !muted) {
+        if (!isCastReceiver && !canPlayAudio && !muted) {
           playerRef.current?.mute();
           muted = true;
         }
@@ -886,7 +881,8 @@ const VideoPlayerComponent = ({
     },
     [
       debugLog,
-      hasUserStartedPlayback,
+      allowUnmutedAutoplay,
+      canPlayAudio,
       isCastReceiver,
       isVisible,
       kickAutoplay,
@@ -901,6 +897,37 @@ const VideoPlayerComponent = ({
     if (!isVisible && !isCastReceiver) return;
     onEnded?.();
   }, [isCastReceiver, isVisible, onEnded]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!allowUnmutedAutoplay || !isReady || !isYouTubeActive || !player)
+      return;
+    const handleAutoplayBlocked = () => setNeedsUserGesture(true);
+    safeWrap(() =>
+      player.addEventListener('onAutoplayBlocked', handleAutoplayBlocked),
+    );
+    return () => {
+      safeWrap(() =>
+        player.removeEventListener('onAutoplayBlocked', handleAutoplayBlocked),
+      );
+    };
+  }, [allowUnmutedAutoplay, isReady, isYouTubeActive]);
+
+  useEffect(() => {
+    if (
+      !allowUnmutedAutoplay ||
+      !isReady ||
+      !shouldPlay ||
+      playerState === YOUTUBE_STATE_PLAYING
+    )
+      return;
+    const timeout = setTimeout(() => {
+      const player = playerRef.current;
+      if (!player || player.getPlayerState() === YOUTUBE_STATE_PLAYING) return;
+      setNeedsUserGesture(true);
+    }, AUTOPLAY_CONFIRMATION_MS);
+    return () => clearTimeout(timeout);
+  }, [allowUnmutedAutoplay, isReady, shouldPlay, playerState]);
 
   const handleError = useCallback(
     (event: unknown) => {
@@ -1029,7 +1056,7 @@ const VideoPlayerComponent = ({
   const showClickToPlay =
     isYouTubeActive &&
     !isCastReceiver &&
-    (!hasUserStartedPlayback ||
+    (!canPlayAudio ||
       needsUserGesture ||
       (shouldPlay && isMutedState && desiredVolume > MIN_VOLUME)) &&
     !error;
@@ -1144,6 +1171,8 @@ const ALIGNED_POSITION_TOLERANCE_MS = 2000;
 const AUTOPLAY_KICK_COOLDOWN_MS = 800;
 
 const AUTOPLAY_RETRY_MS = 500;
+
+const AUTOPLAY_CONFIRMATION_MS = 5000;
 
 const DEBUG = isTruthyFlag(import.meta.env.VITE_DEBUG);
 

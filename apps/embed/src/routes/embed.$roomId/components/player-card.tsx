@@ -4,29 +4,30 @@ import {
   formatPlaybackMilliseconds,
   getPlaybackPresentation,
 } from '@vibes/ui/shared';
-import { ClickToPlayOverlay } from '@vibes/ui/web';
 import { EmbedPlayerSource } from './player-source';
 import { EmbedSourceIcon } from './source-icon';
 
 interface Props {
+  autoplay: boolean;
   currentSong: Song | null;
   durationMs: number;
   enabledProviders: string[];
-  hasLocalPlayerInteraction: boolean;
   onLocalAlignmentChange: (isAligned: boolean) => void;
   onLocalInteraction: () => void;
+  onNeedsUserGestureChange: (needsGesture: boolean) => void;
   onStartPlayback: () => void;
   positionMs: number;
   songs: Song[];
 }
 
 export function EmbedPlayerCard({
+  autoplay,
   currentSong,
   durationMs,
   enabledProviders,
-  hasLocalPlayerInteraction,
   onLocalAlignmentChange,
   onLocalInteraction,
+  onNeedsUserGestureChange,
   onStartPlayback,
   positionMs,
   songs,
@@ -52,18 +53,15 @@ export function EmbedPlayerCard({
           </div>
         )}
         <EmbedPlayerSource
+          autoplay={autoplay}
           currentSong={currentSong}
           enabledProviders={enabledProviders}
           onLocalAlignmentChange={onLocalAlignmentChange}
           onLocalInteraction={onLocalInteraction}
+          onNeedsUserGestureChange={onNeedsUserGestureChange}
           onLocalPlay={onStartPlayback}
           songs={songs}
         />
-        {currentSong &&
-          currentSong.sourceType !== 'youtube' &&
-          !hasLocalPlayerInteraction && (
-            <ClickToPlayOverlay onClick={onStartPlayback} />
-          )}
       </div>
 
       <div className="mt-3 min-w-0 shrink-0">
