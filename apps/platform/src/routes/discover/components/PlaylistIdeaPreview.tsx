@@ -1,3 +1,4 @@
+import { DEFAULT_SONG_THUMBNAIL } from '@vibes/shared';
 import { Button, SparklesIcon } from '@vibes/ui/web';
 import { useState } from 'react';
 import { Equalizer } from './showcase/Equalizer';
@@ -83,9 +84,13 @@ export function PlaylistIdeaPreview() {
                 key={track}
                 className="scene-song flex h-17 items-center gap-3 rounded-2xl border border-theme bg-theme/90 p-2.5 shadow-lg"
               >
-                <div className="scene-art flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-primary/20 bg-primary/10">
-                  <span className="h-7 w-7 rounded-full border-4 border-primary/60 bg-theme shadow-secondary-soft" />
-                </div>
+                <img
+                  src={DEFAULT_SONG_THUMBNAIL}
+                  alt=""
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 shrink-0 rounded-xl border border-theme bg-theme-surface object-cover"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-pixel text-sm text-theme">
                     {track}

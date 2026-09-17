@@ -107,7 +107,7 @@ export const productPages: ProductPage[] = [
     label: 'Music rooms',
     title: 'Create an Online Music Room | Zoff',
     description:
-      'Create an online music room for friends, gaming or a shared workspace. Choose playback controls, share the link and build a collaborative queue in Zoff.',
+      'Create a free online music room. No Zoff account needed. Set playback, voting and admin controls for each room, then share the link with friends.',
     heading: 'Your room. Your ground rules.',
     actionLabel: 'Configure a music room',
     introduction:
@@ -115,7 +115,7 @@ export const productPages: ProductPage[] = [
     sections: [
       {
         title: 'Create and share',
-        body: 'Choose a room name, select the music sources you want to enable and start a session. Share the link so friends can join the same queue. You do not need to create an account before making a room.',
+        body: 'Create and join rooms for free, without ever making a Zoff account. Choose a room name and music sources, then share the link. Each room keeps its own settings.',
       },
       {
         title: 'Automatic playback or a host',
@@ -127,7 +127,7 @@ export const productPages: ProductPage[] = [
       },
       {
         title: 'Room controls that fit your group',
-        body: 'Set an admin password to protect room controls. Choose who may add or skip songs, whether skipping needs votes, and whether played tracks stay in the queue. The admin password controls administration; it is not a password for guests entering the room.',
+        body: 'Each room has its own settings and optional admin password. Choose who may add or skip songs, whether skipping needs votes, and whether played tracks stay in the queue. The password protects that room’s admin controls, not an account or guest entry.',
       },
     ],
   },
@@ -185,7 +185,7 @@ export const productPages: ProductPage[] = [
       },
       {
         title: 'No download needed on the web',
-        body: 'You can also create or join a room right here at zoff.me. No Zoff account is required to begin. Music sources, track availability and playback restrictions depend on the enabled providers and their official players.',
+        body: 'Create or join a room at zoff.me or in the apps. Zoff is always free and never requires a Zoff account. Music availability and playback restrictions depend on the enabled providers and their official players.',
       },
     ],
   },

@@ -107,6 +107,9 @@ hero. Public room shortcuts appear only when rooms are available, outside the
 entry controls. Use the solid tertiary button surface for room rows so the
 decorative page grid cannot show through them. Use concise UI and SEO copy
 without em dashes.
+Keep the free, accountless promise visible beside the main actions in both
+homepage entry modes. Room settings and admin passwords belong to each room,
+not to a Zoff account; explain that in the existing room-control copy.
 `SiteLayout` owns the shared logo header, navigation, personal-settings control
 and footer on non-room pages, including error pages. Do not add page-specific
 brand variants. `SitePage` owns the common content grid, and `SiteHero` gives the
@@ -123,6 +126,8 @@ render its SVG with those local resources embedded when regenerating the PNG.
 
 Discovery pages use topic-specific animated scenes rather than repeating the
 same image. They are illustrations and make no provider or generation requests.
+Illustrated queue rows reuse the real queue's shared song-artwork fallback,
+with explicit image dimensions, rather than inventing new placeholder symbols.
 Playlist generation links to `/?mode=ai` for the real homepage action.
 Scenes start automatically when visible, pause offscreen or in background tabs,
 and expose a pause control. Reduced motion keeps their static poster state.

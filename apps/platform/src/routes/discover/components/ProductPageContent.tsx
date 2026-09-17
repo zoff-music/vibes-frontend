@@ -45,11 +45,6 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
               <ArrowRightIcon className="h-4 w-4 shrink-0" />
             </Link>
           )}
-          {page.slug !== 'apps' && (
-            <p className="mt-3 text-theme-muted text-xs">
-              Free to start. No Zoff account needed.
-            </p>
-          )}
           {page.slug === 'apps' && (
             <nav
               aria-label="Download Zoff"
@@ -72,6 +67,9 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
               <ArrowRightIcon className="h-4 w-4 shrink-0" />
             </Link>
           )}
+          <p className="mt-3 text-theme-muted text-xs">
+            Always free. No Zoff account, ever.
+          </p>
         </SiteHero>
         {page.slug === 'shared-music-queue' && (
           <section
