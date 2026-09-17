@@ -34,7 +34,7 @@ export function PlaylistIdeaPreview() {
       label="AI PLAYLISTS"
       description="Animated illustration: an idea is typed, a search runs, then three example tracks arrive in a new queue. Use playlist generation to create a real room."
     >
-      <div className="px-5 pt-3 pb-5 sm:px-7 sm:pb-7">
+      <div className="scene-content px-5 pt-3 pb-5 sm:px-7 sm:pb-7">
         <fieldset
           aria-label="Choose a playlist mood"
           className="grid grid-cols-3 gap-2"

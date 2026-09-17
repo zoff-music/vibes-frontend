@@ -9,7 +9,10 @@ export function PartyPreview() {
       label="PASS THE LINK. NOT THE PHONE."
       description="Animated party illustration: guests send song requests to one player, votes rise, and the most popular track moves up the shared queue."
     >
-      <div aria-hidden="true" className="px-5 pb-6 sm:px-7 sm:pb-7">
+      <div
+        aria-hidden="true"
+        className="scene-content px-5 pb-6 sm:px-7 sm:pb-7"
+      >
         <div className="relative h-64">
           <svg
             viewBox="0 0 400 256"

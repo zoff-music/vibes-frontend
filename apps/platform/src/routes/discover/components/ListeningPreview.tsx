@@ -8,7 +8,7 @@ export function ListeningPreview() {
       label="DIFFERENT PLACES. SAME TRACK."
       description="Animated listening illustration: a record spins between two devices, sending a shared signal while both playback timelines move together. No audio plays in this illustration."
     >
-      <div aria-hidden="true" className="px-5 pb-7 sm:px-7">
+      <div aria-hidden="true" className="scene-content px-5 pb-7 sm:px-7">
         <div className="relative flex h-64 items-center justify-center">
           <div className="absolute inset-0 flex items-center justify-center">
             {[1, 2, 3].map((ring) => (
