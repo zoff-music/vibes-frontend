@@ -148,14 +148,18 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
             ))}
           </section>
         </article>
-        <section aria-labelledby="keep-exploring-heading" className="pt-12">
+        <section
+          id="explore-zoff"
+          aria-labelledby="keep-exploring-heading"
+          className="scroll-mt-6 pt-12"
+        >
           <h2
             id="keep-exploring-heading"
             className="mb-5 font-pixel text-2xl normal-case tracking-tight"
           >
-            Related guides
+            Explore Zoff
           </h2>
-          <ProductLinks slugs={page.relatedSlugs} />
+          <ProductLinks currentSlug={page.slug} />
         </section>
       </main>
     </div>

@@ -132,8 +132,9 @@ export function ProductIntroduction() {
       </section>
 
       <section
+        id="explore-zoff"
         aria-labelledby="find-your-moment-heading"
-        className="pt-12 pb-4 sm:pt-16"
+        className="scroll-mt-6 pt-12 pb-4 sm:pt-16"
       >
         <p className="font-pixel text-2xs text-primary tracking-label">
           THERE’S A ROOM FOR THAT
@@ -143,7 +144,7 @@ export function ProductIntroduction() {
             id="find-your-moment-heading"
             className="font-pixel text-2xl normal-case tracking-tight sm:text-3xl"
           >
-            Choose your setup.
+            Explore Zoff
           </h2>
           <p className="max-w-xl text-sm text-theme-muted leading-relaxed">
             Listening remotely, hosting a party, or setting up a TV? Start with
