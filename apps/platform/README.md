@@ -13,6 +13,15 @@ autoplay in the generated code. Existing embeds remain click-to-play.
 Autoplay requests sound, not muted playback. Browsers and host-page permissions
 can still require a click; keep that limitation visible beside the toggle.
 
+## Room playback
+
+Joining a room automatically requests playback with sound through the existing
+YouTube and SoundCloud players, following the room's current playback state.
+Keep saved volume and mute preferences, local pauses, and paused host rooms
+intact. Do not send room-wide play commands just because a listener joins.
+Browser-blocked autoplay keeps the click-to-play fallback. Embed autoplay is
+still a separate, default-off sharing option.
+
 ## Visual preview
 
 ### Landing page
