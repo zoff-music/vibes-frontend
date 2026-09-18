@@ -154,7 +154,8 @@ canonical URLs without tracking parameters, rather than relying on hydration.
 
 The homepage uses alternating product sections for voting, room controls,
 apps, remote control and embedding. Community totals come from the existing
-loader and sit between the queue and room settings. Failed requests show
+loader and sit above the queue section, aligned with the same content width.
+Failed requests show
 unavailable values, not false zeros. Keep copy short and avoid repeating the
 same explanation in adjacent sections.
 
@@ -165,7 +166,11 @@ it never sends provider requests or changes a real room. Do not introduce
 alternate players, queue rows, equalizers or toggle implementations. Keep
 provider links disabled for placeholder songs. The queue and playlist demos
 use Framer Motion; playback follows local timers. All automatic motion pauses
-offscreen and in hidden tabs and respects reduced motion.
+offscreen and in hidden tabs and respects reduced motion. Lower-page demos
+and app screenshots mount through `DeferredContent` near the viewport; keep
+their headings, descriptions and navigation server-rendered. Reserve preview
+space while loading so scrolling remains stable. The hero typing effect and
+sun also pause when out of view.
 
 The shared embed configurator exposes player, playlist, voting, skipping and
 autoplay. Keep its small artwork and two queue rows visible without inner

@@ -1,4 +1,6 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
+import { useInView } from 'framer-motion';
+import { useRef } from 'react';
 import { useLocation, useMatches } from 'react-router';
 import { useThemeStore } from '../../stores/themeStore';
 import { RetroSun } from './RetroSun';
@@ -8,6 +10,8 @@ export function Background() {
   const matches = useMatches();
   const isWarping = useThemeStore((state) => state.isWarping);
   const isTabVisible = usePageVisibility();
+  const sunRef = useRef<HTMLDivElement>(null);
+  const sunVisible = useInView(sunRef);
   const isHome = location.pathname === '/';
   const showGrid = matches.some((match) => gridRouteIds.has(match.id));
 
@@ -53,6 +57,7 @@ export function Background() {
       </div>
       {showSun && (
         <div
+          ref={sunRef}
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[44rem] overflow-hidden"
         >
@@ -63,7 +68,7 @@ export function Background() {
               !isHome && '-top-12 opacity-60',
             )}
           >
-            <RetroSun paused={!isTabVisible} />
+            <RetroSun paused={!isTabVisible || !sunVisible} />
           </div>
         </div>
       )}

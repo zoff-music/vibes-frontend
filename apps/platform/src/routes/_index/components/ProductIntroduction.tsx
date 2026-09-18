@@ -1,16 +1,29 @@
-import { ArrowRightIcon } from '@vibes/ui/web';
+import { ArrowRightIcon, DeferredContent } from '@vibes/ui/web';
+import { lazy } from 'react';
 import { Link } from 'react-router';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
-import { ProductScreenshots } from '../../../components/seo/ProductScreenshots';
 import { CommunityStats } from './CommunityStats';
 import { EmbedPreview } from './EmbedPreview';
 import { RemotePreview } from './RemotePreview';
 import { RoomControlsPreview } from './RoomControlsPreview';
-import { VotingPreview } from './VotingPreview';
+
+const LazyVotingPreview = lazy(() =>
+  import('./VotingPreview').then((module) => ({
+    default: module.VotingPreview,
+  })),
+);
+
+const LazyProductScreenshots = lazy(() =>
+  import('../../../components/seo/ProductScreenshots').then((module) => ({
+    default: module.ProductScreenshots,
+  })),
+);
 
 export function ProductIntroduction() {
   return (
     <div className="product-content mx-auto w-full max-w-6xl text-theme">
+      <CommunityStats />
+
       <section
         id="how-it-works"
         aria-labelledby="voting-heading"
@@ -32,11 +45,18 @@ export function ProductIntroduction() {
           </p>
         </div>
         <div className="min-w-0 lg:col-span-3">
-          <VotingPreview />
+          <DeferredContent
+            fallback={
+              <div
+                aria-hidden="true"
+                className="h-140 rounded-3xl border border-theme bg-theme-surface sm:h-148"
+              />
+            }
+          >
+            <LazyVotingPreview />
+          </DeferredContent>
         </div>
       </section>
-
-      <CommunityStats />
 
       <RoomControlsPreview />
 
@@ -80,7 +100,16 @@ export function ProductIntroduction() {
           </Link>
         </div>
         <div className="min-w-0">
-          <ProductScreenshots />
+          <DeferredContent
+            fallback={
+              <div
+                aria-hidden="true"
+                className="aspect-square rounded-3xl border border-theme bg-theme-surface"
+              />
+            }
+          >
+            <LazyProductScreenshots />
+          </DeferredContent>
         </div>
       </section>
 

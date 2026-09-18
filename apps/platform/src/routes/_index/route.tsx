@@ -1,6 +1,6 @@
-import { classNames, usePageVisibility } from '@vibes/shared';
-import { AnimatePresence, motion } from 'framer-motion';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { classNames } from '@vibes/shared';
+import { AnimatePresence, motion, useInView } from 'framer-motion';
+import { lazy, Suspense, useRef, useState } from 'react';
 import {
   useLoaderData,
   useNavigate,
@@ -17,59 +17,11 @@ import { HomeRoomControls } from './components/HomeRoomControls';
 import { JoiningRoomState } from './components/JoiningRoomState';
 import { PlaylistGenerationControls } from './components/PlaylistGenerationControls';
 import { ProductIntroduction } from './components/ProductIntroduction';
+import { useAnimatedPlaceholder } from './hooks/useAnimatedPlaceholder';
 import { loader } from './loader';
 
 export { meta } from './meta';
 export { clientAction, loader };
-
-const ANIMATED_WORDS = [
-  'electro',
-  'おんがく',
-  'party',
-  'ふんいき',
-  'jazz',
-  'ゾフ',
-  'techno',
-  'よる',
-  'ambient',
-  'おと',
-  'house',
-  'againagainagain',
-  'ゆめ',
-  'drumandbass',
-  'くうき',
-  'hiphop',
-  'しんや',
-  'rnb',
-  'ちょうし',
-  'soul',
-  'きょうゆう',
-  'funk',
-  'disco',
-  'よいん',
-  'rock',
-  'しずか',
-  'punk',
-  'metal',
-  'indie',
-  'なみ',
-  'alternative',
-  'pop',
-  'かんかく',
-  'dance',
-  'でんし',
-];
-
-const AI_PROMPTS = [
-  'sunny indie pop for a weekend road trip',
-  'late-night jazz in a quiet city bar',
-  'high-energy 2000s dance floor anthems',
-  'dreamy shoegaze for watching the rain',
-  'funk and soul that keeps a party moving',
-  'melodic drum and bass for deep focus',
-  'classic hip-hop for a summer cookout',
-  'heavy riffs for an intense gym session',
-];
 
 const LazyTerminalHome = lazy(async () => {
   const module = await import('./components/TerminalHome');
@@ -80,16 +32,16 @@ export default function Home() {
   const { providers, publicRooms, totalListeners } =
     useLoaderData<typeof loader>();
   const [roomCode, setRoomCode] = useState('');
-  const [placeholderText, setPlaceholderText] = useState('');
-  const [wordIndex, setWordIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
   const [searchParams] = useSearchParams();
   const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
-  const isTabVisible = usePageVisibility();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroVisible = useInView(heroRef, { amount: 0.1 });
+  const { placeholder, reset } = useAnimatedPlaceholder(
+    isAIMode,
+    heroVisible && roomCode.length === 0,
+  );
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const previousPath = getPreviousPath();
@@ -98,58 +50,6 @@ export default function Home() {
   const shouldFadeIn =
     navigationType === 'POP' &&
     Boolean(previousRoomId && !RESERVED_TOP_LEVEL_PATHS.has(previousRoomId));
-  const placeholder = placeholderText
-    ? isPaused && !isBlinkerVisible
-      ? `${placeholderText.slice(0, -1)} `
-      : placeholderText
-    : isAIMode
-      ? 'Describe the music you want...'
-      : 'Enter Room Name...';
-
-  useEffect(() => {
-    if (!isTabVisible) return;
-    const animatedWords = isAIMode ? AI_PROMPTS : ANIMATED_WORDS;
-    const currentWord = animatedWords[wordIndex];
-    const fullTarget = `${currentWord}...`;
-    const typingDelay = Math.max(10, Math.floor(700 / fullTarget.length));
-
-    if (isPaused) {
-      const timer = window.setTimeout(() => {
-        setIsPaused(false);
-        setCharIndex(0);
-        setWordIndex((current) => (current + 1) % animatedWords.length);
-      }, 1600);
-      return () => window.clearTimeout(timer);
-    }
-
-    if (charIndex < fullTarget.length) {
-      const timer = window.setTimeout(() => {
-        setPlaceholderText(fullTarget.substring(0, charIndex + 1));
-        setCharIndex((current) => current + 1);
-      }, typingDelay);
-      return () => window.clearTimeout(timer);
-    }
-
-    setIsPaused(true);
-  }, [wordIndex, charIndex, isPaused, isTabVisible, isAIMode]);
-
-  useEffect(() => {
-    if (!isTabVisible) {
-      setIsBlinkerVisible(true);
-      return;
-    }
-    if (!isPaused) {
-      setIsBlinkerVisible(true);
-      return;
-    }
-
-    const interval = window.setInterval(() => {
-      setIsBlinkerVisible((current) => !current);
-    }, 500);
-
-    return () => window.clearInterval(interval);
-  }, [isPaused, isTabVisible]);
-
   const handleJoinRoom = (selectedRoomId?: string) => {
     const requestedRoomId = selectedRoomId ?? roomCode;
     if (!requestedRoomId.trim()) return;
@@ -165,10 +65,7 @@ export default function Home() {
   const handleToggleAIMode = () => {
     setIsAIMode((current) => !current);
     setRoomCode('');
-    setPlaceholderText('');
-    setWordIndex(0);
-    setCharIndex(0);
-    setIsPaused(false);
+    reset();
   };
 
   const handleRoomCodeChange = (value: string) => {
@@ -178,22 +75,24 @@ export default function Home() {
   if (konamiEnabled) {
     return (
       <>
-        <Suspense fallback={null}>
-          <LazyTerminalHome
-            isAIMode={isAIMode}
-            onJoinRoom={handleJoinRoom}
-            onOpenProfileSettings={() => setShowProfileSettings(true)}
-            onRoomCodeChange={handleRoomCodeChange}
-            onStartSession={handleStartSession}
-            onToggleAIMode={handleToggleAIMode}
-            pendingRoomSlug={pendingRoomSlug}
-            placeholder={placeholder}
-            providers={providers}
-            publicRooms={publicRooms}
-            roomCode={roomCode}
-            totalListeners={totalListeners}
-          />
-        </Suspense>
+        <div ref={heroRef}>
+          <Suspense fallback={null}>
+            <LazyTerminalHome
+              isAIMode={isAIMode}
+              onJoinRoom={handleJoinRoom}
+              onOpenProfileSettings={() => setShowProfileSettings(true)}
+              onRoomCodeChange={handleRoomCodeChange}
+              onStartSession={handleStartSession}
+              onToggleAIMode={handleToggleAIMode}
+              pendingRoomSlug={pendingRoomSlug}
+              placeholder={placeholder}
+              providers={providers}
+              publicRooms={publicRooms}
+              roomCode={roomCode}
+              totalListeners={totalListeners}
+            />
+          </Suspense>
+        </div>
         <div className="product-content relative z-10 px-5 sm:px-6">
           <ProductIntroduction />
         </div>
@@ -216,6 +115,7 @@ export default function Home() {
       initial={{ opacity: 1 }}
     >
       <HomeLanding
+        heroRef={heroRef}
         onJoinRoom={handleJoinRoom}
         providers={providers}
         publicRooms={publicRooms}
