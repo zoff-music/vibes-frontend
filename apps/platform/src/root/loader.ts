@@ -18,9 +18,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const headers: Record<string, string> = {};
   if (cookieHeader) headers.Cookie = cookieHeader;
   const serverApi = getServerApi(request);
+  // Optional session UI must not hold every document through retry backoff.
+  const options = { headers, retry: 0, signal: request.signal };
   const [remoteResult, profileResult] = await Promise.all([
-    serverApi.get('/remotes', null, { headers }),
-    serverApi.get('/sessions', null, { headers }),
+    serverApi.get('/remotes', null, options),
+    serverApi.get('/sessions', null, options),
   ]);
   const [remoteError, remote] = remoteResult;
   const [profileError, profile] = profileResult;

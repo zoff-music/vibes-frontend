@@ -1,87 +1,74 @@
-import { classNames } from '@vibes/shared';
-import { PauseIcon, PlayIcon, SkipIcon } from '@vibes/ui/web';
-import { Equalizer } from './Equalizer';
-import './room-mode.css';
+import {
+  Button,
+  NowPlayingSong,
+  PauseIcon,
+  PlaybackProgress,
+  PlayIcon,
+  SkipIcon,
+} from '@vibes/ui/web';
+import { queueDemoSongs } from '../../../../components/seo/previewSongs';
+import { usePlaybackPreview } from '../../hooks/usePlaybackPreview';
 
 interface RoomModeSceneProps {
   hostMode: boolean;
+  playing: boolean;
 }
 
-export function RoomModeScene({ hostMode }: RoomModeSceneProps) {
+export function RoomModeScene({ hostMode, playing }: RoomModeSceneProps) {
+  const { state, actions } = usePlaybackPreview(hostMode, playing);
+  const song = {
+    ...queueDemoSongs[state.track % queueDemoSongs.length],
+    duration: state.durationMs / 1000,
+  };
+
   return (
-    <div aria-hidden="true" className="scene-mode-timeline mb-6">
-      <p className="font-pixel text-secondary text-xs tracking-wider">
-        {hostMode ? 'THE HOST CALLS THE SHOTS' : 'THE QUEUE KEEPS GOING'}
-      </p>
-      <div className="mt-5 grid overflow-hidden">
-        <div
-          className={classNames(
-            'col-start-1 row-start-1',
-            hostMode ? 'scene-host-track-first' : 'scene-server-track-first',
-          )}
-        >
-          <p className="truncate font-pixel text-theme text-xl">Night drive</p>
-          <p className="mt-1 text-theme-subtle text-xs">Track 01</p>
-        </div>
-        <div
-          className={classNames(
-            'scene-mode-track-next col-start-1 row-start-1',
-            hostMode ? 'scene-host-track-next' : 'scene-server-track-next',
-          )}
-        >
-          <p className="truncate font-pixel text-theme text-xl">Daybreak</p>
-          <p className="mt-1 text-theme-subtle text-xs">Track 02</p>
-        </div>
-      </div>
-      <div className="my-5 flex h-14 items-end">
-        <div
-          className={classNames(
-            'h-full w-full origin-bottom',
-            hostMode && 'scene-host-levels',
-          )}
-        >
-          <Equalizer className="h-full w-full" />
-        </div>
-      </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-theme-surface">
-        <span
-          className={classNames(
-            'scene-mode-progress block h-full w-full origin-left rounded-full bg-secondary',
-            hostMode ? 'scene-host-progress' : 'scene-server-progress',
-          )}
+    <div className="min-w-0">
+      <NowPlayingSong
+        song={song}
+        isPlaying={state.isPlaying}
+        providerLink={false}
+        animate={false}
+      />
+      <div className="mt-3">
+        <PlaybackProgress
+          durationMs={state.durationMs}
+          positionMs={state.position}
         />
       </div>
-      <div className="mt-5 h-20">
+      <div className="mt-5 flex min-h-11 items-center gap-2">
         {hostMode && (
-          <div className="grid h-full grid-cols-3 gap-2">
-            <span className="scene-host-play flex flex-col items-center justify-center gap-2 rounded-xl border border-theme bg-theme-surface text-theme-muted">
-              <PlayIcon className="h-5 w-5" />
-              <span className="text-xs">Play</span>
-            </span>
-            <span className="scene-host-pause flex flex-col items-center justify-center gap-2 rounded-xl border border-theme bg-theme-surface text-theme-muted">
-              <PauseIcon className="h-5 w-5" />
-              <span className="text-xs">Pause</span>
-            </span>
-            <span className="scene-host-skip flex flex-col items-center justify-center gap-2 rounded-xl border border-theme bg-theme-surface text-theme-muted">
-              <SkipIcon className="h-5 w-5" />
-              <span className="text-xs">Skip</span>
-            </span>
-          </div>
+          <>
+            <Button
+              variant="tertiary"
+              size="icon"
+              onClick={actions.togglePlayback}
+              aria-label={
+                state.isPlaying
+                  ? 'Pause preview playback'
+                  : 'Play preview playback'
+              }
+            >
+              {state.isPlaying && (
+                <PauseIcon className="h-6 w-6 fill-current" />
+              )}
+              {!state.isPlaying && (
+                <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />
+              )}
+            </Button>
+            <Button
+              variant="tertiary"
+              size="icon"
+              onClick={actions.skip}
+              aria-label="Skip preview song"
+            >
+              <SkipIcon className="h-5 w-5 text-theme-muted" />
+            </Button>
+          </>
         )}
         {!hostMode && (
-          <div className="flex h-full flex-col justify-center gap-3">
-            <div className="scene-sequencer grid h-8 grid-cols-8 gap-1.5">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => (
-                <span
-                  key={step}
-                  className="rounded-md border border-secondary/30 bg-secondary/20"
-                />
-              ))}
-            </div>
-            <p className="text-center text-theme-muted text-xs">
-              Next track. No button needed.
-            </p>
-          </div>
+          <span className="text-sm text-theme-muted">
+            The next song starts automatically.
+          </span>
         )}
       </div>
     </div>

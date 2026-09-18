@@ -33,7 +33,7 @@ export async function clientAction({
         error:
           apiErrorMessage ??
           getRateLimitMessage(createError) ??
-          'Could not generate your music room. Please try again.',
+          'Could not generate your room. Please try again.',
       };
     }
 

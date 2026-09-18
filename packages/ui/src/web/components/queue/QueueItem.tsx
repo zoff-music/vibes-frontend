@@ -18,6 +18,7 @@ interface Props {
   onVote?: (id: string) => void;
   isAdmin?: boolean;
   isVoting?: boolean;
+  providerLink?: boolean;
 }
 
 const QueueItemComponent: React.FC<Props> = ({
@@ -27,6 +28,7 @@ const QueueItemComponent: React.FC<Props> = ({
   onVote,
   isAdmin,
   isVoting = false,
+  providerLink = true,
 }) => {
   const handleVote = () => {
     onVote?.(song.id);
@@ -71,7 +73,7 @@ const QueueItemComponent: React.FC<Props> = ({
           <span className="shrink-0 text-theme-subtle text-xs">
             {formatPlaybackSeconds(song.duration)}
           </span>
-          {providerUrl && (
+          {providerUrl && providerLink && (
             <Tooltip
               align="start"
               className="inline-flex shrink-0"
@@ -90,6 +92,14 @@ const QueueItemComponent: React.FC<Props> = ({
                 />
               </a>
             </Tooltip>
+          )}
+          {!providerLink && (
+            <span className="inline-flex min-h-7 min-w-7 shrink-0 items-center justify-center">
+              <ProviderIcon
+                className="h-3.5 w-3.5 text-theme-muted"
+                provider={song.sourceType}
+              />
+            </span>
           )}
         </div>
       </div>

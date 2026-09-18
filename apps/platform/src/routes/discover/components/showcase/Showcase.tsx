@@ -5,7 +5,7 @@ import { useShowcaseMotion } from '../../hooks/useShowcaseMotion';
 import './showcase.css';
 
 interface ShowcaseProps {
-  children: ReactNode;
+  children: ReactNode | ((playing: boolean) => ReactNode);
   label: string;
   description: string;
   className?: string;
@@ -18,6 +18,12 @@ export function Showcase({
   className,
 }: ShowcaseProps) {
   const motion = useShowcaseMotion();
+  let content: ReactNode;
+  if (typeof children === 'function') {
+    content = children(motion.playing);
+  } else {
+    content = children;
+  }
 
   return (
     <figure
@@ -44,9 +50,9 @@ export function Showcase({
           {label}
         </p>
         <Button
-          variant="ghost"
+          variant="tertiary"
           size="icon"
-          className="h-11 w-11 rounded-full border border-theme bg-theme/70 text-theme"
+          className="h-11 w-11 rounded-full border border-theme bg-theme-surface text-theme"
           aria-label={motion.paused ? 'Play animation' : 'Pause animation'}
           aria-pressed={motion.paused}
           disabled={motion.reduceMotion === true}
@@ -63,7 +69,7 @@ export function Showcase({
           )}
         </Button>
       </div>
-      <div className="relative">{children}</div>
+      <div className="relative">{content}</div>
       <figcaption className="sr-only">{description}</figcaption>
     </figure>
   );

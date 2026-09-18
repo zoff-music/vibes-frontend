@@ -106,10 +106,17 @@ and replayed updates do not produce duplicate addition notifications.
 ### Public product pages and search metadata
 
 The homepage and `/rooms/create` have route-specific titles, descriptions,
-canonical URLs and social previews. `/discover/listen-together`,
-`/discover/shared-music-queue`, `/discover/party-music`, `/discover/music-room`,
-`/discover/tv` and `/discover/apps` are server-rendered product pages. The
-`/discover/` prefix avoids claiming existing single-segment room names.
+canonical URLs and social previews. `/discovery/listening`,
+`/discovery/queue`, `/discovery/rooms`,
+`/discovery/apps` are server-rendered product pages. The apps guide includes TV, casting and phone remotes; `/discovery/tvs` and `/discover/tv` permanently redirect there. Explore uses four cards in a two-column grid. The
+`/discovery/` prefix avoids claiming existing single-segment room names.
+
+The previous `/discover/` URLs permanently redirect to the corresponding
+`/discovery/` page, preserving query parameters. The party guide is folded into
+the homepage voting demo: `/discover/party-music` and `/discovery/parties`
+redirect directly to `/#voting` (also preserving query parameters). Navigation, canonical URLs,
+structured data and the sitemap use only the new paths. Unknown guide names
+return 404.
 
 Product copy lives in `src/seo/productPages.ts`; adding a page there also adds
 its sitemap entry. Keep the lightweight navigation list in
@@ -121,7 +128,7 @@ All these public pages also use server-rendered WebSite and WebPage JSON-LD,
 with stable canonical `@id` references to the same website and application.
 Non-home pages have a two-step BreadcrumbList from the homepage to the current
 page, matching the site's actual navigation without inventing an intermediate
-`/discover` landing page. Descriptions reuse the page's existing metadata.
+`/discovery` landing page. Descriptions reuse the page's existing metadata.
 Keep query parameters out of these identities, including room-name prefill.
 Do not add this product markup to live rooms, embeds, operational routes, or
 error pages. Do not invent ratings, reviews, or unsupported search actions.
@@ -142,13 +149,38 @@ its editable vector source is alongside it. Regenerate the PNG at 1200×630
 after changing the SVG. Verify page metadata in server-rendered HTML, including
 canonical URLs without tracking parameters, rather than relying on hydration.
 
-The homepage combines the room controls, loader-provided community statistics,
-short product sections and real app captures. Statistics reuse the homepage
+The homepage combines room controls, loader-provided community statistics, an interactive voting demo, a paired remote demonstration, spaced product sections and real app captures. The remote demonstration uses the existing remote button styles and shared now-playing/progress components; local play, pause, skip and seek update both panels without issuing requests. Its timer pauses offscreen and in hidden tabs and respects reduced motion.
+The demo reuses the real shared `QueueItem` with placeholder tracks and the
+shared fallback artwork in an example room named `electro`. Never use real
+track metadata, provider thumbnails, or working provider links in these demos. Framer Motion animates a vote moving a track and a new song arriving,
+then the queue contracts into the Zoff logo before restarting. Keep artists,
+durations, provider links, vote controls and hover-only attribution identical
+to room rows; do not invent a second queue design. It pauses offscreen, in hidden tabs, or with its pause
+button; reduced motion disables automatic playback and transitions. Trying a
+vote pauses the sequence, and replay clears only demo votes. It never calls the
+API or plays audio. Room-control previews use the actual segmented controls for addition and skip permissions, democratic skip, duplicates, removal after play and playlist import, plus provider buttons.
+The voting section places its text beside the full-width queue on wide screens and stacks them on smaller screens. Alternate the room-control section so its controls sit on the left. The homepage and room guide share an embed configurator with the standard
+segmented toggles for player, playlist, voting, skipping and autoplay. The
+room guide also provides setup steps; generated iframe code belongs in the
+actual room's embed settings. Keep the preview a compact, fixed-height widget
+matching its settings panel in height, with a bounded player surface, small artwork and two visible queue rows. Never capture wheel scrolling or add an inner scrolling playlist. Its
+preview reuses `EmbedQueueSong` from `@vibes/ui/web`; switching voting off
+retains counts but removes vote actions. With both layouts off, show the same
+empty state as the embed app. Keep all static presentation
+in Tailwind utilities. The old
+`how-it-works` anchor remains compatible, but there is no separate jump link
+or repetitive introductory section. Statistics reuse the homepage
 loader's existing `/stats` request; presentation components make no API calls.
-Failed statistics requests hide the numbers instead of presenting false zeros.
+The room, queued-song and listener totals sit between voting and room settings. Failed statistics requests show unavailable values as dashes instead of false zeros. Optional root session/remote and homepage data reads do not retry during SSR; failed reads must not add backoff delays to every page load. The existing request timeout and cancellation still apply. The pixel font is bundled and preloaded; do not add a render-blocking external font stylesheet. Production HTML and assets use the shared server’s compression middleware.
 Keep the first screen focused on room entry and a short product description.
-Supporting content and community statistics remain server-rendered below the
-hero. `HomeLanding` already renders `ProductIntroduction` for the
+The opening room-entry panel has room for the sunset above it. Supporting
+sections use generous responsive padding and minimum heights, retaining their
+normal document flow without pinned text or scroll interception. Community
+statistics and all product copy remain server-rendered below the hero.
+The sun uses Tailwind gradients and a transparent striped mask; its animated
+halo pauses in hidden tabs and respects reduced motion. Keep decorative layers
+contained so they cannot widen the document. New styling belongs in Tailwind
+utilities and the shared Tailwind configuration, not app stylesheet selectors. `HomeLanding` already renders `ProductIntroduction` for the
 normal homepage; the terminal branch renders it separately. Do not duplicate it
 in the normal route or remove its `explore-zoff` anchor.
 Public room shortcuts appear only when rooms are available, outside the
@@ -191,16 +223,16 @@ Playlist generation links to `/?mode=ai` for the real homepage action.
 Scenes start automatically when visible, pause offscreen or in background tabs,
 and expose a pause control. Reduced motion keeps their static poster state.
 Keep their geometry stable and animate transforms and opacity instead of layout.
-The real circular logo is used in the shared header and as a spinning record label.
-All guides use the same ordered navigation, with the current guide highlighted.
-Showcases sit inside the shared hero without another outer card. Server-mode
-previews advance tracks automatically; host-mode previews show play, pause and
-skip commands in a six-second sequence, with a short pause and a visible resume
+The listening preview reuses two synchronized real now-playing cards and progress bars.
+All four guides use the same ordered navigation, with the current guide highlighted.
+Showcases sit inside the shared hero without another outer card. Room-mode previews reuse `NowPlayingSong` and `PlaybackProgress` from the
+actual room UI, with the same tertiary play/skip buttons. Server-mode
+previews advance tracks continuously without a reset control; host-mode previews show play, pause and
+skip commands in a short sequence, with a short pause and a visible resume
 before skipping. Both reserve the same space when switching modes and respect
 the showcase pause/reduced-motion rules. Glow and grid layers fade on all edges
 independently of the content; the shared hero, not the inset scene, owns clipping.
-Accordion bodies remain in server-rendered HTML while a CSS grid row animates
-open and closed, with reduced-motion support. Keep backdrop filters off the
+Accordion bodies remain in server-rendered HTML and open without height animation to avoid repaint trails and rasterized text while the following sections move. Keep backdrop filters off the
 resizing accordion surface so moving neighboring text does not leave paint
 trails. Do not animate text opacity while changing the panel's geometry.
 Policy pages share the site header and navigation; their document wording and

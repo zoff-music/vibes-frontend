@@ -39,7 +39,7 @@ export function ProductScreenshots({ kind = 'room' }: ProductScreenshotsProps) {
           </div>
         </div>
         <figcaption className="relative py-5 text-center font-pixel text-theme-muted text-xs">
-          Find a track. Take the controls. Keep listening.
+          Song search and remote pairing in the Zoff app.
         </figcaption>
       </figure>
     );
@@ -66,7 +66,7 @@ export function ProductScreenshots({ kind = 'room' }: ProductScreenshotsProps) {
         className="block h-auto w-full"
       />
       <figcaption className="border-white/10 border-t px-4 py-3 text-[#bfa8d6] text-xs">
-        One screen playing. Everyone shaping the queue.
+        Party view, with the player, queue and a QR code to join.
       </figcaption>
     </figure>
   );

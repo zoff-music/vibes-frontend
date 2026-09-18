@@ -10,5 +10,5 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData }) => {
     ];
   }
   const { page } = loaderData;
-  return pageMetadata(`/discover/${page.slug}`, page.title, page.description);
+  return pageMetadata(`/discovery/${page.slug}`, page.title, page.description);
 };

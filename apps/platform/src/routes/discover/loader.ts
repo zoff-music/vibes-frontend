@@ -1,7 +1,15 @@
-import type { LoaderFunctionArgs } from 'react-router';
+import { type LoaderFunctionArgs, redirect } from 'react-router';
 import { productPages } from '../../seo/productPages';
 
-export function loader({ params }: LoaderFunctionArgs) {
+export function loader({ params, request }: LoaderFunctionArgs) {
+  if (params.topic === 'parties') {
+    const { search } = new URL(request.url);
+    throw redirect(`/${search}#voting`, 301);
+  }
+  if (params.topic === 'tvs') {
+    const { search } = new URL(request.url);
+    throw redirect(`/discovery/apps${search}`, 301);
+  }
   const page = productPages.find(
     (candidate) => candidate.slug === params.topic,
   );

@@ -2,111 +2,68 @@ import { ArrowRightIcon } from '@vibes/ui/web';
 import { Link } from 'react-router';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { ProductScreenshots } from '../../../components/seo/ProductScreenshots';
+import { CommunityStats } from './CommunityStats';
+import { EmbedPreview } from './EmbedPreview';
+import { RemotePreview } from './RemotePreview';
+import { RoomControlsPreview } from './RoomControlsPreview';
+import { VotingPreview } from './VotingPreview';
 
 export function ProductIntroduction() {
   return (
     <div className="product-content mx-auto w-full max-w-6xl text-theme">
       <section
         id="how-it-works"
-        aria-labelledby="how-it-works-heading"
-        className="scroll-mt-6 py-10 sm:py-16"
+        aria-labelledby="voting-heading"
+        className="grid scroll-mt-8 items-center gap-12 py-20 sm:py-32 lg:grid-cols-5 lg:gap-16"
       >
-        <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="font-pixel text-2xs text-secondary tracking-label">
-              PRESS PLAY, TOGETHER
-            </p>
-            <h2
-              id="how-it-works-heading"
-              className="mt-3 font-pixel text-2xl normal-case tracking-tight sm:text-3xl"
-            >
-              Three steps. Endless good finds.
-            </h2>
-          </div>
-          <span className="text-sm text-theme-muted">
-            No downloads needed to start.
-          </span>
-        </div>
-        <ol className="grid gap-6 border-theme border-t pt-6 sm:grid-cols-3 sm:gap-8">
-          {steps.map((step) => (
-            <li key={step.number} className="flex gap-4">
-              <span
-                aria-hidden="true"
-                className="pt-1 font-pixel text-primary text-sm"
-              >
-                {step.number}
-              </span>
-              <div>
-                <h3 className="font-pixel text-lg normal-case tracking-normal">
-                  {step.title}
-                </h3>
-                <p className="mt-2 max-w-sm text-sm text-theme-muted leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section
-        aria-labelledby="shared-queue-heading"
-        className="grid items-center gap-7 pb-12 sm:gap-10 sm:pb-16 lg:grid-cols-12"
-      >
-        <div className="min-w-0 lg:col-span-7">
-          <ProductScreenshots />
-        </div>
-        <div className="lg:col-span-5">
-          <p className="font-pixel text-2xs text-primary tracking-label">
-            LESS “PASS THE AUX”
+        <div id="voting" className="min-w-0 scroll-mt-12 lg:col-span-2">
+          <p className="font-pixel text-primary text-xs tracking-label">
+            THE SHARED QUEUE
           </p>
           <h2
-            id="shared-queue-heading"
-            className="mt-3 font-pixel text-3xl normal-case tracking-tight"
+            id="voting-heading"
+            className="mt-4 font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl"
           >
-            A queue with more
-            <br className="hidden sm:block" /> than one DJ.
+            Pick what plays next.
           </h2>
-          <p className="mt-4 text-theme-muted leading-relaxed">
-            Add the track you cannot stop playing. Discover the one your friend
-            swears by. Zoff brings everyone’s picks into one shared music queue,
-            with votes to help shape what plays next.
+          <p className="mt-5 max-w-xl text-theme-muted leading-relaxed sm:text-lg">
+            Add songs from YouTube and SoundCloud. Share the room with your
+            friends. Vote your favourites up the queue.
           </p>
-          <p className="mt-3 text-sm text-theme-muted leading-relaxed">
-            Every room has its own settings. Choose who can add or skip songs,
-            let playback run automatically or give a host control, and protect
-            admin controls with a room password.
-          </p>
-          <Link
-            className={storyLinkClassName}
-            to="/discover/shared-music-queue"
-          >
-            Explore the shared queue{' '}
-            <ArrowRightIcon className="h-4 w-4 shrink-0" />
-          </Link>
+        </div>
+        <div className="min-w-0 lg:col-span-3">
+          <VotingPreview />
         </div>
       </section>
+
+      <CommunityStats />
+
+      <RoomControlsPreview />
 
       <section
         aria-labelledby="devices-heading"
-        className="panel-surface grid items-center gap-8 overflow-hidden rounded-frame border border-theme p-6 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10"
+        className="my-16 grid min-h-[85svh] items-center gap-12 py-16 sm:my-24 sm:py-24 lg:grid-cols-2 lg:gap-20"
       >
         <div>
           <p className="font-pixel text-2xs text-secondary tracking-label">
-            SAME ROOM. YOUR SCREEN.
+            ON YOUR DEVICES
           </p>
           <h2
             id="devices-heading"
-            className="mt-3 font-pixel text-3xl normal-case tracking-tight"
+            className="mt-4 font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl"
           >
-            From your pocket
+            Add songs from
             <br />
-            to the party.
+            your phone.
           </h2>
           <p className="mt-4 text-theme-muted leading-relaxed">
-            Search for a song on your phone. Put the room on a supported TV.
-            Pair a remote and leave the player by the speakers. The queue
-            travels with your group, not with one person’s device.
+            Use Zoff in your browser or the iOS and Android apps. Play on
+            Android TV or send the room to a compatible Chromecast from a
+            supported browser or app.
+          </p>
+          <p className="mt-4 text-theme-muted leading-relaxed">
+            Your phone can add songs to the room, or pair with a player’s QR
+            code to control that device remotely without playing audio itself.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <span className="rounded-full border border-theme px-3 py-1.5 text-theme-muted text-xs">
@@ -122,8 +79,8 @@ export function ProductIntroduction() {
               Android TV
             </span>
           </div>
-          <Link className={storyLinkClassName} to="/discover/apps">
-            Find your app <ArrowRightIcon className="h-4 w-4 shrink-0" />
+          <Link className={storyLinkClassName} to="/discovery/apps">
+            Get the apps <ArrowRightIcon className="h-4 w-4 shrink-0" />
           </Link>
         </div>
         <div className="min-w-0">
@@ -131,13 +88,17 @@ export function ProductIntroduction() {
         </div>
       </section>
 
+      <RemotePreview />
+
+      <EmbedPreview />
+
       <section
         id="explore-zoff"
         aria-labelledby="find-your-moment-heading"
-        className="scroll-mt-6 pt-12 pb-4 sm:pt-16"
+        className="flex min-h-[65svh] scroll-mt-8 flex-col justify-center py-20 sm:py-32"
       >
         <p className="font-pixel text-2xs text-primary tracking-label">
-          THERE’S A ROOM FOR THAT
+          MORE ABOUT ZOFF
         </p>
         <div className="mt-3 mb-6 flex flex-wrap items-end justify-between gap-3">
           <h2
@@ -147,8 +108,8 @@ export function ProductIntroduction() {
             Explore Zoff
           </h2>
           <p className="max-w-xl text-sm text-theme-muted leading-relaxed">
-            Listening remotely, hosting a party, or setting up a TV? Start with
-            the guide for your session.
+            A few things to help you get started, from room settings to playing
+            music on your TV.
           </p>
         </div>
         <ProductLinks />
@@ -158,25 +119,4 @@ export function ProductIntroduction() {
 }
 
 const storyLinkClassName =
-  'mt-5 flex min-h-12 w-full cursor-pointer items-center justify-between gap-4 rounded-xl border border-theme px-4 py-3 text-sm text-theme transition-colors hover:border-secondary/60 hover:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';
-
-const steps = [
-  {
-    number: '01',
-    title: 'Make a room',
-    description:
-      'Creating and joining rooms is always free. You never need a Zoff account. Pick a name and make it yours.',
-  },
-  {
-    number: '02',
-    title: 'Bring your people',
-    description:
-      'Share the room link. Friends can join from their own devices, whether they are beside you or miles away.',
-  },
-  {
-    number: '03',
-    title: 'Find your next track',
-    description:
-      'Search enabled providers like YouTube and SoundCloud, add songs and vote. Music plays through each provider’s official player.',
-  },
-];
+  'mt-4 inline-flex min-h-11 items-center gap-3 rounded-xl border border-theme bg-theme-surface px-5 py-3 font-pixel text-sm text-theme transition-colors hover:border-secondary/60 hover:bg-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';
