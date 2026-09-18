@@ -5,10 +5,12 @@ export type HomeLoaderData = Awaited<ReturnType<typeof loader>>;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const serverApi = getServerApi(request);
+  // Render the public page immediately when optional community data fails.
+  const options = { retry: 0, signal: request.signal };
   const [statsResult, providersResult, publicRoomsResult] = await Promise.all([
-    serverApi.get('/stats', null),
-    serverApi.get('/providers', null),
-    serverApi.get('/rooms/public', null),
+    serverApi.get('/stats', null, options),
+    serverApi.get('/providers', null, options),
+    serverApi.get('/rooms/public', null, options),
   ]);
   const [statsError, stats] = statsResult;
   const [providersError, providers] = providersResult;

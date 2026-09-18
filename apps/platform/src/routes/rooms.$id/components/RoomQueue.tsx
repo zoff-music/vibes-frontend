@@ -1,23 +1,11 @@
 import { type PlaybackState, type Song } from '@vibes/models';
-import {
-  classNames,
-  getProviderTrackUrl,
-  resolveSongThumbnail,
-  showToast,
-  usePlaybackStore,
-  useQueueStore,
-} from '@vibes/shared';
+import { showToast, usePlaybackStore, useQueueStore } from '@vibes/shared';
 import {
   TerminalButton,
   TerminalFeedback,
   TerminalSection,
 } from '@vibes/ui/konami';
-import {
-  ProviderIcon,
-  QueueList,
-  Tooltip,
-  useProgressiveList,
-} from '@vibes/ui/web';
+import { NowPlayingSong, QueueList, useProgressiveList } from '@vibes/ui/web';
 import React, { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
 
@@ -121,14 +109,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       const s = seconds % 60;
       return `${m}:${s.toString().padStart(2, '0')}`;
     };
-
-    const currentSongProviderUrl = currentSongData
-      ? getProviderTrackUrl(
-          currentSongData.sourceType,
-          currentSongData.sourceId,
-          currentSongData.providerUrl,
-        )
-      : null;
 
     if (terminalMode) {
       const queuedSongs = displaySongs.filter(
@@ -240,84 +220,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
           {/* Now Playing (Integrated into list style) */}
           {currentSongData && (
             <div className="mb-8">
-              <div className="mb-3 flex items-center gap-2">
-                <div
-                  className={classNames(
-                    'h-2 w-2 rounded-full',
-                    isPlaying
-                      ? 'animate-pulse bg-secondary shadow-secondary-strong'
-                      : 'bg-white/30',
-                  )}
-                />
-                <span className="font-display text-2xs text-theme-muted tracking-label">
-                  {isPlaying ? 'Now Playing' : 'Paused'}
-                </span>
-              </div>
-
-              <div
-                key={currentSongData.id}
-                className="animate-slide-up overflow-hidden"
-              >
-                <div className="group/card panel-surface no-box relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl p-4">
-                  <div className="vhs-scanlines pointer-events-none absolute inset-0" />
-
-                  {/* Thumbnail */}
-                  <div className="relative z-10 shrink-0">
-                    <img
-                      src={resolveSongThumbnail(currentSongData.thumbnailUrl)}
-                      alt=""
-                      className="h-16 w-16 rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105"
-                    />
-                  </div>
-
-                  {/* Song info */}
-                  <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
-                    <h3 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
-                      {currentSongData.title}
-                    </h3>
-                    <div className="flex min-w-0 items-center gap-2 overflow-hidden text-theme-muted text-xs">
-                      <span className="min-w-0 truncate">
-                        {currentSongData.artist || 'Unknown Artist'}
-                      </span>
-                      <span className="text-theme-subtle">•</span>
-                      <span className="shrink-0 font-mono text-theme-subtle text-xs">
-                        {formatTime(currentSongData.duration * 1000)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Source Icon */}
-                  <div className="relative z-10 flex shrink-0 items-center justify-center opacity-70">
-                    {currentSongProviderUrl && (
-                      <Tooltip
-                        align="end"
-                        className="inline-flex"
-                        content={`Open on ${providerNames[currentSongData.sourceType]}`}
-                      >
-                        <a
-                          href={currentSongProviderUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-                          aria-label={`Open ${currentSongData.title} on ${providerNames[currentSongData.sourceType]}`}
-                        >
-                          <ProviderIcon
-                            className="h-5 w-5 text-white"
-                            provider={currentSongData.sourceType}
-                          />
-                        </a>
-                      </Tooltip>
-                    )}
-                    {!currentSongProviderUrl &&
-                      currentSongData.sourceType === 'soundcloud' && (
-                        <ProviderIcon
-                          className="h-5 w-5 text-white"
-                          provider="soundcloud"
-                        />
-                      )}
-                  </div>
-                </div>
-              </div>
+              <NowPlayingSong song={currentSongData} isPlaying={isPlaying} />
 
               <PlaybackProgress
                 durationMs={currentSongData.duration * 1000}
@@ -349,8 +252,3 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     );
   },
 );
-
-const providerNames: Record<Song['sourceType'], string> = {
-  soundcloud: 'SoundCloud',
-  youtube: 'YouTube',
-};

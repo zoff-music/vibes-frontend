@@ -9,7 +9,7 @@ export function loader() {
     '/privacy-policy',
     '/terms-of-service',
     '/security',
-    ...productPages.map((page) => `/discover/${page.slug}`),
+    ...productPages.map((page) => `/discovery/${page.slug}`),
   ];
   const urls = paths
     .map((path) => `<url><loc>${siteUrl}${path}</loc></url>`)

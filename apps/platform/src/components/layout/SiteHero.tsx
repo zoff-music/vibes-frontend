@@ -31,9 +31,10 @@ export function SiteHero({
     >
       <div
         className={classNames(
-          'grid items-center gap-7 p-6 sm:gap-8 sm:p-8 lg:p-10',
-          centered && 'md:justify-items-center',
-          !centered && 'lg:gap-12',
+          'grid items-center',
+          centered &&
+            'gap-6 px-6 pt-10 pb-6 sm:px-8 sm:pt-12 md:justify-items-center lg:px-10',
+          !centered && 'gap-7 p-6 sm:gap-8 sm:p-8 lg:gap-12 lg:p-10',
           !centered && Boolean(aside) && 'md:grid-cols-2',
         )}
       >
@@ -67,9 +68,10 @@ export function SiteHero({
         {aside && (
           <div
             className={classNames(
-              'min-w-0 border-theme border-t pt-6 md:border-t-0 md:pt-0 [&_.music-scene]:overflow-visible [&_.music-scene]:rounded-none [&_.music-scene]:border-0 [&_.music-scene]:bg-transparent [&_.music-scene]:shadow-none [&_.scene-content]:px-0 [&_.scene-content]:pb-0 [&_.scene-header]:px-0 [&_.scene-header]:pt-0',
+              'min-w-0 [&_.music-scene]:overflow-visible [&_.music-scene]:rounded-none [&_.music-scene]:border-0 [&_.music-scene]:bg-transparent [&_.music-scene]:shadow-none [&_.scene-content]:px-0 [&_.scene-content]:pb-0 [&_.scene-header]:px-0 [&_.scene-header]:pt-0',
               centered && 'md:mx-auto md:w-full md:max-w-3xl',
-              !centered && 'md:border-l md:pl-8 lg:pl-12',
+              !centered &&
+                'border-theme border-t pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8 lg:pl-12',
             )}
           >
             {aside}
@@ -79,8 +81,9 @@ export function SiteHero({
       {footer && (
         <div
           className={classNames(
-            'flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-theme border-t px-6 py-3 sm:px-8 lg:px-10',
-            centered && 'md:justify-center md:border-t-0 md:pt-0 md:pb-6',
+            'flex flex-wrap items-center gap-x-6 gap-y-2 px-6 sm:px-8 lg:px-10',
+            centered && 'justify-center pb-10 sm:pb-12',
+            !centered && 'justify-between border-theme border-t py-3',
           )}
         >
           {footer}

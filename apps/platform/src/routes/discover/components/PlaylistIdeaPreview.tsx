@@ -22,7 +22,7 @@ const ideas = [
     label: 'Deep focus',
     prompt: 'Dreamy focus beats',
     tracks: ['Soft signals', 'Cloud patterns', 'A little headspace'],
-    mood: 'Less noise. More flow.',
+    mood: 'Instrumental tracks for working.',
   },
 ];
 
@@ -56,7 +56,7 @@ export function PlaylistIdeaPreview() {
         <div key={selected} aria-hidden="true" className="pt-6">
           <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-theme px-4 py-5 shadow-lg">
             <p className="mb-3 font-pixel text-theme-subtle text-xs">
-              START WITH A FEELING
+              PLAYLIST IDEA
             </p>
             <div className="flex min-w-0 items-center gap-3">
               <SparklesIcon className="scene-prompt-icon h-5 w-5 shrink-0 text-primary" />
@@ -70,7 +70,7 @@ export function PlaylistIdeaPreview() {
           <div className="relative flex h-24 items-center justify-between gap-4 px-3">
             <div className="relative min-w-0 flex-1">
               <p className="scene-status-thinking absolute inset-x-0 top-0 -translate-y-1/2 font-pixel text-sm text-theme-muted">
-                Finding your sound...
+                Finding tracks...
               </p>
               <p className="scene-status-ready font-pixel text-lg text-theme">
                 Your room is ready.

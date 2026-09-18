@@ -12,7 +12,8 @@
     "./konami/boot": "./src/konami/boot.ts",
     "./konami/styles.css": "./src/konami/boot.css",
     "./native": "./src/native/index.ts",
-    "./shared": "./src/shared/index.ts"
+    "./shared": "./src/shared/index.ts",
+    "./shared/fonts/MSW98UI-Regular.woff2": "./src/shared/assets/fonts/MSW98UI-Regular.woff2"
   },
   "sideEffects": false,
   "license": "MIT",

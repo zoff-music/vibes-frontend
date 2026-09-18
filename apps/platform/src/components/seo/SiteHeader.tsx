@@ -29,7 +29,7 @@ export function SiteHeader() {
               ゾフ
             </span>
             <span className="mt-2 block text-theme-muted text-xs">
-              Shared music rooms
+              Shared rooms
             </span>
           </span>
         </Link>
@@ -40,7 +40,7 @@ export function SiteHeader() {
           <Link to="/#explore-zoff" className={navigationClassName}>
             Explore
           </Link>
-          <Link to="/discover/apps" className={navigationClassName}>
+          <Link to="/discovery/apps" className={navigationClassName}>
             Apps
           </Link>
           <Tooltip

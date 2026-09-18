@@ -1,4 +1,6 @@
+import { classNames } from '@vibes/shared';
 import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
+import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular.woff2?url';
 import { type ReactNode, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import {
@@ -22,7 +24,7 @@ export const meta: MetaFunction = () => [
   { title: 'Zoff | Shared Music Queue & Listening Rooms' },
   {
     name: 'description',
-    content: 'Shared music rooms, made for listening together.',
+    content: 'Shared rooms, made for listening together.',
   },
 ];
 
@@ -50,13 +52,20 @@ export function Layout({ children }: Props) {
     <html
       lang="en"
       data-debug={loaderData?.debug === true}
-      className={themeClass}
+      className={classNames(themeClass, 'motion-safe:scroll-smooth')}
       {...(konamiEnabled && { 'data-konami-mode': 'terminal' })}
     >
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="apple-itunes-app" content="app-id=6799954460" />
+        <link
+          rel="preload"
+          href={regularFontUrl}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
         <link rel="stylesheet" href={stylesUrl} />
         {konamiEnabled && <link rel="stylesheet" href={retroStylesUrl} />}

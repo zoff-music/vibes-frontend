@@ -75,7 +75,7 @@ export function RoomJoinControls({
             <Tooltip
               align="end"
               className="inline-flex"
-              content="Generate a music room with AI"
+              content="Generate a room with AI"
             >
               <Button
                 aria-label="Toggle AI playlist generation"

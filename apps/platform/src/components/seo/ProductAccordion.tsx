@@ -36,7 +36,7 @@ export function ProductAccordion({ title, body }: ProductSection) {
         aria-hidden={!isOpen}
         inert={!isOpen}
         className={classNames(
-          'grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none',
+          'grid',
           isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         )}
       >

@@ -77,14 +77,8 @@ const LazyTerminalHome = lazy(async () => {
 });
 
 export default function Home() {
-  const {
-    providers,
-    publicRooms,
-    totalListeners,
-    totalRooms,
-    totalSongs,
-    statsAvailable,
-  } = useLoaderData<typeof loader>();
+  const { providers, publicRooms, totalListeners } =
+    useLoaderData<typeof loader>();
   const [roomCode, setRoomCode] = useState('');
   const [placeholderText, setPlaceholderText] = useState('');
   const [wordIndex, setWordIndex] = useState(0);
@@ -225,10 +219,6 @@ export default function Home() {
         onJoinRoom={handleJoinRoom}
         providers={providers}
         publicRooms={publicRooms}
-        statsAvailable={statsAvailable}
-        totalListeners={totalListeners}
-        totalRooms={totalRooms}
-        totalSongs={totalSongs}
       >
         {!isAIMode && (
           <HomeRoomControls

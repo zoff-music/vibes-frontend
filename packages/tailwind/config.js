@@ -104,8 +104,13 @@ export default {
         scanlines: 'scanlines 1.8s linear infinite',
         'glow-pulse': 'glowPulse 2.6s ease-in-out infinite',
         'gradient-shift': 'gradientShift 10s ease-in-out infinite',
+        'sunset-glow': 'sunsetGlow 9s ease-in-out infinite alternate',
       },
       keyframes: {
+        sunsetGlow: {
+          from: { opacity: '0.65', transform: 'scale(0.94)' },
+          to: { opacity: '1', transform: 'scale(1.06)' },
+        },
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
