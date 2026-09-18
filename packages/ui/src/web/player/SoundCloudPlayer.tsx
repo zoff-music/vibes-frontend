@@ -285,6 +285,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
   useEffect(() => {
     return subscribeToPlaybackGestureUnlock(() => {
+      needsUserGestureRef.current = false;
+      setNeedsUserGesture(false);
       setIsPlaybackUnlocked(true);
       const widget = widgetRef.current;
       if (!widget || shouldWidgetPlay()) return;

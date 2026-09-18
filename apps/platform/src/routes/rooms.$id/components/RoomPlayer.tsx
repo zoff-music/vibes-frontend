@@ -46,6 +46,7 @@ interface RoomPlayerProps {
 }
 
 interface PlayerProps {
+  allowUnmutedAutoplay?: boolean;
   isVisible?: boolean;
   onEnded?: () => void;
   fill?: boolean;
@@ -183,11 +184,7 @@ export const RoomPlayer = React.memo(
       useState<PlayerComponent | null>(null);
     const [VideoPlayerComponent, setVideoPlayerComponent] =
       useState<PlayerComponent | null>(null);
-    const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(
-      Boolean(initialPlayback?.isPlaying) &&
-        (initialPlayback?.currentSong?.sourceType === 'youtube' ||
-          initialPlayback?.currentSong?.sourceType === 'soundcloud'),
-    );
+    const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
     const [isSkipPending, setIsSkipPending] = useState(false);
     const [playerLoadErrors, setPlayerLoadErrors] = useState<PlayerLoadErrors>({
       soundcloud: null,
@@ -520,6 +517,7 @@ export const RoomPlayer = React.memo(
               )}
             >
               <VideoPlayerComponent
+                allowUnmutedAutoplay
                 fill
                 onLocalAlignmentChange={setLocalPlaybackAligned}
                 {...((hasHostPlaybackAuthority ||
@@ -578,6 +576,7 @@ export const RoomPlayer = React.memo(
               )}
             >
               <SoundCloudPlayerComponent
+                allowUnmutedAutoplay
                 fill
                 onLocalAlignmentChange={setLocalPlaybackAligned}
                 onLocalPlay={handleLocalPlay}
