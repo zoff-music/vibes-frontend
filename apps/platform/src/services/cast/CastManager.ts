@@ -9,6 +9,8 @@ import type {
   Song,
 } from '@vibes/models';
 import {
+  browserDebugLog,
+  isBrowserDebugEnabled,
   type ResolvedColorScheme,
   safeWrap,
   safeWrapAsync,
@@ -67,7 +69,7 @@ class GoogleCastManager implements ICastManager {
 
   private async initializeCastSDK(): Promise<void> {
     if (typeof window === 'undefined') return;
-    console.log('[Cast] initializeCastSDK:start', {
+    browserDebugLog('[Cast] initializeCastSDK:start', {
       sdkAvailable: !!window.chrome?.cast?.isAvailable,
       sdkLoaded: !!window.chrome?.cast,
     });
@@ -111,7 +113,7 @@ class GoogleCastManager implements ICastManager {
             const script = document.createElement('script');
             script.src = castSenderScriptUrl;
             script.onload = () => {
-              console.log('[Cast] sender SDK script loaded');
+              browserDebugLog('[Cast] sender SDK script loaded');
               void (async () => {
                 const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
                 if (waitErr) {
@@ -158,8 +160,8 @@ class GoogleCastManager implements ICastManager {
 
       this.isInitialized = true;
       this.reconnectAttempts = 0;
-      console.log('✅ Google Cast initialized successfully');
-      console.log('[Cast] Cast API version:', window.chrome.cast.VERSION);
+      browserDebugLog('✅ Google Cast initialized successfully');
+      browserDebugLog('[Cast] Cast API version:', window.chrome.cast.VERSION);
     })();
 
     return this.initializationPromise;
@@ -170,13 +172,13 @@ class GoogleCastManager implements ICastManager {
       let attempts = 0;
       const maxAttempts = 100;
 
-      console.log('[Cast] waiting for Cast API availability...');
+      browserDebugLog('[Cast] waiting for Cast API availability...');
       const checkInterval = setInterval(() => {
         attempts++;
 
         if (window.chrome?.cast?.isAvailable) {
           clearInterval(checkInterval);
-          console.log('[Cast] Cast API available', { attempts });
+          browserDebugLog('[Cast] Cast API available', { attempts });
           resolve();
         } else if (attempts >= maxAttempts) {
           clearInterval(checkInterval);
@@ -196,8 +198,8 @@ class GoogleCastManager implements ICastManager {
   private setupCastAPI(): Promise<void> {
     return new Promise((resolve, reject) => {
       const [err] = safeWrap(() => {
-        console.log('Setting up Google Cast API...');
-        console.log('[Cast] setup config', {
+        browserDebugLog('Setting up Google Cast API...');
+        browserDebugLog('[Cast] setup config', {
           appId: CAST_APPLICATION_ID,
           receiverUrl: CUSTOM_RECEIVER_URL,
           developmentMode: DEVELOPMENT_MODE,
@@ -206,7 +208,10 @@ class GoogleCastManager implements ICastManager {
         const sessionRequest = new window.chrome.cast.SessionRequest(
           CAST_APPLICATION_ID,
         );
-        console.log('Created session request for app ID:', CAST_APPLICATION_ID);
+        browserDebugLog(
+          'Created session request for app ID:',
+          CAST_APPLICATION_ID,
+        );
 
         const apiConfig = new window.chrome.cast.ApiConfig(
           sessionRequest,
@@ -215,12 +220,12 @@ class GoogleCastManager implements ICastManager {
           window.chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED,
           window.chrome.cast.DefaultActionPolicy.CREATE_SESSION,
         );
-        console.log('Created API config');
+        browserDebugLog('Created API config');
 
         window.chrome.cast.initialize(
           apiConfig,
           () => {
-            console.log('Google Cast API `initialize` call successful.');
+            browserDebugLog('Google Cast API `initialize` call successful.');
             resolve();
           },
           (error: chrome.cast.Error) => {
@@ -255,7 +260,7 @@ class GoogleCastManager implements ICastManager {
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * 2 ** (this.reconnectAttempts - 1);
 
-    console.log(
+    browserDebugLog(
       `Scheduling Cast SDK reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`,
     );
 
@@ -273,8 +278,8 @@ class GoogleCastManager implements ICastManager {
   // ============================================================
 
   private onSessionListener(session: chrome.cast.Session): void {
-    console.log('🎯 Cast session established:', session);
-    console.log('[Cast] session details', {
+    browserDebugLog('🎯 Cast session established:', session);
+    browserDebugLog('[Cast] session details', {
       sessionId: session?.sessionId,
       receiverName: session?.receiver?.friendlyName,
       mediaCount: session?.media?.length || 0,
@@ -292,7 +297,7 @@ class GoogleCastManager implements ICastManager {
         mediaSessionId: session.media?.[0]?.sessionId,
       };
 
-      console.log('📱 Created cast session object:', castSession);
+      browserDebugLog('📱 Created cast session object:', castSession);
 
       this.currentSession = castSession;
       this.actualCastSession = session;
@@ -331,7 +336,7 @@ class GoogleCastManager implements ICastManager {
 
   private handleExistingMediaSession(media: chrome.cast.media.Media): void {
     const [err] = safeWrap(() => {
-      console.log('[Cast] existing media session detected', {
+      browserDebugLog('[Cast] existing media session detected', {
         sessionId: media?.sessionId,
         mediaStatus: media?.playerState,
       });
@@ -347,9 +352,9 @@ class GoogleCastManager implements ICastManager {
   }
 
   private onMediaUpdateListener(isAlive: boolean): void {
-    console.log('[Cast] media update listener', { isAlive });
+    browserDebugLog('[Cast] media update listener', { isAlive });
     if (!isAlive && this.currentSession) {
-      console.log('Media session ended');
+      browserDebugLog('Media session ended');
       this.currentSession.mediaSessionId = undefined;
       this.currentSession.lastSyncAt = new Date();
       this.notifySessionStateChange(this.currentSession);
@@ -357,9 +362,9 @@ class GoogleCastManager implements ICastManager {
   }
 
   private onSessionUpdateListener(isAlive: boolean): void {
-    console.log('[Cast] session update listener', { isAlive });
+    browserDebugLog('[Cast] session update listener', { isAlive });
     if (!isAlive && this.currentSession) {
-      console.log('Cast session ended');
+      browserDebugLog('Cast session ended');
       this.currentSession.state = 'disconnected';
       this.currentSession.lastSyncAt = new Date();
       this.notifySessionStateChange(this.currentSession);
@@ -369,7 +374,7 @@ class GoogleCastManager implements ICastManager {
   }
 
   private onReceiverListener(availability: string): void {
-    console.log('Cast receiver availability changed:', availability);
+    browserDebugLog('Cast receiver availability changed:', availability);
 
     const [err] = safeWrap(() => {
       const isAvailable =
@@ -377,17 +382,17 @@ class GoogleCastManager implements ICastManager {
         availability === window.chrome?.cast?.ReceiverAvailability?.AVAILABLE;
 
       if (!isAvailable) {
-        console.log('No Chromecast devices available');
+        browserDebugLog('No Chromecast devices available');
         this.devices = [];
         if (LOCAL_EMULATOR_ENABLED) {
           this.localEmulator.ensureLocalEmulatorDevice();
         } else {
-          console.log('[Cast] cleared device list');
+          browserDebugLog('[Cast] cleared device list');
         }
         return;
       }
 
-      console.log('Chromecast devices are available on the network');
+      browserDebugLog('Chromecast devices are available on the network');
       const device: CastDevice = {
         id: CAST_DEVICE_PICKER_ID,
         name: 'Cast to TV',
@@ -401,7 +406,7 @@ class GoogleCastManager implements ICastManager {
       if (LOCAL_EMULATOR_ENABLED) {
         this.localEmulator.ensureLocalEmulatorDevice();
       }
-      console.log('[Cast] device available', device);
+      browserDebugLog('[Cast] device available', device);
       this.notifyDeviceAvailable(device);
     });
 
@@ -416,7 +421,7 @@ class GoogleCastManager implements ICastManager {
   }
 
   private onMediaMessage(namespace: string, message: string): void {
-    console.log('Media message received:', namespace, message);
+    browserDebugLog('Media message received:', namespace, message);
   }
 
   private onCustomMessage(_namespace: string, message: string): void {
@@ -465,10 +470,12 @@ class GoogleCastManager implements ICastManager {
             console.warn(prefix, style, ...logArgs);
             break;
           case 'debug':
-            console.debug(prefix, style, ...logArgs);
+            if (isBrowserDebugEnabled()) {
+              console.debug(prefix, style, ...logArgs);
+            }
             break;
           default:
-            console.log(prefix, style, ...logArgs);
+            browserDebugLog(prefix, style, ...logArgs);
         }
       }
     });
@@ -573,17 +580,17 @@ class GoogleCastManager implements ICastManager {
     }
 
     if (this.currentSession && this.currentSession.deviceId === deviceId) {
-      console.log('[Cast] already connected to device', deviceId);
+      browserDebugLog('[Cast] already connected to device', deviceId);
       return this.currentSession;
     }
 
-    console.log('🔗 Requesting cast session for device:', deviceId);
+    browserDebugLog('🔗 Requesting cast session for device:', deviceId);
 
     return new Promise((resolve, reject) => {
       window.chrome.cast.requestSession(
         (session: chrome.cast.Session) => {
           const [err, res] = safeWrap(() => {
-            console.log('✅ Session created successfully:', session);
+            browserDebugLog('✅ Session created successfully:', session);
             const castSession: CastSession = {
               id: session.sessionId,
               deviceId: deviceId,
@@ -599,11 +606,11 @@ class GoogleCastManager implements ICastManager {
             this.reconnectAttempts = 0;
             session.setReceiverMuted(
               false,
-              () => console.log('[Cast] receiver output unmuted'),
+              () => browserDebugLog('[Cast] receiver output unmuted'),
               (error: chrome.cast.Error) =>
                 console.error('Failed to unmute Cast receiver output:', error),
             );
-            console.log('[Cast] stored session', {
+            browserDebugLog('[Cast] stored session', {
               sessionId: castSession.id,
               deviceName: castSession.deviceName,
             });
@@ -660,7 +667,7 @@ class GoogleCastManager implements ICastManager {
     return new Promise((resolve) => {
       session.stop(
         () => {
-          console.log('Session stopped successfully');
+          browserDebugLog('Session stopped successfully');
           if (this.currentSession) {
             this.currentSession.state = 'disconnected';
             this.currentSession.lastSyncAt = new Date();
@@ -712,8 +719,8 @@ class GoogleCastManager implements ICastManager {
       throw new Error('Cast session not found');
     }
 
-    console.log('🎬 Using stored cast session for media loading:', session);
-    console.log('[Cast] castMedia payload', {
+    browserDebugLog('🎬 Using stored cast session for media loading:', session);
+    browserDebugLog('[Cast] castMedia payload', {
       contentId: mediaInfo.contentId,
       contentType: mediaInfo.contentType,
       title: mediaInfo.metadata.title,
@@ -725,7 +732,7 @@ class GoogleCastManager implements ICastManager {
       const roomId = roomState.room?.id || '';
 
       if (DEVELOPMENT_MODE || this.isYouTubeUrl(mediaInfo.contentId)) {
-        console.log('🎵 Preparing custom Zoff receiver session');
+        browserDebugLog('🎵 Preparing custom Zoff receiver session');
 
         const url = new URL(CUSTOM_RECEIVER_URL, window.location.origin);
         if (roomId) url.searchParams.set('roomId', roomId);
@@ -737,7 +744,7 @@ class GoogleCastManager implements ICastManager {
 
         const receiverUrl = url.toString();
 
-        console.log('[Cast] Custom context ready', { receiverUrl });
+        browserDebugLog('[Cast] Custom context ready', { receiverUrl });
 
         setTimeout(() => {
           this.sendMediaToReceiver(mediaInfo, session);
@@ -785,7 +792,7 @@ class GoogleCastManager implements ICastManager {
         },
       };
 
-      console.log('🎵 Sending playback state to receiver:', {
+      browserDebugLog('🎵 Sending playback state to receiver:', {
         action: message.action,
         title: message.currentSong.title,
         sourceType: message.currentSong.sourceType,
@@ -795,7 +802,7 @@ class GoogleCastManager implements ICastManager {
       session.sendMessage(
         CUSTOM_NAMESPACE,
         message,
-        () => console.log('✅ Playback state sent to receiver'),
+        () => browserDebugLog('✅ Playback state sent to receiver'),
         (error: chrome.cast.Error) =>
           console.error('❌ Failed to send playback state:', error),
       );
@@ -832,7 +839,7 @@ class GoogleCastManager implements ICastManager {
         timestamp: Date.now(),
       };
 
-      console.log('[Local Cast] sending playback state', {
+      browserDebugLog('[Local Cast] sending playback state', {
         title: message.currentSong.title,
         sourceType: message.currentSong.sourceType,
       });
@@ -851,7 +858,7 @@ class GoogleCastManager implements ICastManager {
     reject: (error: Error) => void,
   ): void {
     const [err] = safeWrap(() => {
-      console.log('[Cast] loadStandardMedia:start', {
+      browserDebugLog('[Cast] loadStandardMedia:start', {
         contentId: mediaInfo.contentId,
         contentType: mediaInfo.contentType,
       });
@@ -885,7 +892,7 @@ class GoogleCastManager implements ICastManager {
 
       const request = new window.chrome.cast.media.LoadRequest(castMediaInfo);
 
-      console.log('🎬 Loading standard media:', {
+      browserDebugLog('🎬 Loading standard media:', {
         contentId: mediaInfo.contentId,
         contentType: mediaInfo.contentType,
         title: mediaInfo.metadata.title,
@@ -894,7 +901,7 @@ class GoogleCastManager implements ICastManager {
       session.loadMedia(
         request,
         (media: chrome.cast.media.Media) => {
-          console.log('✅ Standard media loaded successfully:', media);
+          browserDebugLog('✅ Standard media loaded successfully:', media);
           if (this.currentSession) {
             this.currentSession.mediaSessionId = media.sessionId;
             this.currentSession.state = 'connected';
@@ -952,14 +959,14 @@ class GoogleCastManager implements ICastManager {
     if (!session) return;
 
     const [err] = safeWrap(() => {
-      console.log('[Cast] updateQueue send', {
+      browserDebugLog('[Cast] updateQueue send', {
         count: queueMessage.queue.length,
         timestamp: queueMessage.timestamp,
       });
       session.sendMessage(
         CUSTOM_NAMESPACE,
         queueMessage,
-        () => console.log('✅ Queue update sent to receiver'),
+        () => browserDebugLog('✅ Queue update sent to receiver'),
         (error: chrome.cast.Error) =>
           console.error('❌ Failed to update queue:', error),
       );
@@ -998,11 +1005,11 @@ class GoogleCastManager implements ICastManager {
     if (!session) return;
 
     const [err] = safeWrap(() => {
-      console.log('[Cast] updateRoomInfo send', message);
+      browserDebugLog('[Cast] updateRoomInfo send', message);
       session.sendMessage(
         CUSTOM_NAMESPACE,
         message,
-        () => console.log('✅ Room info sent to receiver'),
+        () => browserDebugLog('✅ Room info sent to receiver'),
         (error: chrome.cast.Error) =>
           console.error('❌ Failed to update room info:', error),
       );
@@ -1042,7 +1049,7 @@ class GoogleCastManager implements ICastManager {
     if (!session) return;
 
     const [err] = safeWrap(() => {
-      console.log('[Cast] syncPlayback send', {
+      browserDebugLog('[Cast] syncPlayback send', {
         isPlaying: message.isPlaying,
         positionMs: message.positionMs,
         title: message.currentSong?.title,
@@ -1051,7 +1058,7 @@ class GoogleCastManager implements ICastManager {
       session.sendMessage(
         CUSTOM_NAMESPACE,
         message,
-        () => console.log('✅ Playback sync sent to receiver'),
+        () => browserDebugLog('✅ Playback sync sent to receiver'),
         (error: chrome.cast.Error) =>
           console.error('❌ Failed to sync playback:', error),
       );
@@ -1091,14 +1098,14 @@ class GoogleCastManager implements ICastManager {
     if (!session) return;
 
     return new Promise((resolve, reject) => {
-      console.log('[Cast] sending joinRoom message', message);
+      browserDebugLog('[Cast] sending joinRoom message', message);
 
       const [err] = safeWrap(() => {
         session.sendMessage(
           CUSTOM_NAMESPACE,
           message,
           () => {
-            console.log('✅ joinRoom message sent');
+            browserDebugLog('✅ joinRoom message sent');
             resolve();
           },
           (error: chrome.cast.Error) => {
@@ -1233,7 +1240,7 @@ class GoogleCastManager implements ICastManager {
   }
 
   async forceDiscovery(): Promise<void> {
-    console.log('🔍 Forcing device discovery...');
+    browserDebugLog('🔍 Forcing device discovery...');
     const [err] = await safeWrapAsync(this.initializeCastSDK());
     if (err) {
       console.error('Failed to initialize SDK during force discovery:', err);
@@ -1244,7 +1251,7 @@ class GoogleCastManager implements ICastManager {
       this.localEmulator.ensureLocalEmulatorDevice();
     }
 
-    console.log('Current devices:', this.devices);
+    browserDebugLog('Current devices:', this.devices);
   }
 
   destroy(): void {
@@ -1254,7 +1261,7 @@ class GoogleCastManager implements ICastManager {
     if (this.currentSession && this.actualCastSession) {
       const [err] = safeWrap(() => {
         this.actualCastSession?.stop(
-          () => console.log('Session stopped during destroy'),
+          () => browserDebugLog('Session stopped during destroy'),
           (err: chrome.cast.Error) =>
             console.error('Error stopping session:', err),
         );

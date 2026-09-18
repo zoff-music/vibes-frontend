@@ -1,4 +1,5 @@
 import {
+  browserDebugLog,
   isTruthyFlag,
   safeWrapAsync,
   usePlaybackStore,
@@ -45,7 +46,9 @@ export const useCasting = (_roomId: string) => {
     if (!isLocalEmulatorEnabled) return;
     if (isConnected) return;
     if (availableDevices.length === 0) return;
-    console.log('[Cast] local emulator available; waiting for user connect');
+    browserDebugLog(
+      '[Cast] local emulator available; waiting for user connect',
+    );
   }, [isConnected, isLocalEmulatorEnabled, availableDevices.length]);
 
   const isSessionInitialized = useCastRoomHandshake({
@@ -60,7 +63,7 @@ export const useCasting = (_roomId: string) => {
     if (!isSessionInitialized(currentSession.id)) return;
 
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
-    console.log('[Cast] syncing playback state', {
+    browserDebugLog('[Cast] syncing playback state', {
       title: currentSong.title,
       isPlaying,
       positionMs: actualPositionMs,

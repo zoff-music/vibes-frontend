@@ -18,6 +18,7 @@ export const links: LinksFunction = () => [
 ];
 
 export interface RootLoaderData {
+  debug: boolean;
   theme: 'light' | 'dark' | 'auto';
   cspNonce?: string;
 }
@@ -26,7 +27,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get('cookie') ?? null;
   const theme = getThemeFromCookies(cookieHeader);
   const cspNonce = (context as { cspNonce?: string } | undefined)?.cspNonce;
-  return { theme, cspNonce } satisfies RootLoaderData;
+  return {
+    debug: process.env.VITE_DEBUG === 'true',
+    theme,
+    cspNonce,
+  } satisfies RootLoaderData;
 }
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -41,7 +46,11 @@ export function Layout({ children }: { children: ReactNode }) {
   const initialDataJson = JSON.stringify(loaderData ?? {});
 
   return (
-    <html lang="en" className={themeClass}>
+    <html
+      lang="en"
+      className={themeClass}
+      data-debug={loaderData?.debug === true}
+    >
       <head>
         <meta charSet="UTF-8" />
         <link

@@ -1,4 +1,4 @@
-import { applyConsoleLogGuard, isTruthyFlag, safeWrap } from '@vibes/shared';
+import { safeWrap } from '@vibes/shared';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
@@ -9,9 +9,6 @@ import CastRoute, {
   ErrorBoundary,
   shouldRevalidate,
 } from './src/routes/cast/route';
-
-const debugEnabled = isTruthyFlag(import.meta.env.VITE_DEBUG);
-applyConsoleLogGuard(debugEnabled);
 
 // Wrap initialization in safeWrap to report errors
 const [err] = safeWrap(() => {

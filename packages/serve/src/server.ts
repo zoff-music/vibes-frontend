@@ -1,6 +1,8 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { safeWrapAsync } from '@vibes/shared/wrap';
 import compression from 'compression';
-import express, { type Request } from 'express';
+import express, { type Request, type Response } from 'express';
 import {
   type HandleErrorFunction,
   isRouteErrorResponse,
@@ -123,6 +125,18 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
   }
 
   const { basePath, fallbackFile } = config.mode;
+  const html = await readFile(
+    path.join(config.staticDir, fallbackFile),
+    'utf8',
+  );
+  const document = html.replace(
+    '<html',
+    `<html data-debug="${process.env.VITE_DEBUG === 'true'}"`,
+  );
+  const sendDocument = (_req: Request, res: Response) => {
+    res.set('Cache-Control', 'no-store');
+    res.type('html').send(document);
+  };
   app.use((req, res, next) => {
     if (req.path !== basePath) {
       return next();
@@ -137,10 +151,12 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
       maxAge: '1y',
     }),
   );
-  app.use(basePath, express.static(config.staticDir, { maxAge: '1h' }));
-  app.get(`${basePath}/*splat`, (_req, res) => {
-    res.sendFile(fallbackFile, { root: config.staticDir });
-  });
+  app.get([`${basePath}/`, `${basePath}/index.html`], sendDocument);
+  app.use(
+    basePath,
+    express.static(config.staticDir, { maxAge: '1h', index: false }),
+  );
+  app.get(`${basePath}/*splat`, sendDocument);
 }
 
 export async function startServer(config: ServerConfig) {

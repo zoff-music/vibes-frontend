@@ -34,9 +34,6 @@ export default defineConfig(({ command, mode }) => {
     },
     define: {
       'process.env.NODE_ENV': JSON.stringify(nodeEnv),
-      'import.meta.env.VITE_DEBUG': JSON.stringify(
-        process.env.VITE_DEBUG || process.env.DEBUG || 'false',
-      ),
     },
   };
 });

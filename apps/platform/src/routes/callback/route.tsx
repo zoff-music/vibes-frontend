@@ -1,3 +1,4 @@
+import { browserDebugLog } from '@vibes/shared';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 import { loader } from './loader';
@@ -12,7 +13,10 @@ export default function Callback() {
     const status = searchParams.get('status');
 
     if (window.opener && status === 'success' && provider) {
-      console.log('[Callback] Sending oauth-success for provider:', provider);
+      browserDebugLog(
+        '[Callback] Sending oauth-success for provider:',
+        provider,
+      );
       window.opener.postMessage(
         { type: 'oauth-success', provider },
         window.location.origin,

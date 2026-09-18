@@ -120,18 +120,22 @@ This app is built with:
 
 ## 🐛 Debugging
 
-### Remote Logging
-The Cast Receiver implements a custom logging system that broadcasts console logs (log, info, warn, error) back to the connected Sender application. This is crucial for debugging simple Chromecasts that do not have a remote debugger interface.
+### Browser console
 
-**To enable remote logging:**
-1. **Via URL**: Append `?debug=true` to the receiver URL (useful for local development/emulators).
-2. **Via Sender**: When loading media, include `{ customData: { debug: true } }` in the Load Request.
+Set `VITE_DEBUG=true` in the receiver server's runtime environment, restart it,
+and reload the receiver to enable browser/player diagnostics and the Cast SDK's
+debug level. The same image works with debugging on or off. Without that flag,
+the SDK uses its warning level and app-owned debug messages stay silent;
+warnings and errors remain visible.
 
-**How it works:**
-- The receiver intercepts all console methods.
-- Logs are serialized and sent via the custom namespace `urn:x-cast:com.vibez.cast` with action `LOG`.
-- The sender (web/mobile) listens for these messages and replays them in its own console with a `[RECEIVER]` prefix.
-- **Note**: `error` level logs are *always* sent to the sender, regardless of debug mode.
+The server injects the boolean into the HTML entry before client scripts run,
+including direct `index.html` requests. Hashed assets remain cached, but the
+HTML document is not cached so it cannot retain a stale debug setting.
+
+With runtime debugging enabled, `?debug=true` or `customData.debug=true` also
+opens the existing on-screen debug panel. Neither can override a disabled
+runtime flag. The sender's browser debug setting independently gates received
+debug messages; received warning/error messages remain visible.
 
 ### Common Issues & Fixes
 
@@ -145,6 +149,5 @@ If you notice the playback position resetting to `0:00` when play/pause is toggl
 - **Logic**: This prevents the "restart from beginning" glitch while still allowing legitimate track changes to start from 0.
 
 **Startup Crashes**
-If the receiver fails to load entirely (white screen):
-- We use a **global logging initialization** in `logging.ts` that runs *before* React mounts.
-- This ensures that syntax errors, missing imports, or early runtime crashes are caught and broadcast to the sender (if connected).
+The receiver reports startup failures through `console.error` and a visible
+error screen. These errors are not hidden by the browser debug flag.

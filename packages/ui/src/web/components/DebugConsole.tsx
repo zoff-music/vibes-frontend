@@ -1,4 +1,4 @@
-import { classNames, isTruthyFlag } from '@vibes/shared';
+import { classNames, isBrowserDebugEnabled } from '@vibes/shared';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from './Button';
 
@@ -22,9 +22,8 @@ interface Props {
   enabled?: boolean;
 }
 
-const envDebugEnabled = isTruthyFlag(import.meta.env.VITE_DEBUG);
-
 export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
+  const envDebugEnabled = isBrowserDebugEnabled();
   const [isVisible, setIsVisible] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -96,7 +95,7 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
       console.info = originalConsole.info;
       console.debug = originalConsole.debug;
     };
-  }, [enabled]);
+  }, [enabled, envDebugEnabled]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: New logs and visibility changes intentionally trigger imperative scrolling.
   useEffect(() => {

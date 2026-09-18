@@ -19,6 +19,7 @@ export function loader({ request }: LoaderFunctionArgs) {
   const stylesheetFilename = stylesUrl.slice(stylesUrl.lastIndexOf('/') + 1);
   const logoFilename = logoUrl.slice(logoUrl.lastIndexOf('/') + 1);
   return {
+    debug: process.env.VITE_DEBUG === 'true',
     logoUrl: `${embedBasePath}/assets/${logoFilename}`,
     stylesheetUrl: `${embedBasePath}/assets/${stylesheetFilename}`,
     colorScheme: parseColorScheme(requestUrl.searchParams.get('theme')),
@@ -33,7 +34,7 @@ interface Props {
 
 export function Layout({ children }: Props) {
   useEmbedScrollContainment();
-  const { stylesheetUrl, colorScheme } = useLoaderData<typeof loader>();
+  const { stylesheetUrl, colorScheme, debug } = useLoaderData<typeof loader>();
   const className = classNames(
     'h-full overflow-hidden overscroll-none',
     colorSchemeClasses[colorScheme],
@@ -41,7 +42,7 @@ export function Layout({ children }: Props) {
   const colorSchemeContent =
     colorScheme === 'auto' ? 'light dark' : colorScheme;
   return (
-    <html lang="en" className={className}>
+    <html lang="en" className={className} data-debug={debug}>
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

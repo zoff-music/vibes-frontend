@@ -1,4 +1,4 @@
-import { safeWrap } from '@vibes/shared';
+import { browserDebugLog, safeWrap } from '@vibes/shared';
 import { create } from 'zustand';
 
 // Theme definitions - easy to add new themes by adding to this object
@@ -124,7 +124,7 @@ function getInitialThemeSync(): ThemeId {
         data.theme === 'light' ||
         data.theme === 'auto'
       ) {
-        console.log('[Theme] Initialized from SSR data:', data.theme);
+        browserDebugLog('[Theme] Initialized from SSR data:', data.theme);
         return data.theme as ThemeId;
       }
     }
@@ -167,10 +167,10 @@ function getStoredPreferences(value: string | null): Preferences | null {
 // Initialize theme immediately - before any React rendering
 const INITIAL_THEME = getInitialThemeSync();
 
-console.log('[Theme] Initial theme detected from DOM:', INITIAL_THEME);
+browserDebugLog('[Theme] Initial theme detected from DOM:', INITIAL_THEME);
 
 export const useThemeStore = create<ThemeState>((set, get) => {
-  console.log('[Theme] Store initialized with theme:', INITIAL_THEME);
+  browserDebugLog('[Theme] Store initialized with theme:', INITIAL_THEME);
 
   // Set up listener for system theme changes if in auto mode
   if (typeof window !== 'undefined') {
@@ -224,7 +224,7 @@ export const useThemeStore = create<ThemeState>((set, get) => {
     },
 
     setTheme: (themeId: ThemeId) => {
-      console.log('[Theme] Setting theme to:', themeId);
+      browserDebugLog('[Theme] Setting theme to:', themeId);
       applyTheme(themeId);
       savePreferences({ theme: themeId, version: CURRENT_VERSION });
 
@@ -245,7 +245,7 @@ export const useThemeStore = create<ThemeState>((set, get) => {
       else if (current === 'dark') newTheme = 'auto';
       else newTheme = 'light';
 
-      console.log('[Theme] Toggling from', current, 'to', newTheme);
+      browserDebugLog('[Theme] Toggling from', current, 'to', newTheme);
       applyTheme(newTheme);
       savePreferences({ theme: newTheme, version: CURRENT_VERSION });
 

@@ -49,6 +49,7 @@ export function Layout({ children }: Props) {
   return (
     <html
       lang="en"
+      data-debug={loaderData?.debug === true}
       className={themeClass}
       {...(konamiEnabled && { 'data-konami-mode': 'terminal' })}
     >

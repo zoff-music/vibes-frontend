@@ -1,6 +1,7 @@
 import type { ResolvedColorScheme, Song } from '@vibes/shared';
 import {
   getEstimatedServerTimeMs,
+  isBrowserDebugEnabled,
   safeWrap,
   usePlaybackStore,
 } from '@vibes/shared';
@@ -50,7 +51,6 @@ type CastFrameworkWithEvents = typeof cast.framework & {
 };
 
 interface UseCastReceiverProps {
-  debugMode: boolean;
   setDebugMode: (mode: boolean) => void;
   handleCastMessage: (msg: LocalCastMessage) => void;
   updateMediaMetadata: (song: Song) => void;
@@ -58,7 +58,6 @@ interface UseCastReceiverProps {
 }
 
 export const useCastReceiver = ({
-  debugMode,
   setDebugMode,
   handleCastMessage,
   updateMediaMetadata,
@@ -81,9 +80,11 @@ export const useCastReceiver = ({
 
       const context = cast.framework.CastReceiverContext.getInstance();
 
-      if (debugMode) {
-        context.setLoggerLevel(cast.framework.LoggerLevel.DEBUG);
-      }
+      context.setLoggerLevel(
+        isBrowserDebugEnabled()
+          ? cast.framework.LoggerLevel.DEBUG
+          : cast.framework.LoggerLevel.WARNING,
+      );
 
       const playerManager = context.getPlayerManager();
 
@@ -202,7 +203,6 @@ export const useCastReceiver = ({
       initCast();
     }
   }, [
-    debugMode,
     handleCastMessage,
     setDebugMode,
     setIsPlaying,

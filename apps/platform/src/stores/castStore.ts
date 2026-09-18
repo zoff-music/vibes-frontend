@@ -6,6 +6,7 @@ import type {
   Song,
 } from '@vibes/models';
 import {
+  browserDebugLog,
   type ResolvedColorScheme,
   safeWrap,
   safeWrapAsync,
@@ -87,14 +88,14 @@ export const useCastStore = create<CastState>((set, get) => ({
     if (get().isInitialized || isCastInitializationStarted) return;
 
     isCastInitializationStarted = true;
-    console.log('[Cast] store initialize:start');
+    browserDebugLog('[Cast] store initialize:start');
     set({ lastError: null });
 
     const castManager = await getCastManager();
 
     // Set up event listeners
     castManager.onDeviceAvailable((device) => {
-      console.log('[Cast] store device available', device);
+      browserDebugLog('[Cast] store device available', device);
       set((state) => {
         // Remove existing device with same ID and add updated one
         const filteredDevices = state.availableDevices.filter(
@@ -107,7 +108,7 @@ export const useCastStore = create<CastState>((set, get) => ({
     });
 
     castManager.onSessionStateChange((session) => {
-      console.log('[Cast] store session state change', session);
+      browserDebugLog('[Cast] store session state change', session);
       set({
         currentSession: session,
         isConnected: session.state === 'connected',
@@ -136,7 +137,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       return;
     }
 
-    console.log('[Cast] store initialize:devices', devices);
+    browserDebugLog('[Cast] store initialize:devices', devices);
     set({
       isSupported: true,
       isInitialized: true,
@@ -146,7 +147,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   },
 
   discoverDevices: async () => {
-    console.log('[Cast] store discoverDevices:start');
+    browserDebugLog('[Cast] store discoverDevices:start');
     set({ isDiscovering: true, lastError: null });
     const castManager = await getCastManager();
     const [error, devices] = await safeWrapAsync(castManager.discoverDevices());
@@ -164,7 +165,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       return;
     }
 
-    console.log('[Cast] store discoverDevices:done', devices);
+    browserDebugLog('[Cast] store discoverDevices:done', devices);
     set({
       availableDevices: devices || [],
       isDiscovering: false,
@@ -172,7 +173,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   },
 
   connectToDevice: async (deviceId: string) => {
-    console.log('[Cast] store connectToDevice:start', { deviceId });
+    browserDebugLog('[Cast] store connectToDevice:start', { deviceId });
     set({ lastError: null });
     const castManager = await getCastManager();
     const [error, session] = await safeWrapAsync(
@@ -191,7 +192,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       return;
     }
 
-    console.log('[Cast] store connectToDevice:done', session);
+    browserDebugLog('[Cast] store connectToDevice:done', session);
     set({
       currentSession: session,
       isConnected: session.state === 'connected',
@@ -199,7 +200,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   },
 
   disconnectFromDevice: async (deviceId: string) => {
-    console.log('[Cast] store disconnectFromDevice:start', { deviceId });
+    browserDebugLog('[Cast] store disconnectFromDevice:start', { deviceId });
     set({ lastError: null });
     const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(
@@ -218,7 +219,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       return;
     }
 
-    console.log('[Cast] store disconnectFromDevice:done', { deviceId });
+    browserDebugLog('[Cast] store disconnectFromDevice:done', { deviceId });
     set({
       currentSession: null,
       isConnected: false,
@@ -230,7 +231,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       throw new Error('No active casting session');
     }
 
-    console.log('[Cast] store castCurrentSong:start', {
+    browserDebugLog('[Cast] store castCurrentSong:start', {
       sourceType: song?.sourceType,
       title: song?.title,
       sourceId: song?.sourceId,
@@ -284,13 +285,13 @@ export const useCastStore = create<CastState>((set, get) => ({
       });
       throw error;
     }
-    console.log('[Cast] store castCurrentSong:done');
+    browserDebugLog('[Cast] store castCurrentSong:done');
   },
 
   syncPlaybackState: async (state: PlaybackState) => {
     if (!get().isConnected) return;
 
-    console.log('[Cast] store syncPlaybackState:start', {
+    browserDebugLog('[Cast] store syncPlaybackState:start', {
       isPlaying: state?.isPlaying,
       positionMs: state?.positionMs,
       title: state?.currentSong?.title,
@@ -316,7 +317,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   updateQueue: async (queue: Song[]) => {
     if (!get().isConnected) return;
 
-    console.log('[Cast] store updateQueue:start', { count: queue.length });
+    browserDebugLog('[Cast] store updateQueue:start', { count: queue.length });
     set({ lastError: null });
     const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(castManager.updateQueue(queue));
@@ -339,7 +340,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   }) => {
     if (!get().isConnected) return;
 
-    console.log('[Cast] store updateRoomInfo:start', roomInfo);
+    browserDebugLog('[Cast] store updateRoomInfo:start', roomInfo);
     set({ lastError: null });
     const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(
@@ -361,7 +362,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   joinRoom: async (roomId: string, castToken: string) => {
     if (!get().isConnected) return;
 
-    console.log('[Cast] store joinRoom:start', { roomId });
+    browserDebugLog('[Cast] store joinRoom:start', { roomId });
     set({ lastError: null });
     const castManager = await getCastManager();
     const [error, _] = await safeWrapAsync(
@@ -402,7 +403,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   },
 
   cleanup: () => {
-    console.log('[Cast] store cleanup:start');
+    browserDebugLog('[Cast] store cleanup:start');
     const [error, _] = safeWrap(() => loadedCastManager?.destroy());
 
     if (error) {

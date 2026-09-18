@@ -19,6 +19,7 @@ import { getThemeClass } from './theme.server';
 
 export function loader({ request }: LoaderFunctionArgs) {
   return {
+    debug: process.env.VITE_DEBUG === 'true',
     themeClass: getThemeClass(request.headers.get('cookie')),
   };
 }
@@ -36,7 +37,11 @@ export function Layout({ children }: { children: ReactNode }) {
   const loaderData = useLoaderData<typeof loader>();
 
   return (
-    <html lang="en" className={loaderData?.themeClass}>
+    <html
+      lang="en"
+      className={loaderData?.themeClass}
+      data-debug={loaderData?.debug === true}
+    >
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

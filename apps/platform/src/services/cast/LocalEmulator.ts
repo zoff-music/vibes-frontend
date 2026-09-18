@@ -1,5 +1,6 @@
 import type { CastDevice, CastSession } from '@vibes/models';
 import {
+  isBrowserDebugEnabled,
   type ResolvedColorScheme,
   safeWrap,
   useRoomStore,
@@ -177,8 +178,8 @@ export class LocalEmulator {
       params.set('sessionId', casterId);
     }
 
-    // Only pass debug flag to receiver when VITE_DEBUG is enabled in sender app
-    if (import.meta.env.VITE_DEBUG === 'true') {
+    // The receiver must also allow browser debugging in its runtime config.
+    if (isBrowserDebugEnabled()) {
       params.set('debug', 'true');
     }
 
