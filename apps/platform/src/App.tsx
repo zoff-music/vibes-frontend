@@ -1,4 +1,4 @@
-import { isTruthyFlag, safeWrapAsync } from '@vibes/shared';
+import { isBrowserDebugEnabled, safeWrapAsync } from '@vibes/shared';
 import { ToastViewport } from '@vibes/ui/web';
 import { MotionConfig } from 'framer-motion';
 import {
@@ -17,11 +17,10 @@ import type { RootLoaderData } from './root/loader';
 import { useThemeStore } from './stores/themeStore';
 import { updateNavigationHistory } from './utils/navigationHistory';
 
-const debugEnabled = isTruthyFlag(import.meta.env.VITE_DEBUG);
-
 type DebugConsoleComponent = ComponentType;
 
 function DebugConsoleLoader() {
+  const debugEnabled = isBrowserDebugEnabled();
   const [DebugConsole, setDebugConsole] =
     useState<DebugConsoleComponent | null>(null);
 
@@ -48,7 +47,7 @@ function DebugConsoleLoader() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [debugEnabled]);
 
   if (!debugEnabled || !DebugConsole) return null;
 

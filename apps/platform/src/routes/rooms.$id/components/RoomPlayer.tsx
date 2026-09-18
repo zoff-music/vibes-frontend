@@ -5,6 +5,7 @@ import {
   type Song,
 } from '@vibes/models';
 import {
+  browserDebugLog,
   classNames,
   safeWrapAsync,
   showToast,
@@ -467,9 +468,9 @@ export const RoomPlayer = React.memo(
     useEffect(() => {
       if (debugMountRef.current) return;
       debugMountRef.current = true;
-      console.log('[RoomPlayer] mount', { roomId });
+      browserDebugLog('[RoomPlayer] mount', { roomId });
       return () => {
-        console.log('[RoomPlayer] unmount', { roomId });
+        browserDebugLog('[RoomPlayer] unmount', { roomId });
       };
     }, [roomId]);
 

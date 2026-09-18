@@ -1,6 +1,6 @@
 import {
   classNames,
-  isTruthyFlag,
+  isBrowserDebugEnabled,
   type Song,
   safeWrap,
   usePlaybackStore,
@@ -182,7 +182,7 @@ const VideoPlayerComponent = ({
 
   const debugLog = useCallback(
     (label: string, extra?: Record<string, unknown>) => {
-      if (!DEBUG) return;
+      if (!isBrowserDebugEnabled()) return;
       const now = Date.now();
       const isUnmuteLog = label.startsWith('unmute-');
       if (!isUnmuteLog && now - debugLastRef.current < 250) return;
@@ -311,7 +311,7 @@ const VideoPlayerComponent = ({
         player.pauseVideo();
       }
     });
-    if (err && DEBUG) {
+    if (err && isBrowserDebugEnabled()) {
       debugLog('sync-playback-error', { error: err.message });
     }
   }, [
@@ -399,7 +399,7 @@ const VideoPlayerComponent = ({
         lastReportedSeekAtRef.current = now;
         onLocalSeek?.(Math.round(positionSeconds * 1000));
       });
-      if (err && DEBUG) {
+      if (err && isBrowserDebugEnabled()) {
         debugLog('local-seek-detection-error', { error: err.message });
       }
     }, LOCAL_SEEK_SAMPLE_MS);
@@ -422,7 +422,7 @@ const VideoPlayerComponent = ({
       setIsMutedState(applyPlayerVolume(player, desiredVolume, canPlayAudio));
       observedPlaybackRef.current = null;
     });
-    if (error && DEBUG) {
+    if (error && isBrowserDebugEnabled()) {
       debugLog('volume-change-error', { error: error.message });
     }
   }, [
@@ -449,7 +449,7 @@ const VideoPlayerComponent = ({
         playerRef.current?.mute();
         setIsMutedState(true);
       });
-      if (err && DEBUG) {
+      if (err && isBrowserDebugEnabled()) {
         debugLog('mute-enforcement-error', { error: err.message });
       }
     };
@@ -477,7 +477,7 @@ const VideoPlayerComponent = ({
           applyPlayerVolume(player, desiredVolumeRef.current, true),
         );
       });
-      if (err && DEBUG) {
+      if (err && isBrowserDebugEnabled()) {
         debugLog('cast-playing-volume-error', { error: err.message });
       }
     };
@@ -538,7 +538,7 @@ const VideoPlayerComponent = ({
         player.playVideo();
         debugLog('kick', { reason, attempts: autoPlayKickCountRef.current });
       });
-      if (err && DEBUG) {
+      if (err && isBrowserDebugEnabled()) {
         debugLog('kick-error', { reason, error: err.message });
       }
     },
@@ -571,7 +571,7 @@ const VideoPlayerComponent = ({
         }
         kickAutoplay('retry');
       });
-      if (err && DEBUG) {
+      if (err && isBrowserDebugEnabled()) {
         debugLog('autoplay-retry-error', { error: err.message });
       }
     };
@@ -614,7 +614,7 @@ const VideoPlayerComponent = ({
         }
         kickAutoplay('hidden');
       });
-      if (err && DEBUG) {
+      if (err && isBrowserDebugEnabled()) {
         debugLog('autoplay-hidden-error', { error: err.message });
       }
 
@@ -654,7 +654,7 @@ const VideoPlayerComponent = ({
         setIsMutedState(true);
         player.playVideo();
       });
-      if (prepareErr && DEBUG) {
+      if (prepareErr && isBrowserDebugEnabled()) {
         debugLog('force-autoplay-prepare-error', {
           error: prepareErr.message,
         });
@@ -721,7 +721,7 @@ const VideoPlayerComponent = ({
           }
           event.target.playVideo();
         });
-        if (err && DEBUG) {
+        if (err && isBrowserDebugEnabled()) {
           debugLog('ready-autoplay-error', { error: err.message });
         }
       }
@@ -760,7 +760,7 @@ const VideoPlayerComponent = ({
               applyPlayerVolume(player, desiredVolumeRef.current, true),
             );
           });
-          if (unmuteError && DEBUG) {
+          if (unmuteError && isBrowserDebugEnabled()) {
             debugLog('playing-volume-error', { error: unmuteError.message });
           }
         }
@@ -772,7 +772,7 @@ const VideoPlayerComponent = ({
           !isCastReceiver && !usePlaybackStore.getState().isPlaying;
         if (shouldRemainPaused) {
           const [err] = safeWrap(() => playerRef.current?.pauseVideo());
-          if (err && DEBUG) {
+          if (err && isBrowserDebugEnabled()) {
             debugLog('pause-after-load-error', { error: err.message });
           }
           setIsReady(true);
@@ -803,7 +803,7 @@ const VideoPlayerComponent = ({
               applyPlayerVolume(player, desiredVolumeRef.current, true),
             );
           });
-          if (unmuteErr && DEBUG) {
+          if (unmuteErr && isBrowserDebugEnabled()) {
             debugLog('cast-unmute-error', { error: unmuteErr.message });
           }
           muted = playerRef.current?.isMuted?.() ?? false;
@@ -862,7 +862,7 @@ const VideoPlayerComponent = ({
           setIsMutedState(true);
           playerRef.current?.playVideo();
         });
-        if (err && DEBUG) {
+        if (err && isBrowserDebugEnabled()) {
           debugLog('state-autoplay-error', { error: err.message });
         }
       } else if (
@@ -992,7 +992,7 @@ const VideoPlayerComponent = ({
       const [err] = safeWrap(() => {
         playerRef.current?.setSize(nextSize.width, nextSize.height);
       });
-      if (err && DEBUG) {
+      if (err && isBrowserDebugEnabled()) {
         debugLog('resize-error', { error: err.message, ...nextSize });
       }
     };
@@ -1029,7 +1029,7 @@ const VideoPlayerComponent = ({
       lastLoadedVideoIdRef.current = videoId;
       debugLog('load-video', { shouldPauseAfterLoad, startSeconds });
     });
-    if (err && DEBUG) {
+    if (err && isBrowserDebugEnabled()) {
       debugLog('load-video-error', { error: err.message });
     }
     if (isCastReceiver && isActiveYouTube) {
@@ -1090,7 +1090,7 @@ const VideoPlayerComponent = ({
       player.playVideo();
       debugLog('user-gesture-play');
     });
-    if (err && DEBUG) {
+    if (err && isBrowserDebugEnabled()) {
       debugLog('user-gesture-error', { error: err.message });
     }
   }, [debugLog, onLocalPlay, videoId]);
@@ -1177,8 +1177,6 @@ const AUTOPLAY_KICK_COOLDOWN_MS = 800;
 const AUTOPLAY_RETRY_MS = 500;
 
 const AUTOPLAY_CONFIRMATION_MS = 5000;
-
-const DEBUG = isTruthyFlag(import.meta.env.VITE_DEBUG);
 
 const LOCAL_SEEK_DEBOUNCE_MS = 1000;
 

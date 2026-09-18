@@ -5,11 +5,11 @@ export const isTruthyFlag = (value?: string | null): boolean => {
   return TRUTHY_VALUES.has(value.trim().toLowerCase());
 };
 
-export const applyConsoleLogGuard = (enabled: boolean): void => {
-  if (enabled) return;
-  const noop = (): void => {};
-  console.log = noop;
-  console.info = noop;
-  console.debug = noop;
-  console.warn = noop;
+export const isBrowserDebugEnabled = (): boolean =>
+  typeof document !== 'undefined' &&
+  document.documentElement.dataset.debug === 'true';
+
+export const browserDebugLog = (...args: unknown[]): void => {
+  if (typeof document !== 'undefined' && !isBrowserDebugEnabled()) return;
+  console.log(...args);
 };

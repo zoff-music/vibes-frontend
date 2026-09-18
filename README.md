@@ -63,6 +63,24 @@ requires an explicit visitor interaction.
 For sender and receiver testing with a local API, PostgreSQL database, and
 Redis instance, see [Local Cast development](docs/local-cast-development.md).
 
+## Browser debug logging
+
+Browser debug messages are off by default. Set `VITE_DEBUG=true` in the web
+server's runtime environment, restart it, and reload the page to enable them.
+The same built image supports both modes; this is a runtime setting, not a
+build-time `import.meta.env` flag.
+Only the exact value `true` enables browser debugging.
+
+SSR root loaders expose this boolean as `data-debug` on the document before
+client modules run. The Cast SPA server adds the same flag to its HTML entry
+and disables document caching. App-owned browser debug messages use
+`browserDebugLog`; player diagnostics use `isBrowserDebugEnabled` before
+collecting detailed state. Do not replace global console methods to silence
+logging. Browser warnings and errors, native logging, and server-side logs
+remain unchanged. A `?debug=true` URL alone cannot enable diagnostics when
+the runtime flag is off. With the runtime flag on, that query can still open
+the existing optional on-screen debug panel.
+
 ## Server-Side Rendering (SSR)
 
 The React Router web applications support SSR for improved performance and SEO.

@@ -38,9 +38,6 @@ export default defineConfig(({ command }) => {
         process.env.DEVELOPMENT_MODE ||
           (nodeEnv !== 'production' ? 'true' : 'false'),
       ),
-      'import.meta.env.VITE_DEBUG': JSON.stringify(
-        process.env.VITE_DEBUG || process.env.DEBUG || 'false',
-      ),
     },
   };
 });

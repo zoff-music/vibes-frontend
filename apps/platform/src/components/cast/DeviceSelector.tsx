@@ -1,5 +1,9 @@
 import type { CastDevice, Song } from '@vibes/models';
-import { safeWrapAsync, usePlaybackStore } from '@vibes/shared';
+import {
+  browserDebugLog,
+  safeWrapAsync,
+  usePlaybackStore,
+} from '@vibes/shared';
 import {
   TerminalButton,
   TerminalFeedback,
@@ -57,7 +61,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     if (!isOpen) return;
 
     const refreshOnOpen = async () => {
-      console.log('[Cast] refreshing devices on open');
+      browserDebugLog('[Cast] refreshing devices on open');
       if (!isInitialized) {
         const [initializeErr] = await safeWrapAsync(initialize());
         if (initializeErr) {
@@ -124,20 +128,20 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     if (err) {
       console.error('Failed to cast:', err);
       if (err.message.includes('YouTube')) {
-        console.log(
+        browserDebugLog(
           '💡 YouTube casting requires a custom receiver - this is a known limitation',
         );
       }
     } else {
-      console.log('✅ Successfully cast');
+      browserDebugLog('✅ Successfully cast');
     }
 
     setIsCasting(false);
   };
 
   const handleRefresh = async () => {
-    console.log('🔄 Refreshing devices...');
-    console.log('Cast Debug Info:', castManager.getDebugInfo());
+    browserDebugLog('🔄 Refreshing devices...');
+    browserDebugLog('Cast Debug Info:', castManager.getDebugInfo());
     await safeWrapAsync(castManager.forceDiscovery());
     await safeWrapAsync(discoverDevices());
   };

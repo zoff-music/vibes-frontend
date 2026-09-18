@@ -29,6 +29,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const sessionProfile: SessionProfile | null =
     profileError || !profile ? null : profile;
   return {
+    debug: process.env.VITE_DEBUG === 'true',
     theme,
     embedBasePath,
     cspNonce,

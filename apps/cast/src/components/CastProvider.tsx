@@ -1,6 +1,10 @@
 import { API_BASE_URL } from '@vibes/api';
 import type { ResolvedColorScheme, Song } from '@vibes/shared';
-import { safeWrap, usePlaybackStore } from '@vibes/shared';
+import {
+  isBrowserDebugEnabled,
+  safeWrap,
+  usePlaybackStore,
+} from '@vibes/shared';
 import React, {
   createContext,
   useCallback,
@@ -55,7 +59,7 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
   );
   const [debugMode, setDebugModeState] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('debug') === 'true';
+    return isBrowserDebugEnabled() && params.get('debug') === 'true';
   });
 
   const { castToken, casterId, roomId } = loaderData.credentials;
@@ -65,8 +69,9 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
 
   const debugModeRef = useRef(debugMode);
   const setDebugMode = useCallback((value: boolean) => {
-    setDebugModeState(value);
-    debugModeRef.current = value;
+    const enabled = isBrowserDebugEnabled() && value;
+    setDebugModeState(enabled);
+    debugModeRef.current = enabled;
   }, []);
 
   // --- Store ---
@@ -106,7 +111,6 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
   });
 
   useCastReceiver({
-    debugMode,
     setDebugMode,
     handleCastMessage,
     updateMediaMetadata,
