@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';
 import type { HomeLoaderData } from '../loader';
@@ -10,18 +10,23 @@ import { PublicRoomDiscovery } from './PublicRoomDiscovery';
 interface HomeLandingProps
   extends Pick<HomeLoaderData, 'providers' | 'publicRooms'> {
   children: ReactNode;
+  heroRef: RefObject<HTMLDivElement | null>;
   onJoinRoom: (roomId: string) => void;
 }
 
 export function HomeLanding({
   children,
+  heroRef,
   providers,
   publicRooms,
   onJoinRoom,
 }: HomeLandingProps) {
   return (
     <SitePage>
-      <div className="flex min-h-[calc(100svh-8rem)] flex-col justify-end gap-8 pt-28 pb-8 sm:gap-10 sm:pt-40 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-5xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl">
+      <div
+        ref={heroRef}
+        className="flex min-h-[calc(100svh-8rem)] flex-col justify-end gap-8 pt-28 pb-8 sm:gap-10 sm:pt-40 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-5xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl"
+      >
         <SiteHero
           id="home-heading"
           layout="centered"
