@@ -21,3 +21,7 @@ export function loader({ params, request }: LoaderFunctionArgs) {
   }
   return redirect(`/discovery/${destination}${search}`, 301);
 }
+
+export default function LegacyDiscoveryRedirect() {
+  return null;
+}
