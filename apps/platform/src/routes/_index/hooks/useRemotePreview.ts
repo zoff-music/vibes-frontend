@@ -14,15 +14,20 @@ export function useRemotePreview() {
   const durationMs = song.duration * 1000;
 
   useEffect(() => {
-    if (!playing || !inView || !visible || reducedMotion) return;
+    if (!playing || !inView || !visible || reducedMotion) {
+      return;
+    }
+
     const timer = window.setInterval(() => {
       setPlayback((current) => {
         if (current.position + 250 >= durationMs) {
           return { track: current.track + 1, position: 0 };
         }
+
         return { ...current, position: current.position + 250 };
       });
     }, 250);
+
     return () => window.clearInterval(timer);
   }, [playing, inView, visible, reducedMotion, durationMs]);
 

@@ -2,7 +2,6 @@ import { classNames } from '@vibes/shared';
 import { Button, PauseIcon, PlayIcon } from '@vibes/ui/web';
 import type { ReactNode } from 'react';
 import { useShowcaseMotion } from '../../hooks/useShowcaseMotion';
-import './showcase.css';
 
 interface ShowcaseProps {
   children: ReactNode | ((playing: boolean) => ReactNode);
@@ -17,35 +16,35 @@ export function Showcase({
   description,
   className,
 }: ShowcaseProps) {
-  const motion = useShowcaseMotion();
+  const { state, toggle } = useShowcaseMotion();
   let content: ReactNode;
+
   if (typeof children === 'function') {
-    content = children(motion.playing);
+    content = children(state.playing);
   } else {
     content = children;
   }
 
   return (
     <figure
-      ref={motion.ref}
-      data-animated={motion.animated}
-      data-playing={motion.playing}
+      ref={state.ref}
+      data-playing={state.playing}
       className={classNames(
-        'music-scene relative isolate overflow-hidden rounded-3xl border border-theme bg-theme-surface shadow-xl',
+        'group/showcase relative isolate min-w-0',
         className,
       )}
     >
       <div
         aria-hidden="true"
-        className="scene-atmosphere pointer-events-none absolute -inset-6 overflow-hidden"
+        className="pointer-events-none absolute -inset-6 overflow-hidden [mask-image:radial-gradient(ellipse_closest-side,black_45%,transparent)]"
       >
-        <div className="scene-aurora absolute top-8 right-0 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-        <div className="scene-aurora scene-aurora-offset absolute bottom-8 left-0 h-64 w-64 rounded-full bg-secondary/15 blur-3xl" />
-        <div className="scene-floor-fade absolute inset-x-0 bottom-6 h-56 opacity-30">
-          <div className="scene-floor absolute inset-0" />
+        <div className="absolute top-8 right-0 h-72 w-72 rounded-full bg-primary/15 blur-3xl motion-safe:animate-sunset-glow group-data-[playing=false]/showcase:[animation-play-state:paused]" />
+        <div className="absolute bottom-8 left-0 h-64 w-64 rounded-full bg-secondary/15 blur-3xl" />
+        <div className="absolute inset-x-0 bottom-6 h-56 opacity-30 [mask-image:radial-gradient(ellipse_closest-side,black_30%,transparent)]">
+          <div className="absolute inset-0 origin-bottom bg-[length:40px_40px] bg-[linear-gradient(#ff2e97_1px,transparent_1px),linear-gradient(90deg,#00d9ff_1px,transparent_1px)] [transform:perspective(200px)_rotateX(45deg)_scale(1.8)]" />
         </div>
       </div>
-      <div className="scene-header relative flex items-center justify-between gap-3 px-5 pt-4 sm:px-7 sm:pt-5">
+      <div className="relative flex items-center justify-between gap-3">
         <p className="font-pixel text-primary text-xs tracking-widest">
           {label}
         </p>
@@ -53,18 +52,18 @@ export function Showcase({
           variant="tertiary"
           size="icon"
           className="h-11 w-11 rounded-full border border-theme bg-theme-surface text-theme"
-          aria-label={motion.paused ? 'Play animation' : 'Pause animation'}
-          aria-pressed={motion.paused}
-          disabled={motion.reduceMotion === true}
+          aria-label={state.paused ? 'Play animation' : 'Pause animation'}
+          aria-pressed={state.paused}
+          disabled={state.reduceMotion === true}
           title={
-            motion.reduceMotion
+            state.reduceMotion
               ? 'Reduced motion enabled'
               : 'Pause or play animation'
           }
-          onClick={motion.toggle}
+          onClick={toggle}
         >
-          {motion.paused && <PlayIcon aria-hidden="true" className="h-4 w-4" />}
-          {!motion.paused && (
+          {state.paused && <PlayIcon aria-hidden="true" className="h-4 w-4" />}
+          {!state.paused && (
             <PauseIcon aria-hidden="true" className="h-4 w-4" />
           )}
         </Button>

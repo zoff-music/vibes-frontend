@@ -26,11 +26,11 @@ still a separate, default-off sharing option.
 
 ### Landing page
 
-![Zoff landing page](./docs/screenshots/frontpage.png)
+![Zoff landing page](./docs/screenshots/frontpage.jpg)
 
 ### Active room
 
-![Zoff room with its player and queue](./docs/screenshots/playlist.png)
+![Zoff room with its player and queue](./docs/screenshots/playlist.jpg)
 
 ## 🚀 Getting Started
 
@@ -108,13 +108,16 @@ and replayed updates do not produce duplicate addition notifications.
 The homepage and `/rooms/create` have route-specific titles, descriptions,
 canonical URLs and social previews. `/discovery/listening`,
 `/discovery/queue`, `/discovery/rooms`,
-`/discovery/apps` are server-rendered product pages. The apps guide includes TV, casting and phone remotes; `/discovery/tvs` and `/discover/tv` permanently redirect there. Explore uses four cards in a two-column grid. The
+`/discovery/apps` are server-rendered product pages. The apps guide includes
+TV, casting and phone remotes; `/discovery/tvs` and `/discover/tv` permanently
+redirect there. Explore uses four cards in a two-column grid. The
 `/discovery/` prefix avoids claiming existing single-segment room names.
 
 The previous `/discover/` URLs permanently redirect to the corresponding
 `/discovery/` page, preserving query parameters. The party guide is folded into
 the homepage voting demo: `/discover/party-music` and `/discovery/parties`
-redirect directly to `/#voting` (also preserving query parameters). Navigation, canonical URLs,
+redirect directly to `/#voting`, preserving query parameters. Navigation,
+canonical URLs,
 structured data and the sitemap use only the new paths. Unknown guide names
 return 404.
 
@@ -149,94 +152,52 @@ its editable vector source is alongside it. Regenerate the PNG at 1200×630
 after changing the SVG. Verify page metadata in server-rendered HTML, including
 canonical URLs without tracking parameters, rather than relying on hydration.
 
-The homepage combines room controls, loader-provided community statistics, an interactive voting demo, a paired remote demonstration, spaced product sections and real app captures. The remote demonstration uses the existing remote button styles and shared now-playing/progress components; local play, pause, skip and seek update both panels without issuing requests. Its timer pauses offscreen and in hidden tabs and respects reduced motion.
-The demo reuses the real shared `QueueItem` with placeholder tracks and the
-shared fallback artwork in an example room named `electro`. Never use real
-track metadata, provider thumbnails, or working provider links in these demos. Framer Motion animates a vote moving a track and a new song arriving,
-then the queue contracts into the Zoff logo before restarting. Keep artists,
-durations, provider links, vote controls and hover-only attribution identical
-to room rows; do not invent a second queue design. It pauses offscreen, in hidden tabs, or with its pause
-button; reduced motion disables automatic playback and transitions. Trying a
-vote pauses the sequence, and replay clears only demo votes. It never calls the
-API or plays audio. Room-control previews use the actual segmented controls for addition and skip permissions, democratic skip, duplicates, removal after play and playlist import, plus provider buttons.
-The voting section places its text beside the full-width queue on wide screens and stacks them on smaller screens. Alternate the room-control section so its controls sit on the left. The homepage and room guide share an embed configurator with the standard
-segmented toggles for player, playlist, voting, skipping and autoplay. The
-room guide also provides setup steps; generated iframe code belongs in the
-actual room's embed settings. Keep the preview a compact, fixed-height widget
-matching its settings panel in height, with a bounded player surface, small artwork and two visible queue rows. Never capture wheel scrolling or add an inner scrolling playlist. Its
-preview reuses `EmbedQueueSong` from `@vibes/ui/web`; switching voting off
-retains counts but removes vote actions. With both layouts off, show the same
-empty state as the embed app. Keep all static presentation
-in Tailwind utilities. The old
-`how-it-works` anchor remains compatible, but there is no separate jump link
-or repetitive introductory section. Statistics reuse the homepage
-loader's existing `/stats` request; presentation components make no API calls.
-The room, queued-song and listener totals sit between voting and room settings. Failed statistics requests show unavailable values as dashes instead of false zeros. Optional root session/remote and homepage data reads do not retry during SSR; failed reads must not add backoff delays to every page load. The existing request timeout and cancellation still apply. The pixel font is bundled and preloaded; do not add a render-blocking external font stylesheet. Production HTML and assets use the shared server’s compression middleware.
-Keep the first screen focused on room entry and a short product description.
-The opening room-entry panel has room for the sunset above it. Supporting
-sections use generous responsive padding and minimum heights, retaining their
-normal document flow without pinned text or scroll interception. Community
-statistics and all product copy remain server-rendered below the hero.
-The sun uses Tailwind gradients and a transparent striped mask; its animated
-halo pauses in hidden tabs and respects reduced motion. Keep decorative layers
-contained so they cannot widen the document. New styling belongs in Tailwind
-utilities and the shared Tailwind configuration, not app stylesheet selectors. `HomeLanding` already renders `ProductIntroduction` for the
-normal homepage; the terminal branch renders it separately. Do not duplicate it
-in the normal route or remove its `explore-zoff` anchor.
-Public room shortcuts appear only when rooms are available, outside the
-entry controls. Use the solid tertiary button surface for room rows so the
-decorative page grid cannot show through them. Use concise UI and SEO copy
-without em dashes.
-Keep the free, accountless promise visible beside the main actions in both
-homepage entry modes. Room settings and admin passwords belong to each room,
-not to a Zoff account; explain that in the existing room-control copy.
-`SiteLayout` owns the shared logo header, navigation, personal-settings control
-and footer on non-room pages, including error pages. Do not add page-specific
-brand variants. `SitePage` owns the common content grid, and `SiteHero` gives the
-homepage, guides, policies and room-creation form the same framed surface,
-heading scale and padding. The homepage uses its centered desktop layout:
-wide headline above a bounded, single-row room-entry strip, with no vertical
-divider. The room and playlist-idea fields share the same action-column geometry
-to avoid shifting content when changing entry modes. The provider/legal strip
-has no separate desktop divider. Guides keep their split desktop layout for
-animated previews. Both preserve the
-existing mobile stack. Room route IDs explicitly opt out so playback layouts
-stay unchanged. Existing terminal screens retain their own terminal chrome.
-The perspective grid is shared by the homepage, discovery guides, room-creation
-page and security/privacy/terms pages on desktop and mobile. Its route-ID allowlist
-excludes both room routes, including party view, so playback never mounts that
-background layer. Pause motion in hidden tabs and keep a static grid for reduced
-motion. Terminal mode keeps its own background without the grid.
+The homepage uses alternating product sections for voting, room controls,
+apps, remote control and embedding. Community totals come from the existing
+loader and sit between the queue and room settings. Failed requests show
+unavailable values, not false zeros. Keep copy short and avoid repeating the
+same explanation in adjacent sections.
 
-The optimized WebP images in `src/assets/product/` show the `electro` room's
-party screen and the mobile App Store search/remote captures. Keep the room
-capture at its full aspect ratio, with explicit dimensions and lazy loading.
-They are illustrative app captures, not a live room feed.
-The social card uses the real circular logo and bundled MSW98UI font;
-render its SVG with those local resources embedded when regenerating the PNG.
+Product demos use placeholder songs and artwork in a room named `electro`.
+Reuse `QueueItem`, `NowPlayingSong`, `PlaybackProgress`, `EmbedQueueSong` and
+`SegmentedToggle` from `@vibes/ui/web`. Demo state stays in app-owned hooks;
+it never sends provider requests or changes a real room. Do not introduce
+alternate players, queue rows, equalizers or toggle implementations. Keep
+provider links disabled for placeholder songs. The queue and playlist demos
+use Framer Motion; playback follows local timers. All automatic motion pauses
+offscreen and in hidden tabs and respects reduced motion.
 
-Discovery pages use topic-specific animated scenes rather than repeating the
-same image. They are illustrations and make no provider or generation requests.
-Illustrated queue rows reuse the real queue's shared song-artwork fallback,
-with explicit image dimensions, rather than inventing new placeholder symbols.
-Playlist generation links to `/?mode=ai` for the real homepage action.
-Scenes start automatically when visible, pause offscreen or in background tabs,
-and expose a pause control. Reduced motion keeps their static poster state.
-Keep their geometry stable and animate transforms and opacity instead of layout.
-The listening preview reuses two synchronized real now-playing cards and progress bars.
-All four guides use the same ordered navigation, with the current guide highlighted.
-Showcases sit inside the shared hero without another outer card. Room-mode previews reuse `NowPlayingSong` and `PlaybackProgress` from the
-actual room UI, with the same tertiary play/skip buttons. Server-mode
-previews advance tracks continuously without a reset control; host-mode previews show play, pause and
-skip commands in a short sequence, with a short pause and a visible resume
-before skipping. Both reserve the same space when switching modes and respect
-the showcase pause/reduced-motion rules. Glow and grid layers fade on all edges
-independently of the content; the shared hero, not the inset scene, owns clipping.
-Accordion bodies remain in server-rendered HTML and open without height animation to avoid repaint trails and rasterized text while the following sections move. Keep backdrop filters off the
-resizing accordion surface so moving neighboring text does not leave paint
-trails. Do not animate text opacity while changing the panel's geometry.
-Policy pages share the site header and navigation; their document wording and
-revision dates must not change as part of presentation-only updates.
+The shared embed configurator exposes player, playlist, voting, skipping and
+autoplay. Keep its small artwork and two queue rows visible without inner
+scrolling. Its height matches the settings panel on desktop, and both panels
+stack on mobile. The room guide contains setup steps; generated iframe code
+belongs only in the real room's embed settings.
+
+Keep all static presentation in Tailwind utilities and shared Tailwind
+configuration. Discovery previews have no separate stylesheet. Accordion
+content remains in server-rendered HTML, without height or text-opacity
+animation. Background decorations must not widen the document or intercept
+scrolling. The hero, guides and product sections use the common site layout;
+room routes keep their player layout. The old `how-it-works` anchor remains
+compatible without a separate jump link.
+
+Optional session, remote and homepage reads do not retry during SSR. Preserve
+request cancellation and timeouts. The local pixel font is preloaded, and the
+shared server compresses production responses. Do not introduce external font
+stylesheets or request backoff delays on public page loads.
+
+The mobile search and remote pairing captures live in `src/assets/product/`.
+Documentation screenshots live in `docs/screenshots/`; refresh them from the
+actual browser UI and keep the organization profile in `zoff-music/.github`
+in sync. Retain explicit image dimensions and lazy loading where appropriate.
+The social-card SVG uses the circular logo and bundled MSW98UI font.
+
+`SiteLayout` owns the shared header, navigation, personal settings and footer.
+`SitePage` owns the content grid; `SiteHero` supplies the common heading scale,
+spacing and framed surface. The homepage keeps a centered room-entry form;
+guides split their content and preview when space allows. Terminal mode keeps
+its own chrome and theme. Policy wording and revision dates must not change as
+part of presentation work.
 
 Desktop rooms use the available viewport space below the header, rather than
 subtracting a cached header measurement. The player has a shrinkable media row

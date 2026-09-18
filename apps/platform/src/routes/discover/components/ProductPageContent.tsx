@@ -31,7 +31,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
                 {page.slug === 'listening' && <ListeningPreview />}
                 {page.slug === 'queue' && <PlaylistIdeaPreview />}
                 {page.slug === 'rooms' && <RoomModePreview />}
-                {page.slug === 'apps' && <ProductScreenshots kind="apps" />}
+                {page.slug === 'apps' && <ProductScreenshots />}
               </>
             }
           >

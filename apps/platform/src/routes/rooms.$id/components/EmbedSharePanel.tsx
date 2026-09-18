@@ -12,8 +12,8 @@ import {
   CopyIcon,
   Modal,
   MoonIcon,
+  SegmentedToggle,
   SunIcon,
-  Toggle,
 } from '@vibes/ui/web';
 import { type MouseEvent, useMemo, useRef, useState } from 'react';
 
@@ -139,8 +139,8 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
                 Choose which room content appears inside the iframe.
               </p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Toggle
+            <div className="grid gap-3">
+              <SegmentedToggle
                 checked={player}
                 onChange={(enabled) => {
                   setPlayer(enabled);
@@ -149,7 +149,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
                 label="Player"
                 description="Show the current track, artwork, and playback progress."
               />
-              <Toggle
+              <SegmentedToggle
                 checked={playlist}
                 onChange={(enabled) => {
                   setPlaylist(enabled);
@@ -168,7 +168,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
             >
               Playback
             </h3>
-            <Toggle
+            <SegmentedToggle
               checked={player && autoplay}
               disabled={!player}
               onChange={(enabled) => {
@@ -196,8 +196,8 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
                 Room permissions still decide whether each action is allowed.
               </p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Toggle
+            <div className="grid gap-3">
+              <SegmentedToggle
                 checked={vote}
                 onChange={(enabled) => {
                   setVote(enabled);
@@ -206,7 +206,7 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
                 label="Voting"
                 description="Show vote controls for songs in the playlist."
               />
-              <Toggle
+              <SegmentedToggle
                 checked={skip}
                 onChange={(enabled) => {
                   setSkip(enabled);

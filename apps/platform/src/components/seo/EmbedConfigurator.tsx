@@ -1,4 +1,4 @@
-import { classNames, usePageVisibility } from '@vibes/shared';
+import { classNames } from '@vibes/shared';
 import {
   Button,
   EmbedQueueSong,
@@ -8,59 +8,12 @@ import {
   SegmentedToggle,
   SkipIcon,
 } from '@vibes/ui/web';
-import {
-  MotionConfig,
-  motion,
-  useInView,
-  useReducedMotion,
-} from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
-import { queueDemoSongs } from './previewSongs';
+import { MotionConfig, motion } from 'framer-motion';
+import { useEmbedPreview } from './hooks/useEmbedPreview';
 
 export function EmbedConfigurator() {
-  const [options, setOptions] = useState({
-    player: true,
-    playlist: true,
-    vote: true,
-    skip: true,
-    autoplay: false,
-  });
-  const [votes, setVotes] = useState<string[]>([]);
-  const [current, setCurrent] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [position, setPosition] = useState(45000);
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { amount: 0.15 });
-  const visible = usePageVisibility();
-  const reduceMotion = useReducedMotion();
-  const song = queueDemoSongs[current];
-  const songs = queueDemoSongs
-    .filter((track) => track.id !== song.id)
-    .map((track) => ({ ...track, voteCount: Number(votes.includes(track.id)) }))
-    .sort((a, b) => b.voteCount - a.voteCount)
-    .slice(0, 2);
-  useEffect(() => {
-    if (!playing || !options.player || !inView || !visible || reduceMotion)
-      return;
-    const timer = window.setInterval(
-      () => setPosition((value) => (value + 250) % (song.duration * 1000)),
-      250,
-    );
-    return () => window.clearInterval(timer);
-  }, [playing, options.player, inView, visible, reduceMotion, song.duration]);
-
-  function changeOption(key: keyof typeof options, enabled: boolean) {
-    setOptions((previous) => ({ ...previous, [key]: enabled }));
-    if (key === 'autoplay') setPlaying(enabled);
-    if (key === 'player' && !enabled) setPlaying(false);
-    if (key === 'player' && enabled && options.autoplay) setPlaying(true);
-  }
-
-  function vote(id: string) {
-    setVotes((previous) =>
-      previous.includes(id) ? previous : [...previous, id],
-    );
-  }
+  const { state, actions } = useEmbedPreview();
+  const { ref, options, song, songs, playing, position } = state;
 
   return (
     <div className="mt-8 w-full min-w-0">
@@ -71,13 +24,13 @@ export function EmbedConfigurator() {
             <SegmentedToggle
               label="Player"
               checked={options.player}
-              onChange={(value) => changeOption('player', value)}
+              onChange={(value) => actions.changeOption('player', value)}
               variant="plain-full"
             />
             <SegmentedToggle
               label="Playlist"
               checked={options.playlist}
-              onChange={(value) => changeOption('playlist', value)}
+              onChange={(value) => actions.changeOption('playlist', value)}
               variant="plain-full"
             />
             <div className="border-theme border-t" />
@@ -85,13 +38,13 @@ export function EmbedConfigurator() {
               label="Voting"
               checked={options.vote}
               disabled={!options.playlist}
-              onChange={(value) => changeOption('vote', value)}
+              onChange={(value) => actions.changeOption('vote', value)}
               variant="plain-full"
             />
             <SegmentedToggle
               label="Skipping"
               checked={options.skip}
-              onChange={(value) => changeOption('skip', value)}
+              onChange={(value) => actions.changeOption('skip', value)}
               variant="plain-full"
             />
             <div className="border-theme border-t" />
@@ -99,7 +52,7 @@ export function EmbedConfigurator() {
               label="Autoplay"
               checked={options.player && options.autoplay}
               disabled={!options.player}
-              onChange={(value) => changeOption('autoplay', value)}
+              onChange={(value) => actions.changeOption('autoplay', value)}
               variant="plain-full"
             />
           </div>
@@ -125,7 +78,7 @@ export function EmbedConfigurator() {
                       aria-label={
                         playing ? 'Pause embed preview' : 'Play embed preview'
                       }
-                      onClick={() => setPlaying((value) => !value)}
+                      onClick={actions.togglePlayback}
                     >
                       {playing && <PauseIcon className="h-5 w-5" />}
                       {!playing && <PlayIcon className="h-5 w-5" />}
@@ -136,12 +89,7 @@ export function EmbedConfigurator() {
                       variant="tertiary"
                       size="icon"
                       aria-label="Skip embed preview song"
-                      onClick={() => {
-                        setCurrent(
-                          (value) => (value + 1) % queueDemoSongs.length,
-                        );
-                        setPosition(0);
-                      }}
+                      onClick={actions.skip}
                     >
                       <SkipIcon className="h-5 w-5" />
                     </Button>
@@ -222,7 +170,7 @@ export function EmbedConfigurator() {
                           <EmbedQueueSong
                             song={track}
                             votingEnabled={options.vote}
-                            onVote={vote}
+                            onVote={actions.vote}
                           />
                         </motion.div>
                       ))}
