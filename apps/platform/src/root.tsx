@@ -1,9 +1,11 @@
 import { classNames } from '@vibes/shared';
 import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
 import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular.woff2?url';
-import { type ReactNode, useState } from 'react';
+import { NotFoundView } from '@vibes/ui/web';
+import { lazy, type ReactNode, Suspense, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import {
+  isRouteErrorResponse,
   Links,
   Meta,
   Scripts,
@@ -13,6 +15,7 @@ import {
 } from 'react-router';
 import { App } from './App';
 import { PlatformErrorView } from './components/errors/PlatformErrorView';
+import { Background } from './components/layout/Background';
 import { SiteLayout } from './components/layout/SiteLayout';
 import stylesUrl from './index.css?url';
 import { loader, type RootLoaderData } from './root/loader';
@@ -20,13 +23,27 @@ import { loader, type RootLoaderData } from './root/loader';
 export type { RootLoaderData } from './root/loader';
 export { loader };
 
-export const meta: MetaFunction = () => [
-  { title: 'Zoff | Shared Music Queue & Listening Rooms' },
-  {
-    name: 'description',
-    content: 'Shared rooms, made for listening together.',
-  },
-];
+const LazyBeatGame = lazy(() =>
+  import('./components/not-found/BeatGame').then((module) => ({
+    default: module.BeatGame,
+  })),
+);
+
+export const meta: MetaFunction = ({ error }) => {
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return [
+      { title: 'Page Not Found | Zoff' },
+      { name: 'robots', content: 'noindex' },
+    ];
+  }
+  return [
+    { title: 'Zoff | Shared Music Queue & Listening Rooms' },
+    {
+      name: 'description',
+      content: 'Shared rooms, made for listening together.',
+    },
+  ];
+};
 
 export function shouldRevalidate() {
   return false;
@@ -109,7 +126,28 @@ export default function Root() {
 }
 
 export function ErrorBoundary() {
-  useRouteError();
+  const error = useRouteError();
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return (
+      <>
+        <Background />
+        <SiteLayout>
+          <NotFoundView>
+            <Suspense
+              fallback={
+                <div
+                  aria-hidden="true"
+                  className="mx-auto h-92 w-full max-w-sm rounded-3xl border border-theme bg-theme-surface sm:h-102"
+                />
+              }
+            >
+              <LazyBeatGame />
+            </Suspense>
+          </NotFoundView>
+        </SiteLayout>
+      </>
+    );
+  }
   return (
     <SiteLayout>
       <PlatformErrorView

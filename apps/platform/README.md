@@ -101,6 +101,18 @@ and replayed updates do not produce duplicate addition notifications.
 - **`/room/{id}`**: Room view with server-side room data fetching
 - **Non-existent rooms**: Automatic redirect to create page with suggested name
 
+## Missing pages
+
+![Zoff 404 page with the Repeat the Beat mini-game](./docs/screenshots/not-found.jpg)
+
+Unmatched paths and unknown discovery guides return a real HTTP 404 with
+`noindex` metadata. The shared `NotFoundView` keeps the page on brand; the
+platform adds a small, local-only memory game using shared buttons. It starts
+on demand, supports touch and number keys 1–4, and pauses offscreen or in hidden
+tabs. Reduced motion shows the pattern without flashing and lets the player
+choose when to continue. Single-segment room names keep their existing room
+creation flow. Other failures retain their retry screen.
+
 ## 🧩 Technical Stack
 
 ### Public product pages and search metadata

@@ -3,10 +3,10 @@ import {
   TerminalSection,
   terminalButtonClassName,
 } from '@vibes/ui/konami';
-import { NotFoundView } from '@vibes/ui/web';
 import { lazy, Suspense } from 'react';
 import { Link } from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
+import { NotFoundPage } from '../../components/not-found/NotFoundPage';
 import { notFoundLoader } from './loader';
 import { notFoundMeta } from './meta';
 
@@ -53,5 +53,5 @@ export default function NotFound() {
     );
   }
 
-  return <NotFoundView />;
+  return <NotFoundPage />;
 }
