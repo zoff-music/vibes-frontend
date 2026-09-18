@@ -5,7 +5,7 @@ import {
   Input,
   Modal,
   ProviderIcon,
-  Toggle,
+  SegmentedToggle,
 } from '@vibes/ui/web';
 import type { useFetcher } from 'react-router';
 import type { ControllerActionData } from '../action';
@@ -99,32 +99,32 @@ export function RoomSettingsModal({ fetcher, isOpen, onClose, room }: Props) {
               </fetcher.Form>
             ))}
           </div>
-          <Toggle
+          <SegmentedToggle
             checked={room.settings.skipAllowed}
             onChange={(value) => updateSetting('skipAllowed', value)}
             label="Allow skip"
           />
-          <Toggle
+          <SegmentedToggle
             checked={room.settings.democraticSkip}
             onChange={(value) => updateSetting('democraticSkip', value)}
             label="Democratic skip"
           />
-          <Toggle
+          <SegmentedToggle
             checked={room.settings.removeOnPlay}
             onChange={(value) => updateSetting('removeOnPlay', value)}
             label="Remove played"
           />
-          <Toggle
+          <SegmentedToggle
             checked={room.settings.allowDuplicates}
             onChange={(value) => updateSetting('allowDuplicates', value)}
             label="Allow duplicates"
           />
-          <Toggle
+          <SegmentedToggle
             checked={room.settings.onlyAdminAddSongs ?? false}
             onChange={(value) => updateSetting('onlyAdminAddSongs', value)}
             label="Admins only add"
           />
-          <Toggle
+          <SegmentedToggle
             checked={room.settings.public}
             disabled={!room.hasPassword}
             onChange={(value) => updateSetting('public', value)}

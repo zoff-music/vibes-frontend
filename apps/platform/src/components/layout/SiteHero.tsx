@@ -68,7 +68,7 @@ export function SiteHero({
         {aside && (
           <div
             className={classNames(
-              'min-w-0 [&_.music-scene]:overflow-visible [&_.music-scene]:rounded-none [&_.music-scene]:border-0 [&_.music-scene]:bg-transparent [&_.music-scene]:shadow-none [&_.scene-content]:px-0 [&_.scene-content]:pb-0 [&_.scene-header]:px-0 [&_.scene-header]:pt-0',
+              'min-w-0',
               centered && 'md:mx-auto md:w-full md:max-w-3xl',
               !centered &&
                 'border-theme border-t pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8 lg:pl-12',

@@ -18,20 +18,28 @@ export function useQueueDemo() {
   const playing = inView && visible && !reduceMotion && !paused;
 
   useEffect(() => {
-    if (!playing) return;
+    if (!playing) {
+      return;
+    }
+
     const timeout = window.setTimeout(() => {
       setPhase((value) => (value + 1) % durations.length);
     }, durations[phase]);
+
     return () => window.clearTimeout(timeout);
   }, [playing, phase]);
 
   useEffect(() => {
-    if (!pending) return;
+    if (!pending) {
+      return;
+    }
+
     const timeout = window.setTimeout(() => {
       setVoted((values) => [...values, pending]);
       setPending(null);
       setAnnouncement('Vote added. Queue updated.');
     }, 500);
+
     return () => window.clearTimeout(timeout);
   }, [pending]);
 
@@ -51,11 +59,16 @@ export function useQueueDemo() {
 
   function vote(id: string) {
     setPaused(true);
-    if (pending) return;
+
+    if (pending) {
+      return;
+    }
+
     if (voted.includes(id)) {
       setAnnouncement('You have already voted for this song.');
       return;
     }
+
     setPending(id);
   }
 

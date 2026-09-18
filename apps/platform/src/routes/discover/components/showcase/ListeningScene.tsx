@@ -14,7 +14,7 @@ export function ListeningScene({ playing }: ListeningSceneProps) {
   };
 
   return (
-    <div className="scene-content space-y-4 px-5 pt-5 pb-6 sm:px-7">
+    <div className="space-y-4 pt-5">
       {['Your device', 'Their device'].map((label) => (
         <section
           key={label}

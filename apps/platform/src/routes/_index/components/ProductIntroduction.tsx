@@ -61,10 +61,6 @@ export function ProductIntroduction() {
             Android TV or send the room to a compatible Chromecast from a
             supported browser or app.
           </p>
-          <p className="mt-4 text-theme-muted leading-relaxed">
-            Your phone can add songs to the room, or pair with a player’s QR
-            code to control that device remotely without playing audio itself.
-          </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <span className="rounded-full border border-theme px-3 py-1.5 text-theme-muted text-xs">
               Web
@@ -84,7 +80,7 @@ export function ProductIntroduction() {
           </Link>
         </div>
         <div className="min-w-0">
-          <ProductScreenshots kind="apps" />
+          <ProductScreenshots />
         </div>
       </section>
 
@@ -107,10 +103,6 @@ export function ProductIntroduction() {
           >
             Explore Zoff
           </h2>
-          <p className="max-w-xl text-sm text-theme-muted leading-relaxed">
-            A few things to help you get started, from room settings to playing
-            music on your TV.
-          </p>
         </div>
         <ProductLinks />
       </section>

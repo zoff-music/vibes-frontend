@@ -70,8 +70,8 @@ export function SegmentedToggle({
   if (label || description) {
     const labelClass =
       variant === 'plain-full'
-        ? 'group flex w-full items-center justify-between border-0 bg-transparent p-0 transition-all'
-        : 'group flex items-center justify-between rounded-2xl border border-theme bg-theme-surface p-5 transition-all';
+        ? 'group flex w-full flex-wrap items-center justify-between gap-3 border-0 bg-transparent p-0 transition-all'
+        : 'group flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-theme bg-theme-surface p-5 transition-all';
 
     return (
       <label
@@ -83,7 +83,7 @@ export function SegmentedToggle({
             : 'cursor-not-allowed opacity-60',
         )}
       >
-        <div className="mr-4 flex-1">
+        <div className="min-w-20 flex-1">
           {label && (
             <div className="font-pixel text-theme text-xs tracking-display">
               {label}

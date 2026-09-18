@@ -12,7 +12,7 @@ export function RoomModePreview() {
       description="Preview the room's player controls and timeline. Server mode advances automatically. In host mode the host pauses, resumes and skips."
     >
       {(playing) => (
-        <div className="scene-content px-5 pt-4 pb-6 sm:px-7 sm:pb-7">
+        <div className="pt-4">
           <fieldset
             className="grid grid-cols-2 gap-2"
             aria-label="Compare playback modes"

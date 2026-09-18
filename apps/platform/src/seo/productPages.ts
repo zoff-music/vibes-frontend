@@ -28,15 +28,15 @@ export const productPages: ProductPage[] = [
     sections: [
       {
         title: 'Invite your friends',
-        body: 'Create a room and share its link. Friends can join in a browser without creating an account, or use the mobile app. Pick a display name so people can see who brought each song to the queue.',
+        body: 'Share your room link. Friends can join in a browser or the mobile app without an account. A display name lets others see who added each song.',
       },
       {
         title: 'Stay on the same track',
-        body: 'Server mode keeps the room on a shared playback timeline and moves through the queue automatically. Each listener plays music through the supported provider’s player. A browser may need a tap to start audio, and track availability can vary by provider or region.',
+        body: 'Server mode synchronizes playback and advances the queue automatically. Each device plays through YouTube or SoundCloud. Your browser may need a tap to start audio; some tracks may be unavailable in your region.',
       },
       {
         title: 'Add songs and vote',
-        body: 'Search the enabled music providers or paste a song link, then add your choice to the queue. Vote for the songs you want to hear next. Room settings decide who can add songs and skip.',
+        body: 'Search YouTube or SoundCloud, or paste a song link. Vote to move a track up the queue. Room admins choose who can add songs and skip.',
       },
       {
         title: 'Use your usual group chat',
@@ -61,24 +61,24 @@ export const productPages: ProductPage[] = [
       },
       {
         title: 'Let the room vote',
-        body: 'Song votes help your group shape the queue. For skips, room admins can choose democratic voting or restrict skipping to admins. A song vote moves a track up the queue; skip votes decide when to move on.',
+        body: 'A song vote moves a track up the queue. Skip votes decide when to move on. Admins can require a group vote to skip or keep skipping to themselves.',
       },
       {
         title: 'Start with a playlist',
-        body: 'When playlist import is enabled and you have the required room permissions, paste a supported playlist link to bring an existing selection into the room. Import progress lets you follow the additions while the queue remains available for listening.',
+        body: 'Paste a supported playlist link to add its songs. Import progress shows the additions while music keeps playing. The room must allow playlist imports and you must have permission to add songs.',
       },
       {
         title: 'Keep or remove played songs',
-        body: 'Keep played tracks in rotation for a repeating soundtrack, or enable removal after play for a queue that moves on. Duplicate-song and admin-only addition settings help tailor the queue to a small group, a shared workspace or a larger gathering.',
+        body: 'Leave played songs in rotation or remove them after playback. You can also prevent duplicates and limit additions to admins.',
       },
     ],
   },
   {
     slug: 'rooms',
     label: 'Rooms',
-    title: 'Create an Online Room | Zoff',
+    title: 'Create a Free Listening Room | Zoff',
     description:
-      'Create a free online room. No Zoff account needed. Set playback, voting and admin controls for each room, then share the link with friends.',
+      'Create a free room for listening together. Set playback, voting and admin controls, then share the link. No account or registration needed.',
     heading: 'Set up your room.',
     actionLabel: 'Configure a room',
     introduction:
@@ -86,11 +86,11 @@ export const productPages: ProductPage[] = [
     sections: [
       {
         title: 'Create and share',
-        body: 'Create and join rooms for free, without ever making a Zoff account. Choose a room name and music sources, then share the link. Each room keeps its own settings.',
+        body: 'Choose a room name and enable YouTube, SoundCloud, or both. Share the link to let people join. Creating and joining rooms is free.',
       },
       {
         title: 'Automatic playback or a host',
-        body: 'In server mode, the room keeps a shared playback timeline and advances automatically. In host mode, the host directs playback. Use server mode for an ongoing radio room, or host mode when someone needs the controls.',
+        body: 'Server mode runs the queue automatically, even when the person who created the room leaves. In host mode, one host controls play, pause and skipping.',
       },
       {
         title: 'Public or unlisted',
@@ -98,7 +98,7 @@ export const productPages: ProductPage[] = [
       },
       {
         title: 'Admin settings',
-        body: 'Each room has its own settings and optional admin password. Choose who may add or skip songs, whether skipping needs votes, and whether played tracks stay in the queue. The password protects that room’s admin controls, not an account or guest entry.',
+        body: 'Set an admin password to protect the room’s settings. It gives access to playback permissions and queue controls; guests can still join without it.',
       },
     ],
   },
@@ -131,7 +131,7 @@ export const productPages: ProductPage[] = [
       },
       {
         title: 'No download needed on the web',
-        body: 'Create or join a room at zoff.me or in the apps. Zoff is always free and never requires a Zoff account. Music availability and playback restrictions depend on the enabled providers and their official players.',
+        body: 'Open zoff.me in a browser to create or join a room. You get the shared queue, voting, room controls and playback without installing an app.',
       },
     ],
   },
