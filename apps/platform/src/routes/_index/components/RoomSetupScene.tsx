@@ -69,7 +69,7 @@ export function RoomSetupScene({
         <p
           className={classNames(
             'text-sm leading-relaxed',
-            state.blocked ? 'text-primary' : 'text-theme-muted',
+            state.blocked ? 'text-theme' : 'text-theme-muted',
           )}
         >
           {state.caption}
