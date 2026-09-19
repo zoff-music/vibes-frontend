@@ -84,6 +84,7 @@ export function useRoomSetupScene({
       advanced,
       blocked,
       changedSong,
+      requested,
     },
     actions: { performAction },
   };

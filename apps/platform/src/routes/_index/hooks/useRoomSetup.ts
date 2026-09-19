@@ -1,6 +1,6 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   type RoomSetupId,
   type RoomSetupSettings,
@@ -8,20 +8,24 @@ import {
 } from './roomSetups';
 
 export function useRoomSetup() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { amount: 0.75 });
+  const ref = useRef<HTMLFieldSetElement>(null);
+  const inView = useInView(ref, { amount: 0.35 });
   const visible = usePageVisibility();
   const reducedMotion = useReducedMotion();
   const [settings, setSettings] = useState(roomSetups[0].settings);
   const [setupId, setSetupId] = useState<RoomSetupId>('adding');
   const [revision, setRevision] = useState(0);
   const [announcement, setAnnouncement] = useState('');
-  const [paused, setPaused] = useState(false);
-  const [manual, setManual] = useState(false);
   const cycleElapsed = useRef(0);
   const showingAlternate = useRef(false);
   const active = inView && visible;
-  const cycling = active && !paused && !manual && !reducedMotion;
+  const cycling = active && !reducedMotion;
+
+  const retainSceneFocus = useCallback(() => {
+    if (ref.current?.contains(document.activeElement)) {
+      ref.current.focus({ preventScroll: true });
+    }
+  }, []);
 
   useEffect(() => {
     if (!cycling) return;
@@ -34,6 +38,7 @@ export function useRoomSetup() {
       if (cycleElapsed.current < 6000) return;
 
       cycleElapsed.current = 0;
+      retainSceneFocus();
       if (!showingAlternate.current) {
         showingAlternate.current = true;
         setSettings((current) => ({
@@ -55,7 +60,7 @@ export function useRoomSetup() {
     }, 200);
 
     return () => window.clearInterval(timer);
-  }, [cycling, setupId]);
+  }, [cycling, setupId, retainSceneFocus]);
 
   function selectSetup(id: RoomSetupId) {
     const setup = roomSetups.find((item) => item.id === id);
@@ -63,8 +68,6 @@ export function useRoomSetup() {
 
     setSettings(setup.settings);
     setSetupId(id);
-    setManual(true);
-    setPaused(false);
     cycleElapsed.current = 0;
     showingAlternate.current = false;
     setRevision((current) => current + 1);
@@ -75,39 +78,15 @@ export function useRoomSetup() {
 
   function updateSetting(key: keyof RoomSetupSettings, checked: boolean) {
     setSettings((current) => ({ ...current, [key]: checked }));
-    setManual(true);
-    setPaused(false);
+    cycleElapsed.current = 0;
+    showingAlternate.current = key === 'skipAllowed' ? !checked : checked;
     setRevision((current) => current + 1);
     setAnnouncement('');
   }
 
-  function replay() {
-    setRevision((current) => current + 1);
-    setManual(false);
-    setPaused(false);
+  function completeAction() {
     cycleElapsed.current = 0;
-    showingAlternate.current =
-      (setupId === 'adding' && settings.onlyAdminAddSongs) ||
-      (setupId === 'skipping' && !settings.skipAllowed) ||
-      (setupId === 'repeating' && settings.removeOnPlay);
-  }
-
-  function takeControl() {
-    setManual(true);
-  }
-
-  function togglePlayback() {
-    if (paused) {
-      setPaused(false);
-      return;
-    }
-
-    if (manual) {
-      replay();
-      return;
-    }
-
-    setPaused(true);
+    retainSceneFocus();
   }
 
   return {
@@ -117,17 +96,13 @@ export function useRoomSetup() {
       setupId,
       revision,
       announcement,
-      active: active && !paused && !manual,
-      paused: paused || manual,
-      manual,
+      active,
       reducedMotion: reducedMotion === true,
     },
     actions: {
       selectSetup,
       updateSetting,
-      replay,
-      takeControl,
-      togglePlayback,
+      completeAction,
     },
   };
 }

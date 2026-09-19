@@ -1,12 +1,8 @@
 import {
-  Button,
   CheckIcon,
   NowPlayingSong,
-  PauseIcon,
   PlaybackProgress,
-  PlayIcon,
   RemoteIcon,
-  ResetIcon,
 } from '@vibes/ui/web';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import { useRemotePreview } from '../hooks/useRemotePreview';
@@ -25,17 +21,9 @@ export function RemotePlayerDemo() {
     <MotionConfig reducedMotion="user">
       <figure
         ref={state.ref}
+        tabIndex={-1}
         aria-label="Pairing a phone with the electro player"
-        className="min-w-0"
-        onFocusCapture={(event) => {
-          if (
-            !paired &&
-            event.target instanceof HTMLElement &&
-            !event.target.closest('[data-animation-control]')
-          ) {
-            actions.pausePairing();
-          }
-        }}
+        className="min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
       >
         <p className="mb-3 font-pixel text-theme-muted text-xs">
           {paired
@@ -137,45 +125,8 @@ export function RemotePlayerDemo() {
             </AnimatePresence>
           </section>
         </div>
-        <div className="mt-4 flex gap-3">
-          {!paired && !state.reducedMotion && (
-            <Button
-              size="small"
-              variant="tertiary"
-              className="min-h-12 flex-1 gap-2 text-sm"
-              data-animation-control
-              aria-label={
-                state.paused
-                  ? 'Resume pairing preview'
-                  : 'Pause pairing preview'
-              }
-              onClick={actions.togglePairing}
-            >
-              {state.paused && (
-                <PlayIcon aria-hidden="true" className="h-4 w-4" />
-              )}
-              {!state.paused && (
-                <PauseIcon aria-hidden="true" className="h-4 w-4" />
-              )}
-              <span>{state.paused ? 'Resume' : 'Pause'}</span>
-            </Button>
-          )}
-          <Button
-            size="small"
-            variant="tertiary"
-            className="min-h-12 flex-1 gap-2 text-sm"
-            data-animation-control
-            aria-label="Pair again"
-            onClick={actions.replayPairing}
-          >
-            <ResetIcon aria-hidden="true" className="h-4 w-4" />
-            <span>Pair again</span>
-          </Button>
-        </div>
         <figcaption className="sr-only" aria-live="polite">
-          {paired &&
-            'Remote paired. The phone now controls the electro player.'}
-          {state.phase === 'connecting' && 'Pairing remote.'}
+          {state.announcement}
         </figcaption>
       </figure>
     </MotionConfig>

@@ -1,13 +1,7 @@
 import { classNames } from '@vibes/shared';
-import {
-  Button,
-  ContentTransition,
-  PauseIcon,
-  PlayIcon,
-  ResetIcon,
-} from '@vibes/ui/web';
+import { Button, ContentTransition } from '@vibes/ui/web';
 import { LayoutGroup, MotionConfig, motion } from 'framer-motion';
-import { useId, useRef } from 'react';
+import { useId } from 'react';
 import { roomSetups } from '../hooks/roomSetups';
 import { useRoomSetup } from '../hooks/useRoomSetup';
 import { RoomSetupScene } from './RoomSetupScene';
@@ -16,7 +10,6 @@ import { RoomSetupSettings } from './RoomSetupSettings';
 export function RoomControlPanel() {
   const { state, actions } = useRoomSetup();
   const layoutId = useId();
-  const replayRef = useRef<HTMLButtonElement>(null);
   let rule = state.settings.onlyAdminAddSongs
     ? 'Only admins add.'
     : 'Everyone can add.';
@@ -38,14 +31,6 @@ export function RoomControlPanel() {
       <figure
         aria-label="Try different settings for the electro room"
         className="relative isolate grid min-w-0 items-center gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16"
-        onFocusCapture={(event) => {
-          if (
-            event.target instanceof HTMLElement &&
-            !event.target.closest('[data-animation-control]')
-          ) {
-            actions.takeControl();
-          }
-        }}
       >
         <div
           aria-hidden="true"
@@ -90,46 +75,15 @@ export function RoomControlPanel() {
             />
           </div>
         </div>
-        <div ref={state.ref} className="min-w-0">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-theme-muted text-xs">electro</p>
-              <p className="font-pixel text-lg text-theme sm:text-xl">{rule}</p>
-            </div>
-            <fieldset className="flex shrink-0 items-center gap-1">
-              <legend className="sr-only">Example playback controls</legend>
-              <Button
-                variant="tertiary"
-                size="icon"
-                data-animation-control
-                onClick={actions.togglePlayback}
-                disabled={state.reducedMotion}
-                aria-label={
-                  state.paused ? 'Play room examples' : 'Pause room examples'
-                }
-                title={
-                  state.paused ? 'Play room examples' : 'Pause room examples'
-                }
-              >
-                {state.paused && (
-                  <PlayIcon aria-hidden="true" className="h-5 w-5" />
-                )}
-                {!state.paused && (
-                  <PauseIcon aria-hidden="true" className="h-5 w-5" />
-                )}
-              </Button>
-              <Button
-                variant="tertiary"
-                size="icon"
-                data-animation-control
-                onClick={actions.replay}
-                aria-label="Replay room setup example"
-                title="Replay this example"
-                ref={replayRef}
-              >
-                <ResetIcon aria-hidden="true" className="h-5 w-5" />
-              </Button>
-            </fieldset>
+        <fieldset
+          ref={state.ref}
+          tabIndex={-1}
+          className="min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+        >
+          <legend className="sr-only">Room setting example</legend>
+          <div className="mb-4">
+            <p className="text-theme-muted text-xs">electro</p>
+            <p className="font-pixel text-lg text-theme sm:text-xl">{rule}</p>
           </div>
           <ContentTransition transitionKey={state.revision}>
             <RoomSetupScene
@@ -137,11 +91,10 @@ export function RoomControlPanel() {
               settings={state.settings}
               active={state.active}
               reducedMotion={state.reducedMotion}
-              announce={state.manual}
-              onAction={() => replayRef.current?.focus({ preventScroll: true })}
+              onAction={actions.completeAction}
             />
           </ContentTransition>
-        </div>
+        </fieldset>
         <p role="status" className="sr-only">
           {state.announcement}
         </p>

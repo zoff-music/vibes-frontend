@@ -184,19 +184,18 @@ queue, the player's skip control obeying permissions, and a finished song either
 returning to the queue or leaving it. Each example has one relevant room toggle
 beside the action it changes. On phones, a compact selector and switch sit above
 one scene. A search result becomes a queue row in the same space, rather than
-leaving duplicate songs on screen. Pause and replay share a toolbar beside the
-room name, with a full-width result caption below the scene. The rooms guide link
+leaving duplicate songs on screen. The room name and current rule sit above the
+scene, with a full-width result caption below it. The rooms guide link
 sits with the section introduction. Touch controls remain at least 44px tall. Search results,
 skip controls, song panels and queue rows reuse `@vibes/ui/web`; compact density
 preserves the normal room presentation elsewhere.
 
 Each automatic example shows both switch positions before moving to the next.
 Crossfade between examples and restart the scene after a setting changes.
-Selecting an example or focusing its controls pauses the tour for manual use;
-Play and Replay resume it. Actions return focus to the persistent replay control.
-Only run while
-most of the scene is visible, and pause in hidden tabs. Reduced motion leaves the
-action manual. Keyboard focus survives changing a setting, and automatic examples
+Selecting an example, changing a setting or trying an action restarts its time
+in the tour without stopping autoplay. Keep focus within the scene when a
+focused action disappears. Only run while the scene is in view, and pause in
+hidden tabs. Reduced motion leaves the action manual. Automatic examples
 do not announce themselves to screen readers. Keep the AI showcase unframed too,
 rather than wrapping every demo in the same large card.
 
@@ -209,7 +208,7 @@ repeating homepage sales copy; keep detailed text out of animation captions.
 Public pages provide a keyboard skip link before the header. Shared toggles
 expose their label and description separately from the decorative OFF/ON
 labels. Playback sliders announce elapsed time and duration. The queue demo
-pauses when a keyboard user focuses a song, and switching between room names
+retains focus when its songs transition into the logo. Switching between room names
 and AI prompts moves focus to the new input.
 
 Product demos use placeholder songs and artwork in a room named `electro`.
@@ -218,8 +217,11 @@ Reuse `QueueItem`, `NowPlayingSong`, `PlaybackProgress`, `EmbedQueueSong` and
 it never sends provider requests or changes a real room. Do not introduce
 alternate players, queue rows, equalizers or toggle implementations. Keep
 provider links disabled for placeholder songs. The queue and playlist demos
-use Framer Motion; playback follows local timers. All automatic motion pauses
-offscreen and in hidden tabs and respects reduced motion. Lower-page demos
+use Framer Motion; playback follows local timers. Showcase animations loop while
+in view, without pause or replay buttons. Interacting with a demo must not leave
+its animation permanently paused. Keep the actual player controls that demonstrate
+playback. Automatic motion pauses offscreen and in hidden tabs and respects
+reduced motion. Lower-page demos
 and app screenshots mount through `DeferredContent` near the viewport; keep
 their headings, descriptions and navigation server-rendered. Reserve preview
 space while loading so scrolling remains stable. The hero typing effect and
@@ -237,9 +239,10 @@ submitting a request. Keep the feature copy and guide links server-rendered.
 The homepage remote showcase puts the player's pairing details first, enters the
 matching code on the phone and transitions into connected controls. On phones,
 the compact player sits above the remote so both remain visible together. Use
-labelled, thumb-sized playback buttons, a larger seek target, and preview controls
-below the scene rather than small icons beside it. Run it
-once, retain the usable remote afterward, and offer pause/replay controls.
+labelled, thumb-sized playback buttons and a larger seek target. Pairing runs
+automatically, holds the usable remote for twelve seconds, then crossfades back
+to pairing. Using a remote control extends that time before the loop restarts.
+Only announce pairing when the user requests it, rather than on every loop.
 Reduced motion leaves pairing manual. All IDs, codes and playback in this demo
 are local placeholders; never issue a real pairing request from the showcase.
 

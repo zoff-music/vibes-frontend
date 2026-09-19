@@ -9,7 +9,6 @@ interface RoomSetupSceneProps {
   settings: RoomSetupSettings;
   active: boolean;
   reducedMotion: boolean;
-  announce: boolean;
   onAction: () => void;
 }
 
@@ -18,7 +17,6 @@ export function RoomSetupScene({
   settings,
   active,
   reducedMotion,
-  announce,
   onAction,
 }: RoomSetupSceneProps) {
   const { state, actions } = useRoomSetupScene({
@@ -68,7 +66,7 @@ export function RoomSetupScene({
         )}
       </div>
       <p
-        aria-live={announce ? 'polite' : 'off'}
+        aria-live={state.requested ? 'polite' : 'off'}
         aria-atomic="true"
         className="mt-3 min-h-6 text-sm text-theme-muted leading-snug"
       >

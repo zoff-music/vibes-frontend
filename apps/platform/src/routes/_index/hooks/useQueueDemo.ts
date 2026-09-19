@@ -11,11 +11,10 @@ export function useQueueDemo() {
   const visible = usePageVisibility();
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [voted, setVoted] = useState<string[]>([]);
   const [pending, setPending] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('');
-  const playing = inView && visible && !reduceMotion && !paused;
+  const playing = inView && visible && !reduceMotion;
 
   useEffect(() => {
     if (!playing) {
@@ -23,6 +22,16 @@ export function useQueueDemo() {
     }
 
     const timeout = window.setTimeout(() => {
+      if (phase === 4 && ref.current?.contains(document.activeElement)) {
+        ref.current.focus({ preventScroll: true });
+      }
+
+      if (phase === durations.length - 1) {
+        setVoted([]);
+        setPending(null);
+        setAnnouncement('');
+      }
+
       setPhase((value) => (value + 1) % durations.length);
     }, durations[phase]);
 
@@ -58,8 +67,6 @@ export function useQueueDemo() {
     );
 
   function vote(id: string) {
-    setPaused(true);
-
     if (pending) {
       return;
     }
@@ -72,25 +79,16 @@ export function useQueueDemo() {
     setPending(id);
   }
 
-  function replay() {
-    setPhase(0);
-    setVoted([]);
-    setPending(null);
-    setAnnouncement('');
-    setPaused(false);
-  }
-
   return {
     state: {
       ref,
       playing,
-      paused,
       reduceMotion,
       phase,
       songs,
       announcement,
-      votingSongId: pending ?? (!paused && phase === 1 ? 'demo-2' : null),
+      votingSongId: pending ?? (phase === 1 ? 'demo-2' : null),
     },
-    actions: { vote, replay, pause: () => setPaused(true) },
+    actions: { vote },
   };
 }

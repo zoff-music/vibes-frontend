@@ -1,10 +1,4 @@
-import {
-  Button,
-  PauseIcon,
-  PlayIcon,
-  QueueItem,
-  ResetIcon,
-} from '@vibes/ui/web';
+import { QueueItem } from '@vibes/ui/web';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import { useQueueDemo } from '../hooks/useQueueDemo';
 
@@ -22,41 +16,16 @@ export function VotingPreview() {
     <MotionConfig reducedMotion="user">
       <figure
         ref={state.ref}
+        tabIndex={-1}
         aria-label="Interactive preview of the electro queue"
         data-playing={state.playing}
         data-phase={state.phase}
-        className="w-full min-w-0"
+        className="w-full min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
       >
-        <div className="mb-5 flex items-center justify-between gap-3 px-1">
+        <div className="mb-5 px-1">
           <span className="font-pixel text-theme-muted text-xs tracking-widest">
             ELECTRO
           </span>
-          <div className="flex gap-2">
-            <Button
-              variant="tertiary"
-              size="icon"
-              onClick={actions.replay}
-              aria-label="Restart queue preview"
-            >
-              <ResetIcon aria-hidden="true" className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="tertiary"
-              size="icon"
-              onClick={state.paused ? actions.replay : actions.pause}
-              disabled={state.reduceMotion === true}
-              aria-label={
-                state.paused ? 'Play queue preview' : 'Pause queue preview'
-              }
-            >
-              {state.paused && (
-                <PlayIcon aria-hidden="true" className="h-4 w-4" />
-              )}
-              {!state.paused && (
-                <PauseIcon aria-hidden="true" className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
         </div>
         <div className="relative grid h-108 place-items-center sm:h-116">
           <motion.div
@@ -81,11 +50,7 @@ export function VotingPreview() {
               <h3 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
                 Up Next ({state.songs.length})
               </h3>
-              <ol
-                aria-label="Preview queue"
-                onFocusCapture={actions.pause}
-                className="space-y-2"
-              >
+              <ol aria-label="Preview queue" className="space-y-2">
                 <AnimatePresence initial={false} mode="popLayout">
                   {state.songs.map((song, index) => (
                     <motion.li

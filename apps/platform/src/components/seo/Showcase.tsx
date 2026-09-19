@@ -1,5 +1,4 @@
 import { classNames } from '@vibes/shared';
-import { Button, PauseIcon, PlayIcon } from '@vibes/ui/web';
 import type { ReactNode } from 'react';
 import { useShowcaseMotion } from './useShowcaseMotion';
 
@@ -16,7 +15,7 @@ export function Showcase({
   description,
   className,
 }: ShowcaseProps) {
-  const { state, toggle } = useShowcaseMotion();
+  const { state } = useShowcaseMotion();
   let content: ReactNode;
 
   if (typeof children === 'function') {
@@ -44,29 +43,10 @@ export function Showcase({
           <div className="absolute inset-0 origin-bottom bg-[length:40px_40px] bg-[linear-gradient(#ff2e97_1px,transparent_1px),linear-gradient(90deg,#00d9ff_1px,transparent_1px)] [transform:perspective(200px)_rotateX(45deg)_scale(1.8)]" />
         </div>
       </div>
-      <div className="relative flex items-center justify-between gap-3">
+      <div className="relative">
         <h2 className="font-pixel text-primary text-xs tracking-widest">
           {label}
         </h2>
-        <Button
-          variant="tertiary"
-          size="icon"
-          className="h-11 w-11 rounded-full border border-theme bg-theme-surface text-theme"
-          aria-label={state.paused ? 'Play animation' : 'Pause animation'}
-          aria-pressed={state.paused}
-          disabled={state.reduceMotion === true}
-          title={
-            state.reduceMotion
-              ? 'Reduced motion enabled'
-              : 'Pause or play animation'
-          }
-          onClick={toggle}
-        >
-          {state.paused && <PlayIcon aria-hidden="true" className="h-4 w-4" />}
-          {!state.paused && (
-            <PauseIcon aria-hidden="true" className="h-4 w-4" />
-          )}
-        </Button>
       </div>
       <div className="relative">{content}</div>
       <figcaption className="sr-only">{description}</figcaption>

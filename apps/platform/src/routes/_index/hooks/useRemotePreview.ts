@@ -8,18 +8,20 @@ type PairingPhase = 'entering' | 'connecting' | 'paired';
 
 export function useRemotePreview() {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { amount: 0.7 });
+  const inView = useInView(ref, { amount: 0.35 });
   const visible = usePageVisibility();
   const reducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<PairingPhase>('entering');
   const [entered, setEntered] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [announcement, setAnnouncement] = useState('');
   const playButtonRef = useRef<HTMLButtonElement>(null);
   const manualPairing = useRef(false);
+  const pairedElapsed = useRef(0);
   const [playing, setPlaying] = useState(true);
   const [playback, setPlayback] = useState({ track: 0, position: 45000 });
   const song = queueDemoSongs[playback.track % queueDemoSongs.length];
   const durationMs = song.duration * 1000;
+  const animate = inView && visible && !reducedMotion;
 
   useEffect(() => {
     // A requested pairing finishes even if the user scrolls past the player.
@@ -27,7 +29,6 @@ export function useRemotePreview() {
       (!inView && !manualPairing.current) ||
       !visible ||
       reducedMotion ||
-      paused ||
       phase === 'paired'
     ) {
       return;
@@ -44,8 +45,19 @@ export function useRemotePreview() {
 
     const timer = window.setTimeout(() => {
       if (phase === 'connecting') {
+        setPlayback({ track: 0, position: 45000 });
+        setPlaying(true);
+        pairedElapsed.current = 0;
         setPhase('paired');
+        if (manualPairing.current) {
+          setAnnouncement(
+            'Remote paired. The phone now controls the electro player.',
+          );
+        }
       } else if (entered === previewPairingCode.length) {
+        if (ref.current?.contains(document.activeElement)) {
+          ref.current.focus({ preventScroll: true });
+        }
         setPhase('connecting');
       } else {
         setEntered((current) => current + 1);
@@ -53,46 +65,71 @@ export function useRemotePreview() {
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [inView, visible, reducedMotion, paused, phase, entered]);
+  }, [inView, visible, reducedMotion, phase, entered]);
 
   useEffect(() => {
-    if (
-      phase !== 'paired' ||
-      !playing ||
-      !inView ||
-      !visible ||
-      reducedMotion
-    ) {
+    if (phase !== 'paired' || !animate) {
       return;
     }
 
+    let previous = performance.now();
     const timer = window.setInterval(() => {
+      const now = performance.now();
+      const elapsed = Math.min(now - previous, 500);
+      previous = now;
+      pairedElapsed.current += elapsed;
+
+      if (pairedElapsed.current >= 12000) {
+        if (ref.current?.contains(document.activeElement)) {
+          ref.current.focus({ preventScroll: true });
+        }
+
+        manualPairing.current = false;
+        setAnnouncement('');
+        setEntered(0);
+        setPhase('entering');
+        return;
+      }
+
+      if (!playing) return;
+
       setPlayback((current) => {
-        if (current.position + 250 >= durationMs) {
+        if (current.position + elapsed >= durationMs) {
           return { track: current.track + 1, position: 0 };
         }
 
-        return { ...current, position: current.position + 250 };
+        return { ...current, position: current.position + elapsed };
       });
     }, 250);
 
     return () => window.clearInterval(timer);
-  }, [phase, playing, inView, visible, reducedMotion, durationMs]);
+  }, [phase, playing, animate, durationMs]);
 
   function pair() {
     manualPairing.current = true;
     setEntered(previewPairingCode.length);
-    setPaused(false);
+    ref.current?.focus({ preventScroll: true });
+    setAnnouncement(
+      reducedMotion
+        ? 'Remote paired. The phone now controls the electro player.'
+        : 'Pairing remote.',
+    );
     setPhase(reducedMotion ? 'paired' : 'connecting');
   }
 
-  function replayPairing() {
-    manualPairing.current = false;
-    setPhase('entering');
-    setEntered(0);
-    setPaused(false);
-    setPlaying(true);
-    setPlayback({ track: 0, position: 45000 });
+  function togglePlayback() {
+    pairedElapsed.current = 0;
+    setPlaying((current) => !current);
+  }
+
+  function skip() {
+    pairedElapsed.current = 0;
+    setPlayback((current) => ({ track: current.track + 1, position: 0 }));
+  }
+
+  function seek(position: number) {
+    pairedElapsed.current = 0;
+    setPlayback((current) => ({ ...current, position }));
   }
 
   return {
@@ -100,9 +137,9 @@ export function useRemotePreview() {
       ref,
       playButtonRef,
       phase,
-      paused,
+      announcement,
       reducedMotion,
-      animate: inView && visible && !reducedMotion && !paused,
+      animate,
       code: reducedMotion
         ? previewPairingCode
         : previewPairingCode.slice(0, entered),
@@ -119,14 +156,9 @@ export function useRemotePreview() {
           manualPairing.current = false;
         }
       },
-      replayPairing,
-      pausePairing: () => setPaused(true),
-      togglePairing: () => setPaused((current) => !current),
-      togglePlayback: () => setPlaying((current) => !current),
-      skip: () =>
-        setPlayback((current) => ({ track: current.track + 1, position: 0 })),
-      seek: (position: number) =>
-        setPlayback((current) => ({ ...current, position })),
+      togglePlayback,
+      skip,
+      seek,
     },
   };
 }
