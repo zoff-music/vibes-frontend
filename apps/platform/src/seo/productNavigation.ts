@@ -7,12 +7,12 @@ export const productNavigation = [
   {
     slug: 'queue',
     label: 'Shared music queue',
-    caption: 'Add songs, import playlists and vote.',
+    caption: 'Add songs, vote or generate a playlist with AI.',
   },
   {
     slug: 'rooms',
     label: 'Rooms',
-    caption: 'Playback modes and room permissions.',
+    caption: 'Playback, permissions and website embeds.',
   },
   {
     slug: 'apps',

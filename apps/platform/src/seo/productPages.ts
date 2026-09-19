@@ -53,7 +53,7 @@ export const productPages: ProductPage[] = [
     heading: 'Build a queue together.',
     actionLabel: 'Build a shared queue',
     introduction:
-      'Add the songs you want to hear, then see what your friends bring. You can also import a playlist or use a playlist idea to get started.',
+      'Add the songs you want to hear, then see what your friends bring. Import a playlist or describe a mood and let AI find the first songs.',
     sections: [
       {
         title: 'Find a song',
@@ -82,7 +82,7 @@ export const productPages: ProductPage[] = [
     heading: 'Set up your room.',
     actionLabel: 'Configure a room',
     introduction:
-      'Choose who can add songs, who can skip, and whether playback runs automatically. Every room keeps its own settings.',
+      'Choose who can add songs, who can skip, and whether playback runs automatically. Share the room link or embed the player on your website.',
     sections: [
       {
         title: 'Create and share',

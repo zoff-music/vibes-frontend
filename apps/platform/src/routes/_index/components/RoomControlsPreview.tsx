@@ -34,7 +34,7 @@ export function RoomControlsPreview() {
           to="/discovery/rooms"
           className="mt-6 inline-flex min-h-11 items-center gap-3 rounded-xl border border-theme bg-theme-surface px-5 py-3 text-sm text-theme hover:border-secondary/60 hover:bg-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
         >
-          More room settings{' '}
+          Room settings and embeds{' '}
           <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />
         </Link>
       </div>

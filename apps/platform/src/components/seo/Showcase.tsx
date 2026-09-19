@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import { Button, PauseIcon, PlayIcon } from '@vibes/ui/web';
 import type { ReactNode } from 'react';
-import { useShowcaseMotion } from '../../hooks/useShowcaseMotion';
+import { useShowcaseMotion } from './useShowcaseMotion';
 
 interface ShowcaseProps {
   children: ReactNode | ((playing: boolean) => ReactNode);

@@ -3,7 +3,7 @@ import {
   playlistGenerationMessageIntervalMs,
   playlistGenerationMessages,
 } from '@vibes/ui/shared';
-import { AlertCircleIcon, SparklesIcon } from '@vibes/ui/web';
+import { AlertCircleIcon, GenerationSparkles } from '@vibes/ui/web';
 import { lazy, Suspense, useEffect, useState } from 'react';
 
 const TAKING_LONGER_DELAY_MS = 2.5 * 60 * 1000;
@@ -76,11 +76,7 @@ export function RoomGenerationProgress({
             'animate-pulse border-secondary/60 shadow-secondary-progress',
         )}
       >
-        {!isFailed && (
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
-            <SparklesIcon className="h-10 w-10 animate-ai-sparkles" />
-          </div>
-        )}
+        {!isFailed && <GenerationSparkles className="mx-auto mb-6" />}
         {isFailed && (
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-error/10 text-error">
             <AlertCircleIcon className="h-10 w-10" />

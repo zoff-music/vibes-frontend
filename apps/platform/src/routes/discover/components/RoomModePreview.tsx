@@ -1,7 +1,7 @@
 import { Button } from '@vibes/ui/web';
 import { useState } from 'react';
+import { Showcase } from '../../../components/seo/Showcase';
 import { RoomModeScene } from './showcase/RoomModeScene';
-import { Showcase } from './showcase/Showcase';
 
 export function RoomModePreview() {
   const [hostMode, setHostMode] = useState(false);

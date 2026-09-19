@@ -1,5 +1,5 @@
+import { Showcase } from '../../../components/seo/Showcase';
 import { ListeningScene } from './showcase/ListeningScene';
-import { Showcase } from './showcase/Showcase';
 
 export function ListeningPreview() {
   return (

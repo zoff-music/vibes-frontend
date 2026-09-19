@@ -12,6 +12,7 @@ interface HomeLandingProps
   children: ReactNode;
   heroRef: RefObject<HTMLDivElement | null>;
   onJoinRoom: (roomId: string) => void;
+  onGeneratePlaylist: () => void;
 }
 
 export function HomeLanding({
@@ -20,6 +21,7 @@ export function HomeLanding({
   providers,
   publicRooms,
   onJoinRoom,
+  onGeneratePlaylist,
 }: HomeLandingProps) {
   return (
     <SitePage>
@@ -54,7 +56,7 @@ export function HomeLanding({
         />
       </div>
       <PublicRoomDiscovery onJoinRoom={onJoinRoom} rooms={publicRooms} />
-      <ProductIntroduction />
+      <ProductIntroduction onGeneratePlaylist={onGeneratePlaylist} />
       <p
         lang="ja"
         className="jp-art mt-6 text-center text-theme-subtle text-xs"

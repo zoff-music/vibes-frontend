@@ -1,6 +1,7 @@
 export * from './components/Button';
 export * from './components/DebugConsole';
 export * from './components/DeferredContent';
+export * from './components/GenerationSparkles';
 export * from './components/Input';
 export * from './components/ListenerCount';
 export * from './components/Modal';

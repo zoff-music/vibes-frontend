@@ -1,7 +1,7 @@
 import { Button } from '@vibes/ui/web';
 import { useState } from 'react';
-import { PlaylistIdeaScene } from './showcase/PlaylistIdeaScene';
-import { Showcase } from './showcase/Showcase';
+import { GeneratedPlaylistScene } from './GeneratedPlaylistScene';
+import { Showcase } from './Showcase';
 
 const ideas = [
   { label: 'Jazz', prompt: 'Jazz after midnight' },
@@ -9,14 +9,15 @@ const ideas = [
   { label: 'Focus', prompt: 'Instrumental focus beats' },
 ];
 
-export function PlaylistIdeaPreview() {
+export function GeneratedPlaylistDemo() {
   const [selected, setSelected] = useState(0);
+  const [revision, setRevision] = useState(0);
   const idea = ideas[selected];
 
   return (
     <Showcase
-      label="PLAYLIST IDEAS"
-      description="Choose an idea to see tracks arrive in the electro queue."
+      label="AI PLAYLIST GENERATOR"
+      description="An AI playlist starts with your idea, searches for matching songs and fills the electro queue."
     >
       {(playing) => (
         <div className="pt-4">
@@ -30,15 +31,18 @@ export function PlaylistIdeaPreview() {
                 size="none"
                 variant={selected === index ? 'tertiary-active' : 'tertiary'}
                 aria-pressed={selected === index}
-                onClick={() => setSelected(index)}
+                onClick={() => {
+                  setSelected(index);
+                  setRevision((current) => current + 1);
+                }}
                 className="min-h-11 rounded-xl px-2 py-2 text-sm"
               >
                 {example.label}
               </Button>
             ))}
           </fieldset>
-          <PlaylistIdeaScene
-            key={idea.prompt}
+          <GeneratedPlaylistScene
+            key={`${idea.prompt}-${revision}`}
             prompt={idea.prompt}
             playing={playing}
           />

@@ -165,7 +165,8 @@ after changing the SVG. Verify page metadata in server-rendered HTML, including
 canonical URLs without tracking parameters, rather than relying on hydration.
 
 The homepage uses alternating product sections for voting, room controls,
-apps, remote control and embedding. Community totals come from the existing
+AI playlist generation and remote control. App screenshots stay on the apps
+guide, and the embed configurator stays on the rooms guide. Community totals come from the existing
 loader and sit above the queue section, aligned with the same content width.
 Failed requests show
 unavailable values, not false zeros. Keep copy short and avoid repeating the
@@ -183,6 +184,13 @@ and app screenshots mount through `DeferredContent` near the viewport; keep
 their headings, descriptions and navigation server-rendered. Reserve preview
 space while loading so scrolling remains stable. The hero typing effect and
 sun also pause when out of view.
+
+The generated playlist showcase types a prompt, shows the shared
+`GenerationSparkles` from the real room-generation screen, then adds three
+placeholder tracks to the queue. Selecting an idea restarts at the prompt;
+reduced motion shows the completed example without typing or transitions.
+The homepage entry button opens and focuses the real generator without
+submitting a request. Keep the feature copy and guide links server-rendered.
 
 The remote showcase first displays the player's pairing details, enters the
 matching code on the phone and transitions into the connected controls. Run it

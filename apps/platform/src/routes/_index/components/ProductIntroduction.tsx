@@ -1,9 +1,8 @@
-import { ArrowRightIcon, DeferredContent } from '@vibes/ui/web';
+import { DeferredContent } from '@vibes/ui/web';
 import { lazy } from 'react';
-import { Link } from 'react-router';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { CommunityStats } from './CommunityStats';
-import { EmbedPreview } from './EmbedPreview';
+import { GeneratedPlaylistSection } from './GeneratedPlaylistSection';
 import { RemotePreview } from './RemotePreview';
 import { RoomControlsPreview } from './RoomControlsPreview';
 
@@ -13,13 +12,13 @@ const LazyVotingPreview = lazy(() =>
   })),
 );
 
-const LazyProductScreenshots = lazy(() =>
-  import('../../../components/seo/ProductScreenshots').then((module) => ({
-    default: module.ProductScreenshots,
-  })),
-);
+interface ProductIntroductionProps {
+  onGeneratePlaylist: () => void;
+}
 
-export function ProductIntroduction() {
+export function ProductIntroduction({
+  onGeneratePlaylist,
+}: ProductIntroductionProps) {
   return (
     <div className="product-content mx-auto w-full max-w-6xl text-theme">
       <CommunityStats />
@@ -60,62 +59,9 @@ export function ProductIntroduction() {
 
       <RoomControlsPreview />
 
-      <section
-        aria-labelledby="devices-heading"
-        className="my-16 grid min-h-[85svh] items-center gap-12 py-16 sm:my-24 sm:py-24 lg:grid-cols-2 lg:gap-20"
-      >
-        <div>
-          <p className="font-pixel text-2xs text-secondary tracking-label">
-            ON YOUR DEVICES
-          </p>
-          <h2
-            id="devices-heading"
-            className="mt-4 font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl"
-          >
-            Add songs from
-            <br />
-            your phone.
-          </h2>
-          <p className="mt-4 text-theme-muted leading-relaxed">
-            Use Zoff in your browser or the iOS and Android apps. Play on
-            Android TV or send the room to a compatible Chromecast from a
-            supported browser or app.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <span className="rounded-full border border-theme px-3 py-1.5 text-theme-muted text-xs">
-              Web
-            </span>
-            <span className="rounded-full border border-theme px-3 py-1.5 text-theme-muted text-xs">
-              iOS
-            </span>
-            <span className="rounded-full border border-theme px-3 py-1.5 text-theme-muted text-xs">
-              Android
-            </span>
-            <span className="rounded-full border border-theme px-3 py-1.5 text-theme-muted text-xs">
-              Android TV
-            </span>
-          </div>
-          <Link className={storyLinkClassName} to="/discovery/apps">
-            Get the apps <ArrowRightIcon className="h-4 w-4 shrink-0" />
-          </Link>
-        </div>
-        <div className="min-w-0">
-          <DeferredContent
-            fallback={
-              <div
-                aria-hidden="true"
-                className="aspect-square rounded-3xl border border-theme bg-theme-surface"
-              />
-            }
-          >
-            <LazyProductScreenshots />
-          </DeferredContent>
-        </div>
-      </section>
+      <GeneratedPlaylistSection onGenerate={onGeneratePlaylist} />
 
       <RemotePreview />
-
-      <EmbedPreview />
 
       <section
         id="explore-zoff"
@@ -138,6 +84,3 @@ export function ProductIntroduction() {
     </div>
   );
 }
-
-const storyLinkClassName =
-  'mt-4 inline-flex min-h-11 items-center gap-3 rounded-xl border border-theme bg-theme-surface px-5 py-3 font-pixel text-sm text-theme transition-colors hover:border-secondary/60 hover:bg-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';

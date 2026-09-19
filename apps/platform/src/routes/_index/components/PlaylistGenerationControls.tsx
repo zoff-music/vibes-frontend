@@ -1,11 +1,17 @@
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { classNames, showToast } from '@vibes/shared';
 import { Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
-import { type ChangeEvent, type KeyboardEvent, useEffect } from 'react';
+import {
+  type ChangeEvent,
+  type KeyboardEvent,
+  type RefObject,
+  useEffect,
+} from 'react';
 import { useFetcher } from 'react-router';
 import type { HomeActionData } from '../action';
 
 interface PlaylistGenerationControlsProps {
+  inputRef: RefObject<HTMLInputElement | null>;
   onPromptChange: (value: string) => void;
   onToggleAIMode: () => void;
   placeholder: string;
@@ -13,6 +19,7 @@ interface PlaylistGenerationControlsProps {
 }
 
 export function PlaylistGenerationControls({
+  inputRef,
   onPromptChange,
   onToggleAIMode,
   placeholder,
@@ -63,7 +70,7 @@ export function PlaylistGenerationControls({
             htmlFor="playlist-prompt"
             className="font-pixel text-sm text-theme-muted"
           >
-            Playlist idea
+            AI playlist prompt
           </label>
           <span className="shrink-0 text-theme-subtle text-xs tabular-nums">
             {prompt.length}/{generatedPlaylistPromptMaxLength}
@@ -71,6 +78,7 @@ export function PlaylistGenerationControls({
         </div>
         <div className="relative">
           <input
+            ref={inputRef}
             id="playlist-prompt"
             type="text"
             placeholder={placeholder}

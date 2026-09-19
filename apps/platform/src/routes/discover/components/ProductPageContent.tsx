@@ -2,6 +2,7 @@ import { ArrowRightIcon } from '@vibes/ui/web';
 import { Link } from 'react-router';
 import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';
+import { GeneratedPlaylistDemo } from '../../../components/seo/GeneratedPlaylistDemo';
 import { ProductAccordion } from '../../../components/seo/ProductAccordion';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { ProductScreenshots } from '../../../components/seo/ProductScreenshots';
@@ -9,7 +10,6 @@ import { appStoreUrl, playStoreUrl } from '../../../seo/metadata';
 import type { ProductPage } from '../../../seo/productPages';
 import { EmbedGuide } from './EmbedGuide';
 import { ListeningPreview } from './ListeningPreview';
-import { PlaylistIdeaPreview } from './PlaylistIdeaPreview';
 import { RoomModePreview } from './RoomModePreview';
 
 interface ProductPageContentProps {
@@ -29,7 +29,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
             aside={
               <>
                 {page.slug === 'listening' && <ListeningPreview />}
-                {page.slug === 'queue' && <PlaylistIdeaPreview />}
+                {page.slug === 'queue' && <GeneratedPlaylistDemo />}
                 {page.slug === 'rooms' && <RoomModePreview />}
                 {page.slug === 'apps' && <ProductScreenshots />}
               </>
@@ -78,18 +78,18 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
           >
             <div className="lg:col-span-2">
               <p className="font-pixel text-2xs text-primary tracking-label">
-                PLAYLIST IDEAS
+                AI PLAYLISTS
               </p>
               <h2
                 id="playlist-generation-heading"
                 className="mt-3 font-pixel text-2xl normal-case tracking-tight"
               >
-                Need a few songs to start?
+                Start with an AI playlist.
               </h2>
               <p className="mt-3 max-w-2xl text-theme-muted leading-relaxed">
-                Try “jazz after midnight” or name a genre you like. Zoff’s AI
-                playlist generator finds tracks and starts a room. Keep what you
-                like, remove what you don’t, and add your own picks.
+                Name a mood, genre or a few artists. Zoff’s AI playlist
+                generator finds tracks for a room you can edit with your
+                friends.
               </p>
             </div>
             <div>
@@ -97,15 +97,12 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
                 to="/?mode=ai"
                 className="flex min-h-14 w-full items-center justify-between gap-4 rounded-2xl bg-primary px-5 py-4 font-pixel text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
               >
-                Try playlist generation
+                Generate a playlist
                 <ArrowRightIcon
                   aria-hidden="true"
                   className="h-4 w-4 shrink-0"
                 />
               </Link>
-              <p className="mt-3 text-theme-subtle text-xs leading-relaxed">
-                You can edit the queue after it’s generated.
-              </p>
             </div>
           </section>
         )}

@@ -1,6 +1,11 @@
 import { classNames } from '@vibes/shared';
-import { AnimatePresence, motion, useInView } from 'framer-motion';
-import { lazy, Suspense, useRef, useState } from 'react';
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useReducedMotion,
+} from 'framer-motion';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import {
   useLoaderData,
   useNavigate,
@@ -37,6 +42,29 @@ export default function Home() {
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const playlistPromptRef = useRef<HTMLInputElement>(null);
+  const [generationEntry, setGenerationEntry] = useState(0);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (generationEntry === 0) return;
+
+    playlistPromptRef.current?.focus({ preventScroll: true });
+    const target = playlistPromptRef.current ?? heroRef.current;
+    target?.scrollIntoView({
+      behavior: reducedMotion ? 'instant' : 'smooth',
+      block: 'center',
+    });
+  }, [generationEntry, reducedMotion]);
+
+  const handleGeneratePlaylist = () => {
+    if (!isAIMode) {
+      setRoomCode('');
+    }
+    setIsAIMode(true);
+    setGenerationEntry((current) => current + 1);
+  };
+
   const heroVisible = useInView(heroRef, { amount: 0.1 });
   const { placeholder, reset } = useAnimatedPlaceholder(
     isAIMode,
@@ -94,7 +122,7 @@ export default function Home() {
           </Suspense>
         </div>
         <div className="product-content relative z-10 px-5 sm:px-6">
-          <ProductIntroduction />
+          <ProductIntroduction onGeneratePlaylist={handleGeneratePlaylist} />
         </div>
         <ProfileSettingsModal
           isOpen={showProfileSettings}
@@ -116,6 +144,7 @@ export default function Home() {
     >
       <HomeLanding
         heroRef={heroRef}
+        onGeneratePlaylist={handleGeneratePlaylist}
         onJoinRoom={handleJoinRoom}
         providers={providers}
         publicRooms={publicRooms}
@@ -132,6 +161,7 @@ export default function Home() {
         )}
         {isAIMode && (
           <PlaylistGenerationControls
+            inputRef={playlistPromptRef}
             onPromptChange={handleRoomCodeChange}
             onToggleAIMode={handleToggleAIMode}
             placeholder={placeholder}
