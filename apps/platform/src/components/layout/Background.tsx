@@ -79,6 +79,7 @@ export function Background() {
 const gridRouteIds = new Set([
   'routes/_index/route',
   'routes/discover/route',
+  'routes/explore.rooms/route',
   'routes/not-found/route',
   'routes/rooms.create/route',
   'routes/security/route',

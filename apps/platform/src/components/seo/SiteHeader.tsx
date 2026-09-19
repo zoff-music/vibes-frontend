@@ -1,6 +1,6 @@
 import { Button, SettingsIcon, Tooltip } from '@vibes/ui/web';
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import { ProfileSettingsModal } from '../profile/ProfileSettingsModal';
 
 export function SiteHeader() {
@@ -37,6 +37,9 @@ export function SiteHeader() {
           aria-label="Product navigation"
           className="flex items-center gap-1 sm:gap-2"
         >
+          <NavLink to="/explore/rooms" className={navigationClassName}>
+            Rooms
+          </NavLink>
           <Link to="/#explore-zoff" className={navigationClassName}>
             Explore
           </Link>
@@ -69,4 +72,4 @@ export function SiteHeader() {
 }
 
 const navigationClassName =
-  'inline-flex min-h-11 cursor-pointer items-center rounded-xl px-3 text-sm text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:px-4';
+  'inline-flex min-h-11 cursor-pointer items-center rounded-xl px-2 text-sm text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:text-cyan-800 dark:aria-[current=page]:text-secondary sm:px-4';

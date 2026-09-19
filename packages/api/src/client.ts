@@ -39,6 +39,8 @@ import {
   providersSchema,
   providerTokenSchema,
   providerURLQuerySchema,
+  publicRoomResultSchema,
+  publicRoomSearchSchema,
   publicRoomsSchema,
   remoteEventSchema,
   remotePairingRequestSchema,
@@ -458,6 +460,12 @@ const endpoints = {
 } as const satisfies RequestDefinitions;
 
 const v2Endpoints = {
+  '/rooms/public': {
+    get: {
+      $search: publicRoomSearchSchema,
+      response: publicRoomResultSchema,
+    },
+  },
   '/rooms/{id}/events': {
     sse: {
       $search: sseQuerySchema.optional(),

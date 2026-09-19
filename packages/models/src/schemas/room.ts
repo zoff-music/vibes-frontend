@@ -92,10 +92,31 @@ export const publicRoomSchema = z.compile(
   z.object({
     id: z.string(),
     name: z.string(),
-    listenerCount: z.int().min(1),
+    listenerCount: z.int().min(0),
     songCount: z.int().min(0),
   }),
 );
 export type PublicRoom = z.infer<typeof publicRoomSchema>;
 
 export const publicRoomsSchema = z.compile(z.array(publicRoomSchema));
+
+export const publicRoomSearchSchema = z.compile(
+  z.object({
+    q: z.string().max(100).optional(),
+    live: z.boolean().optional(),
+    from: z.int().min(0).max(2_147_483_647).optional(),
+    to: z.int().min(0).max(2_147_483_647).optional(),
+  }),
+);
+export type PublicRoomSearch = z.infer<typeof publicRoomSearchSchema>;
+
+export const publicRoomResultSchema = z.compile(
+  z.object({
+    rooms: publicRoomsSchema,
+    from: z.int().min(0),
+    to: z.int().min(0),
+    total: z.int().min(0),
+    count: z.int().min(0),
+  }),
+);
+export type PublicRoomResult = z.infer<typeof publicRoomResultSchema>;

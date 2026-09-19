@@ -174,9 +174,24 @@ or browser retry. The API client's normal timeout and request cancellation
 still apply. Real totals are visible in the server-rendered HTML, including
 without JavaScript. They sit above the queue section and count up when visible,
 respecting reduced motion. Screen readers receive the full values without
-announcing animation frames. Empty room lists and unavailable optional data
-are omitted; the room-entry form and product content remain usable. Keep copy
+announcing animation frames. Unavailable optional data are omitted; the
+public-room browser link stays available even when no rooms are live. Keep copy
 short and avoid repeating the same explanation in adjacent sections.
+
+`/explore/rooms` lists ten public rooms per page, with a live/all filter and
+room-name search. The first request uses the server loader, defaulting to live
+rooms. Hydration reuses that result without another request. Subsequent filter,
+search and page navigation uses the route's `clientLoader` and `@vibes/api`
+directly. Components only submit forms and navigate; they do not make REST
+requests. Keep the previous results visible while loading and preserve filter
+state in the URL. Search and filter changes reset pagination.
+
+Both loaders use `/api/v2/rooms/public`, ordered by listeners, songs and ID,
+all descending. The homepage requests only the first three live rooms through
+its server loader. The homepage and browser share `PublicRoomTile` from
+`@vibes/ui/web`. The unfiltered browser has a stable sitemap and canonical URL;
+search, pagination and filter variants use `noindex, follow`. Deploy the v2
+backend endpoint before the frontend. Existing v1 clients remain supported.
 
 The room-settings section stays unframed within the shared content width. Its
 three examples have distinct layouts: a listener's search result entering the

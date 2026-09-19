@@ -5,6 +5,7 @@ export default [
   route('robots.txt', './routes/robots/loader.ts'),
   route('sitemap.xml', './routes/sitemap/loader.ts'),
   route('discovery/:topic', './routes/discover/route.tsx'),
+  route('explore/rooms', './routes/explore.rooms/route.tsx'),
   route('discover/:topic', './routes/discover/redirect.ts'),
   route('.well-known/security.txt', './routes/security-txt/loader.ts'),
   route('privacy-policy', './routes/privacy-policy/route.tsx'),

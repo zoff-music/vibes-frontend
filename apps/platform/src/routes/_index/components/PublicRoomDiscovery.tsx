@@ -1,7 +1,7 @@
 import type { PublicRoom } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { Button } from '@vibes/ui/web';
-import type { MouseEvent } from 'react';
+import { PublicRoomTile } from '@vibes/ui/web';
+import { Link } from 'react-router';
 
 interface PublicRoomDiscoveryProps {
   onJoinRoom: (roomId: string) => void;
@@ -12,24 +12,31 @@ export function PublicRoomDiscovery({
   onJoinRoom,
   rooms,
 }: PublicRoomDiscoveryProps) {
-  if (rooms.length === 0) return null;
-
-  const handleJoinRoom = (event: MouseEvent<HTMLButtonElement>) => {
-    onJoinRoom(event.currentTarget.value);
-  };
-
   return (
     <section aria-labelledby="live-rooms-heading" className="mt-6">
-      <h2
-        id="live-rooms-heading"
-        className="mb-3 flex items-center gap-2 font-pixel text-sm text-theme-muted normal-case tracking-normal"
-      >
-        <span
-          aria-hidden="true"
-          className="h-1.5 w-1.5 rounded-full bg-secondary"
-        />
-        Live rooms
-      </h2>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h2
+          id="live-rooms-heading"
+          className="flex items-center gap-2 font-pixel text-sm text-theme-muted normal-case tracking-normal"
+        >
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-secondary"
+          />
+          Live rooms
+        </h2>
+        <Link
+          to="/explore/rooms"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-theme bg-theme-surface px-4 text-sm text-theme transition-colors hover:border-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+        >
+          Browse public rooms <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+      {rooms.length === 0 && (
+        <p className="text-sm text-theme-muted">
+          Find a public queue and start listening.
+        </p>
+      )}
 
       <div
         className={classNames(
@@ -39,30 +46,7 @@ export function PublicRoomDiscovery({
         )}
       >
         {rooms.map((room) => (
-          <Button
-            key={room.id}
-            onClick={handleJoinRoom}
-            size="none"
-            variant="tertiary"
-            contentAlignment="between"
-            value={room.id}
-            className="group min-h-16 w-full gap-3 rounded-2xl px-4 py-3 shadow-sm transition-colors hover:bg-theme-hover"
-          >
-            <span className="flex w-full items-center gap-3">
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-pixel text-sm text-theme">
-                  {room.name}
-                </span>
-                <span className="mt-1 block text-theme-muted text-xs">
-                  {room.listenerCount} listening · {room.songCount}{' '}
-                  {room.songCount === 1 ? 'song' : 'songs'}
-                </span>
-              </span>
-              <span className="shrink-0 font-pixel text-secondary text-xs">
-                Join →
-              </span>
-            </span>
-          </Button>
+          <PublicRoomTile key={room.id} room={room} onJoin={onJoinRoom} />
         ))}
       </div>
     </section>
