@@ -18,7 +18,6 @@ export function HomeLanding({
   children,
   heroRef,
   data,
-  pending,
   onJoinRoom,
   onGeneratePlaylist,
 }: HomeLandingProps) {
@@ -48,9 +47,7 @@ export function HomeLanding({
           }
           footer={
             <>
-              <div className="min-h-11">
-                <ProviderAttribution providers={data.providers ?? []} />
-              </div>
+              <ProviderAttribution providers={data.providers ?? []} />
               <LegalAcknowledgement />
             </>
           }
@@ -58,8 +55,7 @@ export function HomeLanding({
       </div>
       <PublicRoomDiscovery
         onJoinRoom={onJoinRoom}
-        rooms={data.publicRooms}
-        loading={pending && data.publicRooms === null}
+        rooms={data.publicRooms ?? []}
       />
       <ProductIntroduction onGeneratePlaylist={onGeneratePlaylist} />
       <p

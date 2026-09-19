@@ -10,7 +10,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 interface AnimatedNumberProps {
-  value: number | null;
+  value: number;
 }
 
 const formatter = new Intl.NumberFormat('en');
@@ -27,8 +27,6 @@ export function AnimatedNumber({ value }: AnimatedNumberProps) {
   );
 
   useEffect(() => {
-    if (value === null) return;
-
     if (reducedMotion) {
       count.set(value);
       setStarted(true);
@@ -48,14 +46,9 @@ export function AnimatedNumber({ value }: AnimatedNumberProps) {
 
   return (
     <span ref={ref}>
-      {value === null && '—'}
-      {value !== null && (
-        <>
-          <span className="sr-only">{formatter.format(value)}</span>
-          {!started && <span aria-hidden="true">—</span>}
-          {started && <motion.span aria-hidden="true">{formatted}</motion.span>}
-        </>
-      )}
+      <span className="sr-only">{formatter.format(value)}</span>
+      {!started && <span aria-hidden="true">{formatter.format(value)}</span>}
+      {started && <motion.span aria-hidden="true">{formatted}</motion.span>}
     </span>
   );
 }

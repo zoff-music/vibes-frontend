@@ -3,13 +3,14 @@ import { useLoaderData } from 'react-router';
 import type { HomeLoaderData } from '../loader';
 
 export function CommunityStats() {
-  const { data, pending } = useLoaderData<HomeLoaderData>();
+  const { data } = useLoaderData<HomeLoaderData>();
   const { stats } = data;
+
+  if (!stats) return null;
 
   return (
     <section
       aria-label="Zoff community statistics"
-      aria-busy={pending && stats === null}
       className="mt-6 mb-4 border-theme border-y py-8 sm:mt-10 sm:mb-8 sm:py-10"
     >
       <dl className="grid grid-cols-3 items-start text-center">
@@ -18,7 +19,7 @@ export function CommunityStats() {
             Rooms
           </dt>
           <dd className="mt-1 font-pixel text-2xl text-theme tabular-nums sm:text-5xl">
-            <AnimatedNumber value={stats?.totalRooms ?? null} />
+            <AnimatedNumber value={stats.totalRooms} />
           </dd>
         </div>
         <div className="border-theme border-l px-3 sm:px-6">
@@ -26,28 +27,22 @@ export function CommunityStats() {
             Songs in queues
           </dt>
           <dd className="mt-1 font-pixel text-2xl text-theme tabular-nums sm:text-5xl">
-            <AnimatedNumber value={stats?.totalSongs ?? null} />
+            <AnimatedNumber value={stats.totalSongs} />
           </dd>
         </div>
         <div className="border-theme border-l pl-3 sm:pl-6">
           <dt className="flex min-h-8 items-center justify-center gap-1.5 text-theme-muted text-xs sm:min-h-4">
-            {stats && (
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 rounded-full bg-secondary"
-              />
-            )}
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-secondary"
+            />
             Listeners
           </dt>
           <dd className="mt-1 font-pixel text-2xl text-theme tabular-nums sm:text-5xl">
-            <AnimatedNumber value={stats?.totalListeners ?? null} />
+            <AnimatedNumber value={stats.totalListeners} />
           </dd>
         </div>
       </dl>
-      <p role="status" className="sr-only">
-        {pending && !stats && 'Loading community totals.'}
-        {!pending && !stats && 'Community totals are currently unavailable.'}
-      </p>
     </section>
   );
 }

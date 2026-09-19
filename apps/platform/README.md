@@ -167,16 +167,16 @@ canonical URLs without tracking parameters, rather than relying on hydration.
 The homepage uses alternating product sections for voting, room controls,
 AI playlist generation and remote control. App screenshots stay on the apps
 guide, and the embed configurator stays on the rooms guide. The homepage's
-server loader gives community totals, public rooms and providers a shared
-250 ms deadline. Successful responses stay in the server-rendered HTML;
-missing values are completed by `clientLoader` during hydration or client
-navigation, without refetching successful responses. The full page, forms and
-SEO copy render even if these optional reads fail or time out.
-Keep the provider and room-list space reserved while loading. Totals sit above
-the queue section and count up when visible, respecting reduced motion.
-Their full values are available to screen readers without announcing animation
-frames. Failed requests show dashes, not false zeros. Keep copy short and avoid
-repeating the same explanation in adjacent sections.
+server loader fetches community totals, public rooms and providers in parallel
+and awaits the backend responses before rendering. Initial requests and client
+navigation both use this server loader; there is no homepage `clientLoader`
+or browser retry. The API client's normal timeout and request cancellation
+still apply. Real totals are visible in the server-rendered HTML, including
+without JavaScript. They sit above the queue section and count up when visible,
+respecting reduced motion. Screen readers receive the full values without
+announcing animation frames. Empty room lists and unavailable optional data
+are omitted; the room-entry form and product content remain usable. Keep copy
+short and avoid repeating the same explanation in adjacent sections.
 
 Public pages provide a keyboard skip link before the header. Shared toggles
 expose their label and description separately from the decorative OFF/ON
@@ -226,8 +226,8 @@ scrolling. The hero, guides and product sections use the common site layout;
 room routes keep their player layout. The old `how-it-works` anchor remains
 compatible without a separate jump link.
 
-Optional session and remote reads do not retry during SSR. Homepage reads use
-the bounded server attempt and client fallback above, also without retries.
+Optional session and remote reads do not retry during SSR. Homepage reads also
+run on the server without retries.
 Preserve request cancellation and timeouts. The local pixel font is preloaded, and the
 shared server compresses production responses. Do not introduce external font
 stylesheets or request backoff delays on public page loads.

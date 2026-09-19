@@ -17,7 +17,6 @@ import { ProfileSettingsModal } from '../../components/profile/ProfileSettingsMo
 import { getPreviousPath } from '../../utils/navigationHistory';
 import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction } from './action';
-import { clientLoader } from './clientLoader';
 import { HomeLanding } from './components/HomeLanding';
 import { HomeRoomControls } from './components/HomeRoomControls';
 import { JoiningRoomState } from './components/JoiningRoomState';
@@ -27,7 +26,7 @@ import { useAnimatedPlaceholder } from './hooks/useAnimatedPlaceholder';
 import { loader } from './loader';
 
 export { meta } from './meta';
-export { clientAction, clientLoader, loader };
+export { clientAction, loader };
 
 const LazyTerminalHome = lazy(async () => {
   const module = await import('./components/TerminalHome');
@@ -35,7 +34,7 @@ const LazyTerminalHome = lazy(async () => {
 });
 
 export default function Home() {
-  const { data, pending } = useLoaderData<typeof clientLoader>();
+  const { data } = useLoaderData<typeof loader>();
   const [roomCode, setRoomCode] = useState('');
   const [searchParams] = useSearchParams();
   const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
@@ -150,7 +149,6 @@ export default function Home() {
         onGeneratePlaylist={handleGeneratePlaylist}
         onJoinRoom={handleJoinRoom}
         data={data}
-        pending={pending}
       >
         {!isAIMode && (
           <HomeRoomControls
