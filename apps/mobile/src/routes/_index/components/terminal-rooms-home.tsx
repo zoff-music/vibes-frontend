@@ -1,4 +1,8 @@
 import type { PublicRoom } from '@vibes/models';
+import {
+  generatedPlaylistPromptMaxLength,
+  roomNameMaxLength,
+} from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import {
@@ -126,6 +130,11 @@ export function TerminalRoomsHome({
                       value={value}
                       onChangeText={onChangeValue}
                       onSubmitEditing={onSubmit}
+                      maxLength={
+                        isAIMode
+                          ? generatedPlaylistPromptMaxLength
+                          : roomNameMaxLength
+                      }
                       placeholder={
                         isAIMode
                           ? 'Late-night synthwave for a rainy drive'

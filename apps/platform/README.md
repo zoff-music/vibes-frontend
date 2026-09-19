@@ -223,6 +223,22 @@ topic, including provider availability, room permissions and the difference
 between joining a room and pairing a remote. Add useful instructions rather than
 repeating homepage sales copy; keep detailed text out of animation captions.
 
+The listening guide shows room chat using the same `ChatMessageLine` renderer
+as real conversations. Its local sequence includes messages, adds, votes, skip
+votes, skips, removals and name changes, then turns the shared Chat toggle off
+to show the queue. The panel folds into the spinning Zoff logo before restarting.
+The toggle is also usable manually, including with reduced motion. It changes
+only the preview, never the visitor's saved preference. Keep messages bounded,
+pause offscreen and in hidden tabs, and reserve the full preview height before
+lazy loading. Device settings keep Chat as a compact toggle after the name
+field, without explanatory paragraphs.
+
+Request schemas and input controls share limits from `@vibes/models`: 500 for
+chat messages, 30 for display names and 100 for room names. Room creation and
+reservation, along with profile actions, validate before sending requests and
+show the validation message. The backend independently enforces these limits.
+Do not apply input limits to returned room/song metadata or existing room URLs.
+
 Public pages provide a keyboard skip link before the header. Shared toggles
 expose their label and description separately from the decorative OFF/ON
 labels. Playback sliders announce elapsed time and duration. The queue demo

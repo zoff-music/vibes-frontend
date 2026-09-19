@@ -4,7 +4,11 @@ import {
   getHttpError,
   getRateLimitMessage,
 } from '@vibes/api';
-import { isSourceType, type RoomNameReservation } from '@vibes/models';
+import {
+  isSourceType,
+  type RoomNameReservation,
+  roomNameInputSchema,
+} from '@vibes/models';
 import { type ClientActionFunctionArgs, redirect } from 'react-router';
 
 export interface RoomsCreateActionData {
@@ -39,9 +43,10 @@ export async function clientAction({
   }
 
   const name = String(formData.get('name') ?? '').trim();
-  if (!name) {
+  const parsed = roomNameInputSchema.safeParse(name);
+  if (!parsed.success) {
     return {
-      error: 'Room name is required',
+      error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
     };
   }
 
@@ -89,6 +94,15 @@ async function reserveRoomName(
   formData: FormData,
 ): Promise<RoomsCreateActionData> {
   const name = String(formData.get('name') ?? '').trim();
+  if (name) {
+    const parsed = roomNameInputSchema.safeParse(name);
+    if (!parsed.success) {
+      return {
+        checkedName: name,
+        error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+      };
+    }
+  }
   const [err, reservation] = await api.post('/rooms/reservations', null, {
     name: name || undefined,
   });

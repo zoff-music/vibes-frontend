@@ -1,6 +1,7 @@
 export * from './components/AnimatedNumber';
 export * from './components/Button';
 export { ChatConversation } from './components/ChatConversation';
+export { ChatMessageLine } from './components/ChatMessageLine';
 export * from './components/ContentTransition';
 export * from './components/DebugConsole';
 export * from './components/DeferredContent';

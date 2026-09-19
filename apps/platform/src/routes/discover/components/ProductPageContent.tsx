@@ -8,6 +8,7 @@ import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { ProductScreenshots } from '../../../components/seo/ProductScreenshots';
 import { appStoreUrl, playStoreUrl } from '../../../seo/metadata';
 import type { ProductPage } from '../../../seo/productPages';
+import { ChatGuide } from './ChatGuide';
 import { EmbedGuide } from './EmbedGuide';
 import { ListeningPreview } from './ListeningPreview';
 import { RoomModePreview } from './RoomModePreview';
@@ -134,6 +135,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
             </section>
           ))}
         </div>
+        {page.slug === 'listening' && <ChatGuide />}
         {page.slug === 'rooms' && <EmbedGuide />}
         <section
           aria-label="More about this setup"

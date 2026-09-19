@@ -1,6 +1,7 @@
 import {
   isSourceType,
   type RoomNameReservation,
+  roomNameMaxLength,
   type SourceType,
 } from '@vibes/models';
 import {
@@ -524,6 +525,7 @@ const CreateRoom: React.FC = () => {
                 <div className="relative">
                   <input
                     name="name"
+                    maxLength={roomNameMaxLength}
                     type="text"
                     placeholder="Friday Night Vibes"
                     value={name}

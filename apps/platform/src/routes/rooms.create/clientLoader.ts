@@ -1,4 +1,5 @@
 import { api, getRateLimitMessage, getRequestErrorMessage } from '@vibes/api';
+import { roomNameInputSchema } from '@vibes/models';
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import type { RoomsCreateLoaderData } from './loader';
 
@@ -20,8 +21,12 @@ export async function clientLoader({
 
   if (intent === 'check-room-name') {
     const trimmedName = name?.trim() ?? '';
-    if (!trimmedName) {
-      return { checkedName: trimmedName, error: 'Room name is required' };
+    const parsed = roomNameInputSchema.safeParse(trimmedName);
+    if (!parsed.success) {
+      return {
+        checkedName: trimmedName,
+        error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+      };
     }
     const roomID = slugifyRoomName(trimmedName);
     if (!roomID) {

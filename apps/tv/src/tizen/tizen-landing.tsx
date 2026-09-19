@@ -1,4 +1,8 @@
 import type { PublicRoom } from '@vibes/models';
+import {
+  generatedPlaylistPromptMaxLength,
+  roomNameMaxLength,
+} from '@vibes/models';
 import { chunkItems } from '@vibes/ui/shared';
 import { useState } from 'react';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
@@ -64,6 +68,9 @@ export function TizenLanding({
               className="min-h-20 min-w-0 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-7 text-3xl"
               onChange={(event) => setValue(event.target.value)}
               placeholder={placeholder}
+              maxLength={
+                isAIMode ? generatedPlaylistPromptMaxLength : roomNameMaxLength
+              }
               value={value}
             />
             <button

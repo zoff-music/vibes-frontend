@@ -1,4 +1,9 @@
-import type { Providers, RoomSettings, SourceType } from '@vibes/models';
+import {
+  type Providers,
+  type RoomSettings,
+  roomNameMaxLength,
+  type SourceType,
+} from '@vibes/models';
 import type { ReactNode } from 'react';
 import { TerminalButton } from './TerminalButton';
 import { TerminalField, TerminalInputGroup } from './TerminalField';
@@ -94,6 +99,7 @@ export function TerminalCreateRoom({
                       autoFocus
                       id="terminal-room-name"
                       name="name"
+                      maxLength={roomNameMaxLength}
                       onChange={(event) => onNameChange(event.target.value)}
                       placeholder="CHANNEL NAME"
                       type="text"

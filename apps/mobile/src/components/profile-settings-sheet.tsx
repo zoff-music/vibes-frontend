@@ -1,4 +1,4 @@
-import type { SessionProfile } from '@vibes/models';
+import { displayNameMaxLength, type SessionProfile } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { useEffect, useRef, useState } from 'react';
 import { Modal, View } from 'react-native';
@@ -104,7 +104,7 @@ export function ProfileSettingsSheet({
               <Field
                 autoCapitalize="words"
                 editable={!loading}
-                maxLength={30}
+                maxLength={displayNameMaxLength}
                 onChangeText={setName}
                 onSubmitEditing={() => void save()}
                 placeholder={

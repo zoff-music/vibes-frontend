@@ -1,4 +1,8 @@
 import type { PublicRoom, PublicRoomResult } from '@vibes/models';
+import {
+  generatedPlaylistPromptMaxLength,
+  roomNameMaxLength,
+} from '@vibes/models';
 import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import { classNames, PUBLIC_ROOM_PAGE_SIZE } from '@vibes/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -429,6 +433,11 @@ export function RoomsScreen() {
                       setError('');
                     }}
                     onSubmitEditing={submitRoom}
+                    maxLength={
+                      isAIMode
+                        ? generatedPlaylistPromptMaxLength
+                        : roomNameMaxLength
+                    }
                     placeholder={
                       isAIMode
                         ? 'Late-night synthwave for a rainy drive'

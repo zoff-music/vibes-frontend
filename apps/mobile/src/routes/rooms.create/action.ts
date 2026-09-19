@@ -1,5 +1,9 @@
 import { createRoomLifecycleRequests } from '@vibes/api';
 import type { CreateRoomRequest, RoomNameReservation } from '@vibes/models';
+import {
+  createRoomRequestSchema,
+  roomNameReservationRequestSchema,
+} from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
@@ -23,7 +27,16 @@ export async function action({
     return { data: null, error: 'The room request was invalid.' };
   }
   if (input.intent === 'reserve') {
-    const [error, reservation] = await requests.reserveRoom(input.name, {
+    const parsed = roomNameReservationRequestSchema.safeParse({
+      name: input.name,
+    });
+    if (!parsed.success) {
+      return {
+        data: null,
+        error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+      };
+    }
+    const [error, reservation] = await requests.reserveRoom(parsed.data.name, {
       signal,
     });
     if (error || !reservation) {
@@ -55,7 +68,14 @@ export async function action({
     }
     return { data: { intent: 'generated', roomId: room.id }, error: '' };
   }
-  const [error, room] = await requests.createRoom(input.request, { signal });
+  const parsed = createRoomRequestSchema.safeParse(input.request);
+  if (!parsed.success) {
+    return {
+      data: null,
+      error: parsed.error.issues[0]?.message ?? 'Check the room settings.',
+    };
+  }
+  const [error, room] = await requests.createRoom(parsed.data, { signal });
   if (error || !room) {
     return {
       data: null,

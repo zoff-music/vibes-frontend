@@ -1,4 +1,4 @@
-import type { RoomMessage } from '@vibes/models';
+import { chatMessageMaxLength, type RoomMessage } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useMemo, useRef, useState } from 'react';
 import { FlatList, Text, TextInput, View } from 'react-native';
@@ -105,7 +105,7 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
           onChangeText={setDraft}
           onSubmitEditing={() => void send()}
           returnKeyType="send"
-          maxLength={500}
+          maxLength={chatMessageMaxLength}
           className="h-12 min-w-0 flex-1 rounded-xl border border-native-border bg-native-surface px-4 font-heading text-base text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text"
         />
         <NativeButton

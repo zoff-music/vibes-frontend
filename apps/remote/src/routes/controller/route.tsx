@@ -11,6 +11,7 @@ import type {
   RemoteStatus,
   Song,
 } from '@vibes/models';
+import { roomNameMaxLength } from '@vibes/models';
 import {
   showToast,
   synchronizeServerClock,
@@ -291,6 +292,7 @@ export default function RemoteController() {
             name="nextRoomId"
             onChange={handleRoomInputChange}
             placeholder="Change room"
+            maxLength={roomNameMaxLength}
             required
             value={roomInput}
           />
