@@ -32,42 +32,12 @@ export function RoomControlPanel() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-28 -z-10 h-80 bg-radial from-secondary/10 via-primary/5 to-transparent [mask-image:radial-gradient(ellipse,black,transparent_70%)]"
         />
-        <div className="flex items-center justify-between gap-4">
-          <p className="font-pixel text-2xl text-theme sm:text-3xl">
-            electro
-            <span aria-hidden="true" className="text-primary">
-              .
-            </span>
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="tertiary"
-              size="icon"
-              data-animation-control
-              onClick={actions.togglePlayback}
-              disabled={state.reducedMotion}
-              aria-label={
-                state.paused ? 'Play room setups' : 'Pause room setups'
-              }
-            >
-              {state.paused && (
-                <PlayIcon aria-hidden="true" className="h-4 w-4" />
-              )}
-              {!state.paused && (
-                <PauseIcon aria-hidden="true" className="h-4 w-4" />
-              )}
-            </Button>
-            <Button
-              variant="tertiary"
-              size="icon"
-              data-animation-control
-              onClick={actions.replay}
-              aria-label="Replay room setup example"
-            >
-              <ResetIcon aria-hidden="true" className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <p className="font-pixel text-base text-theme sm:text-3xl">
+          electro
+          <span aria-hidden="true" className="text-primary">
+            .
+          </span>
+        </p>
         <fieldset className="mt-4">
           <legend className="sr-only">Choose a room setting to try</legend>
           <div className="grid grid-cols-3 gap-2">
@@ -80,7 +50,7 @@ export function RoomControlPanel() {
                 }
                 aria-pressed={state.setupId === setup.id}
                 onClick={() => actions.selectSetup(setup.id)}
-                className="min-h-11 rounded-xl px-2 py-2 text-xs sm:text-sm"
+                className="min-h-12 rounded-xl px-2 py-3 text-sm"
               >
                 {setup.label}
               </Button>
@@ -106,6 +76,36 @@ export function RoomControlPanel() {
               announce={state.manual}
             />
           </ContentTransition>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:ml-auto sm:flex sm:justify-end">
+          <Button
+            variant="tertiary"
+            size="small"
+            className="min-h-12 gap-2 text-sm sm:px-5"
+            data-animation-control
+            onClick={actions.togglePlayback}
+            disabled={state.reducedMotion}
+            aria-label={state.paused ? 'Play examples' : 'Pause examples'}
+          >
+            {state.paused && (
+              <PlayIcon aria-hidden="true" className="h-4 w-4" />
+            )}
+            {!state.paused && (
+              <PauseIcon aria-hidden="true" className="h-4 w-4" />
+            )}
+            <span>{state.paused ? 'Play examples' : 'Pause examples'}</span>
+          </Button>
+          <Button
+            variant="tertiary"
+            size="small"
+            className="min-h-12 gap-2 text-sm sm:px-5"
+            data-animation-control
+            onClick={actions.replay}
+            aria-label="Replay room setup example"
+          >
+            <ResetIcon aria-hidden="true" className="h-4 w-4" />
+            <span>Replay</span>
+          </Button>
         </div>
         <p role="status" className="sr-only">
           {state.announcement}

@@ -8,6 +8,7 @@ interface SegmentedToggleProps {
   description?: React.ReactNode;
   disabled?: boolean;
   variant?: 'card' | 'plain-full' | 'inline';
+  size?: 'normal' | 'comfortable';
   id?: string;
   name?: string;
 }
@@ -19,6 +20,7 @@ export function SegmentedToggle({
   description,
   disabled = false,
   variant = 'card',
+  size = 'normal',
   id,
   name,
 }: SegmentedToggleProps) {
@@ -48,7 +50,10 @@ export function SegmentedToggle({
       />
       <span
         aria-hidden="true"
-        className="grid h-9 w-28 grid-cols-2 rounded-xl border border-theme bg-black/5 p-1 font-pixel text-2xs tracking-label transition-colors peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-theme dark:bg-white/5"
+        className={classNames(
+          'grid grid-cols-2 rounded-xl border border-theme bg-black/5 p-1 font-pixel tracking-label transition-colors peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-theme dark:bg-white/5',
+          size === 'comfortable' ? 'h-12 w-36 text-xs' : 'h-9 w-28 text-2xs',
+        )}
       >
         <span
           className={classNames(

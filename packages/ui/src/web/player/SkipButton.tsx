@@ -7,20 +7,23 @@ import { SkipIcon } from '../icons';
 interface SkipButtonProps {
   canSkip: boolean;
   isSkipping?: boolean;
+  showLabel?: boolean;
   onSkip: () => void;
 }
 
 export function SkipButton({
   canSkip,
   isSkipping = false,
+  showLabel = false,
   onSkip,
 }: SkipButtonProps) {
   return (
     <Tooltip
-      className="inline-flex"
+      className={classNames('inline-flex', showLabel && 'w-full')}
       content={isSkipping ? 'Skipping song…' : 'Skip'}
     >
       <motion.div
+        className={classNames(showLabel && 'w-full')}
         animate={isSkipping ? { x: [0, 5, -2, 0] } : { x: 0 }}
         transition={{ duration: 0.38 }}
       >
@@ -28,11 +31,14 @@ export function SkipButton({
           onClick={onSkip}
           disabled={!canSkip || isSkipping}
           variant="tertiary"
-          size="icon"
-          aria-label={isSkipping ? 'Skipping song' : 'Skip'}
+          size={showLabel ? 'small' : 'icon'}
+          aria-label={
+            isSkipping ? 'Skipping song' : showLabel ? 'Skip song' : 'Skip'
+          }
           aria-busy={isSkipping}
           className={classNames(
             'group',
+            showLabel && 'min-h-12 w-full gap-2 text-sm',
             isSkipping &&
               'border-primary/60 bg-primary/15 shadow-secondary-soft',
           )}
@@ -47,6 +53,7 @@ export function SkipButton({
           >
             <SkipIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
           </motion.span>
+          {showLabel && <span>{isSkipping ? 'Skipping…' : 'Skip song'}</span>}
         </Button>
       </motion.div>
     </Tooltip>

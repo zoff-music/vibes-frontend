@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import type React from 'react';
 import {
   formatPlaybackMilliseconds,
@@ -14,6 +15,7 @@ interface PlaybackProgressProps {
   onPointerUp?: React.PointerEventHandler<HTMLInputElement>;
   positionMs: number;
   showTimes?: boolean;
+  size?: 'normal' | 'comfortable';
 }
 
 export function PlaybackProgress({
@@ -26,6 +28,7 @@ export function PlaybackProgress({
   onPointerUp,
   positionMs,
   showTimes = true,
+  size = 'normal',
 }: PlaybackProgressProps) {
   const { boundedPositionMs, progress } = getPlaybackPresentation(
     positionMs,
@@ -35,7 +38,12 @@ export function PlaybackProgress({
 
   return (
     <div>
-      <div className="relative flex h-5 items-center">
+      <div
+        className={classNames(
+          'relative flex items-center',
+          size === 'comfortable' ? 'h-11' : 'h-5',
+        )}
+      >
         <div
           aria-hidden="true"
           className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/12"
@@ -49,7 +57,10 @@ export function PlaybackProgress({
           <input
             aria-label="Playback position"
             aria-valuetext={`${formatPlaybackMilliseconds(boundedPositionMs)} of ${formatPlaybackMilliseconds(durationMs)}`}
-            className="absolute inset-x-0 h-5 w-full cursor-pointer appearance-none bg-transparent [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-secondary [&::-moz-range-thumb]:bg-theme-surface [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-0.75 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-secondary [&::-webkit-slider-thumb]:bg-theme-surface"
+            className={classNames(
+              'absolute inset-x-0 w-full cursor-pointer appearance-none bg-transparent [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-secondary [&::-moz-range-thumb]:bg-theme-surface [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-0.75 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-secondary [&::-webkit-slider-thumb]:bg-theme-surface',
+              size === 'comfortable' ? 'h-11' : 'h-5',
+            )}
             max={durationMs}
             min={0}
             {...(name && { name })}

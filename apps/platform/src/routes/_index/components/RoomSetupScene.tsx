@@ -30,7 +30,7 @@ export function RoomSetupScene({
 
   return (
     <div>
-      <div className="flex min-h-84 flex-col justify-center sm:min-h-64">
+      <div className="flex min-h-76 flex-col justify-center sm:min-h-64">
         {setupId === 'adding' && (
           <AddSongSetupScene
             complete={state.complete}

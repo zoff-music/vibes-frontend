@@ -183,7 +183,9 @@ three examples have distinct layouts: a listener's search result entering the
 queue, the player's skip control obeying permissions, and a finished song either
 returning to the queue or leaving it. Each example has one relevant room toggle
 beside the action it changes. On phones, the controls and result fit together
-without scrolling through a full player and several queue rows. Search results,
+without scrolling through a full player and several queue rows. Phone actions
+use full-width, labelled buttons; playback examples put pause and replay beneath
+the scene. The setting switches have a larger touch target. Search results,
 skip controls, song panels and queue rows reuse `@vibes/ui/web`; compact density
 preserves the normal room presentation elsewhere.
 
@@ -228,8 +230,11 @@ reduced motion shows the completed example without typing or transitions.
 The homepage entry button opens and focuses the real generator without
 submitting a request. Keep the feature copy and guide links server-rendered.
 
-The remote showcase first displays the player's pairing details, enters the
-matching code on the phone and transitions into the connected controls. Run it
+The homepage remote showcase puts the player's pairing details first, enters the
+matching code on the phone and transitions into connected controls. On phones,
+the compact player sits above the remote so both remain visible together. Use
+labelled, thumb-sized playback buttons, a larger seek target, and preview controls
+below the scene rather than small icons beside it. Run it
 once, retain the usable remote afterward, and offer pause/replay controls.
 Reduced motion leaves pairing manual. All IDs, codes and playback in this demo
 are local placeholders; never issue a real pairing request from the showcase.

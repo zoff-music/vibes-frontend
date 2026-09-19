@@ -12,7 +12,7 @@ export function RemotePreview() {
   return (
     <section
       aria-labelledby="remote-heading"
-      className="grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-5 lg:gap-16"
+      className="grid items-center gap-8 py-16 sm:py-28 lg:grid-cols-5 lg:gap-16"
     >
       <div className="lg:order-2 lg:col-span-2">
         <p className="font-pixel text-secondary text-xs tracking-label">
@@ -20,7 +20,7 @@ export function RemotePreview() {
         </p>
         <h2
           id="remote-heading"
-          className="mt-4 font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl"
+          className="mt-4 font-pixel text-3xl normal-case leading-tight tracking-tight sm:text-5xl"
         >
           Your phone is the remote.
         </h2>
@@ -43,7 +43,7 @@ export function RemotePreview() {
           fallback={
             <div
               aria-hidden="true"
-              className="h-212 rounded-3xl border border-theme bg-theme-surface sm:h-111 lg:h-212 xl:h-111"
+              className="h-160 rounded-2xl border border-theme bg-theme-surface sm:h-108 lg:h-160 xl:h-108"
             />
           }
         >

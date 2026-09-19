@@ -24,7 +24,11 @@ export function RemotePairingPreview({
         <div>
           <Input label="Remote ID" value={previewRemoteId} readOnly />
           <Input label="Pairing code" value={code} readOnly />
-          <Button variant="primary" className="w-full" onClick={onPair}>
+          <Button
+            variant="primary"
+            className="min-h-12 w-full"
+            onClick={onPair}
+          >
             Pair Remote
           </Button>
         </div>
@@ -46,20 +50,19 @@ export function RemotePairingPreview({
 
 export function RemotePairingDetails() {
   return (
-    <div className="flex h-full items-center">
-      <div className="w-full min-w-0 rounded-2xl border border-theme bg-theme-surface p-4 text-center">
-        <p className="font-pixel text-theme-muted text-xs tracking-widest">
-          Manual pairing
-        </p>
-        <p className="mt-5 text-theme-muted text-xs">Remote ID</p>
-        <p className="mt-2 break-all font-mono text-theme text-xs">
+    <dl className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
+      <div className="min-w-0">
+        <dt className="text-theme-muted text-xs">Remote ID</dt>
+        <dd className="mt-2 break-all font-mono text-theme text-xs">
           {previewRemoteId}
-        </p>
-        <p className="mt-5 text-theme-muted text-xs">Pairing code</p>
-        <p className="mt-2 font-display text-2xl text-cyan-700 tracking-widest dark:text-secondary">
-          {previewPairingCode}
-        </p>
+        </dd>
       </div>
-    </div>
+      <div>
+        <dt className="text-theme-muted text-xs">Pairing code</dt>
+        <dd className="mt-2 font-mono text-lg text-theme tracking-wider">
+          {previewPairingCode}
+        </dd>
+      </div>
+    </dl>
   );
 }

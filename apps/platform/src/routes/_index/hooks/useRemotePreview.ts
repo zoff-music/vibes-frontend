@@ -8,21 +8,28 @@ type PairingPhase = 'entering' | 'connecting' | 'paired';
 
 export function useRemotePreview() {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { amount: 0.25 });
+  const inView = useInView(ref, { amount: 0.7 });
   const visible = usePageVisibility();
   const reducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<PairingPhase>('entering');
   const [entered, setEntered] = useState(0);
   const [paused, setPaused] = useState(false);
   const playButtonRef = useRef<HTMLButtonElement>(null);
-  const focusRemote = useRef(false);
+  const manualPairing = useRef(false);
   const [playing, setPlaying] = useState(true);
   const [playback, setPlayback] = useState({ track: 0, position: 45000 });
   const song = queueDemoSongs[playback.track % queueDemoSongs.length];
   const durationMs = song.duration * 1000;
 
   useEffect(() => {
-    if (!inView || !visible || reducedMotion || paused || phase === 'paired') {
+    // A requested pairing finishes even if the user scrolls past the player.
+    if (
+      (!inView && !manualPairing.current) ||
+      !visible ||
+      reducedMotion ||
+      paused ||
+      phase === 'paired'
+    ) {
       return;
     }
 
@@ -73,14 +80,14 @@ export function useRemotePreview() {
   }, [phase, playing, inView, visible, reducedMotion, durationMs]);
 
   function pair() {
-    focusRemote.current = true;
+    manualPairing.current = true;
     setEntered(previewPairingCode.length);
     setPaused(false);
     setPhase(reducedMotion ? 'paired' : 'connecting');
   }
 
   function replayPairing() {
-    focusRemote.current = false;
+    manualPairing.current = false;
     setPhase('entering');
     setEntered(0);
     setPaused(false);
@@ -107,12 +114,13 @@ export function useRemotePreview() {
     actions: {
       pair,
       focusControls: () => {
-        if (focusRemote.current && playButtonRef.current) {
+        if (manualPairing.current && playButtonRef.current) {
           playButtonRef.current.focus({ preventScroll: true });
-          focusRemote.current = false;
+          manualPairing.current = false;
         }
       },
       replayPairing,
+      pausePairing: () => setPaused(true),
       togglePairing: () => setPaused((current) => !current),
       togglePlayback: () => setPlaying((current) => !current),
       skip: () =>

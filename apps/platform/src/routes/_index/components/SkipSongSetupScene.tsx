@@ -40,8 +40,7 @@ export function SkipSongSetupScene({
           />
         </div>
       </ContentTransition>
-      <div className="flex items-center gap-4 border-theme border-t pt-5 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-8">
-        <SkipButton canSkip={canSkip} isSkipping={isSkipping} onSkip={onSkip} />
+      <div className="flex flex-col gap-3 border-theme border-t pt-4 sm:gap-4 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-8">
         <div>
           <p className="text-theme-muted text-xs">
             Listener · vote-to-skip off
@@ -52,6 +51,12 @@ export function SkipSongSetupScene({
             {canSkip && changedSong && 'On to the next.'}
           </p>
         </div>
+        <SkipButton
+          canSkip={canSkip}
+          isSkipping={isSkipping}
+          onSkip={onSkip}
+          showLabel
+        />
       </div>
     </div>
   );

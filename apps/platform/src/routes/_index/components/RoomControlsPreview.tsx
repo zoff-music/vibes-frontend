@@ -30,7 +30,7 @@ export function RoomControlsPreview() {
       </div>
       <div className="min-w-0">
         <DeferredContent
-          fallback={<div aria-hidden="true" className="h-156 sm:h-132" />}
+          fallback={<div aria-hidden="true" className="h-164 sm:h-148" />}
         >
           <LazyRoomControlPanel />
         </DeferredContent>

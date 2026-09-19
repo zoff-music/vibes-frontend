@@ -14,6 +14,7 @@ interface NowPlayingSongProps {
   providerLink?: boolean;
   animate?: boolean;
   density?: 'normal' | 'compact';
+  showStatus?: boolean;
 }
 
 export function NowPlayingSong({
@@ -22,6 +23,7 @@ export function NowPlayingSong({
   providerLink = true,
   animate = true,
   density = 'normal',
+  showStatus = true,
 }: NowPlayingSongProps) {
   const providerUrl = getProviderTrackUrl(
     song.sourceType,
@@ -30,18 +32,22 @@ export function NowPlayingSong({
   );
   return (
     <>
-      <div className="mb-3 flex items-center gap-2">
-        <div
-          className={classNames(
-            'h-2 w-2 rounded-full',
-            isPlaying ? 'bg-secondary shadow-secondary-strong' : 'bg-white/30',
-            isPlaying && animate && 'motion-safe:animate-pulse',
-          )}
-        />
-        <span className="font-display text-2xs text-theme-muted tracking-label">
-          {isPlaying ? 'Now Playing' : 'Paused'}
-        </span>
-      </div>
+      {showStatus && (
+        <div className="mb-3 flex items-center gap-2">
+          <div
+            className={classNames(
+              'h-2 w-2 rounded-full',
+              isPlaying
+                ? 'bg-secondary shadow-secondary-strong'
+                : 'bg-white/30',
+              isPlaying && animate && 'motion-safe:animate-pulse',
+            )}
+          />
+          <span className="font-display text-2xs text-theme-muted tracking-label">
+            {isPlaying ? 'Now Playing' : 'Paused'}
+          </span>
+        </div>
+      )}
       <div
         key={song.id}
         className={classNames(

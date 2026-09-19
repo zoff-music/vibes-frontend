@@ -48,7 +48,7 @@ export function RepeatSongSetupScene({
         <Button
           variant="tertiary"
           size="small"
-          className="mt-2 min-h-11"
+          className="mt-3 min-h-12 w-full text-sm sm:w-auto sm:px-5"
           onClick={onFinish}
           aria-disabled={advanced}
         >
@@ -62,7 +62,7 @@ export function RepeatSongSetupScene({
         }}
         transition={{ duration: 0.6 }}
         className={classNames(
-          'justify-self-center',
+          'hidden justify-self-center sm:block',
           !removePlayed ? 'text-secondary' : 'text-theme-subtle',
         )}
       >
