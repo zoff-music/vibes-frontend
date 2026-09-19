@@ -43,9 +43,9 @@ export function SiteHeader() {
           <Link to="/#explore-zoff" className={navigationClassName}>
             Explore
           </Link>
-          <Link to="/discovery/apps" className={navigationClassName}>
+          <NavLink to="/discovery/apps" className={navigationClassName}>
             Apps
-          </Link>
+          </NavLink>
           <Tooltip
             align="end"
             className="inline-flex"
