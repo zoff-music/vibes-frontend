@@ -105,7 +105,7 @@ export default {
         'glow-pulse': 'glowPulse 2.6s ease-in-out infinite',
         'gradient-shift': 'gradientShift 10s ease-in-out infinite',
         'sunset-glow': 'sunsetGlow 9s ease-in-out infinite alternate',
-        'sun-stripes': 'sunStripes 12s ease-in-out infinite',
+        'sun-ripple': 'sunRipple 8s ease-in-out infinite',
         'background-drift': 'backgroundDrift 12s ease-in-out infinite',
         'background-grid': 'backgroundGrid 2s linear infinite',
       },
@@ -122,9 +122,9 @@ export default {
           from: { opacity: '0.65', transform: 'scale(0.94)' },
           to: { opacity: '1', transform: 'scale(1.06)' },
         },
-        sunStripes: {
-          '0%, 100%': { transform: 'translate3d(0, -0.75%, 0)' },
-          '50%': { transform: 'translate3d(0, 0.75%, 0)' },
+        sunRipple: {
+          '0%, 70%, 100%': { transform: 'scaleY(1)' },
+          '35%': { transform: 'scaleY(0.78)' },
         },
         fadeIn: {
           '0%': { opacity: '0' },

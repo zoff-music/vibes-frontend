@@ -225,11 +225,11 @@ reduced motion. Lower-page demos
 and app screenshots mount through `DeferredContent` near the viewport; keep
 their headings, descriptions and navigation server-rendered. Reserve preview
 space while loading so scrolling remains stable. The hero typing effect also
-pauses when out of view. Keep the sun fixed to the viewport at its original
-position, so the content scrolls past it. Its stripes drift a few pixels inside
-the circular outline on a twelve-second loop. Use the shared Tailwind animation
-utility and transform only; keep it still for reduced motion and pause it when
-the sun or browser tab is hidden.
+pauses when out of view. Keep the sun at its original position in the document,
+so it scrolls away with the hero. Its upper half and gradient stay still while
+the six lower bands gently narrow and settle in sequence. The shared Tailwind
+animation runs on an eight-second loop with staggered phases; keep it still for
+reduced motion and pause it when the sun or browser tab is hidden.
 
 The generated playlist showcase types a prompt, shows the shared
 `GenerationSparkles` from the real room-generation screen, then adds three
