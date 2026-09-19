@@ -322,6 +322,8 @@ export default function Room() {
     toggleDarkMode();
   }, [toggleDarkMode]);
 
+  const [chatOpen, setChatOpen] = useState(false);
+
   const handleAddSong = useCallback(() => {
     setIsAddModalVisible(true);
   }, []);
@@ -602,6 +604,7 @@ export default function Room() {
                 terminalMode
               />
               <RoomQueue
+                onChatVisibilityChange={setChatOpen}
                 roomId={id}
                 isSSR={isSSR}
                 onAddSong={handleAddSong}
@@ -747,6 +750,7 @@ export default function Room() {
                   />
                   {!isPartyScreen && (
                     <RoomQueue
+                      onChatVisibilityChange={setChatOpen}
                       roomId={id}
                       isSSR={isSSR}
                       onAddSong={handleAddSong}
@@ -759,6 +763,7 @@ export default function Room() {
                     <div className="min-h-0 min-w-0 lg:col-span-2 lg:flex lg:h-full lg:flex-col">
                       <div className="min-h-0 lg:flex-1 lg:overflow-hidden">
                         <RoomQueue
+                          onChatVisibilityChange={setChatOpen}
                           roomId={id}
                           isSSR={isSSR}
                           onAddSong={handleAddSong}
@@ -818,7 +823,7 @@ export default function Room() {
           )}
         </div>
       </motion.div>
-      {!isAddModalVisible && (
+      {!isAddModalVisible && !chatOpen && (
         <div className="sm:hidden">
           <Button
             aria-label="Add Song"

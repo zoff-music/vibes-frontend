@@ -10,6 +10,7 @@ import {
   checkIcon,
   closeIcon,
   copyIcon,
+  crownIcon,
   diceIcon,
   externalLinkIcon,
   type IconDefinition,
@@ -164,4 +165,8 @@ export const CircleHalfIcon = (props: IconProps) => (
 
 export const DiceIcon = (props: IconProps) => (
   <DefinitionIcon definition={diceIcon} {...props} />
+);
+
+export const CrownIcon = (props: IconProps) => (
+  <DefinitionIcon definition={crownIcon} {...props} />
 );

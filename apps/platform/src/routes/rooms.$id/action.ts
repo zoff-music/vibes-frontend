@@ -24,6 +24,7 @@ import type {
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export type RoomActionIntent =
+  | 'sendMessage'
   | 'addPlaylist'
   | 'addSong'
   | 'castingToken'
@@ -61,6 +62,7 @@ export interface RoomActionData {
 }
 
 interface RoomActionRequest {
+  text?: string;
   action?: 'pause' | 'play' | 'seek';
   force?: boolean;
   intent: RoomActionIntent;
@@ -136,6 +138,17 @@ export async function clientAction({
   }
 
   const body = (await request.json()) as RoomActionRequest;
+
+  if (body.intent === 'sendMessage') {
+    const [error] = await api.post(
+      '/rooms/{id}/messages',
+      { id: roomId },
+      { text: body.text ?? '' },
+      { retry: 0 },
+    );
+    if (error) return createErrorData(body.intent, error);
+    return { intent: body.intent };
+  }
 
   if (body.intent === 'joinRoom') {
     const [error, session] = await api.post(

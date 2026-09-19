@@ -1,12 +1,13 @@
 import { createRoomDiscoveryRequests } from '@vibes/api';
-import type { Providers, PublicRoom } from '@vibes/models';
+import type { Providers, PublicRoom, PublicRoomResult } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
-import { getRequestErrorMessage, mobileApi } from '@/lib/api';
+import { getRequestErrorMessage, mobileApi, mobileApiV2 } from '@/lib/api';
 import { filterMobileProviders } from '@/lib/mobile-content';
 
 export interface DiscoveryData {
   providers: Providers;
   publicRooms: PublicRoom[];
+  publicRoomPage: PublicRoomResult | null;
   warning: string;
 }
 
@@ -17,13 +18,18 @@ export async function loader({
 }: LoaderFunctionArgs): Promise<DataResult<DiscoveryData>> {
   const [providersResult, roomsResult] = await Promise.all([
     requests.fetchProviders({ signal }),
-    requests.fetchPublicRooms({ signal }),
+    mobileApiV2.get(
+      '/rooms/public',
+      { $search: { live: true, from: 0, to: 9 } },
+      { signal },
+    ),
   ]);
   const error = providersResult[0] ?? roomsResult[0];
   return {
     data: {
       providers: filterMobileProviders(providersResult[1] ?? []),
-      publicRooms: roomsResult[1] ?? [],
+      publicRoomPage: roomsResult[1],
+      publicRooms: roomsResult[1]?.rooms ?? [],
       warning: error
         ? await getRequestErrorMessage(
             error,

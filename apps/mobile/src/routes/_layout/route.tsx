@@ -6,6 +6,7 @@ import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import '@/global.css';
 import { AppRouterProvider } from '@/data-router/provider';
+import { ChatPreferenceProvider } from '@/providers/chat-preference-provider';
 import { KonamiModeProvider } from '@/providers/konami-mode-provider';
 import { AppThemeProvider } from '@/providers/theme-provider';
 import { HydrateFallback as AppHydrateFallback } from '@/routes/_index/components/route-boundaries';
@@ -41,7 +42,9 @@ export default function RootLayout() {
           <Route routeId="preferences.theme">
             <AppThemeProvider>
               <Route routeId="sessions.profile">
-                <RootContent />
+                <ChatPreferenceProvider>
+                  <RootContent />
+                </ChatPreferenceProvider>
               </Route>
             </AppThemeProvider>
           </Route>

@@ -1,4 +1,4 @@
-import type { PublicRoom } from '@vibes/models';
+import type { PublicRoom, PublicRoomResult } from '@vibes/models';
 import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import { classNames } from '@vibes/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -69,7 +69,35 @@ export function RoomsScreen() {
   const submitCreateRoom = createRoomFetcher.submit;
   const [value, setValue] = useState(roomId);
   const [discoveryData, setDiscoveryData] = useState(discovery);
-  const publicRooms = discoveryData?.publicRooms ?? [];
+  const [browseMode, setBrowseMode] = useState('live');
+  const [browseResult, setBrowseResult] = useState<PublicRoomResult | null>(
+    null,
+  );
+  const [browseQuery, setBrowseQuery] = useState('');
+  const [browseError, setBrowseError] = useState('');
+  const [browsing, setBrowsing] = useState(false);
+  const browseRequest = useRef(0);
+  const [, roomBrowser] = useFetcher<PublicRoomResult>({
+    routeId: 'rooms.public',
+  });
+  const publicRooms =
+    browseResult?.rooms ??
+    (browseMode === 'live' && !browseError
+      ? (discoveryData?.publicRooms ?? [])
+      : []);
+  const loadRooms = async (mode: string, from = 0, q = browseQuery) => {
+    const requestId = ++browseRequest.current;
+    setBrowseMode(mode);
+    setBrowseQuery(q);
+    setBrowsing(true);
+    const result = await roomBrowser.load({
+      params: { live: String(mode === 'live'), from: String(from), q },
+    });
+    if (requestId !== browseRequest.current) return;
+    setBrowseResult(result.data);
+    setBrowseError(result.error);
+    setBrowsing(false);
+  };
   const [createVisible, setCreateVisible] = useState(false);
   const [isAIMode, setIsAIMode] = useState(false);
   const [generationLoading, setGenerationLoading] = useState(false);
@@ -81,7 +109,10 @@ export function RoomsScreen() {
   const refreshLogoTranslateY = useSharedValue(-56);
 
   useEffect(() => setValue(roomId), [roomId]);
-  useEffect(() => setDiscoveryData(discovery), [discovery]);
+  useEffect(() => {
+    setDiscoveryData(discovery);
+    setBrowseResult(discovery?.publicRoomPage ?? null);
+  }, [discovery]);
 
   const refreshDiscovery = useCallback(async () => {
     setRefreshing(true);
@@ -89,7 +120,12 @@ export function RoomsScreen() {
       discoveryFetcher.load(),
       waitForMinimumRefreshSpin(),
     ]);
-    if (result.data) setDiscoveryData(result.data);
+    if (result.data) {
+      setDiscoveryData(result.data);
+      setBrowseResult(result.data.publicRoomPage);
+      setBrowseMode('live');
+      setBrowseQuery('');
+    }
     setRefreshing(false);
   }, [discoveryFetcher]);
 
@@ -426,21 +462,83 @@ export function RoomsScreen() {
                   {room && <Copy muted>Currently in {room.name}</Copy>}
                 </Card>
                 <View className="gap-3">
-                  <View className="flex-row items-center gap-2 px-1">
-                    <View className="size-2 rounded-full bg-accent" />
-                    <Copy muted>LIVE NOW</Copy>
+                  <View
+                    accessibilityRole="tablist"
+                    className="flex-row rounded-2xl border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
+                  >
+                    {['live', 'public'].map((mode) => (
+                      <Pressable
+                        key={mode}
+                        accessibilityRole="tab"
+                        accessibilityState={{ selected: browseMode === mode }}
+                        onPress={() => void loadRooms(mode, 0, '')}
+                        className={classNames(
+                          'min-h-12 flex-1 items-center justify-center rounded-xl',
+                          browseMode === mode && 'bg-accent/20',
+                        )}
+                      >
+                        <Text className="font-heading text-mobile-text dark:text-mobile-dark-text">
+                          {mode === 'live' ? 'Live rooms' : 'All public'}
+                        </Text>
+                      </Pressable>
+                    ))}
                   </View>
+                  <Field
+                    value={browseQuery}
+                    onChangeText={setBrowseQuery}
+                    placeholder="Search rooms by name"
+                    accessibilityLabel="Search rooms by name"
+                    onSubmitEditing={() => void loadRooms(browseMode)}
+                  />
+                  <Button
+                    label="Search rooms"
+                    tone="secondary"
+                    disabled={browsing}
+                    onPress={() => void loadRooms(browseMode)}
+                  />
+                  {browsing && <Copy muted>Loading rooms…</Copy>}
+                  {Boolean(browseError) && <Copy muted>{browseError}</Copy>}
                   <View className="flex-row flex-wrap gap-3">
                     {publicRooms.map(renderPublicRoom)}
                     {publicRooms.length === 0 && (
                       <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
                         <Copy muted>
-                          No public rooms are live. Start one and set the
-                          signal.
+                          {browseMode === 'live'
+                            ? 'No live rooms found. Try All public.'
+                            : 'No public rooms found. Try another name.'}
                         </Copy>
                       </View>
                     )}
                   </View>
+                  {browseResult && browseResult.total > 10 && (
+                    <View className="flex-row items-center justify-between gap-2">
+                      <Button
+                        label="Previous"
+                        tone="secondary"
+                        disabled={browsing || browseResult.from === 0}
+                        onPress={() =>
+                          void loadRooms(
+                            browseMode,
+                            Math.max(0, browseResult.from - 10),
+                          )
+                        }
+                      />
+                      <Copy muted>
+                        {Math.floor(browseResult.from / 10) + 1} /{' '}
+                        {Math.ceil(browseResult.total / 10)}
+                      </Copy>
+                      <Button
+                        label="Next"
+                        tone="secondary"
+                        disabled={
+                          browsing || browseResult.to + 1 >= browseResult.total
+                        }
+                        onPress={() =>
+                          void loadRooms(browseMode, browseResult.from + 10)
+                        }
+                      />
+                    </View>
+                  )}
                 </View>
               </Animated.View>
             </ContentColumn>

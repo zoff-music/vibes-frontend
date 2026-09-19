@@ -22,13 +22,16 @@ following data linked to a user. Declare conservatively:
 | App Store data type | Collected | Linked | Tracking | Purpose |
 | --- | --- | --- | --- | --- |
 | User ID | Yes | Yes | No | App Functionality; Fraud Prevention |
+| Emails or Text Messages | Yes | Yes | No | App Functionality |
 | Other User Content | Yes | Yes | No | App Functionality |
 | Product Interaction | Yes | Yes | No | App Functionality; Analytics |
 | Search History | Yes | Yes | No | App Functionality; Analytics |
 | Other Diagnostic Data | Yes | Yes | No | App Functionality |
 
 **Other User Content** includes room names, room settings, queue entries,
-votes, optional nicknames, and AI playlist prompts. **Product Interaction**
+votes, optional nicknames, and AI playlist prompts. **Emails or Text Messages**
+includes room chat messages. Chat and named room activity are retained temporarily
+in Redis for reconnects; they are visible to other people in that room. **Product Interaction**
 includes room and playback actions. **Other Diagnostic Data** includes request
 timing and application logs.
 

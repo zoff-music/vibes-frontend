@@ -3,6 +3,7 @@ export * from './client';
 export * from './hooks/useAdminEvents';
 export * from './hooks/useRemoteEvents';
 export * from './hooks/useRoomEvents';
+export * from './hooks/useRoomMessages';
 export * from './plausible';
 export * from './rateLimit';
 export * from './remoteEvents';

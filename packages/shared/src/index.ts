@@ -1,4 +1,5 @@
 export * from './constants';
+export * from './hooks/useChatTimeline';
 export * from './hooks/useMediaSession';
 export * from './hooks/usePageVisibility';
 export * from './stores/playbackStore';

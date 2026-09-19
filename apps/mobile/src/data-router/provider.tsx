@@ -16,6 +16,7 @@ const initialMatches = [
   { routeId: 'preferences.konami' },
   { routeId: 'preferences.theme' },
   { routeId: 'preferences.player' },
+  { routeId: 'preferences.chat' },
   { routeId: 'sessions.profile' },
   { routeId: '_index' },
   { routeId: 'remotes.session' },

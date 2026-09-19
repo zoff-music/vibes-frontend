@@ -1,13 +1,26 @@
+import { useRoomMessages } from '@vibes/api';
 import { type PlaybackState, type Song } from '@vibes/models';
-import { showToast, usePlaybackStore, useQueueStore } from '@vibes/shared';
+import {
+  classNames,
+  showToast,
+  useChatTimeline,
+  usePlaybackStore,
+  useQueueStore,
+} from '@vibes/shared';
 import {
   TerminalButton,
   TerminalFeedback,
   TerminalSection,
 } from '@vibes/ui/konami';
-import { NowPlayingSong, QueueList, useProgressiveList } from '@vibes/ui/web';
-import React, { useEffect, useState } from 'react';
+import {
+  ChatConversation,
+  NowPlayingSong,
+  QueueList,
+  useProgressiveList,
+} from '@vibes/ui/web';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
+import { useChatPreferenceStore } from '../../../stores/chatPreferenceStore';
 
 import type { RoomActionData } from '../action';
 import { PlaybackProgress } from './PlaybackProgress';
@@ -16,6 +29,7 @@ interface RoomQueueProps {
   roomId: string;
   isSSR: boolean;
   onAddSong?: () => void;
+  onChatVisibilityChange?: (open: boolean) => void;
   isAdmin?: boolean;
   initialPlayback?: PlaybackState;
   initialSongs?: Song[];
@@ -27,11 +41,40 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     roomId,
     isSSR,
     onAddSong,
+    onChatVisibilityChange,
     isAdmin,
     initialPlayback,
     initialSongs,
     terminalMode = false,
   }: RoomQueueProps) => {
+    const chatPreference = useChatPreferenceStore((state) => state.enabled);
+    const chatEnabled = !isSSR && chatPreference;
+    const chat = useChatTimeline(roomId, chatEnabled);
+    useEffect(() => {
+      onChatVisibilityChange?.(chat.open);
+      return () => onChatVisibilityChange?.(false);
+    }, [chat.open, onChatVisibilityChange]);
+    const [chatError, setChatError] = useState('');
+    const chatFetcher = useFetcher<RoomActionData>();
+    const pendingSend = useRef<((sent: boolean) => void) | null>(null);
+    useRoomMessages(!isSSR && chatEnabled ? roomId : undefined, {
+      onMessage: chat.receive,
+      onError: (error) => setChatError(error ? 'Chat is reconnecting…' : ''),
+    });
+    useEffect(() => {
+      if (chatFetcher.state !== 'idle' || !chatFetcher.data) return;
+      pendingSend.current?.(!chatFetcher.data.error);
+      pendingSend.current = null;
+    }, [chatFetcher.state, chatFetcher.data]);
+    useEffect(() => () => pendingSend.current?.(false), []);
+    const sendMessage = (text: string) =>
+      new Promise<boolean>((resolve) => {
+        pendingSend.current = resolve;
+        void chatFetcher.submit(
+          { intent: 'sendMessage', text },
+          { encType: 'application/json', method: 'post' },
+        );
+      });
     /* 1. Hooks */
     const voteFetcher = useFetcher<RoomActionData>();
     const removeFetcher = useFetcher<RoomActionData>();
@@ -233,19 +276,58 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
           {/* Up Next List */}
           <div>
-            <h3 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
-              Up Next (
-              {displaySongs.filter((s) => s.id !== currentSongData?.id).length})
-            </h3>
-            <QueueList
-              songs={displaySongs.filter((s) => s.id !== currentSongData?.id)}
-              roomId={roomId}
-              onVote={handleVote}
-              onRemove={handleRemove}
-              onEmptyClick={onAddSong}
-              isAdmin={isAdmin}
-              votingSongId={votingSongId}
-            />
+            <div className="mb-4 flex items-center justify-between border-theme border-b">
+              <button
+                type="button"
+                aria-pressed={!chat.open}
+                onClick={() => chat.selectChat(false)}
+                className={classNames(
+                  'min-h-12 border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                  !chat.open
+                    ? 'border-secondary text-theme'
+                    : 'border-transparent text-theme-muted',
+                )}
+              >
+                Up next ({queuedSongCount})
+              </button>
+              {chatEnabled && (
+                <button
+                  type="button"
+                  aria-pressed={chat.open}
+                  onClick={() => chat.selectChat(true)}
+                  className={classNames(
+                    'min-h-12 border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                    chat.open
+                      ? 'border-secondary text-theme'
+                      : 'border-transparent text-theme-muted',
+                  )}
+                >
+                  Chat ({chat.unread})
+                </button>
+              )}
+            </div>
+            {chat.open && (
+              <div className="flex h-96 min-h-0 flex-col lg:h-[min(55dvh,40rem)]">
+                <ChatConversation
+                  messages={chat.messages}
+                  active={chat.open}
+                  onSend={sendMessage}
+                  sending={chatFetcher.state !== 'idle'}
+                  error={chatFetcher.data?.error || chatError}
+                />
+              </div>
+            )}
+            {!chat.open && (
+              <QueueList
+                songs={displaySongs.filter((s) => s.id !== currentSongData?.id)}
+                roomId={roomId}
+                onVote={handleVote}
+                onRemove={handleRemove}
+                onEmptyClick={onAddSong}
+                isAdmin={isAdmin}
+                votingSongId={votingSongId}
+              />
+            )}
           </div>
         </div>
       </div>

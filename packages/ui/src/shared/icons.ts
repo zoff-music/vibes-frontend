@@ -227,12 +227,18 @@ export const diceIcon = {
   ],
 } satisfies IconDefinition;
 
+export const crownIcon = {
+  viewBox: squareViewBox,
+  paths: ['M2 5h3v3h3v3h2V5h4v6h2V8h3V5h3v12H2zM4 19h16v3H4z'],
+} satisfies IconDefinition;
+
 export const zoffIconDefinitions = {
   add: plusIcon,
   auto: autoThemeIcon,
   back: arrowLeftIcon,
   caret: caretIcon,
   cast: castIcon,
+  crown: crownIcon,
   check: checkIcon,
   close: closeIcon,
   external: externalLinkIcon,

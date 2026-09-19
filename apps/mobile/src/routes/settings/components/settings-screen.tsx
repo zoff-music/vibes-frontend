@@ -39,11 +39,13 @@ import {
   useRoomActions,
   useRoomSession,
 } from '@/providers/app-provider';
+import { useChatPreference } from '@/providers/chat-preference-provider';
 import { useKonamiMode } from '@/providers/konami-mode-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 import { DeviceRemoteSettings } from './device-remote-settings';
 
 export function SettingsScreen() {
+  const chat = useChatPreference();
   const { playerEnabled, playerPreferenceLoaded } = usePlaybackSession();
   const { providers, room } = useRoomSession();
   const { setPlayerEnabled } = usePlaybackActions();
@@ -122,6 +124,24 @@ export function SettingsScreen() {
             </View>
           </View>
           <View className="h-px bg-[#71f5ad]/20" />
+          <View className="min-h-16 flex-row items-center justify-between gap-4 py-3">
+            <View className="min-w-0 flex-1 gap-1">
+              <Copy>Room chat</Copy>
+              <Copy muted>
+                Receive chat here. Your actions still appear to others when it
+                is off.
+              </Copy>
+            </View>
+            <Switch
+              accessibilityLabel="Room chat"
+              disabled={!chat.loaded}
+              value={chat.enabled}
+              ios_backgroundColor={theme.surface}
+              trackColor={{ false: theme.surface, true: theme.accent }}
+              onValueChange={(value) => void chat.setEnabled(value)}
+            />
+          </View>
+          {Boolean(chat.warning) && <Copy muted>{chat.warning}</Copy>}
           <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
             <View className="min-w-0 flex-1 gap-1">
               <Text className="font-heading text-[#dffff0] text-base uppercase">
@@ -318,6 +338,27 @@ export function SettingsScreen() {
                       </View>
                     </View>
                     <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                    <View className="min-h-16 flex-row items-center justify-between gap-4 py-3">
+                      <View className="min-w-0 flex-1 gap-1">
+                        <Copy>Room chat</Copy>
+                        <Copy muted>
+                          Receive chat here. Your actions still appear to others
+                          when it is off.
+                        </Copy>
+                      </View>
+                      <Switch
+                        accessibilityLabel="Room chat"
+                        disabled={!chat.loaded}
+                        value={chat.enabled}
+                        ios_backgroundColor={theme.surface}
+                        trackColor={{
+                          false: theme.surface,
+                          true: theme.accent,
+                        }}
+                        onValueChange={(value) => void chat.setEnabled(value)}
+                      />
+                    </View>
+                    {Boolean(chat.warning) && <Copy muted>{chat.warning}</Copy>}
                     <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
                       <View className="min-w-0 flex-1 gap-1">
                         <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">

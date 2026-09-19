@@ -26,6 +26,7 @@ import {
   castingTokenResponseSchema,
   connectedSchema,
   createCastingTokenRequestSchema,
+  createMessageSchema,
   createRoomRequestSchema,
   createRoomResponseSchema,
   createSessionRequestSchema,
@@ -51,6 +52,7 @@ import {
   roomActionRequestSchema,
   roomGenerationUpdateSchema,
   roomHostUpdateSchema,
+  roomMessageSchema,
   roomNameReservationRequestSchema,
   roomNameReservationSchema,
   roomSchema,
@@ -296,6 +298,13 @@ const endpoints = {
     get: {
       $search: providerURLQuerySchema,
       response: musicPlaylistSchema,
+    },
+  },
+  '/rooms/{id}/messages': {
+    post: { request: createMessageSchema, response: roomMessageSchema },
+    sse: {
+      $search: sseQuerySchema.optional(),
+      events: { message: roomMessageSchema, event_cursor: eventCursorSchema },
     },
   },
   '/rooms/{id}/events': {

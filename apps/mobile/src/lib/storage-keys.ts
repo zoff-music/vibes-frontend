@@ -12,3 +12,5 @@ export function getRoomAdminPasswordStorageKey(roomId: string) {
   ).join('-');
   return `${roomAdminPasswordStoragePrefix}.${encodedRoomId}`;
 }
+
+export const chatPreferenceStorageKey = 'zoff-chat-enabled';

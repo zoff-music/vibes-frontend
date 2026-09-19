@@ -5,12 +5,14 @@ import {
   CloseIcon,
   Modal,
   MoonIcon,
+  SegmentedToggle,
   SunIcon,
 } from '@vibes/ui/web';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useFetcher, useRouteLoaderData } from 'react-router';
 import type { RootLoaderData } from '../../root';
 import type { ProfileRouteData } from '../../routes/profile/clientLoader';
+import { useChatPreferenceStore } from '../../stores/chatPreferenceStore';
 import { useThemeStore } from '../../stores/themeStore';
 
 interface ProfileSettingsModalProps {
@@ -22,6 +24,8 @@ export function ProfileSettingsModal({
   isOpen,
   onClose,
 }: ProfileSettingsModalProps) {
+  const chatEnabled = useChatPreferenceStore((state) => state.enabled);
+  const setChatEnabled = useChatPreferenceStore((state) => state.setEnabled);
   const fetcher = useFetcher<ProfileRouteData>();
   const rootData = useRouteLoaderData<RootLoaderData>('root');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -97,6 +101,12 @@ export function ProfileSettingsModal({
       </div>
 
       <div className="space-y-6">
+        <SegmentedToggle
+          label="Room chat"
+          description="Receive chat on this device. Your room actions still appear to others when chat is off."
+          checked={chatEnabled}
+          onChange={setChatEnabled}
+        />
         <section aria-labelledby="profile-display-name-title">
           <h3
             className="font-pixel text-2xs text-theme-muted tracking-label"
