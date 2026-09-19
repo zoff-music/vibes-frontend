@@ -1,7 +1,7 @@
 import type { RoomMessage } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { useRef, useState } from 'react';
-import { ScrollView, Text, TextInput, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { FlatList, Text, TextInput, View } from 'react-native';
 import {
   chatNameColorIndex,
   crownIcon,
@@ -26,8 +26,9 @@ const nameColors = [
 export function NativeChatConversation({ messages, onSend, error }: Props) {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<FlatList<RoomMessage>>(null);
   const nearBottom = useRef(true);
+  const newestFirst = useMemo(() => [...messages].reverse(), [messages]);
   const send = async () => {
     if (sending || !draft.trim()) return;
     setSending(true);
@@ -37,47 +38,41 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
   };
   return (
     <View className="min-h-0 flex-1">
-      <ScrollView
+      <FlatList
         ref={scrollRef}
         className="min-h-0 flex-1"
-        contentContainerClassName="grow justify-end"
+        contentContainerClassName="px-4 py-2"
+        inverted
+        data={newestFirst}
+        keyExtractor={(message) => message.id}
+        initialNumToRender={20}
+        maxToRenderPerBatch={20}
+        windowSize={5}
         keyboardShouldPersistTaps="handled"
         onScroll={({ nativeEvent }) => {
-          nearBottom.current =
-            nativeEvent.contentSize.height -
-              nativeEvent.contentOffset.y -
-              nativeEvent.layoutMeasurement.height <
-            80;
+          nearBottom.current = nativeEvent.contentOffset.y < 80;
         }}
         scrollEventThrottle={100}
         onContentSizeChange={() => {
           if (nearBottom.current)
-            scrollRef.current?.scrollToEnd({ animated: false });
+            scrollRef.current?.scrollToOffset({ offset: 0, animated: false });
         }}
-      >
-        <View className="px-4 py-2">
-          {messages.length === 0 && (
-            <Text className="py-3 font-heading text-native-muted dark:text-native-dark-muted">
-              Say hello to the room.
+        ListEmptyComponent={
+          <Text className="py-3 font-heading text-native-muted dark:text-native-dark-muted">
+            Say hello to the room.
+          </Text>
+        }
+        renderItem={({ item: message }) => (
+          <View key={message.id} className="flex-row items-start gap-1 py-1">
+            <Text className="font-heading text-native-muted text-xs leading-6 dark:text-native-dark-muted">
+              {formatChatTime(message.createdAt)}{' '}
             </Text>
-          )}
-          {messages.map((message) => (
-            <Text
-              key={message.id}
-              className="py-1 font-heading text-native-text text-sm leading-6 dark:text-native-dark-text"
-            >
-              <Text className="text-native-muted text-xs dark:text-native-dark-muted">
-                {formatChatTime(message.createdAt)}{' '}
-              </Text>
-              {message.isAdmin && (
-                <Text accessibilityLabel="Room admin ">
-                  <NativeIcon
-                    definition={crownIcon}
-                    color="#ff2994"
-                    size={14}
-                  />{' '}
-                </Text>
-              )}
+            {message.isAdmin && (
+              <View accessibilityLabel="Room admin" className="pt-1">
+                <NativeIcon definition={crownIcon} color="#ff2994" size={14} />
+              </View>
+            )}
+            <Text className="min-w-0 flex-1 font-heading text-native-text text-sm leading-6 dark:text-native-dark-text">
               <Text className={nameColors[chatNameColorIndex(message.userId)]}>
                 {message.name}
               </Text>
@@ -91,9 +86,9 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
                 {formatChatMessage(message)}
               </Text>
             </Text>
-          ))}
-        </View>
-      </ScrollView>
+          </View>
+        )}
+      />
       {Boolean(error) && (
         <Text
           accessibilityLiveRegion="polite"
@@ -102,7 +97,7 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
           {error}
         </Text>
       )}
-      <View className="mx-4 flex-row items-center gap-2 border-native-border border-t py-3 dark:border-native-dark-border">
+      <View className="shrink-0 flex-row items-center gap-2 border-native-border border-t bg-native-card px-3 py-3 dark:border-native-dark-border dark:bg-native-dark-card">
         <TextInput
           accessibilityLabel="Room message"
           placeholder="Send a message…"
@@ -111,7 +106,7 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
           onSubmitEditing={() => void send()}
           returnKeyType="send"
           maxLength={500}
-          className="h-12 min-w-0 flex-1 rounded-xl border border-native-border bg-native-surface px-4 font-heading text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text"
+          className="h-12 min-w-0 flex-1 rounded-xl border border-native-border bg-native-surface px-4 font-heading text-base text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text"
         />
         <NativeButton
           accessibilityLabel="Send message"

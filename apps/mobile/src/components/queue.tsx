@@ -20,6 +20,7 @@ interface QueueProps {
   contained?: boolean;
   emptyMessage?: string;
   header?: ReactElement;
+  showHeading?: boolean;
   onDelete?: (song: Song) => void;
   onVote: (song: Song) => void;
   songs: Song[];
@@ -223,6 +224,7 @@ export function Queue({
   contained,
   emptyMessage = 'No songs are queued yet.',
   header,
+  showHeading = true,
   onDelete,
   onVote,
   songs,
@@ -250,9 +252,11 @@ export function Queue({
     listHeader = (
       <>
         {header}
-        <View className="px-4 pt-4 pb-3">
-          <Copy muted>UP NEXT ({songs.length})</Copy>
-        </View>
+        {showHeading && (
+          <View className="px-4 pt-4 pb-3">
+            <Copy muted>UP NEXT ({songs.length})</Copy>
+          </View>
+        )}
       </>
     );
   }
@@ -286,9 +290,11 @@ export function Queue({
   return (
     <View className="min-h-0 flex-1">
       {header}
-      <View className="px-4 pt-4 pb-3">
-        <Copy muted>UP NEXT ({songs.length})</Copy>
-      </View>
+      {showHeading && (
+        <View className="px-4 pt-4 pb-3">
+          <Copy muted>UP NEXT ({songs.length})</Copy>
+        </View>
+      )}
       {list}
     </View>
   );

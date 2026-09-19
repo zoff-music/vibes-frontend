@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
 import { useKonamiMode } from '@/providers/konami-mode-provider';
@@ -21,10 +22,12 @@ export function AndroidFloatingNavigation() {
   const router = useRouter();
   const theme = useAppTheme();
   const { isTablet } = useTabletLandscapeLayout();
+  const keyboardVisible = useKeyboardVisible();
   const { canAddSongs, hasRoom } = useRoomNavigation();
   const { enabled: konamiEnabled } = useKonamiMode();
 
-  if (Platform.OS !== 'android' || isTablet || konamiEnabled) return null;
+  if (Platform.OS !== 'android' || isTablet || konamiEnabled || keyboardVisible)
+    return null;
 
   const items: NavigationItem[] = [
     { href: '/', icon: 'home', label: hasRoom ? 'Room' : 'Rooms' },
@@ -49,7 +52,7 @@ export function AndroidFloatingNavigation() {
                 selected && 'bg-primary/15',
               )}
               key={item.href}
-              onPress={() => router.replace(item.href)}
+              onPress={() => router.navigate(item.href)}
             >
               <ZoffIcon
                 color={selected ? theme.pink : theme.muted}

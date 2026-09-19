@@ -6,6 +6,7 @@ import { CastState, useCastState } from 'react-native-google-cast';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProviderPlayer } from '@/components/provider-player';
+import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useLivePosition } from '@/hooks/use-live-position';
 import {
   tabletLandscapePagePadding,
@@ -38,9 +39,14 @@ export function PersistentRoomPlayer() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const tabletLayout = useTabletLandscapeLayout();
+  const keyboardVisible = useKeyboardVisible();
   const isCasting =
     castState === CastState.CONNECTING || castState === CastState.CONNECTED;
-  const visible = pathname === '/' && Boolean(room && roomId) && !isCasting;
+  const visible =
+    pathname === '/' &&
+    Boolean(room && roomId) &&
+    !isCasting &&
+    !keyboardVisible;
   const topInset =
     Platform.OS === 'android' && tabletLayout.isTabletLandscape
       ? androidTabletPlayerTopInset

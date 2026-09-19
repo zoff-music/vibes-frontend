@@ -7,7 +7,7 @@ import {
 } from '@vibes/ui/native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Share, Text, View } from 'react-native';
+import { Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
@@ -21,6 +21,7 @@ import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { RoomGenerationProgress } from '@/components/room-generation-progress';
 import { Toast } from '@/components/toast';
+import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useLivePosition } from '@/hooks/use-live-position';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import {
@@ -48,6 +49,7 @@ export function RoomScreen() {
   const { leaveRoom, setError } = useRoomActions();
   const router = useRouter();
   const tabletLayout = useTabletLandscapeLayout();
+  const keyboardVisible = useKeyboardVisible();
   const { width } = tabletLayout;
   const compactRoomHeader = width < roomHeaderBreakpoint;
   const [notice, setNotice] = useState('');
@@ -168,7 +170,7 @@ export function RoomScreen() {
   };
 
   let playerSpacer = null;
-  if (playerPreferenceLoaded && playerEnabled) {
+  if (playerPreferenceLoaded && playerEnabled && !keyboardVisible) {
     const playerWidth = tabletLayout.isTabletPortrait
       ? tabletLayout.portraitPlayerWidth
       : width - 32;
@@ -279,21 +281,32 @@ export function RoomScreen() {
   let content = (
     <>
       {playerSpacer}
-      <View className="px-4 pb-1">{roomDetails}</View>
-      <RoomChatPanel roomId={roomId} count={queuedSongs.length}>
-        <Queue
-          emptyMessage={
-            room.isGenerating
-              ? 'Songs will appear here as the playlist is generated.'
-              : 'No songs are queued yet.'
-          }
-          songs={queuedSongs}
-          onVote={(song) => void vote(song)}
-          {...(room.isAdmin
-            ? { onDelete: (song: Song) => void remove(song) }
-            : {})}
-        />
-      </RoomChatPanel>
+      <RoomChatPanel
+        roomId={roomId}
+        count={queuedSongs.length}
+        header={<View className="p-4">{roomDetails}</View>}
+        chatHeader={
+          <View className="px-4 py-2">
+            <Copy muted>{current?.title ?? 'Nothing playing'}</Copy>
+          </View>
+        }
+        renderQueue={(header, showHeading) => (
+          <Queue
+            header={header}
+            showHeading={showHeading}
+            emptyMessage={
+              room.isGenerating
+                ? 'Songs will appear here as the playlist is generated.'
+                : 'No songs are queued yet.'
+            }
+            songs={queuedSongs}
+            onVote={(song) => void vote(song)}
+            {...(room.isAdmin
+              ? { onDelete: (song: Song) => void remove(song) }
+              : {})}
+          />
+        )}
+      />
     </>
   );
   if (tabletLayout.isTabletLandscape) {
@@ -315,21 +328,27 @@ export function RoomScreen() {
           )}
           style={{ width: tabletLayout.playlistPaneWidth }}
         >
-          <RoomChatPanel roomId={roomId} count={queuedSongs.length}>
-            <Queue
-              contained
-              emptyMessage={
-                room.isGenerating
-                  ? 'Songs will appear here as the playlist is generated.'
-                  : 'No songs are queued yet.'
-              }
-              songs={queuedSongs}
-              onVote={(song) => void vote(song)}
-              {...(room.isAdmin
-                ? { onDelete: (song: Song) => void remove(song) }
-                : {})}
-            />
-          </RoomChatPanel>
+          <RoomChatPanel
+            roomId={roomId}
+            count={queuedSongs.length}
+            renderQueue={(header, showHeading) => (
+              <Queue
+                header={header}
+                showHeading={showHeading}
+                contained
+                emptyMessage={
+                  room.isGenerating
+                    ? 'Songs will appear here as the playlist is generated.'
+                    : 'No songs are queued yet.'
+                }
+                songs={queuedSongs}
+                onVote={(song) => void vote(song)}
+                {...(room.isAdmin
+                  ? { onDelete: (song: Song) => void remove(song) }
+                  : {})}
+              />
+            )}
+          />
         </View>
       </View>
     );
@@ -445,10 +464,7 @@ export function RoomScreen() {
       >
         {roomHeader}
       </SafeAreaView>
-      <NativeKeyboardAvoidingView
-        className="min-h-0 flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+      <NativeKeyboardAvoidingView className="min-h-0 flex-1" behavior="padding">
         {content}
       </NativeKeyboardAvoidingView>
     </Screen>
