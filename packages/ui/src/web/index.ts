@@ -26,6 +26,7 @@ export * from './components/Toast';
 export * from './components/ToastViewport';
 export * from './components/Tooltip';
 export * from './graphs/ListenerUsageChart';
+export { MessageUsageChart } from './graphs/MessageUsageChart';
 export * from './graphs/SearchUsageChart';
 export * from './hooks/useProgressiveList';
 export * from './icons';

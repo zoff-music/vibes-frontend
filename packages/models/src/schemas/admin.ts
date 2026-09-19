@@ -120,3 +120,23 @@ export const adminListenerUsageSchema = z.compile(
   }),
 );
 export type AdminListenerUsage = z.infer<typeof adminListenerUsageSchema>;
+
+export const adminMessageUsageSchema = z.compile(
+  z.object({
+    roomId: z.string(),
+    total: z.number(),
+    generatedAt: z.string(),
+    points: z.array(
+      z.object({
+        window: z.enum(['hour', 'day', 'month']),
+        timestamp: z.string(),
+        messages: z.number(),
+      }),
+    ),
+  }),
+);
+export type AdminMessageUsage = z.infer<typeof adminMessageUsageSchema>;
+
+export const adminMessageUsageSearchSchema = z.compile(
+  z.object({ roomId: z.string().max(200).optional() }),
+);

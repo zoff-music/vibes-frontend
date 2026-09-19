@@ -14,6 +14,8 @@ import {
   adminCreateUserRequestSchema,
   adminListenerUsageSchema,
   adminLoginRequestSchema,
+  adminMessageUsageSchema,
+  adminMessageUsageSearchSchema,
   adminRoomResultSchema,
   adminRoomSearchSchema,
   adminRoomsSchema,
@@ -425,6 +427,12 @@ const endpoints = {
     get: {
       $search: adminRoomSearchSchema,
       response: adminRoomResultSchema,
+    },
+  },
+  '/admin/messages/usage': {
+    get: {
+      $search: adminMessageUsageSearchSchema.optional(),
+      response: adminMessageUsageSchema,
     },
   },
   '/admin/searches/usage': {
