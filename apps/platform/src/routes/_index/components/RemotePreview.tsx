@@ -25,11 +25,11 @@ export function RemotePreview() {
           Your phone is the remote.
         </h2>
         <p className="mt-5 text-theme-muted leading-relaxed">
-          Scan the player’s QR code or enter its pairing code. Control playback
-          from your phone while the music stays on the other device.
+          Scan the player’s QR code, or enter its ID and pairing code. Control
+          playback from your phone while the music stays on the other device.
         </p>
         <p className="mt-4 text-sm text-theme-muted">
-          Try pausing, skipping or seeking here. The player follows.
+          Watch it pair, then try pausing, skipping or seeking.
         </p>
         <Link
           to="/discovery/apps"
@@ -43,7 +43,7 @@ export function RemotePreview() {
           fallback={
             <div
               aria-hidden="true"
-              className="h-164 rounded-3xl border border-theme bg-theme-surface sm:h-88 lg:h-164 xl:h-88"
+              className="h-212 rounded-3xl border border-theme bg-theme-surface sm:h-111 lg:h-212 xl:h-111"
             />
           }
         >

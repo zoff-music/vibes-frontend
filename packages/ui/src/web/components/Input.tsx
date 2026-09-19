@@ -27,7 +27,7 @@ export const Input: React.FC<Props> = ({
       {label && (
         <label
           htmlFor={inputId}
-          className="mb-2 ml-1 block font-medium text-sm text-text-muted"
+          className="mb-2 ml-1 block font-medium text-sm text-theme-muted"
         >
           {label}
         </label>
@@ -39,8 +39,8 @@ export const Input: React.FC<Props> = ({
           'aria-invalid': true,
         })}
         className={classNames(
-          'w-full rounded-lg border bg-surface px-4 py-3 text-base text-text placeholder:text-zinc-500 focus:outline-hidden focus:ring-2 focus:ring-primary',
-          error ? 'border-error' : 'border-surfaceElevated',
+          'w-full rounded-lg border bg-theme-surface px-4 py-3 text-base text-theme placeholder:text-theme-subtle focus:outline-hidden focus:ring-2 focus:ring-primary',
+          error ? 'border-error' : 'border-theme',
         )}
         {...props}
       />

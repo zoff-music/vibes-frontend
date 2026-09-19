@@ -184,6 +184,12 @@ their headings, descriptions and navigation server-rendered. Reserve preview
 space while loading so scrolling remains stable. The hero typing effect and
 sun also pause when out of view.
 
+The remote showcase first displays the player's pairing details, enters the
+matching code on the phone and transitions into the connected controls. Run it
+once, retain the usable remote afterward, and offer pause/replay controls.
+Reduced motion leaves pairing manual. All IDs, codes and playback in this demo
+are local placeholders; never issue a real pairing request from the showcase.
+
 The shared embed configurator exposes player, playlist, voting, skipping and
 autoplay. Keep its small artwork and two queue rows visible without inner
 scrolling. Its height matches the settings panel on desktop, and both panels
