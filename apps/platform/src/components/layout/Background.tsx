@@ -57,14 +57,14 @@ export function Background() {
       </div>
       {showSun && (
         <div
-          ref={sunRef}
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[44rem] overflow-hidden"
         >
           <div
+            ref={sunRef}
             className={classNames(
               'absolute left-1/2 w-[clamp(18rem,34vw,26rem)] -translate-x-1/2',
-              isHome && 'top-[clamp(3rem,8svh,6rem)]',
+              isHome && 'top-12 sm:top-[clamp(3rem,8svh,6rem)]',
               !isHome && '-top-12 opacity-60',
             )}
           >

@@ -226,6 +226,9 @@ and app screenshots mount through `DeferredContent` near the viewport; keep
 their headings, descriptions and navigation server-rendered. Reserve preview
 space while loading so scrolling remains stable. The hero typing effect and
 sun also pause when out of view.
+The sun's stripes drift a few pixels inside a fixed circular outline on a
+twelve-second loop. Use the shared Tailwind animation utility and transform only;
+keep it still for reduced motion and observe the sun itself for visibility.
 
 The generated playlist showcase types a prompt, shows the shared
 `GenerationSparkles` from the real room-generation screen, then adds three
