@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
+import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useRoomNavigation } from '@/providers/app-provider';
 import { useKonamiMode } from '@/providers/konami-mode-provider';
 
@@ -18,9 +19,10 @@ export function TerminalNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const { enabled } = useKonamiMode();
+  const keyboardVisible = useKeyboardVisible();
   const { canAddSongs, hasRoom } = useRoomNavigation();
 
-  if (!enabled) return null;
+  if (!enabled || keyboardVisible) return null;
 
   const items: TerminalNavigationItem[] = [
     { href: '/', icon: 'home', label: hasRoom ? 'ROOM' : 'ROOMS' },
@@ -50,7 +52,7 @@ export function TerminalNavigation() {
                 selected && 'border-[#55ffad] bg-[#71f5ad]',
               )}
               key={item.href}
-              onPress={() => router.replace(item.href)}
+              onPress={() => router.navigate(item.href)}
             >
               <ZoffIcon
                 color={selected ? '#03150d' : '#71f5ad'}

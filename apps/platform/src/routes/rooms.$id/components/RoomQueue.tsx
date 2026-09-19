@@ -275,26 +275,33 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
           {/* Up Next List */}
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
-              <button
-                type="button"
-                aria-pressed={!chat.open}
-                onClick={() => chat.selectChat(false)}
-                className={classNames(
-                  'min-h-12 border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                  !chat.open
-                    ? 'border-secondary text-theme'
-                    : 'border-transparent text-theme-muted',
-                )}
-              >
-                Up next ({queuedSongCount})
-              </button>
+              {!chatEnabled && (
+                <h3 className="py-4 font-display text-2xs text-theme-muted tracking-label">
+                  Up next ({queuedSongCount})
+                </h3>
+              )}
+              {chatEnabled && (
+                <button
+                  type="button"
+                  aria-pressed={!chat.open}
+                  onClick={() => chat.selectChat(false)}
+                  className={classNames(
+                    'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                    !chat.open
+                      ? 'border-secondary text-theme'
+                      : 'border-transparent text-theme-muted',
+                  )}
+                >
+                  Up next ({queuedSongCount})
+                </button>
+              )}
               {chatEnabled && (
                 <button
                   type="button"
                   aria-pressed={chat.open}
                   onClick={() => chat.selectChat(true)}
                   className={classNames(
-                    'min-h-12 border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                    'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
                     chat.open
                       ? 'border-secondary text-theme'
                       : 'border-transparent text-theme-muted',
@@ -304,7 +311,12 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 </button>
               )}
             </div>
-            <div className="flex h-80 min-h-0 flex-col lg:h-auto lg:flex-1">
+            <div
+              className={classNames(
+                'min-h-0 lg:flex lg:flex-1 lg:flex-col',
+                chat.open && 'flex h-96 flex-col lg:h-auto lg:flex-1',
+              )}
+            >
               {chat.open && (
                 <div className="flex min-h-0 flex-1 flex-col">
                   <ChatConversation
@@ -317,7 +329,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 </div>
               )}
               {!chat.open && (
-                <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+                <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
                   <QueueList
                     songs={displaySongs.filter(
                       (s) => s.id !== currentSongData?.id,

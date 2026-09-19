@@ -36,7 +36,8 @@ The app deliberately has no Expo web target.
 - Authenticate as a room admin and update room mode, queue behavior, public
   visibility, and enabled providers from native room-settings sheets.
 - Native system tabs: iOS uses the system tab bar and Liquid Glass where the OS
-  supports it; Android uses its platform-native tab presentation. Search,
+  supports it; Android uses a standard tab navigator with the floating phone
+  menu or tablet navigation. Search,
   creation, and other transient tasks use native page-sheet/modal presentation
   instead of web-style popovers.
 - Automatic light/dark appearance based on the device setting.

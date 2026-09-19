@@ -43,7 +43,7 @@ export function TabletTopNavigation() {
                 selected && 'bg-primary/15',
               )}
               key={item.href}
-              onPress={() => router.replace(item.href)}
+              onPress={() => router.navigate(item.href)}
             >
               <Text
                 className={classNames(

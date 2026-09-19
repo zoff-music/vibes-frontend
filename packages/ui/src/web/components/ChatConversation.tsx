@@ -35,17 +35,18 @@ export function ChatConversation({
   const [draft, setDraft] = useState('');
   const nearBottom = useRef(true);
   const conversationRef = useRef<HTMLDivElement>(null);
+  const latestMessageId = messages[messages.length - 1]?.id;
 
   useEffect(() => {
     if (
       !active ||
       !nearBottom.current ||
-      messages.length === 0 ||
+      !latestMessageId ||
       !conversationRef.current
     )
       return;
     conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
-  }, [messages.length, active]);
+  }, [latestMessageId, active]);
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -134,7 +135,7 @@ export function ChatConversation({
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Send a message…"
             maxLength={500}
-            className="h-12 w-full rounded-xl border border-theme bg-theme-surface px-4 text-sm text-theme placeholder:text-theme-muted focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+            className="h-12 w-full rounded-xl border border-theme bg-theme-surface px-4 text-base text-theme placeholder:text-theme-muted focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
           />
         </label>
         <Button

@@ -1,5 +1,5 @@
 import { msw98uiFontFamily } from '@vibes/ui/shared';
-import { useRouter } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
@@ -27,9 +27,24 @@ export default function AppTabs() {
     Platform.OS === 'android' ? zoffAndroidIconSources : zoffIconSources;
 
   useEffect(() => {
+    if (Platform.OS !== 'ios') return;
     router.prefetch('/remote');
     router.prefetch('/settings');
   }, [router]);
+
+  if (Platform.OS === 'android') {
+    return (
+      <Tabs
+        tabBar={() => null}
+        screenOptions={{ headerShown: false, animation: 'none' }}
+      >
+        <Tabs.Screen name="index" />
+        <Tabs.Screen name="remote" />
+        <Tabs.Screen name="settings" />
+        <Tabs.Screen name="add" />
+      </Tabs>
+    );
+  }
 
   return (
     <NativeTabs

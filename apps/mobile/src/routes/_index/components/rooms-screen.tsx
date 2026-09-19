@@ -81,14 +81,18 @@ export function RoomsScreen() {
     routeId: 'rooms.public',
   });
   const publicRooms =
-    browseResult?.rooms ??
-    (browseMode === 'live' && !browseError
+    browseMode === 'live'
       ? (discoveryData?.publicRooms ?? [])
-      : []);
+      : (browseResult?.rooms ?? []);
   const loadRooms = async (mode: string, from = 0, q = browseQuery) => {
     const requestId = ++browseRequest.current;
     setBrowseMode(mode);
     setBrowseQuery(q);
+    if (mode === 'live') {
+      setBrowsing(false);
+      setBrowseError('');
+      return;
+    }
     setBrowsing(true);
     const result = await roomBrowser.load({
       params: { live: String(mode === 'live'), from: String(from), q },
@@ -111,7 +115,6 @@ export function RoomsScreen() {
   useEffect(() => setValue(roomId), [roomId]);
   useEffect(() => {
     setDiscoveryData(discovery);
-    setBrowseResult(discovery?.publicRoomPage ?? null);
   }, [discovery]);
 
   const refreshDiscovery = useCallback(async () => {
@@ -122,7 +125,7 @@ export function RoomsScreen() {
     ]);
     if (result.data) {
       setDiscoveryData(result.data);
-      setBrowseResult(result.data.publicRoomPage);
+      setBrowseResult(null);
       setBrowseMode('live');
       setBrowseQuery('');
     }
@@ -478,24 +481,28 @@ export function RoomsScreen() {
                         )}
                       >
                         <Text className="font-heading text-mobile-text dark:text-mobile-dark-text">
-                          {mode === 'live' ? 'Live rooms' : 'All public'}
+                          {mode === 'live' ? 'Live rooms' : 'Browse'}
                         </Text>
                       </Pressable>
                     ))}
                   </View>
-                  <Field
-                    value={browseQuery}
-                    onChangeText={setBrowseQuery}
-                    placeholder="Search rooms by name"
-                    accessibilityLabel="Search rooms by name"
-                    onSubmitEditing={() => void loadRooms(browseMode)}
-                  />
-                  <Button
-                    label="Search rooms"
-                    tone="secondary"
-                    disabled={browsing}
-                    onPress={() => void loadRooms(browseMode)}
-                  />
+                  {browseMode !== 'live' && (
+                    <>
+                      <Field
+                        value={browseQuery}
+                        onChangeText={setBrowseQuery}
+                        placeholder="Search rooms by name"
+                        accessibilityLabel="Search rooms by name"
+                        onSubmitEditing={() => void loadRooms(browseMode)}
+                      />
+                      <Button
+                        label="Search rooms"
+                        tone="secondary"
+                        disabled={browsing}
+                        onPress={() => void loadRooms(browseMode)}
+                      />
+                    </>
+                  )}
                   {browsing && <Copy muted>Loading rooms…</Copy>}
                   {Boolean(browseError) && <Copy muted>{browseError}</Copy>}
                   <View className="flex-row flex-wrap gap-3">
@@ -504,13 +511,14 @@ export function RoomsScreen() {
                       <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
                         <Copy muted>
                           {browseMode === 'live'
-                            ? 'No live rooms found. Try All public.'
+                            ? 'No rooms are live. Browse public rooms or start your own.'
                             : 'No public rooms found. Try another name.'}
                         </Copy>
                       </View>
                     )}
                   </View>
-                  {browseResult &&
+                  {browseMode !== 'live' &&
+                    browseResult &&
                     browseResult.total > PUBLIC_ROOM_PAGE_SIZE && (
                       <View className="flex-row items-center justify-between gap-2">
                         <Button

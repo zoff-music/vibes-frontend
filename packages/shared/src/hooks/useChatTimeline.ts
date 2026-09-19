@@ -1,6 +1,9 @@
 import type { RoomMessage } from '@vibes/models';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+const retainedMessageLimit = 500;
+const rememberedMessageLimit = 1000;
+
 export function useChatTimeline(roomId: string, enabled: boolean) {
   const [messages, setMessages] = useState<RoomMessage[]>([]);
   const [open, setOpen] = useState(false);
@@ -18,13 +21,15 @@ export function useChatTimeline(roomId: string, enabled: boolean) {
     (message: RoomMessage) => {
       if (!enabled || seen.current.has(message.id)) return;
       seen.current.add(message.id);
-      if (seen.current.size > 2000) {
+      if (seen.current.size > rememberedMessageLimit) {
         const oldest = seen.current.values().next().value;
         if (oldest) seen.current.delete(oldest);
       }
-      setMessages((current) => [...current, message].slice(-1000));
+      setMessages((current) =>
+        [...current, message].slice(-retainedMessageLimit),
+      );
       if (!open && message.createdAt > joinedAt.current)
-        setUnread((count) => count + 1);
+        setUnread((count) => Math.min(count + 1, retainedMessageLimit));
     },
     [enabled, open],
   );
