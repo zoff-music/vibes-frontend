@@ -1,5 +1,6 @@
 import type { PublicRoomResult } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
+import { PUBLIC_ROOM_PAGE_SIZE } from '@vibes/shared';
 import { getRequestErrorMessage, mobileApiV2 } from '@/lib/api';
 
 export async function loader({
@@ -16,7 +17,7 @@ export async function loader({
         live: params.live !== 'false',
         q: (params.q ?? '').slice(0, 100),
         from,
-        to: from + 9,
+        to: from + PUBLIC_ROOM_PAGE_SIZE - 1,
       },
     },
     { signal, retry: 0 },

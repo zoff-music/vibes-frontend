@@ -1,6 +1,7 @@
 import { createRoomDiscoveryRequests } from '@vibes/api';
 import type { Providers, PublicRoom, PublicRoomResult } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
+import { PUBLIC_ROOM_PAGE_SIZE } from '@vibes/shared';
 import { getRequestErrorMessage, mobileApi, mobileApiV2 } from '@/lib/api';
 import { filterMobileProviders } from '@/lib/mobile-content';
 
@@ -20,7 +21,7 @@ export async function loader({
     requests.fetchProviders({ signal }),
     mobileApiV2.get(
       '/rooms/public',
-      { $search: { live: true, from: 0, to: 9 } },
+      { $search: { live: true, from: 0, to: PUBLIC_ROOM_PAGE_SIZE - 1 } },
       { signal },
     ),
   ]);

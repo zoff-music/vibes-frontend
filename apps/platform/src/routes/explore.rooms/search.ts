@@ -1,6 +1,7 @@
 import type { PublicRoomResult } from '@vibes/models';
+import { PUBLIC_ROOM_PAGE_SIZE } from '@vibes/shared';
 
-export const publicRoomPageSize = 10;
+export const publicRoomPageSize = PUBLIC_ROOM_PAGE_SIZE;
 
 export interface RoomBrowserSearch {
   q: string;

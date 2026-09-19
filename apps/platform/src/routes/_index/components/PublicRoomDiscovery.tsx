@@ -1,5 +1,5 @@
 import type { PublicRoom } from '@vibes/models';
-import { classNames } from '@vibes/shared';
+import { classNames, PUBLIC_ROOM_PAGE_SIZE } from '@vibes/shared';
 import { Button, PublicRoomTile, SegmentedControl } from '@vibes/ui/web';
 import { useState } from 'react';
 import { Link, useFetcher } from 'react-router';
@@ -97,22 +97,25 @@ export function PublicRoomDiscovery({
           <PublicRoomTile key={room.id} room={room} onJoin={onJoinRoom} />
         ))}
       </div>
-      {mode === 'public' && result && result.total > 10 && (
+      {mode === 'public' && result && result.total > PUBLIC_ROOM_PAGE_SIZE && (
         <div className="mt-4 flex items-center justify-between gap-3">
           <Button
             variant="tertiary"
             disabled={fetcher.state !== 'idle' || result.from === 0}
-            onClick={() => load(Math.max(0, result.from - 10))}
+            onClick={() =>
+              load(Math.max(0, result.from - PUBLIC_ROOM_PAGE_SIZE))
+            }
           >
             Previous
           </Button>
           <span className="text-sm text-theme-muted">
-            {Math.floor(result.from / 10) + 1} / {Math.ceil(result.total / 10)}
+            {Math.floor(result.from / PUBLIC_ROOM_PAGE_SIZE) + 1} /{' '}
+            {Math.ceil(result.total / PUBLIC_ROOM_PAGE_SIZE)}
           </span>
           <Button
             variant="tertiary"
             disabled={fetcher.state !== 'idle' || result.to + 1 >= result.total}
-            onClick={() => load(result.from + 10)}
+            onClick={() => load(result.from + PUBLIC_ROOM_PAGE_SIZE)}
           >
             Next
           </Button>

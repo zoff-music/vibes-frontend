@@ -1,4 +1,5 @@
 export * from './constants';
+export { PUBLIC_ROOM_PAGE_SIZE } from './constants';
 export * from './hooks/useChatTimeline';
 export * from './hooks/useMediaSession';
 export * from './hooks/usePageVisibility';

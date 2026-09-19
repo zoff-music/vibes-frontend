@@ -15,8 +15,8 @@ export function Background() {
   const isHome = location.pathname === '/';
   const showGrid = matches.some((match) => gridRouteIds.has(match.id));
 
-  // Only show the sun on Home and CreateRoom pages
-  const showSun = isHome || location.pathname === '/rooms/create';
+  // The home hero positions its own sun behind the card.
+  const showSun = location.pathname === '/rooms/create';
 
   return (
     <>

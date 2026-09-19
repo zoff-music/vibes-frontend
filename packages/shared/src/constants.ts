@@ -25,3 +25,5 @@ export const DEFAULT_SONG_THUMBNAIL =
 export function resolveSongThumbnail(value?: string): string {
   return value?.trim() || DEFAULT_SONG_THUMBNAIL;
 }
+
+export const PUBLIC_ROOM_PAGE_SIZE = 12;

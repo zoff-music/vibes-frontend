@@ -1,6 +1,6 @@
 import type { PublicRoom, PublicRoomResult } from '@vibes/models';
 import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
-import { classNames } from '@vibes/shared';
+import { classNames, PUBLIC_ROOM_PAGE_SIZE } from '@vibes/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -510,35 +510,48 @@ export function RoomsScreen() {
                       </View>
                     )}
                   </View>
-                  {browseResult && browseResult.total > 10 && (
-                    <View className="flex-row items-center justify-between gap-2">
-                      <Button
-                        label="Previous"
-                        tone="secondary"
-                        disabled={browsing || browseResult.from === 0}
-                        onPress={() =>
-                          void loadRooms(
-                            browseMode,
-                            Math.max(0, browseResult.from - 10),
-                          )
-                        }
-                      />
-                      <Copy muted>
-                        {Math.floor(browseResult.from / 10) + 1} /{' '}
-                        {Math.ceil(browseResult.total / 10)}
-                      </Copy>
-                      <Button
-                        label="Next"
-                        tone="secondary"
-                        disabled={
-                          browsing || browseResult.to + 1 >= browseResult.total
-                        }
-                        onPress={() =>
-                          void loadRooms(browseMode, browseResult.from + 10)
-                        }
-                      />
-                    </View>
-                  )}
+                  {browseResult &&
+                    browseResult.total > PUBLIC_ROOM_PAGE_SIZE && (
+                      <View className="flex-row items-center justify-between gap-2">
+                        <Button
+                          label="Previous"
+                          tone="secondary"
+                          disabled={browsing || browseResult.from === 0}
+                          onPress={() =>
+                            void loadRooms(
+                              browseMode,
+                              Math.max(
+                                0,
+                                browseResult.from - PUBLIC_ROOM_PAGE_SIZE,
+                              ),
+                            )
+                          }
+                        />
+                        <Copy muted>
+                          {Math.floor(
+                            browseResult.from / PUBLIC_ROOM_PAGE_SIZE,
+                          ) + 1}{' '}
+                          /{' '}
+                          {Math.ceil(
+                            browseResult.total / PUBLIC_ROOM_PAGE_SIZE,
+                          )}
+                        </Copy>
+                        <Button
+                          label="Next"
+                          tone="secondary"
+                          disabled={
+                            browsing ||
+                            browseResult.to + 1 >= browseResult.total
+                          }
+                          onPress={() =>
+                            void loadRooms(
+                              browseMode,
+                              browseResult.from + PUBLIC_ROOM_PAGE_SIZE,
+                            )
+                          }
+                        />
+                      </View>
+                    )}
                 </View>
               </Animated.View>
             </ContentColumn>
