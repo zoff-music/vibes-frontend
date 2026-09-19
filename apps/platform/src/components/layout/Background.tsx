@@ -58,7 +58,7 @@ export function Background() {
       {showSun && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[44rem] overflow-hidden"
+          className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[44rem] overflow-hidden"
         >
           <div
             ref={sunRef}
