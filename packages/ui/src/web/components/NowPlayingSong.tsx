@@ -32,9 +32,8 @@ export function NowPlayingSong({
         <div
           className={classNames(
             'h-2 w-2 rounded-full',
-            isPlaying
-              ? 'bg-secondary shadow-secondary-strong motion-safe:animate-pulse'
-              : 'bg-white/30',
+            isPlaying ? 'bg-secondary shadow-secondary-strong' : 'bg-white/30',
+            isPlaying && animate && 'motion-safe:animate-pulse',
           )}
         />
         <span className="font-display text-2xs text-theme-muted tracking-label">

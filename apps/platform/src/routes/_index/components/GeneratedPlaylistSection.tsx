@@ -51,7 +51,7 @@ export function GeneratedPlaylistSection({
           <ArrowRightIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
         </Button>
       </div>
-      <div className="min-w-0 rounded-3xl border border-theme bg-theme-surface p-5 sm:p-7 lg:col-span-3">
+      <div className="min-w-0 lg:col-span-3 lg:py-6">
         <DeferredContent
           fallback={<div aria-hidden="true" className="h-144" />}
         >

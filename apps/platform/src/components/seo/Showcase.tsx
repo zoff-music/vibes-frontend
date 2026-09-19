@@ -36,7 +36,7 @@ export function Showcase({
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-6 overflow-hidden [mask-image:radial-gradient(ellipse_closest-side,black_45%,transparent)]"
+        className="pointer-events-none absolute inset-x-0 -inset-y-6 overflow-hidden [mask-image:radial-gradient(ellipse_closest-side,black_45%,transparent)]"
       >
         <div className="absolute top-8 right-0 h-72 w-72 rounded-full bg-primary/15 blur-3xl motion-safe:animate-sunset-glow group-data-[playing=false]/showcase:[animation-play-state:paused]" />
         <div className="absolute bottom-8 left-0 h-64 w-64 rounded-full bg-secondary/15 blur-3xl" />

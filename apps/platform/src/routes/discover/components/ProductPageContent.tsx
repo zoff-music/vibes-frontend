@@ -84,12 +84,13 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
                 id="playlist-generation-heading"
                 className="mt-3 font-pixel text-2xl normal-case tracking-tight"
               >
-                Start with an AI playlist.
+                Give AI a starting point.
               </h2>
               <p className="mt-3 max-w-2xl text-theme-muted leading-relaxed">
-                Name a mood, genre or a few artists. Zoff’s AI playlist
-                generator finds tracks for a room you can edit with your
-                friends.
+                Try “quiet jazz for a rainy evening” or “2000s indie for a road
+                trip”. A mood, a genre or a few artists give the generator more
+                to work with than “good music”. Check the songs it finds, then
+                keep, remove or add to them with your friends.
               </p>
             </div>
             <div>
@@ -106,7 +107,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
             </div>
           </section>
         )}
-        <div className="grid min-h-[60svh] content-center gap-12 py-20 sm:grid-cols-2 sm:gap-16 sm:py-28">
+        <div className="grid gap-12 py-16 sm:grid-cols-2 sm:gap-16 sm:py-24">
           {page.sections.slice(0, 2).map((section, index) => (
             <section key={section.title} className="flex gap-4">
               <span
@@ -122,6 +123,13 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
                 <p className="mt-5 max-w-lg text-theme-muted leading-relaxed sm:text-lg">
                   {section.body}
                 </p>
+                {section.points && (
+                  <ul className="mt-5 max-w-lg list-disc space-y-3 pl-4 text-sm text-theme-muted leading-relaxed marker:text-secondary">
+                    {section.points.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </section>
           ))}

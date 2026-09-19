@@ -178,6 +178,21 @@ announcing animation frames. Empty room lists and unavailable optional data
 are omitted; the room-entry form and product content remain usable. Keep copy
 short and avoid repeating the same explanation in adjacent sections.
 
+The room-settings section is one full-width, unframed scene. Its three examples
+cycle through friends adding a song, an admin controlling skips, and a finished
+song returning to the queue. Crossfade between setups and animate queue changes
+with position-only layout motion, so text never stretches. Selecting a setup or
+focusing its controls stops cycling; Play resumes it. The relevant shared room
+toggles stay usable, and keyboard focus survives changing a setting. Keep the AI
+showcase unframed too, rather than wrapping every demo in the same large card.
+Automatic example changes do not announce themselves to screen readers.
+
+Discovery guides keep their first two explanations and practical notes visible
+in the server-rendered page. Accordions cover follow-up questions about each
+topic, including provider availability, room permissions and the difference
+between joining a room and pairing a remote. Add useful instructions rather than
+repeating homepage sales copy; keep detailed text out of animation captions.
+
 Public pages provide a keyboard skip link before the header. Shared toggles
 expose their label and description separately from the decorative OFF/ON
 labels. Playback sliders announce elapsed time and duration. The queue demo
