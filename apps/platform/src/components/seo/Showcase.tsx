@@ -45,9 +45,9 @@ export function Showcase({
         </div>
       </div>
       <div className="relative flex items-center justify-between gap-3">
-        <p className="font-pixel text-primary text-xs tracking-widest">
+        <h2 className="font-pixel text-primary text-xs tracking-widest">
           {label}
-        </p>
+        </h2>
         <Button
           variant="tertiary"
           size="icon"

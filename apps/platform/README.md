@@ -166,11 +166,23 @@ canonical URLs without tracking parameters, rather than relying on hydration.
 
 The homepage uses alternating product sections for voting, room controls,
 AI playlist generation and remote control. App screenshots stay on the apps
-guide, and the embed configurator stays on the rooms guide. Community totals come from the existing
-loader and sit above the queue section, aligned with the same content width.
-Failed requests show
-unavailable values, not false zeros. Keep copy short and avoid repeating the
-same explanation in adjacent sections.
+guide, and the embed configurator stays on the rooms guide. The homepage's
+server loader gives community totals, public rooms and providers a shared
+250 ms deadline. Successful responses stay in the server-rendered HTML;
+missing values are completed by `clientLoader` during hydration or client
+navigation, without refetching successful responses. The full page, forms and
+SEO copy render even if these optional reads fail or time out.
+Keep the provider and room-list space reserved while loading. Totals sit above
+the queue section and count up when visible, respecting reduced motion.
+Their full values are available to screen readers without announcing animation
+frames. Failed requests show dashes, not false zeros. Keep copy short and avoid
+repeating the same explanation in adjacent sections.
+
+Public pages provide a keyboard skip link before the header. Shared toggles
+expose their label and description separately from the decorative OFF/ON
+labels. Playback sliders announce elapsed time and duration. The queue demo
+pauses when a keyboard user focuses a song, and switching between room names
+and AI prompts moves focus to the new input.
 
 Product demos use placeholder songs and artwork in a room named `electro`.
 Reuse `QueueItem`, `NowPlayingSong`, `PlaybackProgress`, `EmbedQueueSong` and
@@ -187,7 +199,9 @@ sun also pause when out of view.
 
 The generated playlist showcase types a prompt, shows the shared
 `GenerationSparkles` from the real room-generation screen, then adds three
-placeholder tracks to the queue. Selecting an idea restarts at the prompt;
+placeholder tracks to the queue. Completed playlists fade out before the next
+prompt begins. Selecting an idea transitions to the new prompt; song changes
+and playback-mode changes also use the shared `ContentTransition` component.
 reduced motion shows the completed example without typing or transitions.
 The homepage entry button opens and focuses the real generator without
 submitting a request. Keep the feature copy and guide links server-rendered.
@@ -212,8 +226,9 @@ scrolling. The hero, guides and product sections use the common site layout;
 room routes keep their player layout. The old `how-it-works` anchor remains
 compatible without a separate jump link.
 
-Optional session, remote and homepage reads do not retry during SSR. Preserve
-request cancellation and timeouts. The local pixel font is preloaded, and the
+Optional session and remote reads do not retry during SSR. Homepage reads use
+the bounded server attempt and client fallback above, also without retries.
+Preserve request cancellation and timeouts. The local pixel font is preloaded, and the
 shared server compresses production responses. Do not introduce external font
 stylesheets or request backoff delays on public page loads.
 

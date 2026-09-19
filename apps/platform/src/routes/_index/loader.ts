@@ -1,12 +1,23 @@
+import type { Providers, PublicRoom, Stats } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 
-export type HomeLoaderData = Awaited<ReturnType<typeof loader>>;
+export interface HomeLoaderData {
+  data: {
+    providers: Providers | null;
+    publicRooms: PublicRoom[] | null;
+    stats: Stats | null;
+  };
+  pending: boolean;
+}
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({
+  request,
+}: LoaderFunctionArgs): Promise<HomeLoaderData> {
   const serverApi = getServerApi(request);
-  // Render the public page immediately when optional community data fails.
-  const options = { retry: 0, signal: request.signal };
+  // Fast responses enrich the HTML; slow optional data continues in the client.
+  const signal = AbortSignal.any([request.signal, AbortSignal.timeout(250)]);
+  const options = { retry: 0, signal };
   const [statsResult, providersResult, publicRoomsResult] = await Promise.all([
     serverApi.get('/stats', null, options),
     serverApi.get('/providers', null, options),
@@ -15,13 +26,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const [statsError, stats] = statsResult;
   const [providersError, providers] = providersResult;
   const [publicRoomsError, publicRooms] = publicRoomsResult;
+  const data = {
+    providers: providersError ? null : providers,
+    publicRooms: publicRoomsError ? null : publicRooms,
+    stats: statsError ? null : stats,
+  };
 
   return {
-    providers: providersError ? [] : (providers ?? []),
-    publicRooms: publicRoomsError ? [] : (publicRooms ?? []),
-    totalListeners: statsError ? 0 : (stats?.totalListeners ?? 0),
-    totalRooms: statsError ? 0 : (stats?.totalRooms ?? 0),
-    totalSongs: statsError ? 0 : (stats?.totalSongs ?? 0),
-    statsAvailable: !statsError && Boolean(stats),
+    data,
+    pending: Object.values(data).some((value) => value === null),
   };
 }

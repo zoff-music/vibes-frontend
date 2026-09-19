@@ -1,4 +1,4 @@
-import { Button } from '@vibes/ui/web';
+import { Button, ContentTransition } from '@vibes/ui/web';
 import { useState } from 'react';
 import { Showcase } from '../../../components/seo/Showcase';
 import { RoomModeScene } from './showcase/RoomModeScene';
@@ -37,11 +37,9 @@ export function RoomModePreview() {
             </Button>
           </fieldset>
           <div className="mt-6 rounded-2xl border border-theme bg-theme p-4 sm:p-5">
-            <RoomModeScene
-              key={String(hostMode)}
-              hostMode={hostMode}
-              playing={playing}
-            />
+            <ContentTransition transitionKey={String(hostMode)}>
+              <RoomModeScene hostMode={hostMode} playing={playing} />
+            </ContentTransition>
           </div>
           <p
             aria-live="polite"

@@ -17,6 +17,7 @@ import { ProfileSettingsModal } from '../../components/profile/ProfileSettingsMo
 import { getPreviousPath } from '../../utils/navigationHistory';
 import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction } from './action';
+import { clientLoader } from './clientLoader';
 import { HomeLanding } from './components/HomeLanding';
 import { HomeRoomControls } from './components/HomeRoomControls';
 import { JoiningRoomState } from './components/JoiningRoomState';
@@ -26,7 +27,7 @@ import { useAnimatedPlaceholder } from './hooks/useAnimatedPlaceholder';
 import { loader } from './loader';
 
 export { meta } from './meta';
-export { clientAction, loader };
+export { clientAction, clientLoader, loader };
 
 const LazyTerminalHome = lazy(async () => {
   const module = await import('./components/TerminalHome');
@@ -34,8 +35,7 @@ const LazyTerminalHome = lazy(async () => {
 });
 
 export default function Home() {
-  const { providers, publicRooms, totalListeners } =
-    useLoaderData<typeof loader>();
+  const { data, pending } = useLoaderData<typeof clientLoader>();
   const [roomCode, setRoomCode] = useState('');
   const [searchParams] = useSearchParams();
   const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
@@ -43,19 +43,21 @@ export default function Home() {
   const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const playlistPromptRef = useRef<HTMLInputElement>(null);
+  const roomNameRef = useRef<HTMLInputElement>(null);
   const [generationEntry, setGenerationEntry] = useState(0);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (generationEntry === 0) return;
 
-    playlistPromptRef.current?.focus({ preventScroll: true });
-    const target = playlistPromptRef.current ?? heroRef.current;
+    const input = isAIMode ? playlistPromptRef.current : roomNameRef.current;
+    input?.focus({ preventScroll: true });
+    const target = input ?? heroRef.current;
     target?.scrollIntoView({
       behavior: reducedMotion ? 'instant' : 'smooth',
       block: 'center',
     });
-  }, [generationEntry, reducedMotion]);
+  }, [generationEntry, reducedMotion, isAIMode]);
 
   const handleGeneratePlaylist = () => {
     if (!isAIMode) {
@@ -92,6 +94,7 @@ export default function Home() {
 
   const handleToggleAIMode = () => {
     setIsAIMode((current) => !current);
+    setGenerationEntry((current) => current + 1);
     setRoomCode('');
     reset();
   };
@@ -114,10 +117,10 @@ export default function Home() {
               onToggleAIMode={handleToggleAIMode}
               pendingRoomSlug={pendingRoomSlug}
               placeholder={placeholder}
-              providers={providers}
-              publicRooms={publicRooms}
+              providers={data.providers ?? []}
+              publicRooms={data.publicRooms ?? []}
               roomCode={roomCode}
-              totalListeners={totalListeners}
+              totalListeners={data.stats?.totalListeners ?? 0}
             />
           </Suspense>
         </div>
@@ -146,11 +149,12 @@ export default function Home() {
         heroRef={heroRef}
         onGeneratePlaylist={handleGeneratePlaylist}
         onJoinRoom={handleJoinRoom}
-        providers={providers}
-        publicRooms={publicRooms}
+        data={data}
+        pending={pending}
       >
         {!isAIMode && (
           <HomeRoomControls
+            inputRef={roomNameRef}
             onJoinRoom={handleJoinRoom}
             onRoomCodeChange={handleRoomCodeChange}
             onStartSession={handleStartSession}

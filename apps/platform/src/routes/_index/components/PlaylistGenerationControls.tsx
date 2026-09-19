@@ -62,7 +62,7 @@ export function PlaylistGenerationControls({
         className={classNames(
           'min-w-0 rounded-2xl transition-shadow duration-500',
           isGenerating &&
-            'animate-pulse border-secondary/70 shadow-secondary-panel',
+            'border-secondary/70 shadow-secondary-panel motion-safe:animate-pulse',
         )}
       >
         <div className="mb-2 flex h-5 items-center justify-between gap-3">
@@ -118,11 +118,15 @@ export function PlaylistGenerationControls({
         contentAlignment="between"
         className={classNames(
           'relative h-14 w-full gap-3 overflow-hidden font-pixel',
-          isGenerating && 'animate-ai-button-glow disabled:opacity-100',
+          isGenerating &&
+            'disabled:opacity-100 motion-safe:animate-ai-button-glow',
         )}
       >
         {isGenerating && (
-          <span className="absolute inset-y-0 w-1/3 animate-ai-button-shimmer bg-linear-to-r from-transparent via-white/35 to-transparent" />
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-0 w-1/3 bg-linear-to-r from-transparent via-white/35 to-transparent motion-safe:animate-ai-button-shimmer"
+          />
         )}
         <span className="relative" aria-live="polite">
           {isGenerating ? 'Generating…' : 'Generate room'}
@@ -130,7 +134,7 @@ export function PlaylistGenerationControls({
         <span
           className={classNames(
             'relative shrink-0',
-            isGenerating && 'animate-ai-sparkles',
+            isGenerating && 'motion-safe:animate-ai-sparkles',
           )}
         >
           <SparklesIcon className="h-5 w-5" />

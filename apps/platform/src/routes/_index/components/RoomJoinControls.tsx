@@ -1,5 +1,5 @@
 import { ArrowRightIcon, Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
-import type { ChangeEvent, KeyboardEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent, RefObject } from 'react';
 
 interface RoomJoinControlsProps {
   onJoinRoom: () => void;
@@ -8,6 +8,7 @@ interface RoomJoinControlsProps {
   onToggleAIMode: () => void;
   placeholder: string;
   roomCode: string;
+  inputRef?: RefObject<HTMLInputElement | null>;
 }
 
 export function RoomJoinControls({
@@ -17,6 +18,7 @@ export function RoomJoinControls({
   onToggleAIMode,
   placeholder,
   roomCode,
+  inputRef,
 }: RoomJoinControlsProps) {
   const hasRoomCode = Boolean(roomCode.trim());
   const actionLabel = hasRoomCode ? 'Join room' : 'Start a room';
@@ -59,6 +61,7 @@ export function RoomJoinControls({
             zoff.me/
           </label>
           <input
+            {...(inputRef && { ref: inputRef })}
             id="room-name"
             type="text"
             placeholder={placeholder}

@@ -1,4 +1,8 @@
-import { NowPlayingSong, PlaybackProgress } from '@vibes/ui/web';
+import {
+  ContentTransition,
+  NowPlayingSong,
+  PlaybackProgress,
+} from '@vibes/ui/web';
 import { queueDemoSongs } from '../../../../components/seo/previewSongs';
 import { usePlaybackPreview } from '../../hooks/usePlaybackPreview';
 
@@ -25,18 +29,20 @@ export function ListeningScene({ playing }: ListeningSceneProps) {
             <span>{label}</span>
             <span className="font-pixel text-secondary">electro</span>
           </div>
-          <NowPlayingSong
-            song={song}
-            isPlaying
-            providerLink={false}
-            animate={false}
-          />
-          <div className="mt-3">
-            <PlaybackProgress
-              durationMs={state.durationMs}
-              positionMs={state.position}
+          <ContentTransition transitionKey={state.track}>
+            <NowPlayingSong
+              song={song}
+              isPlaying={playing}
+              providerLink={false}
+              animate={false}
             />
-          </div>
+            <div className="mt-3">
+              <PlaybackProgress
+                durationMs={state.durationMs}
+                positionMs={state.position}
+              />
+            </div>
+          </ContentTransition>
         </section>
       ))}
       <p className="pt-1 text-center text-sm text-theme-muted">

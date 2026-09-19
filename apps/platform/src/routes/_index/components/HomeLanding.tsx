@@ -7,8 +7,7 @@ import { ProductIntroduction } from './ProductIntroduction';
 import { ProviderAttribution } from './ProviderAttribution';
 import { PublicRoomDiscovery } from './PublicRoomDiscovery';
 
-interface HomeLandingProps
-  extends Pick<HomeLoaderData, 'providers' | 'publicRooms'> {
+interface HomeLandingProps extends HomeLoaderData {
   children: ReactNode;
   heroRef: RefObject<HTMLDivElement | null>;
   onJoinRoom: (roomId: string) => void;
@@ -18,8 +17,8 @@ interface HomeLandingProps
 export function HomeLanding({
   children,
   heroRef,
-  providers,
-  publicRooms,
+  data,
+  pending,
   onJoinRoom,
   onGeneratePlaylist,
 }: HomeLandingProps) {
@@ -49,13 +48,19 @@ export function HomeLanding({
           }
           footer={
             <>
-              <ProviderAttribution providers={providers} />
+              <div className="min-h-11">
+                <ProviderAttribution providers={data.providers ?? []} />
+              </div>
               <LegalAcknowledgement />
             </>
           }
         />
       </div>
-      <PublicRoomDiscovery onJoinRoom={onJoinRoom} rooms={publicRooms} />
+      <PublicRoomDiscovery
+        onJoinRoom={onJoinRoom}
+        rooms={data.publicRooms}
+        loading={pending && data.publicRooms === null}
+      />
       <ProductIntroduction onGeneratePlaylist={onGeneratePlaylist} />
       <p
         lang="ja"

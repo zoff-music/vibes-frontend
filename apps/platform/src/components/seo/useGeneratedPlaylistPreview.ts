@@ -1,7 +1,12 @@
 import { useReducedMotion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-type GenerationPhase = 'typing' | 'searching' | 'arriving' | 'ready';
+type GenerationPhase =
+  | 'typing'
+  | 'searching'
+  | 'arriving'
+  | 'ready'
+  | 'resetting';
 
 interface GenerationProgress {
   phase: GenerationPhase;
@@ -34,6 +39,8 @@ export function useGeneratedPlaylistPreview(prompt: string, playing: boolean) {
       delay = 2600;
     } else if (progress.phase === 'ready') {
       delay = 5000;
+    } else if (progress.phase === 'resetting') {
+      delay = 400;
     }
 
     const timer = window.setTimeout(() => {
@@ -57,6 +64,10 @@ export function useGeneratedPlaylistPreview(prompt: string, playing: boolean) {
             count,
             phase: count === 3 ? 'ready' : 'arriving',
           };
+        }
+
+        if (current.phase === 'ready') {
+          return { ...current, phase: 'resetting' };
         }
 
         return { phase: 'typing', characters: 0, count: 0 };

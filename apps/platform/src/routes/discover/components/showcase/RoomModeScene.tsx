@@ -1,5 +1,6 @@
 import {
   Button,
+  ContentTransition,
   NowPlayingSong,
   PauseIcon,
   PlaybackProgress,
@@ -23,18 +24,20 @@ export function RoomModeScene({ hostMode, playing }: RoomModeSceneProps) {
 
   return (
     <div className="min-w-0">
-      <NowPlayingSong
-        song={song}
-        isPlaying={state.isPlaying}
-        providerLink={false}
-        animate={false}
-      />
-      <div className="mt-3">
-        <PlaybackProgress
-          durationMs={state.durationMs}
-          positionMs={state.position}
+      <ContentTransition transitionKey={state.track}>
+        <NowPlayingSong
+          song={song}
+          isPlaying={state.isPlaying && playing}
+          providerLink={false}
+          animate={false}
         />
-      </div>
+        <div className="mt-3">
+          <PlaybackProgress
+            durationMs={state.durationMs}
+            positionMs={state.position}
+          />
+        </div>
+      </ContentTransition>
       <div className="mt-5 flex min-h-11 items-center gap-2">
         {hostMode && (
           <>

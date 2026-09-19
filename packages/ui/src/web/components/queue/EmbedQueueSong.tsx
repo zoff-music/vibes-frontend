@@ -51,6 +51,7 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
       size="none"
       className="w-full justify-start gap-3 rounded-2xl p-3 text-left transition-shadow hover:shadow-primary-soft"
       onClick={() => onVote(song.id)}
+      aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
       title={`Vote for ${song.title} (${voteCount} votes)`}
     >
       {content}

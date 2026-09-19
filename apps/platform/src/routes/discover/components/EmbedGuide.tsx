@@ -17,7 +17,8 @@ export function EmbedGuide() {
         Put your room on a website.
       </h2>
       <p className="mt-4 max-w-2xl text-theme-muted leading-relaxed">
-        Choose a player, a playlist, or both. Try the controls below.
+        Let visitors listen and vote without leaving your site. Choose a player,
+        a playlist, or both, then try the controls below.
       </p>
       <EmbedConfigurator />
       <ol className="mt-10 grid gap-6 sm:grid-cols-3">

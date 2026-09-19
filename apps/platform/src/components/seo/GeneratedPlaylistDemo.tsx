@@ -1,4 +1,4 @@
-import { Button } from '@vibes/ui/web';
+import { Button, ContentTransition } from '@vibes/ui/web';
 import { useState } from 'react';
 import { GeneratedPlaylistScene } from './GeneratedPlaylistScene';
 import { Showcase } from './Showcase';
@@ -41,11 +41,9 @@ export function GeneratedPlaylistDemo() {
               </Button>
             ))}
           </fieldset>
-          <GeneratedPlaylistScene
-            key={`${idea.prompt}-${revision}`}
-            prompt={idea.prompt}
-            playing={playing}
-          />
+          <ContentTransition transitionKey={`${idea.prompt}-${revision}`}>
+            <GeneratedPlaylistScene prompt={idea.prompt} playing={playing} />
+          </ContentTransition>
         </div>
       )}
     </Showcase>

@@ -81,7 +81,11 @@ export function VotingPreview() {
               <h3 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
                 Up Next ({state.songs.length})
               </h3>
-              <ol aria-label="Preview queue" className="space-y-2">
+              <ol
+                aria-label="Preview queue"
+                onFocusCapture={actions.pause}
+                className="space-y-2"
+              >
                 <AnimatePresence initial={false} mode="popLayout">
                   {state.songs.map((song, index) => (
                     <motion.li

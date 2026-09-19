@@ -37,12 +37,19 @@ export function SegmentedToggle({
         id={inputId}
         {...(name && { name })}
         type="checkbox"
+        {...(label && { 'aria-labelledby': `${inputId}-label` })}
+        {...(description && {
+          'aria-describedby': `${inputId}-description`,
+        })}
         checked={checked}
         onChange={handleChange}
         disabled={disabled}
         className="peer sr-only"
       />
-      <span className="grid h-9 w-28 grid-cols-2 rounded-xl border border-theme bg-black/5 p-1 font-pixel text-2xs tracking-label transition-colors peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-theme dark:bg-white/5">
+      <span
+        aria-hidden="true"
+        className="grid h-9 w-28 grid-cols-2 rounded-xl border border-theme bg-black/5 p-1 font-pixel text-2xs tracking-label transition-colors peer-focus-visible:outline-hidden peer-focus-visible:ring-2 peer-focus-visible:ring-secondary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-theme dark:bg-white/5"
+      >
         <span
           className={classNames(
             'flex items-center justify-center rounded-lg transition-all',
@@ -85,12 +92,20 @@ export function SegmentedToggle({
       >
         <div className="min-w-20 flex-1">
           {label && (
-            <div className="font-pixel text-theme text-xs tracking-display">
+            <div
+              id={`${inputId}-label`}
+              className="font-pixel text-theme text-xs tracking-display"
+            >
               {label}
             </div>
           )}
           {description && (
-            <div className="mt-1 text-theme-muted text-xs">{description}</div>
+            <div
+              id={`${inputId}-description`}
+              className="mt-1 text-theme-muted text-xs"
+            >
+              {description}
+            </div>
           )}
         </div>
         {control}

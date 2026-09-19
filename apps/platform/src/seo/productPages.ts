@@ -27,20 +27,20 @@ export const productPages: ProductPage[] = [
       'Share a room link and listen to the same music while you chat, work or play. Everyone can add songs to the queue.',
     sections: [
       {
-        title: 'Invite your friends',
-        body: 'Share your room link. Friends can join in a browser or the mobile app without an account. A display name lets others see who added each song.',
+        title: 'Send the room link',
+        body: 'Copy the room’s URL into your group chat. Friends open it in a browser or the Zoff app. Nobody needs to register, and you can keep using your usual chat or call while you listen.',
       },
       {
-        title: 'Stay on the same track',
-        body: 'Server mode synchronizes playback and advances the queue automatically. Each device plays through YouTube or SoundCloud. Your browser may need a tap to start audio; some tracks may be unavailable in your region.',
+        title: 'Start playback on each device',
+        body: 'In server mode, everyone follows the same playback position and the next song starts automatically. Each device plays its own YouTube or SoundCloud audio. Tap Play if your browser is waiting for permission to start.',
       },
       {
-        title: 'Add songs and vote',
-        body: 'Search YouTube or SoundCloud, or paste a song link. Vote to move a track up the queue. Room admins choose who can add songs and skip.',
+        title: 'Can everyone choose songs?',
+        body: 'Yes, unless the room has Admins Only Add enabled. Search for a track or paste its link, then vote for songs you want to hear sooner. Everyone sees the queue update.',
       },
       {
-        title: 'Use your usual group chat',
-        body: 'Send the room link in your group chat or Discord call. Each person opens Zoff on their own device. There’s no chat bot to install.',
+        title: 'Why won’t a track play for someone?',
+        body: 'YouTube and SoundCloud decide where their tracks can play. A song may work for one friend but be unavailable in another country. Try a different upload or another song in the queue.',
       },
     ],
   },
@@ -57,19 +57,19 @@ export const productPages: ProductPage[] = [
     sections: [
       {
         title: 'Find a song',
-        body: 'Search YouTube or SoundCloud, or paste a track link. Songs go straight into the room’s queue. The room’s settings decide which providers are enabled and who can add music.',
+        body: 'Use the room’s search to find a YouTube or SoundCloud track, or paste its link. Add a result to put it in the queue. Only the providers enabled in that room appear in search.',
       },
       {
-        title: 'Let the room vote',
-        body: 'A song vote moves a track up the queue. Skip votes decide when to move on. Admins can require a group vote to skip or keep skipping to themselves.',
+        title: 'Song votes and skip votes',
+        body: 'Vote on a queued song to move it up. Skipping affects the song playing now. In server mode, Democratic Skip makes that a group decision; Admins Only Skip limits it to room admins.',
       },
       {
-        title: 'Start with a playlist',
-        body: 'Paste a supported playlist link to add its songs. Import progress shows the additions while music keeps playing. The room must allow playlist imports and you must have permission to add songs.',
+        title: 'Import a playlist',
+        body: 'Paste a YouTube or SoundCloud playlist link into search. Import it to add the tracks without stopping playback. If imports are disabled, a room admin can turn on Playlist Import in room settings.',
       },
       {
         title: 'Keep or remove played songs',
-        body: 'Leave played songs in rotation or remove them after playback. You can also prevent duplicates and limit additions to admins.',
+        body: 'Turn on Remove Played to take songs out of the queue after they finish. Leave it off to keep them in rotation. Allow Duplicates controls whether the same track can be added more than once.',
       },
     ],
   },
@@ -86,19 +86,19 @@ export const productPages: ProductPage[] = [
     sections: [
       {
         title: 'Create and share',
-        body: 'Choose a room name and enable YouTube, SoundCloud, or both. Share the link to let people join. Creating and joining rooms is free.',
+        body: 'Choose a room name and the music sources: YouTube, SoundCloud, or both. Add an admin password if you want to protect the settings, then send friends the room link. They won’t need that password to listen.',
       },
       {
         title: 'Automatic playback or a host',
-        body: 'Server mode runs the queue automatically, even when the person who created the room leaves. In host mode, one host controls play, pause and skipping.',
+        body: 'Choose Server Mode for a queue that keeps playing when you leave. Choose Host Mode when one person should lead playback. The host controls play and pause; skipping also follows the room’s admin permissions.',
       },
       {
         title: 'Public or unlisted',
-        body: 'A public room can appear under Live now while people are listening. Leave it off the public list when you only want to share the link yourself. Anyone with an unlisted room’s link or name can still join.',
+        body: 'Enable Public Room to appear on the homepage while people are listening. This requires an admin password. With Public Room off, you share the link yourself. An unlisted room is still open to anyone who knows its link or name.',
       },
       {
-        title: 'Admin settings',
-        body: 'Set an admin password to protect the room’s settings. It gives access to playback permissions and queue controls; guests can still join without it.',
+        title: 'Give someone admin access',
+        body: 'Share the room’s admin password with the people who should manage it. They enter it in room settings to change permissions and queue options. Other listeners can keep using the room without admin access.',
       },
     ],
   },
@@ -115,23 +115,23 @@ export const productPages: ProductPage[] = [
     sections: [
       {
         title: 'iPhone and iPad',
-        body: 'Get Zoff from the App Store to join rooms, add songs, vote and use your device as a paired remote. The app is available for iPhone and iPad.',
+        body: 'Install Zoff from the App Store and open a room by name. You can listen, search for songs and vote from your iPhone or iPad. Pair the app as a remote when you want the sound to stay on another player.',
       },
       {
         title: 'Android phones and tablets',
-        body: 'Find Zoff on Google Play. Open a room by name, build the queue with friends and choose whether this device plays music or only participates in controlling the room.',
+        body: 'Install Zoff from Google Play to open the same rooms on Android. Add songs and vote with friends, or pair your phone with another player to control its playback without a second source of audio.',
       },
       {
         title: 'Android TV and casting',
-        body: 'Open Zoff on Android TV, or use the Cast button in a supported browser or app to connect to a compatible Chromecast. Friends can join the same room on their phones to add songs and vote.',
+        body: 'Open Zoff on Android TV and join your room, or use the Cast button in a supported browser or app to choose a Chromecast. Keep the room open on your phone to search, add songs and vote.',
       },
       {
         title: 'Pair your phone as a remote',
-        body: 'Enable remote control on the player connected to your speakers. Scan its QR code or enter its pairing code in the mobile app. Your phone controls that player without playing audio or joining as another listener.',
+        body: 'On the device playing music, open remote control and choose Enable Remote. Scan its QR code, or enter its Remote ID and pairing code on your phone. Once paired, play, pause, skip and seek all control that player.',
       },
       {
         title: 'No download needed on the web',
-        body: 'Open zoff.me in a browser to create or join a room. You get the shared queue, voting, room controls and playback without installing an app.',
+        body: 'Open zoff.me, enter a room name and join. The browser has the shared queue, voting and room settings too. You can use it alongside friends on the mobile apps.',
       },
     ],
   },

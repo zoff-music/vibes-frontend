@@ -1,4 +1,9 @@
-import { GenerationSparkles, QueueItem, SparklesIcon } from '@vibes/ui/web';
+import {
+  ContentTransition,
+  GenerationSparkles,
+  QueueItem,
+  SparklesIcon,
+} from '@vibes/ui/web';
 import { MotionConfig, motion } from 'framer-motion';
 import { queueDemoSongs } from './previewSongs';
 import { useGeneratedPlaylistPreview } from './useGeneratedPlaylistPreview';
@@ -15,10 +20,18 @@ export function GeneratedPlaylistScene({
   const { state } = useGeneratedPlaylistPreview(prompt, playing);
   const searching = state.phase === 'searching';
   const typing = state.phase === 'typing';
+  const resetting = state.phase === 'resetting';
+  const showPlaylist = state.phase === 'arriving' || state.phase === 'ready';
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="mt-5">
+      <motion.div
+        initial={false}
+        animate={{ opacity: resetting ? 0 : 1 }}
+        transition={{ duration: state.reducedMotion ? 0 : 0.35 }}
+        data-phase={state.phase}
+        className="mt-5"
+      >
         <div className="rounded-2xl border border-theme bg-theme-surface p-4">
           <p className="mb-3 font-pixel text-theme-muted text-xs">
             Your playlist prompt
@@ -46,44 +59,52 @@ export function GeneratedPlaylistScene({
             {typing && 'Describe your playlist'}
             {searching && 'Generating with AI'}
             {state.phase === 'arriving' && 'Adding songs…'}
-            {state.phase === 'ready' && 'AI playlist ready'}
+            {(state.phase === 'ready' || resetting) && 'AI playlist ready'}
           </span>
         </div>
-        <div className="relative grid min-h-72">
-          {(typing || searching) && (
+        <ContentTransition
+          transitionKey={showPlaylist ? 'playlist' : 'search'}
+          className="relative grid min-h-72"
+        >
+          {!showPlaylist && (
             <div className="col-start-1 row-start-1 flex flex-col items-center justify-center gap-5 rounded-2xl border border-theme bg-theme-surface p-6 text-center">
               <GenerationSparkles active={playing && searching} />
               <p className="font-pixel text-sm text-theme">
-                {typing
-                  ? 'Start with a mood or a genre.'
-                  : 'Finding your songs…'}
+                {searching
+                  ? 'Finding your songs…'
+                  : 'Start with a mood or a genre.'}
               </p>
             </div>
           )}
-          <ol
-            aria-label="AI-generated playlist preview"
-            className="col-start-1 row-start-1 space-y-2 self-start"
-          >
-            {queueDemoSongs.slice(0, state.count).map((song, index) => (
-              <motion.li
-                key={song.id}
-                initial={{
-                  opacity: state.reducedMotion ? 1 : 0,
-                  y: state.reducedMotion ? 0 : 12,
-                }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: state.reducedMotion ? 0 : 0.25 }}
+          {showPlaylist && (
+            <div className="col-start-1 row-start-1 self-start">
+              <h3 className="sr-only">Generated songs</h3>
+              <ol
+                aria-label="AI-generated playlist preview"
+                className="space-y-2"
               >
-                <QueueItem
-                  song={song}
-                  position={index + 1}
-                  providerLink={false}
-                />
-              </motion.li>
-            ))}
-          </ol>
-        </div>
-      </div>
+                {queueDemoSongs.slice(0, state.count).map((song, index) => (
+                  <motion.li
+                    key={song.id}
+                    initial={{
+                      opacity: state.reducedMotion ? 1 : 0,
+                      y: state.reducedMotion ? 0 : 12,
+                    }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: state.reducedMotion ? 0 : 0.25 }}
+                  >
+                    <QueueItem
+                      song={song}
+                      position={index + 1}
+                      providerLink={false}
+                    />
+                  </motion.li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </ContentTransition>
+      </motion.div>
     </MotionConfig>
   );
 }

@@ -1,3 +1,4 @@
+import type { RefObject } from 'react';
 import { RoomJoinControls } from './RoomJoinControls';
 
 interface HomeRoomControlsProps {
@@ -7,6 +8,7 @@ interface HomeRoomControlsProps {
   onToggleAIMode: () => void;
   placeholder: string;
   roomCode: string;
+  inputRef: RefObject<HTMLInputElement | null>;
 }
 
 export function HomeRoomControls({
@@ -16,6 +18,7 @@ export function HomeRoomControls({
   onToggleAIMode,
   placeholder,
   roomCode,
+  inputRef,
 }: HomeRoomControlsProps) {
   const handleJoinRoom = () => {
     onJoinRoom();
@@ -24,6 +27,7 @@ export function HomeRoomControls({
   return (
     <section aria-label="Join a room" className="min-w-0">
       <RoomJoinControls
+        inputRef={inputRef}
         onJoinRoom={handleJoinRoom}
         onRoomCodeChange={onRoomCodeChange}
         onStartSession={onStartSession}

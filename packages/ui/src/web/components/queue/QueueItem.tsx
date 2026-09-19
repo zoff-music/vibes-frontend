@@ -118,7 +118,7 @@ const QueueItemComponent: React.FC<Props> = ({
                 variant="tertiary"
                 size="none"
                 className="min-h-9 gap-1.5 rounded-xl px-2.5 font-pixel text-2xs"
-                aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}`}
+                aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
                 aria-busy={isVoting}
               >
                 <motion.span
@@ -154,7 +154,7 @@ const QueueItemComponent: React.FC<Props> = ({
               variant="destructive"
               size="none"
               className="min-h-9 min-w-9 rounded-xl p-2"
-              aria-label="Remove from queue"
+              aria-label={`Remove ${song.title} from queue`}
             >
               <TrashIcon className="h-4 w-4" />
             </Button>
@@ -162,6 +162,9 @@ const QueueItemComponent: React.FC<Props> = ({
         )}
       </div>
 
+      {song.addedBy && (
+        <span className="sr-only">Added by {song.addedBy}.</span>
+      )}
       {song.addedBy && (
         <span
           aria-hidden="true"
