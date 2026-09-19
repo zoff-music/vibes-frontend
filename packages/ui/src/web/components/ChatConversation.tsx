@@ -65,45 +65,47 @@ export function ChatConversation({
         aria-live="polite"
         className="min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-3"
       >
-        {messages.length === 0 && (
-          <p className="py-3 text-sm text-theme-muted">
-            Say hello to the room.
-          </p>
-        )}
-        {messages.map((message) => (
-          <p
-            key={message.id}
-            className="wrap-anywhere py-1 text-base text-theme leading-6"
-          >
-            {message.isAdmin && (
+        <div className="flex min-h-full flex-col justify-end [&>p]:shrink-0">
+          {messages.length === 0 && (
+            <p className="py-3 text-sm text-theme-muted">
+              Say hello to the room.
+            </p>
+          )}
+          {messages.map((message) => (
+            <p
+              key={message.id}
+              className="wrap-anywhere py-1 text-base text-theme leading-6"
+            >
+              {message.isAdmin && (
+                <span
+                  title="Room admin"
+                  className="mr-1 inline-block align-middle text-primary"
+                >
+                  <span className="sr-only">Room admin </span>
+                  <CrownIcon aria-hidden="true" className="h-4 w-4" />
+                </span>
+              )}
               <span
-                title="Room admin"
-                className="mr-1 inline-block align-middle text-primary"
+                className={classNames(
+                  'font-bold',
+                  nameColors[chatNameColorIndex(message.userId)],
+                )}
               >
-                <span className="sr-only">Room admin </span>
-                <CrownIcon aria-hidden="true" className="h-4 w-4" />
+                {message.name}
               </span>
-            )}
-            <span
-              className={classNames(
-                'font-bold',
-                nameColors[chatNameColorIndex(message.userId)],
-              )}
-            >
-              {message.name}
-            </span>
-            <span className="text-theme-muted">
-              {message.kind !== 'chat' ? ' ' : ': '}
-            </span>
-            <span
-              className={classNames(
-                message.kind !== 'chat' && 'text-theme-muted',
-              )}
-            >
-              {formatChatMessage(message)}
-            </span>
-          </p>
-        ))}
+              <span className="text-theme-muted">
+                {message.kind !== 'chat' ? ' ' : ': '}
+              </span>
+              <span
+                className={classNames(
+                  message.kind !== 'chat' && 'text-theme-muted',
+                )}
+              >
+                {formatChatMessage(message)}
+              </span>
+            </p>
+          ))}
+        </div>
       </div>
 
       {error && (
@@ -113,7 +115,7 @@ export function ChatConversation({
       )}
       <form
         onSubmit={sendMessage}
-        className="flex shrink-0 items-end gap-2 border-theme border-t bg-theme/90 pt-4 pb-1"
+        className="flex shrink-0 items-end gap-2 border-theme border-t bg-theme/90 pt-3 pb-1"
       >
         <label className="min-w-0 flex-1">
           <span className="sr-only">Room message</span>

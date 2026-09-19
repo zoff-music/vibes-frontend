@@ -258,11 +258,23 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     }
 
     return (
-      <div className="mt-8 min-w-0 space-y-8 lg:col-span-2 lg:mt-0 lg:h-full lg:overflow-y-auto">
-        <div className="relative lg:pb-6">
+      <div
+        className={classNames(
+          'mt-8 min-w-0 lg:col-span-2 lg:mt-0 lg:h-full',
+          chat.open && 'lg:flex lg:min-h-0 lg:flex-col',
+          !chat.open && 'lg:overflow-y-auto',
+        )}
+      >
+        <div
+          className={classNames(
+            'relative',
+            chat.open && 'lg:flex lg:min-h-0 lg:flex-1 lg:flex-col',
+            !chat.open && 'lg:pb-6',
+          )}
+        >
           {/* Now Playing (Integrated into list style) */}
           {currentSongData && (
-            <div className="mb-8">
+            <div className="mb-4 shrink-0">
               <NowPlayingSong song={currentSongData} isPlaying={isPlaying} />
 
               <PlaybackProgress
@@ -275,8 +287,12 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
           )}
 
           {/* Up Next List */}
-          <div>
-            <div className="mb-4 flex items-center justify-between border-theme border-b">
+          <div
+            className={classNames(
+              chat.open && 'lg:flex lg:min-h-0 lg:flex-1 lg:flex-col',
+            )}
+          >
+            <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
               <button
                 type="button"
                 aria-pressed={!chat.open}
@@ -307,7 +323,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               )}
             </div>
             {chat.open && (
-              <div className="flex h-96 min-h-0 flex-col lg:h-[min(55dvh,40rem)]">
+              <div className="flex h-80 min-h-0 flex-col lg:h-auto lg:flex-1">
                 <ChatConversation
                   messages={chat.messages}
                   active={chat.open}

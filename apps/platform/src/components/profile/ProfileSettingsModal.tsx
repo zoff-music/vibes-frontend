@@ -102,7 +102,7 @@ export function ProfileSettingsModal({
 
       <div className="space-y-6">
         <SegmentedToggle
-          label="Room chat"
+          label="Chat"
           description="Receive chat on this device. Your room actions still appear to others when chat is off."
           checked={chatEnabled}
           onChange={setChatEnabled}

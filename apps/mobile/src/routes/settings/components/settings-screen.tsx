@@ -126,14 +126,14 @@ export function SettingsScreen() {
           <View className="h-px bg-[#71f5ad]/20" />
           <View className="min-h-16 flex-row items-center justify-between gap-4 py-3">
             <View className="min-w-0 flex-1 gap-1">
-              <Copy>Room chat</Copy>
+              <Copy>Chat</Copy>
               <Copy muted>
                 Receive chat here. Your actions still appear to others when it
                 is off.
               </Copy>
             </View>
             <Switch
-              accessibilityLabel="Room chat"
+              accessibilityLabel="Chat"
               disabled={!chat.loaded}
               value={chat.enabled}
               ios_backgroundColor={theme.surface}
@@ -340,14 +340,14 @@ export function SettingsScreen() {
                     <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
                     <View className="min-h-16 flex-row items-center justify-between gap-4 py-3">
                       <View className="min-w-0 flex-1 gap-1">
-                        <Copy>Room chat</Copy>
+                        <Copy>Chat</Copy>
                         <Copy muted>
                           Receive chat here. Your actions still appear to others
                           when it is off.
                         </Copy>
                       </View>
                       <Switch
-                        accessibilityLabel="Room chat"
+                        accessibilityLabel="Chat"
                         disabled={!chat.loaded}
                         value={chat.enabled}
                         ios_backgroundColor={theme.surface}
