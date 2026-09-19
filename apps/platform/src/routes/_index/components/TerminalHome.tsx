@@ -2,6 +2,7 @@ import {
   generatedPlaylistPromptMaxLength,
   type Providers,
   type PublicRoom,
+  roomNameMaxLength,
 } from '@vibes/models';
 import { usePageVisibility } from '@vibes/shared';
 import {
@@ -167,9 +168,11 @@ export function TerminalHome({
                   autoComplete="off"
                   disabled={isGenerating}
                   id="terminal-room-command"
-                  {...(isAIMode && {
-                    maxLength: generatedPlaylistPromptMaxLength,
-                  })}
+                  maxLength={
+                    isAIMode
+                      ? generatedPlaylistPromptMaxLength
+                      : roomNameMaxLength
+                  }
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
                   placeholder={placeholder}

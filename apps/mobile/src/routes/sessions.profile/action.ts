@@ -1,5 +1,8 @@
 import { createSessionProfileRequests } from '@vibes/api';
-import type { SessionProfile } from '@vibes/models';
+import {
+  type SessionProfile,
+  updateSessionProfileRequestSchema,
+} from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
@@ -16,11 +19,17 @@ export async function action({
   if (!isSessionProfileActionInput(input) || !input.name.trim()) {
     return { data: null, error: 'Enter a name.' };
   }
+  const parsed = updateSessionProfileRequestSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      data: null,
+      error: parsed.error.issues[0]?.message ?? 'Enter a valid name.',
+    };
+  }
 
-  const [error, profile] = await requests.updateSessionProfile(
-    { name: input.name.trim() },
-    { signal },
-  );
+  const [error, profile] = await requests.updateSessionProfile(parsed.data, {
+    signal,
+  });
   if (error || !profile) {
     return {
       data: null,

@@ -3,6 +3,7 @@ import {
   createSessionProfileRequests,
   getRequestErrorMessage,
 } from '@vibes/api';
+import { updateSessionProfileRequestSchema } from '@vibes/models';
 import type { ClientActionFunctionArgs } from 'react-router';
 import type { ProfileRouteData } from './clientLoader';
 
@@ -13,13 +14,12 @@ export async function clientAction({
 }: ClientActionFunctionArgs): Promise<ProfileRouteData> {
   const formData = await request.formData();
   const name = formData.get('name');
-  if (typeof name !== 'string' || !name.trim()) {
-    return { error: 'Enter a name.' };
+  const parsed = updateSessionProfileRequestSchema.safeParse({ name });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Enter a valid name.' };
   }
 
-  const [error, profile] = await requests.updateSessionProfile({
-    name: name.trim(),
-  });
+  const [error, profile] = await requests.updateSessionProfile(parsed.data);
   if (error || !profile) {
     return {
       error: await getRequestErrorMessage(error, 'Could not save your name.'),

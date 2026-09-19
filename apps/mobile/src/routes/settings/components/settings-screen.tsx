@@ -95,6 +95,18 @@ export function SettingsScreen() {
             label={profile?.name ?? 'Display name'}
             onPress={() => setProfileSettingsVisible(true)}
           />
+          <View className="min-h-12 flex-row items-center justify-between gap-4">
+            <Copy>Chat</Copy>
+            <Switch
+              accessibilityLabel="Chat"
+              disabled={!chat.loaded}
+              value={chat.enabled}
+              ios_backgroundColor={theme.surface}
+              trackColor={{ false: theme.surface, true: theme.accent }}
+              onValueChange={(value) => void chat.setEnabled(value)}
+            />
+          </View>
+          {Boolean(chat.warning) && <Copy muted>{chat.warning}</Copy>}
           <View className="h-px bg-[#71f5ad]/20" />
           <Copy muted>APPEARANCE PROTOCOL</Copy>
           <View className="flex-row gap-2">
@@ -124,24 +136,6 @@ export function SettingsScreen() {
             </View>
           </View>
           <View className="h-px bg-[#71f5ad]/20" />
-          <View className="min-h-16 flex-row items-center justify-between gap-4 py-3">
-            <View className="min-w-0 flex-1 gap-1">
-              <Copy>Chat</Copy>
-              <Copy muted>
-                Receive chat here. Your actions still appear to others when it
-                is off.
-              </Copy>
-            </View>
-            <Switch
-              accessibilityLabel="Chat"
-              disabled={!chat.loaded}
-              value={chat.enabled}
-              ios_backgroundColor={theme.surface}
-              trackColor={{ false: theme.surface, true: theme.accent }}
-              onValueChange={(value) => void chat.setEnabled(value)}
-            />
-          </View>
-          {Boolean(chat.warning) && <Copy muted>{chat.warning}</Copy>}
           <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
             <View className="min-w-0 flex-1 gap-1">
               <Text className="font-heading text-[#dffff0] text-base uppercase">
@@ -309,6 +303,21 @@ export function SettingsScreen() {
                       label={profile?.name ?? 'Display name'}
                       onPress={() => setProfileSettingsVisible(true)}
                     />
+                    <View className="min-h-12 flex-row items-center justify-between gap-4">
+                      <Copy>Chat</Copy>
+                      <Switch
+                        accessibilityLabel="Chat"
+                        disabled={!chat.loaded}
+                        value={chat.enabled}
+                        ios_backgroundColor={theme.surface}
+                        trackColor={{
+                          false: theme.surface,
+                          true: theme.accent,
+                        }}
+                        onValueChange={(value) => void chat.setEnabled(value)}
+                      />
+                    </View>
+                    {Boolean(chat.warning) && <Copy muted>{chat.warning}</Copy>}
                     <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
                     <Copy muted>APPEARANCE</Copy>
                     <View className="flex-row gap-2">
@@ -338,27 +347,6 @@ export function SettingsScreen() {
                       </View>
                     </View>
                     <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
-                    <View className="min-h-16 flex-row items-center justify-between gap-4 py-3">
-                      <View className="min-w-0 flex-1 gap-1">
-                        <Copy>Chat</Copy>
-                        <Copy muted>
-                          Receive chat here. Your actions still appear to others
-                          when it is off.
-                        </Copy>
-                      </View>
-                      <Switch
-                        accessibilityLabel="Chat"
-                        disabled={!chat.loaded}
-                        value={chat.enabled}
-                        ios_backgroundColor={theme.surface}
-                        trackColor={{
-                          false: theme.surface,
-                          true: theme.accent,
-                        }}
-                        onValueChange={(value) => void chat.setEnabled(value)}
-                      />
-                    </View>
-                    {Boolean(chat.warning) && <Copy muted>{chat.warning}</Copy>}
                     <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
                       <View className="min-w-0 flex-1 gap-1">
                         <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">

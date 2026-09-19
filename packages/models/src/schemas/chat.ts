@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const chatMessageMaxLength = 500;
+
 export const roomMessageSchema = z.compile(
   z.object({
     id: z.string(),
@@ -21,5 +23,11 @@ export const roomMessageSchema = z.compile(
 );
 export type RoomMessage = z.infer<typeof roomMessageSchema>;
 export const createMessageSchema = z.compile(
-  z.object({ text: z.string().trim().min(1).max(500) }),
+  z.object({
+    text: z
+      .string()
+      .trim()
+      .min(1, 'Enter a message.')
+      .max(chatMessageMaxLength, 'Messages can be at most 500 characters.'),
+  }),
 );

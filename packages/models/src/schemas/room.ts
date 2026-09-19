@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { sourceTypeSchema } from './songs';
 
+export const roomNameMaxLength = 100;
+
+const roomNameField = z
+  .string()
+  .trim()
+  .min(1, 'Enter a room name.')
+  .max(roomNameMaxLength, 'Room names can be at most 100 characters.');
+export const roomNameInputSchema = z.compile(roomNameField);
+
 const roomSettingsShape = {
   skipAllowed: z.boolean(),
   democraticSkip: z.boolean(),
@@ -55,7 +64,7 @@ export const roomNameReservationSchema = z.compile(
 export type RoomNameReservation = z.infer<typeof roomNameReservationSchema>;
 
 export const roomNameReservationRequestSchema = z.compile(
-  z.object({ name: z.string().optional() }),
+  z.object({ name: roomNameField.optional() }),
 );
 export type RoomNameReservationRequest = z.infer<
   typeof roomNameReservationRequestSchema
@@ -67,7 +76,7 @@ const partialRoomSettingsSchema = z.object(roomSettingsShape).partial();
 
 export const createRoomRequestSchema = z.compile(
   z.object({
-    name: z.string(),
+    name: roomNameField,
     mode: z.enum(['server', 'host']).optional(),
     password: z.string().optional(),
     reservationToken: z.string().optional(),
@@ -81,7 +90,7 @@ export type CreateRoomResponse = z.infer<typeof createRoomResponseSchema>;
 
 export const roomUpdateSchema = z.compile(
   z.object({
-    name: z.string().optional(),
+    name: roomNameField.optional(),
     mode: z.enum(['server', 'host']).optional(),
     settings: partialRoomSettingsSchema.optional(),
   }),

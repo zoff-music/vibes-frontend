@@ -1,4 +1,5 @@
 import type { Providers, Song } from '@vibes/models';
+import { roomNameMaxLength } from '@vibes/models';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -87,6 +88,7 @@ export function RemoteControl({
                             void controllerActions.changeRoom()
                           }
                           placeholder="Room name"
+                          maxLength={roomNameMaxLength}
                         />
                       </View>
                       <Button

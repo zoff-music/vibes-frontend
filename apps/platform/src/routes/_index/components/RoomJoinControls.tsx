@@ -1,3 +1,4 @@
+import { roomNameMaxLength } from '@vibes/models';
 import { ArrowRightIcon, Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
 import type { ChangeEvent, KeyboardEvent, RefObject } from 'react';
 
@@ -69,7 +70,7 @@ export function RoomJoinControls({
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             className="h-full min-w-0 flex-1 bg-transparent px-1 font-mono text-base text-theme placeholder:text-theme-subtle focus:outline-none"
-            maxLength={20}
+            maxLength={roomNameMaxLength}
             autoCapitalize="none"
             autoComplete="off"
             spellCheck={false}

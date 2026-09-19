@@ -1,5 +1,5 @@
 import { getRateLimitMessage, getRequestErrorMessage } from '@vibes/api';
-import type { Providers } from '@vibes/models';
+import { type Providers, roomNameInputSchema } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
 
@@ -66,10 +66,11 @@ async function loadRoomNameExistence(
   request: Request,
   name: string,
 ): Promise<RoomsCreateLoaderData> {
-  if (!name) {
+  const parsed = roomNameInputSchema.safeParse(name);
+  if (!parsed.success) {
     return {
       checkedName: name,
-      error: 'Room name is required',
+      error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
     };
   }
 

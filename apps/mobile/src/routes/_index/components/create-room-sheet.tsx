@@ -3,6 +3,7 @@ import type {
   RoomNameReservation,
   RoomSettings,
 } from '@vibes/models';
+import { roomNameMaxLength } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
 import { useEffect, useState } from 'react';
@@ -159,6 +160,7 @@ export function CreateRoomSheet({
             setReservation(null);
           }}
           placeholder="Room name"
+          maxLength={roomNameMaxLength}
         />
         <Button
           icon="reset"

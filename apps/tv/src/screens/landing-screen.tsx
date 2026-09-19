@@ -1,3 +1,7 @@
+import {
+  generatedPlaylistPromptMaxLength,
+  roomNameMaxLength,
+} from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import {
   NativeAnimatedLogo,
@@ -95,6 +99,9 @@ export function LandingScreen({
               onChangeText={setValue}
               onSubmitEditing={submit}
               placeholder={placeholder}
+              maxLength={
+                isAIMode ? generatedPlaylistPromptMaxLength : roomNameMaxLength
+              }
               inputClassName="h-16 min-h-0 px-6 text-xl"
               value={value}
               wrapperClassName="min-w-0 flex-1"

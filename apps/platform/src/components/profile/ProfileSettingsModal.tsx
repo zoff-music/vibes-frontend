@@ -1,3 +1,4 @@
+import { displayNameMaxLength } from '@vibes/models';
 import { classNames, showToast } from '@vibes/shared';
 import {
   Button,
@@ -86,9 +87,6 @@ export function ProfileSettingsModal({
           <h2 id="personal-settings-title" className="text-base text-theme">
             Personal settings
           </h2>
-          <p className="mt-2 text-sm text-theme-muted">
-            Choose how Zoff looks and how you appear when adding songs.
-          </p>
         </div>
         <Button
           aria-label="Close personal settings"
@@ -101,31 +99,16 @@ export function ProfileSettingsModal({
       </div>
 
       <div className="space-y-6">
-        <SegmentedToggle
-          label="Chat"
-          description="Receive chat on this device. Your room actions still appear to others when chat is off."
-          checked={chatEnabled}
-          onChange={setChatEnabled}
-        />
         <section aria-labelledby="profile-display-name-title">
-          <h3
-            className="font-pixel text-2xs text-theme-muted tracking-label"
-            id="profile-display-name-title"
-          >
-            Profile
-          </h3>
-          <p className="mt-2 text-theme-muted text-xs">
-            Your display name appears beside songs you add and follows this
-            browser across every room. It does not need to be unique.
-          </p>
           <fetcher.Form
             action="/resources/profile"
-            className="mt-4 space-y-4"
+            className="space-y-4"
             method="post"
           >
             <label
               className="block font-pixel text-2xs text-theme-muted tracking-label"
               htmlFor="profile-name"
+              id="profile-display-name-title"
             >
               Display name
             </label>
@@ -133,7 +116,7 @@ export function ProfileSettingsModal({
               className="w-full rounded-2xl border border-theme bg-theme-surface px-4 py-4 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
               disabled={isLoading || isSaving}
               id="profile-name"
-              maxLength={30}
+              maxLength={displayNameMaxLength}
               name="name"
               onChange={(event) => setName(event.target.value)}
               placeholder={isLoading ? 'Loading your profile…' : 'Display name'}
@@ -146,19 +129,20 @@ export function ProfileSettingsModal({
                 {fetcher.data.error}
               </p>
             )}
-            {(fetcher.data?.profile || initialProfile) &&
-              !fetcher.data?.error && (
-                <p className="text-theme-subtle text-xs">
-                  Songs you add will be credited to {name}.
-                </p>
-              )}
+            <SegmentedToggle
+              label="Chat"
+              variant="plain-full"
+              size="comfortable"
+              checked={chatEnabled}
+              onChange={setChatEnabled}
+            />
             <Button
               className="w-full"
               disabled={isLoading || isSaving || !name.trim()}
               type="submit"
               variant="primary"
             >
-              {isSaving ? 'Saving…' : 'Save profile'}
+              {isSaving ? 'Saving…' : 'Save name'}
             </Button>
           </fetcher.Form>
         </section>
@@ -173,9 +157,6 @@ export function ProfileSettingsModal({
           >
             Appearance
           </h3>
-          <p className="mt-2 text-theme-muted text-xs">
-            Follow your device or keep Zoff in one theme.
-          </p>
           <div
             className="mt-4 grid grid-cols-3 rounded-2xl border border-theme bg-black/5 p-1 dark:bg-white/5"
             role="radiogroup"

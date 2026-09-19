@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { roomSchema } from './room';
 
+export const displayNameMaxLength = 30;
+
 export const roomUserSchema = z.compile(
   z.object({
     id: z.string(),
@@ -35,7 +37,13 @@ export const sessionProfileSchema = z.compile(z.object({ name: z.string() }));
 export type SessionProfile = z.infer<typeof sessionProfileSchema>;
 
 export const updateSessionProfileRequestSchema = z.compile(
-  z.object({ name: z.string().trim().min(1).max(30) }),
+  z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, 'Enter a name.')
+      .max(displayNameMaxLength, 'Names can be at most 30 characters.'),
+  }),
 );
 export type UpdateSessionProfileRequest = z.infer<
   typeof updateSessionProfileRequestSchema
