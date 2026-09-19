@@ -76,7 +76,7 @@ export function RoomConfiguration({
 
   let publicDescription = 'Requires an admin password.';
   if (hasPassword) {
-    publicDescription = 'Show this room while listeners are active.';
+    publicDescription = 'Let anyone find this room in Browse.';
   }
 
   return (
@@ -157,7 +157,7 @@ export function RoomConfiguration({
           <SettingsSwitch
             description={publicDescription}
             disabled={disabled || !hasPassword}
-            label="Public while active"
+            label="Public"
             value={settings.public}
             onValueChange={(value) => updateSetting('public', value)}
           />

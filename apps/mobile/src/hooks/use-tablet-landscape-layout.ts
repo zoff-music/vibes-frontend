@@ -1,4 +1,4 @@
-import { Platform, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
 export function useTabletLandscapeLayout() {
   const { height, width } = useWindowDimensions();
@@ -51,6 +51,3 @@ export const tabletPortraitPagePadding = 16;
 export const tabletPortraitMaximumContentWidth = 760;
 export const tabletPortraitContentInset = 16;
 export const tabletNavigationHeight = 64;
-export const tabletPlayerTopOffset =
-  Platform.OS === 'ios' ? 52 : tabletNavigationHeight;
-export const tabletRoomHeaderHeight = 80;

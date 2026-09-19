@@ -26,7 +26,7 @@ export function RoomChatPanel({
   renderQueue,
 }: Props) {
   const keyboardVisible = useKeyboardVisible();
-  const { isTablet } = useTabletLandscapeLayout();
+  const { isTablet, isTabletLandscape } = useTabletLandscapeLayout();
   const { enabled: terminal } = useKonamiMode();
   const preference = useChatPreference();
   const enabled = preference.loaded && preference.enabled;
@@ -50,35 +50,58 @@ export function RoomChatPanel({
     return Boolean(result.data);
   };
   const tabs = enabled && (
-    <View className="mx-4 flex-row justify-between border-mobile-border border-b dark:border-mobile-dark-border">
+    <View
+      className={classNames(
+        'mb-4 flex-row gap-3',
+        !isTabletLandscape && 'mx-4',
+      )}
+    >
       <Pressable
-        accessibilityRole="button"
+        accessibilityRole="tab"
         accessibilityState={{ selected: !chat.open }}
         onPress={() => chat.selectChat(false)}
         className={classNames(
-          'min-h-12 justify-center border-b-2',
-          chat.open ? 'border-transparent' : 'border-accent',
+          'min-h-13 flex-1 flex-row items-center justify-center gap-2 border px-4 py-3',
+          !terminal && 'rounded-xl',
+          !terminal && !chat.open && 'border-accent/40 bg-accent/10',
+          !terminal &&
+            chat.open &&
+            'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+          terminal && !chat.open && 'border-[#71f5ad] bg-[#03150d]',
+          terminal && chat.open && 'border-[#55ffad]/30 bg-[#010c08]',
         )}
       >
-        <Text className="font-heading text-mobile-text dark:text-mobile-dark-text">
-          Up next ({count})
+        <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
+          Up next
+        </Text>
+        <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+          {count}
         </Text>
       </Pressable>
-      {enabled && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityState={{ selected: chat.open }}
-          onPress={() => chat.selectChat(true)}
-          className={classNames(
-            'min-h-12 justify-center border-b-2',
-            chat.open ? 'border-accent' : 'border-transparent',
-          )}
-        >
-          <Text className="font-heading text-mobile-text dark:text-mobile-dark-text">
-            {chat.unread > 0 ? `Chat (${chat.unread})` : 'Chat'}
+      <Pressable
+        accessibilityRole="tab"
+        accessibilityState={{ selected: chat.open }}
+        onPress={() => chat.selectChat(true)}
+        className={classNames(
+          'min-h-13 flex-1 flex-row items-center justify-center gap-2 border px-4 py-3',
+          !terminal && 'rounded-xl',
+          !terminal && chat.open && 'border-accent/40 bg-accent/10',
+          !terminal &&
+            !chat.open &&
+            'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+          terminal && chat.open && 'border-[#71f5ad] bg-[#03150d]',
+          terminal && !chat.open && 'border-[#55ffad]/30 bg-[#010c08]',
+        )}
+      >
+        <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
+          Chat
+        </Text>
+        {chat.unread > 0 && (
+          <Text className="font-heading text-accent text-sm">
+            {chat.unread}
           </Text>
-        </Pressable>
-      )}
+        )}
+      </Pressable>
     </View>
   );
   if (!chat.open) {
@@ -100,7 +123,15 @@ export function RoomChatPanel({
     >
       {!keyboardVisible && chatHeader}
       {tabs}
-      <View className="mx-4 my-2 min-h-0 flex-1 overflow-hidden rounded-2xl border border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card">
+      <View
+        className={classNames(
+          'min-h-0 flex-1 overflow-hidden border',
+          !isTabletLandscape && 'mx-4',
+          !terminal &&
+            'rounded-2xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+          terminal && 'border-[#55ffad] bg-[#010c08]',
+        )}
+      >
         <NativeChatConversation
           messages={chat.messages}
           onSend={send}

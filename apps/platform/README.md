@@ -189,7 +189,10 @@ state in the URL. Search and filter changes reset pagination.
 Both loaders use `/api/v2/rooms/public`, ordered by listeners, songs and ID,
 all descending. The homepage requests only the first three live rooms through
 its server loader. The homepage and browser share `PublicRoomTile` from
-`@vibes/ui/web`. The unfiltered browser has a stable sitemap and canonical URL;
+`@vibes/ui/web`. Keep the web homepage to Live rooms and a Browse all public
+link to `/explore/rooms?live=false`; search, filters and pagination belong on
+that dedicated route, not in the homepage. The Public setting lists a room in
+Browse even without active listeners. The unfiltered browser has a stable sitemap and canonical URL;
 search, pagination and filter variants use `noindex, follow`. Deploy the v2
 backend endpoint before the frontend. Existing v1 clients remain supported.
 

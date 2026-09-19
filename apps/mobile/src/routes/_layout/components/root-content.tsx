@@ -26,6 +26,7 @@ import {
   useRoomSession,
 } from '@/providers/app-provider';
 import { useKonamiMode } from '@/providers/konami-mode-provider';
+import { RoomPlayerLayoutProvider } from '@/providers/room-player-layout-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 import { AndroidFloatingNavigation } from './android-floating-navigation';
 import AppTabs from './app-tabs';
@@ -77,7 +78,9 @@ export function RootContent() {
                     enabled || resolvedScheme === 'dark' ? 'light' : 'dark'
                   }
                 />
-                <RoomRuntime />
+                <RoomPlayerLayoutProvider>
+                  <RoomRuntime />
+                </RoomPlayerLayoutProvider>
                 {booting && <NativeKonamiBoot onComplete={completeBoot} />}
               </AppProvider>
             </ToastProvider>

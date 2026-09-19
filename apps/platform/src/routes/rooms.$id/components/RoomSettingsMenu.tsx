@@ -77,7 +77,7 @@ export const RoomSettingsMenu = ({
   const scrollPanelRef = useRef<HTMLDivElement>(null);
   const canChangePublicRoom = Boolean(room?.hasPassword && isAdmin);
 
-  let publicRoomDescription = 'Listed only while listeners are active';
+  let publicRoomDescription = 'Let anyone find this room in Browse';
   if (!room?.hasPassword) {
     publicRoomDescription = 'Add a password before making this room public';
   } else if (!isAdmin) {
@@ -423,7 +423,7 @@ export const RoomSettingsMenu = ({
 
             <div className="group flex items-center justify-between">
               <SegmentedToggle
-                label="Public Room"
+                label="Public"
                 description={publicRoomDescription}
                 disabled={!canChangePublicRoom}
                 checked={room?.settings.public ?? false}
