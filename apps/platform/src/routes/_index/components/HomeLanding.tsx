@@ -38,9 +38,11 @@ export function HomeLanding({
           <div
             ref={sunRef}
             aria-hidden="true"
-            className="pointer-events-none absolute -top-24 left-1/2 w-72 -translate-x-1/2 sm:-top-32 sm:w-96"
+            className="pointer-events-none absolute -top-24 left-1/2 w-screen -translate-x-1/2 overflow-x-clip sm:-top-32"
           >
-            <RetroSun paused={!pageVisible || !sunVisible} />
+            <div className="mx-auto w-72 max-w-full sm:w-96">
+              <RetroSun paused={!pageVisible || !sunVisible} />
+            </div>
           </div>
           <SiteHero
             id="home-heading"

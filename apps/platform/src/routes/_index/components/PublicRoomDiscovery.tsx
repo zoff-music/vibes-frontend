@@ -17,14 +17,17 @@ export function PublicRoomDiscovery({
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2
           id="live-rooms-heading"
-          className="flex items-center gap-2 text-sm text-theme-muted"
+          className="flex shrink-0 items-center gap-2 font-pixel text-sm text-theme-muted normal-case tracking-normal"
         >
-          <span aria-hidden="true" className="size-2 rounded-full bg-accent" />
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-full bg-secondary"
+          />
           Live rooms
         </h2>
         <Link
           to="/explore/rooms?live=false"
-          className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm text-theme transition-colors hover:bg-theme-surface hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 text-secondary text-sm transition-colors hover:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
         >
           Browse all public <span aria-hidden="true">→</span>
         </Link>
