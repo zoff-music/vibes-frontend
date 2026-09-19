@@ -2,7 +2,12 @@ import type { RoomMessage } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useRef, useState } from 'react';
 import { ScrollView, Text, TextInput, View } from 'react-native';
-import { chatNameColorIndex, crownIcon, formatChatMessage } from '../../shared';
+import {
+  chatNameColorIndex,
+  crownIcon,
+  formatChatMessage,
+  formatChatTime,
+} from '../../shared';
 import { NativeIcon } from '../icons/NativeIcon';
 import { NativeButton } from './NativePrimitives';
 
@@ -35,6 +40,7 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
       <ScrollView
         ref={scrollRef}
         className="min-h-0 flex-1"
+        contentContainerClassName="grow justify-end"
         keyboardShouldPersistTaps="handled"
         onScroll={({ nativeEvent }) => {
           nearBottom.current =
@@ -60,6 +66,9 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
               key={message.id}
               className="py-1 font-heading text-native-text text-sm leading-6 dark:text-native-dark-text"
             >
+              <Text className="text-native-muted text-xs dark:text-native-dark-muted">
+                {formatChatTime(message.createdAt)}{' '}
+              </Text>
               {message.isAdmin && (
                 <Text accessibilityLabel="Room admin ">
                   <NativeIcon

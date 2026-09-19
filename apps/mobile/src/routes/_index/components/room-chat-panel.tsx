@@ -62,7 +62,7 @@ export function RoomChatPanel({ roomId, count, children }: Props) {
             )}
           >
             <Text className="font-heading text-mobile-text dark:text-mobile-dark-text">
-              Chat ({chat.unread})
+              {chat.unread > 0 ? `Chat (${chat.unread})` : 'Chat'}
             </Text>
           </Pressable>
         )}

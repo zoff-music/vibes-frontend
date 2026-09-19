@@ -279,7 +279,7 @@ export function RoomScreen() {
   let content = (
     <>
       {playerSpacer}
-      <View className="px-4 pb-3">{roomDetails}</View>
+      <View className="px-4 pb-1">{roomDetails}</View>
       <RoomChatPanel roomId={roomId} count={queuedSongs.length}>
         <Queue
           emptyMessage={

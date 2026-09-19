@@ -258,40 +258,22 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     }
 
     return (
-      <div
-        className={classNames(
-          'mt-8 min-w-0 lg:col-span-2 lg:mt-0 lg:h-full',
-          chat.open && 'lg:flex lg:min-h-0 lg:flex-col',
-          !chat.open && 'lg:overflow-y-auto',
-        )}
-      >
-        <div
-          className={classNames(
-            'relative',
-            chat.open && 'lg:flex lg:min-h-0 lg:flex-1 lg:flex-col',
-            !chat.open && 'lg:pb-6',
-          )}
-        >
+      <div className="mt-6 flex min-h-0 min-w-0 flex-col lg:col-span-2 lg:mt-0 lg:h-full">
+        <div className="relative flex min-h-0 flex-1 flex-col">
           {/* Now Playing (Integrated into list style) */}
           {currentSongData && (
-            <div className="mb-4 shrink-0">
+            <div className="mb-2 shrink-0">
               <NowPlayingSong song={currentSongData} isPlaying={isPlaying} />
 
               <PlaybackProgress
                 durationMs={currentSongData.duration * 1000}
                 isSSR={isSSR}
               />
-
-              <div className="mt-8 mb-4 h-px bg-theme-surface" />
             </div>
           )}
 
           {/* Up Next List */}
-          <div
-            className={classNames(
-              chat.open && 'lg:flex lg:min-h-0 lg:flex-1 lg:flex-col',
-            )}
-          >
+          <div className="flex min-h-0 flex-1 flex-col">
             <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
               <button
                 type="button"
@@ -318,32 +300,38 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                       : 'border-transparent text-theme-muted',
                   )}
                 >
-                  Chat ({chat.unread})
+                  {chat.unread > 0 ? `Chat (${chat.unread})` : 'Chat'}
                 </button>
               )}
             </div>
-            {chat.open && (
-              <div className="flex h-80 min-h-0 flex-col lg:h-auto lg:flex-1">
-                <ChatConversation
-                  messages={chat.messages}
-                  active={chat.open}
-                  onSend={sendMessage}
-                  sending={chatFetcher.state !== 'idle'}
-                  error={chatFetcher.data?.error || chatError}
-                />
-              </div>
-            )}
-            {!chat.open && (
-              <QueueList
-                songs={displaySongs.filter((s) => s.id !== currentSongData?.id)}
-                roomId={roomId}
-                onVote={handleVote}
-                onRemove={handleRemove}
-                onEmptyClick={onAddSong}
-                isAdmin={isAdmin}
-                votingSongId={votingSongId}
-              />
-            )}
+            <div className="flex h-80 min-h-0 flex-col lg:h-auto lg:flex-1">
+              {chat.open && (
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <ChatConversation
+                    messages={chat.messages}
+                    active={chat.open}
+                    onSend={sendMessage}
+                    sending={chatFetcher.state !== 'idle'}
+                    error={chatFetcher.data?.error || chatError}
+                  />
+                </div>
+              )}
+              {!chat.open && (
+                <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+                  <QueueList
+                    songs={displaySongs.filter(
+                      (s) => s.id !== currentSongData?.id,
+                    )}
+                    roomId={roomId}
+                    onVote={handleVote}
+                    onRemove={handleRemove}
+                    onEmptyClick={onAddSong}
+                    isAdmin={isAdmin}
+                    votingSongId={votingSongId}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

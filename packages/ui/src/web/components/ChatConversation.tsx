@@ -1,7 +1,11 @@
 import type { RoomMessage } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { type FormEvent, useEffect, useRef, useState } from 'react';
-import { chatNameColorIndex, formatChatMessage } from '../../shared/chat';
+import {
+  chatNameColorIndex,
+  formatChatMessage,
+  formatChatTime,
+} from '../../shared/chat';
 import { ArrowRightIcon, CrownIcon } from '../icons';
 import { Button } from './Button';
 
@@ -63,7 +67,7 @@ export function ChatConversation({
         role="log"
         aria-label="Room conversation"
         aria-live="polite"
-        className="min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-3"
+        className="min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-3 [scrollbar-gutter:stable]"
       >
         <div className="flex min-h-full flex-col justify-end [&>p]:shrink-0">
           {messages.length === 0 && (
@@ -76,6 +80,12 @@ export function ChatConversation({
               key={message.id}
               className="wrap-anywhere py-1 text-base text-theme leading-6"
             >
+              <time
+                dateTime={new Date(message.createdAt).toISOString()}
+                className="mr-2 text-theme-subtle text-xs tabular-nums"
+              >
+                {formatChatTime(message.createdAt)}
+              </time>
               {message.isAdmin && (
                 <span
                   title="Room admin"
