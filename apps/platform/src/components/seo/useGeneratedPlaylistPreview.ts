@@ -10,12 +10,17 @@ interface GenerationProgress {
 }
 
 export function useGeneratedPlaylistPreview(prompt: string, playing: boolean) {
-  const reducedMotion = useReducedMotion();
+  const motionPreference = useReducedMotion();
+  const [hydrated, setHydrated] = useState(false);
+  const reducedMotion = hydrated && motionPreference === true;
   const [progress, setProgress] = useState<GenerationProgress>({
     phase: 'typing',
     characters: 0,
     count: 0,
   });
+
+  // Match the server's first frame before applying the browser preference.
+  useEffect(() => setHydrated(true), []);
 
   useEffect(() => {
     if (!playing || reducedMotion) {
