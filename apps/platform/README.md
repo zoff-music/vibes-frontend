@@ -184,8 +184,9 @@ queue, the player's skip control obeying permissions, and a finished song either
 returning to the queue or leaving it. Each example has one relevant room toggle
 beside the action it changes. On phones, a compact selector and switch sit above
 one scene. A search result becomes a queue row in the same space, rather than
-leaving duplicate songs on screen. Pause stays beside the selector; replay shares
-the result caption row. Touch controls remain at least 44px tall. Search results,
+leaving duplicate songs on screen. Pause and replay share a toolbar beside the
+room name, with a full-width result caption below the scene. The rooms guide link
+sits with the section introduction. Touch controls remain at least 44px tall. Search results,
 skip controls, song panels and queue rows reuse `@vibes/ui/web`; compact density
 preserves the normal room presentation elsewhere.
 

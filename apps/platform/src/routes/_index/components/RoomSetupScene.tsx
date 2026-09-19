@@ -35,7 +35,7 @@ export function RoomSetupScene({
 
   return (
     <div>
-      <div className="min-h-48">
+      <div className="min-h-44">
         {setupId === 'adding' && (
           <AddSongSetupScene
             complete={state.complete}
@@ -70,7 +70,7 @@ export function RoomSetupScene({
       <p
         aria-live={announce ? 'polite' : 'off'}
         aria-atomic="true"
-        className="mt-2 flex min-h-12 items-center pr-22 text-sm text-theme-muted leading-snug"
+        className="mt-3 min-h-6 text-sm text-theme-muted leading-snug"
       >
         {state.caption}
       </p>

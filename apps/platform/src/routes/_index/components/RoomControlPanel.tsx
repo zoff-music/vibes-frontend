@@ -52,58 +52,36 @@ export function RoomControlPanel() {
           className="pointer-events-none absolute inset-0 -z-10 bg-radial from-secondary/10 via-primary/5 to-transparent [mask-image:radial-gradient(ellipse,black,transparent_70%)]"
         />
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <fieldset className="min-w-0 flex-1">
-              <legend className="sr-only">Choose a room setting to try</legend>
-              <LayoutGroup id={layoutId}>
-                <div className="grid grid-cols-3 border-theme border-b">
-                  {roomSetups.map((setup) => (
-                    <Button
-                      key={setup.id}
-                      size="none"
-                      variant="ghost"
-                      aria-pressed={state.setupId === setup.id}
-                      onClick={() => actions.selectSetup(setup.id)}
-                      className={classNames(
-                        'relative min-h-12 px-1 text-sm hover:bg-theme-surface',
-                        state.setupId === setup.id && 'text-theme',
-                      )}
-                    >
-                      {setup.label}
-                      {state.setupId === setup.id && (
-                        <motion.span
-                          aria-hidden="true"
-                          layoutId="selected-setting"
-                          transition={{ duration: 0.25, ease: 'easeInOut' }}
-                          className="absolute inset-x-0 bottom-0 h-0.5 bg-current shadow-secondary-soft"
-                        />
-                      )}
-                    </Button>
-                  ))}
-                </div>
-              </LayoutGroup>
-            </fieldset>
-            <Button
-              variant="tertiary"
-              size="icon"
-              data-animation-control
-              onClick={actions.togglePlayback}
-              disabled={state.reducedMotion}
-              aria-label={
-                state.paused ? 'Play room examples' : 'Pause room examples'
-              }
-              title={
-                state.paused ? 'Play room examples' : 'Pause room examples'
-              }
-            >
-              {state.paused && (
-                <PlayIcon aria-hidden="true" className="h-4 w-4" />
-              )}
-              {!state.paused && (
-                <PauseIcon aria-hidden="true" className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
+          <fieldset className="min-w-0">
+            <legend className="sr-only">Choose a room setting to try</legend>
+            <LayoutGroup id={layoutId}>
+              <div className="grid grid-cols-3 border-theme border-b">
+                {roomSetups.map((setup) => (
+                  <Button
+                    key={setup.id}
+                    size="none"
+                    variant="ghost"
+                    aria-pressed={state.setupId === setup.id}
+                    onClick={() => actions.selectSetup(setup.id)}
+                    className={classNames(
+                      'relative min-h-12 px-1 text-sm hover:bg-theme-surface',
+                      state.setupId === setup.id && 'text-theme',
+                    )}
+                  >
+                    {setup.label}
+                    {state.setupId === setup.id && (
+                      <motion.span
+                        aria-hidden="true"
+                        layoutId="selected-setting"
+                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        className="absolute inset-x-0 bottom-0 h-0.5 bg-current shadow-secondary-soft"
+                      />
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </LayoutGroup>
+          </fieldset>
           <div className="mt-5 lg:mt-8">
             <RoomSetupSettings
               setupId={state.setupId}
@@ -114,35 +92,55 @@ export function RoomControlPanel() {
         </div>
         <div ref={state.ref} className="min-w-0">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <p className="font-pixel text-theme text-xl">{rule}</p>
-            <span className="shrink-0 text-theme-muted text-xs">electro</span>
-          </div>
-          <div className="relative">
-            <ContentTransition transitionKey={state.revision}>
-              <RoomSetupScene
-                setupId={state.setupId}
-                settings={state.settings}
-                active={state.active}
-                reducedMotion={state.reducedMotion}
-                announce={state.manual}
-                onAction={() =>
-                  replayRef.current?.focus({ preventScroll: true })
+            <div className="min-w-0">
+              <p className="text-theme-muted text-xs">electro</p>
+              <p className="font-pixel text-lg text-theme sm:text-xl">{rule}</p>
+            </div>
+            <fieldset className="flex shrink-0 items-center gap-1">
+              <legend className="sr-only">Example playback controls</legend>
+              <Button
+                variant="tertiary"
+                size="icon"
+                data-animation-control
+                onClick={actions.togglePlayback}
+                disabled={state.reducedMotion}
+                aria-label={
+                  state.paused ? 'Play room examples' : 'Pause room examples'
                 }
-              />
-            </ContentTransition>
-            <Button
-              variant="ghost"
-              size="none"
-              className="absolute right-0 bottom-0.5 min-h-11 gap-1.5 rounded-lg px-2 text-xs hover:bg-theme-surface"
-              data-animation-control
-              onClick={actions.replay}
-              aria-label="Replay room setup example"
-              ref={replayRef}
-            >
-              <ResetIcon aria-hidden="true" className="h-3.5 w-3.5" />
-              <span>Replay</span>
-            </Button>
+                title={
+                  state.paused ? 'Play room examples' : 'Pause room examples'
+                }
+              >
+                {state.paused && (
+                  <PlayIcon aria-hidden="true" className="h-5 w-5" />
+                )}
+                {!state.paused && (
+                  <PauseIcon aria-hidden="true" className="h-5 w-5" />
+                )}
+              </Button>
+              <Button
+                variant="tertiary"
+                size="icon"
+                data-animation-control
+                onClick={actions.replay}
+                aria-label="Replay room setup example"
+                title="Replay this example"
+                ref={replayRef}
+              >
+                <ResetIcon aria-hidden="true" className="h-5 w-5" />
+              </Button>
+            </fieldset>
           </div>
+          <ContentTransition transitionKey={state.revision}>
+            <RoomSetupScene
+              setupId={state.setupId}
+              settings={state.settings}
+              active={state.active}
+              reducedMotion={state.reducedMotion}
+              announce={state.manual}
+              onAction={() => replayRef.current?.focus({ preventScroll: true })}
+            />
+          </ContentTransition>
         </div>
         <p role="status" className="sr-only">
           {state.announcement}
