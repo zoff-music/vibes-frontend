@@ -34,6 +34,7 @@ import {
   Modal,
   PlusIcon,
   SearchIcon,
+  SongSearchResult,
   SoundCloudIcon,
   SparklesIcon,
   Tooltip,
@@ -950,40 +951,19 @@ export const AddToQueueModal: React.FC<Props> = ({
           !justAdded && (
             <div className="mt-2 max-h-128 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-primary-popover">
               {searchResults.map((result) => (
-                <div
+                <SongSearchResult
                   key={result.id}
-                  className="flex border-theme border-t first:border-t-0"
+                  title={result.title}
+                  artist={result.artist}
+                  thumbnailUrl={result.thumbnailUrl}
+                  {...(result.duration && {
+                    durationSeconds: parseISODuration(result.duration),
+                  })}
+                  onSelect={() => handleSelectResult(result)}
+                  attribution={<ProviderAttribution result={result} />}
                 >
-                  <Button
-                    onClick={() => handleSelectResult(result)}
-                    variant="ghost"
-                    size="none"
-                    className="min-w-0 flex-1 justify-start gap-2 p-3 text-left hover:bg-theme sm:gap-3 sm:p-4"
-                  >
-                    <div className="relative shrink-0">
-                      <img
-                        src={resolveSongThumbnail(result.thumbnailUrl)}
-                        alt={result.title}
-                        className="h-16 w-20 rounded-xl border border-theme bg-theme-surface object-cover sm:h-20 sm:w-28"
-                      />
-                      {result.duration && (
-                        <div className="absolute right-1 bottom-1 rounded-md bg-theme px-1.5 py-0.5 text-2xs text-theme backdrop-blur-sm sm:right-1.5 sm:bottom-1.5 sm:px-2">
-                          {formatDuration(parseISODuration(result.duration))}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex min-w-0 flex-1 flex-col justify-center">
-                      <h4 className="mb-1.5 line-clamp-2 text-sm text-theme leading-snug">
-                        {result.title}
-                      </h4>
-                      <p className="line-clamp-1 text-theme-muted text-xs">
-                        {result.artist}
-                      </p>
-                      <PlaybackRestrictionNotice result={result} />
-                    </div>
-                  </Button>
-                  <ProviderAttribution result={result} />
-                </div>
+                  <PlaybackRestrictionNotice result={result} />
+                </SongSearchResult>
               ))}
             </div>
           )}

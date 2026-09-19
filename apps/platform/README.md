@@ -178,14 +178,21 @@ announcing animation frames. Empty room lists and unavailable optional data
 are omitted; the room-entry form and product content remain usable. Keep copy
 short and avoid repeating the same explanation in adjacent sections.
 
-The room-settings section is one full-width, unframed scene. Its three examples
-cycle through friends adding a song, an admin controlling skips, and a finished
-song returning to the queue. Crossfade between setups and animate queue changes
-with position-only layout motion, so text never stretches. Selecting a setup or
-focusing its controls stops cycling; Play resumes it. The relevant shared room
-toggles stay usable, and keyboard focus survives changing a setting. Keep the AI
-showcase unframed too, rather than wrapping every demo in the same large card.
-Automatic example changes do not announce themselves to screen readers.
+The room-settings section stays unframed within the shared content width. Its
+three examples have distinct layouts: a listener's search result entering the
+queue, the player's skip control obeying permissions, and a finished song either
+returning to the queue or leaving it. Each example has one relevant room toggle
+beside the action it changes. On phones, the controls and result fit together
+without scrolling through a full player and several queue rows. Search results,
+skip controls, song panels and queue rows reuse `@vibes/ui/web`; compact density
+preserves the normal room presentation elsewhere.
+
+Crossfade between examples and replay after a setting changes. Selecting an
+example or focusing its controls stops cycling; Play resumes it. Only run while
+most of the scene is visible, and pause in hidden tabs. Reduced motion leaves the
+action manual. Keyboard focus survives changing a setting, and automatic examples
+do not announce themselves to screen readers. Keep the AI showcase unframed too,
+rather than wrapping every demo in the same large card.
 
 Discovery guides keep their first two explanations and practical notes visible
 in the server-rendered page. Accordions cover follow-up questions about each

@@ -9,11 +9,11 @@ import {
 
 export function useRoomSetup() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { amount: 0.15 });
+  const inView = useInView(ref, { amount: 0.75 });
   const visible = usePageVisibility();
   const reducedMotion = useReducedMotion();
   const [settings, setSettings] = useState(roomSetups[0].settings);
-  const [setupId, setSetupId] = useState<RoomSetupId>('friends');
+  const [setupId, setSetupId] = useState<RoomSetupId>('adding');
   const [revision, setRevision] = useState(0);
   const [announcement, setAnnouncement] = useState('');
   const [paused, setPaused] = useState(false);
@@ -54,7 +54,7 @@ export function useRoomSetup() {
     cycleElapsed.current = 0;
     setRevision((current) => current + 1);
     setAnnouncement(
-      `${setup.label} setup selected. The example and room settings have changed.`,
+      `${setup.label} example selected. Change its switch to try a different rule.`,
     );
   }
 

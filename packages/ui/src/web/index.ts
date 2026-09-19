@@ -15,6 +15,7 @@ export * from './components/ProviderMark';
 export * from './components/queue/EmbedQueueSong';
 export * from './components/queue/QueueItem';
 export * from './components/queue/QueueList';
+export * from './components/queue/SongSearchResult';
 export * from './components/SegmentedToggle';
 export * from './components/SkipLink';
 export * from './components/Text';

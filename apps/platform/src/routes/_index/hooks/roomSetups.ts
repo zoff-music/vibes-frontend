@@ -1,18 +1,10 @@
 import type { RoomSettings } from '@vibes/models';
 
 export type RoomSetupSettings = Required<
-  Pick<
-    RoomSettings,
-    | 'onlyAdminAddSongs'
-    | 'playlistImport'
-    | 'skipAllowed'
-    | 'democraticSkip'
-    | 'removeOnPlay'
-    | 'allowDuplicates'
-  >
+  Pick<RoomSettings, 'onlyAdminAddSongs' | 'skipAllowed' | 'removeOnPlay'>
 >;
 
-export type RoomSetupId = 'friends' | 'curated' | 'repeat';
+export type RoomSetupId = 'adding' | 'skipping' | 'repeating';
 
 interface RoomSetup {
   id: RoomSetupId;
@@ -22,39 +14,30 @@ interface RoomSetup {
 
 export const roomSetups: RoomSetup[] = [
   {
-    id: 'friends',
-    label: 'With friends',
+    id: 'adding',
+    label: 'Adding',
     settings: {
       onlyAdminAddSongs: false,
-      playlistImport: true,
       skipAllowed: true,
-      democraticSkip: true,
       removeOnPlay: true,
-      allowDuplicates: false,
     },
   },
   {
-    id: 'curated',
-    label: 'Your picks',
+    id: 'skipping',
+    label: 'Skipping',
     settings: {
       onlyAdminAddSongs: true,
-      playlistImport: true,
-      skipAllowed: false,
-      democraticSkip: false,
+      skipAllowed: true,
       removeOnPlay: true,
-      allowDuplicates: false,
     },
   },
   {
-    id: 'repeat',
-    label: 'On repeat',
+    id: 'repeating',
+    label: 'Repeating',
     settings: {
       onlyAdminAddSongs: false,
-      playlistImport: true,
       skipAllowed: true,
-      democraticSkip: true,
       removeOnPlay: false,
-      allowDuplicates: false,
     },
   },
 ];

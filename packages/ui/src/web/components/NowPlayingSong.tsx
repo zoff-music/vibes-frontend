@@ -13,6 +13,7 @@ interface NowPlayingSongProps {
   isPlaying: boolean;
   providerLink?: boolean;
   animate?: boolean;
+  density?: 'normal' | 'compact';
 }
 
 export function NowPlayingSong({
@@ -20,6 +21,7 @@ export function NowPlayingSong({
   isPlaying,
   providerLink = true,
   animate = true,
+  density = 'normal',
 }: NowPlayingSongProps) {
   const providerUrl = getProviderTrackUrl(
     song.sourceType,
@@ -47,13 +49,21 @@ export function NowPlayingSong({
           animate && 'motion-safe:animate-slide-up',
         )}
       >
-        <div className="group/card panel-surface no-box relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl p-4">
+        <div
+          className={classNames(
+            'group/card panel-surface no-box relative flex min-w-0 items-center overflow-hidden rounded-2xl',
+            density === 'compact' ? 'gap-3 p-3' : 'gap-4 p-4',
+          )}
+        >
           <div className="vhs-scanlines pointer-events-none absolute inset-0" />
           <div className="relative z-10 shrink-0">
             <img
               src={resolveSongThumbnail(song.thumbnailUrl)}
               alt=""
-              className="h-16 w-16 rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105"
+              className={classNames(
+                'rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105',
+                density === 'compact' ? 'h-12 w-12' : 'h-16 w-16',
+              )}
             />
           </div>
           <div className="relative z-10 min-w-0 flex-1 overflow-hidden">

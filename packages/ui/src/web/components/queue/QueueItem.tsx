@@ -1,4 +1,5 @@
 import {
+  classNames,
   getProviderTrackUrl,
   resolveSongThumbnail,
   type Song,
@@ -19,6 +20,7 @@ interface Props {
   isAdmin?: boolean;
   isVoting?: boolean;
   providerLink?: boolean;
+  density?: 'normal' | 'compact';
 }
 
 const QueueItemComponent: React.FC<Props> = ({
@@ -29,6 +31,7 @@ const QueueItemComponent: React.FC<Props> = ({
   isAdmin,
   isVoting = false,
   providerLink = true,
+  density = 'normal',
 }) => {
   const handleVote = () => {
     onVote?.(song.id);
@@ -47,7 +50,12 @@ const QueueItemComponent: React.FC<Props> = ({
   const voteCount = song.voteCount || 0;
 
   return (
-    <article className="group group/attribution relative flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface p-3 transition-colors hover:border-theme-strong sm:gap-3">
+    <article
+      className={classNames(
+        'group group/attribution relative flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface transition-colors hover:border-theme-strong sm:gap-3',
+        density === 'compact' ? 'p-2' : 'p-3',
+      )}
+    >
       <div className="w-5 shrink-0 text-center sm:w-6">
         <span className="text-theme-subtle text-xs">{position}</span>
       </div>
@@ -55,7 +63,10 @@ const QueueItemComponent: React.FC<Props> = ({
       <img
         src={resolveSongThumbnail(song.thumbnailUrl)}
         alt=""
-        className="h-12 w-12 shrink-0 rounded-xl border border-theme bg-theme-surface object-cover sm:h-14 sm:w-14"
+        className={classNames(
+          'shrink-0 rounded-xl border border-theme bg-theme-surface object-cover',
+          density === 'compact' ? 'h-10 w-10' : 'h-12 w-12 sm:h-14 sm:w-14',
+        )}
         decoding="async"
         fetchPriority="low"
         loading="lazy"
