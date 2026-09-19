@@ -3,7 +3,7 @@ import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
 import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular.woff2?url';
 import { NotFoundView } from '@vibes/ui/web';
 import { lazy, type ReactNode, Suspense, useState } from 'react';
-import type { MetaFunction } from 'react-router';
+import type { MetaFunction, ShouldRevalidateFunctionArgs } from 'react-router';
 import {
   isRouteErrorResponse,
   Links,
@@ -45,8 +45,13 @@ export const meta: MetaFunction = ({ error }) => {
   ];
 };
 
-export function shouldRevalidate() {
-  return false;
+export function shouldRevalidate({
+  formAction,
+  formMethod,
+}: ShouldRevalidateFunctionArgs) {
+  return (
+    formAction === '/resources/profile' && formMethod?.toUpperCase() === 'POST'
+  );
 }
 
 interface Props {

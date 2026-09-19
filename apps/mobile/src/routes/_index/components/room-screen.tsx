@@ -6,7 +6,7 @@ import {
   useNativePresentation,
 } from '@vibes/ui/native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -20,6 +20,10 @@ import {
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { RoomGenerationProgress } from '@/components/room-generation-progress';
+import {
+  RoomPlayerSpace,
+  type RoomPlayerSpaceHandle,
+} from '@/components/room-player-space';
 import { Toast } from '@/components/toast';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useLivePosition } from '@/hooks/use-live-position';
@@ -53,6 +57,7 @@ export function RoomScreen() {
   const { width } = tabletLayout;
   const compactRoomHeader = width < roomHeaderBreakpoint;
   const [notice, setNotice] = useState('');
+  const playerSpaceRef = useRef<RoomPlayerSpaceHandle>(null);
   const [, { submit: submitPlayback }] = useFetcher<RoomPlaybackActionData>({
     params: { id: roomId },
     routeId: 'rooms.$id.playback',
@@ -171,18 +176,19 @@ export function RoomScreen() {
 
   let playerSpacer = null;
   if (playerPreferenceLoaded && playerEnabled && !keyboardVisible) {
-    const playerWidth = tabletLayout.isTabletPortrait
+    let playerWidth = tabletLayout.isTabletPortrait
       ? tabletLayout.portraitPlayerWidth
       : width - 32;
     let height = Math.max(200, playerWidth / (16 / 9));
     if (tabletLayout.isTabletLandscape) {
       height = tabletLayout.playerHeight;
+      playerWidth = tabletLayout.playerPaneWidth;
     }
     playerSpacer = (
-      <View
-        style={{
-          height,
-        }}
+      <RoomPlayerSpace
+        ref={playerSpaceRef}
+        width={playerWidth}
+        height={height}
       />
     );
   }
@@ -204,11 +210,7 @@ export function RoomScreen() {
   }
   if (!room.isGenerating) {
     roomDetails = (
-      <Card
-        className={classNames(
-          tabletLayout.isTabletLandscape && 'flex-1 justify-between',
-        )}
-      >
+      <Card>
         <View className="flex-row items-center justify-between gap-3">
           <View className="min-w-0 flex-1 gap-1">
             <Copy muted>NOW PLAYING</Copy>
@@ -286,8 +288,14 @@ export function RoomScreen() {
         count={queuedSongs.length}
         header={<View className="p-4">{roomDetails}</View>}
         chatHeader={
-          <View className="px-4 py-2">
-            <Copy muted>{current?.title ?? 'Nothing playing'}</Copy>
+          <View className="gap-1 px-4 py-4">
+            <Copy muted>NOW PLAYING</Copy>
+            <Text
+              numberOfLines={1}
+              className="font-heading text-base text-mobile-text dark:text-mobile-dark-text"
+            >
+              {current?.title ?? 'Nothing playing'}
+            </Text>
           </View>
         }
         renderQueue={(header, showHeading) => (
@@ -320,12 +328,7 @@ export function RoomScreen() {
           {roomDetails}
         </View>
         <View
-          className={classNames(
-            'min-h-0 overflow-hidden border',
-            !terminal &&
-              'rounded-2xl border-mobile-border bg-mobile-card/80 dark:border-mobile-dark-border dark:bg-mobile-dark-card/80',
-            terminal && 'border-[#55ffad] bg-[#010c08]/95',
-          )}
+          className="min-h-0 overflow-hidden"
           style={{ width: tabletLayout.playlistPaneWidth }}
         >
           <RoomChatPanel
@@ -367,8 +370,8 @@ export function RoomScreen() {
   let roomHeader = (
     <View
       className={classNames(
-        'w-full flex-row items-center justify-between gap-3 self-center px-4 py-3',
-        tabletLayout.isTabletLandscape && 'h-20 py-0',
+        'flex-row items-center justify-between gap-3 self-stretch px-4 py-3',
+        tabletLayout.isTablet && 'h-20 py-0',
       )}
     >
       <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">
@@ -455,16 +458,22 @@ export function RoomScreen() {
 
   return (
     <Screen gridPaused={playback?.isPlaying === false}>
-      <SafeAreaView
-        className="w-full self-center"
-        edges={['top']}
+      <View
+        className={classNames(
+          'self-center',
+          !tabletLayout.isTabletPortrait && 'w-full',
+        )}
         {...(tabletLayout.isTabletPortrait
           ? { style: { width: tabletLayout.portraitContentWidth } }
           : {})}
       >
-        {roomHeader}
-      </SafeAreaView>
-      <NativeKeyboardAvoidingView className="min-h-0 flex-1" behavior="padding">
+        <SafeAreaView edges={['top']}>{roomHeader}</SafeAreaView>
+      </View>
+      <NativeKeyboardAvoidingView
+        className="min-h-0 flex-1"
+        behavior="padding"
+        onLayout={() => playerSpaceRef.current?.measure()}
+      >
         {content}
       </NativeKeyboardAvoidingView>
     </Screen>

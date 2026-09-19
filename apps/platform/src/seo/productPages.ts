@@ -141,7 +141,7 @@ export const productPages: ProductPage[] = [
       },
       {
         title: 'Public or unlisted',
-        body: 'Enable Public Room to appear on the homepage while people are listening. This requires an admin password. With Public Room off, you share the link yourself. An unlisted room is still open to anyone who knows its link or name.',
+        body: 'Enable Public to appear in Browse, even when nobody is listening. Active rooms can also appear on the homepage. This requires an admin password. With Public off, you share the link yourself. An unlisted room is still open to anyone who knows its link or name.',
       },
       {
         title: 'Give someone admin access',

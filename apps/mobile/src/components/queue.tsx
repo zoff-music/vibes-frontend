@@ -232,7 +232,7 @@ export function Queue({
   const renderSong = useCallback(
     ({ item, index }: ListRenderItemInfo<Song>) => (
       <Animated.View
-        className="px-4"
+        className={classNames(!contained && 'px-4')}
         entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
         layout={LinearTransition.duration(180)}
       >
@@ -244,7 +244,7 @@ export function Queue({
         />
       </Animated.View>
     ),
-    [onDelete, onVote],
+    [contained, onDelete, onVote],
   );
 
   let listHeader: ReactElement | null = null;
@@ -272,7 +272,7 @@ export function Queue({
       initialNumToRender={8}
       keyExtractor={(song) => song.id}
       ListEmptyComponent={
-        <View className="px-4">
+        <View className={classNames(!contained && 'px-4')}>
           <Empty>{emptyMessage}</Empty>
         </View>
       }
@@ -291,7 +291,7 @@ export function Queue({
     <View className="min-h-0 flex-1">
       {header}
       {showHeading && (
-        <View className="px-4 pt-4 pb-3">
+        <View className="pt-4 pb-3">
           <Copy muted>UP NEXT ({songs.length})</Copy>
         </View>
       )}

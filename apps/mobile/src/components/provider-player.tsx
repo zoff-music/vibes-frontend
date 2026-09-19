@@ -39,7 +39,7 @@ export function ProviderPlayer({
   synchronizePosition,
 }: ProviderPlayerProps) {
   const { width: windowWidth } = useWindowDimensions();
-  const isPhoneLayout = availableWidth === undefined && windowWidth < 600;
+  const isPhoneLayout = windowWidth < 600;
   const [error, setError] = useState('');
   const [retainedYouTubeSong, setRetainedYouTubeSong] = useState<Song | null>(
     song?.sourceType === 'youtube' ? song : null,

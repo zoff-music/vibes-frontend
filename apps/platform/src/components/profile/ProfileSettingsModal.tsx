@@ -48,10 +48,10 @@ export function ProfileSettingsModal({
 
   useEffect(() => {
     const profile = fetcher.data?.profile ?? initialProfile;
-    if (profile) {
+    if (isOpen && profile) {
       setName(profile.name);
     }
-  }, [fetcher.data, initialProfile]);
+  }, [fetcher.data, initialProfile, isOpen]);
 
   useEffect(() => {
     if (fetcher.state === 'submitting') {

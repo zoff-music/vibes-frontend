@@ -398,7 +398,7 @@ const CreateRoom: React.FC = () => {
   };
 
   const publicRoomDescription = password
-    ? 'Show under Live now while listeners are active'
+    ? 'Let anyone find this room in Browse'
     : 'Add an admin password to make this room public';
 
   if (terminalMode) {
@@ -781,7 +781,7 @@ const CreateRoom: React.FC = () => {
                 </h2>
                 <SegmentedToggle
                   name="public"
-                  label="PUBLIC ROOM"
+                  label="PUBLIC"
                   description={publicRoomDescription}
                   disabled={!password}
                   checked={settings.public}
