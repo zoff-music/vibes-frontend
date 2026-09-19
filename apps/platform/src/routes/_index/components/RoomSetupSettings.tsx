@@ -20,7 +20,6 @@ export function RoomSetupSettings({
       {setupId === 'adding' && (
         <SegmentedToggle
           label="Admins Only Add"
-          description="Who can add songs?"
           variant="plain-full"
           size="comfortable"
           checked={settings.onlyAdminAddSongs}
@@ -30,7 +29,7 @@ export function RoomSetupSettings({
       {setupId === 'skipping' && (
         <SegmentedToggle
           label="Admins Only Skip"
-          description="Who controls the next song?"
+          description="Vote-to-skip is off."
           variant="plain-full"
           size="comfortable"
           checked={!settings.skipAllowed}
@@ -40,7 +39,6 @@ export function RoomSetupSettings({
       {setupId === 'repeating' && (
         <SegmentedToggle
           label="Remove Played"
-          description="Play once, or keep the song?"
           variant="plain-full"
           size="comfortable"
           checked={settings.removeOnPlay}

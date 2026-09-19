@@ -1,4 +1,4 @@
-import { classNames, type Song } from '@vibes/shared';
+import { type Song } from '@vibes/shared';
 import {
   Button,
   ContentTransition,
@@ -28,74 +28,71 @@ export function RepeatSongSetupScene({
   onFinish,
 }: RepeatSongSetupSceneProps) {
   return (
-    <div className="grid min-w-0 gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-6">
-      <div>
-        <ContentTransition transitionKey={song.id}>
-          <NowPlayingSong
-            song={song}
-            isPlaying
-            providerLink={false}
-            animate={false}
-            density="compact"
+    <div>
+      <ContentTransition transitionKey={song.id}>
+        <NowPlayingSong
+          song={song}
+          isPlaying
+          providerLink={false}
+          animate={false}
+          density="compact"
+          showStatus={false}
+        />
+        <div className="mt-2">
+          <PlaybackProgress
+            durationMs={song.duration * 1000}
+            positionMs={positionMs}
           />
-          <div className="mt-3">
-            <PlaybackProgress
-              durationMs={song.duration * 1000}
-              positionMs={positionMs}
-            />
-          </div>
-        </ContentTransition>
+        </div>
+      </ContentTransition>
+      <div className="flex min-h-11 items-center justify-between gap-3">
+        <p className="flex items-center gap-2 text-theme-muted text-xs">
+          {advanced && !removePlayed && (
+            <motion.span
+              aria-hidden="true"
+              initial={{ rotate: 0 }}
+              animate={{ rotate: reducedMotion ? 0 : 360 }}
+              transition={{ duration: 0.6 }}
+              className="text-secondary"
+            >
+              <ResetIcon className="h-3.5 w-3.5" />
+            </motion.span>
+          )}
+          Up next
+        </p>
         <Button
-          variant="tertiary"
-          size="small"
-          className="mt-3 min-h-12 w-full text-sm sm:w-auto sm:px-5"
+          variant="ghost"
+          size="none"
+          className="min-h-11 rounded-lg px-2 text-xs hover:bg-theme-surface"
           onClick={onFinish}
-          aria-disabled={advanced}
+          disabled={advanced}
         >
-          {advanced ? 'Song finished' : 'Finish the song'}
+          {advanced ? 'Song finished' : 'Finish song'}
         </Button>
       </div>
-      <motion.span
-        aria-hidden="true"
-        animate={{
-          rotate: advanced && !removePlayed && !reducedMotion ? 360 : 0,
-        }}
-        transition={{ duration: 0.6 }}
-        className={classNames(
-          'hidden justify-self-center sm:block',
-          !removePlayed ? 'text-secondary' : 'text-theme-subtle',
+      <ContentTransition transitionKey={advanced ? 'finished' : 'playing'}>
+        {!advanced && (
+          <QueueItem
+            song={queueDemoSongs[1]}
+            position={1}
+            providerLink={false}
+            density="compact"
+          />
         )}
-      >
-        <ResetIcon className="h-5 w-5" />
-      </motion.span>
-      <div className="min-w-0">
-        <h3 className="mb-3 font-pixel text-theme-muted text-xs">
-          {advanced && !removePlayed ? 'BACK IN THE QUEUE' : 'UP NEXT'}
-        </h3>
-        <ContentTransition transitionKey={advanced ? 'finished' : 'playing'}>
-          {!advanced && (
-            <QueueItem
-              song={queueDemoSongs[1]}
-              position={1}
-              providerLink={false}
-              density="compact"
-            />
-          )}
-          {advanced && !removePlayed && (
-            <QueueItem
-              song={queueDemoSongs[0]}
-              position={1}
-              providerLink={false}
-              density="compact"
-            />
-          )}
-          {advanced && removePlayed && (
-            <p className="flex min-h-17 items-center border-theme border-y text-sm text-theme-muted">
-              No songs left in the queue.
-            </p>
-          )}
-        </ContentTransition>
-      </div>
+        {advanced && !removePlayed && (
+          <QueueItem
+            song={queueDemoSongs[0]}
+            position={1}
+            providerLink={false}
+            density="compact"
+          />
+        )}
+        {advanced && removePlayed && (
+          <p className="flex min-h-17 items-center border-theme border-y text-sm text-theme-muted">
+            Queue cleared. Nothing repeats.
+          </p>
+        )}
+      </ContentTransition>
     </div>
   );
 }

@@ -182,15 +182,18 @@ The room-settings section stays unframed within the shared content width. Its
 three examples have distinct layouts: a listener's search result entering the
 queue, the player's skip control obeying permissions, and a finished song either
 returning to the queue or leaving it. Each example has one relevant room toggle
-beside the action it changes. On phones, the controls and result fit together
-without scrolling through a full player and several queue rows. Phone actions
-use full-width, labelled buttons; playback examples put pause and replay beneath
-the scene. The setting switches have a larger touch target. Search results,
+beside the action it changes. On phones, a compact selector and switch sit above
+one scene. A search result becomes a queue row in the same space, rather than
+leaving duplicate songs on screen. Pause stays beside the selector; replay shares
+the result caption row. Touch controls remain at least 44px tall. Search results,
 skip controls, song panels and queue rows reuse `@vibes/ui/web`; compact density
 preserves the normal room presentation elsewhere.
 
-Crossfade between examples and replay after a setting changes. Selecting an
-example or focusing its controls stops cycling; Play resumes it. Only run while
+Each automatic example shows both switch positions before moving to the next.
+Crossfade between examples and restart the scene after a setting changes.
+Selecting an example or focusing its controls pauses the tour for manual use;
+Play and Replay resume it. Actions return focus to the persistent replay control.
+Only run while
 most of the scene is visible, and pause in hidden tabs. Reduced motion leaves the
 action manual. Keyboard focus survives changing a setting, and automatic examples
 do not announce themselves to screen readers. Keep the AI showcase unframed too,

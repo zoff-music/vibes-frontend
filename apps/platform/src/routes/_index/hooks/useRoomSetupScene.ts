@@ -48,27 +48,25 @@ export function useRoomSetupScene({
     return () => window.clearInterval(timer);
   }, [running]);
 
-  let caption = 'Tap the song to add it as a listener.';
+  let caption = 'Tap the song to add it.';
 
   if (setupId === 'adding' && complete) {
-    caption = blocked
-      ? 'Only admins can add. The queue stays as it was.'
-      : 'Song title 02 joins the queue.';
+    caption = blocked ? 'Only admins can add songs.' : 'Added to the queue.';
   }
 
   if (setupId === 'skipping') {
     caption = settings.skipAllowed
-      ? 'Listeners can skip. Try the skip button.'
-      : 'Skip is disabled for listeners. Admins keep control.';
-    if (changedSong) caption = 'Skipped. Song title 02 is playing.';
+      ? 'Try skipping as a listener.'
+      : 'Skipping is locked to admins.';
+    if (changedSong) caption = 'Skipped to Song title 02.';
   }
 
   if (setupId === 'repeating') {
-    caption = 'What happens when Song title 01 ends?';
+    caption = 'Finish the song to try it.';
     if (advanced) {
       caption = settings.removeOnPlay
-        ? 'Song title 01 is removed after playing.'
-        : 'Song title 01 returns to the queue.';
+        ? 'Finished and removed.'
+        : 'Back in the queue.';
     }
   }
 

@@ -11,7 +11,7 @@ const LazyRoomControlPanel = lazy(() =>
 export function RoomControlsPreview() {
   return (
     <section aria-labelledby="room-controls-heading" className="py-16 sm:py-28">
-      <div className="mb-8 sm:mb-12">
+      <div className="mb-6 sm:mb-10">
         <div className="min-w-0">
           <p className="font-pixel text-primary text-xs tracking-label">
             ROOM CONTROLS
@@ -30,7 +30,7 @@ export function RoomControlsPreview() {
       </div>
       <div className="min-w-0">
         <DeferredContent
-          fallback={<div aria-hidden="true" className="h-164 sm:h-148" />}
+          fallback={<div aria-hidden="true" className="h-112 lg:h-76" />}
         >
           <LazyRoomControlPanel />
         </DeferredContent>

@@ -19,6 +19,7 @@ export function useRoomSetup() {
   const [paused, setPaused] = useState(false);
   const [manual, setManual] = useState(false);
   const cycleElapsed = useRef(0);
+  const showingAlternate = useRef(false);
   const active = inView && visible;
   const cycling = active && !paused && !manual && !reducedMotion;
 
@@ -30,9 +31,22 @@ export function useRoomSetup() {
       const now = performance.now();
       cycleElapsed.current += Math.min(now - previous, 250);
       previous = now;
-      if (cycleElapsed.current < 8000) return;
+      if (cycleElapsed.current < 6000) return;
 
       cycleElapsed.current = 0;
+      if (!showingAlternate.current) {
+        showingAlternate.current = true;
+        setSettings((current) => ({
+          ...current,
+          onlyAdminAddSongs: setupId === 'adding' || current.onlyAdminAddSongs,
+          skipAllowed: setupId !== 'skipping' && current.skipAllowed,
+          removeOnPlay: setupId === 'repeating' || current.removeOnPlay,
+        }));
+        setRevision((current) => current + 1);
+        return;
+      }
+
+      showingAlternate.current = false;
       const index = roomSetups.findIndex((setup) => setup.id === setupId);
       const next = roomSetups[(index + 1) % roomSetups.length];
       setSettings(next.settings);
@@ -52,6 +66,7 @@ export function useRoomSetup() {
     setManual(true);
     setPaused(false);
     cycleElapsed.current = 0;
+    showingAlternate.current = false;
     setRevision((current) => current + 1);
     setAnnouncement(
       `${setup.label} example selected. Change its switch to try a different rule.`,
@@ -68,8 +83,13 @@ export function useRoomSetup() {
 
   function replay() {
     setRevision((current) => current + 1);
-    setManual(true);
+    setManual(false);
     setPaused(false);
+    cycleElapsed.current = 0;
+    showingAlternate.current =
+      (setupId === 'adding' && settings.onlyAdminAddSongs) ||
+      (setupId === 'skipping' && !settings.skipAllowed) ||
+      (setupId === 'repeating' && settings.removeOnPlay);
   }
 
   function takeControl() {
@@ -77,10 +97,13 @@ export function useRoomSetup() {
   }
 
   function togglePlayback() {
-    if (paused || manual) {
-      setManual(false);
+    if (paused) {
       setPaused(false);
-      cycleElapsed.current = 0;
+      return;
+    }
+
+    if (manual) {
+      replay();
       return;
     }
 
@@ -94,7 +117,7 @@ export function useRoomSetup() {
       setupId,
       revision,
       announcement,
-      active: active && !paused,
+      active: active && !paused && !manual,
       paused: paused || manual,
       manual,
       reducedMotion: reducedMotion === true,

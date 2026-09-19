@@ -24,7 +24,10 @@ export function SkipSongSetupScene({
   onSkip,
 }: SkipSongSetupSceneProps) {
   return (
-    <div className="grid min-w-0 gap-6 sm:grid-cols-[3fr_2fr] sm:items-center sm:gap-12">
+    <div>
+      <p className="mb-3 text-theme-muted text-xs">
+        {changedSong ? 'Next song playing' : 'Now playing'}
+      </p>
       <ContentTransition transitionKey={song.id}>
         <NowPlayingSong
           song={song}
@@ -32,25 +35,16 @@ export function SkipSongSetupScene({
           providerLink={false}
           animate={false}
           density="compact"
+          showStatus={false}
         />
-        <div className="mt-3">
+        <div className="mt-2">
           <PlaybackProgress
             durationMs={song.duration * 1000}
             positionMs={positionMs}
           />
         </div>
       </ContentTransition>
-      <div className="flex flex-col gap-3 border-theme border-t pt-4 sm:gap-4 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-8">
-        <div>
-          <p className="text-theme-muted text-xs">
-            Listener · vote-to-skip off
-          </p>
-          <p className="mt-1 font-pixel text-2xl text-theme">
-            {!canSkip && 'Only admins skip.'}
-            {canSkip && !changedSong && 'Your turn. Skip it.'}
-            {canSkip && changedSong && 'On to the next.'}
-          </p>
-        </div>
+      <div className="mt-4">
         <SkipButton
           canSkip={canSkip}
           isSkipping={isSkipping}

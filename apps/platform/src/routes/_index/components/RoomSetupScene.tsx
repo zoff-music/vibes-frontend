@@ -1,5 +1,3 @@
-import { classNames } from '@vibes/shared';
-import { ContentTransition } from '@vibes/ui/web';
 import type { RoomSetupId, RoomSetupSettings } from '../hooks/roomSetups';
 import { useRoomSetupScene } from '../hooks/useRoomSetupScene';
 import { AddSongSetupScene } from './AddSongSetupScene';
@@ -12,6 +10,7 @@ interface RoomSetupSceneProps {
   active: boolean;
   reducedMotion: boolean;
   announce: boolean;
+  onAction: () => void;
 }
 
 export function RoomSetupScene({
@@ -20,6 +19,7 @@ export function RoomSetupScene({
   active,
   reducedMotion,
   announce,
+  onAction,
 }: RoomSetupSceneProps) {
   const { state, actions } = useRoomSetupScene({
     setupId,
@@ -28,27 +28,32 @@ export function RoomSetupScene({
     reducedMotion,
   });
 
+  function performAction() {
+    actions.performAction();
+    onAction();
+  }
+
   return (
     <div>
-      <div className="flex min-h-76 flex-col justify-center sm:min-h-64">
+      <div className="min-h-48">
         {setupId === 'adding' && (
           <AddSongSetupScene
             complete={state.complete}
             blocked={state.blocked}
             reducedMotion={reducedMotion}
-            onAdd={actions.performAction}
+            onAdd={performAction}
           />
         )}
         {setupId === 'skipping' && (
           <SkipSongSetupScene
             song={state.currentSong}
             positionMs={state.positionMs}
-            canSkip={settings.skipAllowed}
+            canSkip={settings.skipAllowed && !state.changedSong}
             changedSong={state.changedSong}
             isSkipping={
               state.complete && !state.advanced && settings.skipAllowed
             }
-            onSkip={actions.performAction}
+            onSkip={performAction}
           />
         )}
         {setupId === 'repeating' && (
@@ -58,28 +63,17 @@ export function RoomSetupScene({
             advanced={state.advanced}
             removePlayed={settings.removeOnPlay}
             reducedMotion={reducedMotion}
-            onFinish={actions.performAction}
+            onFinish={performAction}
           />
         )}
       </div>
-      <ContentTransition
-        transitionKey={state.caption}
-        className="mt-4 min-h-12"
+      <p
+        aria-live={announce ? 'polite' : 'off'}
+        aria-atomic="true"
+        className="mt-2 flex min-h-12 items-center pr-22 text-sm text-theme-muted leading-snug"
       >
-        <p
-          className={classNames(
-            'text-sm leading-relaxed',
-            state.blocked ? 'text-theme' : 'text-theme-muted',
-          )}
-        >
-          {state.caption}
-        </p>
-      </ContentTransition>
-      {announce && (
-        <p role="status" className="sr-only">
-          {state.complete && state.caption}
-        </p>
-      )}
+        {state.caption}
+      </p>
     </div>
   );
 }
