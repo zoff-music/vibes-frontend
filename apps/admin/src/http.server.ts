@@ -81,6 +81,12 @@ export function getServerApi(
     options.fetchLifecycle,
   );
   return createApiClientWithBaseUrl(baseUrl, {
+    customHeaders: {
+      // Preserve the ingress-appended client chain for internal login limiting.
+      ...(request?.headers.get('x-forwarded-for') && {
+        'X-Forwarded-For': request.headers.get('x-forwarded-for') ?? '',
+      }),
+    },
     fetchLifecycle,
   });
 }
