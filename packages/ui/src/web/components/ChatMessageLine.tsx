@@ -20,6 +20,9 @@ interface ChatMessageLineProps {
 }
 
 export function ChatMessageLine({ message }: ChatMessageLineProps) {
+  const activity = message.kind !== 'chat' || message.activity === true;
+  const separator = activity ? ' ' : ': ';
+
   return (
     <p className="wrap-anywhere py-1 text-base text-theme leading-6">
       <time
@@ -45,12 +48,8 @@ export function ChatMessageLine({ message }: ChatMessageLineProps) {
       >
         {message.name}
       </span>
-      <span className="text-theme-muted">
-        {message.kind !== 'chat' ? ' ' : ': '}
-      </span>
-      <span
-        className={classNames(message.kind !== 'chat' && 'text-theme-muted')}
-      >
+      <span className="text-theme-muted">{separator}</span>
+      <span className={classNames(activity && 'text-theme-muted')}>
         {formatChatMessage(message)}
       </span>
     </p>
