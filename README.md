@@ -1,124 +1,110 @@
 <p align="center">
-  <img src="apps/platform/public/logo.png" alt="zoff logo" width="192">
+  <img src="apps/platform/public/logo.png" alt="Zoff logo" width="192">
 </p>
 
 # Vibes Frontend
 
-A TypeScript monorepo for Zoff's SSR web, native mobile, television, Cast, and
-remote-control clients, built with pnpm workspaces.
-
-## Preview
-
-| Start a room | Play together |
-| --- | --- |
-| ![Zoff homepage](apps/platform/docs/screenshots/frontpage.jpg) | ![Zoff room player and shared queue](apps/platform/docs/screenshots/playlist.jpg) |
+The TypeScript workspace for [Zoff](https://zoff.me): free shared music rooms
+for YouTube and SoundCloud, with no listener account required. Build a queue
+together, vote on songs, chat, and listen on the web, phones, tablets, and TVs.
 
 ## Applications
 
-- **`apps/platform`**: The main web application for room management, queueing, and social interaction (SSR-enabled)
-- **`apps/admin`**: Admin application served separately while preserving the admin route surface
-- **`apps/cast`**: A standalone Chromecast Receiver application for synchronized playback on Google Cast devices (SSR-enabled)
-- **`apps/embed`**: A standalone SSR embed player served at `/embed/:roomName` by default
-- **`apps/mobile`**: Native Expo application for iOS and Android
-- **`apps/remote`**: Lightweight web remote for controlling a paired Zoff screen
-- **`apps/tv`**: Zoff TV, delivered as native Android TV and Samsung TV builds
+| Application | Runtime and purpose |
+| --- | --- |
+| [Platform](apps/platform/README.md) | React Router SSR web app: rooms, public-room browsing, shared queues, chat, party view, and product guides |
+| [Admin](apps/admin/README.md) | Separate React Router SSR app for protected global administration and usage views |
+| [Embed](apps/embed/README.md) | React Router SSR room player for embedding on other sites |
+| [Remote](apps/remote/README.md) | React Router SSR paired controller for another Zoff player |
+| [Cast](apps/cast/README.md) | Standalone Vite/React Router receiver running in the Google Cast runtime, not an SSR app |
+| [Mobile](apps/mobile/README.md) | Native-only Expo Router app for iOS and Android phones and tablets |
+| [TV](apps/tv/README.md) | One TV product with an Expo Android TV renderer and a DOM-based Samsung Tizen renderer |
+
+Features depend on the target runtime and enabled providers. Playback uses
+official provider players; autoplay, embedding, and Cast availability remain
+subject to browser, device, and provider restrictions.
+
+## What Zoff Provides
+
+- Rooms with their own settings, optional administrator passwords, public
+  discovery, and private link sharing.
+- Shared queues, votes, playlist imports, and prompt-based playlist generation.
+- Server-mode playback progression or host-mode control, with room-level
+  permissions for adding and skipping.
+- Live chat and room activity, with a per-device chat toggle.
+- Replayable SSE and compact queue updates across supported clients.
+- Share links and QR codes, configurable embeds, paired remote controls, and Cast.
+- A shared visual language with light/dark themes, accessible controls, and
+  layouts adapted to touch, keyboard, and TV remote input.
 
 ## Shared Packages
 
-- **`packages/api`**: Type-safe API client
-- **`packages/models`**: Shared domain types, interfaces, and validation schemas
-- **`packages/shared`**: Shared React hooks, utilities, and Zustand stores (includes safeWrap error handling)
-- **`packages/ui`**: Shared UI through explicit `@vibes/ui/web`,
-  `@vibes/ui/native`, and `@vibes/ui/shared` platform boundaries
-- **`packages/serve`**: Shared TypeScript server, metrics, and tracing utilities
+| Package | Responsibility |
+| --- | --- |
+| `@vibes/api` | React-free REST capabilities, typed transport/error handling, SSE plumbing, and reusable SSE lifecycle hooks |
+| `@vibes/models` | Compiled Zod 4 schemas and derived domain types |
+| `@vibes/shared` | Renderer-neutral hooks, stores, constants, and safe-wrap utilities |
+| `@vibes/ui/web` | DOM controls and provider players |
+| `@vibes/ui/native` | Shared React Native controls and provider-player wrappers |
+| `@vibes/ui/shared` | Renderer-neutral presentation, icons, and formatting |
+| `@vibes/native-router` | Shared native routing support |
+| `@vibes/serve` | Node/Express serving, compression, metrics, and tracing |
+| Tailwind and iconography packages | Shared styling configuration and generated icon exports |
+
+Apps do not import one another's UI. DOM REST reads and mutations belong in
+React Router loaders/client loaders and actions/client actions, including Cast
+and Tizen. Native workflows compose the shared API from app-owned hooks.
+Components can trigger fetchers and subscribe to SSE without owning raw HTTP calls.
 
 ## Development
 
-Use Node.js 26.8.1 or newer and pnpm 12.3.4, pinned in `package.json`.
-The Docker build stages use the same pnpm version and install `libatomic1`,
-which its native Linux executable requires on Debian slim images.
+Use the Node engine and exact pnpm version pinned in [package.json](package.json).
+Install with the committed lockfile; do not independently upgrade tooling to
+follow this README.
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Run the main platform app (port 3001, SSR-enabled)
-pnpm dev
-
-# Run all apps
-pnpm --recursive dev
-
-# Run the embed app (port 3006)
-pnpm --filter @vibes/embed dev
-
-# Run the native iOS/Android development server
-pnpm --filter @vibes/mobile start
-
-# Run the Android TV development server
-pnpm --filter @vibes/tv start
-
-# Run the Samsung TV browser-runtime preview
-pnpm --filter @vibes/tv tizen:dev
+pnpm install --frozen-lockfile
+pnpm dev                                  # Platform, port 3001
+pnpm --filter @vibes/embed dev             # Embed, port 3006
+pnpm --filter @vibes/remote dev             # Remote, port 3007
+pnpm --filter @vibes/cast dev               # Cast, port 3003
+pnpm --filter @vibes/mobile start          # Native mobile Metro server
+pnpm --filter @vibes/tv start              # Native Android TV Metro server
+pnpm --filter @vibes/tv tizen:dev           # Samsung TV browser preview
 ```
 
-Set `EMBED_BASE_PATH` in both `apps/platform/.env` and `apps/embed/.env` to
-change the local embed mount path. Embed URLs accept the optional boolean query
-parameters `player`, `playlist`, `skip`, and `vote`. Embedded playback always
-requires an explicit visitor interaction.
+Configure each app's environment using its README. Run the
+[backend](https://github.com/zoff-music/vibes-backend) with PostgreSQL and Redis;
+apply the [migrator](https://github.com/zoff-music/vibes-migrator) first.
+See [local Cast development](docs/local-cast-development.md) for sender/receiver setup.
 
-For sender and receiver testing with a local API, PostgreSQL database, and
-Redis instance, see [Local Cast development](docs/local-cast-development.md).
+Embed URLs support `player`, `playlist`, `skip`, `vote`, and `autoplay`
+options. Autoplay defaults off. Enabling it attempts audible playback, but a
+blocked attempt still requires the visitor to click play. Configure
+`EMBED_BASE_PATH` consistently in Platform and Embed.
 
-## Browser debug logging
+## Validation and Delivery
 
-Browser debug messages are off by default. Set `VITE_DEBUG=true` in the web
-server's runtime environment, restart it, and reload the page to enable them.
-The same built image supports both modes; this is a runtime setting, not a
-build-time `import.meta.env` flag.
-Only the exact value `true` enables browser debugging.
+```bash
+pnpm lint
+pnpm typecheck
+pnpm build
+pnpm --filter @vibes/mobile validate
+pnpm --filter @vibes/tv validate
+```
 
-SSR root loaders expose this boolean as `data-debug` on the document before
-client modules run. The Cast SPA server adds the same flag to its HTML entry
-and disables document caching. App-owned browser debug messages use
-`browserDebugLog`; player diagnostics use `isBrowserDebugEnabled` before
-collecting detailed state. Do not replace global console methods to silence
-logging. Browser warnings and errors, native logging, and server-side logs
-remain unchanged. A `?debug=true` URL alone cannot enable diagnostics when
-the runtime flag is off. With the runtime flag on, that query can still open
-the existing optional on-screen debug panel.
+The root build covers the web applications and Tizen bundle. It does not build,
+submit, or publish native binaries. Mobile and Android TV use their app-specific
+Expo/EAS configuration and release instructions; Tizen has separate packaging
+and signing. A documentation change alone does not require a native release.
 
-## Server-Side Rendering (SSR)
+Web apps use content-hashed assets. Platform, Admin, Embed, and Remote provide
+SSR; Cast and Tizen use client-side DOM runtimes. Shared styles use Tailwind v4
+on DOM and NativeWind on native targets. Biome and TypeScript enforce workspace
+quality, alongside API-boundary checks.
 
-The React Router web applications support SSR for improved performance and SEO.
-Mobile is a native Expo application. Zoff TV shares its room/session behavior
-across two delivery targets: a native Android TV build and the browser runtime
-required by Samsung TVs.
-
-- **Platform App**: SSR with room data prefetching
-- **Admin App**: SSR for admin views
-- **Cast App**: SSR for faster Chromecast loading
-- **Development**: Hot module replacement with SSR
-- **Production**: Optimized SSR builds
-- **Native**: Expo Router on mobile and an Expo Android TV entrypoint
-- **Samsung TV**: Vite packages the same TV product for Samsung's browser-based
-  application runtime
-
-## Tooling
-
-- **Linting & Formatting**: [Biome](https://biomejs.dev/) (`pnpm lint`, `pnpm fix`)
-- **Type Checking**: TypeScript (`pnpm typecheck`)
-- **Testing**: Vitest
-- **Error Handling**: `safeWrap`/`safeWrapAsync` utilities (no try/catch)
-- **Styling**: Tailwind CSS v4 for DOM targets and NativeWind for React Native
-
-## Key Features
-
-- **Dark Mode**: System preference detection with manual toggle
-- **Error Handling**: Safe error handling with `safeWrap` utilities
-- **Type Safety**: Full TypeScript with `@vibes/api`
-- **Real-time**: SSE integration for live updates
-- **Cross-platform UI**: Explicit web, native, and renderer-neutral package boundaries
-
-## Rules
-
-Please read the [AGENTS.md](./AGENTS.md) for non-negotiable frontend coding conventions and file layout rules.
+Read [AGENTS.md](AGENTS.md) and the
+[frontend skill](.agents/skills/vibes-frontend/SKILL.md) before contributing.
+The backend [architecture](https://github.com/zoff-music/vibes-backend/blob/main/docs/ARCHITECTURE.md)
+and [flows](https://github.com/zoff-music/vibes-backend/blob/main/docs/FLOWS.md)
+describe the cross-repository contracts.
