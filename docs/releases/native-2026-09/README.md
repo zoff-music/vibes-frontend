@@ -1,5 +1,8 @@
 # Mobile 0.4.0 and TV 0.2.0
 
+The updated [store screenshot packet](store-screenshots/README.md) contains
+upload-ready landing and browser images for iPhone, iPad, Android, and TV.
+
 This release refreshes the native landing screens without changing room,
 remote, or settings screens.
 

@@ -6,6 +6,9 @@ Connect.
 
 ## Upload assets
 
+For mobile 0.4.0, use the refreshed landing files below and the new browser images
+in the [release screenshot packet](../../../../docs/releases/native-2026-09/store-screenshots/README.md).
+
 - App icon: [`images/app-icon-1024.png`](./images/app-icon-1024.png)
 - 6.9-inch iPhone screenshots: [`screenshots/iphone-6.9/`](./screenshots/iphone-6.9/)
 - 13-inch iPad screenshots: [`screenshots/ipad-13/`](./screenshots/ipad-13/)
