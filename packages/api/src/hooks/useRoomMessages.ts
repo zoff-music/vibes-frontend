@@ -35,6 +35,7 @@ export function useRoomMessages(
             Error | null,
             (
               | { type: 'message'; data: RoomMessage }
+              | { type: 'settings_activity'; data: RoomMessage }
               | { type: 'event_cursor'; data: EventCursor }
               | null
             ),
