@@ -9,8 +9,8 @@ import {
 export const meta: MetaFunction = () => [
   ...pageMetadata(
     '/',
-    'Zoff | Listen to Music Together | Shared Rooms',
-    'Listen together for free with YouTube and SoundCloud. Share a room, vote on songs or generate a playlist with AI. No registration needed.',
+    'Zoff | Shared Music Queue | Listen to Music Together',
+    'Create a free shared music queue with friends. Add YouTube and SoundCloud songs, vote on what plays next and listen together. No account needed.',
   ),
   {
     'script:ld+json': {
@@ -22,7 +22,7 @@ export const meta: MetaFunction = () => [
       applicationCategory: 'MultimediaApplication',
       operatingSystem: 'Web, Android, iOS, Android TV',
       description:
-        'Create free shared rooms with YouTube and SoundCloud, generate playlists with AI, vote on songs and listen together.',
+        'Create a free shared music queue with YouTube and SoundCloud, generate playlists with AI, vote on songs and listen together.',
       url: siteUrl,
       mainEntityOfPage: { '@id': `${siteUrl}/#webpage` },
       isAccessibleForFree: true,

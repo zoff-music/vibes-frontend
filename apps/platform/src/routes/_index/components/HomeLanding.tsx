@@ -53,7 +53,7 @@ export function HomeLanding({
                 <span className="block text-primary">together.</span>
               </>
             }
-            description="A free room powered by YouTube and SoundCloud. No registration, for you or your friends."
+            description="A free shared music queue for YouTube and SoundCloud. Add songs, vote and listen together."
             aside={
               <>
                 {children}
