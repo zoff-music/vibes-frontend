@@ -44,17 +44,13 @@ export function createFrameProtectionMiddleware(
 export function createBodySizeLimitMiddleware(options: BodySizeLimitOptions) {
   return (req: Request, res: Response, next: NextFunction) => {
     const rawContentLength = req.headers['content-length'];
-    if (!rawContentLength) {
-      return next();
-    }
-
     if (Array.isArray(rawContentLength)) {
       res.status(400).send('Invalid Content-Length');
       return undefined;
     }
 
-    const contentLength = Number.parseInt(rawContentLength, 10);
-    if (!Number.isFinite(contentLength) || contentLength < 0) {
+    const contentLength = Number(rawContentLength ?? 0);
+    if (!Number.isSafeInteger(contentLength) || contentLength < 0) {
       res.status(400).send('Invalid Content-Length');
       return undefined;
     }
@@ -63,6 +59,19 @@ export function createBodySizeLimitMiddleware(options: BodySizeLimitOptions) {
       res.status(413).send('Request body too large');
       return undefined;
     }
+
+    // Count the stream too: chunked bodies have no Content-Length header.
+    // Pause until the downstream consumer attaches so no body bytes are lost.
+    let receivedBytes = 0;
+    req.on('data', (chunk: Buffer | string) => {
+      receivedBytes += Buffer.byteLength(chunk);
+      if (receivedBytes <= options.maxBytes || res.writableEnded) return;
+
+      req.pause();
+      res.setHeader('Connection', 'close');
+      res.status(413).end('Request body too large', () => req.destroy());
+    });
+    req.pause();
 
     return next();
   };

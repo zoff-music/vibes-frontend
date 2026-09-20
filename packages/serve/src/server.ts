@@ -196,6 +196,8 @@ export async function startServer(config: ServerConfig) {
   const server = app.listen(config.port, () => {
     console.log(`${config.name} server listening on port ${config.port}`);
   });
+  server.requestTimeout = 30_000;
+  server.headersTimeout = 10_000;
 
   const metricsServer = !config.dev
     ? metricsApp.listen(config.metricsPort, () => {

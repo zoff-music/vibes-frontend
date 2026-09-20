@@ -7,7 +7,9 @@ catalog:
 overrides:
   body-parser: 1.20.6
   esbuild: 0.28.1
-  js-yaml: 3.15.0
+  js-yaml: 3.15.2
+  decode-uri-component: 0.5.0
+  qs: 6.16.0
   lightningcss: 1.30.1
   postcss: 8.5.26
   undici: 6.27.0
