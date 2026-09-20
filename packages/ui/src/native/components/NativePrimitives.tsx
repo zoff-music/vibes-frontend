@@ -106,6 +106,7 @@ interface NativeButtonProps extends PropsWithChildren {
   onPress: () => void;
   pressFeedback?: boolean;
   preferred?: boolean;
+  selected?: boolean;
   size?: NativeControlSize;
   tone?: NativeControlTone;
 }
@@ -121,6 +122,7 @@ export function NativeButton({
   onPress,
   pressFeedback = false,
   preferred = false,
+  selected = false,
   size = 'default',
   tone = 'primary',
 }: NativeButtonProps) {
@@ -138,6 +140,7 @@ export function NativeButton({
         accessibilityLabel: resolvedAccessibilityLabel,
       })}
       accessibilityRole="button"
+      accessibilityState={{ selected, disabled }}
       className={classNames(
         'flex-row items-center justify-center border active:opacity-70',
         pressFeedback && 'active:scale-95',
@@ -151,7 +154,12 @@ export function NativeButton({
           'border-error bg-native-surface dark:bg-native-dark-surface',
         !terminal &&
           tone === 'secondary' &&
+          !selected &&
           'border-native-border bg-native-surface dark:border-native-dark-border dark:bg-native-dark-surface',
+        !terminal &&
+          tone === 'secondary' &&
+          selected &&
+          'border-accent bg-native-surface dark:bg-native-dark-surface',
         terminal && 'border-[#55ffad] bg-[#010c08]',
         terminal && tone === 'primary' && 'bg-[#71f5ad]',
         focused && 'border-accent bg-accent',
@@ -205,6 +213,8 @@ interface NativeFieldProps {
   multiline?: boolean;
   numberOfLines?: number;
   onChangeText: (value: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   onSubmitEditing?: () => void;
   placeholder: string;
   secureTextEntry?: boolean;
