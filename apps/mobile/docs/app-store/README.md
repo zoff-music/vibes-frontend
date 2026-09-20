@@ -6,8 +6,12 @@ Connect.
 
 ## Upload assets
 
-For mobile 0.4.0, use the refreshed landing files below and the new browser images
-in the [release screenshot packet](../../../../docs/releases/native-2026-09/store-screenshots/README.md).
+Fresh mobile 0.4.0 captures covering the full flow are in the
+[release screenshot packet](../../../../docs/releases/native-2026-09/store-screenshots/README.md).
+That packet is not yet a complete upload-ready replacement: its capture notes
+identify the iOS player and tablet search captures that still need verification.
+The six-file directories below are the older compatibility packet. Do not mix
+those older files into the fresh set. They document previous builds.
 
 - App icon: [`images/app-icon-1024.png`](./images/app-icon-1024.png)
 - 6.9-inch iPhone screenshots: [`screenshots/iphone-6.9/`](./screenshots/iphone-6.9/)
