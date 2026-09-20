@@ -52,10 +52,12 @@ const AI_PROMPTS = [
 ];
 
 export function useAnimatedPlaceholder(isAIMode: boolean, enabled: boolean) {
-  const [placeholderText, setPlaceholderText] = useState('');
+  const initialWord = isAIMode ? AI_PROMPTS[0] : ANIMATED_WORDS[0];
+  const initialPlaceholder = `${initialWord}...`;
+  const [placeholderText, setPlaceholderText] = useState(initialPlaceholder);
   const [wordIndex, setWordIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [charIndex, setCharIndex] = useState(initialPlaceholder.length);
+  const [isPaused, setIsPaused] = useState(true);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
   const isTabVisible = usePageVisibility();
   const reducedMotion = useReducedMotion();
@@ -64,9 +66,7 @@ export function useAnimatedPlaceholder(isAIMode: boolean, enabled: boolean) {
     ? isPaused && !isBlinkerVisible
       ? `${placeholderText.slice(0, -1)} `
       : placeholderText
-    : isAIMode
-      ? 'Describe the music you want...'
-      : 'Enter Room Name...';
+    : initialPlaceholder;
 
   useEffect(() => {
     if (!active) {
