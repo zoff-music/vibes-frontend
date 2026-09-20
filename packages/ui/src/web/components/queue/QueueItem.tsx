@@ -147,7 +147,7 @@ const QueueItemComponent: React.FC<Props> = ({
                   >
                     <VoteIcon className="h-4 w-4 text-secondary" />
                   </motion.span>
-                  <span className="hidden min-[360px]:inline">
+                  <span className="hidden w-11 text-left min-[360px]:inline-block">
                     {isVoting ? 'Voting…' : 'Vote'}
                   </span>
                   <motion.span
