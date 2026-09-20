@@ -17,6 +17,7 @@ export const roomMessageSchema = z.compile(
       'renamed',
       'skipped',
       'skipvoted',
+      'settings',
     ]),
     text: z.string(),
     createdAt: z.number(),

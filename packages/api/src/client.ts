@@ -306,7 +306,11 @@ const endpoints = {
     post: { request: createMessageSchema, response: roomMessageSchema },
     sse: {
       $search: sseQuerySchema.optional(),
-      events: { message: roomMessageSchema, event_cursor: eventCursorSchema },
+      events: {
+        message: roomMessageSchema,
+        settings_activity: roomMessageSchema,
+        event_cursor: eventCursorSchema,
+      },
     },
   },
   '/rooms/{id}/events': {

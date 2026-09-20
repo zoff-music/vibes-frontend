@@ -76,10 +76,10 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
               <Text className={nameColors[chatNameColorIndex(message.userId)]}>
                 {message.name}
               </Text>
-              {message.kind === 'chat' ? ': ' : ' '}
+              {message.kind === 'chat' && !message.activity ? ': ' : ' '}
               <Text
                 className={classNames(
-                  message.kind !== 'chat' &&
+                  (message.kind !== 'chat' || message.activity === true) &&
                     'text-native-muted dark:text-native-dark-muted',
                 )}
               >
