@@ -6,6 +6,7 @@ import {
 import { classNames } from '@vibes/shared';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import {
+  Image,
   Pressable,
   type RefreshControlProps,
   ScrollView,
@@ -13,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import zoffLogo from '@/assets/images/splash-icon.png';
 
 import { Button, ContentColumn, Field, Screen } from '@/components/native';
 import {
@@ -83,6 +85,14 @@ export function TerminalRoomsHome({
           scrollEventThrottle={16}
         >
           <ContentColumn>
+            <View className="mb-5 flex-row items-center gap-4">
+              <Image
+                source={zoffLogo}
+                accessibilityLabel="Zoff"
+                className="size-16"
+              />
+              <Text className="font-heading text-3xl text-[#dffff0]">Zoff</Text>
+            </View>
             <NativeTerminalShell
               channel="SIGNAL DIRECTORY"
               title="HOME"

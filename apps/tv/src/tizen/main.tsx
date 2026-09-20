@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router';
+import { loader as publicRoomsLoader } from '@/tizen/routes/public-rooms/loader';
 import { action } from '@/tizen/routes/session/action';
 import { loader } from '@/tizen/routes/session/loader';
 import {
@@ -24,6 +25,7 @@ if (!rootElement) {
 }
 if (rootElement) {
   const router = createHashRouter([
+    { path: '/rooms/public', loader: publicRoomsLoader },
     {
       action,
       Component: TizenSessionRoute,

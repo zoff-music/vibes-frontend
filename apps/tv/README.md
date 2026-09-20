@@ -29,6 +29,7 @@ media streams is not a supported or policy-compliant replacement.
 - Join or create a room by name.
 - Generate a new room and playlist from the AI prompt toggle.
 - Browse up to six currently active public rooms.
+- Search all public rooms and browse twelve results per page.
 - Live room, listener, playback, generation, and queue updates over SSE.
 - Official YouTube and SoundCloud provider surfaces.
 - Cast-style current track, five-song queue, listener count, votes, and a QR
