@@ -23,7 +23,7 @@ export function RemotePlayerDemo() {
         ref={state.ref}
         tabIndex={-1}
         aria-label="Pairing a phone with the electro player"
-        className="min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+        className="min-h-144 min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:min-h-92 lg:min-h-144 xl:min-h-92"
       >
         <p className="mb-3 font-pixel text-theme-muted text-xs">
           {paired
@@ -33,7 +33,7 @@ export function RemotePlayerDemo() {
         <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
           <section
             aria-label="Controlled player"
-            className="flex min-h-48 min-w-0 flex-col rounded-2xl border border-theme bg-theme p-4"
+            className="flex min-h-52 min-w-0 flex-col rounded-2xl border border-theme bg-theme p-4"
           >
             <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
               <span className="font-pixel text-sm text-theme">

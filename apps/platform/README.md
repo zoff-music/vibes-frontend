@@ -196,7 +196,9 @@ Browse even without active listeners. The unfiltered browser has a stable sitema
 search, pagination and filter variants use `noindex, follow`. Deploy the v2
 backend endpoint before the frontend. Existing v1 clients remain supported.
 
-The room-settings section stays unframed within the shared content width. Its
+The room-settings section uses a solid themed panel within the shared content
+width and the same surfaces as the room cards. A brief accent sweep connects each
+setting change to its result without adding a competing headline or logo. Its
 three examples have distinct layouts: a listener's search result entering the
 queue, the player's skip control obeying permissions, and a finished song either
 returning to the queue or leaving it. Each example has one relevant room toggle
@@ -204,7 +206,10 @@ beside the action it changes. On phones, a compact selector and switch sit above
 one scene. A search result becomes a queue row in the same space, rather than
 leaving duplicate songs on screen. The room name and current rule sit above the
 scene, with a full-width result caption below it. The rooms guide link
-sits with the section introduction. Touch controls remain at least 44px tall. Search results,
+sits with the section introduction. Reserve matching space for the lazy-loading
+placeholder, every toggle description, scene, and result caption so automatic
+transitions never move adjacent content. Touch controls remain at least 44px tall.
+Search results,
 skip controls, song panels and queue rows reuse `@vibes/ui/web`; compact density
 preserves the normal room presentation elsewhere.
 

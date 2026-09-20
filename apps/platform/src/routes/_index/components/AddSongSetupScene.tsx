@@ -27,7 +27,7 @@ export function AddSongSetupScene({
         providerLink={false}
         density="compact"
       />
-      <div className="mt-2 min-h-22">
+      <div className="mt-2 min-h-28">
         <AnimatePresence initial={false} mode="wait">
           {added && (
             <motion.div

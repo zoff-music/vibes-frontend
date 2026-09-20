@@ -20,7 +20,7 @@ export function VotingPreview() {
         aria-label="Interactive preview of the electro queue"
         data-playing={state.playing}
         data-phase={state.phase}
-        className="w-full min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+        className="min-h-140 w-full min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:min-h-148"
       >
         <div className="mb-5 px-1">
           <span className="font-pixel text-theme-muted text-xs tracking-widest">
@@ -31,8 +31,8 @@ export function VotingPreview() {
           <motion.div
             initial={false}
             animate={{
-              width: branding ? 176 : '100%',
-              height: branding ? 176 : '100%',
+              scale: branding ? 0.6 : 1,
+              opacity: branding ? 0 : 1,
               borderRadius: branding ? 88 : 24,
             }}
             transition={{
@@ -41,7 +41,7 @@ export function VotingPreview() {
             }}
             aria-hidden={branding}
             inert={branding}
-            className="relative col-start-1 row-start-1 overflow-hidden border border-theme bg-theme-surface p-3 sm:p-6"
+            className="relative col-start-1 row-start-1 h-full w-full overflow-hidden border border-theme bg-theme-surface p-3 sm:p-6"
           >
             <motion.div
               animate={{ opacity: branding ? 0 : 1 }}
@@ -100,9 +100,16 @@ export function VotingPreview() {
           </motion.div>
         </div>
         <figcaption className="mt-4 min-h-12 text-center text-sm text-theme-muted">
-          <span aria-hidden="true" className="block">
+          <motion.span
+            key={state.announcement || caption}
+            aria-hidden="true"
+            initial={{ opacity: state.reduceMotion ? 1 : 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: state.reduceMotion ? 0 : 0.2 }}
+            className="block"
+          >
             {state.announcement || caption}
-          </span>
+          </motion.span>
         </figcaption>
         <p role="status" className="sr-only">
           {state.announcement}

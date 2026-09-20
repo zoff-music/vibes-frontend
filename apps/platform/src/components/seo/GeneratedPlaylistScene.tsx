@@ -36,7 +36,7 @@ export function GeneratedPlaylistScene({
           <p className="mb-3 font-pixel text-theme-muted text-xs">
             Your playlist prompt
           </p>
-          <div className="flex min-h-10 min-w-0 items-center gap-3">
+          <div className="flex min-h-12 min-w-0 items-center gap-3">
             <SparklesIcon
               aria-hidden="true"
               className="h-5 w-5 shrink-0 text-primary"
@@ -55,7 +55,7 @@ export function GeneratedPlaylistScene({
         </div>
         <div className="my-5 flex flex-wrap items-center justify-between gap-2 text-theme-muted text-xs">
           <span className="font-pixel">electro</span>
-          <span>
+          <span className="w-36 shrink-0 text-right">
             {typing && 'Describe your playlist'}
             {searching && 'Generating with AI'}
             {state.phase === 'arriving' && 'Adding songs…'}
@@ -69,11 +69,17 @@ export function GeneratedPlaylistScene({
           {!showPlaylist && (
             <div className="col-start-1 row-start-1 flex flex-col items-center justify-center gap-5 rounded-2xl border border-theme bg-theme-surface p-6 text-center">
               <GenerationSparkles active={playing && searching} />
-              <p className="font-pixel text-sm text-theme">
+              <motion.p
+                key={searching ? 'searching' : 'prompt'}
+                initial={{ opacity: state.reducedMotion ? 1 : 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: state.reducedMotion ? 0 : 0.2 }}
+                className="w-full font-pixel text-sm text-theme"
+              >
                 {searching
                   ? 'Finding your songs…'
                   : 'Start with a mood or a genre.'}
-              </p>
+              </motion.p>
             </div>
           )}
           {showPlaylist && (

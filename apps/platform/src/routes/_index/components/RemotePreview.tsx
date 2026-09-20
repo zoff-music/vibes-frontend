@@ -43,7 +43,7 @@ export function RemotePreview() {
           fallback={
             <div
               aria-hidden="true"
-              className="h-140 rounded-2xl border border-theme bg-theme-surface sm:h-92 lg:h-140 xl:h-92"
+              className="h-144 rounded-2xl border border-theme bg-theme-surface sm:h-92 lg:h-144 xl:h-92"
             />
           }
         >

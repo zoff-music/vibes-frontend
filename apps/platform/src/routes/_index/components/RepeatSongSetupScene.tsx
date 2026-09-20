@@ -63,7 +63,7 @@ export function RepeatSongSetupScene({
         <Button
           variant="ghost"
           size="none"
-          className="min-h-11 rounded-lg px-2 text-xs hover:bg-theme-surface"
+          className="min-h-11 w-28 shrink-0 rounded-lg px-2 text-xs hover:bg-theme-surface"
           onClick={onFinish}
           disabled={advanced}
         >

@@ -16,6 +16,7 @@ export function GeneratedPlaylistDemo() {
 
   return (
     <Showcase
+      className="min-h-144"
       label="AI PLAYLIST GENERATOR"
       description="An AI playlist starts with your idea, searches for matching songs and fills the electro queue."
     >
