@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zoff",
     "slug": "vibes-mobile",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "zoff",
