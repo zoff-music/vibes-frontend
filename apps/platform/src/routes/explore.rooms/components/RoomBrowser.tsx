@@ -1,10 +1,11 @@
-import { Button, PublicRoomTile } from '@vibes/ui/web';
-import { useEffect, useRef } from 'react';
+import { Button } from '@vibes/ui/web';
+import { useCallback, useEffect, useRef } from 'react';
 import { Link, useNavigate, useNavigation, useRevalidator } from 'react-router';
 import { SitePage } from '../../../components/layout/SitePage';
 import { type RoomBrowserLoaderData, roomBrowserUrl } from '../search';
 import { RoomBrowserFilters } from './RoomBrowserFilters';
 import { RoomBrowserPagination } from './RoomBrowserPagination';
+import { RoomBrowserResults } from './RoomBrowserResults';
 
 export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
   const navigate = useNavigate();
@@ -16,14 +17,20 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
     navigation.location?.pathname === '/explore/rooms' ||
     revalidator.state === 'loading';
 
-  const joinRoom = (roomId: string) => {
-    navigate(`/${encodeURIComponent(roomId)}`);
-  };
+  const joinRoom = useCallback(
+    (roomId: string) => {
+      navigate(`/${encodeURIComponent(roomId)}`);
+    },
+    [navigate],
+  );
 
   useEffect(() => {
     if (previousPage.current !== search.from) {
-      resultsRef.current?.focus({ preventScroll: true });
-      resultsRef.current?.scrollIntoView({ block: 'start' });
+      const results = resultsRef.current;
+      results?.focus({ preventScroll: true });
+      if (results && results.getBoundingClientRect().top < 0) {
+        results.scrollIntoView({ block: 'start', behavior: 'instant' });
+      }
     }
     previousPage.current = search.from;
   }, [search.from]);
@@ -52,7 +59,7 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
           </p>
         </div>
 
-        <RoomBrowserFilters search={search} />
+        <RoomBrowserFilters search={search} pending={pending} />
 
         <section
           ref={resultsRef}
@@ -68,13 +75,7 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
           </div>
           <div aria-busy={pending}>
             {result && result.count > 0 && (
-              <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {result.rooms.map((room) => (
-                  <li key={room.id} className="min-w-0">
-                    <PublicRoomTile room={room} onJoin={joinRoom} />
-                  </li>
-                ))}
-              </ul>
+              <RoomBrowserResults rooms={result.rooms} onJoin={joinRoom} />
             )}
 
             {result && result.count === 0 && (
@@ -122,7 +123,11 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
             )}
 
             {result && (
-              <RoomBrowserPagination result={result} search={search} />
+              <RoomBrowserPagination
+                result={result}
+                search={search}
+                pending={pending}
+              />
             )}
           </div>
         </section>

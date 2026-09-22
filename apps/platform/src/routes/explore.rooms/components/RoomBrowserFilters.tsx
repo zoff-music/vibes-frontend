@@ -5,6 +5,7 @@ import type { RoomBrowserSearch } from '../search';
 
 interface RoomBrowserFiltersProps {
   search: RoomBrowserSearch;
+  pending: boolean;
 }
 
 const roomFilters = [
@@ -12,7 +13,10 @@ const roomFilters = [
   { value: 'false', label: 'All public rooms' },
 ];
 
-export function RoomBrowserFilters({ search }: RoomBrowserFiltersProps) {
+export function RoomBrowserFilters({
+  search,
+  pending,
+}: RoomBrowserFiltersProps) {
   const [query, setQuery] = useState(search.q);
   const [live, setLive] = useState(String(search.live));
   const submit = useSubmit();
@@ -62,6 +66,7 @@ export function RoomBrowserFilters({ search }: RoomBrowserFiltersProps) {
         />
         <Button
           type="submit"
+          disabled={pending}
           variant="tertiary"
           className="min-h-12 shrink-0 px-4 text-sm"
         >

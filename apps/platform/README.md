@@ -178,13 +178,17 @@ announcing animation frames. Unavailable optional data are omitted; the
 public-room browser link stays available even when no rooms are live. Keep copy
 short and avoid repeating the same explanation in adjacent sections.
 
-`/explore/rooms` lists ten public rooms per page, with a live/all filter and
+`/explore/rooms` lists twelve public rooms per page, with a live/all filter and
 room-name search. The first request uses the server loader, defaulting to live
 rooms. Hydration reuses that result without another request. Subsequent filter,
 search and page navigation uses the route's `clientLoader` and `@vibes/api`
 directly. Components only submit forms and navigate; they do not make REST
 requests. Keep the previous results visible while loading and preserve filter
-state in the URL. Search and filter changes reset pagination.
+state in the URL. Search and filter changes reset pagination. The pager shows
+an inline loading indicator and blocks duplicate pagination while a request is
+pending. Existing room tiles are memoized so pending-state changes do not render
+the list again. Page changes only reposition results when their heading is above
+the viewport, using an immediate scroll rather than the site's smooth scrolling.
 
 Both loaders use `/api/v2/rooms/public`, ordered by listeners, songs and ID,
 all descending. The homepage requests only the first three live rooms through
