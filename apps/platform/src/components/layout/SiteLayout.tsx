@@ -1,5 +1,5 @@
 import { SkipLink } from '@vibes/ui/web';
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import { useMatches } from 'react-router';
 import { useKonamiMode } from '../konami/KonamiModeContext';
 import { SiteFooter } from '../legal/SiteFooter';
@@ -16,6 +16,26 @@ export function SiteLayout({ children }: SiteLayoutProps) {
   const hasTerminalHeader =
     terminalMode &&
     matches.some((match) => terminalHeaderRouteIds.has(match.id));
+  return (
+    <SiteLayoutContent
+      isRoomPage={isRoomPage}
+      hasTerminalHeader={hasTerminalHeader}
+    >
+      {children}
+    </SiteLayoutContent>
+  );
+}
+
+interface SiteLayoutContentProps extends SiteLayoutProps {
+  isRoomPage: boolean;
+  hasTerminalHeader: boolean;
+}
+
+const SiteLayoutContent = memo(function SiteLayoutContent({
+  children,
+  isRoomPage,
+  hasTerminalHeader,
+}: SiteLayoutContentProps) {
   if (isRoomPage) return children;
 
   return (
@@ -32,7 +52,7 @@ export function SiteLayout({ children }: SiteLayoutProps) {
       <SiteFooter />
     </div>
   );
-}
+});
 
 const roomRouteIds = new Set([
   'routes/rooms.$id/route',

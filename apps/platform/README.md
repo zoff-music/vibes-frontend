@@ -22,6 +22,24 @@ intact. Do not send room-wide play commands just because a listener joins.
 Browser-blocked autoplay keeps the click-to-play fallback. Embed autoplay is
 still a separate, default-off sharing option.
 
+### Return to a room
+
+Opening a room remembers its ID locally. Leaving through in-app navigation or
+a same-tab link to another Zoff page clears it. Closing the tab or leaving the
+site keeps it for a later homepage visit. Browser Back and same-site document
+navigation do not show the reminder. Dismissing it clears the saved ID.
+
+The compact homepage card uses fresh room and playback reads through its
+resource client loader, without joining the room or subscribing as a listener.
+It refreshes every 30 seconds while visible and on returning to the tab. Empty
+rooms omit the listener count; missing or unavailable rooms hide the card.
+The development-only `/?preview=return-to-room` fixture shows the same card
+with sample data; add `&listeners=0` to preview the empty-listener variant.
+Keep router subscriptions in thin adapters around the memoized homepage and
+layout content. Fetcher updates share router context, so polling must not
+rerender the homepage, header or footer. Reminder state stays in its own
+component; only joining intentionally triggers page navigation.
+
 ## Visual preview
 
 ### Landing page

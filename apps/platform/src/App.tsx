@@ -3,6 +3,7 @@ import { ToastViewport } from '@vibes/ui/web';
 import { MotionConfig } from 'framer-motion';
 import {
   type ComponentType,
+  memo,
   useEffect,
   useLayoutEffect,
   useState,
@@ -55,8 +56,16 @@ function DebugConsoleLoader() {
 }
 
 export function App() {
+  const rootData = useRouteLoaderData<RootLoaderData>('root') ?? null;
+  return <AppContent rootData={rootData} />;
+}
+
+interface AppContentProps {
+  rootData: RootLoaderData | null;
+}
+
+const AppContent = memo(function AppContent({ rootData }: AppContentProps) {
   const location = useLocation();
-  const rootData = useRouteLoaderData<RootLoaderData>('root');
   const konamiEnabled = rootData?.konamiEnabled ?? false;
   const syncTheme = useThemeStore((state) => state.syncTheme);
 
@@ -83,4 +92,4 @@ export function App() {
       </KonamiModeProvider>
     </MotionConfig>
   );
-}
+});

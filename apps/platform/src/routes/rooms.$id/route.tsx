@@ -34,6 +34,7 @@ import {
 } from 'react-router';
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { useRemoteControl } from '../../components/remote/RemoteControlProvider';
+import { useRememberRoom } from '../../hooks/useRememberRoom';
 import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useCastStore } from '../../stores/castStore';
 import { useThemeStore } from '../../stores/themeStore';
@@ -162,6 +163,7 @@ function DeferredModalLoading({
 
 export default function Room() {
   const loaderData = useLoaderData() as RoomLoaderData;
+  useRememberRoom(loaderData.room.id);
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
