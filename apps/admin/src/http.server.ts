@@ -70,12 +70,6 @@ export function getServerApi(
   options: ServerApiOptions = {},
 ) {
   const baseUrl = resolveServerApiBaseUrl(request);
-  console.log('[serverApi] resolved baseUrl', {
-    baseUrl,
-    requestUrl: request?.url,
-    apiUrl: process?.env?.VITE_API_URL,
-    apiUrlInternal: process?.env?.VITE_API_URL_INTERNAL,
-  });
   const fetchLifecycle = composeFetchLifecycle(
     createTracedApiFetchLifecycle(serviceName),
     options.fetchLifecycle,
