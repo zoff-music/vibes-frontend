@@ -3,7 +3,7 @@ import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import { useQueueDemo } from '../hooks/useQueueDemo';
 
 export function VotingPreview() {
-  const { state, actions } = useQueueDemo();
+  const { ref, state, actions } = useQueueDemo();
   const branding = state.phase >= 5;
   let caption = 'Vote for a song to move it up the queue.';
   if (state.phase === 1) caption = 'Voting for Song title 02…';
@@ -15,7 +15,7 @@ export function VotingPreview() {
   return (
     <MotionConfig reducedMotion="user">
       <figure
-        ref={state.ref}
+        ref={ref}
         tabIndex={-1}
         aria-label="Interactive preview of the electro queue"
         data-playing={state.playing}

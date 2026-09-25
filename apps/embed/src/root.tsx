@@ -1,4 +1,5 @@
 import { classNames, parseColorScheme } from '@vibes/shared';
+import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
 import type { ReactNode } from 'react';
 import {
   Links,
@@ -18,9 +19,13 @@ export function loader({ request }: LoaderFunctionArgs) {
   const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
   const stylesheetFilename = stylesUrl.slice(stylesUrl.lastIndexOf('/') + 1);
   const logoFilename = logoUrl.slice(logoUrl.lastIndexOf('/') + 1);
+  const fontFilename = regularFontUrl.slice(
+    regularFontUrl.lastIndexOf('/') + 1,
+  );
   return {
     debug: process.env.VITE_DEBUG === 'true',
     logoUrl: `${embedBasePath}/assets/${logoFilename}`,
+    fontUrl: `${embedBasePath}/assets/${fontFilename}`,
     stylesheetUrl: `${embedBasePath}/assets/${stylesheetFilename}`,
     colorScheme: parseColorScheme(requestUrl.searchParams.get('theme')),
   };
@@ -34,7 +39,8 @@ interface Props {
 
 export function Layout({ children }: Props) {
   useEmbedScrollContainment();
-  const { stylesheetUrl, colorScheme, debug } = useLoaderData<typeof loader>();
+  const { stylesheetUrl, fontUrl, colorScheme, debug } =
+    useLoaderData<typeof loader>();
   const className = classNames(
     'h-full overflow-hidden overscroll-none',
     colorSchemeClasses[colorScheme],
@@ -47,6 +53,13 @@ export function Layout({ children }: Props) {
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content={colorSchemeContent} />
+        <link
+          rel="preload"
+          href={fontUrl}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link
           rel="preload"
           href={stylesheetUrl}

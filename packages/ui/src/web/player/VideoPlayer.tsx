@@ -5,7 +5,15 @@ import {
   safeWrap,
   usePlaybackStore,
 } from '@vibes/shared';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import YouTube, { type YouTubeProps } from 'react-youtube';
 import { ClickToPlayOverlay } from './ClickToPlayOverlay';
 import {
@@ -91,11 +99,9 @@ const VideoPlayerComponent = ({
 
   const playerRef = useRef<YouTubePlayerRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const lastVideoIdRef = useRef<string | null>(null);
   const lastLoadedVideoIdRef = useRef<string | null>(null);
   const pendingVideoIdRef = useRef<string | null>(null);
   const pauseAfterLoadVideoIdRef = useRef<string | null>(null);
-  const initialVideoIdRef = useRef<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
@@ -113,7 +119,9 @@ const VideoPlayerComponent = ({
   const lastResetVersionRef = useRef(resetVersion);
   const desiredVolume = Math.min(MAX_VOLUME, Math.max(MIN_VOLUME, volume));
   const desiredVolumeRef = useRef(desiredVolume);
-  desiredVolumeRef.current = desiredVolume;
+  useLayoutEffect(() => {
+    desiredVolumeRef.current = desiredVolume;
+  }, [desiredVolume]);
   const isYouTubeActive =
     isVisible && currentSong?.sourceType === 'youtube' && !!currentSong;
   const shouldPlay =
@@ -124,11 +132,13 @@ const VideoPlayerComponent = ({
       : preloadSong?.sourceType === 'youtube'
         ? preloadSong.sourceId
         : null;
-  const retainedVideoIdRef = useRef<string | null>(null);
-  if (candidateVideoId) {
-    retainedVideoIdRef.current = candidateVideoId;
+  const [retainedVideoId, setRetainedVideoId] = useState(candidateVideoId);
+  if (candidateVideoId && candidateVideoId !== retainedVideoId) {
+    setRetainedVideoId(candidateVideoId);
   }
-  const videoId = candidateVideoId ?? retainedVideoIdRef.current;
+  const videoId = candidateVideoId ?? retainedVideoId;
+  const [initialVideoId, setInitialVideoId] = useState(videoId);
+  if (!initialVideoId && videoId) setInitialVideoId(videoId);
   const debugLastRef = useRef(0);
   const [hasUserStartedPlayback, setHasUserStartedPlayback] = useState(
     isPlaybackGestureUnlocked,
@@ -195,7 +205,7 @@ const VideoPlayerComponent = ({
       const muted = playerRef.current?.isMuted?.();
       const payload = {
         videoId,
-        resolvedVideoId: videoId ?? lastVideoIdRef.current,
+        resolvedVideoId: videoId,
         isPlaying,
         shouldPlay,
         isReady,
@@ -235,7 +245,6 @@ const VideoPlayerComponent = ({
 
   useEffect(() => {
     if (!currentSong && !isPlaying) {
-      lastVideoIdRef.current = null;
       lastLoadedVideoIdRef.current = null;
       pendingVideoIdRef.current = null;
     }
@@ -953,15 +962,8 @@ const VideoPlayerComponent = ({
     [currentSong, isCastReceiver, isVisible, onPlaybackError],
   );
 
-  if (videoId) {
-    lastVideoIdRef.current = videoId;
-  }
-
-  const resolvedVideoId = videoId ?? lastVideoIdRef.current;
-  if (!initialVideoIdRef.current && resolvedVideoId) {
-    initialVideoIdRef.current = resolvedVideoId;
-  }
-  const youtubeVideoIdProp = initialVideoIdRef.current ?? resolvedVideoId;
+  const resolvedVideoId = videoId;
+  const youtubeVideoIdProp = initialVideoId ?? resolvedVideoId;
 
   useEffect(() => {
     if (!isCastReceiver || !fill || !resolvedVideoId) {

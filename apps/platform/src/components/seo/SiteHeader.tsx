@@ -1,6 +1,7 @@
 import { Button, SettingsIcon, Tooltip } from '@vibes/ui/web';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router';
+import headerLogo from '../../assets/logo-header.webp';
 import { ProfileSettingsModal } from '../profile/ProfileSettingsModal';
 
 export function SiteHeader() {
@@ -15,10 +16,10 @@ export function SiteHeader() {
           className="group flex shrink-0 cursor-pointer items-center gap-3 rounded-xl transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
         >
           <img
-            src="/logo.png"
+            src={headerLogo}
             alt=""
-            width={1024}
-            height={1024}
+            width={256}
+            height={256}
             className="h-12 w-12 rounded-full transition-transform duration-500 motion-safe:group-hover:rotate-12 sm:h-16 sm:w-16"
           />
           <span className="hidden sm:block">

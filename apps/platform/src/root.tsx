@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
-import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular.woff2?url';
+import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
 import { NotFoundView } from '@vibes/ui/web';
 import { lazy, type ReactNode, Suspense, useState } from 'react';
 import type { MetaFunction, ShouldRevalidateFunctionArgs } from 'react-router';

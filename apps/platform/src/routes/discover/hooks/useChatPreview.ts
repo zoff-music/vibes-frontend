@@ -111,15 +111,17 @@ export function useChatPreview() {
 
   return {
     ref,
-    playing,
-    reducedMotion,
-    branding: !reducedMotion && phase > messages.length,
-    chatEnabled: phase < messages.length,
-    setChatEnabled: (enabled: boolean) =>
-      setPhase(enabled ? 0 : messages.length),
-    phase,
-    messages: reducedMotion
-      ? messages.slice(-5)
-      : messages.slice(Math.max(0, count - 5), count),
+    state: {
+      playing,
+      reducedMotion,
+      branding: !reducedMotion && phase > messages.length,
+      chatEnabled: phase < messages.length,
+      setChatEnabled: (enabled: boolean) =>
+        setPhase(enabled ? 0 : messages.length),
+      phase,
+      messages: reducedMotion
+        ? messages.slice(-5)
+        : messages.slice(Math.max(0, count - 5), count),
+    },
   };
 }

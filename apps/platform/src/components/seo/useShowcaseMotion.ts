@@ -9,8 +9,8 @@ export function useShowcaseMotion() {
   const reduceMotion = useReducedMotion();
 
   return {
+    ref,
     state: {
-      ref,
       playing: inView && visible && !reduceMotion,
     },
   };

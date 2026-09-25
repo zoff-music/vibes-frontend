@@ -15,7 +15,7 @@ export function Showcase({
   description,
   className,
 }: ShowcaseProps) {
-  const { state } = useShowcaseMotion();
+  const { ref, state } = useShowcaseMotion();
   let content: ReactNode;
 
   if (typeof children === 'function') {
@@ -26,7 +26,7 @@ export function Showcase({
 
   return (
     <figure
-      ref={state.ref}
+      ref={ref}
       data-playing={state.playing}
       className={classNames(
         'group/showcase relative isolate min-w-0',

@@ -133,9 +133,9 @@ export function useRemotePreview() {
   }
 
   return {
+    ref,
+    playButtonRef,
     state: {
-      ref,
-      playButtonRef,
       phase,
       announcement,
       reducedMotion,

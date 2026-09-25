@@ -4,7 +4,14 @@ import {
   safeWrap,
   usePlaybackStore,
 } from '@vibes/shared';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ClickToPlayOverlay } from './ClickToPlayOverlay';
 import {
   isPlaybackGestureUnlocked,
@@ -96,19 +103,28 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
   const candidateProviderSong =
     currentSong?.sourceType === 'soundcloud' ? currentSong : preloadSong;
-  const retainedProviderSongRef = useRef<Song | null>(null);
-  if (candidateProviderSong?.sourceType === 'soundcloud') {
-    retainedProviderSongRef.current = candidateProviderSong;
+  const [retainedProviderSong, setRetainedProviderSong] = useState(
+    candidateProviderSong,
+  );
+  if (
+    candidateProviderSong?.sourceType === 'soundcloud' &&
+    candidateProviderSong !== retainedProviderSong
+  ) {
+    setRetainedProviderSong(candidateProviderSong);
   }
-  const providerSong = candidateProviderSong ?? retainedProviderSongRef.current;
+  const providerSong = candidateProviderSong ?? retainedProviderSong;
   const isActive =
     isVisible && currentSong?.sourceType === 'soundcloud' && !!currentSong;
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<SoundCloudWidget | null>(null);
-  const initialSourceIdRef = useRef<string | null>(null);
-  const loadedSourceIdRef = useRef<string | null>(null);
+  const [initialSourceId, setInitialSourceId] = useState(
+    providerSong?.sourceId ?? null,
+  );
+  if (!initialSourceId && providerSong)
+    setInitialSourceId(providerSong.sourceId);
+  const loadedSourceIdRef = useRef(initialSourceId);
   const loadingSourceIdRef = useRef<string | null>(null);
   const isActiveRef = useRef(isActive);
   const providerSongRef = useRef(providerSong);
@@ -126,7 +142,6 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const onLocalAlignmentChangeRef = useRef(onLocalAlignmentChange);
   const desiredVolume = Math.min(MAX_VOLUME, Math.max(MIN_VOLUME, volume));
   const desiredVolumeRef = useRef(desiredVolume);
-  desiredVolumeRef.current = desiredVolume;
   const [isReady, setIsReady] = useState(false);
   const [isPlaybackUnlocked, setIsPlaybackUnlocked] = useState(
     isPlaybackGestureUnlocked,
@@ -135,15 +150,25 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const [isWidgetMuted, setIsWidgetMuted] = useState(true);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
 
-  isActiveRef.current = isActive;
-  providerSongRef.current = providerSong;
-  showInitialPlaybackOverlayRef.current = showInitialPlaybackOverlay;
-  allowUnmutedAutoplayRef.current = allowUnmutedAutoplay;
-  needsUserGestureRef.current = needsUserGesture;
-  if (!initialSourceIdRef.current && providerSong) {
-    initialSourceIdRef.current = providerSong.sourceId;
-    loadedSourceIdRef.current = providerSong.sourceId;
-  }
+  useLayoutEffect(() => {
+    desiredVolumeRef.current = desiredVolume;
+    isActiveRef.current = isActive;
+    providerSongRef.current = providerSong;
+    showInitialPlaybackOverlayRef.current = showInitialPlaybackOverlay;
+    allowUnmutedAutoplayRef.current = allowUnmutedAutoplay;
+    needsUserGestureRef.current = needsUserGesture;
+    if (!loadedSourceIdRef.current && initialSourceId) {
+      loadedSourceIdRef.current = initialSourceId;
+    }
+  }, [
+    desiredVolume,
+    isActive,
+    providerSong,
+    showInitialPlaybackOverlay,
+    allowUnmutedAutoplay,
+    needsUserGesture,
+    initialSourceId,
+  ]);
 
   const shouldWidgetPlay = useCallback(() => {
     const playbackState = usePlaybackStore.getState();
@@ -440,9 +465,11 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         setIsWidgetPlaying(!isPaused);
         const playbackStore = usePlaybackStore.getState();
         const authoritativePlayback = playbackStore.authoritativePlayback;
+        const sourceId = providerSong?.sourceId;
+        const authoritativeSourceId =
+          authoritativePlayback.currentSong?.sourceId;
         const aligned =
-          providerSong?.sourceId ===
-            authoritativePlayback.currentSong?.sourceId &&
+          sourceId === authoritativeSourceId &&
           !isPaused === authoritativePlayback.isPlaying &&
           Math.abs(positionMs - playbackStore.getAuthoritativePositionMs()) <=
             ALIGNED_POSITION_TOLERANCE_MS;
@@ -492,7 +519,6 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   }, [isActive, onNeedsUserGestureChange, showClickToPlay]);
 
   if (providerSong?.sourceType !== 'soundcloud') return null;
-  const initialSourceId = initialSourceIdRef.current;
   if (!initialSourceId) return null;
 
   const containerClass = fill

@@ -73,10 +73,16 @@ The receiver communicates with sender applications (web/mobile) using standard G
 ## 🏗 Architecture
 
 ### Build Pipeline
-1. **CSS Processing**: Tailwind CSS v3 compilation (downgraded from v4 for better legacy browser support)
-2. **Legacy Transpilation**: Uses `@vitejs/plugin-legacy` to generate `nomodule` scripts for older Chromecast devices
-3. **Client Bundle**: Vite builds React app with environment variable injection
+1. **CSS Processing**: Tailwind CSS with cascade layers flattened by PostCSS and Vite's `chrome80` CSS target
+2. **Legacy Transpilation**: Uses `@vitejs/plugin-legacy` with `chrome >= 80`, legacy chunks, and runtime polyfills
+3. **Client Bundle**: React Compiler memoizes compatible app/shared DOM components before legacy transpilation. Safe multi-pass Terser minification runs without changing browser targets.
 4. **Asset Copying**: Public files copied to distribution directory
+5. **Compression**: Build-time Brotli quality 11 and gzip level 9 sidecars are served by `@vibes/serve`. Older clients can negotiate gzip or uncompressed assets.
+
+The Latin font subset is preloaded; remaining supported glyphs load through
+CSS unicode ranges. Native fonts are not changed. Keep `cssTarget: 'chrome80'`,
+the cascade-layer transform, and the legacy plugin when updating build tooling.
+Verify both legacy output and modern output, not only the modern browser preview.
 
 ### Environment Configuration
 The build system automatically handles environment variables:
@@ -104,7 +110,7 @@ This app is built with:
 - **React 19**: Modern component architecture with SSR streaming
 - **pnpm**: Workspace package manager
 - **Tailwind CSS**: Theme-driven styling with legacy browser support
-- **Legacy Transpilers**: Ensures compatibility with all Chromecast generations
+- **Legacy Transpilers**: Retains the configured Chrome 80 compatibility target
 - **@vibes/shared**: Shared hooks, stores, and utilities
 - **@vibes/models**: Type-safe API schemas and validation
 

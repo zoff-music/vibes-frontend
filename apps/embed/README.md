@@ -73,3 +73,11 @@ their surface and geometry when voting is disabled. Keep the official provider
 player's own canvas and controls unchanged.
 
 Before publishing, run `pnpm lint`, `pnpm typecheck`, and the embed build.
+
+## Loading and compilation
+
+React Compiler processes app components and shared DOM controls, retaining
+existing memoization and reporting unsupported patterns during builds. Font
+preload URLs honor `EMBED_BASE_PATH` in both HTML and early response hints.
+Vite produces safely minified JavaScript plus Brotli/gzip sidecars; the shared
+server negotiates these while preserving MIME types and immutable caching.

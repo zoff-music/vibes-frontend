@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { precompressAssets } from '@vibes/serve/precompress';
+import { reactCompiler } from '@vibes/serve/react-compiler';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ command, mode }) => {
@@ -11,7 +13,12 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: command === 'build' ? '/remotes/' : '/',
-    plugins: [tailwindcss(), reactRouter()],
+    plugins: [
+      tailwindcss(),
+      reactRouter(),
+      reactCompiler(),
+      precompressAssets(),
+    ],
     root: '.',
     server: {
       port: 3007,

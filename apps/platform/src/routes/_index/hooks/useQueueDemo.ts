@@ -80,8 +80,8 @@ export function useQueueDemo() {
   }
 
   return {
+    ref,
     state: {
-      ref,
       playing,
       reduceMotion,
       phase,

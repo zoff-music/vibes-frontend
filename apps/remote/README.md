@@ -25,3 +25,11 @@ pnpm --filter @vibes/remote lint
 pnpm --filter @vibes/remote typecheck
 pnpm --filter @vibes/remote build
 ```
+
+## Loading and compilation
+
+React Compiler processes app components and shared DOM controls. The Latin font
+is preloaded in HTML and early response hints, with other supported glyphs
+loaded on demand. Safe multi-pass minification and build-time Brotli/gzip
+compression reduce transfers without changing the browser target. The shared
+server retains content types, encoding negotiation, and immutable asset caching.

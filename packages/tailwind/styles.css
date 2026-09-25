@@ -1,26 +1,10 @@
 @import "tailwindcss" source(none);
 @import "./theme.css";
+@import "./fonts.css";
 
 @config "./config.js";
 @source "../ui/src";
 @source not "../ui/src/konami";
-
-@font-face {
-  font-family: "MSW98UI";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../ui/src/shared/assets/fonts/MSW98UI-Regular.woff2")
-    format("woff2");
-}
-
-@font-face {
-  font-family: "MSW98UI";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../ui/src/shared/assets/fonts/MSW98UI-Bold.woff2") format("woff2");
-}
 
 @layer base {
   :root,

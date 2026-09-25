@@ -28,7 +28,7 @@ const pads: { id: Pad; rest: string; lit: string }[] = [
 ];
 
 export function BeatGame() {
-  const { state, actions } = useBeatGame();
+  const { ref, state, actions } = useBeatGame();
   const showing = state.phase === 'showing';
   const playing = state.phase === 'playing';
   const cleared = state.phase === 'cleared';
@@ -89,7 +89,7 @@ export function BeatGame() {
 
   return (
     <fieldset
-      ref={state.ref}
+      ref={ref}
       aria-labelledby="beat-game-title"
       onKeyDown={handleKeyDown}
       className="mx-auto w-full max-w-sm rounded-3xl border border-theme bg-theme-surface p-5 shadow-panel sm:p-6"

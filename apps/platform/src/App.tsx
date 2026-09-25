@@ -20,6 +20,9 @@ import { updateNavigationHistory } from './utils/navigationHistory';
 
 type DebugConsoleComponent = ComponentType;
 
+const importDebugConsole = () =>
+  import('@vibes/ui/web/components/DebugConsole');
+
 function DebugConsoleLoader() {
   const debugEnabled = isBrowserDebugEnabled();
   const [DebugConsole, setDebugConsole] =
@@ -31,9 +34,7 @@ function DebugConsoleLoader() {
     let isMounted = true;
 
     const loadDebugConsole = async () => {
-      const [loadErr, module] = await safeWrapAsync(
-        import('@vibes/ui/web/components/DebugConsole'),
-      );
+      const [loadErr, module] = await safeWrapAsync(importDebugConsole());
       if (!isMounted || loadErr || !module?.DebugConsole) {
         if (loadErr) {
           console.error('[DebugConsole] Failed to load', loadErr);

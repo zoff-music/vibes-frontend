@@ -5,12 +5,12 @@ import { queueDemoSongs } from '../../../components/seo/previewSongs';
 import { useChatPreview } from '../hooks/useChatPreview';
 
 export function ChatPreview() {
-  const state = useChatPreview();
+  const { ref, state } = useChatPreview();
 
   return (
     <MotionConfig reducedMotion="user">
       <figure
-        ref={state.ref}
+        ref={ref}
         data-phase={state.phase}
         data-playing={state.playing}
         aria-label="A preview of room chat and activity"

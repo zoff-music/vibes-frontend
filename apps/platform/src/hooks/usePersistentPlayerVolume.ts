@@ -1,5 +1,5 @@
 import { safeWrap } from '@vibes/shared';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const DEFAULT_VOLUME = 100;
 const STORAGE_KEY = 'vibes-player-volume';
@@ -41,8 +41,6 @@ function readLastAudibleVolume(): number {
 
 export function usePersistentPlayerVolume(): PersistentPlayerVolume {
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
-  const volumeRef = useRef(volume);
-  volumeRef.current = volume;
 
   useEffect(() => {
     const storedVolume = readStoredVolume();
@@ -75,12 +73,12 @@ export function usePersistentPlayerVolume(): PersistentPlayerVolume {
   }, []);
 
   const toggleMuted = useCallback(() => {
-    if (volumeRef.current === 0) {
+    if (volume === 0) {
       updateVolume(readLastAudibleVolume());
       return;
     }
     updateVolume(0);
-  }, [updateVolume]);
+  }, [updateVolume, volume]);
 
   return { volume, setVolume: updateVolume, toggleMuted };
 }
