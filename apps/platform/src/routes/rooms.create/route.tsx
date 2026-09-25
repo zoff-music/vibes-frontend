@@ -106,9 +106,11 @@ const CreateRoom: React.FC = () => {
   const availabilityTimerRef = React.useRef<number | null>(null);
   const pendingCreationNameRef = React.useRef('');
   const reservationTokenRef = React.useRef('');
-  reservationTokenRef.current = reservation?.token ?? '';
   const availabilityFetcherSubmitRef = React.useRef(availabilityFetcher.submit);
-  availabilityFetcherSubmitRef.current = availabilityFetcher.submit;
+  React.useLayoutEffect(() => {
+    reservationTokenRef.current = reservation?.token ?? '';
+    availabilityFetcherSubmitRef.current = availabilityFetcher.submit;
+  }, [reservation?.token, availabilityFetcher.submit]);
 
   const checkRoomNameAvailability = React.useCallback((roomName: string) => {
     setNameAvailability('checking');

@@ -1,6 +1,8 @@
 import path from 'node:path';
 import postcssCascadeLayers from '@csstools/postcss-cascade-layers';
 import tailwindcss from '@tailwindcss/vite';
+import { precompressAssets } from '@vibes/serve/precompress';
+import { reactCompiler } from '@vibes/serve/react-compiler';
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import type { PluginOption } from 'vite';
@@ -9,10 +11,12 @@ import { defineConfig, loadEnv } from 'vite';
 const plugins: PluginOption[] = [
   tailwindcss(),
   react(),
+  reactCompiler(),
   legacy({
     targets: ['chrome >= 80'],
     additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
   }),
+  precompressAssets(),
 ];
 
 const hmrHost = process.env.CAST_HMR_HOST;

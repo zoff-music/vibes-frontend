@@ -37,7 +37,8 @@ export function useBeatGame() {
   }
 
   return {
-    state: { ...game, ref, reducedMotion, active },
+    ref,
+    state: { ...game, reducedMotion, active },
     actions: {
       start,
       press: (pad: Pad) => dispatch({ type: 'press', pad }),

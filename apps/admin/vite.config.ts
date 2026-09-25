@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { precompressAssets } from '@vibes/serve/precompress';
 import { defineConfig } from 'vite';
 
 export default defineConfig(({ command }) => {
@@ -10,7 +11,7 @@ export default defineConfig(({ command }) => {
 
   return {
     base: isBuild ? '/admin/' : '/',
-    plugins: [tailwindcss(), reactRouter()],
+    plugins: [tailwindcss(), reactRouter(), precompressAssets()],
     root: '.',
     publicDir: 'public',
     server: {

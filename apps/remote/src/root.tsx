@@ -1,3 +1,4 @@
+import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
 import type { ReactNode } from 'react';
 import type {
   LoaderFunctionArgs,
@@ -45,6 +46,13 @@ export function Layout({ children }: { children: ReactNode }) {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+          rel="preload"
+          href={regularFontUrl}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link rel="stylesheet" href={stylesUrl} />
         <title>Zoff Remote</title>
         <Meta />

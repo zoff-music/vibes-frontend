@@ -15,6 +15,7 @@ import {
   createMetricsMiddleware,
   createTracingMiddleware,
 } from './middleware.ts';
+import { precompressedAssets } from './precompressed.ts';
 import { initTracing } from './tracing.ts';
 
 export type ServerRequest = Request;
@@ -104,6 +105,11 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     return;
   }
 
+  app.use(
+    config.assets.path,
+    await precompressedAssets(config.assets.staticDir),
+  );
+
   if (config.mode.type === 'ssr') {
     app.use(
       config.assets.path,
@@ -116,9 +122,30 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
 
     const { createRequestHandler } = await import('@react-router/express');
     const { loadBuild } = config.mode;
+    const build = (await loadBuild()) as ServerBuild;
+    const entry = build.entry.module as ServerBuild['entry']['module'] & {
+      documentPreloads?: string[];
+    };
+    const preloads = entry.documentPreloads;
+
+    if (preloads?.length) {
+      app.use((req, res, next) => {
+        // Only document navigation needs fonts, not data requests or assets.
+        if (
+          req.method === 'GET' &&
+          req.get('Accept')?.includes('text/html') &&
+          !req.path.includes('.')
+        ) {
+          res.writeEarlyHints({ link: preloads });
+          res.append('Link', preloads);
+        }
+        next();
+      });
+    }
+
     app.use(
       createRequestHandler({
-        build: async () => (await loadBuild()) as ServerBuild,
+        build,
       }),
     );
     return;

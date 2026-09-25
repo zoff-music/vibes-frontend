@@ -392,3 +392,61 @@ PORT=3000
 - **Optimized Bundles**: Vite code splitting and tree shaking
 - **Hot Module Replacement**: Sub-second development feedback
 - **Zustand Optimization**: Selective subscriptions prevent unnecessary re-renders
+
+### Initial document and fonts
+
+The production SSR entry exports `documentPreloads` for the shared server to
+send before loaders finish using `103 Early Hints`. The final response also
+includes a `Link` header, and the document retains its font preload for browsers
+or proxies that do not support informational responses. This uses preload, not
+the retired HTTP/2 server-push mechanism. Only HTML GET requests receive hints.
+
+The regular Latin font is preloaded. CSS unicode ranges load the remaining
+characters and bold weight only when needed, preserving the original font's
+character coverage. Native font assets are unchanged. To regenerate the web
+subsets after updating the source WOFF2 fonts:
+
+```sh
+python3 -m venv /tmp/zoff-font-tools
+/tmp/zoff-font-tools/bin/pip install 'fonttools[woff]'
+/tmp/zoff-font-tools/bin/python scripts/subset-web-fonts.py
+pnpm exec biome format --write packages/tailwind/fonts.css
+```
+
+Provider marks are external, content-hashed assets rather than repeated data
+URLs in SSR HTML. The header uses a 256px WebP derived from `public/logo.png`;
+the original remains available for larger uses. Regenerate it with:
+
+```sh
+cwebp -q 85 -resize 256 256 apps/platform/public/logo.png -o apps/platform/src/assets/logo-header.webp
+```
+
+Measure production builds with both Brotli and gzip, not Vite's dev server.
+The shared server negotiates compression and serves hashed assets with an
+immutable one-year cache lifetime. A compressed HTML body below 14 kB is a
+useful budget, not a guarantee of a single network round trip or a reason to
+split every JavaScript chunk into tiny files. Live room data can change the
+document size. Check cold-cache mobile rendering and font requests as well as
+compressed byte counts when changing this path.
+
+Web Vite builds use safe three-pass Terser minification and generate Brotli
+quality 11 and gzip level 9 sidecars for compressible assets above 1 kB.
+Already-compressed images and WOFF2 files are not recompressed. This expensive
+work happens during the build, not on each request. SSR JavaScript is not
+minified, and browser targets remain unchanged, including Cast's legacy target.
+
+`@vibes/serve` negotiates the prebuilt encodings, honoring client quality values
+and preferring Brotli for ties. Responses preserve the original MIME type,
+`Vary: Accept-Encoding`, conditional requests, and immutable caching. Assets
+without sidecars retain the normal static-server path. Docker copies the full
+build output, including sidecars; no extra runtime compression tool is needed.
+
+React Compiler targets React 19 for Platform, Remote, Embed, Cast, and the shared
+DOM UI they import, on both client and SSR builds where applicable. Third-party
+packages, native apps, and Admin are outside this compiler rollout. Existing manual
+memoization is retained. The compiler reports skipped optimizations in the
+build log and leaves unsupported functions unchanged; do not suppress those
+diagnostics or force compilation of incompatible code. Verify hydration,
+settings, room navigation, queue/chat updates, and player behavior when changing
+compiler versions. Memoization can increase download size, so measure both
+transfer size and interaction performance rather than treating it as a minifier.

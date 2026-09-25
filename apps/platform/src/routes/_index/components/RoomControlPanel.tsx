@@ -8,7 +8,7 @@ import { RoomSetupScene } from './RoomSetupScene';
 import { RoomSetupSettings } from './RoomSetupSettings';
 
 export function RoomControlPanel() {
-  const { state, actions } = useRoomSetup();
+  const { ref, state, actions } = useRoomSetup();
   const layoutId = useId();
   let rule = state.settings.onlyAdminAddSongs
     ? 'Only admins add.'
@@ -77,7 +77,7 @@ export function RoomControlPanel() {
           </div>
         </div>
         <fieldset
-          ref={state.ref}
+          ref={ref}
           tabIndex={-1}
           className="relative min-w-0 overflow-hidden rounded-2xl border border-theme bg-theme-surface p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
         >

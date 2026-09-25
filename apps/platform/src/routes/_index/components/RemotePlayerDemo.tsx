@@ -13,14 +13,14 @@ import {
 } from './RemotePairingPreview';
 
 export function RemotePlayerDemo() {
-  const { state, actions } = useRemotePreview();
+  const { ref, playButtonRef, state, actions } = useRemotePreview();
   const paired = state.phase === 'paired';
   const transition = { duration: state.reducedMotion ? 0 : 0.2 };
 
   return (
     <MotionConfig reducedMotion="user">
       <figure
-        ref={state.ref}
+        ref={ref}
         tabIndex={-1}
         aria-label="Pairing a phone with the electro player"
         className="min-h-144 min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:min-h-92 lg:min-h-144 xl:min-h-92"
@@ -115,7 +115,7 @@ export function RemotePlayerDemo() {
                     playing={state.playing}
                     durationMs={state.durationMs}
                     position={state.position}
-                    playButtonRef={state.playButtonRef}
+                    playButtonRef={playButtonRef}
                     onTogglePlayback={actions.togglePlayback}
                     onSkip={actions.skip}
                     onSeek={actions.seek}

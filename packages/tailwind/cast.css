@@ -1,26 +1,10 @@
 @import "tailwindcss";
 @import "./theme.css";
+@import "./fonts.css";
 
 @config "./cast.config.js";
 @source "../";
 @source inline("hidden inline sm:hidden sm:inline md:hidden md:inline lg:hidden lg:inline xl:hidden xl:inline space-y-3");
-
-@font-face {
-  font-family: "MSW98UI";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../ui/src/shared/assets/fonts/MSW98UI-Regular.woff2")
-    format("woff2");
-}
-
-@font-face {
-  font-family: "MSW98UI";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../ui/src/shared/assets/fonts/MSW98UI-Bold.woff2") format("woff2");
-}
 
 @layer base {
   :root {

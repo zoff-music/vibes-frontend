@@ -1,9 +1,9 @@
 import { classNames, type SourceType } from '@vibes/shared';
 import { getProviderDisplayName } from '../../shared';
-import soundCloudDark from '../assets/providers/soundcloud-dark.png';
-import soundCloudLight from '../assets/providers/soundcloud-light.png';
-import youTubeDark from '../assets/providers/youtube-dark.svg';
-import youTubeLight from '../assets/providers/youtube-light.svg';
+import soundCloudDark from '../assets/providers/soundcloud-dark.png?no-inline';
+import soundCloudLight from '../assets/providers/soundcloud-light.png?no-inline';
+import youTubeDark from '../assets/providers/youtube-dark.svg?no-inline';
+import youTubeLight from '../assets/providers/youtube-light.svg?no-inline';
 
 interface ProviderMarkProps {
   className?: string;

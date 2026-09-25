@@ -13,7 +13,8 @@
     "./konami/styles.css": "./src/konami/boot.css",
     "./native": "./src/native/index.ts",
     "./shared": "./src/shared/index.ts",
-    "./shared/fonts/MSW98UI-Regular.woff2": "./src/shared/assets/fonts/MSW98UI-Regular.woff2"
+    "./shared/fonts/MSW98UI-Regular.woff2": "./src/shared/assets/fonts/MSW98UI-Regular.woff2",
+    "./shared/fonts/MSW98UI-Regular-latin.woff2": "./src/shared/assets/fonts/MSW98UI-Regular-latin.woff2"
   },
   "sideEffects": false,
   "license": "MIT",

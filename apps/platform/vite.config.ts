@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { precompressAssets } from '@vibes/serve/precompress';
+import { reactCompiler } from '@vibes/serve/react-compiler';
 import { defineConfig, loadEnv } from 'vite';
 
 // https://vitejs.dev/config/
@@ -16,7 +18,12 @@ export default defineConfig(({ command, mode }) => {
   const proxiesRemoteApi = apiProxyTarget.startsWith('https://');
 
   return {
-    plugins: [tailwindcss(), reactRouter()],
+    plugins: [
+      tailwindcss(),
+      reactRouter(),
+      reactCompiler(),
+      precompressAssets(),
+    ],
     root: '.',
     publicDir: 'public',
     server: {

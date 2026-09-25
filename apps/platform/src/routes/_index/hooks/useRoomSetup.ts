@@ -90,8 +90,8 @@ export function useRoomSetup() {
   }
 
   return {
+    ref,
     state: {
-      ref,
       settings,
       setupId,
       revision,

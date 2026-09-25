@@ -5,7 +5,9 @@
   "type": "module",
   "main": "src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./precompress": "./src/precompress.ts",
+    "./react-compiler": "./src/reactCompiler.ts"
   },
   "scripts": {
     "lint": "biome check src",
@@ -20,7 +22,8 @@
     "@prometheus-io/client": "0.16.1",
     "@vibes/shared": "workspace:*",
     "compression": "1.8.1",
-    "express": "5.2.1"
+    "express": "5.2.1",
+    "negotiator": "^1.0.0"
   },
   "peerDependencies": {
     "@react-router/express": "*",
@@ -36,12 +39,17 @@
     }
   },
   "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@babel/preset-typescript": "^7.29.7",
     "@react-router/express": "8.3.1",
     "@types/compression": "1.8.1",
     "@types/express": "5.0.6",
+    "@types/negotiator": "^0.6.5",
     "@types/node": "26.4.0",
+    "babel-plugin-react-compiler": "1.0.0",
     "react-router": "8.3.1",
     "typescript": "7.0.2",
-    "vite": "8.2.2"
+    "vite": "8.2.2",
+    "vite-plugin-babel": "^1.7.3"
   }
 }

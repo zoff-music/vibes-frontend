@@ -31,6 +31,10 @@ import { useCastStore } from '../../../stores/castStore';
 import type { RoomActionData } from '../action';
 import { UserCount } from './UserCount';
 
+const importSoundCloudPlayer = () =>
+  import('@vibes/ui/web/player/SoundCloudPlayer');
+const importVideoPlayer = () => import('@vibes/ui/web/player/VideoPlayer');
+
 const LazyTerminalPlayerControls = lazy(async () => {
   const module = await import('./TerminalPlayerControls');
   return { default: module.TerminalPlayerControls };
@@ -194,17 +198,18 @@ export const RoomPlayer = React.memo(
     const debugMountRef = useRef(false);
 
     /* 3. Handlers */
+    const roomMode = displayRoom?.mode;
     const performPlaybackAction = useCallback(
       (action: 'pause' | 'play') => {
-        if (!displayRoom?.mode) return;
-        setLocalPlayingState(action === 'play', displayRoom.mode);
-        if (displayRoom.mode === 'server') return;
+        if (!roomMode) return;
+        setLocalPlayingState(action === 'play', roomMode);
+        if (roomMode === 'server') return;
         playbackFetcher.submit(
           { action, intent: 'playback' },
           { encType: 'application/json', method: 'post' },
         );
       },
-      [displayRoom?.mode, playbackFetcher, setLocalPlayingState],
+      [roomMode, playbackFetcher, setLocalPlayingState],
     );
 
     const play = useCallback(() => {
@@ -264,24 +269,24 @@ export const RoomPlayer = React.memo(
     ]);
 
     const handleLocalPause = useCallback(() => {
-      if (displayRoom?.mode === 'host') {
+      if (roomMode === 'host') {
         pause();
         return;
       }
-      if (displayRoom?.mode === 'server') {
-        setLocalPlayingState(false, displayRoom.mode);
+      if (roomMode === 'server') {
+        setLocalPlayingState(false, roomMode);
       }
-    }, [displayRoom?.mode, pause, setLocalPlayingState]);
+    }, [roomMode, pause, setLocalPlayingState]);
 
     const handleLocalPlay = useCallback(() => {
-      if (displayRoom?.mode === 'host') {
+      if (roomMode === 'host') {
         play();
         return;
       }
-      if (displayRoom?.mode === 'server') {
-        setLocalPlayingState(true, displayRoom.mode);
+      if (roomMode === 'server') {
+        setLocalPlayingState(true, roomMode);
       }
-    }, [displayRoom?.mode, play, setLocalPlayingState]);
+    }, [roomMode, play, setLocalPlayingState]);
 
     const seek = useCallback(
       (positionMs: number) => {
@@ -399,9 +404,7 @@ export const RoomPlayer = React.memo(
 
       let isMounted = true;
       const loadSoundCloudPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(
-          import('@vibes/ui/web/player/SoundCloudPlayer'),
-        );
+        const [loadErr, module] = await safeWrapAsync(importSoundCloudPlayer());
         const resolvedComponent = module?.SoundCloudPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
           if (loadErr) {
@@ -436,9 +439,7 @@ export const RoomPlayer = React.memo(
 
       let isMounted = true;
       const loadVideoPlayer = async () => {
-        const [loadErr, module] = await safeWrapAsync(
-          import('@vibes/ui/web/player/VideoPlayer'),
-        );
+        const [loadErr, module] = await safeWrapAsync(importVideoPlayer());
         const resolvedComponent = module?.VideoPlayer;
         if (!isMounted || loadErr || !resolvedComponent) {
           if (loadErr) {
