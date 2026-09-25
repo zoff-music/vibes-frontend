@@ -133,7 +133,7 @@ const QueueItemComponent: React.FC<Props> = ({
                   disabled={isVoting}
                   variant="tertiary"
                   size="none"
-                  className="min-h-9 gap-1.5 rounded-xl px-2.5 font-pixel text-2xs"
+                  className="h-9 shrink-0 gap-1.5 whitespace-nowrap rounded-lg px-2 font-pixel text-2xs leading-none sm:h-8"
                   aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
                   aria-busy={isVoting}
                 >
@@ -147,14 +147,12 @@ const QueueItemComponent: React.FC<Props> = ({
                   >
                     <VoteIcon className="h-4 w-4 text-secondary" />
                   </motion.span>
-                  <span className="hidden w-11 text-left min-[360px]:inline-block">
-                    {isVoting ? 'Voting…' : 'Vote'}
-                  </span>
+                  <span className="hidden sm:inline">Vote</span>
                   <motion.span
                     key={voteCount}
                     initial={{ scale: 1.35 }}
                     animate={{ scale: 1 }}
-                    className="min-w-5 rounded-full bg-secondary/15 px-1.5 py-0.5 text-center text-secondary tabular-nums"
+                    className="inline-flex h-5 min-w-4 items-center justify-center rounded-full bg-secondary/15 px-1 text-secondary tabular-nums"
                   >
                     {voteCount}
                   </motion.span>
