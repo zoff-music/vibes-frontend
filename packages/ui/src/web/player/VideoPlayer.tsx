@@ -124,6 +124,13 @@ const VideoPlayerComponent = ({
   }, [desiredVolume]);
   const isYouTubeActive =
     isVisible && currentSong?.sourceType === 'youtube' && !!currentSong;
+  const isYouTubeActiveRef = useRef(isYouTubeActive);
+  useLayoutEffect(() => {
+    isYouTubeActiveRef.current = isYouTubeActive;
+    return () => {
+      isYouTubeActiveRef.current = false;
+    };
+  }, [isYouTubeActive]);
   const shouldPlay =
     isYouTubeActive && isPlaying && !(allowUnmutedAutoplay && needsUserGesture);
   const candidateVideoId =
@@ -166,6 +173,7 @@ const VideoPlayerComponent = ({
 
   useEffect(() => {
     return subscribeToPlaybackGestureUnlock(() => {
+      if (!isYouTubeActiveRef.current) return;
       const playbackState = usePlaybackStore.getState();
       safeWrap(() => {
         if (playbackState.currentSong?.sourceType !== 'youtube') {
@@ -687,7 +695,10 @@ const VideoPlayerComponent = ({
       if (loadedVideoId) {
         lastLoadedVideoIdRef.current = loadedVideoId;
       }
-      if (playbackState.currentSong?.sourceType !== 'youtube') {
+      if (
+        !isYouTubeActiveRef.current ||
+        playbackState.currentSong?.sourceType !== 'youtube'
+      ) {
         expectedPlayingStateRef.current = false;
         silenceProviderPlayback('youtube');
         return;
@@ -748,7 +759,8 @@ const VideoPlayerComponent = ({
       if (
         (state === YOUTUBE_STATE_PLAYING ||
           state === YOUTUBE_STATE_BUFFERING) &&
-        playbackState.currentSong?.sourceType !== 'youtube'
+        (!isYouTubeActiveRef.current ||
+          playbackState.currentSong?.sourceType !== 'youtube')
       ) {
         expectedPlayingStateRef.current = false;
         silenceProviderPlayback('youtube');
