@@ -511,7 +511,7 @@ export const RoomPlayer = React.memo(
               '!fixed !top-0 !-left-[200vw] !h-[360px] !min-h-0 !w-[640px] !flex-none !opacity-0 pointer-events-none',
           )}
         >
-          {VideoPlayerComponent && (
+          {VideoPlayerComponent && !isConnected && (
             <div
               className={classNames(
                 'absolute inset-0 flex items-center justify-center bg-black',
@@ -569,7 +569,7 @@ export const RoomPlayer = React.memo(
               </div>
             </div>
           )}
-          {SoundCloudPlayerComponent && (
+          {SoundCloudPlayerComponent && !isConnected && (
             <div
               className={classNames(
                 'absolute inset-0',
