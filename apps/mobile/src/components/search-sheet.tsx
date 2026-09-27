@@ -226,8 +226,14 @@ export function SearchSheet({
           </View>
           {playlist && !isAIMode && (
             <View className="mb-4">
+              {(playlist.skippedEmbeddingCount ?? 0) > 0 && (
+                <Copy muted>
+                  Skipped {playlist.skippedEmbeddingCount} songs because YouTube
+                  does not allow them to play in embedded players.
+                </Copy>
+              )}
               <Button
-                disabled={loading}
+                disabled={loading || playlist.tracks.length === 0}
                 label={`Add all ${playlist.tracks.length} songs`}
                 onPress={() => void addPlaylist()}
               />
