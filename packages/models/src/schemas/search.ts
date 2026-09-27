@@ -22,6 +22,7 @@ export const musicPlaylistSchema = z.compile(
     title: z.string().optional(),
     tracks: z.array(searchResultSchema),
     truncated: z.boolean(),
+    skippedEmbeddingCount: z.int().min(0).optional(),
   }),
 );
 export type MusicPlaylist = z.infer<typeof musicPlaylistSchema>;

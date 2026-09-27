@@ -74,6 +74,7 @@ interface PlaylistPreview {
   title?: string;
   tracks: PlaylistTrack[];
   truncated: boolean;
+  skippedEmbeddingCount: number;
 }
 
 interface PlaylistTrack extends SearchResult {
@@ -227,6 +228,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           title: track.title,
         })),
         truncated: playlist.truncated,
+        skippedEmbeddingCount: playlist.skippedEmbeddingCount ?? 0,
       });
       return;
     }
@@ -704,6 +706,12 @@ export const AddToQueueModal: React.FC<Props> = ({
             <p className="mt-2 text-[#e0ffef] text-sm uppercase">
               {previewPlaylist.title ?? 'UNNAMED PLAYLIST'}
             </p>
+            {previewPlaylist.skippedEmbeddingCount > 0 && (
+              <p role="status" className="mt-2 text-theme-muted text-xs">
+                Skipped {previewPlaylist.skippedEmbeddingCount} songs because
+                YouTube does not allow them to play in embedded players.
+              </p>
+            )}
             <ol className="mt-3 max-h-52 overflow-y-auto border-[#71f5ad]/20 border-t">
               {previewPlaylist.tracks.map((track, index) => (
                 <li
@@ -1019,6 +1027,12 @@ export const AddToQueueModal: React.FC<Props> = ({
             <p className="mt-1 text-theme-muted text-xs">
               {previewPlaylist.tracks.length} songs found
             </p>
+            {previewPlaylist.skippedEmbeddingCount > 0 && (
+              <p role="status" className="mt-2 text-theme-muted text-xs">
+                Skipped {previewPlaylist.skippedEmbeddingCount} songs because
+                YouTube does not allow them to play in embedded players.
+              </p>
+            )}
             {previewPlaylist.truncated && (
               <p className="mt-2 text-orange-400 text-xs">
                 This playlist is very large. The available songs shown below
