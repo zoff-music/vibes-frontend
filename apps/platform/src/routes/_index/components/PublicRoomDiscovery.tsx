@@ -26,7 +26,7 @@ export function PublicRoomDiscovery({
           Live rooms
         </h2>
         <Link
-          to="/explore/rooms?live=false"
+          to="/rooms/explore?live=false"
           className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 text-secondary text-sm transition-colors hover:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
         >
           Browse all public <span aria-hidden="true">→</span>

@@ -38,7 +38,7 @@ export function SiteHeader() {
           aria-label="Product navigation"
           className="flex items-center gap-1 sm:gap-2"
         >
-          <NavLink to="/explore/rooms" className={navigationClassName}>
+          <NavLink to="/rooms/explore" className={navigationClassName}>
             Rooms
           </NavLink>
           <Link to="/#explore-zoff" className={navigationClassName}>

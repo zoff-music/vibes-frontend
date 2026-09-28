@@ -196,7 +196,7 @@ announcing animation frames. Unavailable optional data are omitted; the
 public-room browser link stays available even when no rooms are live. Keep copy
 short and avoid repeating the same explanation in adjacent sections.
 
-`/explore/rooms` lists twelve public rooms per page, with a live/all filter and
+`/rooms/explore` lists twelve public rooms per page, with a live/all filter and
 room-name search. The first request uses the server loader, defaulting to live
 rooms. Hydration reuses that result without another request. Subsequent filter,
 search and page navigation uses the route's `clientLoader` and `@vibes/api`
@@ -212,7 +212,7 @@ Both loaders use `/api/v2/rooms/public`, ordered by listeners, songs and ID,
 all descending. The homepage requests only the first three live rooms through
 its server loader. The homepage and browser share `PublicRoomTile` from
 `@vibes/ui/web`. Keep the web homepage to Live rooms and a Browse all public
-link to `/explore/rooms?live=false`; search, filters and pagination belong on
+link to `/rooms/explore?live=false`; search, filters and pagination belong on
 that dedicated route, not in the homepage. The Public setting lists a room in
 Browse even without active listeners. The unfiltered browser has a stable sitemap and canonical URL;
 search, pagination and filter variants use `noindex, follow`. Deploy the v2

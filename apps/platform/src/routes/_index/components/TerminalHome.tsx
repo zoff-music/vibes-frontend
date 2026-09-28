@@ -256,7 +256,7 @@ export function TerminalHome({
                   />
                 ))}
                 <Link
-                  to="/explore/rooms"
+                  to="/rooms/explore"
                   className="mt-2 flex min-h-11 items-center border-[#71f5ad]/20 border-t text-[#a6ffd0] text-xs hover:text-[#dffff0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#71f5ad]"
                 >
                   [BROWSE PUBLIC ROOMS →]

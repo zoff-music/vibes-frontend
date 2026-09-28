@@ -49,5 +49,5 @@ export function roomBrowserUrl({ q, live, from }: RoomBrowserSearch) {
   if (!live) params.set('live', 'false');
   if (from > 0) params.set('from', String(from));
   const query = params.toString();
-  return query ? `/explore/rooms?${query}` : '/explore/rooms';
+  return query ? `/rooms/explore?${query}` : '/rooms/explore';
 }
