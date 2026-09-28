@@ -30,13 +30,13 @@ export function RoomBrowserFilters({
     setLive(value);
     submit(
       { q: query.trim(), live: value },
-      { method: 'get', action: '/explore/rooms', preventScrollReset: true },
+      { method: 'get', action: '/rooms/explore', preventScrollReset: true },
     );
   };
 
   return (
     <Form
-      action="/explore/rooms"
+      action="/rooms/explore"
       method="get"
       preventScrollReset
       role="search"

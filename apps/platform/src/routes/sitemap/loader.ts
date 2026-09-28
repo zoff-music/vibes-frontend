@@ -6,7 +6,7 @@ export function loader() {
   const paths = [
     '/',
     '/rooms/create',
-    '/explore/rooms',
+    '/rooms/explore',
     '/privacy-policy',
     '/terms-of-service',
     '/security',

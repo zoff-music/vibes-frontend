@@ -8,7 +8,7 @@ export const meta: MetaFunction = ({ location }) => {
 
   return [
     ...pageMetadata(
-      '/explore/rooms',
+      '/rooms/explore',
       'Explore Public Rooms | Zoff',
       'Browse public Zoff rooms. Join people listening now, search for a room by name, or start listening to a quiet queue. Free, with no registration.',
     ),

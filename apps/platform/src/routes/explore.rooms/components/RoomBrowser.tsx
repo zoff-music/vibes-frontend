@@ -14,7 +14,7 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
   const resultsRef = useRef<HTMLElement>(null);
   const previousPage = useRef(search.from);
   const pending =
-    navigation.location?.pathname === '/explore/rooms' ||
+    navigation.location?.pathname === '/rooms/explore' ||
     revalidator.state === 'loading';
 
   const joinRoom = useCallback(
