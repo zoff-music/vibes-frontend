@@ -23,7 +23,7 @@ export function TermsOfServiceContent({
       title="Terms of Service"
       updatedAt="25 July 2026"
     >
-      <LegalSection title="1. Agreement">
+      <LegalSection id="policy-1-agreement" title="Agreement">
         <p>
           By accessing or using Zoff, the user agrees to these Terms of Service
           and acknowledges the Zoff Privacy Policy. A user who does not agree
@@ -36,7 +36,7 @@ export function TermsOfServiceContent({
         </p>
       </LegalSection>
 
-      <LegalSection title="2. The service">
+      <LegalSection id="policy-2-the-service" title="The service">
         <p>
           Zoff provides shared listening rooms in which participants can search
           enabled music providers, add tracks to a queue, vote, control playback
@@ -50,7 +50,10 @@ export function TermsOfServiceContent({
         </p>
       </LegalSection>
 
-      <LegalSection title="3. Rooms and user conduct">
+      <LegalSection
+        id="policy-3-rooms-and-user-conduct"
+        title="Rooms and user conduct"
+      >
         <p>
           Users are responsible for room names, nicknames, prompts, queue
           choices, and other information they submit. Users must not:

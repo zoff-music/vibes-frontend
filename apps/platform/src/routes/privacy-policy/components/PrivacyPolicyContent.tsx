@@ -25,7 +25,7 @@ export function PrivacyPolicyContent({
       title="Privacy Policy"
       updatedAt="4 October 2026"
     >
-      <LegalSection title="1. Who operates Zoff">
+      <LegalSection id="policy-1-who-operates-zoff" title="Who operates Zoff">
         <p>
           Zoff is a free shared-music-room service operated by its developer.
           Questions, privacy requests, and deletion requests can be sent to{' '}
@@ -39,7 +39,10 @@ export function PrivacyPolicyContent({
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Information Zoff processes">
+      <LegalSection
+        id="policy-2-information-zoff-processes"
+        title="Information Zoff processes"
+      >
         <p>Zoff processes the information needed to run a listening room:</p>
         <ul className="list-disc space-y-2 pl-6">
           <li>
@@ -75,7 +78,7 @@ export function PrivacyPolicyContent({
       </LegalSection>
 
       {hasProviders && (
-        <LegalSection title="3. Providers">
+        <LegalSection id="policy-3-providers" title="Providers">
           <p>
             Zoff connects to the music providers enabled for the service.
             Provider-specific processing and terms are described below only when
