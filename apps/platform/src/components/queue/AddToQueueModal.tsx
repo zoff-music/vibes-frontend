@@ -75,6 +75,7 @@ interface PlaylistPreview {
   tracks: PlaylistTrack[];
   truncated: boolean;
   skippedEmbeddingCount: number;
+  skippedMadeForKidsCount: number;
 }
 
 interface PlaylistTrack extends SearchResult {
@@ -229,6 +230,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         })),
         truncated: playlist.truncated,
         skippedEmbeddingCount: playlist.skippedEmbeddingCount ?? 0,
+        skippedMadeForKidsCount: playlist.skippedMadeForKidsCount ?? 0,
       });
       return;
     }
@@ -712,6 +714,12 @@ export const AddToQueueModal: React.FC<Props> = ({
                 YouTube does not allow them to play in embedded players.
               </p>
             )}
+            {previewPlaylist.skippedMadeForKidsCount > 0 && (
+              <p role="status" className="mt-2 text-theme-muted text-xs">
+                Skipped {previewPlaylist.skippedMadeForKidsCount} videos marked
+                as made for kids on YouTube. Zoff does not support these videos.
+              </p>
+            )}
             <ol className="mt-3 max-h-52 overflow-y-auto border-[#71f5ad]/20 border-t">
               {previewPlaylist.tracks.map((track, index) => (
                 <li
@@ -1031,6 +1039,12 @@ export const AddToQueueModal: React.FC<Props> = ({
               <p role="status" className="mt-2 text-theme-muted text-xs">
                 Skipped {previewPlaylist.skippedEmbeddingCount} songs because
                 YouTube does not allow them to play in embedded players.
+              </p>
+            )}
+            {previewPlaylist.skippedMadeForKidsCount > 0 && (
+              <p role="status" className="mt-2 text-theme-muted text-xs">
+                Skipped {previewPlaylist.skippedMadeForKidsCount} videos marked
+                as made for kids on YouTube. Zoff does not support these videos.
               </p>
             )}
             {previewPlaylist.truncated && (

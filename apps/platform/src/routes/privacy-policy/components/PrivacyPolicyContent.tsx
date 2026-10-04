@@ -23,7 +23,7 @@ export function PrivacyPolicyContent({
     <LegalDocument
       description="This policy explains what information Zoff processes, why it is needed, how long it is kept, and how third-party music and infrastructure providers handle data."
       title="Privacy Policy"
-      updatedAt="27 July 2026"
+      updatedAt="4 October 2026"
     >
       <LegalSection title="1. Who operates Zoff">
         <p>
@@ -95,8 +95,39 @@ export function PrivacyPolicyContent({
                 YouTube search results are cached for up to three days to reduce
                 duplicate API requests. When a user adds a result to a room, the
                 relevant public track information is stored with that room so
-                the shared queue can function. Stored YouTube metadata is
-                refreshed or deleted within 30 days.
+                the shared queue can function. Queue metadata is scheduled for
+                refresh after 21 days. If it cannot be refreshed, a separate
+                cleanup removes it after 25 days without a successful refresh,
+                including a paused or currently selected track. This leaves time
+                for the search cache, import staging, and event replay before
+                the 30-day retention limit. An expired current track stops
+                playing locally when the room receives the update.
+              </p>
+              <p>
+                Videos YouTube marks as made for kids are excluded from search,
+                pasted links, playlist imports, and generated selections.
+                Playlist previews explain when these videos have been skipped.
+                If a stored video is later marked as made for kids, Zoff removes
+                it when its metadata is refreshed.
+              </p>
+              <p>
+                Loading an embedded YouTube player connects your browser to
+                Google and shares information such as your IP address, browser
+                details, and the requested video. YouTube uses this information
+                to display the player, check playback restrictions, and prevent
+                fraud and abuse. Playback shares additional information with
+                YouTube. When autoplay is enabled, this can happen on page load
+                without a separate click on the player.
+              </p>
+              <p>
+                YouTube and other third parties may serve advertisements and
+                store or access cookies or similar information on your device
+                through their players, under their own policies. These are
+                separate from Zoff&apos;s session and theme cookies. Browser
+                privacy controls can restrict third-party storage, although
+                doing so may affect playback. Turning autoplay off in an embed
+                delays playback, but does not prevent the initial connection
+                when its player loads.
               </p>
               <p>
                 Use of YouTube features is subject to the{' '}
