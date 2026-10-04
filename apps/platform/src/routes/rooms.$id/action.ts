@@ -80,6 +80,15 @@ interface RoomActionRequest {
 async function createErrorData(intent: RoomActionIntent, error: Error | null) {
   const apiError = error ? await getAPIErrorResponse(error) : null;
   const status = error ? getHttpError(error)?.response.status : null;
+
+  if (apiError?.error === 'youtube_search_quota_exhausted') {
+    return {
+      error:
+        'YouTube search has reached its daily limit for Zoff, not just you. It resets at midnight Pacific time. You can still try pasting a YouTube song or playlist link.',
+      intent,
+    } satisfies RoomActionData;
+  }
+
   let permissionError: string | null = null;
   if (apiError?.error === 'song_room_admin_required') {
     permissionError =
@@ -109,6 +118,8 @@ async function createErrorData(intent: RoomActionIntent, error: Error | null) {
       (error && getRateLimitMessage(error)) ??
       apiError?.message ??
       ((intent === 'skip' && 'Failed to skip. Please try again.') ||
+        (intent === 'search' &&
+          'Could not search for music. Please try again.') ||
         (intent === 'addPlaylist' &&
           'Failed to import the playlist. Please try again.') ||
         (intent === 'providerTrack' && 'Could not load that track.') ||
