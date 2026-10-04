@@ -23,6 +23,7 @@ export const musicPlaylistSchema = z.compile(
     tracks: z.array(searchResultSchema),
     truncated: z.boolean(),
     skippedEmbeddingCount: z.int().min(0).optional(),
+    skippedMadeForKidsCount: z.int().min(0).optional(),
   }),
 );
 export type MusicPlaylist = z.infer<typeof musicPlaylistSchema>;
