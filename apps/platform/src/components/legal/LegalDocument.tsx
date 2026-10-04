@@ -5,6 +5,7 @@ import {
 } from '@vibes/ui/konami';
 import {
   Children,
+  cloneElement,
   isValidElement,
   lazy,
   type ReactNode,
@@ -31,6 +32,8 @@ interface LegalDocumentProps {
 interface LegalSectionProps {
   children: ReactNode;
   title: string;
+  number?: number;
+  id?: string;
 }
 
 interface LegalSubsectionProps {
@@ -55,6 +58,19 @@ export function LegalDocument({
   useTerminalShortcuts([{ key: 'Escape', onTrigger: () => navigate('/') }], {
     enabled: terminalMode,
   });
+
+  const sections = Children.toArray(children).flatMap((child) => {
+    if (
+      !isValidElement<LegalSectionProps>(child) ||
+      child.type !== LegalSection
+    ) {
+      return [];
+    }
+    return [child];
+  });
+  const content = sections.map((section, index) =>
+    cloneElement(section, { number: index + 1 }),
+  );
 
   if (terminalMode) {
     return (
@@ -85,23 +101,13 @@ export function LegalDocument({
                   {description}
                 </p>
               </header>
-              <div className="mt-6 space-y-8">{children}</div>
+              <div className="mt-6 space-y-8">{content}</div>
             </article>
           </div>
         </LazyTerminalShell>
       </Suspense>
     );
   }
-
-  const sections = Children.toArray(children).flatMap((child) => {
-    if (
-      !isValidElement<LegalSectionProps>(child) ||
-      child.type !== LegalSection
-    ) {
-      return [];
-    }
-    return [child.props.title];
-  });
 
   return (
     <SitePage>
@@ -146,13 +152,40 @@ export function LegalDocument({
               On this page
             </p>
             <ul className="space-y-1">
-              {sections.map((section) => (
-                <li key={section}>
+              {sections.map((section, index) => (
+                <li key={section.props.title}>
                   <a
-                    href={`#${sectionId(section)}`}
+                    href={`#${section.props.id ?? sectionId(section.props.title)}`}
+                    onClick={(event) => {
+                      if (
+                        event.button !== 0 ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey
+                      ) {
+                        return;
+                      }
+
+                      const id =
+                        section.props.id ?? sectionId(section.props.title);
+                      const target = document.getElementById(id);
+                      if (!target) return;
+
+                      event.preventDefault();
+                      navigate(
+                        { hash: `#${id}` },
+                        { preventScrollReset: true },
+                      );
+                      target.scrollIntoView({
+                        behavior: 'instant',
+                        block: 'start',
+                      });
+                      target.focus({ preventScroll: true });
+                    }}
                     className="block rounded-xl px-3 py-3 text-sm text-theme-muted leading-relaxed transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                   >
-                    {section}
+                    {index + 1}. {section.props.title}
                   </a>
                 </li>
               ))}
@@ -163,21 +196,27 @@ export function LegalDocument({
           aria-label={title}
           className="panel-surface min-w-0 space-y-8 rounded-frame border border-theme p-6 sm:p-8 lg:col-span-3 lg:p-10"
         >
-          {children}
+          {content}
         </article>
       </div>
     </SitePage>
   );
 }
 
-export function LegalSection({ children, title }: LegalSectionProps) {
+export function LegalSection({
+  children,
+  title,
+  number,
+  id,
+}: LegalSectionProps) {
   const terminalMode = useKonamiMode();
+  const heading = number ? `${number}. ${title}` : title;
 
   if (terminalMode) {
     return (
       <section className="border border-[#71f5ad]/20">
         <h2 className="border-[#71f5ad]/20 border-b bg-[#071b12] px-3 py-2 font-bold font-mono text-[#a6ffd0] text-sm uppercase tracking-[0.1em]">
-          &gt; {title}
+          &gt; {heading}
         </h2>
         <div className="space-y-4 p-3 text-[#b9ffda]/75 text-sm leading-6 sm:p-4">
           {children}
@@ -188,11 +227,12 @@ export function LegalSection({ children, title }: LegalSectionProps) {
 
   return (
     <section
-      id={sectionId(title)}
-      className="scroll-mt-8 space-y-4 border-theme border-b pb-8 last:border-b-0 last:pb-0"
+      id={id ?? sectionId(title)}
+      tabIndex={-1}
+      className="scroll-mt-8 space-y-4 border-theme border-b pb-8 last:border-b-0 last:pb-0 focus:outline-none"
     >
       <h2 className="font-pixel text-theme text-xl normal-case tracking-normal">
-        {title}
+        {heading}
       </h2>
       <div className="space-y-4 text-theme-muted leading-7">{children}</div>
     </section>
