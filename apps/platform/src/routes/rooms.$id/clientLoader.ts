@@ -1,5 +1,5 @@
 import { api, getHttpError } from '@vibes/api';
-import type { PlaybackState } from '@vibes/shared';
+import type { PlaybackStateV2 } from '@vibes/shared';
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import { redirect } from 'react-router';
 import type { RoomLoaderData } from './loader';
@@ -14,14 +14,15 @@ export async function clientLoader({
     return redirect('/rooms/create');
   }
 
-  const [roomRes, songsRes, playbackRes, providersRes] = await Promise.all([
-    api.get('/rooms/{id}', { id: roomId }),
-    api.get('/rooms/{id}/songs', { id: roomId }),
-    api.get('/rooms/{id}/states', { id: roomId }),
-    api.get('/providers', null),
-  ]);
+  const [roomRes, playlistItemsRes, playbackRes, providersRes] =
+    await Promise.all([
+      api.v2.get('/rooms/{id}', { id: roomId }),
+      api.v2.get('/rooms/{id}/playlist-items', { id: roomId }),
+      api.v2.get('/rooms/{id}/states', { id: roomId }),
+      api.get('/providers', null),
+    ]);
   const [roomErr, room] = roomRes;
-  const [songsErr, songs] = songsRes;
+  const [playlistItemsErr, playlistItems] = playlistItemsRes;
   const [playbackErr, playback] = playbackRes;
   const [providersErr, providers] = providersRes;
   if (roomErr || !room) {
@@ -36,7 +37,7 @@ export async function clientLoader({
     createUrl.searchParams.set('name', roomId);
     return redirect(createUrl.toString());
   }
-  if (songsErr || playbackErr || providersErr) {
+  if (playlistItemsErr || playbackErr || providersErr) {
     throw new Response('Room temporarily unavailable', {
       status: 503,
       statusText: 'Room temporarily unavailable',
@@ -45,9 +46,9 @@ export async function clientLoader({
 
   return {
     pageUrl: createRoomPageUrl(request.url, roomId),
-    playback: (playback || undefined) as PlaybackState | undefined,
+    playback: (playback || undefined) as PlaybackStateV2 | undefined,
     providers: providers ?? [],
     room,
-    songs: songs || [],
+    playlistItems: playlistItems || [],
   };
 }

@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/models';
+import type { PlaylistItem } from '@vibes/models';
 import {
   TerminalButton,
   TerminalSection,
@@ -10,11 +10,11 @@ interface TerminalPlayerControlsProps {
   canPlay: boolean;
   canSkip: boolean;
   castDeviceName?: string | null;
-  currentSong: Song | null;
+  currentPlaylistItem: PlaylistItem | null;
   isCasting: boolean;
   isPlaying: boolean;
   isSkipping: boolean;
-  onAddSong: () => void;
+  onAddPlaylistItem: () => void;
   onOpenCast: () => void;
   onPause: () => void;
   onPlay: () => void;
@@ -31,11 +31,11 @@ export function TerminalPlayerControls({
   canPlay,
   canSkip,
   castDeviceName,
-  currentSong,
+  currentPlaylistItem,
   isCasting,
   isPlaying,
   isSkipping,
-  onAddSong,
+  onAddPlaylistItem,
   onOpenCast,
   onPause,
   onPlay,
@@ -56,7 +56,7 @@ export function TerminalPlayerControls({
     { disabled: !canSkip || isSkipping, key: 'F2', onTrigger: onSkip },
     { disabled: !showReset, key: 'F3', onTrigger: onReset },
     { disabled: !showCast, key: 'F4', onTrigger: onOpenCast },
-    { key: 'F5', onTrigger: onAddSong },
+    { key: 'F5', onTrigger: onAddPlaylistItem },
   ]);
 
   return (
@@ -69,11 +69,11 @@ export function TerminalPlayerControls({
           CURRENT SIGNAL
         </p>
         <p className="mt-2 truncate text-[#e0ffef] text-sm uppercase">
-          {currentSong?.title ?? 'NO TRACK MOUNTED'}
+          {currentPlaylistItem?.title ?? 'NO TRACK MOUNTED'}
         </p>
         <p className="mt-1 truncate text-[#a6ffd0]/60 text-xs uppercase">
-          {currentSong?.artist ?? 'WAITING FOR INPUT'}
-          {currentSong && ` / ${currentSong.sourceType}`}
+          {currentPlaylistItem?.publisher ?? 'WAITING FOR INPUT'}
+          {currentPlaylistItem && ` / ${currentPlaylistItem.sourceType}`}
         </p>
       </div>
 
@@ -103,7 +103,7 @@ export function TerminalPlayerControls({
             [F4] {isCasting ? 'CAST ON' : 'CAST'}
           </TerminalButton>
         )}
-        <TerminalButton aria-keyshortcuts="F5" onClick={onAddSong}>
+        <TerminalButton aria-keyshortcuts="F5" onClick={onAddPlaylistItem}>
           [F5] ADD SONG
         </TerminalButton>
       </div>

@@ -11,7 +11,7 @@ import { SearchResults } from '@/components/search-results';
 import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { useMusicSearch } from '@/hooks/use-music-search';
+import { useProviderSearch } from '@/hooks/use-provider-search';
 
 interface SearchRemoteCredentials {
   controllerToken: string;
@@ -57,7 +57,7 @@ export function SearchSheet({
       results,
     },
     { add, addPlaylist, search, setProvider, toggleAIMode, updateQuery },
-  ] = useMusicSearch({
+  ] = useProviderSearch({
     canGenerate,
     generationUnavailableReason,
     onClose,
@@ -233,8 +233,8 @@ export function SearchSheet({
                 </Copy>
               )}
               <Button
-                disabled={loading || playlist.tracks.length === 0}
-                label={`Add all ${playlist.tracks.length} songs`}
+                disabled={loading || playlist.items.length === 0}
+                label={`Add all ${playlist.items.length} songs`}
                 onPress={() => void addPlaylist()}
               />
             </View>

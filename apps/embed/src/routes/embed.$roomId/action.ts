@@ -1,18 +1,18 @@
 import { api, getRequestErrorMessage } from '@vibes/api';
-import type { PlaybackState, SkipActionResponse } from '@vibes/models';
+import type { PlaybackStateV2, SkipPlaylistItemResponse } from '@vibes/models';
 import { safeWrap } from '@vibes/shared';
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface EmbedActionData {
   error?: string;
-  intent: 'resetPlayback' | 'skip' | 'voteSong';
-  playback?: PlaybackState;
-  skip?: SkipActionResponse;
+  intent: 'resetPlayback' | 'skip' | 'votePlaylistItem';
+  playback?: PlaybackStateV2;
+  skip?: SkipPlaylistItemResponse;
 }
 
 interface EmbedActionRequest {
-  intent: 'resetPlayback' | 'skip' | 'voteSong';
-  songId?: string;
+  intent: 'resetPlayback' | 'skip' | 'votePlaylistItem';
+  playlistItemId?: string;
 }
 
 export async function clientAction({
@@ -29,7 +29,7 @@ export async function clientAction({
   }
 
   if (body.intent === 'skip') {
-    const [error, skip] = await api.post(
+    const [error, skip] = await api.v2.post(
       '/rooms/{id}/skips',
       { id: roomId },
       {},
@@ -48,7 +48,7 @@ export async function clientAction({
   }
 
   if (body.intent === 'resetPlayback') {
-    const [error, playback] = await api.get('/rooms/{id}/states', {
+    const [error, playback] = await api.v2.get('/rooms/{id}/states', {
       id: roomId,
     });
     if (error || !playback) {
@@ -60,12 +60,12 @@ export async function clientAction({
     return { intent: body.intent, playback };
   }
 
-  if (!body.songId) {
-    return { error: 'Song ID is required', intent: body.intent };
+  if (!body.playlistItemId) {
+    return { error: 'Playlist item ID is required', intent: body.intent };
   }
-  const [error] = await api.post(
-    '/rooms/{id}/songs/{songId}',
-    { id: roomId, songId: body.songId },
+  const [error] = await api.v2.post(
+    '/rooms/{id}/playlist-items/{playlistItemId}',
+    { id: roomId, playlistItemId: body.playlistItemId },
     {},
   );
   if (error) {

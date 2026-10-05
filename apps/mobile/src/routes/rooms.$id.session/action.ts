@@ -4,7 +4,7 @@ import {
   createRoomReadRequests,
   getHttpError,
 } from '@vibes/api';
-import type { Room } from '@vibes/models';
+import type { RoomV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import type { RoomSnapshot } from '@/data-router/room-snapshot';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
@@ -26,7 +26,7 @@ type RoomSessionActionInput =
 
 export type RoomSessionActionData =
   | { intent: 'joined'; snapshot: RoomSnapshot; warning: string }
-  | { intent: 'roomUpdated'; room: Room; warning: string }
+  | { intent: 'roomUpdated'; room: RoomV2; warning: string }
   | { intent: 'success'; warning: string };
 
 const lifecycleRequests = createRoomLifecycleRequests(mobileApi);
@@ -135,13 +135,18 @@ async function openRoom(
     }
   }
 
-  const [roomResult, songsResult, playbackResult] = await Promise.all([
+  const [roomResult, playlistItemsResult, playbackResult] = await Promise.all([
     readRequests.fetchRoom(roomId, { signal }),
-    readRequests.fetchSongs(roomId, { signal }),
+    readRequests.fetchPlaylistItems(roomId, { signal }),
     playbackRequests.fetchPlayback(roomId, { signal }),
   ]);
-  const error = roomResult[0] ?? songsResult[0] ?? playbackResult[0];
-  if (error || !roomResult[1] || !songsResult[1] || !playbackResult[1]) {
+  const error = roomResult[0] ?? playlistItemsResult[0] ?? playbackResult[0];
+  if (
+    error ||
+    !roomResult[1] ||
+    !playlistItemsResult[1] ||
+    !playbackResult[1]
+  ) {
     const status = error ? getHttpError(error)?.response.status : null;
     return {
       data: null,
@@ -157,7 +162,7 @@ async function openRoom(
   const snapshot: RoomSnapshot = {
     playback: playbackResult[1],
     room: roomResult[1],
-    songs: songsResult[1],
+    playlistItems: playlistItemsResult[1],
   };
   const credentialResults = await Promise.all([
     deleteSecureValue(remoteStorageKey),

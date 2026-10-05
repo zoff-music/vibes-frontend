@@ -1,8 +1,8 @@
-import { useRoomEventsV2 } from '@vibes/api';
+import { useRoomEventsV3 } from '@vibes/api';
 import type { RoomGenerationUpdate } from '@vibes/models';
 import {
   classNames,
-  type Song,
+  type PlaylistItem,
   safeWrapAsync,
   showToast,
   synchronizeServerClock,
@@ -165,7 +165,7 @@ function DeferredModalLoading({
   );
 }
 
-export default function Room() {
+export default function RoomV2() {
   const loaderData = useLoaderData() as RoomLoaderData;
   useRememberRoom(loaderData.room.id);
   const { id = '' } = useParams<{ id: string }>();
@@ -191,13 +191,17 @@ export default function Room() {
   const setSession = useRoomStore((state) => state.setSession);
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
   const usersCount = useRoomStore((state) => state.usersCount);
-  const songs = useQueueStore((state) => state.songs);
-  const setSongs = useQueueStore((state) => state.setSongs);
-  const positionSong = useQueueStore((state) => state.positionSong);
-  const removeSong = useQueueStore((state) => state.removeSong);
-  const addSong = useQueueStore((state) => state.addSong);
+  const playlistItems = useQueueStore((state) => state.playlistItems);
+  const setPlaylistItems = useQueueStore((state) => state.setPlaylistItems);
+  const positionPlaylistItem = useQueueStore(
+    (state) => state.positionPlaylistItem,
+  );
+  const removePlaylistItem = useQueueStore((state) => state.removePlaylistItem);
+  const addPlaylistItem = useQueueStore((state) => state.addPlaylistItem);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
-  const currentSong = usePlaybackStore((state) => state.currentSong);
+  const currentPlaylistItem = usePlaybackStore(
+    (state) => state.currentPlaylistItem,
+  );
   const initializeCast = useCastStore((state) => state.initialize);
   const isCastSupported = useCastStore((state) => state.isSupported);
   const isCastInitialized = useCastStore((state) => state.isInitialized);
@@ -219,7 +223,9 @@ export default function Room() {
     loaderData.room.isGenerating,
   );
   const [isGenerationProgressVisible, setIsGenerationProgressVisible] =
-    useState(loaderData.room.isGenerating && loaderData.songs.length === 0);
+    useState(
+      loaderData.room.isGenerating && loaderData.playlistItems.length === 0,
+    );
   const [generationError, setGenerationError] = useState<string | undefined>(
     loaderData.room.generationError,
   );
@@ -235,15 +241,18 @@ export default function Room() {
           ? loaderData.pageUrl
           : window.location.href,
         id,
-        currentSong,
+        currentPlaylistItem,
         usersCount,
       ),
-    [currentSong, id, loaderData.pageUrl, usersCount],
+    [currentPlaylistItem, id, loaderData.pageUrl, usersCount],
   );
-  const shareTitle = createRoomShareTitle(displayRoom.name, currentSong);
+  const shareTitle = createRoomShareTitle(
+    displayRoom.name,
+    currentPlaylistItem,
+  );
   const shareText = createRoomShareDescription(
     displayRoom.name,
-    currentSong,
+    currentPlaylistItem,
     usersCount,
   );
   const isAuthenticating = adminFetcher.state !== 'idle';
@@ -252,7 +261,7 @@ export default function Room() {
       ? (adminFetcher.data.error ?? null)
       : null;
   const showGenerationProgress =
-    isGenerating && isGenerationProgressVisible && songs.length <= 2;
+    isGenerating && isGenerationProgressVisible && playlistItems.length <= 2;
   const isPartyScreen = searchParams.get('view') === 'party';
 
   useEffect(() => {
@@ -292,37 +301,44 @@ export default function Room() {
       },
       onReconnect: revalidate,
       onRoomUpdate: setRoom,
-      onSongAdded: (song: Song) => {
-        addSong(song);
-        showToast(`"${song.title}" added to queue`, 'success');
+      onPlaylistItemAdded: (playlistItem: PlaylistItem) => {
+        addPlaylistItem(playlistItem);
+        showToast(`"${playlistItem.title}" added to queue`, 'success');
       },
-      onSongRemoved: ({ id: songId }: { id: string }) => removeSong(songId),
-      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
-        const isNewSong = !useQueueStore
+      onPlaylistItemRemoved: ({ id: playlistItemId }: { id: string }) =>
+        removePlaylistItem(playlistItemId),
+      onPlaylistItemUpdated: ({
+        playlistItem,
+        position,
+      }: {
+        playlistItem: PlaylistItem;
+        position: number;
+      }) => {
+        const isNewPlaylistItem = !useQueueStore
           .getState()
-          .songs.some((item) => item.id === song.id);
-        positionSong(song, position);
-        if (isNewSong) {
-          showToast(`"${song.title}" added to queue`, 'success');
+          .playlistItems.some((item) => item.id === playlistItem.id);
+        positionPlaylistItem(playlistItem, position);
+        if (isNewPlaylistItem) {
+          showToast(`"${playlistItem.title}" added to queue`, 'success');
         }
       },
-      onSongsUpdate: setSongs,
+      onPlaylistItemsUpdate: setPlaylistItems,
       onUsersUpdate: setUsersCount,
     }),
     [
-      addSong,
+      addPlaylistItem,
       handleGenerationUpdate,
-      positionSong,
+      positionPlaylistItem,
       revalidate,
-      removeSong,
+      removePlaylistItem,
       setHost,
       setPlaybackState,
       setRoom,
-      setSongs,
+      setPlaylistItems,
       setUsersCount,
     ],
   );
-  useRoomEventsV2(id, sseCallbacks);
+  useRoomEventsV3(id, sseCallbacks);
 
   const handleToggleDarkMode = useCallback(() => {
     toggleDarkMode();
@@ -330,11 +346,11 @@ export default function Room() {
 
   const [chatOpen, setChatOpen] = useState(false);
 
-  const handleAddSong = useCallback(() => {
+  const handleAddPlaylistItem = useCallback(() => {
     setIsAddModalVisible(true);
   }, []);
 
-  const handleCloseAddSong = useCallback(() => {
+  const handleCloseAddPlaylistItem = useCallback(() => {
     setIsAddModalVisible(false);
   }, []);
 
@@ -442,16 +458,16 @@ export default function Room() {
   useEffect(() => {
     setIsSSR(false);
     setRoom(loaderData.room);
-    setSongs(loaderData.songs);
+    setPlaylistItems(loaderData.playlistItems);
     setIsGenerating(loaderData.room.isGenerating);
     setGenerationError(loaderData.room.generationError);
     setIsGenerationProgressVisible(
-      loaderData.room.isGenerating && loaderData.songs.length === 0,
+      loaderData.room.isGenerating && loaderData.playlistItems.length === 0,
     );
     if (loaderData.playback) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
-  }, [loaderData, setPlaybackState, setRoom, setSongs]);
+  }, [loaderData, setPlaybackState, setRoom, setPlaylistItems]);
 
   useEffect(() => {
     if (!isGenerating) {
@@ -496,8 +512,11 @@ export default function Room() {
   ]);
 
   useEffect(() => {
-    document.title = createRoomShareTitle(displayRoom.name, currentSong);
-  }, [currentSong, displayRoom.name]);
+    document.title = createRoomShareTitle(
+      displayRoom.name,
+      currentPlaylistItem,
+    );
+  }, [currentPlaylistItem, displayRoom.name]);
 
   useEffect(() => {
     if (!showShare) return;
@@ -603,7 +622,7 @@ export default function Room() {
               <RoomPlayer
                 roomId={id}
                 displayRoom={displayRoom}
-                onAddSong={handleAddSong}
+                onAddPlaylistItem={handleAddPlaylistItem}
                 onOpenCast={handleOpenCast}
                 initialPlayback={loaderData.playback}
                 providers={loaderData.providers}
@@ -613,10 +632,10 @@ export default function Room() {
                 onChatVisibilityChange={setChatOpen}
                 roomId={id}
                 isSSR={isSSR}
-                onAddSong={handleAddSong}
+                onAddPlaylistItem={handleAddPlaylistItem}
                 isAdmin={isAdmin}
                 initialPlayback={loaderData.playback}
-                initialSongs={loaderData.songs}
+                initialPlaylistItems={loaderData.playlistItems}
                 terminalMode
               />
             </div>
@@ -659,14 +678,14 @@ export default function Room() {
                 room={displayRoom}
                 providers={loaderData.providers}
                 isVisible={isAddModalVisible}
-                onClose={handleCloseAddSong}
+                onClose={handleCloseAddPlaylistItem}
                 onOpenAdminLogin={handleOpenAdminLogin}
                 generationCount={displayRoom.generationCount}
                 roomGenerationMaxDailyCount={
                   displayRoom.roomGenerationMaxDailyCount
                 }
-                roomGenerationMaxExistingSongs={
-                  displayRoom.roomGenerationMaxExistingSongs
+                roomGenerationMaxExistingPlaylistItems={
+                  displayRoom.roomGenerationMaxExistingPlaylistItems
                 }
                 hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
                 isGenerating={isGenerating}
@@ -749,7 +768,7 @@ export default function Room() {
                   <RoomPlayer
                     roomId={id}
                     displayRoom={displayRoom}
-                    onAddSong={handleAddSong}
+                    onAddPlaylistItem={handleAddPlaylistItem}
                     onOpenCast={handleOpenCast}
                     initialPlayback={loaderData.playback}
                     providers={loaderData.providers}
@@ -759,10 +778,10 @@ export default function Room() {
                       onChatVisibilityChange={setChatOpen}
                       roomId={id}
                       isSSR={isSSR}
-                      onAddSong={handleAddSong}
+                      onAddPlaylistItem={handleAddPlaylistItem}
                       isAdmin={isAdmin}
                       initialPlayback={loaderData.playback}
-                      initialSongs={loaderData.songs}
+                      initialPlaylistItems={loaderData.playlistItems}
                     />
                   )}
                   {isPartyScreen && (
@@ -772,10 +791,10 @@ export default function Room() {
                           onChatVisibilityChange={setChatOpen}
                           roomId={id}
                           isSSR={isSSR}
-                          onAddSong={handleAddSong}
+                          onAddPlaylistItem={handleAddPlaylistItem}
                           isAdmin={isAdmin}
                           initialPlayback={loaderData.playback}
-                          initialSongs={loaderData.songs}
+                          initialPlaylistItems={loaderData.playlistItems}
                         />
                       </div>
                       <Suspense
@@ -816,14 +835,14 @@ export default function Room() {
                 room={displayRoom}
                 providers={loaderData.providers}
                 isVisible={isAddModalVisible}
-                onClose={handleCloseAddSong}
+                onClose={handleCloseAddPlaylistItem}
                 onOpenAdminLogin={handleOpenAdminLogin}
                 generationCount={displayRoom.generationCount}
                 roomGenerationMaxDailyCount={
                   displayRoom.roomGenerationMaxDailyCount
                 }
-                roomGenerationMaxExistingSongs={
-                  displayRoom.roomGenerationMaxExistingSongs
+                roomGenerationMaxExistingPlaylistItems={
+                  displayRoom.roomGenerationMaxExistingPlaylistItems
                 }
                 hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
                 isGenerating={isGenerating}
@@ -838,7 +857,7 @@ export default function Room() {
           <Button
             aria-label="Add Song"
             className="fixed right-5 bottom-5 z-40 h-14 w-14 rounded-full p-0 shadow-primary-popover"
-            onClick={handleAddSong}
+            onClick={handleAddPlaylistItem}
             size="none"
             title="Add Song"
             variant="primary"

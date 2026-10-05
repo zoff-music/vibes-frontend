@@ -3,8 +3,8 @@ import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
 
 type ControllerQueueActionInput =
-  | { intent: 'remove'; roomId: string; songId: string }
-  | { intent: 'vote'; roomId: string; songId: string };
+  | { intent: 'remove'; roomId: string; playlistItemId: string }
+  | { intent: 'vote'; roomId: string; playlistItemId: string };
 
 export interface ControllerQueueActionData {
   intent: 'success';
@@ -25,8 +25,10 @@ export async function action({
   );
   const [error] =
     input.intent === 'vote'
-      ? await requests.vote(input.roomId, input.songId, { signal })
-      : await requests.removeSong(input.roomId, input.songId, { signal });
+      ? await requests.vote(input.roomId, input.playlistItemId, { signal })
+      : await requests.removePlaylistItem(input.roomId, input.playlistItemId, {
+          signal,
+        });
   if (error) {
     return {
       data: null,

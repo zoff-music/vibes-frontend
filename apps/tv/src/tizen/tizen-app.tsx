@@ -1,18 +1,18 @@
 import {
   getRoomAnalyticsPath,
   plausibleClient,
-  useRoomEventsV2,
+  useRoomEventsV3,
 } from '@vibes/api';
 import type {
-  PlaybackState,
-  Room,
+  PlaybackStateV2,
+  PlaylistItem,
   RoomGenerationUpdate,
-  Song,
+  RoomV2,
 } from '@vibes/models';
 import { synchronizeServerClock } from '@vibes/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useRevalidator, useSubmit } from 'react-router';
-import { tizenApiV2 } from '@/tizen/api';
+import { tizenApiV3 } from '@/tizen/api';
 import type { TizenSessionLoaderData } from '@/tizen/routes/session/loader';
 import { TizenLanding } from '@/tizen/tizen-landing';
 import { TizenRoom } from '@/tizen/tizen-room';
@@ -30,11 +30,13 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
   const revalidator = useRevalidator();
   const submit = useSubmit();
   const [isAIMode, setIsAIMode] = useState(false);
-  const [room, setRoom] = useState<Room | null>(
+  const [room, setRoom] = useState<RoomV2 | null>(
     loaderData.snapshot?.room ?? null,
   );
-  const [songs, setSongs] = useState<Song[]>(loaderData.snapshot?.songs ?? []);
-  const [playback, setPlayback] = useState<PlaybackState>(
+  const [playlistItems, setPlaylistItems] = useState<PlaylistItem[]>(
+    loaderData.snapshot?.playlistItems ?? [],
+  );
+  const [playback, setPlayback] = useState<PlaybackStateV2>(
     loaderData.snapshot?.playback ?? emptyPlaybackState,
   );
   const [listenerCount, setListenerCount] = useState(
@@ -49,7 +51,7 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
   useEffect(() => {
     const snapshot = loaderData.snapshot;
     setRoom(snapshot?.room ?? null);
-    setSongs(snapshot?.songs ?? []);
+    setPlaylistItems(snapshot?.playlistItems ?? []);
     setPlayback(snapshot?.playback ?? emptyPlaybackState);
     setListenerCount(snapshot?.room.userCount ?? 0);
   }, [loaderData.snapshot]);
@@ -73,38 +75,49 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
       onHostUpdate: ({ userId }: { userId: string }) => {
         setRoom((current) => (current ? { ...current, hostId: userId } : null));
       },
-      onPlaybackUpdate: (nextPlayback: PlaybackState) => {
+      onPlaybackUpdate: (nextPlayback: PlaybackStateV2) => {
         synchronizeServerClock(nextPlayback.serverTimeMs);
         setPlayback(nextPlayback);
       },
       onReconnect: revalidator.revalidate,
       onRoomUpdate: setRoom,
-      onSongAdded: (song: Song) => {
-        setSongs((current) => {
-          if (current.some((item) => item.id === song.id)) return current;
-          return [...current, song];
+      onPlaylistItemAdded: (playlistItem: PlaylistItem) => {
+        setPlaylistItems((current) => {
+          if (current.some((item) => item.id === playlistItem.id))
+            return current;
+          return [...current, playlistItem];
         });
       },
-      onSongRemoved: ({ id }: { id: string }) => {
-        setSongs((current) => current.filter((song) => song.id !== id));
+      onPlaylistItemRemoved: ({ id }: { id: string }) => {
+        setPlaylistItems((current) =>
+          current.filter((playlistItem) => playlistItem.id !== id),
+        );
       },
-      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
-        setSongs((current) => {
-          const nextSongs = current.filter((item) => item.id !== song.id);
+      onPlaylistItemUpdated: ({
+        playlistItem,
+        position,
+      }: {
+        playlistItem: PlaylistItem;
+        position: number;
+      }) => {
+        setPlaylistItems((current) => {
+          const nextPlaylistItems = current.filter(
+            (item) => item.id !== playlistItem.id,
+          );
           const boundedPosition = Math.min(
             Math.max(position, 0),
-            nextSongs.length,
+            nextPlaylistItems.length,
           );
-          nextSongs.splice(boundedPosition, 0, song);
-          return nextSongs;
+          nextPlaylistItems.splice(boundedPosition, 0, playlistItem);
+          return nextPlaylistItems;
         });
       },
-      onSongsUpdate: setSongs,
+      onPlaylistItemsUpdate: setPlaylistItems,
       onUsersUpdate: setListenerCount,
     }),
     [revalidator.revalidate],
   );
-  useRoomEventsV2(loaderData.roomId || undefined, callbacks, tizenApiV2);
+  useRoomEventsV3(loaderData.roomId || undefined, callbacks, tizenApiV3);
 
   const submitRoomAction = useCallback(
     (intent: 'generate' | 'joinOrCreate', value: string) => {
@@ -135,7 +148,7 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
         playback={playback}
         room={room}
         roomId={loaderData.roomId}
-        songs={songs}
+        playlistItems={playlistItems}
       />
     );
   }
@@ -147,8 +160,8 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
   );
 }
 
-const emptyPlaybackState: PlaybackState = {
-  currentSong: null,
+const emptyPlaybackState: PlaybackStateV2 = {
+  currentPlaylistItem: null,
   isPlaying: false,
   positionMs: 0,
   serverTimeMs: 0,

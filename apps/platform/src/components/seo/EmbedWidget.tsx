@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import {
   Button,
-  EmbedQueueSong,
+  EmbedQueuePlaylistItem,
   PauseIcon,
   PlaybackProgress,
   PlayIcon,
@@ -13,7 +13,8 @@ import { useEmbedPreview } from './hooks/useEmbedPreview';
 
 export function EmbedWidget() {
   const { state, actions } = useEmbedPreview();
-  const { ref, options, song, songs, playing, position } = state;
+  const { ref, options, playlistItem, playlistItems, playing, position } =
+    state;
 
   return (
     <div className="w-full min-w-0">
@@ -120,7 +121,7 @@ export function EmbedWidget() {
                         className="@min-[32rem]:mx-auto flex @min-[32rem]:h-32 h-20 @min-[32rem]:w-full w-32 @min-[32rem]:max-w-56 shrink-0 items-center justify-center rounded-lg bg-black"
                       >
                         <img
-                          src={song.thumbnailUrl}
+                          src={playlistItem.thumbnailUrl}
                           width={48}
                           height={48}
                           alt=""
@@ -129,16 +130,16 @@ export function EmbedWidget() {
                       </div>
                       <div className="min-w-0">
                         <h4 className="truncate font-pixel text-sm text-theme">
-                          {song.title}
+                          {playlistItem.title}
                         </h4>
                         <p className="mt-1 text-theme-muted text-xs">
-                          {song.artist}
+                          {playlistItem.publisher}
                         </p>
                       </div>
                     </div>
                     <div className="mt-2">
                       <PlaybackProgress
-                        durationMs={song.duration * 1000}
+                        durationMs={playlistItem.duration * 1000}
                         positionMs={position}
                       />
                     </div>
@@ -157,7 +158,7 @@ export function EmbedWidget() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      {songs.map((track) => (
+                      {playlistItems.map((track) => (
                         <motion.div
                           key={track.id}
                           layout="position"
@@ -167,8 +168,8 @@ export function EmbedWidget() {
                             damping: 28,
                           }}
                         >
-                          <EmbedQueueSong
-                            song={track}
+                          <EmbedQueuePlaylistItem
+                            playlistItem={track}
                             votingEnabled={options.vote}
                             onVote={actions.vote}
                           />

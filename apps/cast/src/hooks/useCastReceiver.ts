@@ -1,4 +1,5 @@
-import type { ResolvedColorScheme, Song } from '@vibes/shared';
+import type { Song } from '@vibes/models';
+import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
 import {
   getEstimatedServerTimeMs,
   isBrowserDebugEnabled,
@@ -8,7 +9,7 @@ import {
 import type { framework } from 'chromecast-caf-receiver';
 import { useEffect, useRef } from 'react';
 import type { LocalCastMessage } from '../types';
-import { normalizeSong } from '../utils/songUtils';
+import { toPlaylistItem } from '../utils/item';
 
 let isCastReceiverInitialized = false;
 
@@ -53,7 +54,7 @@ type CastFrameworkWithEvents = typeof cast.framework & {
 interface UseCastReceiverProps {
   setDebugMode: (mode: boolean) => void;
   handleCastMessage: (msg: LocalCastMessage) => void;
-  updateMediaMetadata: (song: Song) => void;
+  updateMediaMetadata: (playlistItem: PlaylistItem) => void;
   setStatusText: (text: string) => void;
 }
 
@@ -114,17 +115,17 @@ export const useCastReceiver = ({
             }
 
             if (data.currentSong) {
-              const normalizedSong = normalizeSong(data.currentSong);
+              const normalizedPlaylistItem = toPlaylistItem(data.currentSong);
               setPlaybackState({
-                currentSong: normalizedSong,
+                currentPlaylistItem: normalizedPlaylistItem,
                 isPlaying: true,
                 positionMs: data.positionMs || 0,
                 updatedAt: new Date().toISOString(),
                 serverTimeMs: getEstimatedServerTimeMs(),
               });
               setIsPlaying(true);
-              setStatusText(`Now Playing: ${normalizedSong.title}`);
-              updateMediaMetadata(normalizedSong);
+              setStatusText(`Now Playing: ${normalizedPlaylistItem.title}`);
+              updateMediaMetadata(normalizedPlaylistItem);
             }
           }
 

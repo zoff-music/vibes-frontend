@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/models';
+import type { PlaylistItem } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import {
@@ -48,7 +48,7 @@ export function RoomScreen() {
     playerPreferenceLoaded,
   } = usePlaybackSession();
   const terminal = useNativePresentation() === 'terminal';
-  const { room, roomId, songs } = useRoomSession();
+  const { room, roomId, playlistItems } = useRoomSession();
   const { resetLocalPlayback, setLocalPlaying } = usePlaybackActions();
   const { leaveRoom, setError } = useRoomActions();
   const router = useRouter();
@@ -67,10 +67,10 @@ export function RoomScreen() {
     routeId: 'rooms.$id.queue',
   });
 
-  const current = playback?.currentSong ?? null;
-  const queuedSongs = current
-    ? songs.filter((song) => song.id !== current.id)
-    : songs;
+  const current = playback?.currentPlaylistItem ?? null;
+  const queuedPlaylistItems = current
+    ? playlistItems.filter((playlistItem) => playlistItem.id !== current.id)
+    : playlistItems;
   const livePosition = useLivePosition(
     playback?.positionMs ?? 0,
     playback?.isPlaying ?? false,
@@ -80,7 +80,7 @@ export function RoomScreen() {
   const authoritativePosition = useLivePosition(
     authoritativePlayback?.positionMs ?? 0,
     authoritativePlayback?.isPlaying ?? false,
-    authoritativePlayback?.currentSong?.duration ?? 0,
+    authoritativePlayback?.currentPlaylistItem?.duration ?? 0,
     authoritativePlayback?.serverTimeMs,
   );
   const showsPlaybackReset =
@@ -133,15 +133,18 @@ export function RoomScreen() {
     }
   };
 
-  const vote = async (song: Song) => {
-    const result = await submitQueue({ intent: 'vote', songId: song.id });
+  const vote = async (playlistItem: PlaylistItem) => {
+    const result = await submitQueue({
+      intent: 'vote',
+      playlistItemId: playlistItem.id,
+    });
     if (result.error) setError(result.error);
   };
 
-  const remove = async (song: Song) => {
+  const remove = async (playlistItem: PlaylistItem) => {
     const result = await submitQueue({
       intent: 'remove',
-      songId: song.id,
+      playlistItemId: playlistItem.id,
     });
     if (result.error) setError(result.error);
   };
@@ -224,7 +227,7 @@ export function RoomScreen() {
             >
               {current?.title ?? 'Nothing playing'}
             </Text>
-            <Copy muted>{current?.artist ?? ''}</Copy>
+            <Copy muted>{current?.publisher ?? ''}</Copy>
           </View>
           {playerEnabled && current && showsPlaybackReset && (
             <IconButton
@@ -285,7 +288,7 @@ export function RoomScreen() {
       {playerSpacer}
       <RoomChatPanel
         roomId={roomId}
-        count={queuedSongs.length}
+        count={queuedPlaylistItems.length}
         header={<View className="p-4">{roomDetails}</View>}
         chatHeader={
           <View className="gap-1 px-4 py-4">
@@ -307,10 +310,13 @@ export function RoomScreen() {
                 ? 'Songs will appear here as the playlist is generated.'
                 : 'No songs are queued yet.'
             }
-            songs={queuedSongs}
-            onVote={(song) => void vote(song)}
+            playlistItems={queuedPlaylistItems}
+            onVote={(playlistItem) => void vote(playlistItem)}
             {...(room.isAdmin
-              ? { onDelete: (song: Song) => void remove(song) }
+              ? {
+                  onDelete: (playlistItem: PlaylistItem) =>
+                    void remove(playlistItem),
+                }
               : {})}
           />
         )}
@@ -333,7 +339,7 @@ export function RoomScreen() {
         >
           <RoomChatPanel
             roomId={roomId}
-            count={queuedSongs.length}
+            count={queuedPlaylistItems.length}
             renderQueue={(header, showHeading) => (
               <Queue
                 header={header}
@@ -344,10 +350,13 @@ export function RoomScreen() {
                     ? 'Songs will appear here as the playlist is generated.'
                     : 'No songs are queued yet.'
                 }
-                songs={queuedSongs}
-                onVote={(song) => void vote(song)}
+                playlistItems={queuedPlaylistItems}
+                onVote={(playlistItem) => void vote(playlistItem)}
                 {...(room.isAdmin
-                  ? { onDelete: (song: Song) => void remove(song) }
+                  ? {
+                      onDelete: (playlistItem: PlaylistItem) =>
+                        void remove(playlistItem),
+                    }
                   : {})}
               />
             )}

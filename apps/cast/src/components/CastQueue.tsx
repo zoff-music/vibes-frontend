@@ -1,4 +1,4 @@
-import { resolveSongThumbnail, type Song } from '@vibes/shared';
+import { type PlaylistItem, resolvePlaylistItemThumbnail } from '@vibes/shared';
 import {
   formatPlaybackSeconds,
   getQueueRemainderLabel,
@@ -7,10 +7,10 @@ import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'react';
 
 interface Props {
-  songs: Song[];
+  playlistItems: PlaylistItem[];
 }
 
-export function CastQueue({ songs }: Props) {
+export function CastQueue({ playlistItems }: Props) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState(0);
 
@@ -40,10 +40,10 @@ export function CastQueue({ songs }: Props) {
     return () => resizeObserver.disconnect();
   }, []);
 
-  const visibleSongs = songs.slice(0, visibleCount);
+  const visiblePlaylistItems = playlistItems.slice(0, visibleCount);
   const queueRemainderLabel = getQueueRemainderLabel(
-    songs.length,
-    visibleSongs.length,
+    playlistItems.length,
+    visiblePlaylistItems.length,
   );
 
   return (
@@ -51,46 +51,48 @@ export function CastQueue({ songs }: Props) {
       ref={viewportRef}
       className="cast-queue-viewport flex min-h-0 flex-1 flex-col overflow-hidden"
     >
-      {songs.length === 0 && (
+      {playlistItems.length === 0 && (
         <div className="cast-queue-empty flex h-full items-center justify-center rounded-2xl border border-theme text-center text-theme-muted">
           The queue is empty
         </div>
       )}
-      {visibleSongs.length > 0 && (
+      {visiblePlaylistItems.length > 0 && (
         <>
           <div className="cast-queue-list shrink-0">
-            {visibleSongs.map((song, index) => (
+            {visiblePlaylistItems.map((playlistItem, index) => (
               <div
-                key={song.id}
+                key={playlistItem.id}
                 className="cast-queue-card flex items-center gap-4 rounded-2xl border px-4"
               >
                 <span className="w-7 shrink-0 text-center text-theme-subtle text-xs">
                   {index + 1}
                 </span>
                 <img
-                  src={resolveSongThumbnail(song.thumbnailUrl)}
+                  src={resolvePlaylistItemThumbnail(playlistItem.thumbnailUrl)}
                   alt=""
                   decoding="async"
                   loading="lazy"
                   className="cast-queue-thumbnail h-16 w-16 shrink-0 rounded-xl border object-cover"
                 />
                 <div className="cast-queue-track-details min-w-0 flex-1">
-                  <p className="truncate text-theme text-xs">{song.title}</p>
+                  <p className="truncate text-theme text-xs">
+                    {playlistItem.title}
+                  </p>
                   <p className="mt-1 truncate text-theme-muted text-xs">
-                    {song.artist || 'Unknown Artist'} ·{' '}
-                    {formatPlaybackSeconds(song.duration)}
+                    {playlistItem.publisher || 'Unknown Artist'} ·{' '}
+                    {formatPlaybackSeconds(playlistItem.duration)}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <div className="flex items-center gap-1 text-secondary">
                     <VoteIcon className="h-4 w-4" />
                     <span className="min-w-4 text-center text-xs tabular-nums">
-                      {song.voteCount ?? 0}
+                      {playlistItem.voteCount ?? 0}
                     </span>
                   </div>
                   <ProviderIcon
                     className="h-5 w-5 text-theme-muted"
-                    provider={song.sourceType}
+                    provider={playlistItem.sourceType}
                   />
                 </div>
               </div>

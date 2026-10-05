@@ -284,8 +284,8 @@ export function LandingScreen({
                               )}
                               numberOfLines={1}
                             >
-                              {room.listenerCount} listening · {room.songCount}{' '}
-                              songs
+                              {room.listenerCount} listening ·{' '}
+                              {room.playlistItemCount} songs
                             </Text>
                           </View>
                           <Text

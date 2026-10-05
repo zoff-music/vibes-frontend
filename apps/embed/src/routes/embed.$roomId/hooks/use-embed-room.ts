@@ -1,5 +1,5 @@
-import { useRoomEventsV2 } from '@vibes/api';
-import type { Room, Song } from '@vibes/models';
+import { useRoomEventsV3 } from '@vibes/api';
+import type { PlaylistItem, RoomV2 } from '@vibes/models';
 import {
   synchronizeServerClock,
   useMediaSession,
@@ -20,8 +20,10 @@ interface EmbedToast {
 
 export function useEmbedRoomState(loaderData: EmbedLoaderData) {
   const storedRoom = useRoomStore((state) => state.room);
-  const storedSongs = useQueueStore((state) => state.songs);
-  const storedCurrentSong = usePlaybackStore((state) => state.currentSong);
+  const storedPlaylistItems = useQueueStore((state) => state.playlistItems);
+  const storedCurrentPlaylistItem = usePlaybackStore(
+    (state) => state.currentPlaylistItem,
+  );
   const storedIsPlaying = usePlaybackStore((state) => state.isPlaying);
   const storedHasLocalPlaybackChanges = usePlaybackStore(
     (state) => state.hasLocalPlaybackChanges,
@@ -30,19 +32,23 @@ export function useEmbedRoomState(loaderData: EmbedLoaderData) {
   const setRoom = useRoomStore((state) => state.setRoom);
   const setHost = useRoomStore((state) => state.setHost);
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
-  const setSongs = useQueueStore((state) => state.setSongs);
-  const addSong = useQueueStore((state) => state.addSong);
-  const positionSong = useQueueStore((state) => state.positionSong);
-  const removeSong = useQueueStore((state) => state.removeSong);
+  const setPlaylistItems = useQueueStore((state) => state.setPlaylistItems);
+  const addPlaylistItem = useQueueStore((state) => state.addPlaylistItem);
+  const positionPlaylistItem = useQueueStore(
+    (state) => state.positionPlaylistItem,
+  );
+  const removePlaylistItem = useQueueStore((state) => state.removePlaylistItem);
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const [hydratedRoomId, setHydratedRoomId] = useState<string | null>(null);
   const revalidate = useRevalidator().revalidate;
   const isRoomHydrated = hydratedRoomId === loaderData.roomId;
   const room = isRoomHydrated && storedRoom ? storedRoom : loaderData.room;
-  const songs = isRoomHydrated ? storedSongs : loaderData.songs;
-  const currentSong = isRoomHydrated
-    ? storedCurrentSong
-    : (loaderData.playback?.currentSong ?? null);
+  const playlistItems = isRoomHydrated
+    ? storedPlaylistItems
+    : loaderData.playlistItems;
+  const currentPlaylistItem = isRoomHydrated
+    ? storedCurrentPlaylistItem
+    : (loaderData.playback?.currentPlaylistItem ?? null);
   const isPlaying = isRoomHydrated
     ? storedIsPlaying
     : (loaderData.playback?.isPlaying ?? false);
@@ -60,50 +66,55 @@ export function useEmbedRoomState(loaderData: EmbedLoaderData) {
       },
       onReconnect: revalidate,
       onRoomUpdate: setRoom,
-      onSongAdded: addSong,
-      onSongRemoved: ({ id }: { id: string }) => removeSong(id),
-      onSongUpdated: ({ song, position }: { song: Song; position: number }) =>
-        positionSong(song, position),
-      onSongsUpdate: setSongs,
+      onPlaylistItemAdded: addPlaylistItem,
+      onPlaylistItemRemoved: ({ id }: { id: string }) => removePlaylistItem(id),
+      onPlaylistItemUpdated: ({
+        playlistItem,
+        position,
+      }: {
+        playlistItem: PlaylistItem;
+        position: number;
+      }) => positionPlaylistItem(playlistItem, position),
+      onPlaylistItemsUpdate: setPlaylistItems,
       onUsersUpdate: setUsersCount,
     }),
     [
-      addSong,
-      positionSong,
+      addPlaylistItem,
+      positionPlaylistItem,
       revalidate,
-      removeSong,
+      removePlaylistItem,
       setHost,
       setPlaybackState,
       setRoom,
-      setSongs,
+      setPlaylistItems,
       setUsersCount,
     ],
   );
-  useRoomEventsV2(loaderData.roomId, sseCallbacks);
+  useRoomEventsV3(loaderData.roomId, sseCallbacks);
 
   useEffect(() => {
     setRoom(loaderData.room);
-    setSongs(loaderData.songs);
+    setPlaylistItems(loaderData.playlistItems);
     if (loaderData.playback) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
     setHydratedRoomId(loaderData.roomId);
-  }, [loaderData, setPlaybackState, setRoom, setSongs]);
+  }, [loaderData, setPlaybackState, setRoom, setPlaylistItems]);
 
   return {
-    currentSong,
+    currentPlaylistItem,
     hasLocalPlaybackChanges: isRoomHydrated
       ? storedHasLocalPlaybackChanges
       : false,
     isPlaying,
     positionMs,
     room,
-    songs,
+    playlistItems,
   };
 }
 
 interface EmbedActionOptions {
-  roomMode: Room['mode'];
+  roomMode: RoomV2['mode'];
 }
 
 export function useEmbedRoomActions({ roomMode }: EmbedActionOptions) {
@@ -145,9 +156,12 @@ export function useEmbedRoomActions({ roomMode }: EmbedActionOptions) {
   }, [toast]);
 
   const submit = useCallback(
-    (intent: 'resetPlayback' | 'skip' | 'voteSong', songId?: string) => {
+    (
+      intent: 'resetPlayback' | 'skip' | 'votePlaylistItem',
+      playlistItemId?: string,
+    ) => {
       fetcher.submit(
-        { intent, ...(songId ? { songId } : {}) },
+        { intent, ...(playlistItemId ? { playlistItemId } : {}) },
         { encType: 'application/json', method: 'post' },
       );
     },
@@ -158,7 +172,8 @@ export function useEmbedRoomActions({ roomMode }: EmbedActionOptions) {
     dismissToast: () => setToast(null),
     handleReset: () => submit('resetPlayback'),
     handleSkip: () => submit('skip'),
-    handleVote: (songId: string) => submit('voteSong', songId),
+    handleVote: (playlistItemId: string) =>
+      submit('votePlaylistItem', playlistItemId),
     toast,
   };
 }
@@ -167,18 +182,18 @@ interface EmbedPlaybackOptions {
   autoplay: boolean;
   canPlay: boolean;
   canSkip: boolean;
-  currentSong: Song | null;
+  currentPlaylistItem: PlaylistItem | null;
   isPlaying: boolean;
   onSkip: () => void;
   roomId: string;
-  roomMode: Room['mode'];
+  roomMode: RoomV2['mode'];
 }
 
 export function useEmbedLocalPlayback({
   autoplay,
   canPlay,
   canSkip,
-  currentSong,
+  currentPlaylistItem,
   isPlaying,
   onSkip,
   roomId,
@@ -209,12 +224,17 @@ export function useEmbedLocalPlayback({
   }, [autoplay, canPlay, roomId, roomMode, setLocalPlayingState]);
 
   useEffect(() => {
-    if (autoplay || hasLocalPlayerInteraction || !currentSong?.id || !isPlaying)
+    if (
+      autoplay ||
+      hasLocalPlayerInteraction ||
+      !currentPlaylistItem?.id ||
+      !isPlaying
+    )
       return;
     setLocalPlayingState(false, roomMode);
   }, [
     autoplay,
-    currentSong?.id,
+    currentPlaylistItem?.id,
     hasLocalPlayerInteraction,
     isPlaying,
     roomMode,
@@ -255,7 +275,7 @@ export function useEmbedLocalPlayback({
   useMediaSession({
     canPlay,
     canSkip,
-    currentSong,
+    currentPlaylistItem,
     isPlaying,
     onPause: handlePause,
     onPlay: handlePlay,
@@ -276,10 +296,10 @@ export function useEmbedLocalPlayback({
 
 export function getEmbedPlaybackCapabilities(
   options: EmbedOptions,
-  currentSong: Song | null,
+  currentPlaylistItem: PlaylistItem | null,
 ) {
   return {
-    canPlay: options.player && Boolean(currentSong),
-    canSkip: options.skip && Boolean(currentSong),
+    canPlay: options.player && Boolean(currentPlaylistItem),
+    canSkip: options.skip && Boolean(currentPlaylistItem),
   };
 }

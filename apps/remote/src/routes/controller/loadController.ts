@@ -1,27 +1,27 @@
 import type {
-  PlaybackState,
+  PlaybackStateV2,
+  PlaylistItem,
   Providers,
-  RemoteStatus,
-  Room,
-  Song,
+  RemoteStatusV2,
+  RoomV2,
 } from '@vibes/models';
 
 export interface ControllerLoaderData {
   error?: string;
-  playback?: PlaybackState;
+  playback?: PlaybackStateV2;
   providers: Providers;
-  remote?: RemoteStatus;
-  room?: Room;
-  songs: Song[];
+  remote?: RemoteStatusV2;
+  room?: RoomV2;
+  playlistItems: PlaylistItem[];
 }
 
 interface ControllerRoomResults {
-  playback: PlaybackState | null;
+  playback: PlaybackStateV2 | null;
   providers: Providers | null;
-  remote: RemoteStatus;
-  room: Room | null;
+  remote: RemoteStatusV2;
+  room: RoomV2 | null;
   roomError: Error | null;
-  songs: Song[] | null;
+  playlistItems: PlaylistItem[] | null;
 }
 
 export function createControllerRoomData({
@@ -30,14 +30,14 @@ export function createControllerRoomData({
   remote,
   room,
   roomError,
-  songs,
+  playlistItems,
 }: ControllerRoomResults): ControllerLoaderData {
   if (roomError || !room) {
     return {
       error: 'The controlled machine is in a room that is no longer available.',
       providers: providers ?? [],
       remote,
-      songs: [],
+      playlistItems: [],
     };
   }
   return {
@@ -45,6 +45,6 @@ export function createControllerRoomData({
     providers: providers ?? [],
     remote,
     room,
-    songs: songs ?? [],
+    playlistItems: playlistItems ?? [],
   };
 }

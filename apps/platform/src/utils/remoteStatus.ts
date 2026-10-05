@@ -1,9 +1,9 @@
-import type { RemoteStatus } from '@vibes/models';
+import type { RemoteStatusV2 } from '@vibes/models';
 
-export function createEmptyRemoteStatus(): RemoteStatus {
+export function createEmptyRemoteStatus(): RemoteStatusV2 {
   return {
     currentRoomId: '',
-    currentSongId: '',
+    currentPlaylistItemId: '',
     enabled: false,
     id: '',
     online: false,

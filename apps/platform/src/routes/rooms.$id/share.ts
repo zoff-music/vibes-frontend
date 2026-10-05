@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/models';
+import type { PlaylistItem } from '@vibes/models';
 
 export function createRoomPageUrl(requestUrl: string, roomId: string): string {
   const request = new URL(requestUrl);
@@ -15,14 +15,14 @@ export function createRoomPageUrl(requestUrl: string, roomId: string): string {
 export function createRoomShareUrl(
   requestUrl: string,
   roomId: string,
-  song: Song | null,
+  playlistItem: PlaylistItem | null,
   listenerCount: number,
 ): string {
   const shareUrl = new URL(createRoomPageUrl(requestUrl, roomId));
-  const songKey = song
-    ? `${song.sourceType}:${song.sourceId}`
+  const playlistItemKey = playlistItem
+    ? `${playlistItem.sourceType}:${playlistItem.sourceId}`
     : `room:${roomId}`;
-  const shareToken = createShareToken(`${songKey}:${listenerCount}`);
+  const shareToken = createShareToken(`${playlistItemKey}:${listenerCount}`);
 
   shareUrl.searchParams.set('share', shareToken);
   return shareUrl.toString();
@@ -30,10 +30,10 @@ export function createRoomShareUrl(
 
 export function createRoomShareTitle(
   roomName: string,
-  song: Song | null,
+  playlistItem: PlaylistItem | null,
 ): string {
-  if (song) {
-    return `${song.title} | ${roomName} on Zoff`;
+  if (playlistItem) {
+    return `${playlistItem.title} | ${roomName} on Zoff`;
   }
 
   return `${roomName} | Zoff`;
@@ -41,14 +41,14 @@ export function createRoomShareTitle(
 
 export function createRoomShareDescription(
   roomName: string,
-  song: Song | null,
+  playlistItem: PlaylistItem | null,
   listenerCount: number,
 ): string {
   const listenerDescription = createListenerDescription(listenerCount);
 
-  if (song) {
+  if (playlistItem) {
     const details = [
-      song.artist,
+      playlistItem.publisher,
       `Now playing in ${roomName}`,
       listenerDescription,
     ].filter(Boolean);

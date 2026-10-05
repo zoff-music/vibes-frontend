@@ -5,7 +5,8 @@ import type {
   CastSessionState,
   CastManager as ICastManager,
   MediaInfo,
-  PlaybackState,
+  PlaybackStateV2,
+  PlaylistItem,
   Song,
 } from '@vibes/models';
 import {
@@ -931,21 +932,21 @@ class GoogleCastManager implements ICastManager {
     }
   }
 
-  async updateQueue(queue: Song[]): Promise<void> {
+  async updateQueue(queue: PlaylistItem[]): Promise<void> {
     if (this.currentSession?.state !== 'connected') {
       return;
     }
 
     const queueMessage = {
       action: 'updateQueue',
-      queue: queue.map((song) => ({
-        id: song.id,
-        title: song.title,
-        artist: song.artist,
-        sourceType: song.sourceType,
-        sourceId: song.sourceId,
-        thumbnailUrl: song.thumbnailUrl,
-        duration: song.duration,
+      queue: queue.map((playlistItem) => ({
+        id: playlistItem.id,
+        title: playlistItem.title,
+        artist: playlistItem.publisher,
+        sourceType: playlistItem.sourceType,
+        sourceId: playlistItem.sourceId,
+        thumbnailUrl: playlistItem.thumbnailUrl,
+        duration: playlistItem.duration,
       })),
       timestamp: Date.now(),
     };
@@ -1025,16 +1026,23 @@ class GoogleCastManager implements ICastManager {
     }
   }
 
-  async syncPlaybackState(state: PlaybackState): Promise<void> {
+  async syncPlaybackState(state: PlaybackStateV2): Promise<void> {
     if (this.currentSession?.state !== 'connected') {
       return;
+    }
+
+    // Keep the sender wire contract readable by receivers already running.
+    let currentSong: Song | null = null;
+    if (state.currentPlaylistItem) {
+      const { publisher, ...item } = state.currentPlaylistItem;
+      currentSong = { ...item, artist: publisher };
     }
 
     const message = {
       action: 'syncPlayback',
       isPlaying: state.isPlaying,
       positionMs: state.positionMs,
-      currentSong: state.currentSong,
+      currentSong,
       updatedAt: state.updatedAt,
       serverTimeMs: state.serverTimeMs,
       timestamp: Date.now(),

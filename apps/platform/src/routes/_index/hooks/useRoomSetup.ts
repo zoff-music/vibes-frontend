@@ -43,7 +43,8 @@ export function useRoomSetup() {
         showingAlternate.current = true;
         setSettings((current) => ({
           ...current,
-          onlyAdminAddSongs: setupId === 'adding' || current.onlyAdminAddSongs,
+          onlyAdminAddPlaylistItems:
+            setupId === 'adding' || current.onlyAdminAddPlaylistItems,
           skipAllowed: setupId !== 'skipping' && current.skipAllowed,
           removeOnPlay: setupId === 'repeating' || current.removeOnPlay,
         }));

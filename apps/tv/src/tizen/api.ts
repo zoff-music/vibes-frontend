@@ -1,6 +1,6 @@
 import {
   createApiClientWithBaseUrl,
-  createApiV2ClientWithBaseUrl,
+  createApiV3ClientWithBaseUrl,
 } from '@vibes/api';
 
 const apiUrl =
@@ -9,4 +9,4 @@ const apiUrl =
 
 export const tizenApi = createApiClientWithBaseUrl(apiUrl);
 
-export const tizenApiV2 = createApiV2ClientWithBaseUrl(apiUrl);
+export const tizenApiV3 = createApiV3ClientWithBaseUrl(apiUrl);

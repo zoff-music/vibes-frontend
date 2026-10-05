@@ -1,4 +1,4 @@
-import type { Providers, RoomSettings, SourceType } from '@vibes/models';
+import type { Providers, RoomSettingsV2, SourceType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { Pressable, Switch, Text, View } from 'react-native';
 
@@ -10,9 +10,9 @@ interface RoomConfigurationProps {
   hasPassword: boolean;
   mode: 'host' | 'server';
   onModeChange: (mode: 'host' | 'server') => void;
-  onSettingsChange: (settings: RoomSettings) => void;
+  onSettingsChange: (settings: RoomSettingsV2) => void;
   providers: Providers;
-  settings: RoomSettings;
+  settings: RoomSettingsV2;
 }
 
 interface SettingsSwitchProps {
@@ -59,9 +59,9 @@ export function RoomConfiguration({
   providers,
   settings,
 }: RoomConfigurationProps) {
-  const updateSetting = <Key extends keyof RoomSettings>(
+  const updateSetting = <Key extends keyof RoomSettingsV2>(
     key: Key,
-    value: RoomSettings[Key],
+    value: RoomSettingsV2[Key],
   ) => onSettingsChange({ ...settings, [key]: value });
 
   const toggleProvider = (provider: SourceType, enabled: boolean) => {
@@ -142,8 +142,10 @@ export function RoomConfiguration({
             description="Only authenticated room admins may add songs."
             disabled={disabled}
             label="Admins only add"
-            value={settings.onlyAdminAddSongs ?? false}
-            onValueChange={(value) => updateSetting('onlyAdminAddSongs', value)}
+            value={settings.onlyAdminAddPlaylistItems ?? false}
+            onValueChange={(value) =>
+              updateSetting('onlyAdminAddPlaylistItems', value)
+            }
           />
           <Divider />
           <SettingsSwitch

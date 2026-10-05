@@ -19,7 +19,7 @@ Interactive queue cards use the shared button's `tertiary` variant. Avoid
 combining `ghost` with a background utility: `ghost` adds `bg-transparent`,
 which can override the intended surface in the generated stylesheet.
 
-Queue cards use `EmbedQueueSong` from `@vibes/ui/web`, shared with the
+Queue cards use `EmbedQueuePlaylistItem` from `@vibes/ui/web`, shared with the
 platform homepage preview. Every queue card shows its vote icon and count, including zero votes. Disabling
 voting removes the action and invitation to vote, not the existing vote totals.
 

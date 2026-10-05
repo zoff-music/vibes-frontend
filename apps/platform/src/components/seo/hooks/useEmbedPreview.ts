@@ -1,7 +1,7 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { queueDemoSongs } from '../previewSongs';
+import { queueDemoPlaylistItems } from '../preview';
 
 interface EmbedPreviewOptions {
   player: boolean;
@@ -27,9 +27,9 @@ export function useEmbedPreview() {
   const inView = useInView(ref, { amount: 0.15 });
   const visible = usePageVisibility();
   const reduceMotion = useReducedMotion();
-  const song = queueDemoSongs[current];
-  const songs = queueDemoSongs
-    .filter((track) => track.id !== song.id)
+  const playlistItem = queueDemoPlaylistItems[current];
+  const playlistItems = queueDemoPlaylistItems
+    .filter((track) => track.id !== playlistItem.id)
     .map((track) => ({ ...track, voteCount: Number(votes.includes(track.id)) }))
     .sort((a, b) => b.voteCount - a.voteCount)
     .slice(0, 2);
@@ -40,11 +40,18 @@ export function useEmbedPreview() {
     }
 
     const timer = window.setInterval(() => {
-      setPosition((value) => (value + 250) % (song.duration * 1000));
+      setPosition((value) => (value + 250) % (playlistItem.duration * 1000));
     }, 250);
 
     return () => window.clearInterval(timer);
-  }, [playing, options.player, inView, visible, reduceMotion, song.duration]);
+  }, [
+    playing,
+    options.player,
+    inView,
+    visible,
+    reduceMotion,
+    playlistItem.duration,
+  ]);
 
   function changeOption(key: keyof EmbedPreviewOptions, enabled: boolean) {
     setOptions((previous) => ({ ...previous, [key]: enabled }));
@@ -69,17 +76,17 @@ export function useEmbedPreview() {
   }
 
   function skip() {
-    const nextIndex = queueDemoSongs.findIndex(
-      (track) => track.id === songs[0].id,
+    const nextIndex = queueDemoPlaylistItems.findIndex(
+      (track) => track.id === playlistItems[0].id,
     );
 
     setCurrent(nextIndex);
     setPosition(0);
-    setVotes((previous) => previous.filter((id) => id !== songs[0].id));
+    setVotes((previous) => previous.filter((id) => id !== playlistItems[0].id));
   }
 
   return {
-    state: { ref, options, song, songs, playing, position },
+    state: { ref, options, playlistItem, playlistItems, playing, position },
     actions: {
       changeOption,
       vote,

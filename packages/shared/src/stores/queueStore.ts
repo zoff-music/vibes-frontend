@@ -1,46 +1,55 @@
 import { create } from 'zustand';
-import { Song } from '../types';
+import { PlaylistItem } from '../types';
 
 interface QueueState {
-  songs: Song[];
+  playlistItems: PlaylistItem[];
 
-  setSongs: (songs: Song[]) => void;
-  addSong: (song: Song) => void;
-  removeSong: (songId: string) => void;
-  positionSong: (song: Song, position: number) => void;
-  updateSong: (song: Song) => void;
+  setPlaylistItems: (playlistItems: PlaylistItem[]) => void;
+  addPlaylistItem: (playlistItem: PlaylistItem) => void;
+  removePlaylistItem: (playlistItemId: string) => void;
+  positionPlaylistItem: (playlistItem: PlaylistItem, position: number) => void;
+  updatePlaylistItem: (playlistItem: PlaylistItem) => void;
 }
 
 export const useQueueStore = create<QueueState>((set) => ({
-  songs: [],
+  playlistItems: [],
 
-  setSongs: (songs) => set({ songs: [...songs] }), // Songs are already sorted by backend (vote_count DESC, added_at ASC)
+  // Preserve the authoritative order supplied by the backend.
+  setPlaylistItems: (playlistItems) =>
+    set({ playlistItems: [...playlistItems] }),
 
-  addSong: (song) =>
+  addPlaylistItem: (playlistItem) =>
     set((state) => {
-      if (state.songs.some((s) => s.id === song.id)) {
+      if (state.playlistItems.some((s) => s.id === playlistItem.id)) {
         return state;
       }
       return {
-        songs: [...state.songs, song], // Backend handles sorting
+        playlistItems: [...state.playlistItems, playlistItem], // Backend handles sorting
       };
     }),
 
-  removeSong: (songId) =>
+  removePlaylistItem: (playlistItemId) =>
     set((state) => ({
-      songs: state.songs.filter((s) => s.id !== songId),
+      playlistItems: state.playlistItems.filter((s) => s.id !== playlistItemId),
     })),
 
-  positionSong: (song, position) =>
+  positionPlaylistItem: (playlistItem, position) =>
     set((state) => {
-      const songs = state.songs.filter((item) => item.id !== song.id);
-      const boundedPosition = Math.min(Math.max(position, 0), songs.length);
-      songs.splice(boundedPosition, 0, song);
-      return { songs };
+      const playlistItems = state.playlistItems.filter(
+        (item) => item.id !== playlistItem.id,
+      );
+      const boundedPosition = Math.min(
+        Math.max(position, 0),
+        playlistItems.length,
+      );
+      playlistItems.splice(boundedPosition, 0, playlistItem);
+      return { playlistItems };
     }),
 
-  updateSong: (song) =>
+  updatePlaylistItem: (playlistItem) =>
     set((state) => ({
-      songs: state.songs.map((s) => (s.id === song.id ? song : s)),
+      playlistItems: state.playlistItems.map((s) =>
+        s.id === playlistItem.id ? playlistItem : s,
+      ),
     })),
 }));

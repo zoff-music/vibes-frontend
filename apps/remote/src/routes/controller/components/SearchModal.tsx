@@ -1,4 +1,4 @@
-import type { SearchResult, SourceType } from '@vibes/models';
+import type { SourceType } from '@vibes/models';
 import {
   Button,
   CloseIcon,
@@ -19,7 +19,7 @@ interface Props {
   roomId: string;
 }
 
-export function SongSearchModal({
+export function PlaylistItemSearchModal({
   fetcher,
   isOpen,
   onClose,
@@ -27,18 +27,8 @@ export function SongSearchModal({
   roomId,
 }: Props) {
   const [provider, setProvider] = useState<SourceType>('youtube');
-  const rawResults =
+  const results =
     fetcher.data?.intent === 'search' ? (fetcher.data.searchResults ?? []) : [];
-  const results: SearchResult[] = rawResults.map((result) => ({
-    channelTitle: result.channelTitle,
-    duration: result.duration,
-    id: result.id,
-    playbackRestriction: result.playbackRestriction,
-    providerUrl: result.providerUrl,
-    source: 'source' in result ? result.source : 'youtube',
-    thumbnailUrl: result.thumbnailUrl,
-    title: result.title,
-  }));
 
   return (
     <Modal
@@ -113,7 +103,7 @@ export function SongSearchModal({
             method="post"
             className="flex items-center gap-3 rounded-2xl border border-theme bg-theme-surface p-3"
           >
-            <input type="hidden" name="intent" value="addSong" />
+            <input type="hidden" name="intent" value="addPlaylistItem" />
             <input type="hidden" name="roomId" value={roomId} />
             <input type="hidden" name="sourceType" value={result.source} />
             <input type="hidden" name="sourceId" value={result.id} />
@@ -125,8 +115,8 @@ export function SongSearchModal({
             <input type="hidden" name="title" value={result.title} />
             <input
               type="hidden"
-              name="artist"
-              value={result.channelTitle ?? ''}
+              name="publisher"
+              value={result.publisher ?? ''}
             />
             <input
               type="hidden"
@@ -146,7 +136,7 @@ export function SongSearchModal({
             <div className="min-w-0 flex-1">
               <p className="truncate text-theme text-xs">{result.title}</p>
               <p className="mt-1 truncate text-theme-muted text-xs">
-                {result.channelTitle}
+                {result.publisher}
               </p>
             </div>
             <Button

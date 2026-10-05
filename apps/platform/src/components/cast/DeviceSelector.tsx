@@ -1,4 +1,4 @@
-import type { CastDevice, Song } from '@vibes/models';
+import type { CastDevice, PlaylistItem } from '@vibes/models';
 import {
   browserDebugLog,
   safeWrapAsync,
@@ -48,9 +48,13 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     (state) => state.disconnectFromDevice,
   );
   const discoverDevices = useCastStore((state) => state.discoverDevices);
-  const castCurrentSong = useCastStore((state) => state.castCurrentSong);
+  const castCurrentPlaylistItem = useCastStore(
+    (state) => state.castCurrentPlaylistItem,
+  );
 
-  const currentSong = usePlaybackStore((state) => state.currentSong);
+  const currentPlaylistItem = usePlaybackStore(
+    (state) => state.currentPlaylistItem,
+  );
 
   const isDev = import.meta.env.VITE_DEVELOPMENT_MODE === 'true';
 
@@ -118,12 +122,14 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     onClose();
   };
 
-  const handleCastCurrentSong = async (media?: Song) => {
-    const songToCast = media || currentSong;
-    if (!songToCast || !isConnected) return;
+  const handleCastCurrentPlaylistItem = async (media?: PlaylistItem) => {
+    const playlistItemToCast = media || currentPlaylistItem;
+    if (!playlistItemToCast || !isConnected) return;
 
     setIsCasting(true);
-    const [err] = await safeWrapAsync(castCurrentSong(songToCast));
+    const [err] = await safeWrapAsync(
+      castCurrentPlaylistItem(playlistItemToCast),
+    );
 
     if (err) {
       console.error('Failed to cast:', err);
@@ -263,10 +269,10 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
           </div>
 
           {/* Cast Current Song Button */}
-          {isDev && currentSong && (
+          {isDev && currentPlaylistItem && (
             <div className="border-primary/20 border-t pt-3 dark:border-primary/30">
               <Button
-                onClick={() => handleCastCurrentSong()}
+                onClick={() => handleCastCurrentPlaylistItem()}
                 disabled={isCasting}
                 variant="primary"
                 className="w-full gap-2"
@@ -285,11 +291,11 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 )}
               </Button>
               <div className="mt-1 text-center text-primary/70 text-xs dark:text-primary-light/70">
-                {currentSong.title}
+                {currentPlaylistItem.title}
               </div>
 
               {/* YouTube Limitation Notice */}
-              {currentSong.sourceType === 'youtube' && (
+              {currentPlaylistItem.sourceType === 'youtube' && (
                 <div className="mt-2 rounded border border-blue-300 bg-blue-100 p-3 text-blue-800 text-xs transition-colors duration-200 dark:border-blue-700/30 dark:bg-blue-900/20 dark:text-blue-400">
                   <div className="flex items-start gap-2">
                     <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
@@ -317,19 +323,19 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
               {/* Test Cast Button for Demo */}
               <Button
                 onClick={() => {
-                  const testMedia: Song = {
+                  const testMedia: PlaylistItem = {
                     id: 'test-song',
                     sourceType: 'youtube',
                     sourceId: 'dQw4w9WgXcQ',
                     title: 'Test Video - YouTube',
-                    artist: 'YouTube',
+                    publisher: 'YouTube',
                     thumbnailUrl:
                       'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
                     duration: 213,
                     addedBy: 'test',
                     addedAt: new Date().toISOString(),
                   };
-                  handleCastCurrentSong(testMedia);
+                  handleCastCurrentPlaylistItem(testMedia);
                 }}
                 variant="secondary"
                 className="mt-2 w-full gap-2 text-xs"

@@ -1,4 +1,4 @@
-import { apiV2 } from '@vibes/api';
+import { apiV3 } from '@vibes/api';
 import { type ClientLoaderFunctionArgs, data, redirect } from 'react-router';
 import {
   publicRoomPageSize,
@@ -9,7 +9,7 @@ import {
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const search = readRoomBrowserSearch(request);
-  const [error, result] = await apiV2.get(
+  const [error, result] = await apiV3.get(
     '/rooms/public',
     {
       $search: {

@@ -1,15 +1,15 @@
-import type { Room, RoomUser } from '@vibes/models';
+import type { RoomUser, RoomV2 } from '@vibes/models';
 import { create } from 'zustand';
 
 interface RoomState {
-  room: Room | null;
+  room: RoomV2 | null;
   users: RoomUser[];
   userId: string | null;
   isAdmin: boolean;
   nickname: string | null;
   usersCount: number;
 
-  setRoom: (room: Room) => void;
+  setRoom: (room: RoomV2) => void;
   setHost: (userId: string) => void;
   setUsers: (users: RoomUser[]) => void;
   setUsersCount: (count: number) => void;

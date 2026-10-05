@@ -18,7 +18,7 @@ export default function AppTabs() {
   const [{ resolvedScheme }] = useThemePreference();
   const theme = useAppTheme();
   const tabletLayout = useTabletLandscapeLayout();
-  const { canAddSongs, hasRoom } = useRoomNavigation();
+  const { canAddPlaylistItems, hasRoom } = useRoomNavigation();
   const { enabled: konamiEnabled } = useKonamiMode();
   const showsFloatingAddButton = tabletLayout.isTablet;
   const hidesAddTab = Platform.OS === 'ios' && showsFloatingAddButton;
@@ -95,7 +95,7 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
-        hidden={!canAddSongs || hidesAddTab}
+        hidden={!canAddPlaylistItems || hidesAddTab}
         name="add"
         {...(Platform.OS === 'ios' ? { role: 'search' as const } : {})}
       >

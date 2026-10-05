@@ -20,7 +20,7 @@ export function TerminalNavigation() {
   const router = useRouter();
   const { enabled } = useKonamiMode();
   const keyboardVisible = useKeyboardVisible();
-  const { canAddSongs, hasRoom } = useRoomNavigation();
+  const { canAddPlaylistItems, hasRoom } = useRoomNavigation();
 
   if (!enabled || keyboardVisible) return null;
 
@@ -70,7 +70,7 @@ export function TerminalNavigation() {
             </Pressable>
           );
         })}
-        {canAddSongs && (
+        {canAddPlaylistItems && (
           <Pressable
             accessibilityLabel="Add song"
             className="min-h-14 flex-row items-center justify-center gap-2 border border-[#55ffad] px-4 active:bg-[#71f5ad]/20"

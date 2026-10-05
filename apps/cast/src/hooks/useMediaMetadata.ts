@@ -1,5 +1,5 @@
-import type { Song } from '@vibes/shared';
-import { resolveSongThumbnail, safeWrap } from '@vibes/shared';
+import type { PlaylistItem } from '@vibes/shared';
+import { resolvePlaylistItemThumbnail, safeWrap } from '@vibes/shared';
 import type { framework } from 'chromecast-caf-receiver';
 import { useCallback } from 'react';
 
@@ -8,7 +8,7 @@ interface ExtendedPlayerManager extends framework.PlayerManager {
 }
 
 export function useMediaMetadata() {
-  const updateMediaMetadata = useCallback((song: Song) => {
+  const updateMediaMetadata = useCallback((playlistItem: PlaylistItem) => {
     if (!window.cast?.framework) return;
 
     const context = window.cast.framework.CastReceiverContext.getInstance();
@@ -21,19 +21,19 @@ export function useMediaMetadata() {
         new cast.framework.messages.MediaInformation();
 
       const metadata = new cast.framework.messages.MusicTrackMediaMetadata();
-      metadata.title = song.title;
-      metadata.artist = song.artist || 'Unknown Artist';
+      metadata.title = playlistItem.title;
+      metadata.artist = playlistItem.publisher || 'Unknown Artist';
       metadata.images = [
         new cast.framework.messages.Image(
-          resolveSongThumbnail(song.thumbnailUrl),
+          resolvePlaylistItemThumbnail(playlistItem.thumbnailUrl),
         ),
       ];
 
       mediaInfo.metadata = metadata;
-      mediaInfo.contentId = song.id; // Or sourceId
+      mediaInfo.contentId = playlistItem.id; // Or sourceId
       mediaInfo.contentType = 'audio/mpeg'; // Generic content type
       mediaInfo.streamType = cast.framework.messages.StreamType.BUFFERED;
-      mediaInfo.duration = song.duration || 0;
+      mediaInfo.duration = playlistItem.duration || 0;
 
       playerManager.setMediaInformation(mediaInfo);
 

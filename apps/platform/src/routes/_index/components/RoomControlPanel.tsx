@@ -10,7 +10,7 @@ import { RoomSetupSettings } from './RoomSetupSettings';
 export function RoomControlPanel() {
   const { ref, state, actions } = useRoomSetup();
   const layoutId = useId();
-  let rule = state.settings.onlyAdminAddSongs
+  let rule = state.settings.onlyAdminAddPlaylistItems
     ? 'Only admins add.'
     : 'Everyone can add.';
 

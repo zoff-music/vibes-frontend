@@ -1,12 +1,12 @@
 import { getRateLimitMessage, getRequestErrorMessage } from '@vibes/api';
-import type { AdminRoomSummary } from '@vibes/models';
+import type { AdminRoomSummaryV2 } from '@vibes/models';
 import type { ActionFunctionArgs } from 'react-router';
 import { getServerApi } from '../../../http.server';
 
 export interface AdminRoomsActionData {
   error?: string;
   rateLimitMessage?: string;
-  rooms?: AdminRoomSummary[];
+  rooms?: AdminRoomSummaryV2[];
   success?: boolean;
 }
 
@@ -20,7 +20,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === 'renameRoom') {
     const name = String(formData.get('name') ?? '').trim();
-    const [error, rooms] = await serverApi.patch(
+    const [error, rooms] = await serverApi.v2.patch(
       '/admin/rooms/{id}',
       { id: roomID },
       { name },
@@ -38,7 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === 'clearPassword') {
-    const [error, rooms] = await serverApi.patch(
+    const [error, rooms] = await serverApi.v2.patch(
       '/admin/rooms/{id}',
       { id: roomID },
       { clearAdminPassword: true },
@@ -59,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === 'deleteRoom') {
-    const [error, rooms] = await serverApi.delete(
+    const [error, rooms] = await serverApi.v2.delete(
       '/admin/rooms/{id}',
       { id: roomID },
       { headers },

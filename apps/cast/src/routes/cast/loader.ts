@@ -1,5 +1,10 @@
 import { type ApiClient, type ApiResult, createApiClient } from '@vibes/api';
-import type { PlaybackState, Providers, Room, Song } from '@vibes/models';
+import type {
+  PlaybackStateV2,
+  PlaylistItem,
+  Providers,
+  RoomV2,
+} from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 
 export interface CastCredentials {
@@ -9,10 +14,10 @@ export interface CastCredentials {
 }
 
 export interface CastRoomSnapshot {
-  playback: PlaybackState;
+  playback: PlaybackStateV2;
   providers: Providers;
-  room: Room;
-  songs: Song[];
+  room: RoomV2;
+  playlistItems: PlaylistItem[];
 }
 
 export interface CastLoaderData {
@@ -37,21 +42,21 @@ async function loadSnapshot(
   client: ApiClient,
   roomId: string,
 ): ApiResult<CastRoomSnapshot> {
-  const [roomResult, songsResult, playbackResult, providersResult] =
+  const [roomResult, playlistItemsResult, playbackResult, providersResult] =
     await Promise.all([
-      client.get('/rooms/{id}', { id: roomId }),
-      client.get('/rooms/{id}/songs', { id: roomId }),
-      client.get('/rooms/{id}/states', { id: roomId }),
+      client.v2.get('/rooms/{id}', { id: roomId }),
+      client.v2.get('/rooms/{id}/playlist-items', { id: roomId }),
+      client.v2.get('/rooms/{id}/states', { id: roomId }),
       client.get('/providers', null),
     ]);
   const [roomError, room] = roomResult;
-  const [songsError, songs] = songsResult;
+  const [playlistItemsError, playlistItems] = playlistItemsResult;
   const [playbackError, playback] = playbackResult;
   const [providersError, providers] = providersResult;
   const requestError =
-    roomError ?? songsError ?? playbackError ?? providersError;
+    roomError ?? playlistItemsError ?? playbackError ?? providersError;
   if (requestError) return [requestError, null];
-  if (!room || !songs || !playback || !providers) {
+  if (!room || !playlistItems || !playback || !providers) {
     return [new Error('Cast room snapshot was incomplete.'), null];
   }
 
@@ -64,7 +69,7 @@ async function loadSnapshot(
       playback,
       providers: enabledProviders,
       room,
-      songs,
+      playlistItems,
     },
   ];
 }

@@ -1,16 +1,16 @@
 import {
-  createApiV2Client,
+  createApiV3Client,
   getRoomAnalyticsPath,
   plausibleClient,
   useRemoteEvents,
-  useRoomEventsV2,
+  useRoomEventsV3,
 } from '@vibes/api';
 
 import type {
-  PlaybackState,
-  RemoteEvent,
-  RemoteStatus,
-  Song,
+  PlaybackStateV2,
+  PlaylistItem,
+  RemoteEventV2,
+  RemoteStatusV2,
 } from '@vibes/models';
 import { roomNameMaxLength } from '@vibes/models';
 import {
@@ -49,7 +49,7 @@ import { type ControllerActionData, clientAction } from './action';
 import { clientLoader } from './clientLoader';
 import { RemotePlaybackControls } from './components/RemotePlaybackControls';
 import { RoomSettingsModal } from './components/RoomSettingsModal';
-import { SongSearchModal } from './components/SongSearchModal';
+import { PlaylistItemSearchModal } from './components/SearchModal';
 import type { ControllerLoaderData } from './loadController';
 import { loader } from './loader';
 import { shouldRevalidate } from './shouldRevalidate';
@@ -76,29 +76,35 @@ export default function RemoteController() {
   const [roomInput, setRoomInput] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [remoteStatus, setRemoteStatus] = useState<RemoteStatus | undefined>(
+  const [remoteStatus, setRemoteStatus] = useState<RemoteStatusV2 | undefined>(
     loaderData.remote,
   );
   const room = useRoomStore((state) => state.room) ?? loaderData.room;
-  const songs = useQueueStore((state) => state.songs);
-  const currentSongFromStore = usePlaybackStore((state) => state.currentSong);
+  const playlistItems = useQueueStore((state) => state.playlistItems);
+  const currentPlaylistItemFromStore = usePlaybackStore(
+    (state) => state.currentPlaylistItem,
+  );
   const playbackIsPlaying = usePlaybackStore((state) => state.isPlaying);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setHost = useRoomStore((state) => state.setHost);
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
-  const setSongs = useQueueStore((state) => state.setSongs);
-  const addSong = useQueueStore((state) => state.addSong);
-  const removeSong = useQueueStore((state) => state.removeSong);
-  const positionSong = useQueueStore((state) => state.positionSong);
+  const setPlaylistItems = useQueueStore((state) => state.setPlaylistItems);
+  const addPlaylistItem = useQueueStore((state) => state.addPlaylistItem);
+  const removePlaylistItem = useQueueStore((state) => state.removePlaylistItem);
+  const positionPlaylistItem = useQueueStore(
+    (state) => state.positionPlaylistItem,
+  );
   const setPlaybackState = usePlaybackStore((state) => state.setPlaybackState);
   const usersCount = useRoomStore((state) => state.usersCount);
   const setSession = useRoomStore((state) => state.setSession);
-  const currentSong = currentSongFromStore ?? loaderData.playback?.currentSong;
-  const isMachineSongCurrent = Boolean(
-    currentSong?.id && remoteStatus?.currentSongId === currentSong.id,
+  const currentPlaylistItem =
+    currentPlaylistItemFromStore ?? loaderData.playback?.currentPlaylistItem;
+  const isMachinePlaylistItemCurrent = Boolean(
+    currentPlaylistItem?.id &&
+      remoteStatus?.currentPlaylistItemId === currentPlaylistItem.id,
   );
   const remoteClient = useMemo(
-    () => createApiV2Client({ 'X-Zoff-Remote-ID': remoteId }),
+    () => createApiV3Client({ 'X-Zoff-Remote-ID': remoteId }),
     [remoteId],
   );
 
@@ -110,11 +116,11 @@ export default function RemoteController() {
   useEffect(() => {
     if (loaderData.room) setRoom(loaderData.room);
     setRemoteStatus(loaderData.remote);
-    setSongs(loaderData.songs);
+    setPlaylistItems(loaderData.playlistItems);
     if (loaderData.playback && loaderData.room) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
-  }, [loaderData, setPlaybackState, setRoom, setSongs]);
+  }, [loaderData, setPlaybackState, setRoom, setPlaylistItems]);
 
   useEffect(() => {
     const data = actionFetcher.data ?? roomFetcher.data;
@@ -143,7 +149,7 @@ export default function RemoteController() {
   ]);
 
   const handleRemoteRoomUpdate = useCallback(
-    (event: RemoteEvent) => {
+    (event: RemoteEventV2) => {
       if (event.roomId !== room?.id) {
         void revalidator.revalidate();
       }
@@ -151,10 +157,10 @@ export default function RemoteController() {
     [revalidator, room?.id],
   );
   const handleRemoteStateUpdate = useCallback(
-    (event: RemoteEvent) => {
+    (event: RemoteEventV2) => {
       setRemoteStatus((current) => ({
         currentRoomId: event.roomId,
-        currentSongId: event.currentSongId,
+        currentPlaylistItemId: event.currentPlaylistItemId,
         enabled: true,
         id: current?.id ?? remoteId,
         online: event.online,
@@ -177,49 +183,54 @@ export default function RemoteController() {
     () => ({
       onConnected: synchronizeServerClock,
       onHostUpdate: ({ userId }: { userId: string }) => setHost(userId),
-      onPlaybackUpdate: (playback: PlaybackState) => {
+      onPlaybackUpdate: (playback: PlaybackStateV2) => {
         const roomMode = useRoomStore.getState().room?.mode;
         setPlaybackState(playback, roomMode);
       },
       onReconnect: revalidator.revalidate,
       onRoomUpdate: setRoom,
-      onSongAdded: addSong,
-      onSongRemoved: ({ id }: { id: string }) => removeSong(id),
-      onSongUpdated: ({ song, position }: { song: Song; position: number }) =>
-        positionSong(song, position),
-      onSongsUpdate: setSongs,
+      onPlaylistItemAdded: addPlaylistItem,
+      onPlaylistItemRemoved: ({ id }: { id: string }) => removePlaylistItem(id),
+      onPlaylistItemUpdated: ({
+        playlistItem,
+        position,
+      }: {
+        playlistItem: PlaylistItem;
+        position: number;
+      }) => positionPlaylistItem(playlistItem, position),
+      onPlaylistItemsUpdate: setPlaylistItems,
       onUsersUpdate: setUsersCount,
     }),
     [
-      addSong,
-      positionSong,
+      addPlaylistItem,
+      positionPlaylistItem,
       revalidator.revalidate,
-      removeSong,
+      removePlaylistItem,
       setHost,
       setPlaybackState,
       setRoom,
-      setSongs,
+      setPlaylistItems,
       setUsersCount,
     ],
   );
-  useRoomEventsV2(room?.id, callbacks, remoteClient);
+  useRoomEventsV3(room?.id, callbacks, remoteClient);
 
   const handleRoomInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRoomInput(event.target.value.toLowerCase());
   };
   const handleVote = useCallback(
-    (songId: string) => {
+    (playlistItemId: string) => {
       actionFetcher.submit(
-        { intent: 'vote', roomId: room?.id ?? '', songId },
+        { intent: 'vote', roomId: room?.id ?? '', playlistItemId },
         { method: 'post' },
       );
     },
     [actionFetcher, room?.id],
   );
   const handleRemove = useCallback(
-    (songId: string) => {
+    (playlistItemId: string) => {
       actionFetcher.submit(
-        { intent: 'remove', roomId: room?.id ?? '', songId },
+        { intent: 'remove', roomId: room?.id ?? '', playlistItemId },
         { method: 'post' },
       );
     },
@@ -246,13 +257,15 @@ export default function RemoteController() {
     );
   }
 
-  const isPlaying = isMachineSongCurrent
+  const isPlaying = isMachinePlaylistItemCurrent
     ? (remoteStatus?.playbackIsPlaying ?? false)
     : (playbackIsPlaying ?? loaderData.playback?.isPlaying ?? false);
   const canSeek =
     room?.mode === 'host' &&
     Boolean(room.hostId && room.hostId === room.userId);
-  const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
+  const queuedPlaylistItems = playlistItems.filter(
+    (playlistItem) => playlistItem.id !== currentPlaylistItem?.id,
+  );
 
   return (
     <main className="relative z-10 mx-auto min-h-screen max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
@@ -320,22 +333,22 @@ export default function RemoteController() {
         <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-[0.85fr_1.15fr]">
           <RemotePlaybackControls
             canSeek={canSeek}
-            currentSong={currentSong ?? null}
+            currentPlaylistItem={currentPlaylistItem ?? null}
             fetcher={actionFetcher}
             initialPositionMs={loaderData.playback?.positionMs ?? 0}
-            isMachineSongCurrent={isMachineSongCurrent}
+            isMachinePlaylistItemCurrent={isMachinePlaylistItemCurrent}
             isPlaying={isPlaying}
-            onAddSong={() => setShowSearch(true)}
+            onAddPlaylistItem={() => setShowSearch(true)}
             {...(remoteStatus ? { remoteStatus } : {})}
             room={room}
           />
 
           <section className="panel-strong min-w-0 rounded-3xl p-4 sm:p-5">
             <h2 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
-              Up next ({queuedSongs.length})
+              Up next ({queuedPlaylistItems.length})
             </h2>
             <QueueList
-              songs={queuedSongs}
+              playlistItems={queuedPlaylistItems}
               roomId={room.id}
               onVote={handleVote}
               {...(room.isAdmin && { onRemove: handleRemove })}
@@ -346,7 +359,7 @@ export default function RemoteController() {
       )}
 
       {room && (
-        <SongSearchModal
+        <PlaylistItemSearchModal
           fetcher={actionFetcher}
           isOpen={showSearch}
           onClose={() => setShowSearch(false)}

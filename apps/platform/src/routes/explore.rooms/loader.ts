@@ -1,5 +1,5 @@
 import { data, type LoaderFunctionArgs, redirect } from 'react-router';
-import { getServerApiV2 } from '../../http.server';
+import { getServerApiV3 } from '../../http.server';
 import {
   publicRoomPageSize,
   type RoomBrowserLoaderData,
@@ -9,7 +9,7 @@ import {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const search = readRoomBrowserSearch(request);
-  const serverApi = getServerApiV2(request);
+  const serverApi = getServerApiV3(request);
   const [error, result] = await serverApi.get(
     '/rooms/public',
     {

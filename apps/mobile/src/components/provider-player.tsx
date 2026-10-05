@@ -1,4 +1,4 @@
-import type { PlaybackState, Song } from '@vibes/models';
+import type { PlaybackStateV2, PlaylistItem } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
 import { useEffect, useState } from 'react';
@@ -15,10 +15,10 @@ interface ProviderPlayerProps {
   onLocalPlayingChange: (isPlaying: boolean) => void;
   onLocalPositionObserved: (positionMs: number) => void;
   onLocalSeek: (positionMs: number) => void;
-  playback: PlaybackState | null;
+  playback: PlaybackStateV2 | null;
   positionMs: number;
   resetVersion: number;
-  song: Song | null;
+  playlistItem: PlaylistItem | null;
   suppressPlayback: boolean;
   synchronizePosition: boolean;
 }
@@ -34,25 +34,32 @@ export function ProviderPlayer({
   playback,
   positionMs,
   resetVersion,
-  song,
+  playlistItem,
   suppressPlayback,
   synchronizePosition,
 }: ProviderPlayerProps) {
   const { width: windowWidth } = useWindowDimensions();
   const isPhoneLayout = windowWidth < 600;
   const [error, setError] = useState('');
-  const [retainedYouTubeSong, setRetainedYouTubeSong] = useState<Song | null>(
-    song?.sourceType === 'youtube' ? song : null,
-  );
-  const [retainedSoundCloudSong, setRetainedSoundCloudSong] =
-    useState<Song | null>(song?.sourceType === 'soundcloud' ? song : null);
-  const songId = song?.id;
-  const youtubeSong =
-    song?.sourceType === 'youtube' ? song : retainedYouTubeSong;
-  const soundCloudSong =
-    song?.sourceType === 'soundcloud' ? song : retainedSoundCloudSong;
-  const isYouTubeActive = song?.sourceType === 'youtube';
-  const isSoundCloudActive = song?.sourceType === 'soundcloud';
+  const [retainedYouTubePlaylistItem, setRetainedYouTubePlaylistItem] =
+    useState<PlaylistItem | null>(
+      playlistItem?.sourceType === 'youtube' ? playlistItem : null,
+    );
+  const [retainedSoundCloudPlaylistItem, setRetainedSoundCloudPlaylistItem] =
+    useState<PlaylistItem | null>(
+      playlistItem?.sourceType === 'soundcloud' ? playlistItem : null,
+    );
+  const playlistItemId = playlistItem?.id;
+  const youtubePlaylistItem =
+    playlistItem?.sourceType === 'youtube'
+      ? playlistItem
+      : retainedYouTubePlaylistItem;
+  const soundCloudPlaylistItem =
+    playlistItem?.sourceType === 'soundcloud'
+      ? playlistItem
+      : retainedSoundCloudPlaylistItem;
+  const isYouTubeActive = playlistItem?.sourceType === 'youtube';
+  const isSoundCloudActive = playlistItem?.sourceType === 'soundcloud';
   const localIsPlaying = !suppressPlayback && (playback?.isPlaying ?? false);
   const playerWidth = Math.max(
     0,
@@ -74,12 +81,14 @@ export function ProviderPlayer({
   // biome-ignore lint/correctness/useExhaustiveDependencies: A song identity change intentionally clears prior provider errors.
   useEffect(() => {
     setError('');
-  }, [songId]);
+  }, [playlistItemId]);
 
   useEffect(() => {
-    if (song?.sourceType === 'youtube') setRetainedYouTubeSong(song);
-    if (song?.sourceType === 'soundcloud') setRetainedSoundCloudSong(song);
-  }, [song]);
+    if (playlistItem?.sourceType === 'youtube')
+      setRetainedYouTubePlaylistItem(playlistItem);
+    if (playlistItem?.sourceType === 'soundcloud')
+      setRetainedSoundCloudPlaylistItem(playlistItem);
+  }, [playlistItem]);
 
   return (
     <View className="gap-2">
@@ -90,7 +99,7 @@ export function ProviderPlayer({
           marginHorizontal: horizontalMargin,
         }}
       >
-        {youtubeSong && (
+        {youtubePlaylistItem && (
           <View
             className={classNames(
               'absolute inset-0 items-center justify-center',
@@ -105,7 +114,7 @@ export function ProviderPlayer({
               onError={setError}
               positionMs={isYouTubeActive ? positionMs : 0}
               resetVersion={resetVersion}
-              sourceId={youtubeSong.sourceId}
+              sourceId={youtubePlaylistItem.sourceId}
               synchronizePosition={
                 isYouTubeActive && !suppressPlayback && synchronizePosition
               }
@@ -126,7 +135,7 @@ export function ProviderPlayer({
             />
           </View>
         )}
-        {soundCloudSong && (
+        {soundCloudPlaylistItem && (
           <View
             className={classNames(
               'absolute inset-0 items-center justify-center',
@@ -136,7 +145,7 @@ export function ProviderPlayer({
             pointerEvents={isSoundCloudActive ? 'auto' : 'none'}
           >
             <NativeSoundCloudPlayer
-              artworkUrl={soundCloudSong.thumbnailUrl}
+              artworkUrl={soundCloudPlaylistItem.thumbnailUrl}
               blankArtworkColor={isPhoneLayout ? '#f5f5f5' : '#000000'}
               height={embeddedPlayerHeight}
               interactive={isSoundCloudActive && !suppressPlayback}
@@ -144,7 +153,7 @@ export function ProviderPlayer({
               onError={setError}
               positionMs={isSoundCloudActive ? positionMs : 0}
               resetVersion={resetVersion}
-              sourceId={soundCloudSong.sourceId}
+              sourceId={soundCloudPlaylistItem.sourceId}
               synchronizePosition={
                 isSoundCloudActive && !suppressPlayback && synchronizePosition
               }
@@ -162,14 +171,14 @@ export function ProviderPlayer({
                     },
                   }
                 : {})}
-              {...(soundCloudSong.providerUrl
-                ? { providerUrl: soundCloudSong.providerUrl }
+              {...(soundCloudPlaylistItem.providerUrl
+                ? { providerUrl: soundCloudPlaylistItem.providerUrl }
                 : {})}
             />
           </View>
         )}
-        {!song && isGenerating && <RoomGenerationProgress />}
-        {!song && !isGenerating && (
+        {!playlistItem && isGenerating && <RoomGenerationProgress />}
+        {!playlistItem && !isGenerating && (
           <Copy muted>Add a song to start listening.</Copy>
         )}
       </View>

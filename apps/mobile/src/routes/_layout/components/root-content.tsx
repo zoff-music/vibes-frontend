@@ -31,7 +31,7 @@ import { useThemePreference } from '@/providers/theme-provider';
 import { AndroidFloatingNavigation } from './android-floating-navigation';
 import AppTabs from './app-tabs';
 import { DeviceOrientationLock } from './device-orientation-lock';
-import { TabletAddSongButton } from './tablet-add-song-button';
+import { TabletAddPlaylistItemButton } from './tablet-add-button';
 import { TabletTopNavigation } from './tablet-top-navigation';
 import { TerminalNavigation } from './terminal-navigation';
 
@@ -125,7 +125,7 @@ function RoomRuntime() {
       <AppTabs />
       <AndroidFloatingNavigation />
       <TabletTopNavigation />
-      <TabletAddSongButton />
+      <TabletAddPlaylistItemButton />
       <TerminalNavigation />
     </>
   );

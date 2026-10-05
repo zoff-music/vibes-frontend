@@ -7,7 +7,10 @@ declare const process:
   | undefined;
 
 import {
+  addPlaylistItemRequestSchema,
+  addPlaylistItemResponseSchema,
   addPlaylistRequestSchema,
+  addPlaylistRequestV2Schema,
   addPlaylistResponseSchema,
   addSongRequestSchema,
   addSongResponseSchema,
@@ -17,8 +20,11 @@ import {
   adminMessageUsageSchema,
   adminMessageUsageSearchSchema,
   adminRoomResultSchema,
+  adminRoomResultV2Schema,
   adminRoomSearchSchema,
+  adminRoomSearchV2Schema,
   adminRoomsSchema,
+  adminRoomsV2Schema,
   adminSearchUsageSchema,
   adminSessionResponseSchema,
   adminUpdateRoomRequestSchema,
@@ -30,6 +36,7 @@ import {
   createCastingTokenRequestSchema,
   createMessageSchema,
   createRoomRequestSchema,
+  createRoomRequestV2Schema,
   createRoomResponseSchema,
   createSessionRequestSchema,
   emptyObjectSchema,
@@ -38,19 +45,34 @@ import {
   messageResponseSchema,
   musicPlaylistSchema,
   playbackFailureRequestSchema,
+  playbackFailureRequestV2Schema,
   playbackStateSchema,
+  playbackStateV2Schema,
+  playlistItemIdUpdateSchema,
+  playlistItemPositionUpdateSchema,
+  playlistItemSchema,
+  playlistItemsListSchema,
+  providerItemSchema,
+  providerPlaylistSchema,
+  providerSearchResponseSchema,
   providersSchema,
   providerTokenSchema,
   providerURLQuerySchema,
   publicRoomResultSchema,
+  publicRoomResultV3Schema,
   publicRoomSearchSchema,
   publicRoomsSchema,
   remoteEventSchema,
+  remoteEventV2Schema,
   remotePairingRequestSchema,
   remotePairingSchema,
+  remotePairingV2Schema,
   remoteSessionSchema,
+  remoteSessionV2Schema,
   remoteStatusSchema,
+  remoteStatusV2Schema,
   remoteUpdateRequestSchema,
+  remoteUpdateRequestV2Schema,
   roomActionRequestSchema,
   roomGenerationUpdateSchema,
   roomHostUpdateSchema,
@@ -59,19 +81,25 @@ import {
   roomNameReservationSchema,
   roomSchema,
   roomUpdateSchema,
+  roomUpdateV2Schema,
+  roomV2Schema,
   searchQuerySchema,
   searchResponseSchema,
   searchResultSchema,
   sessionProfileSchema,
   sessionResponseSchema,
+  sessionResponseV2Schema,
   skipActionResponseSchema,
+  skipPlaylistItemResponseSchema,
   skipVoteUpdateSchema,
+  skipVoteUpdateV2Schema,
   songIdUpdateSchema,
   songPositionUpdateSchema,
   songSchema,
   songsListSchema,
   sseQuerySchema,
   statsSchema,
+  statsV2Schema,
   updateSessionProfileRequestSchema,
   usersUpdateSchema,
   youTubeSearchQuerySchema,
@@ -98,6 +126,7 @@ export { getHttpError };
 
 const API_BASE_PATH = '/api/v1';
 const API_V2_BASE_PATH = '/api/v2';
+const API_V3_BASE_PATH = '/api/v3';
 const defaultRestTimeoutMs = 10_000;
 
 function readEnvValue(name: string) {
@@ -481,6 +510,125 @@ const endpoints = {
 } as const satisfies RequestDefinitions;
 
 const v2Endpoints = {
+  '/rooms': {
+    post: { request: createRoomRequestV2Schema, response: roomV2Schema },
+  },
+  '/rooms/{id}': {
+    get: { response: roomV2Schema },
+  },
+  '/rooms/{id}/settings': {
+    patch: { request: roomUpdateV2Schema, response: roomV2Schema },
+  },
+  '/rooms/{id}/sessions': {
+    post: {
+      request: createSessionRequestSchema,
+      response: sessionResponseV2Schema,
+    },
+    delete: { response: sessionResponseV2Schema },
+  },
+  '/rooms/{id}/states': {
+    get: { response: playbackStateV2Schema },
+    put: { request: roomActionRequestSchema, response: playbackStateV2Schema },
+  },
+  '/rooms/{id}/skips': {
+    post: { response: skipPlaylistItemResponseSchema },
+  },
+  '/rooms/{id}/failures': {
+    post: {
+      request: playbackFailureRequestV2Schema,
+      response: playbackStateV2Schema,
+    },
+  },
+  '/rooms/{id}/playlist-items': {
+    get: { response: playlistItemsListSchema },
+    post: {
+      request: addPlaylistItemRequestSchema,
+      response: addPlaylistItemResponseSchema,
+    },
+  },
+  '/rooms/{id}/playlist-items/{playlistItemId}': {
+    post: { response: emptyObjectSchema },
+    delete: { response: emptyObjectSchema },
+  },
+  '/rooms/{id}/playlists': {
+    post: {
+      request: addPlaylistRequestV2Schema,
+      response: addPlaylistResponseSchema,
+    },
+  },
+  '/rooms/generation': {
+    post: { request: generatedPlaylistRequestSchema, response: roomV2Schema },
+  },
+  '/rooms/{id}/search/{provider}': {
+    get: { $search: searchQuerySchema, response: providerSearchResponseSchema },
+  },
+  '/youtube/videos/{id}': {
+    get: { response: providerItemSchema },
+  },
+  '/youtube/playlists/{id}': {
+    get: { response: providerPlaylistSchema },
+  },
+  '/soundcloud/items': {
+    get: { $search: providerURLQuerySchema, response: providerItemSchema },
+  },
+  '/soundcloud/items/{id}': {
+    get: { response: providerItemSchema },
+  },
+  '/soundcloud/playlists': {
+    get: { $search: providerURLQuerySchema, response: providerPlaylistSchema },
+  },
+  '/stats': {
+    get: { response: statsV2Schema },
+  },
+  '/remotes': {
+    get: { response: remoteStatusV2Schema },
+    post: {
+      request: remoteUpdateRequestV2Schema,
+      response: remotePairingV2Schema,
+    },
+  },
+  '/remotes/{id}': {
+    get: { response: remoteStatusV2Schema },
+    patch: {
+      request: remoteUpdateRequestV2Schema,
+      response: emptyObjectSchema,
+    },
+  },
+  '/remotes/{id}/sessions': {
+    post: {
+      request: remotePairingRequestSchema,
+      response: remoteSessionV2Schema,
+    },
+  },
+  '/remotes/{id}/events': {
+    sse: {
+      events: {
+        remote_room_update: remoteEventV2Schema,
+        remote_state_update: remoteEventV2Schema,
+      },
+    },
+  },
+  '/admin/rooms': {
+    get: {
+      $search: adminRoomSearchV2Schema,
+      response: adminRoomResultV2Schema,
+    },
+  },
+  '/admin/rooms/{id}': {
+    patch: {
+      request: adminUpdateRoomRequestSchema,
+      response: adminRoomsV2Schema,
+    },
+    delete: { response: adminRoomsV2Schema },
+  },
+  '/admin/events': {
+    sse: {
+      events: {
+        connected: connectedSchema,
+        admin_rooms_update: adminRoomsV2Schema,
+      },
+    },
+  },
   '/rooms/public': {
     get: {
       $search: publicRoomSearchSchema,
@@ -508,6 +656,34 @@ const v2Endpoints = {
   },
 } as const satisfies RequestDefinitions;
 
+const v3Endpoints = {
+  '/rooms/public': {
+    get: {
+      $search: publicRoomSearchSchema,
+      response: publicRoomResultV3Schema,
+    },
+  },
+  '/rooms/{id}/events': {
+    sse: {
+      $search: sseQuerySchema.optional(),
+      events: {
+        connected: connectedSchema,
+        event_cursor: eventCursorSchema,
+        playback_update: playbackStateV2Schema,
+        playlist_items_snapshot: playlistItemsListSchema,
+        playlist_item_added: playlistItemSchema,
+        playlist_item_updated: playlistItemPositionUpdateSchema,
+        playlist_item_removed: playlistItemIdUpdateSchema,
+        skip_vote: skipVoteUpdateV2Schema,
+        settings_update: roomV2Schema,
+        users_update: usersUpdateSchema,
+        generation_update: roomGenerationUpdateSchema,
+        new_host: roomHostUpdateSchema,
+      },
+    },
+  },
+} as const satisfies RequestDefinitions;
+
 export interface ApiClientOptions {
   customHeaders?: Record<string, string>;
   fetcher?: ApiFetch;
@@ -525,6 +701,8 @@ export interface ApiRequestOptions {
 }
 
 export type ApiClient = RequestClient<typeof endpoints> & {
+  v2: ApiV2Client;
+  v3: ApiV3Client;
   roomExists: (
     roomID: string,
     options?: RoomExistsOptions,
@@ -532,6 +710,7 @@ export type ApiClient = RequestClient<typeof endpoints> & {
 };
 
 export type ApiV2Client = RequestClient<typeof v2Endpoints>;
+export type ApiV3Client = RequestClient<typeof v3Endpoints>;
 
 function resolveApiBaseUrl(baseUrl: string) {
   const normalized = baseUrl.endsWith(API_BASE_PATH)
@@ -560,6 +739,14 @@ export function createApiClientWithBaseUrl(
   });
 
   return Object.assign(requestClient, {
+    v2: createApiV2ClientWithBaseUrl(
+      resolvedBaseUrl.slice(0, -API_BASE_PATH.length),
+      options,
+    ),
+    v3: createApiV3ClientWithBaseUrl(
+      resolvedBaseUrl.slice(0, -API_BASE_PATH.length),
+      options,
+    ),
     roomExists: (roomID: string, roomExistsOptions: RoomExistsOptions = {}) => {
       const roomURL = `${resolvedBaseUrl}/rooms/${encodeURIComponent(roomID)}`;
       return headApiUrl(
@@ -615,3 +802,35 @@ export function createApiV2Client(
 }
 
 export const apiV2 = createApiV2Client();
+
+export function createApiV3ClientWithBaseUrl(
+  baseUrl: string,
+  options: ApiClientOptions = {},
+): ApiV3Client {
+  const { customHeaders = {}, fetcher, fetchLifecycle } = options;
+  const normalizedBaseUrl = baseUrl.endsWith(API_V3_BASE_PATH)
+    ? baseUrl
+    : `${baseUrl}${API_V3_BASE_PATH}`;
+  const resolvedBaseUrl = normalizedBaseUrl.replace(/([^:]\/)\/+/g, '$1');
+
+  return new RequestClient({
+    fetchProvider: createApiFetchProvider(fetchLifecycle, fetcher),
+    hostname: resolvedBaseUrl,
+    baseUrl: resolvedBaseUrl,
+    endpoints: v3Endpoints,
+    validation: true,
+    fetchOpts: {
+      timeout: getRestTimeoutMs(),
+      credentials: 'include',
+      headers: { ...customHeaders },
+    },
+  });
+}
+
+export function createApiV3Client(
+  customHeaders: Record<string, string> = {},
+): ApiV3Client {
+  return createApiV3ClientWithBaseUrl(API_URL, { customHeaders });
+}
+
+export const apiV3 = createApiV3Client();

@@ -1,4 +1,4 @@
-import type { AdminRoomSummary } from '@vibes/models';
+import type { AdminRoomSummaryV2 } from '@vibes/models';
 import { Button, SoundCloudIcon, YouTubeIcon } from '@vibes/ui/web';
 import type { ChangeEvent, JSX, KeyboardEvent, MouseEvent } from 'react';
 
@@ -13,7 +13,7 @@ interface AdminRoomCardProps {
   onEditingNameKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
   onSaveRename: () => void;
   onStartRename: (event: MouseEvent<HTMLButtonElement>) => void;
-  room: AdminRoomSummary;
+  room: AdminRoomSummaryV2;
 }
 
 export function AdminRoomCard({
@@ -49,7 +49,7 @@ export function AdminRoomCard({
               {room.userCount} viewers
             </span>
             <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
-              {room.songCount} songs
+              {room.playlistItemCount} songs
             </span>
             <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
               {room.hasAdminPassword ? 'password set' : 'no password'}

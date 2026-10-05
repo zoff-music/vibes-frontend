@@ -1,5 +1,5 @@
 import { createRoomPlaybackRequests } from '@vibes/api';
-import type { PlaybackState, SkipActionResponse } from '@vibes/models';
+import type { PlaybackStateV2, SkipPlaylistItemResponse } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
@@ -12,8 +12,8 @@ type RoomPlaybackActionInput =
   | { intent: 'skip' };
 
 export type RoomPlaybackActionData =
-  | { intent: 'skip'; response: SkipActionResponse }
-  | { intent: 'updated'; playback: PlaybackState };
+  | { intent: 'skip'; response: SkipPlaylistItemResponse }
+  | { intent: 'updated'; playback: PlaybackStateV2 };
 
 const requests = createRoomPlaybackRequests(mobileApi);
 

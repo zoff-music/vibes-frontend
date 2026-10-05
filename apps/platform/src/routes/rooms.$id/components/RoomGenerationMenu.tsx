@@ -6,47 +6,48 @@ import { RoomPlaylistGeneration } from './RoomPlaylistGeneration';
 interface RoomGenerationMenuProps {
   generationCount: number;
   roomGenerationMaxDailyCount: number;
-  roomGenerationMaxExistingSongs: number;
+  roomGenerationMaxExistingPlaylistItems: number;
   hasGenerationPermission: boolean;
   isGenerating: boolean;
   onGenerationStarted: () => void;
   onOpen: () => void;
-  songCount: number;
+  playlistItemCount: number;
 }
 
 export function RoomGenerationMenu({
   generationCount,
   roomGenerationMaxDailyCount,
-  roomGenerationMaxExistingSongs,
+  roomGenerationMaxExistingPlaylistItems,
   hasGenerationPermission,
   isGenerating,
   onGenerationStarted,
   onOpen,
-  songCount,
+  playlistItemCount,
 }: RoomGenerationMenuProps) {
   const [showGeneration, setShowGeneration] = useState(false);
-  const isAboveSongLimit = songCount > roomGenerationMaxExistingSongs;
-  const songCountCutoff = roomGenerationMaxExistingSongs + 1;
+  const isAbovePlaylistItemLimit =
+    playlistItemCount > roomGenerationMaxExistingPlaylistItems;
+  const playlistItemCountCutoff = roomGenerationMaxExistingPlaylistItems + 1;
   const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
   const isDisabled =
     !hasGenerationPermission ||
     isGenerating ||
-    isAboveSongLimit ||
+    isAbovePlaylistItemLimit ||
     isAboveDailyLimit;
 
   let description = 'Fill this playlist from a prompt';
   if (!hasGenerationPermission) {
     description = 'Log in as admin to fill this playlist';
   }
-  if (hasGenerationPermission && isAboveSongLimit) {
-    description = `Unavailable when the room has ${songCountCutoff} songs or more`;
+  if (hasGenerationPermission && isAbovePlaylistItemLimit) {
+    description = `Unavailable when the room has ${playlistItemCountCutoff} songs or more`;
   }
-  if (hasGenerationPermission && !isAboveSongLimit && isGenerating) {
+  if (hasGenerationPermission && !isAbovePlaylistItemLimit && isGenerating) {
     description = 'A playlist is already being generated';
   }
   if (
     hasGenerationPermission &&
-    !isAboveSongLimit &&
+    !isAbovePlaylistItemLimit &&
     !isGenerating &&
     isAboveDailyLimit
   ) {

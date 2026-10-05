@@ -1,7 +1,7 @@
 import {
   generatedPlaylistPromptMaxLength,
   type Providers,
-  type PublicRoom,
+  type PublicRoomV3,
   roomNameMaxLength,
 } from '@vibes/models';
 import { usePageVisibility } from '@vibes/shared';
@@ -42,7 +42,7 @@ interface TerminalHomeProps {
   pendingRoomSlug: string | null;
   placeholder: string;
   providers: Providers;
-  publicRooms: PublicRoom[];
+  publicRooms: PublicRoomV3[];
   roomCode: string;
   totalListeners: number;
 }
@@ -250,7 +250,7 @@ export function TerminalHome({
                     action="ENTER"
                     index={(index + 1).toString().padStart(2, '0')}
                     key={room.id}
-                    metadata={`${room.listenerCount.toString().padStart(3, '0')} USERS / ${room.songCount.toString().padStart(3, '0')} TRACKS / ONLINE`}
+                    metadata={`${room.listenerCount.toString().padStart(3, '0')} USERS / ${room.playlistItemCount.toString().padStart(3, '0')} TRACKS / ONLINE`}
                     onClick={() => onJoinRoom(room.id)}
                     title={room.name}
                   />

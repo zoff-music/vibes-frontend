@@ -73,11 +73,11 @@ export function useCastRoomHandshake({
 
       initializedSessionIdRef.current = sessionId;
       const playbackState = usePlaybackStore.getState();
-      if (!playbackState.currentSong) return;
+      if (!playbackState.currentPlaylistItem) return;
 
       const [syncError] = await safeWrapAsync(
         syncPlaybackState({
-          currentSong: playbackState.currentSong,
+          currentPlaylistItem: playbackState.currentPlaylistItem,
           isPlaying: playbackState.isPlaying,
           positionMs: playbackState.actualPositionMs,
           serverTimeMs: playbackState.serverTimeMs,

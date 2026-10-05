@@ -383,7 +383,7 @@ const CreateRoom: React.FC = () => {
 
     setSettings((currentSettings) => ({
       ...currentSettings,
-      onlyAdminAddSongs: false,
+      onlyAdminAddPlaylistItems: false,
       public: false,
     }));
   };
@@ -749,10 +749,10 @@ const CreateRoom: React.FC = () => {
                   />
 
                   <SegmentedToggle
-                    name="onlyAdminAddSongs"
+                    name="onlyAdminAddPlaylistItems"
                     label="ADMINS ONLY ADD"
                     description="Only admins can add songs"
-                    checked={settings.onlyAdminAddSongs}
+                    checked={settings.onlyAdminAddPlaylistItems}
                     onChange={(checked) => {
                       if (checked && !password) {
                         setWobblePassword(true);
@@ -763,7 +763,7 @@ const CreateRoom: React.FC = () => {
                         // Don't enable it if password is missing
                         return;
                       }
-                      updateSetting('onlyAdminAddSongs', checked);
+                      updateSetting('onlyAdminAddPlaylistItems', checked);
                     }}
                   />
 

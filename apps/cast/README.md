@@ -149,7 +149,7 @@ debug messages; received warning/error messages remain visible.
 If you notice the playback position resetting to `0:00` when play/pause is toggled rapidly or during sync updates:
 - **Cause**: The receiver receives `updatePlayback` or `syncPlayback` messages where `positionMs` might be 0 (default fallback) or slightly out of sync.
 - **Fix**: The `CastProvider` has logic to **preserve the local playback position** if:
-  1. The Song ID has not changed (same track).
+  1. The playlist item ID has not changed (same queue entry).
   2. The incoming message has `positionMs: 0` (or missing).
   3. The local player has already progressed past 1 second (`> 1000ms`).
 - **Logic**: This prevents the "restart from beginning" glitch while still allowing legitimate track changes to start from 0.

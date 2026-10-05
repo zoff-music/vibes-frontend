@@ -1,28 +1,32 @@
 import { classNames } from '@vibes/shared';
-import { ProviderIcon, QueueItem, SongSearchResult } from '@vibes/ui/web';
+import {
+  PlaylistItemSearchResult,
+  ProviderIcon,
+  QueueItem,
+} from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
-import { queueDemoSongs } from '../../../components/seo/previewSongs';
+import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
-interface AddSongSetupSceneProps {
+interface AddPlaylistItemSetupSceneProps {
   complete: boolean;
   blocked: boolean;
   reducedMotion: boolean;
   onAdd: () => void;
 }
 
-export function AddSongSetupScene({
+export function AddPlaylistItemSetupScene({
   complete,
   blocked,
   reducedMotion,
   onAdd,
-}: AddSongSetupSceneProps) {
-  const song = queueDemoSongs[1];
+}: AddPlaylistItemSetupSceneProps) {
+  const playlistItem = queueDemoPlaylistItems[1];
   const added = complete && !blocked;
 
   return (
     <section aria-label="Songs in the example queue">
       <QueueItem
-        song={queueDemoSongs[0]}
+        playlistItem={queueDemoPlaylistItems[0]}
         position={1}
         providerLink={false}
         density="compact"
@@ -37,7 +41,7 @@ export function AddSongSetupScene({
               transition={{ duration: reducedMotion ? 0 : 0.45 }}
             >
               <QueueItem
-                song={song}
+                playlistItem={playlistItem}
                 position={2}
                 providerLink={false}
                 density="compact"
@@ -59,16 +63,16 @@ export function AddSongSetupScene({
                   complete && blocked ? 'border-primary/60' : 'border-theme',
                 )}
               >
-                <SongSearchResult
-                  title={song.title}
-                  artist={song.artist ?? 'Artist name'}
-                  thumbnailUrl={song.thumbnailUrl}
-                  durationSeconds={song.duration}
+                <PlaylistItemSearchResult
+                  title={playlistItem.title}
+                  publisher={playlistItem.publisher ?? 'Artist name'}
+                  thumbnailUrl={playlistItem.thumbnailUrl}
+                  durationSeconds={playlistItem.duration}
                   onSelect={onAdd}
                   attribution={
                     <span className="flex shrink-0 items-center px-3 text-theme-muted">
                       <ProviderIcon
-                        provider={song.sourceType}
+                        provider={playlistItem.sourceType}
                         className="h-4 w-4"
                       />
                     </span>
@@ -77,7 +81,7 @@ export function AddSongSetupScene({
                   <span className="mt-1 text-primary text-xs">
                     + Add to queue
                   </span>
-                </SongSearchResult>
+                </PlaylistItemSearchResult>
               </motion.div>
             </motion.div>
           )}

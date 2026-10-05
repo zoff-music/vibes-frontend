@@ -1,11 +1,11 @@
-import type { PublicRoom } from '@vibes/models';
+import type { PublicRoomV3 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { PublicRoomTile } from '@vibes/ui/web';
 import { Link } from 'react-router';
 
 interface PublicRoomDiscoveryProps {
   onJoinRoom: (roomId: string) => void;
-  rooms: PublicRoom[];
+  rooms: PublicRoomV3[];
 }
 
 export function PublicRoomDiscovery({

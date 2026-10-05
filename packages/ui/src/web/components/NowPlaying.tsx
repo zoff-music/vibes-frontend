@@ -1,15 +1,15 @@
 import {
   classNames,
-  getProviderTrackUrl,
-  resolveSongThumbnail,
-  type Song,
+  getProviderItemUrl,
+  type PlaylistItem,
+  resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../shared';
 import { ProviderIcon } from './ProviderIcon';
 import { Tooltip } from './Tooltip';
 
-interface NowPlayingSongProps {
-  song: Song;
+interface NowPlayingPlaylistItemProps {
+  playlistItem: PlaylistItem;
   isPlaying: boolean;
   providerLink?: boolean;
   animate?: boolean;
@@ -17,18 +17,18 @@ interface NowPlayingSongProps {
   showStatus?: boolean;
 }
 
-export function NowPlayingSong({
-  song,
+export function NowPlayingPlaylistItem({
+  playlistItem,
   isPlaying,
   providerLink = true,
   animate = true,
   density = 'normal',
   showStatus = true,
-}: NowPlayingSongProps) {
-  const providerUrl = getProviderTrackUrl(
-    song.sourceType,
-    song.sourceId,
-    song.providerUrl,
+}: NowPlayingPlaylistItemProps) {
+  const providerUrl = getProviderItemUrl(
+    playlistItem.sourceType,
+    playlistItem.sourceId,
+    playlistItem.providerUrl,
   );
   return (
     <>
@@ -49,7 +49,7 @@ export function NowPlayingSong({
         </div>
       )}
       <div
-        key={song.id}
+        key={playlistItem.id}
         className={classNames(
           'overflow-hidden',
           animate && 'motion-safe:animate-slide-up',
@@ -64,7 +64,10 @@ export function NowPlayingSong({
           <div className="vhs-scanlines pointer-events-none absolute inset-0" />
           <div className="relative z-10 shrink-0">
             <img
-              src={resolveSongThumbnail(song.thumbnailUrl, true)}
+              src={resolvePlaylistItemThumbnail(
+                playlistItem.thumbnailUrl,
+                true,
+              )}
               alt=""
               width={64}
               height={64}
@@ -76,15 +79,15 @@ export function NowPlayingSong({
           </div>
           <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
             <h2 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
-              {song.title}
+              {playlistItem.title}
             </h2>
             <div className="flex min-w-0 items-center gap-2 overflow-hidden text-theme-muted text-xs">
               <span className="min-w-0 truncate">
-                {song.artist || 'Unknown Artist'}
+                {playlistItem.publisher || 'Unknown Artist'}
               </span>
               <span className="text-theme-subtle">•</span>
               <span className="shrink-0 font-mono text-theme-muted text-xs">
-                {formatPlaybackSeconds(song.duration)}
+                {formatPlaybackSeconds(playlistItem.duration)}
               </span>
             </div>
           </div>
@@ -93,27 +96,27 @@ export function NowPlayingSong({
               <Tooltip
                 align="end"
                 className="inline-flex"
-                content={`Open on ${getProviderDisplayName(song.sourceType)}`}
+                content={`Open on ${getProviderDisplayName(playlistItem.sourceType)}`}
               >
                 <a
                   href={providerUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-                  aria-label={`Open ${song.title} on ${getProviderDisplayName(song.sourceType)}`}
+                  aria-label={`Open ${playlistItem.title} on ${getProviderDisplayName(playlistItem.sourceType)}`}
                 >
                   <ProviderIcon
                     className="h-5 w-5 text-white"
-                    provider={song.sourceType}
+                    provider={playlistItem.sourceType}
                   />
                 </a>
               </Tooltip>
             )}
             {(!providerLink ||
-              (!providerUrl && song.sourceType === 'soundcloud')) && (
+              (!providerUrl && playlistItem.sourceType === 'soundcloud')) && (
               <ProviderIcon
                 className="h-5 w-5 text-theme-muted"
-                provider={song.sourceType}
+                provider={playlistItem.sourceType}
               />
             )}
           </div>

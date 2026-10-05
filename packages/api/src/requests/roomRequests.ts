@@ -1,42 +1,42 @@
 import type {
   CastingTokenResponse,
-  CreateRoomRequest,
+  CreateRoomRequestV2,
   CreateRoomResponse,
   EmptyObject,
   GeneratedPlaylistRequest,
-  PlaybackState,
+  PlaybackStateV2,
+  PlaylistItem,
   Providers,
-  PublicRoom,
-  Room,
+  PublicRoomV3,
   RoomGenerationUpdate,
   RoomNameReservation,
-  RoomUpdate,
-  SessionResponse,
-  SkipActionResponse,
-  Song,
+  RoomUpdateV2,
+  RoomV2,
+  SessionResponseV2,
+  SkipPlaylistItemResponse,
 } from '@vibes/models';
 import type { ApiClient, ApiRequestOptions, ApiResult } from '../client';
 
 export interface RoomReadRequests {
-  fetchRoom: (roomId: string, options?: ApiRequestOptions) => ApiResult<Room>;
-  fetchSongs: (
+  fetchRoom: (roomId: string, options?: ApiRequestOptions) => ApiResult<RoomV2>;
+  fetchPlaylistItems: (
     roomId: string,
     options?: ApiRequestOptions,
-  ) => ApiResult<Song[]>;
+  ) => ApiResult<PlaylistItem[]>;
 }
 
 export function createRoomReadRequests(client: ApiClient): RoomReadRequests {
   return {
     fetchRoom: (roomId: string, options?: ApiRequestOptions) =>
-      client.get('/rooms/{id}', { id: roomId }, options),
-    fetchSongs: (roomId: string, options?: ApiRequestOptions) =>
-      client.get('/rooms/{id}/songs', { id: roomId }, options),
+      client.v2.get('/rooms/{id}', { id: roomId }, options),
+    fetchPlaylistItems: (roomId: string, options?: ApiRequestOptions) =>
+      client.v2.get('/rooms/{id}/playlist-items', { id: roomId }, options),
   };
 }
 
 export interface RoomDiscoveryRequests {
   fetchProviders: (options?: ApiRequestOptions) => ApiResult<Providers>;
-  fetchPublicRooms: (options?: ApiRequestOptions) => ApiResult<PublicRoom[]>;
+  fetchPublicRooms: (options?: ApiRequestOptions) => ApiResult<PublicRoomV3[]>;
 }
 
 export function createRoomDiscoveryRequests(
@@ -45,8 +45,16 @@ export function createRoomDiscoveryRequests(
   return {
     fetchProviders: (options?: ApiRequestOptions) =>
       client.get('/providers', null, options),
-    fetchPublicRooms: (options?: ApiRequestOptions) =>
-      client.get('/rooms/public', null, options),
+    fetchPublicRooms: async (options?: ApiRequestOptions) => {
+      const [error, result] = await client.v3.get(
+        '/rooms/public',
+        { $search: { live: true, from: 0, to: 5 } },
+        options,
+      );
+      if (error) return [error, null];
+
+      return [null, result.rooms];
+    },
   };
 }
 
@@ -56,27 +64,27 @@ export interface RoomLifecycleRequests {
     options?: ApiRequestOptions,
   ) => ApiResult<CreateRoomResponse>;
   createRoom: (
-    request: CreateRoomRequest,
+    request: CreateRoomRequestV2,
     options?: ApiRequestOptions,
   ) => ApiResult<CreateRoomResponse>;
   joinRoom: (
     roomId: string,
     password?: string,
     options?: ApiRequestOptions,
-  ) => ApiResult<SessionResponse>;
+  ) => ApiResult<SessionResponseV2>;
   logOutRoomAdmin: (
     roomId: string,
     options?: ApiRequestOptions,
-  ) => ApiResult<SessionResponse>;
+  ) => ApiResult<SessionResponseV2>;
   reserveRoom: (
     name?: string,
     options?: ApiRequestOptions,
   ) => ApiResult<RoomNameReservation>;
   updateRoom: (
     roomId: string,
-    room: RoomUpdate,
+    room: RoomUpdateV2,
     options?: ApiRequestOptions,
-  ) => ApiResult<Room>;
+  ) => ApiResult<RoomV2>;
 }
 
 export function createRoomLifecycleRequests(
@@ -86,25 +94,25 @@ export function createRoomLifecycleRequests(
     createGeneratedRoom: (
       request: GeneratedPlaylistRequest,
       options?: ApiRequestOptions,
-    ) => client.post('/rooms/generation', null, request, options),
-    createRoom: (request: CreateRoomRequest, options?: ApiRequestOptions) =>
-      client.post('/rooms', null, request, options),
+    ) => client.v2.post('/rooms/generation', null, request, options),
+    createRoom: (request: CreateRoomRequestV2, options?: ApiRequestOptions) =>
+      client.v2.post('/rooms', null, request, options),
     joinRoom: (roomId: string, password = '', options?: ApiRequestOptions) =>
-      client.post(
+      client.v2.post(
         '/rooms/{id}/sessions',
         { id: roomId },
         { password },
         options,
       ),
     logOutRoomAdmin: (roomId: string, options?: ApiRequestOptions) =>
-      client.delete('/rooms/{id}/sessions', { id: roomId }, options),
+      client.v2.delete('/rooms/{id}/sessions', { id: roomId }, options),
     reserveRoom: (name?: string, options?: ApiRequestOptions) =>
       client.post('/rooms/reservations', null, name ? { name } : {}, options),
     updateRoom: (
       roomId: string,
-      room: RoomUpdate,
+      room: RoomUpdateV2,
       options?: ApiRequestOptions,
-    ) => client.patch('/rooms/{id}/settings', { id: roomId }, room, options),
+    ) => client.v2.patch('/rooms/{id}/settings', { id: roomId }, room, options),
   };
 }
 
@@ -112,17 +120,17 @@ export interface RoomPlaybackRequests {
   fetchPlayback: (
     roomId: string,
     options?: ApiRequestOptions,
-  ) => ApiResult<PlaybackState>;
+  ) => ApiResult<PlaybackStateV2>;
   skip: (
     roomId: string,
     options?: ApiRequestOptions,
-  ) => ApiResult<SkipActionResponse>;
+  ) => ApiResult<SkipPlaylistItemResponse>;
   updatePlayback: (
     roomId: string,
     action: 'pause' | 'play' | 'seek',
     positionMs?: number,
     options?: ApiRequestOptions,
-  ) => ApiResult<PlaybackState>;
+  ) => ApiResult<PlaybackStateV2>;
 }
 
 export function createRoomPlaybackRequests(
@@ -130,16 +138,16 @@ export function createRoomPlaybackRequests(
 ): RoomPlaybackRequests {
   return {
     fetchPlayback: (roomId: string, options?: ApiRequestOptions) =>
-      client.get('/rooms/{id}/states', { id: roomId }, options),
+      client.v2.get('/rooms/{id}/states', { id: roomId }, options),
     skip: (roomId: string, options?: ApiRequestOptions) =>
-      client.post('/rooms/{id}/skips', { id: roomId }, {}, options),
+      client.v2.post('/rooms/{id}/skips', { id: roomId }, {}, options),
     updatePlayback: (
       roomId: string,
       action: 'pause' | 'play' | 'seek',
       positionMs?: number,
       options?: ApiRequestOptions,
     ) =>
-      client.put(
+      client.v2.put(
         '/rooms/{id}/states',
         { id: roomId },
         { action, ...(positionMs === undefined ? {} : { positionMs }) },
@@ -154,14 +162,14 @@ export interface RoomQueueRequests {
     request: GeneratedPlaylistRequest,
     options?: ApiRequestOptions,
   ) => ApiResult<RoomGenerationUpdate>;
-  removeSong: (
+  removePlaylistItem: (
     roomId: string,
-    songId: string,
+    playlistItemId: string,
     options?: ApiRequestOptions,
   ) => ApiResult<EmptyObject>;
   vote: (
     roomId: string,
-    songId: string,
+    playlistItemId: string,
     options?: ApiRequestOptions,
   ) => ApiResult<EmptyObject>;
 }
@@ -174,16 +182,24 @@ export function createRoomQueueRequests(client: ApiClient): RoomQueueRequests {
       options?: ApiRequestOptions,
     ) =>
       client.post('/rooms/{id}/generations', { id: roomId }, request, options),
-    removeSong: (roomId: string, songId: string, options?: ApiRequestOptions) =>
-      client.delete(
-        '/rooms/{id}/songs/{songId}',
-        { id: roomId, songId },
+    removePlaylistItem: (
+      roomId: string,
+      playlistItemId: string,
+      options?: ApiRequestOptions,
+    ) =>
+      client.v2.delete(
+        '/rooms/{id}/playlist-items/{playlistItemId}',
+        { id: roomId, playlistItemId },
         options,
       ),
-    vote: (roomId: string, songId: string, options?: ApiRequestOptions) =>
-      client.post(
-        '/rooms/{id}/songs/{songId}',
-        { id: roomId, songId },
+    vote: (
+      roomId: string,
+      playlistItemId: string,
+      options?: ApiRequestOptions,
+    ) =>
+      client.v2.post(
+        '/rooms/{id}/playlist-items/{playlistItemId}',
+        { id: roomId, playlistItemId },
         {},
         options,
       ),

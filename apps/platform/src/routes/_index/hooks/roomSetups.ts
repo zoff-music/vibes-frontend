@@ -1,7 +1,10 @@
-import type { RoomSettings } from '@vibes/models';
+import type { RoomSettingsV2 } from '@vibes/models';
 
 export type RoomSetupSettings = Required<
-  Pick<RoomSettings, 'onlyAdminAddSongs' | 'skipAllowed' | 'removeOnPlay'>
+  Pick<
+    RoomSettingsV2,
+    'onlyAdminAddPlaylistItems' | 'skipAllowed' | 'removeOnPlay'
+  >
 >;
 
 export type RoomSetupId = 'adding' | 'skipping' | 'repeating';
@@ -17,7 +20,7 @@ export const roomSetups: RoomSetup[] = [
     id: 'adding',
     label: 'Adding',
     settings: {
-      onlyAdminAddSongs: false,
+      onlyAdminAddPlaylistItems: false,
       skipAllowed: true,
       removeOnPlay: true,
     },
@@ -26,7 +29,7 @@ export const roomSetups: RoomSetup[] = [
     id: 'skipping',
     label: 'Skipping',
     settings: {
-      onlyAdminAddSongs: true,
+      onlyAdminAddPlaylistItems: true,
       skipAllowed: true,
       removeOnPlay: true,
     },
@@ -35,7 +38,7 @@ export const roomSetups: RoomSetup[] = [
     id: 'repeating',
     label: 'Repeating',
     settings: {
-      onlyAdminAddSongs: false,
+      onlyAdminAddPlaylistItems: false,
       skipAllowed: true,
       removeOnPlay: false,
     },

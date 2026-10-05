@@ -12,18 +12,23 @@ const LazyVideoPlayer = lazy(async () => {
 });
 
 export const PlayerLayer: React.FC = () => {
-  const { currentSong, enabledProviders, queue, reportPlaybackFailure } =
-    useCast();
-  const preloadYouTubeSong =
-    queue.find((song) => song.sourceType === 'youtube') ?? null;
-  const preloadSoundCloudSong =
-    queue.find((song) => song.sourceType === 'soundcloud') ?? null;
+  const {
+    currentPlaylistItem,
+    enabledProviders,
+    queue,
+    reportPlaybackFailure,
+  } = useCast();
+  const preloadYouTubePlaylistItem =
+    queue.find((playlistItem) => playlistItem.sourceType === 'youtube') ?? null;
+  const preloadSoundCloudPlaylistItem =
+    queue.find((playlistItem) => playlistItem.sourceType === 'soundcloud') ??
+    null;
   const shouldMountYouTube =
     enabledProviders.includes('youtube') ||
-    currentSong?.sourceType === 'youtube';
+    currentPlaylistItem?.sourceType === 'youtube';
   const shouldMountSoundCloud =
     enabledProviders.includes('soundcloud') ||
-    currentSong?.sourceType === 'soundcloud';
+    currentPlaylistItem?.sourceType === 'soundcloud';
   const [hasMountedYouTube, setHasMountedYouTube] =
     useState(shouldMountYouTube);
   const [hasMountedSoundCloud, setHasMountedSoundCloud] = useState(
@@ -35,8 +40,8 @@ export const PlayerLayer: React.FC = () => {
     if (shouldMountSoundCloud) setHasMountedSoundCloud(true);
   }, [shouldMountSoundCloud, shouldMountYouTube]);
   const handlePlaybackError = useCallback(
-    (songId: string) => {
-      void reportPlaybackFailure(songId);
+    (playlistItemId: string) => {
+      void reportPlaybackFailure(playlistItemId);
     },
     [reportPlaybackFailure],
   );
@@ -46,10 +51,10 @@ export const PlayerLayer: React.FC = () => {
       {hasMountedYouTube && (
         <Suspense fallback={null}>
           <LazyVideoPlayer
-            isVisible={currentSong?.sourceType === 'youtube'}
+            isVisible={currentPlaylistItem?.sourceType === 'youtube'}
             fill
             appContext="cast"
-            preloadSong={preloadYouTubeSong}
+            preloadPlaylistItem={preloadYouTubePlaylistItem}
             onPlaybackError={handlePlaybackError}
           />
         </Suspense>
@@ -58,9 +63,9 @@ export const PlayerLayer: React.FC = () => {
         <Suspense fallback={null}>
           <LazySoundCloudPlayer
             appContext="cast"
-            isVisible={currentSong?.sourceType === 'soundcloud'}
+            isVisible={currentPlaylistItem?.sourceType === 'soundcloud'}
             fill
-            preloadSong={preloadSoundCloudSong}
+            preloadPlaylistItem={preloadSoundCloudPlaylistItem}
           />
         </Suspense>
       )}

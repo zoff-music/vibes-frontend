@@ -1,6 +1,6 @@
 import type { SourceType } from '../types';
 
-export interface ProviderTrackLink {
+export interface ProviderItemLink {
   provider: SourceType;
   providerUrl?: string;
   sourceId?: string;
@@ -12,7 +12,7 @@ export interface ProviderPlaylistLink {
   sourceId?: string;
 }
 
-export const getProviderTrackUrl = (
+export const getProviderItemUrl = (
   provider: SourceType,
   sourceId: string,
   providerUrl?: string,
@@ -47,9 +47,9 @@ export const getProviderTrackUrl = (
   return url.toString();
 };
 
-export const parseProviderTrackLink = (
+export const parseProviderItemLink = (
   value: string,
-): ProviderTrackLink | null => {
+): ProviderItemLink | null => {
   const trimmedValue = value.trim();
   if (!URL.canParse(trimmedValue)) {
     return null;

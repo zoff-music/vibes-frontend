@@ -1,4 +1,4 @@
-import type { Providers, Song } from '@vibes/models';
+import type { PlaylistItem, Providers } from '@vibes/models';
 import { roomNameMaxLength } from '@vibes/models';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -45,12 +45,14 @@ export function RemoteControl({
           <>
             <Queue
               contained
-              songs={controller.queuedSongs}
-              onVote={(song) => void controllerActions.vote(song)}
+              playlistItems={controller.queuedPlaylistItems}
+              onVote={(playlistItem) =>
+                void controllerActions.vote(playlistItem)
+              }
               {...(room.isAdmin
                 ? {
-                    onDelete: (song: Song) =>
-                      void controllerActions.remove(song),
+                    onDelete: (playlistItem: PlaylistItem) =>
+                      void controllerActions.remove(playlistItem),
                   }
                 : {})}
               header={
@@ -104,9 +106,12 @@ export function RemoteControl({
                       numberOfLines={1}
                       className="font-heading text-base text-mobile-text dark:text-mobile-dark-text"
                     >
-                      {playback?.currentSong?.title ?? 'Nothing playing'}
+                      {playback?.currentPlaylistItem?.title ??
+                        'Nothing playing'}
                     </Text>
-                    <Copy muted>{playback?.currentSong?.artist ?? ''}</Copy>
+                    <Copy muted>
+                      {playback?.currentPlaylistItem?.publisher ?? ''}
+                    </Copy>
                     <View className="flex-row gap-2">
                       <View className="flex-1">
                         <Button
@@ -131,7 +136,7 @@ export function RemoteControl({
                       </View>
                     </View>
                     <PlaybackProgress
-                      duration={playback?.currentSong?.duration ?? 0}
+                      duration={playback?.currentPlaylistItem?.duration ?? 0}
                       onSeek={(position) =>
                         void controllerActions.seek(position)
                       }

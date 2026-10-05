@@ -1,8 +1,8 @@
-import type { ResolvedColorScheme, Song } from '@vibes/shared';
+import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
 import { getEstimatedServerTimeMs, usePlaybackStore } from '@vibes/shared';
 import { useCallback } from 'react';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
-import { normalizeSong } from '../utils/songUtils';
+import { toPlaylistItem } from '../utils/item';
 
 interface UseCastMessageHandlerProps {
   joinRoom: (connection: {
@@ -13,7 +13,7 @@ interface UseCastMessageHandlerProps {
   setRoomInfo: (info: RoomInfo | null) => void;
   setQueue: (queue: QueueItem[]) => void;
   setStatusText: (text: string) => void;
-  updateMediaMetadata: (song: Song) => void;
+  updateMediaMetadata: (playlistItem: PlaylistItem) => void;
   roomMode: string | null;
   setColorScheme: (colorScheme: ResolvedColorScheme) => void;
 }
@@ -36,7 +36,7 @@ export const useCastMessageHandler = ({
 
       const action = message.action;
       const currentState = usePlaybackStore.getState();
-      const currentSongId = currentState.currentSong?.id;
+      const currentPlaylistItemId = currentState.currentPlaylistItem?.id;
       const currentActualPosition = currentState.actualPositionMs;
 
       switch (action) {
@@ -60,12 +60,13 @@ export const useCastMessageHandler = ({
         case 'updatePlayback':
         case 'syncPlayback': {
           if (message.currentSong) {
-            const normalizedSong = normalizeSong(message.currentSong);
-            const isSameSong = currentSongId === normalizedSong.id;
+            const normalizedPlaylistItem = toPlaylistItem(message.currentSong);
+            const isSamePlaylistItem =
+              currentPlaylistItemId === normalizedPlaylistItem.id;
 
             // Prevent reset to 0 if we are already playing this song and have a position
             const shouldPreservePosition =
-              isSameSong &&
+              isSamePlaylistItem &&
               (!message.positionMs || message.positionMs === 0) &&
               currentActualPosition > 1000;
             const positionMs = shouldPreservePosition
@@ -74,7 +75,7 @@ export const useCastMessageHandler = ({
 
             setPlaybackState(
               {
-                currentSong: normalizedSong,
+                currentPlaylistItem: normalizedPlaylistItem,
                 isPlaying: message.isPlaying || false,
                 positionMs: positionMs,
                 updatedAt: message.updatedAt || new Date().toISOString(),
@@ -88,7 +89,7 @@ export const useCastMessageHandler = ({
             if (action === 'updatePlayback') {
               setStatusText(`Now Playing: ${message.currentSong.title}`);
             }
-            updateMediaMetadata(normalizedSong);
+            updateMediaMetadata(normalizedPlaylistItem);
           }
           if (
             action === 'updatePlayback' &&
@@ -102,7 +103,7 @@ export const useCastMessageHandler = ({
 
         case 'updateQueue':
           if (message.queue) {
-            setQueue(message.queue.map((s) => normalizeSong(s)));
+            setQueue(message.queue.map((item) => toPlaylistItem(item)));
           }
           break;
 

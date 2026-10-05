@@ -1,4 +1,4 @@
-import type { SearchResult, SourceType } from '@vibes/models';
+import type { ProviderItem, SourceType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useNativePresentation } from '@vibes/ui/native';
 import { getProviderDisplayName } from '@vibes/ui/shared';
@@ -11,9 +11,9 @@ import { ZoffIcon } from '@/components/zoff-icon';
 
 interface SearchResultsProps {
   loading: boolean;
-  onAdd: (result: SearchResult) => Promise<void>;
+  onAdd: (result: ProviderItem) => Promise<void>;
   provider: SourceType;
-  results: SearchResult[];
+  results: ProviderItem[];
 }
 
 export function SearchResults({
@@ -72,7 +72,7 @@ export function SearchResults({
                     terminal && 'text-[#a6ffd0]/65',
                   )}
                 >
-                  {result.channelTitle ?? getProviderDisplayName(result.source)}
+                  {result.publisher ?? getProviderDisplayName(result.source)}
                 </Text>
               </View>
               <View

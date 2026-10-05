@@ -28,9 +28,13 @@ export async function action({
 async function generateRoom(
   prompt: string,
 ): Promise<Response | TizenSessionActionData> {
-  const [requestError, room] = await tizenApi.post('/rooms/generation', null, {
-    prompt,
-  });
+  const [requestError, room] = await tizenApi.v2.post(
+    '/rooms/generation',
+    null,
+    {
+      prompt,
+    },
+  );
   if (requestError || !room) {
     return {
       error: await getRequestErrorMessage(
@@ -46,7 +50,9 @@ async function joinOrCreateRoom(
   name: string,
 ): Promise<Response | TizenSessionActionData> {
   const roomId = name.toLowerCase().replace(/\s+/g, '-');
-  const [roomError, room] = await tizenApi.get('/rooms/{id}', { id: roomId });
+  const [roomError, room] = await tizenApi.v2.get('/rooms/{id}', {
+    id: roomId,
+  });
   if (room) return redirect(createRoomLocation(room.id));
   if (getHttpError(roomError)?.response.status !== notFoundStatus) {
     return {
@@ -87,7 +93,7 @@ async function createRoom(
     };
   }
 
-  const [createError, room] = await tizenApi.post('/rooms', null, {
+  const [createError, room] = await tizenApi.v2.post('/rooms', null, {
     name,
     mode: 'server',
     reservationToken: reservation.token,

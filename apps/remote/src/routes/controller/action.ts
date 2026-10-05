@@ -1,10 +1,9 @@
 import { createApiClient, getRequestErrorMessage } from '@vibes/api';
 import type {
-  PlaybackState,
-  Room,
-  SearchResponse,
-  SessionResponse,
-  YouTubeSearchResponse,
+  PlaybackStateV2,
+  ProviderSearchResponse,
+  RoomV2,
+  SessionResponseV2,
 } from '@vibes/models';
 import { isSourceType } from '@vibes/models';
 import { parseISODuration } from '@vibes/shared';
@@ -13,10 +12,10 @@ import type { ClientActionFunctionArgs } from 'react-router';
 export interface ControllerActionData {
   error?: string;
   intent: string;
-  playback?: PlaybackState;
-  room?: Room;
-  searchResults?: SearchResponse | YouTubeSearchResponse;
-  session?: SessionResponse;
+  playback?: PlaybackStateV2;
+  room?: RoomV2;
+  searchResults?: ProviderSearchResponse;
+  session?: SessionResponseV2;
 }
 
 export async function clientAction({
@@ -31,7 +30,7 @@ export async function clientAction({
 
   if (intent === 'changeRoom') {
     const nextRoomId = String(formData.get('nextRoomId') ?? '').trim();
-    const [error] = await client.patch(
+    const [error] = await client.v2.patch(
       '/remotes/{id}',
       { id: remoteId },
       { roomId: nextRoomId },
@@ -41,7 +40,7 @@ export async function clientAction({
 
   if (intent === 'play' || intent === 'pause' || intent === 'seek') {
     const positionMs = Number(formData.get('positionMs') ?? 0);
-    const [error, playback] = await client.put(
+    const [error, playback] = await client.v2.put(
       '/rooms/{id}/states',
       { id: roomId },
       { action: intent, positionMs },
@@ -51,7 +50,7 @@ export async function clientAction({
   }
 
   if (intent === 'skip') {
-    const [error, result] = await client.post(
+    const [error, result] = await client.v2.post(
       '/rooms/{id}/skips',
       { id: roomId },
       {},
@@ -61,31 +60,34 @@ export async function clientAction({
   }
 
   if (intent === 'vote' || intent === 'remove') {
-    const songId = String(formData.get('songId') ?? '');
+    const playlistItemId = String(formData.get('playlistItemId') ?? '');
     const [error] =
       intent === 'vote'
-        ? await client.post(
-            '/rooms/{id}/songs/{songId}',
-            { id: roomId, songId },
+        ? await client.v2.post(
+            '/rooms/{id}/playlist-items/{playlistItemId}',
+            { id: roomId, playlistItemId },
             {},
           )
-        : await client.delete('/rooms/{id}/songs/{songId}', {
-            id: roomId,
-            songId,
-          });
+        : await client.v2.delete(
+            '/rooms/{id}/playlist-items/{playlistItemId}',
+            {
+              id: roomId,
+              playlistItemId,
+            },
+          );
     return errorResult(intent, error);
   }
 
   if (intent === 'joinAdmin') {
     const password = String(formData.get('password') ?? '');
-    const [error, session] = await client.post(
+    const [error, session] = await client.v2.post(
       '/rooms/{id}/sessions',
       { id: roomId },
       { password },
     );
     if (error || !session) return errorResult(intent, error);
 
-    const [notifyError] = await client.patch(
+    const [notifyError] = await client.v2.patch(
       '/remotes/{id}',
       { id: remoteId },
       { roomId },
@@ -100,28 +102,27 @@ export async function clientAction({
     if (query.length < 3) {
       return { error: 'Enter at least 3 characters.', intent };
     }
-    const [error, searchResults] =
-      provider === 'soundcloud'
-        ? await client.get('/soundcloud/search', {
-            $search: { q: query, roomId },
-          })
-        : await client.get('/youtube/search', {
-            $search: { q: query, roomId },
-          });
+    if (!isSourceType(provider)) {
+      return { error: 'That provider is not supported.', intent };
+    }
+    const [error, searchResults] = await client.v2.get(
+      '/rooms/{id}/search/{provider}',
+      { id: roomId, provider, $search: { q: query } },
+    );
     if (error || !searchResults) return errorResult(intent, error);
     return { intent, searchResults };
   }
 
-  if (intent === 'addSong') {
+  if (intent === 'addPlaylistItem') {
     const sourceType = String(formData.get('sourceType') ?? 'youtube');
     if (!isSourceType(sourceType)) {
       return { error: 'That music provider is not supported.', intent };
     }
-    const [error] = await client.post(
-      '/rooms/{id}/songs',
+    const [error] = await client.v2.post(
+      '/rooms/{id}/playlist-items',
       { id: roomId },
       {
-        artist: String(formData.get('artist') ?? ''),
+        publisher: String(formData.get('publisher') ?? ''),
         duration: parseISODuration(String(formData.get('duration') ?? '')),
         providerUrl: String(formData.get('providerUrl') ?? ''),
         sourceId: String(formData.get('sourceId') ?? ''),
@@ -141,11 +142,11 @@ export async function clientAction({
     if (setting === 'democraticSkip') settings = { democraticSkip: value };
     if (setting === 'removeOnPlay') settings = { removeOnPlay: value };
     if (setting === 'allowDuplicates') settings = { allowDuplicates: value };
-    if (setting === 'onlyAdminAddSongs') {
-      settings = { onlyAdminAddSongs: value };
+    if (setting === 'onlyAdminAddPlaylistItems') {
+      settings = { onlyAdminAddPlaylistItems: value };
     }
     if (setting === 'public') settings = { public: value };
-    const [error, room] = await client.patch(
+    const [error, room] = await client.v2.patch(
       '/rooms/{id}/settings',
       { id: roomId },
       { settings },
@@ -156,7 +157,7 @@ export async function clientAction({
 
   if (intent === 'updateMode') {
     const mode = String(formData.get('mode') ?? 'server') as 'host' | 'server';
-    const [error, room] = await client.patch(
+    const [error, room] = await client.v2.patch(
       '/rooms/{id}/settings',
       { id: roomId },
       { mode },
@@ -170,7 +171,7 @@ export async function clientAction({
       .getAll('enabledSources')
       .map(String)
       .filter(isSourceType);
-    const [error, room] = await client.patch(
+    const [error, room] = await client.v2.patch(
       '/rooms/{id}/settings',
       { id: roomId },
       { settings: { enabledSources } },
@@ -196,7 +197,7 @@ function getActionErrorFallback(intent: string) {
   if (intent === 'search') {
     return 'Could not search right now. Please try again.';
   }
-  if (intent === 'addSong') {
+  if (intent === 'addPlaylistItem') {
     return 'Could not add that song. Please try again.';
   }
   return 'Could not complete that remote action. Please try again.';

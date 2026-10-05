@@ -1,5 +1,5 @@
 import { createRoomLifecycleRequests } from '@vibes/api';
-import type { CreateRoomRequest, RoomNameReservation } from '@vibes/models';
+import type { CreateRoomRequestV2, RoomNameReservation } from '@vibes/models';
 import {
   createRoomRequestSchema,
   roomNameReservationRequestSchema,
@@ -8,7 +8,7 @@ import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 type CreateRoomActionInput =
-  | { intent: 'create'; request: CreateRoomRequest }
+  | { intent: 'create'; request: CreateRoomRequestV2 }
   | { intent: 'generate'; prompt: string }
   | { intent: 'reserve'; name?: string };
 

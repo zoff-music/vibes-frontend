@@ -23,10 +23,12 @@ export const useCasting = (_roomId: string) => {
   const updateRoomInfo = useCastStore((state) => state.updateRoomInfo);
   const updateTheme = useCastStore((state) => state.updateTheme);
 
-  const currentSong = usePlaybackStore((state) => state.currentSong);
+  const currentPlaylistItem = usePlaybackStore(
+    (state) => state.currentPlaylistItem,
+  );
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
   const playbackUpdatedAt = usePlaybackStore((state) => state.updatedAt);
-  const queueSongs = useQueueStore((state) => state.songs);
+  const queuePlaylistItems = useQueueStore((state) => state.playlistItems);
   const room = useRoomStore((state) => state.room);
   const usersCount = useRoomStore((state) => state.usersCount);
   const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
@@ -59,12 +61,12 @@ export const useCasting = (_roomId: string) => {
   });
 
   useEffect(() => {
-    if (!isConnected || !currentSession || !currentSong) return;
+    if (!isConnected || !currentSession || !currentPlaylistItem) return;
     if (!isSessionInitialized(currentSession.id)) return;
 
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
     browserDebugLog('[Cast] syncing playback state', {
-      title: currentSong.title,
+      title: currentPlaylistItem.title,
       isPlaying,
       positionMs: actualPositionMs,
     });
@@ -73,7 +75,7 @@ export const useCasting = (_roomId: string) => {
         syncPlaybackState({
           isPlaying,
           positionMs: actualPositionMs,
-          currentSong,
+          currentPlaylistItem,
           updatedAt: playbackUpdatedAt,
           serverTimeMs: usePlaybackStore.getState().serverTimeMs,
         }),
@@ -85,7 +87,7 @@ export const useCasting = (_roomId: string) => {
   }, [
     isConnected,
     isPlaying,
-    currentSong,
+    currentPlaylistItem,
     currentSession,
     isSessionInitialized,
     playbackUpdatedAt,
@@ -113,12 +115,12 @@ export const useCasting = (_roomId: string) => {
     if (currentSession?.deviceId !== 'local-cast-emulator') return;
 
     void (async () => {
-      const [error] = await safeWrapAsync(updateQueue(queueSongs));
+      const [error] = await safeWrapAsync(updateQueue(queuePlaylistItems));
       if (error) {
         console.error('Failed to update local queue:', error);
       }
     })();
-  }, [currentSession?.deviceId, queueSongs, updateQueue]);
+  }, [currentSession?.deviceId, queuePlaylistItems, updateQueue]);
 
   useEffect(() => {
     if (!isConnected || !currentSession) return;

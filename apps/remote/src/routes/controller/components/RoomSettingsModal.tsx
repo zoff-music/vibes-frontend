@@ -120,8 +120,10 @@ export function RoomSettingsModal({ fetcher, isOpen, onClose, room }: Props) {
             label="Allow duplicates"
           />
           <SegmentedToggle
-            checked={room.settings.onlyAdminAddSongs ?? false}
-            onChange={(value) => updateSetting('onlyAdminAddSongs', value)}
+            checked={room.settings.onlyAdminAddPlaylistItems ?? false}
+            onChange={(value) =>
+              updateSetting('onlyAdminAddPlaylistItems', value)
+            }
             label="Admins only add"
           />
           <SegmentedToggle

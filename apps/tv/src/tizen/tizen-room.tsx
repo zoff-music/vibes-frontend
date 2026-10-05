@@ -1,4 +1,4 @@
-import type { PlaybackState, Room, Song } from '@vibes/models';
+import type { PlaybackStateV2, PlaylistItem, RoomV2 } from '@vibes/models';
 import {
   formatPlaybackSeconds,
   getProviderDisplayName,
@@ -13,10 +13,10 @@ import { TizenProviderSurface } from '@/tizen/tizen-provider-surface';
 interface TizenRoomProps {
   listenerCount: number;
   onLeave: () => void;
-  playback: PlaybackState;
-  room: Room;
+  playback: PlaybackStateV2;
+  room: RoomV2;
   roomId: string;
-  songs: Song[];
+  playlistItems: PlaylistItem[];
 }
 
 export function TizenRoom({
@@ -25,15 +25,15 @@ export function TizenRoom({
   playback,
   room,
   roomId,
-  songs,
+  playlistItems,
 }: TizenRoomProps) {
   const queueRef = useRef<HTMLDivElement>(null);
   const [visibleQueueLength, setVisibleQueueLength] = useState(0);
   const isGenerating = Boolean(room.isGenerating);
-  const current = playback.currentSong;
+  const current = playback.currentPlaylistItem;
   const queued = current
-    ? songs.filter((song) => song.id !== current.id)
-    : songs;
+    ? playlistItems.filter((playlistItem) => playlistItem.id !== current.id)
+    : playlistItems;
   const joinUrl = `https://zoff.me/${encodeURIComponent(roomId)}`;
   useEffect(() => {
     const queue = queueRef.current;
@@ -82,7 +82,7 @@ export function TizenRoom({
                 {current?.title ?? 'No song is playing'}
               </h1>
               <p className="truncate text-lg text-tv-muted">
-                {current?.artist ?? 'Waiting for the room queue'}
+                {current?.publisher ?? 'Waiting for the room queue'}
               </p>
             </div>
             <span className="shrink-0 text-tv-muted text-xl">
@@ -126,40 +126,42 @@ export function TizenRoom({
           {queued.length > 0 && (
             <div className="flex h-full flex-col">
               <div className="flex shrink-0 flex-col gap-3">
-                {queued.slice(0, visibleQueueLength).map((song, index) => (
-                  <div
-                    className="flex h-24 items-center gap-4 rounded-2xl border border-tv-border bg-tv-surface px-4"
-                    key={song.id}
-                  >
-                    <span className="w-7 shrink-0 text-center text-tv-muted text-xs">
-                      {index + 1}
-                    </span>
-                    <img
-                      alt=""
-                      className="size-16 shrink-0 rounded-xl border border-tv-border object-cover"
-                      decoding="async"
-                      loading="lazy"
-                      src={song.thumbnailUrl}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs">{song.title}</p>
-                      <p className="mt-1 truncate text-tv-muted text-xs">
-                        {song.artist ?? 'Unknown Artist'} ·{' '}
-                        {formatPlaybackSeconds(song.duration)}
-                      </p>
-                    </div>
-                    <span className="flex shrink-0 items-center gap-1 text-accent text-xs">
-                      <VoteIcon className="size-4" />
-                      {song.voteCount ?? 0}
-                    </span>
-                    <span className="shrink-0 text-tv-muted">
-                      <ProviderIcon
-                        className="size-[1.125rem]"
-                        provider={song.sourceType}
+                {queued
+                  .slice(0, visibleQueueLength)
+                  .map((playlistItem, index) => (
+                    <div
+                      className="flex h-24 items-center gap-4 rounded-2xl border border-tv-border bg-tv-surface px-4"
+                      key={playlistItem.id}
+                    >
+                      <span className="w-7 shrink-0 text-center text-tv-muted text-xs">
+                        {index + 1}
+                      </span>
+                      <img
+                        alt=""
+                        className="size-16 shrink-0 rounded-xl border border-tv-border object-cover"
+                        decoding="async"
+                        loading="lazy"
+                        src={playlistItem.thumbnailUrl}
                       />
-                    </span>
-                  </div>
-                ))}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs">{playlistItem.title}</p>
+                        <p className="mt-1 truncate text-tv-muted text-xs">
+                          {playlistItem.publisher ?? 'Unknown Artist'} ·{' '}
+                          {formatPlaybackSeconds(playlistItem.duration)}
+                        </p>
+                      </div>
+                      <span className="flex shrink-0 items-center gap-1 text-accent text-xs">
+                        <VoteIcon className="size-4" />
+                        {playlistItem.voteCount ?? 0}
+                      </span>
+                      <span className="shrink-0 text-tv-muted">
+                        <ProviderIcon
+                          className="size-[1.125rem]"
+                          provider={playlistItem.sourceType}
+                        />
+                      </span>
+                    </div>
+                  ))}
               </div>
               {queueRemainderLabel && (
                 <div className="flex min-h-7 flex-1 items-center justify-center text-tv-muted text-xs">

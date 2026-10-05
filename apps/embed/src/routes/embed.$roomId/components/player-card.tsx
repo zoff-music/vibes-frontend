@@ -1,5 +1,5 @@
-import type { Song } from '@vibes/models';
-import { resolveSongThumbnail } from '@vibes/shared';
+import type { PlaylistItem } from '@vibes/models';
+import { resolvePlaylistItemThumbnail } from '@vibes/shared';
 import {
   formatPlaybackMilliseconds,
   getPlaybackPresentation,
@@ -9,7 +9,7 @@ import { EmbedSourceIcon } from './source-icon';
 
 interface Props {
   autoplay: boolean;
-  currentSong: Song | null;
+  currentPlaylistItem: PlaylistItem | null;
   durationMs: number;
   enabledProviders: string[];
   onLocalAlignmentChange: (isAligned: boolean) => void;
@@ -17,12 +17,12 @@ interface Props {
   onNeedsUserGestureChange: (needsGesture: boolean) => void;
   onStartPlayback: () => void;
   positionMs: number;
-  songs: Song[];
+  playlistItems: PlaylistItem[];
 }
 
 export function EmbedPlayerCard({
   autoplay,
-  currentSong,
+  currentPlaylistItem,
   durationMs,
   enabledProviders,
   onLocalAlignmentChange,
@@ -30,7 +30,7 @@ export function EmbedPlayerCard({
   onNeedsUserGestureChange,
   onStartPlayback,
   positionMs,
-  songs,
+  playlistItems,
 }: Props) {
   const { boundedPositionMs, progress } = getPlaybackPresentation(
     positionMs,
@@ -40,27 +40,27 @@ export function EmbedPlayerCard({
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-black">
-        {currentSong && (
+        {currentPlaylistItem && (
           <img
-            src={resolveSongThumbnail(currentSong.thumbnailUrl)}
+            src={resolvePlaylistItemThumbnail(currentPlaylistItem.thumbnailUrl)}
             alt=""
             className="h-full w-full object-cover opacity-75"
           />
         )}
-        {!currentSong && (
+        {!currentPlaylistItem && (
           <div className="flex h-full items-center justify-center text-theme-muted text-xs">
             Nothing playing
           </div>
         )}
         <EmbedPlayerSource
           autoplay={autoplay}
-          currentSong={currentSong}
+          currentPlaylistItem={currentPlaylistItem}
           enabledProviders={enabledProviders}
           onLocalAlignmentChange={onLocalAlignmentChange}
           onLocalInteraction={onLocalInteraction}
           onNeedsUserGestureChange={onNeedsUserGestureChange}
           onLocalPlay={onStartPlayback}
-          songs={songs}
+          playlistItems={playlistItems}
         />
       </div>
 
@@ -68,13 +68,13 @@ export function EmbedPlayerCard({
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
             <h1 className="truncate font-pixel text-sm text-theme">
-              {currentSong?.title ?? 'Waiting for music'}
+              {currentPlaylistItem?.title ?? 'Waiting for music'}
             </h1>
             <p className="mt-1 truncate text-theme-muted text-xs">
-              {currentSong?.artist ?? 'The room queue is ready'}
+              {currentPlaylistItem?.publisher ?? 'The room queue is ready'}
             </p>
           </div>
-          <EmbedSourceIcon currentSong={currentSong} />
+          <EmbedSourceIcon currentPlaylistItem={currentPlaylistItem} />
         </div>
         <progress
           aria-label="Playback progress"

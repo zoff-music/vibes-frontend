@@ -1,4 +1,4 @@
-import type { Room } from '@vibes/models';
+import type { RoomV2 } from '@vibes/models';
 import { useRoomStore } from '@vibes/shared';
 import {
   Button,
@@ -20,7 +20,7 @@ interface Props {
   onReset: () => void;
   onPlayPause: () => void;
   onSkip: () => void;
-  room: Room;
+  room: RoomV2;
   roomId: string;
   showReset: boolean;
   showSkip: boolean;

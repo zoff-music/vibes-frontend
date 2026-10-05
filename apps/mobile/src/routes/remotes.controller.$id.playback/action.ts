@@ -1,5 +1,5 @@
 import { createRoomPlaybackRequests } from '@vibes/api';
-import type { PlaybackState } from '@vibes/models';
+import type { PlaybackStateV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
 
@@ -14,7 +14,7 @@ type ControllerPlaybackActionInput =
 
 export type ControllerPlaybackActionData =
   | { intent: 'success' }
-  | { intent: 'updated'; playback: PlaybackState };
+  | { intent: 'updated'; playback: PlaybackStateV2 };
 
 export async function action({
   input,

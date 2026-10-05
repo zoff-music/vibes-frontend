@@ -36,6 +36,27 @@ export const adminRoomSearchSchema = z.compile(
   }),
 );
 
+export const adminRoomSummaryV2Schema = z.compile(
+  adminRoomSummarySchema.omit({ songCount: true }).extend({
+    playlistItemCount: z.number(),
+  }),
+);
+export type AdminRoomSummaryV2 = z.infer<typeof adminRoomSummaryV2Schema>;
+
+export const adminRoomsV2Schema = z.compile(z.array(adminRoomSummaryV2Schema));
+export type AdminRoomsV2 = z.infer<typeof adminRoomsV2Schema>;
+
+export const adminRoomResultV2Schema = z.compile(
+  adminRoomResultSchema.extend({ rooms: adminRoomsV2Schema }),
+);
+export type AdminRoomResultV2 = z.infer<typeof adminRoomResultV2Schema>;
+
+export const adminRoomSearchV2Schema = z.compile(
+  adminRoomSearchSchema.extend({
+    sortBy: z.enum(['listeners', 'playlistItems']).optional(),
+  }),
+);
+
 export const adminLoginRequestSchema = z.compile(
   z.object({ username: z.string(), password: z.string() }),
 );

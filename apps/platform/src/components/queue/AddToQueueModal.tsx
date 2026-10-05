@@ -2,16 +2,16 @@ import {
   generatedPlaylistPromptMaxLength,
   type PlaybackRestriction,
   type Providers,
-  type Room,
+  type RoomV2,
 } from '@vibes/models';
 import {
-  type AddSongOutcome,
+  type AddPlaylistItemOutcome,
   formatDuration,
-  getProviderTrackUrl,
+  getProviderItemUrl,
   parseISODuration,
+  parseProviderItemLink,
   parseProviderPlaylistLink,
-  parseProviderTrackLink,
-  resolveSongThumbnail,
+  resolvePlaylistItemThumbnail,
   type SourceType,
   useQueueStore,
 } from '@vibes/shared';
@@ -32,9 +32,9 @@ import {
   CloseIcon,
   InfoIcon,
   Modal,
+  PlaylistItemSearchResult,
   PlusIcon,
   SearchIcon,
-  SongSearchResult,
   SoundCloudIcon,
   SparklesIcon,
   Tooltip,
@@ -45,24 +45,24 @@ import { useFetcher } from 'react-router';
 import type { RoomActionData } from '../../routes/rooms.$id/action';
 
 interface Props {
-  room: Room;
+  room: RoomV2;
   providers: Providers;
   isVisible: boolean;
   onClose: () => void;
   onOpenAdminLogin: () => void;
   generationCount: number;
   roomGenerationMaxDailyCount: number;
-  roomGenerationMaxExistingSongs: number;
+  roomGenerationMaxExistingPlaylistItems: number;
   hasGenerationPermission: boolean;
   isGenerating: boolean;
   onGenerationStarted: () => void;
   terminalMode?: boolean;
 }
 
-interface SearchResult {
+interface ProviderItem {
   id: string;
   title: string;
-  artist: string;
+  publisher: string;
   thumbnailUrl: string;
   duration?: string;
   providerUrl?: string;
@@ -72,13 +72,13 @@ interface SearchResult {
 
 interface PlaylistPreview {
   title?: string;
-  tracks: PlaylistTrack[];
+  items: PreviewItem[];
   truncated: boolean;
   skippedEmbeddingCount: number;
   skippedMadeForKidsCount: number;
 }
 
-interface PlaylistTrack extends SearchResult {
+interface PreviewItem extends ProviderItem {
   key: string;
 }
 
@@ -90,46 +90,49 @@ export const AddToQueueModal: React.FC<Props> = ({
   onOpenAdminLogin,
   generationCount,
   roomGenerationMaxDailyCount,
-  roomGenerationMaxExistingSongs,
+  roomGenerationMaxExistingPlaylistItems,
   hasGenerationPermission,
   isGenerating,
   onGenerationStarted,
   terminalMode = false,
 }) => {
   const searchFetcher = useFetcher<RoomActionData>();
-  const songFetcher = useFetcher<RoomActionData>();
+  const playlistItemFetcher = useFetcher<RoomActionData>();
   const generationFetcher = useFetcher<RoomActionData>();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<ProviderItem[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewTrack, setPreviewTrack] = useState<SearchResult | null>(null);
+  const [previewItem, setPreviewItem] = useState<ProviderItem | null>(null);
   const [previewPlaylist, setPreviewPlaylist] =
     useState<PlaylistPreview | null>(null);
   const [justAdded, setJustAdded] = useState(false);
-  const [addOutcome, setAddOutcome] = useState<AddSongOutcome | null>(null);
+  const [addOutcome, setAddOutcome] = useState<AddPlaylistItemOutcome | null>(
+    null,
+  );
   const [queuedPlaylistCount, setQueuedPlaylistCount] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const songs = useQueueStore((state) => state.songs);
-  const songCountCutoff = roomGenerationMaxExistingSongs + 1;
-  const isAboveSongLimit = songs.length >= songCountCutoff;
+  const playlistItems = useQueueStore((state) => state.playlistItems);
+  const playlistItemCountCutoff = roomGenerationMaxExistingPlaylistItems + 1;
+  const isAbovePlaylistItemLimit =
+    playlistItems.length >= playlistItemCountCutoff;
   const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
   let generationUnavailableReason = '';
   if (!hasGenerationPermission) {
     generationUnavailableReason = 'Log in as room admin to fill this playlist.';
   }
-  if (hasGenerationPermission && isAboveSongLimit) {
-    generationUnavailableReason = `AI fill is unavailable when the room has ${songCountCutoff} songs or more.`;
+  if (hasGenerationPermission && isAbovePlaylistItemLimit) {
+    generationUnavailableReason = `AI fill is unavailable when the room has ${playlistItemCountCutoff} songs or more.`;
   }
-  if (hasGenerationPermission && !isAboveSongLimit && isGenerating) {
+  if (hasGenerationPermission && !isAbovePlaylistItemLimit && isGenerating) {
     generationUnavailableReason = 'A playlist is already being generated.';
   }
   if (
     hasGenerationPermission &&
-    !isAboveSongLimit &&
+    !isAbovePlaylistItemLimit &&
     !isGenerating &&
     isAboveDailyLimit
   ) {
@@ -164,7 +167,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         setIsAIMode(false);
         setSearchResults([]);
         setShowResults(false);
-        setPreviewTrack(null);
+        setPreviewItem(null);
         setPreviewPlaylist(null);
         setError(null);
         setJustAdded(false);
@@ -217,16 +220,16 @@ export const AddToQueueModal: React.FC<Props> = ({
       const playlist = searchFetcher.data.playlist;
       setPreviewPlaylist({
         title: playlist.title,
-        tracks: playlist.tracks.map((track) => ({
-          artist: track.channelTitle ?? 'Unknown',
-          duration: track.duration,
-          id: track.id,
+        items: playlist.items.map((item) => ({
+          publisher: item.publisher ?? 'Unknown',
+          duration: item.duration,
+          id: item.id,
           key: crypto.randomUUID(),
-          providerUrl: track.providerUrl,
-          playbackRestriction: track.playbackRestriction,
-          source: track.source,
-          thumbnailUrl: track.thumbnailUrl ?? '',
-          title: track.title,
+          providerUrl: item.providerUrl,
+          playbackRestriction: item.playbackRestriction,
+          source: item.source,
+          thumbnailUrl: item.thumbnailUrl ?? '',
+          title: item.title,
         })),
         truncated: playlist.truncated,
         skippedEmbeddingCount: playlist.skippedEmbeddingCount ?? 0,
@@ -236,19 +239,19 @@ export const AddToQueueModal: React.FC<Props> = ({
     }
 
     if (
-      searchFetcher.data.intent === 'providerTrack' &&
-      searchFetcher.data.track
+      searchFetcher.data.intent === 'providerItem' &&
+      searchFetcher.data.item
     ) {
-      const track = searchFetcher.data.track;
-      setPreviewTrack({
-        artist: track.channelTitle ?? 'Unknown',
-        duration: track.duration,
-        id: track.id,
-        providerUrl: track.providerUrl,
-        playbackRestriction: track.playbackRestriction,
-        source: track.source,
-        thumbnailUrl: track.thumbnailUrl ?? '',
-        title: track.title,
+      const item = searchFetcher.data.item;
+      setPreviewItem({
+        publisher: item.publisher ?? 'Unknown',
+        duration: item.duration,
+        id: item.id,
+        providerUrl: item.providerUrl,
+        playbackRestriction: item.playbackRestriction,
+        source: item.source,
+        thumbnailUrl: item.thumbnailUrl ?? '',
+        title: item.title,
       });
       return;
     }
@@ -259,7 +262,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     ) {
       setSearchResults(
         searchFetcher.data.searchResults.map((result) => ({
-          artist: result.channelTitle || 'Unknown',
+          publisher: result.publisher || 'Unknown',
           duration: result.duration,
           id: result.id,
           providerUrl: result.providerUrl,
@@ -277,32 +280,41 @@ export const AddToQueueModal: React.FC<Props> = ({
   }, [searchFetcher.data, searchFetcher.state]);
 
   useEffect(() => {
-    if (songFetcher.state !== 'idle' || !songFetcher.data) return;
+    if (playlistItemFetcher.state !== 'idle' || !playlistItemFetcher.data)
+      return;
     if (
-      songFetcher.data.intent !== 'addSong' &&
-      songFetcher.data.intent !== 'addPlaylist'
+      playlistItemFetcher.data.intent !== 'addPlaylistItem' &&
+      playlistItemFetcher.data.intent !== 'addPlaylist'
     )
       return;
     setIsLoading(false);
 
-    if (songFetcher.data.intent === 'addPlaylist') {
-      if (songFetcher.data.error || !songFetcher.data.addPlaylist) {
-        setError(songFetcher.data.error ?? 'Failed to add playlist to queue');
+    if (playlistItemFetcher.data.intent === 'addPlaylist') {
+      if (
+        playlistItemFetcher.data.error ||
+        !playlistItemFetcher.data.addPlaylist
+      ) {
+        setError(
+          playlistItemFetcher.data.error ?? 'Failed to add playlist to queue',
+        );
         return;
       }
 
-      setQueuedPlaylistCount(songFetcher.data.addPlaylist.queuedCount);
+      setQueuedPlaylistCount(playlistItemFetcher.data.addPlaylist.queuedCount);
       setJustAdded(true);
       const timeout = window.setTimeout(onClose, 1600);
       return () => window.clearTimeout(timeout);
     }
 
-    if (songFetcher.data.error || !songFetcher.data.addSong) {
-      setError(songFetcher.data.error ?? 'Failed to add song to queue');
+    if (
+      playlistItemFetcher.data.error ||
+      !playlistItemFetcher.data.addPlaylistItem
+    ) {
+      setError(playlistItemFetcher.data.error ?? 'Failed to add song to queue');
       return;
     }
 
-    const result = songFetcher.data.addSong;
+    const result = playlistItemFetcher.data.addPlaylistItem;
     setAddOutcome(result.outcome);
     setJustAdded(true);
     const timeout = window.setTimeout(
@@ -310,7 +322,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       result.outcome === 'added' ? 800 : 1600,
     );
     return () => window.clearTimeout(timeout);
-  }, [onClose, songFetcher.data, songFetcher.state]);
+  }, [onClose, playlistItemFetcher.data, playlistItemFetcher.state]);
 
   const performSearch = (query: string) => {
     const trimmedQuery = query.trim();
@@ -323,7 +335,7 @@ export const AddToQueueModal: React.FC<Props> = ({
 
     setIsSearching(true);
     setError(null);
-    setPreviewTrack(null);
+    setPreviewItem(null);
     setPreviewPlaylist(null);
     setSearchResults([]);
     setShowResults(false);
@@ -349,7 +361,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           intent: 'providerPlaylist',
           provider: providerPlaylistLink.provider,
           ...(providerPlaylistLink.sourceId
-            ? { songId: providerPlaylistLink.sourceId }
+            ? { sourceId: providerPlaylistLink.sourceId }
             : {}),
           ...(providerPlaylistLink.providerUrl
             ? { providerUrl: providerPlaylistLink.providerUrl }
@@ -360,7 +372,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       return;
     }
 
-    const providerTrackLink = parseProviderTrackLink(trimmedQuery);
+    const providerTrackLink = parseProviderItemLink(trimmedQuery);
     if (providerTrackLink) {
       if (!providerList.includes(providerTrackLink.provider)) {
         setIsSearching(false);
@@ -373,10 +385,10 @@ export const AddToQueueModal: React.FC<Props> = ({
       setSelectedProvider(providerTrackLink.provider);
       searchFetcher.submit(
         {
-          intent: 'providerTrack',
+          intent: 'providerItem',
           provider: providerTrackLink.provider,
           ...(providerTrackLink.sourceId
-            ? { songId: providerTrackLink.sourceId }
+            ? { sourceId: providerTrackLink.sourceId }
             : {}),
           ...(providerTrackLink.providerUrl
             ? { providerUrl: providerTrackLink.providerUrl }
@@ -410,7 +422,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       isAIMode ? query.slice(0, generatedPlaylistPromptMaxLength) : query,
     );
     setError(null);
-    setPreviewTrack(null);
+    setPreviewItem(null);
     setPreviewPlaylist(null);
     setSearchResults([]);
     setShowResults(false);
@@ -421,20 +433,22 @@ export const AddToQueueModal: React.FC<Props> = ({
     }
   };
 
-  const handleSelectResult = (song: SearchResult) => {
+  const handleSelectResult = (playlistItem: ProviderItem) => {
     setIsLoading(true);
-    const durationSec = parseISODuration(song.duration);
-    songFetcher.submit(
+    const durationSec = parseISODuration(playlistItem.duration);
+    playlistItemFetcher.submit(
       {
-        intent: 'addSong',
-        song: {
-          artist: song.artist,
+        intent: 'addPlaylistItem',
+        playlistItem: {
+          publisher: playlistItem.publisher,
           duration: durationSec,
-          sourceId: song.id,
-          sourceType: song.source,
-          thumbnailUrl: song.thumbnailUrl,
-          title: song.title,
-          ...(song.providerUrl ? { providerUrl: song.providerUrl } : {}),
+          sourceId: playlistItem.id,
+          sourceType: playlistItem.source,
+          thumbnailUrl: playlistItem.thumbnailUrl,
+          title: playlistItem.title,
+          ...(playlistItem.providerUrl
+            ? { providerUrl: playlistItem.providerUrl }
+            : {}),
         },
       },
       { encType: 'application/json', method: 'post' },
@@ -462,7 +476,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     setSearchQuery('');
     setSearchResults([]);
     setShowResults(false);
-    setPreviewTrack(null);
+    setPreviewItem(null);
     setPreviewPlaylist(null);
     setError(null);
   };
@@ -485,8 +499,8 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const handleAdd = () => {
-    if (!previewTrack || justAdded) return;
-    handleSelectResult(previewTrack);
+    if (!previewItem || justAdded) return;
+    handleSelectResult(previewItem);
   };
 
   const handleAddPlaylist = () => {
@@ -494,22 +508,22 @@ export const AddToQueueModal: React.FC<Props> = ({
       setError('Playlist importing is disabled in this room');
       return;
     }
-    if (!previewPlaylist || justAdded || previewPlaylist.tracks.length === 0)
+    if (!previewPlaylist || justAdded || previewPlaylist.items.length === 0)
       return;
 
     setIsLoading(true);
-    songFetcher.submit(
+    playlistItemFetcher.submit(
       {
         intent: 'addPlaylist',
         playlist: {
-          songs: previewPlaylist.tracks.map((track) => ({
-            artist: track.artist,
-            duration: parseISODuration(track.duration),
-            sourceId: track.id,
-            sourceType: track.source,
-            thumbnailUrl: track.thumbnailUrl,
-            title: track.title,
-            ...(track.providerUrl ? { providerUrl: track.providerUrl } : {}),
+          playlistItems: previewPlaylist.items.map((item) => ({
+            publisher: item.publisher,
+            duration: parseISODuration(item.duration),
+            sourceId: item.id,
+            sourceType: item.source,
+            thumbnailUrl: item.thumbnailUrl,
+            title: item.title,
+            ...(item.providerUrl ? { providerUrl: item.providerUrl } : {}),
           })),
         },
       },
@@ -536,7 +550,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const providerPlaylistLink = parseProviderPlaylistLink(searchQuery);
-  const providerTrackLink = parseProviderTrackLink(searchQuery);
+  const providerTrackLink = parseProviderItemLink(searchQuery);
   const canSubmitSearch =
     Boolean(providerPlaylistLink) ||
     Boolean(providerTrackLink) ||
@@ -582,7 +596,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   setSelectedProvider(provider);
                   setSearchResults([]);
                   setSearchQuery('');
-                  setPreviewTrack(null);
+                  setPreviewItem(null);
                   setPreviewPlaylist(null);
                 }}
               >
@@ -632,8 +646,8 @@ export const AddToQueueModal: React.FC<Props> = ({
           {error && (
             <TerminalFeedback className="mt-3" tone="error">
               ERROR: {error}
-              {songFetcher.data?.error === error &&
-                songFetcher.data.errorAction === 'adminLogin' && (
+              {playlistItemFetcher.data?.error === error &&
+                playlistItemFetcher.data.errorAction === 'adminLogin' && (
                   <button
                     type="button"
                     className="ml-1 underline underline-offset-4 focus-visible:outline-2"
@@ -667,7 +681,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   action="ADD"
                   index={(index + 1).toString().padStart(2, '0')}
                   key={result.id}
-                  metadata={`${result.artist} / ${result.source}`}
+                  metadata={`${result.publisher} / ${result.source}`}
                   onClick={() => handleSelectResult(result)}
                   title={result.title}
                 />
@@ -675,17 +689,17 @@ export const AddToQueueModal: React.FC<Props> = ({
             </TerminalSection>
           )}
 
-        {previewTrack && !justAdded && (
+        {previewItem && !justAdded && (
           <TerminalSection className="mt-4" label="TRACK PREVIEW">
             <p className="text-[#71f5ad]/55 text-[0.6rem] uppercase">
               TRACK PREVIEW
             </p>
             <p className="mt-2 text-[#e0ffef] text-sm uppercase">
-              {previewTrack.title}
+              {previewItem.title}
             </p>
             <p className="mt-1 text-[#a6ffd0]/55 text-xs uppercase">
-              {previewTrack.artist} / {previewTrack.source} /{' '}
-              {formatDuration(parseISODuration(previewTrack.duration))}
+              {previewItem.publisher} / {previewItem.source} /{' '}
+              {formatDuration(parseISODuration(previewItem.duration))}
             </p>
             <div className="mt-4 flex gap-2">
               <TerminalButton disabled={isLoading} onClick={handleAdd}>
@@ -700,7 +714,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           <TerminalSection
             className="mt-4"
             label="PLAYLIST PREVIEW"
-            status={`${previewPlaylist.tracks.length} TRACKS`}
+            status={`${previewPlaylist.items.length} TRACKS`}
           >
             <p className="text-[#71f5ad]/55 text-[0.6rem] uppercase">
               IMPORT MANIFEST
@@ -721,23 +735,23 @@ export const AddToQueueModal: React.FC<Props> = ({
               </p>
             )}
             <ol className="mt-3 max-h-52 overflow-y-auto border-[#71f5ad]/20 border-t">
-              {previewPlaylist.tracks.map((track, index) => (
+              {previewPlaylist.items.map((item, index) => (
                 <li
                   className="flex gap-3 border-[#71f5ad]/15 border-b px-2 py-2 text-xs"
-                  key={track.key}
+                  key={item.key}
                 >
                   <span className="text-[#71f5ad]/45">
                     {(index + 1).toString().padStart(2, '0')}
                   </span>
                   <span className="min-w-0 truncate text-[#dffff0]">
-                    {track.title}
+                    {item.title}
                   </span>
                 </li>
               ))}
             </ol>
             <div className="mt-4 flex gap-2">
               <TerminalButton
-                disabled={isLoading || previewPlaylist.tracks.length === 0}
+                disabled={isLoading || previewPlaylist.items.length === 0}
                 onClick={handleAddPlaylist}
               >
                 {isLoading ? '[ ADDING ]' : '[ IMPORT PLAYLIST ]'}
@@ -807,7 +821,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   setSelectedProvider(p);
                   setSearchResults([]);
                   setSearchQuery('');
-                  setPreviewTrack(null);
+                  setPreviewItem(null);
                   setPreviewPlaylist(null);
                 }}
                 variant={selectedProvider === p ? 'tertiary' : 'ghost'}
@@ -830,7 +844,7 @@ export const AddToQueueModal: React.FC<Props> = ({
             <p className="text-sm text-theme-muted leading-relaxed">
               <span className="text-2xs text-orange-400">Note:</span> Some
               SoundCloud searches may return empty results due to rights or
-              copyright restrictions on certain tracks.
+              copyright restrictions on certain items.
             </p>
           </div>
         </div>
@@ -945,8 +959,8 @@ export const AddToQueueModal: React.FC<Props> = ({
             <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
               {error}
-              {songFetcher.data?.error === error &&
-                songFetcher.data.errorAction === 'adminLogin' && (
+              {playlistItemFetcher.data?.error === error &&
+                playlistItemFetcher.data.errorAction === 'adminLogin' && (
                   <button
                     type="button"
                     className="ml-1 underline underline-offset-4 focus-visible:outline-2"
@@ -967,10 +981,10 @@ export const AddToQueueModal: React.FC<Props> = ({
           !justAdded && (
             <div className="mt-2 max-h-128 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-primary-popover">
               {searchResults.map((result) => (
-                <SongSearchResult
+                <PlaylistItemSearchResult
                   key={result.id}
                   title={result.title}
-                  artist={result.artist}
+                  publisher={result.publisher}
                   thumbnailUrl={result.thumbnailUrl}
                   {...(result.duration && {
                     durationSeconds: parseISODuration(result.duration),
@@ -979,7 +993,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   attribution={<ProviderAttribution result={result} />}
                 >
                   <PlaybackRestrictionNotice result={result} />
-                </SongSearchResult>
+                </PlaylistItemSearchResult>
               ))}
             </div>
           )}
@@ -987,7 +1001,7 @@ export const AddToQueueModal: React.FC<Props> = ({
 
       {/* Loading State */}
       {isSearching &&
-        !previewTrack &&
+        !previewItem &&
         !previewPlaylist &&
         (providerTrackLink || providerPlaylistLink) && (
           <div className="animate-scale-in rounded-2xl border border-theme bg-theme-surface p-8 text-center">
@@ -999,29 +1013,29 @@ export const AddToQueueModal: React.FC<Props> = ({
         )}
 
       {/* Video Preview */}
-      {previewTrack && !justAdded && (
+      {previewItem && !justAdded && (
         <div className="mb-6 animate-scale-in rounded-2xl border border-theme bg-theme-surface p-4">
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
               <img
-                src={resolveSongThumbnail(previewTrack.thumbnailUrl)}
-                alt={previewTrack.title}
+                src={resolvePlaylistItemThumbnail(previewItem.thumbnailUrl)}
+                alt={previewItem.title}
                 className="h-24 w-32 rounded-xl border border-theme bg-theme-surface object-cover"
               />
               <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
-                {formatDuration(parseISODuration(previewTrack.duration))}
+                {formatDuration(parseISODuration(previewItem.duration))}
               </div>
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="mb-2 line-clamp-2 text-sm text-theme">
-                {previewTrack.title}
+                {previewItem.title}
               </h3>
               <p className="line-clamp-1 text-theme-muted text-xs">
-                {previewTrack.artist}
+                {previewItem.publisher}
               </p>
-              <PlaybackRestrictionNotice result={previewTrack} />
+              <PlaybackRestrictionNotice result={previewItem} />
             </div>
-            <ProviderAttribution result={previewTrack} />
+            <ProviderAttribution result={previewItem} />
           </div>
         </div>
       )}
@@ -1033,7 +1047,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               {previewPlaylist.title ?? 'Playlist ready to import'}
             </h3>
             <p className="mt-1 text-theme-muted text-xs">
-              {previewPlaylist.tracks.length} songs found
+              {previewPlaylist.items.length} songs found
             </p>
             {previewPlaylist.skippedEmbeddingCount > 0 && (
               <p role="status" className="mt-2 text-theme-muted text-xs">
@@ -1055,27 +1069,27 @@ export const AddToQueueModal: React.FC<Props> = ({
             )}
           </div>
           <div className="max-h-72 overflow-y-auto">
-            {previewPlaylist.tracks.map((track, index) => (
+            {previewPlaylist.items.map((item, index) => (
               <div
-                key={track.key}
+                key={item.key}
                 className="flex items-center gap-3 border-theme border-t px-4 py-3 first:border-t-0"
               >
                 <span className="w-6 shrink-0 text-right text-theme-subtle text-xs">
                   {index + 1}
                 </span>
                 <img
-                  src={resolveSongThumbnail(track.thumbnailUrl)}
+                  src={resolvePlaylistItemThumbnail(item.thumbnailUrl)}
                   alt=""
                   className="h-12 w-12 shrink-0 rounded-lg border border-theme object-cover"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-theme text-xs">{track.title}</p>
+                  <p className="truncate text-theme text-xs">{item.title}</p>
                   <p className="mt-1 truncate text-theme-muted text-xs">
-                    {track.artist}
+                    {item.publisher}
                   </p>
-                  <PlaybackRestrictionNotice result={track} />
+                  <PlaybackRestrictionNotice result={item} />
                 </div>
-                <ProviderAttribution result={track} />
+                <ProviderAttribution result={item} />
               </div>
             ))}
           </div>
@@ -1095,7 +1109,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       )}
 
       {/* Action Buttons */}
-      {previewTrack && !justAdded && (
+      {previewItem && !justAdded && (
         <div className="flex gap-3">
           <Button onClick={onClose} variant="tertiary" className="flex-1">
             Cancel
@@ -1129,7 +1143,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           </Button>
           <Button
             onClick={handleAddPlaylist}
-            disabled={isLoading || previewPlaylist.tracks.length === 0}
+            disabled={isLoading || previewPlaylist.items.length === 0}
             variant="primary"
             className="flex-1 gap-2"
           >
@@ -1140,7 +1154,7 @@ export const AddToQueueModal: React.FC<Props> = ({
             <span>
               {isLoading
                 ? 'Adding playlist...'
-                : `Add all ${previewPlaylist.tracks.length}`}
+                : `Add all ${previewPlaylist.items.length}`}
             </span>
           </Button>
         </div>
@@ -1163,13 +1177,13 @@ const ProviderIcon: React.FC<ProviderIconProps> = ({ className, provider }) => {
 };
 
 interface ProviderAttributionProps {
-  result: SearchResult;
+  result: ProviderItem;
 }
 
 const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
   result,
 }) => {
-  const providerUrl = getProviderTrackUrl(
+  const providerUrl = getProviderItemUrl(
     result.source,
     result.id,
     result.providerUrl,
@@ -1203,7 +1217,7 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
 };
 
 interface PlaybackRestrictionNoticeProps {
-  result: SearchResult;
+  result: ProviderItem;
 }
 
 const PlaybackRestrictionNotice: React.FC<PlaybackRestrictionNoticeProps> = ({

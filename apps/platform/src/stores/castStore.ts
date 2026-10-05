@@ -2,8 +2,8 @@ import type {
   CastDevice,
   CastError,
   CastSession,
-  PlaybackState,
-  Song,
+  PlaybackStateV2,
+  PlaylistItem,
 } from '@vibes/models';
 import {
   browserDebugLog,
@@ -59,9 +59,9 @@ interface CastState {
   discoverDevices: () => Promise<void>;
   connectToDevice: (deviceId: string) => Promise<void>;
   disconnectFromDevice: (deviceId: string) => Promise<void>;
-  castCurrentSong: (song: Song) => Promise<void>;
-  syncPlaybackState: (state: PlaybackState) => Promise<void>;
-  updateQueue: (queue: Song[]) => Promise<void>;
+  castCurrentPlaylistItem: (playlistItem: PlaylistItem) => Promise<void>;
+  syncPlaybackState: (state: PlaybackStateV2) => Promise<void>;
+  updateQueue: (queue: PlaylistItem[]) => Promise<void>;
   updateRoomInfo: (roomInfo: {
     name: string;
     participantCount: number;
@@ -226,50 +226,51 @@ export const useCastStore = create<CastState>((set, get) => ({
     });
   },
 
-  castCurrentSong: async (song: Song) => {
+  castCurrentPlaylistItem: async (playlistItem: PlaylistItem) => {
     if (!get().isConnected) {
       throw new Error('No active casting session');
     }
 
     browserDebugLog('[Cast] store castCurrentSong:start', {
-      sourceType: song?.sourceType,
-      title: song?.title,
-      sourceId: song?.sourceId,
+      sourceType: playlistItem?.sourceType,
+      title: playlistItem?.title,
+      sourceId: playlistItem?.sourceId,
     });
     set({ lastError: null });
     const castManager = await getCastManager();
 
     // Build content URL based on source type
     let contentId = '';
-    switch (song.sourceType) {
+    switch (playlistItem.sourceType) {
       case 'youtube':
-        contentId = `https://www.youtube.com/watch?v=${song.sourceId}`;
+        contentId = `https://www.youtube.com/watch?v=${playlistItem.sourceId}`;
         break;
       case 'soundcloud':
-        contentId = buildSoundCloudContentId(song.sourceId);
+        contentId = buildSoundCloudContentId(playlistItem.sourceId);
         break;
       default:
-        contentId = song.sourceId || '';
+        contentId = playlistItem.sourceId || '';
     }
 
     const mediaInfo = {
       contentId,
-      contentType: song.sourceType === 'youtube' ? 'video/mp4' : 'audio/mp3',
+      contentType:
+        playlistItem.sourceType === 'youtube' ? 'video/mp4' : 'audio/mp3',
       streamType: 'BUFFERED' as const,
       metadata: {
-        title: song.title || 'Unknown Title',
-        artist: song.artist || 'Unknown Artist',
-        images: song.thumbnailUrl
+        title: playlistItem.title || 'Unknown Title',
+        artist: playlistItem.publisher || 'Unknown Artist',
+        images: playlistItem.thumbnailUrl
           ? [
               {
-                url: song.thumbnailUrl,
+                url: playlistItem.thumbnailUrl,
                 height: 480,
                 width: 640,
               },
             ]
           : [],
       },
-      duration: song.duration,
+      duration: playlistItem.duration,
     };
 
     const [error, _] = await safeWrapAsync(castManager.castMedia(mediaInfo));
@@ -288,13 +289,13 @@ export const useCastStore = create<CastState>((set, get) => ({
     browserDebugLog('[Cast] store castCurrentSong:done');
   },
 
-  syncPlaybackState: async (state: PlaybackState) => {
+  syncPlaybackState: async (state: PlaybackStateV2) => {
     if (!get().isConnected) return;
 
     browserDebugLog('[Cast] store syncPlaybackState:start', {
       isPlaying: state?.isPlaying,
       positionMs: state?.positionMs,
-      title: state?.currentSong?.title,
+      title: state?.currentPlaylistItem?.title,
     });
     set({ lastError: null });
     const castManager = await getCastManager();
@@ -314,7 +315,7 @@ export const useCastStore = create<CastState>((set, get) => ({
     }
   },
 
-  updateQueue: async (queue: Song[]) => {
+  updateQueue: async (queue: PlaylistItem[]) => {
     if (!get().isConnected) return;
 
     browserDebugLog('[Cast] store updateQueue:start', { count: queue.length });

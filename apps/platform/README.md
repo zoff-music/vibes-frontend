@@ -116,10 +116,10 @@ The platform app includes comprehensive SSR support via `server.tsx`:
 3. **Client Hydration**: React takes over with pre-populated stores
 4. **Real-time Updates**: SSE maintains synchronization after hydration
 
-The v2 `song_updated` event inserts missing songs or repositions existing songs
-at the backend-provided index. It also carries manually added songs, whose
+The v3 `playlist_item_updated` event inserts missing playlist items or repositions existing items
+at the backend-provided index. It also carries manually added items, whose
 automatic vote may place them ahead of the unvoted queue. Show the addition
-notification only when the song is absent before applying that event, so votes
+notification only when the item is absent before applying that event, so votes
 and replayed updates do not produce duplicate addition notifications.
 
 ### Route Handling
@@ -221,15 +221,15 @@ pending. Existing room tiles are memoized so pending-state changes do not render
 the list again. Page changes only reposition results when their heading is above
 the viewport, using an immediate scroll rather than the site's smooth scrolling.
 
-Both loaders use `/api/v2/rooms/public`, ordered by listeners, songs and ID,
+Both loaders use `/api/v3/rooms/public`, ordered by listeners, playlist items and ID,
 all descending. The homepage requests only the first three live rooms through
 its server loader. The homepage and browser share `PublicRoomTile` from
 `@vibes/ui/web`. Keep the web homepage to Live rooms and a Browse all public
 link to `/rooms/explore?live=false`; search, filters and pagination belong on
 that dedicated route, not in the homepage. The Public setting lists a room in
 Browse even without active listeners. The unfiltered browser has a stable sitemap and canonical URL;
-search, pagination and filter variants use `noindex, follow`. Deploy the v2
-backend endpoint before the frontend. Existing v1 clients remain supported.
+search, pagination and filter variants use `noindex, follow`. Deploy the v3
+backend endpoint before the frontend. Existing v1 and v2 clients remain supported.
 
 The room-settings section uses a solid themed panel within the shared content
 width and the same surfaces as the room cards. A brief accent sweep connects each
@@ -286,7 +286,7 @@ retains focus when its songs transition into the logo. Switching between room na
 and AI prompts moves focus to the new input.
 
 Product demos use placeholder songs and artwork in a room named `electro`.
-Reuse `QueueItem`, `NowPlayingSong`, `PlaybackProgress`, `EmbedQueueSong` and
+Reuse `QueueItem`, `NowPlayingPlaylistItem`, `PlaybackProgress`, `EmbedQueuePlaylistItem` and
 `SegmentedToggle` from `@vibes/ui/web`. Demo state stays in app-owned hooks;
 it never sends provider requests or changes a real room. Do not introduce
 alternate players, queue rows, equalizers or toggle implementations. Keep

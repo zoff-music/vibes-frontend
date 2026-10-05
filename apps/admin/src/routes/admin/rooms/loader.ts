@@ -1,11 +1,11 @@
 import { getHttpError } from '@vibes/api';
-import type { AdminRoomResult } from '@vibes/models';
+import type { AdminRoomResultV2 } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../../http.server';
 
 export interface AdminRoomSearch {
   q: string;
-  sortBy: 'listeners' | 'songs';
+  sortBy: 'listeners' | 'playlistItems';
   order: 'asc' | 'desc';
   from: number;
   to: number;
@@ -13,7 +13,7 @@ export interface AdminRoomSearch {
 }
 
 export interface AdminRoomsLoaderData {
-  roomResult: AdminRoomResult;
+  roomResult: AdminRoomResultV2;
   roomSearch: AdminRoomSearch;
 }
 
@@ -26,7 +26,9 @@ export async function loader({
   const url = new URL(request.url);
   const q = url.searchParams.get('q')?.trim() ?? '';
   const sortBy =
-    url.searchParams.get('sortBy') === 'songs' ? 'songs' : 'listeners';
+    url.searchParams.get('sortBy') === 'playlistItems'
+      ? 'playlistItems'
+      : 'listeners';
   const order = url.searchParams.get('order') === 'asc' ? 'asc' : 'desc';
   const parsedFrom = Number.parseInt(url.searchParams.get('from') ?? '', 10);
   const from = Number.isNaN(parsedFrom) ? 0 : Math.max(0, parsedFrom);
@@ -35,7 +37,7 @@ export async function loader({
     ? from + adminRoomPageSize - 1
     : Math.max(from, parsedTo);
   const to = Math.min(requestedTo, from + adminRoomPageSize - 1);
-  const [error, roomResult] = await serverApi.get(
+  const [error, roomResult] = await serverApi.v2.get(
     '/admin/rooms',
     {
       $search: {

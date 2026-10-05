@@ -22,8 +22,8 @@ export function RoomSetupSettings({
           label="Admins Only Add"
           variant="plain-full"
           size="comfortable"
-          checked={settings.onlyAdminAddSongs}
-          onChange={(checked) => onChange('onlyAdminAddSongs', checked)}
+          checked={settings.onlyAdminAddPlaylistItems}
+          onChange={(checked) => onChange('onlyAdminAddPlaylistItems', checked)}
         />
       )}
       {setupId === 'skipping' && (

@@ -1,5 +1,5 @@
 import { useAdminEvents } from '@vibes/api';
-import type { AdminRoomResult, AdminRoomSummary } from '@vibes/models';
+import type { AdminRoomResultV2, AdminRoomSummaryV2 } from '@vibes/models';
 import { showRateLimitMessageToast } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
 import {
@@ -289,9 +289,9 @@ export default function AdminRooms() {
 }
 
 function selectRoomPage(
-  rooms: AdminRoomSummary[],
+  rooms: AdminRoomSummaryV2[],
   search: AdminRoomSearch,
-): AdminRoomResult {
+): AdminRoomResultV2 {
   const query = search.q.toLowerCase();
   const matchingRooms = query
     ? rooms.filter(
@@ -302,9 +302,13 @@ function selectRoomPage(
     : [...rooms];
   matchingRooms.sort((left, right) => {
     const leftValue =
-      search.sortBy === 'songs' ? left.songCount : left.userCount;
+      search.sortBy === 'playlistItems'
+        ? left.playlistItemCount
+        : left.userCount;
     const rightValue =
-      search.sortBy === 'songs' ? right.songCount : right.userCount;
+      search.sortBy === 'playlistItems'
+        ? right.playlistItemCount
+        : right.userCount;
     const difference = leftValue - rightValue;
     return search.order === 'asc' ? difference : -difference;
   });

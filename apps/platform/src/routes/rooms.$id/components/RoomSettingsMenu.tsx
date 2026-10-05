@@ -1,9 +1,9 @@
 import {
   isSourceType,
   type Providers,
-  type Room,
-  type RoomSettings,
-  type RoomUpdate,
+  type RoomSettingsV2,
+  type RoomUpdateV2,
+  type RoomV2,
   type SourceType,
 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
@@ -36,11 +36,11 @@ interface RoomSettingsMenuProps {
   showSettings: boolean;
   onClose: () => void;
   onShareRoom: () => void;
-  room: Room | null;
-  displayRoom: Room | null;
+  room: RoomV2 | null;
+  displayRoom: RoomV2 | null;
   isAdmin: boolean;
-  updateRoomSettings: (settings: RoomSettings) => void;
-  updateRoom: (data: RoomUpdate) => void;
+  updateRoomSettings: (settings: RoomSettingsV2) => void;
+  updateRoom: (data: RoomUpdateV2) => void;
   adminPassword: string;
   focusAdminLogin: boolean;
   onAdminPasswordChange: (value: string) => void;
@@ -147,11 +147,11 @@ export const RoomSettingsMenu = ({
     if (
       !room?.hasPassword &&
       !adminPassword &&
-      room?.settings.onlyAdminAddSongs
+      room?.settings.onlyAdminAddPlaylistItems
     ) {
       updateRoomSettings({
         ...room.settings,
-        onlyAdminAddSongs: false,
+        onlyAdminAddPlaylistItems: false,
       });
     }
   }, [adminPassword, room, updateRoomSettings]);
@@ -383,7 +383,7 @@ export const RoomSettingsMenu = ({
                 label="Admins Only Add"
                 description="Only admins add songs"
                 disabled={room?.hasPassword && !isAdmin}
-                checked={room?.settings.onlyAdminAddSongs ?? false}
+                checked={room?.settings.onlyAdminAddPlaylistItems ?? false}
                 onChange={(checked) => {
                   if (room && checked && !room.hasPassword && !adminPassword) {
                     setWobblePassword(true);
@@ -397,7 +397,7 @@ export const RoomSettingsMenu = ({
                   room &&
                     updateRoomSettings({
                       ...room.settings,
-                      onlyAdminAddSongs: checked,
+                      onlyAdminAddPlaylistItems: checked,
                     });
                 }}
                 variant="plain-full"

@@ -1,21 +1,21 @@
 import {
+  createProviderItemRequest,
   createProviderPlaylistRequest,
   createProviderSearchRequest,
-  createProviderTrackRequest,
 } from '@vibes/api';
-import type { MusicPlaylist, SearchResult, SourceType } from '@vibes/models';
+import type { ProviderItem, ProviderPlaylist, SourceType } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
 import {
+  parseProviderItemLink,
   parseProviderPlaylistLink,
-  parseProviderTrackLink,
 } from '@vibes/shared';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { isMobileProvider } from '@/lib/mobile-content';
 
 export interface SearchData {
-  playlist: MusicPlaylist | null;
+  playlist: ProviderPlaylist | null;
   provider: SourceType;
-  results: SearchResult[];
+  results: ProviderItem[];
 }
 
 export async function loader({
@@ -46,29 +46,30 @@ export async function loader({
       data: {
         playlist,
         provider: playlistLink.provider,
-        results: playlist.tracks,
+        results: playlist.items,
       },
       error: '',
     };
   }
-  const trackLink = parseProviderTrackLink(query);
-  if (trackLink) {
-    if (!isMobileProvider(trackLink.provider)) {
+  const itemLink = parseProviderItemLink(query);
+  if (itemLink) {
+    if (!isMobileProvider(itemLink.provider)) {
       return { data: null, error: 'This provider is not available on mobile.' };
     }
-    const source = trackLink.sourceId ?? trackLink.providerUrl ?? '';
-    const [error, track] = await createProviderTrackRequest(client)(
-      trackLink.provider,
+    const source = itemLink.sourceId ?? itemLink.providerUrl ?? '';
+    const [error, item] = await createProviderItemRequest(client)(
+      itemLink.provider,
       source,
       { signal },
     );
-    if (error || !track) return failure(error, 'Could not load this song.');
+    if (error || !item) return failure(error, 'Could not load this song.');
     return {
-      data: { playlist: null, provider: trackLink.provider, results: [track] },
+      data: { playlist: null, provider: itemLink.provider, results: [item] },
       error: '',
     };
   }
   const [error, results] = await createProviderSearchRequest(client)(
+    params.id ?? params.roomId ?? '',
     provider,
     query,
     { signal },

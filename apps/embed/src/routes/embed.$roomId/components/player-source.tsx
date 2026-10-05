@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/models';
+import type { PlaylistItem } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { lazy, memo, Suspense, useEffect, useState } from 'react';
 
@@ -14,13 +14,13 @@ const LazyVideoPlayer = lazy(async () => {
 
 interface Props {
   autoplay: boolean;
-  currentSong: Song | null;
+  currentPlaylistItem: PlaylistItem | null;
   enabledProviders: string[];
   onLocalAlignmentChange: (isAligned: boolean) => void;
   onLocalInteraction: () => void;
   onLocalPlay: () => void;
   onNeedsUserGestureChange: (needsGesture: boolean) => void;
-  songs: Song[];
+  playlistItems: PlaylistItem[];
 }
 
 interface LoadedPlayers {
@@ -38,16 +38,16 @@ function PlayerLoading() {
 
 function EmbedPlayerSourceComponent({
   autoplay,
-  currentSong,
+  currentPlaylistItem,
   enabledProviders,
   onLocalAlignmentChange,
   onLocalInteraction,
   onLocalPlay,
   onNeedsUserGestureChange,
-  songs,
+  playlistItems,
 }: Props) {
-  const isSoundCloudActive = currentSong?.sourceType === 'soundcloud';
-  const isYouTubeActive = currentSong?.sourceType === 'youtube';
+  const isSoundCloudActive = currentPlaylistItem?.sourceType === 'soundcloud';
+  const isYouTubeActive = currentPlaylistItem?.sourceType === 'youtube';
   const isSoundCloudEnabled = enabledProviders.includes('soundcloud');
   const isYouTubeEnabled = enabledProviders.includes('youtube');
   const [loadedPlayers, setLoadedPlayers] = useState<LoadedPlayers>(() => ({
@@ -70,10 +70,14 @@ function EmbedPlayerSourceComponent({
 
   const shouldMountSoundCloud = loadedPlayers.soundcloud || isSoundCloudActive;
   const shouldMountYouTube = loadedPlayers.youtube || isYouTubeActive;
-  const preloadSoundCloudSong =
-    songs.find((song) => song.sourceType === 'soundcloud') ?? null;
-  const preloadYouTubeSong =
-    songs.find((song) => song.sourceType === 'youtube') ?? null;
+  const preloadSoundCloudPlaylistItem =
+    playlistItems.find(
+      (playlistItem) => playlistItem.sourceType === 'soundcloud',
+    ) ?? null;
+  const preloadYouTubePlaylistItem =
+    playlistItems.find(
+      (playlistItem) => playlistItem.sourceType === 'youtube',
+    ) ?? null;
 
   return (
     <div className="absolute inset-0">
@@ -96,7 +100,7 @@ function EmbedPlayerSourceComponent({
               onNeedsUserGestureChange={onNeedsUserGestureChange}
               onLocalSeek={onLocalInteraction}
               onLocalVolumeChange={onLocalInteraction}
-              preloadSong={preloadYouTubeSong}
+              preloadPlaylistItem={preloadYouTubePlaylistItem}
             />
           </Suspense>
         </div>
@@ -120,7 +124,7 @@ function EmbedPlayerSourceComponent({
               onNeedsUserGestureChange={onNeedsUserGestureChange}
               onLocalSeek={onLocalInteraction}
               onLocalVolumeChange={onLocalInteraction}
-              preloadSong={preloadSoundCloudSong}
+              preloadPlaylistItem={preloadSoundCloudPlaylistItem}
             />
           </Suspense>
         </div>

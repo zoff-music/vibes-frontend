@@ -1,4 +1,4 @@
-import type { Providers, Room, RoomSettings } from '@vibes/models';
+import type { Providers, RoomSettingsV2, RoomV2 } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, Modal, Text, View } from 'react-native';
@@ -27,7 +27,7 @@ interface RoomSettingsSheetProps {
   onUpdated: () => Promise<void>;
   providers: Providers;
   remoteId?: string;
-  room: Room;
+  room: RoomV2;
   visible: boolean;
 }
 
@@ -114,7 +114,10 @@ export function RoomSettingsSheet({
     }
   };
 
-  const save = async (nextMode: Room['mode'], nextSettings: RoomSettings) => {
+  const save = async (
+    nextMode: RoomV2['mode'],
+    nextSettings: RoomSettingsV2,
+  ) => {
     setLoading(true);
     setError('');
     const result = controllerToken
@@ -177,12 +180,12 @@ export function RoomSettingsSheet({
     await onUpdated();
   };
 
-  const changeMode = (nextMode: Room['mode']) => {
+  const changeMode = (nextMode: RoomV2['mode']) => {
     setMode(nextMode);
     void save(nextMode, settings);
   };
 
-  const changeSettings = (nextSettings: RoomSettings) => {
+  const changeSettings = (nextSettings: RoomSettingsV2) => {
     setSettings(nextSettings);
     void save(mode, nextSettings);
   };

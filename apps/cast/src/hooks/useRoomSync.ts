@@ -1,14 +1,14 @@
 import {
-  createApiV2Client,
-  type RoomSSEV2Message,
-  subscribeRoomEventsV2,
+  createApiV3Client,
+  type RoomSSEV3Message,
+  subscribeRoomEventsV3,
 } from '@vibes/api';
-import type { Song } from '@vibes/models';
+import type { PlaylistItem } from '@vibes/models';
 import { synchronizeServerClock, usePlaybackStore } from '@vibes/shared';
 import { useEffect } from 'react';
 import type { CastRoomSnapshot } from '../routes/cast/loader';
 import type { QueueItem, RoomInfo } from '../types';
-import { normalizeSong } from '../utils/songUtils';
+import { normalizePlaylistItem } from '../utils/item';
 
 interface UseRoomSyncProps {
   roomId: string | null;
@@ -22,7 +22,7 @@ interface UseRoomSyncProps {
   setRoomMode: (mode: string | null) => void;
   setError: (err: string | null) => void;
   setEnabledProviders: (providers: string[]) => void;
-  updateMediaMetadata: (song: Song) => void;
+  updateMediaMetadata: (playlistItem: PlaylistItem) => void;
 }
 
 export function useRoomSync({
@@ -57,18 +57,24 @@ export function useRoomSync({
     });
     setRoomMode(snapshot.room.mode);
     setEnabledProviders(snapshot.providers);
-    setQueue(snapshot.songs.map((song) => normalizeSong(song)));
+    setQueue(
+      snapshot.playlistItems.map((playlistItem) =>
+        normalizePlaylistItem(playlistItem),
+      ),
+    );
 
-    if (!snapshot.playback.currentSong) return;
+    if (!snapshot.playback.currentPlaylistItem) return;
     synchronizeServerClock(snapshot.playback.serverTimeMs);
-    const normalizedSong = normalizeSong(snapshot.playback.currentSong);
+    const normalizedPlaylistItem = normalizePlaylistItem(
+      snapshot.playback.currentPlaylistItem,
+    );
     setPlaybackState({
       ...snapshot.playback,
-      currentSong: normalizedSong,
+      currentPlaylistItem: normalizedPlaylistItem,
     });
     setIsPlaying(snapshot.playback.isPlaying);
-    setStatusText(`Now Playing: ${normalizedSong.title}`);
-    updateMediaMetadata(normalizedSong);
+    setStatusText(`Now Playing: ${normalizedPlaylistItem.title}`);
+    updateMediaMetadata(normalizedPlaylistItem);
   }, [
     loadError,
     setEnabledProviders,
@@ -86,13 +92,13 @@ export function useRoomSync({
   useEffect(() => {
     if (!roomId || !castToken) return;
 
-    const api = createApiV2Client({ Authorization: `Bearer ${castToken}` });
+    const api = createApiV3Client({ Authorization: `Bearer ${castToken}` });
     const availableProviders = snapshot?.providers ?? [];
     let isMounted = true;
     let unsubscribe: (() => void) | null = null;
 
     const connect = async () => {
-      const [err, stop] = await subscribeRoomEventsV2(
+      const [err, stop] = await subscribeRoomEventsV3(
         api,
         roomId,
         (result) => {
@@ -103,7 +109,7 @@ export function useRoomSync({
           }
           if (!message || !isMounted) return;
 
-          const typedMessage: RoomSSEV2Message = message;
+          const typedMessage: RoomSSEV3Message = message;
 
           switch (typedMessage.type) {
             case 'connected':
@@ -112,18 +118,18 @@ export function useRoomSync({
               break;
             case 'playback_update': {
               const data = typedMessage.data;
-              const normalizedSong = data.currentSong
-                ? normalizeSong(data.currentSong)
+              const normalizedPlaylistItem = data.currentPlaylistItem
+                ? normalizePlaylistItem(data.currentPlaylistItem)
                 : null;
 
               setPlaybackState({
                 ...data,
-                currentSong: normalizedSong,
+                currentPlaylistItem: normalizedPlaylistItem,
               });
 
-              if (normalizedSong) {
-                updateMediaMetadata(normalizedSong);
-                setStatusText(`Now Playing: ${normalizedSong.title}`);
+              if (normalizedPlaylistItem) {
+                updateMediaMetadata(normalizedPlaylistItem);
+                setStatusText(`Now Playing: ${normalizedPlaylistItem.title}`);
               } else {
                 setStatusText('Ready for Casting');
               }
@@ -131,36 +137,41 @@ export function useRoomSync({
               setIsPlaying(data.isPlaying);
               break;
             }
-            case 'songs_snapshot':
+            case 'playlist_items_snapshot':
               if (Array.isArray(typedMessage.data)) {
                 const normalizedQueue = typedMessage.data.map((s) =>
-                  normalizeSong(s),
+                  normalizePlaylistItem(s),
                 );
                 setQueue(normalizedQueue);
               }
               break;
-            case 'song_added': {
-              const song = normalizeSong(typedMessage.data);
+            case 'playlist_item_added': {
+              const playlistItem = normalizePlaylistItem(typedMessage.data);
               setQueue((current) => {
-                if (current.some((item) => item.id === song.id)) return current;
-                return [...current, song];
+                if (current.some((item) => item.id === playlistItem.id))
+                  return current;
+                return [...current, playlistItem];
               });
               break;
             }
-            case 'song_updated': {
-              const song = normalizeSong(typedMessage.data.song);
+            case 'playlist_item_updated': {
+              const playlistItem = normalizePlaylistItem(
+                typedMessage.data.playlistItem,
+              );
               setQueue((current) => {
-                const queue = current.filter((item) => item.id !== song.id);
+                const queue = current.filter(
+                  (item) => item.id !== playlistItem.id,
+                );
                 const position = Math.min(
                   Math.max(typedMessage.data.position, 0),
                   queue.length,
                 );
-                queue.splice(position, 0, song);
+                queue.splice(position, 0, playlistItem);
                 return queue;
               });
               break;
             }
-            case 'song_removed':
+            case 'playlist_item_removed':
               setQueue((current) =>
                 current.filter((item) => item.id !== typedMessage.data.id),
               );

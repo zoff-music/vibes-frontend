@@ -8,7 +8,7 @@ import type { RoomSnapshot } from '@/data-router/room-snapshot';
 
 export function applyRoomSnapshot(snapshot: RoomSnapshot) {
   useRoomStore.getState().setRoom(snapshot.room);
-  useQueueStore.getState().setSongs(snapshot.songs);
+  useQueueStore.getState().setPlaylistItems(snapshot.playlistItems);
   synchronizeServerClock(snapshot.playback.serverTimeMs);
   usePlaybackStore
     .getState()

@@ -1,5 +1,5 @@
 import { useRoomMessages } from '@vibes/api';
-import { type PlaybackState, type Song } from '@vibes/models';
+import { type PlaybackStateV2, type PlaylistItem } from '@vibes/models';
 import {
   classNames,
   showToast,
@@ -12,7 +12,11 @@ import {
   TerminalFeedback,
   TerminalSection,
 } from '@vibes/ui/konami';
-import { NowPlayingSong, QueueList, useProgressiveList } from '@vibes/ui/web';
+import {
+  NowPlayingPlaylistItem,
+  QueueList,
+  useProgressiveList,
+} from '@vibes/ui/web';
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
 import { useChatPreferenceStore } from '../../../stores/chatPreferenceStore';
@@ -28,11 +32,11 @@ const LazyChatConversation = lazy(async () => {
 interface RoomQueueProps {
   roomId: string;
   isSSR: boolean;
-  onAddSong?: () => void;
+  onAddPlaylistItem?: () => void;
   onChatVisibilityChange?: (open: boolean) => void;
   isAdmin?: boolean;
-  initialPlayback?: PlaybackState;
-  initialSongs?: Song[];
+  initialPlayback?: PlaybackStateV2;
+  initialPlaylistItems?: PlaylistItem[];
   terminalMode?: boolean;
 }
 
@@ -40,11 +44,11 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
   ({
     roomId,
     isSSR,
-    onAddSong,
+    onAddPlaylistItem,
     onChatVisibilityChange,
     isAdmin,
     initialPlayback,
-    initialSongs,
+    initialPlaylistItems,
     terminalMode = false,
   }: RoomQueueProps) => {
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
@@ -78,8 +82,10 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     /* 1. Hooks */
     const voteFetcher = useFetcher<RoomActionData>();
     const removeFetcher = useFetcher<RoomActionData>();
-    const songs = useQueueStore((state) => state.songs);
-    const [votingSongId, setVotingSongId] = useState<string | null>(null);
+    const playlistItems = useQueueStore((state) => state.playlistItems);
+    const [votingPlaylistItemId, setVotingPlaylistItemId] = useState<
+      string | null
+    >(null);
 
     // Granular store subscriptions
     const isPlayingFromStore = usePlaybackStore((state) => state.isPlaying);
@@ -88,43 +94,45 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const isPlaying = isSSR
       ? (initialPlayback?.isPlaying ?? false)
       : isPlayingFromStore;
-    const displaySongs =
-      isSSR && initialSongs
-        ? initialSongs
-        : songs.length > 0
-          ? songs
-          : initialSongs || [];
+    const displayPlaylistItems =
+      isSSR && initialPlaylistItems
+        ? initialPlaylistItems
+        : playlistItems.length > 0
+          ? playlistItems
+          : initialPlaylistItems || [];
 
     // Actually we need the full current song for the card
-    const currentSongData =
-      usePlaybackStore((state) => state.currentSong) ||
-      initialPlayback?.currentSong;
-    const queuedSongCount = displaySongs.reduce(
-      (count, song) => count + Number(song.id !== currentSongData?.id),
+    const currentPlaylistItemData =
+      usePlaybackStore((state) => state.currentPlaylistItem) ||
+      initialPlayback?.currentPlaylistItem;
+    const queuedPlaylistItemCount = displayPlaylistItems.reduce(
+      (count, playlistItem) =>
+        count + Number(playlistItem.id !== currentPlaylistItemData?.id),
       0,
     );
-    const [terminalVisibleCount, terminalSentinelRef] =
-      useProgressiveList(queuedSongCount);
+    const [terminalVisibleCount, terminalSentinelRef] = useProgressiveList(
+      queuedPlaylistItemCount,
+    );
 
     /* 3. Handlers */
     const handleVote = React.useCallback(
-      (songId: string) => {
-        if (votingSongId) {
+      (playlistItemId: string) => {
+        if (votingPlaylistItemId) {
           return;
         }
-        setVotingSongId(songId);
+        setVotingPlaylistItemId(playlistItemId);
         voteFetcher.submit(
-          { intent: 'voteSong', songId },
+          { intent: 'votePlaylistItem', playlistItemId },
           { encType: 'application/json', method: 'post' },
         );
       },
-      [voteFetcher, votingSongId],
+      [voteFetcher, votingPlaylistItemId],
     );
 
     const handleRemove = React.useCallback(
-      (songId: string) => {
+      (playlistItemId: string) => {
         removeFetcher.submit(
-          { intent: 'removeSong', songId },
+          { intent: 'removePlaylistItem', playlistItemId },
           { encType: 'application/json', method: 'post' },
         );
       },
@@ -132,19 +140,23 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     );
 
     useEffect(() => {
-      if (voteFetcher.state !== 'idle' || !voteFetcher.data || !votingSongId) {
+      if (
+        voteFetcher.state !== 'idle' ||
+        !voteFetcher.data ||
+        !votingPlaylistItemId
+      ) {
         return;
       }
 
       if (voteFetcher.data.error) {
         showToast(voteFetcher.data.error, 'error');
-        setVotingSongId(null);
+        setVotingPlaylistItemId(null);
         return;
       }
 
       showToast('Vote added. Queue updated.', 'success');
-      setVotingSongId(null);
-    }, [voteFetcher.data, voteFetcher.state, votingSongId]);
+      setVotingPlaylistItemId(null);
+    }, [voteFetcher.data, voteFetcher.state, votingPlaylistItemId]);
 
     const formatTime = (ms: number) => {
       const seconds = Math.floor(ms / 1000);
@@ -154,10 +166,13 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     };
 
     if (terminalMode) {
-      const queuedSongs = displaySongs.filter(
-        (song) => song.id !== currentSongData?.id,
+      const queuedPlaylistItems = displayPlaylistItems.filter(
+        (playlistItem) => playlistItem.id !== currentPlaylistItemData?.id,
       );
-      const visibleQueuedSongs = queuedSongs.slice(0, terminalVisibleCount);
+      const visibleQueuedPlaylistItems = queuedPlaylistItems.slice(
+        0,
+        terminalVisibleCount,
+      );
 
       return (
         <div className="space-y-4 lg:col-span-3 lg:min-h-0 lg:overflow-y-auto">
@@ -165,31 +180,31 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             label="SERVER SIGNAL"
             status={isPlaying ? 'PLAYING' : 'PAUSED'}
           >
-            {!currentSongData && (
+            {!currentPlaylistItemData && (
               <TerminalFeedback>
                 NO TRACK MOUNTED. QUEUE A SIGNAL TO BEGIN.
               </TerminalFeedback>
             )}
-            {currentSongData && (
+            {currentPlaylistItemData && (
               <>
                 <div className="grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-1 text-xs uppercase">
                   <span className="text-[#71f5ad]/55">TRACK</span>
                   <strong className="min-w-0 truncate text-[#e0ffef]">
-                    {currentSongData.title}
+                    {currentPlaylistItemData.title}
                   </strong>
                   <span className="text-[#71f5ad]">
-                    {currentSongData.sourceType.toUpperCase()}
+                    {currentPlaylistItemData.sourceType.toUpperCase()}
                   </span>
                   <span className="text-[#71f5ad]/55">ARTIST</span>
                   <span className="min-w-0 truncate text-[#a6ffd0]/70">
-                    {currentSongData.artist || 'UNKNOWN'}
+                    {currentPlaylistItemData.publisher || 'UNKNOWN'}
                   </span>
                   <span className="text-[#a6ffd0]/55 tabular-nums">
-                    {formatTime(currentSongData.duration * 1000)}
+                    {formatTime(currentPlaylistItemData.duration * 1000)}
                   </span>
                 </div>
                 <PlaybackProgress
-                  durationMs={currentSongData.duration * 1000}
+                  durationMs={currentPlaylistItemData.duration * 1000}
                   isSSR={isSSR}
                   terminalMode
                 />
@@ -199,43 +214,44 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
           <TerminalSection
             label="QUEUE DIRECTORY"
-            status={`${queuedSongs.length.toString().padStart(2, '0')} WAITING`}
+            status={`${queuedPlaylistItems.length.toString().padStart(2, '0')} WAITING`}
           >
             <div className="space-y-1.5">
-              {queuedSongs.length === 0 && (
+              {queuedPlaylistItems.length === 0 && (
                 <TerminalFeedback>END OF QUEUE.</TerminalFeedback>
               )}
-              {visibleQueuedSongs.map((song, index) => (
+              {visibleQueuedPlaylistItems.map((playlistItem, index) => (
                 <article
                   className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 border border-[#71f5ad]/20 bg-black/15 px-2.5 py-2.5 text-xs"
-                  key={song.id}
+                  key={playlistItem.id}
                 >
                   <span className="text-[#71f5ad]/45 tabular-nums">
                     {(index + 1).toString().padStart(2, '0')}
                   </span>
                   <div className="min-w-0">
                     <p className="truncate text-[#dffff0] uppercase">
-                      {song.title}
+                      {playlistItem.title}
                     </p>
                     <p className="mt-1 truncate text-[#a6ffd0]/50 text-[0.6rem] uppercase">
-                      {song.artist || 'UNKNOWN'} / {song.sourceType} /{' '}
-                      {formatTime(song.duration * 1000)}
+                      {playlistItem.publisher || 'UNKNOWN'} /{' '}
+                      {playlistItem.sourceType} /{' '}
+                      {formatTime(playlistItem.duration * 1000)}
                     </p>
                   </div>
                   <div className="flex gap-1">
                     <TerminalButton
-                      aria-label={`Vote for ${song.title}`}
+                      aria-label={`Vote for ${playlistItem.title}`}
                       className="px-2 py-1"
-                      disabled={Boolean(votingSongId)}
-                      onClick={() => handleVote(song.id)}
+                      disabled={Boolean(votingPlaylistItemId)}
+                      onClick={() => handleVote(playlistItem.id)}
                     >
-                      +{song.voteCount ?? 0}
+                      +{playlistItem.voteCount ?? 0}
                     </TerminalButton>
                     {isAdmin && (
                       <TerminalButton
-                        aria-label={`Remove ${song.title}`}
+                        aria-label={`Remove ${playlistItem.title}`}
                         className="px-2 py-1"
-                        onClick={() => handleRemove(song.id)}
+                        onClick={() => handleRemove(playlistItem.id)}
                         variant="danger"
                       >
                         DEL
@@ -244,7 +260,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   </div>
                 </article>
               ))}
-              {terminalVisibleCount < queuedSongs.length && (
+              {terminalVisibleCount < queuedPlaylistItems.length && (
                 <div
                   aria-hidden="true"
                   className="h-10"
@@ -261,12 +277,15 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       <div className="mt-6 flex min-h-0 min-w-0 flex-col lg:col-span-2 lg:mt-0 lg:h-full">
         <div className="relative flex min-h-0 flex-1 flex-col">
           {/* Now Playing (Integrated into list style) */}
-          {currentSongData && (
+          {currentPlaylistItemData && (
             <div className="mb-2 shrink-0">
-              <NowPlayingSong song={currentSongData} isPlaying={isPlaying} />
+              <NowPlayingPlaylistItem
+                playlistItem={currentPlaylistItemData}
+                isPlaying={isPlaying}
+              />
 
               <PlaybackProgress
-                durationMs={currentSongData.duration * 1000}
+                durationMs={currentPlaylistItemData.duration * 1000}
                 isSSR={isSSR}
               />
             </div>
@@ -277,7 +296,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
               {!chatEnabled && (
                 <h2 className="py-4 font-display text-2xs text-theme-muted tracking-label">
-                  Up next ({queuedSongCount})
+                  Up next ({queuedPlaylistItemCount})
                 </h2>
               )}
               {chatEnabled && <h2 className="sr-only">Queue and chat</h2>}
@@ -293,7 +312,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                       : 'border-transparent text-theme-muted',
                   )}
                 >
-                  Up next ({queuedSongCount})
+                  Up next ({queuedPlaylistItemCount})
                 </button>
               )}
               {chatEnabled && (
@@ -343,15 +362,15 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               {!chat.open && (
                 <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
                   <QueueList
-                    songs={displaySongs.filter(
-                      (s) => s.id !== currentSongData?.id,
+                    playlistItems={displayPlaylistItems.filter(
+                      (s) => s.id !== currentPlaylistItemData?.id,
                     )}
                     roomId={roomId}
                     onVote={handleVote}
                     onRemove={handleRemove}
-                    onEmptyClick={onAddSong}
+                    onEmptyClick={onAddPlaylistItem}
                     isAdmin={isAdmin}
-                    votingSongId={votingSongId}
+                    votingPlaylistItemId={votingPlaylistItemId}
                   />
                 </div>
               )}

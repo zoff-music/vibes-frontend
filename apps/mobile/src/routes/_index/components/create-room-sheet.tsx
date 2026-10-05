@@ -1,7 +1,7 @@
 import type {
   Providers,
   RoomNameReservation,
-  RoomSettings,
+  RoomSettingsV2,
 } from '@vibes/models';
 import { roomNameMaxLength } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
@@ -44,7 +44,7 @@ export function CreateRoomSheet({
   const [name, setName] = useState(initialName);
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'host' | 'server'>('server');
-  const [settings, setSettings] = useState<RoomSettings>({
+  const [settings, setSettings] = useState<RoomSettingsV2>({
     ...DEFAULT_ROOM_SETTINGS,
     enabledSources: providers,
   });

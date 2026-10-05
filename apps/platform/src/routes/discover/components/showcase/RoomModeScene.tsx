@@ -1,13 +1,13 @@
 import {
   Button,
   ContentTransition,
-  NowPlayingSong,
+  NowPlayingPlaylistItem,
   PauseIcon,
   PlaybackProgress,
   PlayIcon,
   SkipIcon,
 } from '@vibes/ui/web';
-import { queueDemoSongs } from '../../../../components/seo/previewSongs';
+import { queueDemoPlaylistItems } from '../../../../components/seo/preview';
 import { usePlaybackPreview } from '../../hooks/usePlaybackPreview';
 
 interface RoomModeSceneProps {
@@ -17,16 +17,16 @@ interface RoomModeSceneProps {
 
 export function RoomModeScene({ hostMode, playing }: RoomModeSceneProps) {
   const { state, actions } = usePlaybackPreview(hostMode, playing);
-  const song = {
-    ...queueDemoSongs[state.track % queueDemoSongs.length],
+  const playlistItem = {
+    ...queueDemoPlaylistItems[state.track % queueDemoPlaylistItems.length],
     duration: state.durationMs / 1000,
   };
 
   return (
     <div className="min-w-0">
       <ContentTransition transitionKey={state.track}>
-        <NowPlayingSong
-          song={song}
+        <NowPlayingPlaylistItem
+          playlistItem={playlistItem}
           isPlaying={state.isPlaying && playing}
           providerLink={false}
           animate={false}

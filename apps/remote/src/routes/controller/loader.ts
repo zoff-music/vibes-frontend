@@ -7,13 +7,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const cookie = request.headers.get('cookie') ?? '';
   const client = getServerApi();
   if (!remoteId) {
-    return { error: 'Remote ID is required.', providers: [], songs: [] };
+    return {
+      error: 'Remote ID is required.',
+      providers: [],
+      playlistItems: [],
+    };
   }
   const headers = {
     Cookie: cookie,
     'X-Zoff-Remote-ID': remoteId,
   };
-  const [remoteError, remote] = await client.get(
+  const [remoteError, remote] = await client.v2.get(
     '/remotes/{id}',
     { id: remoteId },
     { headers },
@@ -22,17 +26,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return {
       error: 'This remote is not paired, disabled, or its machine is offline.',
       providers: [],
-      songs: [],
+      playlistItems: [],
     };
   }
   if (!remote.currentRoomId) {
-    return { providers: [], remote, songs: [] };
+    return { providers: [], remote, playlistItems: [] };
   }
   const roomId = remote.currentRoomId;
   const results = await Promise.all([
-    client.get('/rooms/{id}', { id: roomId }, { headers }),
-    client.get('/rooms/{id}/songs', { id: roomId }, { headers }),
-    client.get('/rooms/{id}/states', { id: roomId }, { headers }),
+    client.v2.get('/rooms/{id}', { id: roomId }, { headers }),
+    client.v2.get('/rooms/{id}/playlist-items', { id: roomId }, { headers }),
+    client.v2.get('/rooms/{id}/states', { id: roomId }, { headers }),
     client.get('/providers', null, { headers }),
   ]);
   return createControllerRoomData({
@@ -41,6 +45,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     remote,
     room: results[0][1],
     roomError: results[0][0],
-    songs: results[1][1],
+    playlistItems: results[1][1],
   });
 }

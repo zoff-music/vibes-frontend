@@ -1,6 +1,6 @@
 import {
   type Providers,
-  type RoomSettings,
+  type RoomSettingsV2,
   roomNameMaxLength,
   type SourceType,
 } from '@vibes/models';
@@ -14,10 +14,10 @@ import { TerminalToggle } from './TerminalToggle';
 import { useTerminalShortcuts } from './useTerminalShortcuts';
 
 type BooleanRoomSetting = keyof Pick<
-  RoomSettings,
+  RoomSettingsV2,
   | 'allowDuplicates'
   | 'democraticSkip'
-  | 'onlyAdminAddSongs'
+  | 'onlyAdminAddPlaylistItems'
   | 'playlistImport'
   | 'public'
   | 'removeOnPlay'
@@ -45,7 +45,7 @@ export interface TerminalCreateRoomProps {
   password: string;
   providers: Providers;
   renderForm: (content: ReactNode) => ReactNode;
-  settings: RoomSettings;
+  settings: RoomSettingsV2;
 }
 
 export function TerminalCreateRoom({
@@ -198,11 +198,11 @@ export function TerminalCreateRoom({
                   }
                 />
                 <TerminalToggle
-                  checked={settings.onlyAdminAddSongs ?? false}
+                  checked={settings.onlyAdminAddPlaylistItems ?? false}
                   disabled={!password}
                   label="ADMINS ONLY ADD"
                   onChange={(checked) =>
-                    onBooleanSettingChange('onlyAdminAddSongs', checked)
+                    onBooleanSettingChange('onlyAdminAddPlaylistItems', checked)
                   }
                 />
                 <TerminalToggle

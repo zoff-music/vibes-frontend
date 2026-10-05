@@ -1,5 +1,5 @@
-import type { Song } from '@vibes/models';
-import { classNames, getProviderTrackUrl, safeWrapAsync } from '@vibes/shared';
+import type { PlaylistItem } from '@vibes/models';
+import { classNames, getProviderItemUrl, safeWrapAsync } from '@vibes/shared';
 import { useNativePresentation } from '@vibes/ui/native';
 import { Image } from 'expo-image';
 import { memo, type ReactElement, useCallback } from 'react';
@@ -21,30 +21,30 @@ interface QueueProps {
   emptyMessage?: string;
   header?: ReactElement;
   showHeading?: boolean;
-  onDelete?: (song: Song) => void;
-  onVote: (song: Song) => void;
-  songs: Song[];
+  onDelete?: (playlistItem: PlaylistItem) => void;
+  onVote: (playlistItem: PlaylistItem) => void;
+  playlistItems: PlaylistItem[];
 }
 
 interface QueueItemProps {
   index: number;
-  onDelete?: (song: Song) => void;
-  onVote: (song: Song) => void;
-  song: Song;
+  onDelete?: (playlistItem: PlaylistItem) => void;
+  onVote: (playlistItem: PlaylistItem) => void;
+  playlistItem: PlaylistItem;
 }
 
 const QueueItem = memo(function QueueItem({
   index,
   onDelete,
   onVote,
-  song,
+  playlistItem,
 }: QueueItemProps) {
   const theme = useAppTheme();
   const terminal = useNativePresentation() === 'terminal';
-  const providerUrl = getProviderTrackUrl(
-    song.sourceType,
-    song.sourceId,
-    song.providerUrl,
+  const providerUrl = getProviderItemUrl(
+    playlistItem.sourceType,
+    playlistItem.sourceId,
+    playlistItem.providerUrl,
   );
   const openExternally = async () => {
     if (!providerUrl) return;
@@ -52,7 +52,7 @@ const QueueItem = memo(function QueueItem({
   };
   const row = (
     <Pressable
-      accessibilityLabel={`Vote for ${song.title}`}
+      accessibilityLabel={`Vote for ${playlistItem.title}`}
       className={classNames(
         'h-18 flex-row items-center gap-3 border p-3',
         !terminal &&
@@ -62,7 +62,7 @@ const QueueItem = memo(function QueueItem({
       )}
       onPress={() => {
         void triggerSelectionFeedback();
-        onVote(song);
+        onVote(playlistItem);
       }}
     >
       <Text
@@ -78,8 +78,8 @@ const QueueItem = memo(function QueueItem({
         <Image
           cachePolicy="memory-disk"
           contentFit="cover"
-          recyclingKey={song.id}
-          source={song.thumbnailUrl}
+          recyclingKey={playlistItem.id}
+          source={playlistItem.thumbnailUrl}
           style={thumbnailImageStyle}
         />
       </View>
@@ -92,7 +92,7 @@ const QueueItem = memo(function QueueItem({
             terminal && 'text-[#dffff0]',
           )}
         >
-          {song.title}
+          {playlistItem.title}
         </Text>
         <Text
           numberOfLines={1}
@@ -102,7 +102,7 @@ const QueueItem = memo(function QueueItem({
             terminal && 'text-[#a6ffd0]/65',
           )}
         >
-          {song.artist ?? song.sourceType}
+          {playlistItem.publisher ?? playlistItem.sourceType}
         </Text>
       </View>
       <View
@@ -120,13 +120,13 @@ const QueueItem = memo(function QueueItem({
             terminal && 'text-[#71f5ad]',
           )}
         >
-          {song.voteCount ?? 0}
+          {playlistItem.voteCount ?? 0}
         </Text>
       </View>
     </Pressable>
   );
 
-  if (!song.addedBy && !providerUrl && !onDelete) {
+  if (!playlistItem.addedBy && !providerUrl && !onDelete) {
     return row;
   }
 
@@ -136,7 +136,7 @@ const QueueItem = memo(function QueueItem({
       overshootRight={false}
       renderRightActions={(_progress, _translation, swipeable) => (
         <View className="ml-2 h-18 flex-row items-stretch gap-2">
-          {song.addedBy && (
+          {playlistItem.addedBy && (
             <View
               className={classNames(
                 'h-full w-28 items-center justify-center gap-0.5 overflow-hidden border-2 px-2',
@@ -163,18 +163,18 @@ const QueueItem = memo(function QueueItem({
                 ellipsizeMode="tail"
                 numberOfLines={1}
               >
-                {song.addedBy}
+                {playlistItem.addedBy}
               </Text>
             </View>
           )}
           {onDelete && (
             <Pressable
-              accessibilityLabel={`Delete ${song.title}`}
+              accessibilityLabel={`Delete ${playlistItem.title}`}
               className="w-20 items-center justify-center rounded-2xl border-2 border-error bg-error active:opacity-70"
               onPress={() => {
                 void triggerSelectionFeedback();
                 swipeable.close();
-                onDelete(song);
+                onDelete(playlistItem);
               }}
             >
               <ZoffIcon color="#ffffff" name="trash" size={20} />
@@ -185,7 +185,7 @@ const QueueItem = memo(function QueueItem({
           )}
           {providerUrl && (
             <Pressable
-              accessibilityLabel={`Open ${song.title} externally`}
+              accessibilityLabel={`Open ${playlistItem.title} externally`}
               className={classNames(
                 'w-20 items-center justify-center border-2 active:opacity-70',
                 !terminal && 'rounded-2xl border-accent bg-accent',
@@ -227,10 +227,10 @@ export function Queue({
   showHeading = true,
   onDelete,
   onVote,
-  songs,
+  playlistItems,
 }: QueueProps) {
-  const renderSong = useCallback(
-    ({ item, index }: ListRenderItemInfo<Song>) => (
+  const renderPlaylistItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<PlaylistItem>) => (
       <Animated.View
         className={classNames(!contained && 'px-4')}
         entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
@@ -239,7 +239,7 @@ export function Queue({
         <QueueItem
           index={index}
           onVote={onVote}
-          song={item}
+          playlistItem={item}
           {...(onDelete ? { onDelete } : {})}
         />
       </Animated.View>
@@ -254,7 +254,7 @@ export function Queue({
         {header}
         {showHeading && (
           <View className="px-4 pt-4 pb-3">
-            <Copy muted>UP NEXT ({songs.length})</Copy>
+            <Copy muted>UP NEXT ({playlistItems.length})</Copy>
           </View>
         )}
       </>
@@ -268,9 +268,9 @@ export function Queue({
       contentInsetAdjustmentBehavior="never"
       className="flex-1"
       {...(!contained && { contentContainerStyle: queueStyle })}
-      data={songs}
+      data={playlistItems}
       initialNumToRender={8}
-      keyExtractor={(song) => song.id}
+      keyExtractor={(playlistItem) => playlistItem.id}
       ListEmptyComponent={
         <View className={classNames(!contained && 'px-4')}>
           <Empty>{emptyMessage}</Empty>
@@ -278,7 +278,7 @@ export function Queue({
       }
       ListHeaderComponent={listHeader}
       maxToRenderPerBatch={8}
-      renderItem={renderSong}
+      renderItem={renderPlaylistItem}
       ItemSeparatorComponent={QueueSeparator}
       updateCellsBatchingPeriod={32}
       windowSize={5}
@@ -292,7 +292,7 @@ export function Queue({
       {header}
       {showHeading && (
         <View className="pt-4 pb-3">
-          <Copy muted>UP NEXT ({songs.length})</Copy>
+          <Copy muted>UP NEXT ({playlistItems.length})</Copy>
         </View>
       )}
       {list}

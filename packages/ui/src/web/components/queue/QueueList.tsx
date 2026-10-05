@@ -1,4 +1,4 @@
-import { type Song } from '@vibes/shared';
+import { type PlaylistItem } from '@vibes/shared';
 import { AnimatePresence, motion } from 'framer-motion';
 import React from 'react';
 import { useProgressiveList } from '../../hooks/useProgressiveList';
@@ -6,13 +6,13 @@ import { QueueEmptyIcon } from '../../icons';
 import { QueueItem } from './QueueItem';
 
 interface Props {
-  songs: Song[];
+  playlistItems: PlaylistItem[];
   roomId?: string;
   onRemove?: (id: string) => void;
   onVote?: (id: string) => void;
   onEmptyClick?: () => void;
   isAdmin?: boolean;
-  votingSongId?: string | null;
+  votingPlaylistItemId?: string | null;
 }
 
 const EmptyQueueContent = () => (
@@ -29,16 +29,16 @@ const EmptyQueueContent = () => (
 );
 
 const QueueListComponent: React.FC<Props> = ({
-  songs,
+  playlistItems,
   roomId: _roomId,
   onRemove,
   onVote,
   onEmptyClick,
   isAdmin,
-  votingSongId,
+  votingPlaylistItemId,
 }) => {
-  const [visibleCount, sentinelRef] = useProgressiveList(songs.length);
-  if (songs.length === 0) {
+  const [visibleCount, sentinelRef] = useProgressiveList(playlistItems.length);
+  if (playlistItems.length === 0) {
     if (onEmptyClick) {
       return (
         <button
@@ -59,14 +59,14 @@ const QueueListComponent: React.FC<Props> = ({
     );
   }
 
-  const visibleSongs = songs.slice(0, visibleCount);
+  const visiblePlaylistItems = playlistItems.slice(0, visibleCount);
 
   return (
     <div className="space-y-2">
       <AnimatePresence initial={false} mode="popLayout">
-        {visibleSongs.map((song, index) => (
+        {visiblePlaylistItems.map((playlistItem, index) => (
           <motion.div
-            key={song.id}
+            key={playlistItem.id}
             initial={{ opacity: 0, scale: 0.96, y: 14 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, x: 24 }}
@@ -78,9 +78,9 @@ const QueueListComponent: React.FC<Props> = ({
             }}
           >
             <QueueItem
-              song={song}
+              playlistItem={playlistItem}
               position={index + 1}
-              isVoting={votingSongId === song.id}
+              isVoting={votingPlaylistItemId === playlistItem.id}
               {...(onRemove && { onRemove })}
               {...(onVote && { onVote })}
               {...(isAdmin !== undefined && { isAdmin })}
@@ -88,7 +88,7 @@ const QueueListComponent: React.FC<Props> = ({
           </motion.div>
         ))}
       </AnimatePresence>
-      {visibleCount < songs.length && (
+      {visibleCount < playlistItems.length && (
         <div aria-hidden="true" className="h-12" ref={sentinelRef} />
       )}
     </div>

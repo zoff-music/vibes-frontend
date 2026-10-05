@@ -1,13 +1,13 @@
-import { useRemoteEvents, useRoomEventsV2 } from '@vibes/api';
+import { useRemoteEvents, useRoomEventsV3 } from '@vibes/api';
 import type {
-  PlaybackState,
+  PlaybackStateV2,
+  PlaylistItem,
   Providers,
-  RemoteEvent,
-  RemotePairing,
-  RemoteStatus,
-  Room,
+  RemoteEventV2,
+  RemotePairingV2,
+  RemoteStatusV2,
   RoomGenerationUpdate,
-  Song,
+  RoomV2,
 } from '@vibes/models';
 import {
   useFetcher,
@@ -31,13 +31,13 @@ import { useAppResume } from '@/hooks/use-app-resume';
 import { useMachineRemote } from '@/hooks/use-machine-remote';
 import { usePlaybackRuntime } from '@/hooks/use-playback-runtime';
 import { usePlayerPreference } from '@/hooks/use-player-preference';
-import { mobileApi, mobileApiV2 } from '@/lib/api';
+import { mobileApi, mobileApiV3 } from '@/lib/api';
 import {
-  filterMobileSongs,
+  filterMobilePlaylistItems,
   isMobileProvider,
   normalizeMobilePlayback,
   normalizeMobileRoom,
-  positionMobileSong,
+  positionMobilePlaylistItem,
 } from '@/lib/mobile-content';
 import type { DiscoveryData } from '@/routes/_index/loader';
 import type { StoredRemoteSession } from '@/routes/remotes.session/loader';
@@ -75,10 +75,10 @@ interface RoomActions {
 }
 
 interface PlaybackSessionState {
-  authoritativePlayback: PlaybackState | null;
+  authoritativePlayback: PlaybackStateV2 | null;
   hasLocalPlaybackChanges: boolean;
   hasLocalPlaybackPositionDrift: boolean;
-  playback: PlaybackState | null;
+  playback: PlaybackStateV2 | null;
   playbackResetVersion: number;
   playerEnabled: boolean;
   playerPreferenceLoaded: boolean;
@@ -88,9 +88,9 @@ interface RoomSessionState {
   controllerRemote: ControllerRemoteSession | null;
   loading: boolean;
   providers: Providers;
-  room: Room | null;
+  room: RoomV2 | null;
   roomId: string;
-  songs: Song[];
+  playlistItems: PlaylistItem[];
 }
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
@@ -109,15 +109,15 @@ const PlaybackSessionContext = createContext<PlaybackSessionState | null>(null);
 const RoomSessionContext = createContext<RoomSessionState | null>(null);
 
 interface RoomNavigationState {
-  canAddSongs: boolean;
+  canAddPlaylistItems: boolean;
   hasRoom: boolean;
 }
 
 interface MachineRemoteState {
   disableMachineRemote: () => Promise<void>;
   enableMachineRemote: () => Promise<void>;
-  machinePairing: RemotePairing | null;
-  machineRemote: RemoteStatus | null;
+  machinePairing: RemotePairingV2 | null;
+  machineRemote: RemoteStatusV2 | null;
 }
 
 const RoomNavigationContext = createContext<RoomNavigationState | null>(null);
@@ -133,8 +133,8 @@ export function AppProvider({ children }: PropsWithChildren) {
   });
   const { showToast } = useToast();
   const [roomId, setRoomIdValue] = useState('');
-  const [room, setRoom] = useState<Room | null>(null);
-  const [songs, setSongs] = useState<Song[]>([]);
+  const [room, setRoom] = useState<RoomV2 | null>(null);
+  const [playlistItems, setPlaylistItems] = useState<PlaylistItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const discovery = useRouteLoaderData<DiscoveryData>('_index');
@@ -150,7 +150,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   );
   const [controllerRemote, setControllerRemote] =
     useState<ControllerRemoteSession | null>(null);
-  const roomModeRef = useRef<Room['mode'] | null>(null);
+  const roomModeRef = useRef<RoomV2['mode'] | null>(null);
   const pendingGeneratedRoomRef = useRef('');
   const authenticatedRoomIdsRef = useRef(new Set<string>());
   const [
@@ -173,7 +173,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       setLocalPlaying,
     },
   ] = usePlaybackRuntime({ roomId, roomModeRef, setError });
-  const currentSongId = playback?.currentSong?.id;
+  const currentPlaylistItemId = playback?.currentPlaylistItem?.id;
   const [
     { machinePairing, machineRemote },
     { applyMachineRemoteEvent, disableMachineRemote, enableMachineRemote },
@@ -216,7 +216,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     pendingGeneratedRoomRef.current = '';
     setRoomIdValue('');
     setRoom(null);
-    setSongs([]);
+    setPlaylistItems([]);
     roomModeRef.current = null;
     clearPlayback();
     setError('');
@@ -233,7 +233,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       pendingGeneratedRoomRef.current = '';
       setRoomIdValue('');
       setRoom(null);
-      setSongs([]);
+      setPlaylistItems([]);
       roomModeRef.current = null;
       clearPlayback();
       setControllerRemote({
@@ -252,7 +252,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     [clearPlayback, remoteSessionFetcher.submit],
   );
 
-  const applyRoomUpdate = useCallback((incomingRoom: Room) => {
+  const applyRoomUpdate = useCallback((incomingRoom: RoomV2) => {
     let nextRoom = getLocallyAuthorizedRoom(
       normalizeMobileRoom(incomingRoom),
       authenticatedRoomIdsRef.current.has(incomingRoom.id),
@@ -281,12 +281,13 @@ export function AppProvider({ children }: PropsWithChildren) {
     if (
       generationPending &&
       !snapshot.room.isGenerating &&
-      (snapshot.songs.length > 0 || Boolean(snapshot.room.generationError))
+      (snapshot.playlistItems.length > 0 ||
+        Boolean(snapshot.room.generationError))
     ) {
       pendingGeneratedRoomRef.current = '';
     }
     applyRoomUpdate(snapshot.room);
-    setSongs(snapshot.songs);
+    setPlaylistItems(snapshot.playlistItems);
     synchronizeServerClock(snapshot.playback.serverTimeMs);
     applyPlaybackUpdate(snapshot.playback);
     setError('');
@@ -334,7 +335,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       }
       clearLocalOverrides();
       applyRoomUpdate(snapshot.room);
-      setSongs(snapshot.songs);
+      setPlaylistItems(snapshot.playlistItems);
       synchronizeServerClock(snapshot.playback.serverTimeMs);
       applyPlaybackUpdate(snapshot.playback);
       setError(warning);
@@ -367,7 +368,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   );
 
   const handleRemoteRoomUpdate = useCallback(
-    (event: RemoteEvent) => {
+    (event: RemoteEventV2) => {
       if (event.origin !== 'controller' || !event.roomId) return;
       void setRoomId(event.roomId);
     },
@@ -375,7 +376,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   );
 
   const handleRemoteStateUpdate = useCallback(
-    (event: RemoteEvent) => {
+    (event: RemoteEventV2) => {
       applyMachineRemoteEvent(event);
       if (
         event.origin !== 'controller' ||
@@ -384,16 +385,17 @@ export function AppProvider({ children }: PropsWithChildren) {
       ) {
         return;
       }
-      const isCurrentSong =
-        !event.currentSongId || event.currentSongId === currentSongId;
+      const isCurrentPlaylistItem =
+        !event.currentPlaylistItemId ||
+        event.currentPlaylistItemId === currentPlaylistItemId;
       setLocalPlaying(
         event.playbackIsPlaying,
-        isCurrentSong ? event.playbackPositionMs : undefined,
+        isCurrentPlaylistItem ? event.playbackPositionMs : undefined,
       );
     },
     [
       applyMachineRemoteEvent,
-      currentSongId,
+      currentPlaylistItemId,
       room?.mode,
       roomId,
       setLocalPlaying,
@@ -440,24 +442,35 @@ export function AppProvider({ children }: PropsWithChildren) {
     () => ({
       onConnected: synchronizeServerClock,
       onGenerationUpdate: handleGenerationUpdate,
-      onPlaybackUpdate: (nextPlayback: PlaybackState) =>
+      onPlaybackUpdate: (nextPlayback: PlaybackStateV2) =>
         applyPlaybackUpdate(normalizeMobilePlayback(nextPlayback)),
       onRoomUpdate: applyRoomUpdate,
-      onSongAdded: (song: Song) => {
-        if (!isMobileProvider(song.sourceType)) return;
-        setSongs((current) => {
-          if (current.some((item) => item.id === song.id)) return current;
-          return [...current, song];
+      onPlaylistItemAdded: (playlistItem: PlaylistItem) => {
+        if (!isMobileProvider(playlistItem.sourceType)) return;
+        setPlaylistItems((current) => {
+          if (current.some((item) => item.id === playlistItem.id))
+            return current;
+          return [...current, playlistItem];
         });
       },
-      onSongRemoved: ({ id }: { id: string }) => {
-        setSongs((current) => current.filter((song) => song.id !== id));
+      onPlaylistItemRemoved: ({ id }: { id: string }) => {
+        setPlaylistItems((current) =>
+          current.filter((playlistItem) => playlistItem.id !== id),
+        );
       },
-      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
-        setSongs((current) => positionMobileSong(current, song, position));
+      onPlaylistItemUpdated: ({
+        playlistItem,
+        position,
+      }: {
+        playlistItem: PlaylistItem;
+        position: number;
+      }) => {
+        setPlaylistItems((current) =>
+          positionMobilePlaylistItem(current, playlistItem, position),
+        );
       },
-      onSongsUpdate: (nextSongs: Song[]) =>
-        setSongs(filterMobileSongs(nextSongs)),
+      onPlaylistItemsUpdate: (nextPlaylistItems: PlaylistItem[]) =>
+        setPlaylistItems(filterMobilePlaylistItems(nextPlaylistItems)),
       onUsersUpdate: handleUsersUpdate,
     }),
     [
@@ -468,7 +481,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     ],
   );
 
-  useRoomEventsV2(roomId || undefined, roomEventCallbacks, mobileApiV2);
+  useRoomEventsV3(roomId || undefined, roomEventCallbacks, mobileApiV3);
 
   useRemoteEvents({
     client: mobileApi,
@@ -552,15 +565,22 @@ export function AppProvider({ children }: PropsWithChildren) {
     ],
   );
   const roomSessionValue = useMemo<RoomSessionState>(
-    () => ({ controllerRemote, loading, providers, room, roomId, songs }),
-    [controllerRemote, loading, providers, room, roomId, songs],
+    () => ({
+      controllerRemote,
+      loading,
+      providers,
+      room,
+      roomId,
+      playlistItems,
+    }),
+    [controllerRemote, loading, providers, room, roomId, playlistItems],
   );
 
   const hasRoom = Boolean(room);
-  const canAddSongs = hasRoom || Boolean(controllerRemote?.roomId);
+  const canAddPlaylistItems = hasRoom || Boolean(controllerRemote?.roomId);
   const roomNavigationValue = useMemo<RoomNavigationState>(
-    () => ({ canAddSongs, hasRoom }),
-    [canAddSongs, hasRoom],
+    () => ({ canAddPlaylistItems, hasRoom }),
+    [canAddPlaylistItems, hasRoom],
   );
   const machineRemoteValue = useMemo<MachineRemoteState>(
     () => ({
@@ -595,7 +615,7 @@ export function AppProvider({ children }: PropsWithChildren) {
 
 const roomNotFoundError = 'ROOM_NOT_FOUND';
 
-function getLocallyAuthorizedRoom(room: Room, isAuthenticated: boolean) {
+function getLocallyAuthorizedRoom(room: RoomV2, isAuthenticated: boolean) {
   if (!room.hasPassword) return room;
   return { ...room, isAdmin: isAuthenticated };
 }

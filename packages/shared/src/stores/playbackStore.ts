@@ -1,8 +1,8 @@
-import { type PlaybackState } from '@vibes/models';
+import { type PlaybackStateV2 } from '@vibes/models';
 import { create } from 'zustand';
 import { getClientReferenceTimeMs } from '../utils/serverClock';
 
-interface PlaybackStoreState extends PlaybackState {
+interface PlaybackStoreState extends PlaybackStateV2 {
   // Client-side computed fields
   actualPositionMs: number;
   clientReferenceTime: number;
@@ -12,7 +12,7 @@ interface PlaybackStoreState extends PlaybackState {
   roomMode: string | null;
   hasLocalPlaybackChanges: boolean;
   resetVersion: number;
-  authoritativePlayback: PlaybackState;
+  authoritativePlayback: PlaybackStateV2;
   authoritativeClientReferenceTime: number;
 
   // Interval management
@@ -20,8 +20,8 @@ interface PlaybackStoreState extends PlaybackState {
   startAutoUpdate: () => void;
   stopAutoUpdate: () => void;
 
-  setPlaybackState: (state: PlaybackState, roomMode?: string) => void;
-  resetPlaybackState: (state: PlaybackState, roomMode?: string) => void;
+  setPlaybackState: (state: PlaybackStateV2, roomMode?: string) => void;
+  resetPlaybackState: (state: PlaybackStateV2, roomMode?: string) => void;
   setLocalPlaybackAligned: (isAligned: boolean) => void;
   getAuthoritativePositionMs: () => number;
   setIsPlaying: (isPlaying: boolean) => void;
@@ -33,7 +33,7 @@ interface PlaybackStoreState extends PlaybackState {
 let visibilityChangeListener: (() => void) | null = null;
 
 export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
-  currentSong: null,
+  currentPlaylistItem: null,
   isPlaying: false,
   positionMs: 0,
   updatedAt: new Date().toISOString(),
@@ -46,7 +46,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
   hasLocalPlaybackChanges: false,
   resetVersion: 0,
   authoritativePlayback: {
-    currentSong: null,
+    currentPlaylistItem: null,
     isPlaying: false,
     positionMs: 0,
     updatedAt: new Date().toISOString(),
@@ -58,11 +58,12 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     const currentState = get();
     const receivedAt = Date.now();
     const playbackReferenceTime = getPlaybackReferenceTime(state, receivedAt);
-    const isSameSong = currentState.currentSong?.id === state.currentSong?.id;
+    const isSamePlaylistItem =
+      currentState.currentPlaylistItem?.id === state.currentPlaylistItem?.id;
     const isSamePlaybackUpdate =
-      isSameSong && currentState.updatedAt === state.updatedAt;
+      isSamePlaylistItem && currentState.updatedAt === state.updatedAt;
     const shouldResetLocalPlayback =
-      currentState.currentSong !== null && !isSameSong;
+      currentState.currentPlaylistItem !== null && !isSamePlaylistItem;
 
     if (isSamePlaybackUpdate) {
       if (roomMode) {
@@ -72,7 +73,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     }
 
     // Server playback keeps advancing independently, while play/pause remains
-    // a local preference across song changes.
+    // a local preference across playlist item changes.
     if (roomMode === 'server' && currentState.localIsPlaying !== null) {
       set({
         ...state,
@@ -80,7 +81,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
         authoritativeClientReferenceTime: playbackReferenceTime,
         authoritativePlayback: state,
         clientReferenceTime: playbackReferenceTime,
-        hasLocalPlaybackChanges: isSameSong
+        hasLocalPlaybackChanges: isSamePlaylistItem
           ? currentState.hasLocalPlaybackChanges
           : state.isPlaying !== currentState.localIsPlaying,
         resetVersion: shouldResetLocalPlayback
@@ -104,7 +105,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       authoritativeClientReferenceTime: playbackReferenceTime,
       authoritativePlayback: state,
       clientReferenceTime: playbackReferenceTime,
-      hasLocalPlaybackChanges: isSameSong
+      hasLocalPlaybackChanges: isSamePlaylistItem
         ? currentState.hasLocalPlaybackChanges
         : false,
       localIsPlaying: null,
@@ -177,10 +178,10 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       Date.now() - authoritativeClientReferenceTime,
     );
     let positionMs = authoritativePlayback.positionMs + elapsedOnClient;
-    if (authoritativePlayback.currentSong?.duration) {
+    if (authoritativePlayback.currentPlaylistItem?.duration) {
       positionMs = Math.min(
         positionMs,
-        authoritativePlayback.currentSong.duration * 1000,
+        authoritativePlayback.currentPlaylistItem.duration * 1000,
       );
     }
     return positionMs;
@@ -222,7 +223,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     const {
       actualPositionMs,
       clientReferenceTime,
-      currentSong,
+      currentPlaylistItem,
       isPlaying,
       positionMs,
     } = get();
@@ -239,9 +240,9 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     const elapsedOnClient = Math.max(0, Date.now() - clientReferenceTime);
     let newPositionMs = positionMs + elapsedOnClient;
 
-    // Clamp to song duration if available
-    if (currentSong?.duration) {
-      const durationMs = currentSong.duration * 1000;
+    // Clamp to playlistItem duration if available
+    if (currentPlaylistItem?.duration) {
+      const durationMs = currentPlaylistItem.duration * 1000;
       newPositionMs = Math.min(newPositionMs, durationMs);
     }
 
@@ -309,7 +310,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 }));
 
 function getPlaybackReferenceTime(
-  state: PlaybackState,
+  state: PlaybackStateV2,
   receivedAt: number,
 ): number {
   if (!state.isPlaying) {

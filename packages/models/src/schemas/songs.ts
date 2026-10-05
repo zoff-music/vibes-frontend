@@ -1,17 +1,8 @@
 import { z } from 'zod';
 
-export const sourceTypeSchema = z.compile(z.enum(['youtube', 'soundcloud']));
-export type SourceType = z.infer<typeof sourceTypeSchema>;
+import { playbackRestrictionSchema, sourceTypeSchema } from './playlist';
 
-export function isSourceType(value: string): value is SourceType {
-  return value === 'youtube' || value === 'soundcloud';
-}
-
-export const playbackRestrictionSchema = z.compile(
-  z.enum(['age', 'region', 'embedding']).optional(),
-);
-export type PlaybackRestriction = z.infer<typeof playbackRestrictionSchema>;
-
+/** @deprecated Legacy v1 and Cast wire contract. Use playlistItemSchema internally. */
 export const songSchema = z.compile(
   z.object({
     id: z.string(),
@@ -28,8 +19,10 @@ export const songSchema = z.compile(
     playbackRestriction: playbackRestrictionSchema,
   }),
 );
+/** @deprecated Retained for legacy API and Cast messages. Use PlaylistItem internally. */
 export type Song = z.infer<typeof songSchema>;
 
+/** @deprecated V1 request contract. Use addPlaylistItemRequestSchema for v2. */
 export const addSongRequestSchema = z.compile(
   z.object({
     sourceType: sourceTypeSchema,
@@ -41,6 +34,7 @@ export const addSongRequestSchema = z.compile(
     duration: z.number(),
   }),
 );
+/** @deprecated V1 request contract. Use AddPlaylistItemRequest for v2. */
 export type AddSongRequest = z.infer<typeof addSongRequestSchema>;
 
 export const addSongOutcomeSchema = z.compile(
@@ -48,14 +42,18 @@ export const addSongOutcomeSchema = z.compile(
 );
 export type AddSongOutcome = z.infer<typeof addSongOutcomeSchema>;
 
+/** @deprecated V1 response contract. Use addPlaylistItemResponseSchema for v2. */
 export const addSongResponseSchema = z.compile(
   z.object({ song: songSchema, outcome: addSongOutcomeSchema }),
 );
+/** @deprecated V1 response contract. Use AddPlaylistItemResponse for v2. */
 export type AddSongResponse = z.infer<typeof addSongResponseSchema>;
 
+/** @deprecated V1 import contract. Use addPlaylistRequestV2Schema for v2. */
 export const addPlaylistRequestSchema = z.compile(
   z.object({ songs: z.array(addSongRequestSchema).min(1) }),
 );
+/** @deprecated V1 import contract. Use AddPlaylistRequestV2 for v2. */
 export type AddPlaylistRequest = z.infer<typeof addPlaylistRequestSchema>;
 
 export const addPlaylistResponseSchema = z.compile(
@@ -66,12 +64,14 @@ export const addPlaylistResponseSchema = z.compile(
 );
 export type AddPlaylistResponse = z.infer<typeof addPlaylistResponseSchema>;
 
+/** @deprecated Legacy queue contract. Use playlistItemsListSchema for v2. */
 export const songsListSchema = z.compile(z.array(songSchema));
 export type SongsList = z.infer<typeof songsListSchema>;
 
 export const songIdUpdateSchema = z.compile(z.object({ id: z.string() }));
 export type SongIdUpdate = z.infer<typeof songIdUpdateSchema>;
 
+/** @deprecated V2 SSE contract. Use playlistItemPositionUpdateSchema for v3 SSE. */
 export const songPositionUpdateSchema = z.compile(
   z.object({
     song: songSchema,

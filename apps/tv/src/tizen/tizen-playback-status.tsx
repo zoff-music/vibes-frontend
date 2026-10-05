@@ -1,4 +1,4 @@
-import type { PlaybackState } from '@vibes/models';
+import type { PlaybackStateV2 } from '@vibes/models';
 import { getClientReferenceTimeMs } from '@vibes/shared';
 import {
   formatPlaybackSeconds,
@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 
 interface TizenPlaybackStatusProps {
   durationSeconds: number;
-  playback: PlaybackState;
+  playback: PlaybackStateV2;
 }
 
 export function TizenPlaybackStatus({
@@ -50,14 +50,14 @@ const millisecondsPerSecond = 1000;
 const percentageMultiplier = 100;
 const playbackPositionIntervalMs = 1000;
 
-function getLivePosition(playback: PlaybackState): number {
+function getLivePosition(playback: PlaybackStateV2): number {
   if (!playback.isPlaying) return playback.positionMs;
   const referenceTime = getClientReferenceTimeMs(playback.serverTimeMs);
   const positionMs =
     playback.positionMs + Math.max(0, Date.now() - referenceTime);
-  if (!playback.currentSong?.duration) return positionMs;
+  if (!playback.currentPlaylistItem?.duration) return positionMs;
   return Math.min(
     positionMs,
-    playback.currentSong.duration * millisecondsPerSecond,
+    playback.currentPlaylistItem.duration * millisecondsPerSecond,
   );
 }

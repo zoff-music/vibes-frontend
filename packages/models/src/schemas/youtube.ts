@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { playbackRestrictionSchema } from './songs';
+import { playbackRestrictionSchema } from './playlist';
 
 export const youTubeVideoSchema = z.compile(
   z.object({

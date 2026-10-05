@@ -16,7 +16,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
     return { error: 'Enter the remote ID and pairing code.' };
   }
 
-  const [error, remote] = await api.post(
+  const [error, remote] = await api.v2.post(
     '/remotes/{id}/sessions',
     { id: remoteId },
     { pairingCode, pairingToken },

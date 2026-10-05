@@ -1,9 +1,9 @@
-import type { PublicRoom } from '@vibes/models';
+import type { PublicRoomV3 } from '@vibes/models';
 import { PublicRoomTile } from '@vibes/ui/web';
 import { memo } from 'react';
 
 interface RoomBrowserResultsProps {
-  rooms: PublicRoom[];
+  rooms: PublicRoomV3[];
   onJoin: (roomId: string) => void;
 }
 

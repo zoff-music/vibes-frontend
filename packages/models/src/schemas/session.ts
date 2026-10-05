@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { roomSchema } from './room';
+import { roomSchema, roomV2Schema } from './room';
 
 export const displayNameMaxLength = 30;
 
@@ -24,6 +24,11 @@ export const sessionResponseSchema = z.compile(
   }),
 );
 export type SessionResponse = z.infer<typeof sessionResponseSchema>;
+
+export const sessionResponseV2Schema = z.compile(
+  sessionResponseSchema.extend({ room: roomV2Schema }),
+);
+export type SessionResponseV2 = z.infer<typeof sessionResponseV2Schema>;
 
 export const createSessionRequestSchema = z.compile(
   z.object({
