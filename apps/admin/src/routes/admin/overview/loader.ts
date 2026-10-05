@@ -21,17 +21,12 @@ export async function loader({
   const serverApi = getServerApi(request);
   const cookieHeader = request.headers.get('cookie');
   const headers = cookieHeader ? { Cookie: cookieHeader } : undefined;
-  const roomId = new URL(request.url).searchParams.get('roomId')?.trim() ?? '';
   const [searchResult, listenerResult, statsResult, messageResult] =
     await Promise.all([
       serverApi.get('/admin/searches/usage', null, { headers }),
       serverApi.get('/admin/listeners/usage', null, { headers }),
       serverApi.get('/stats', null),
-      serverApi.get(
-        '/admin/messages/usage',
-        { $search: { roomId } },
-        { headers },
-      ),
+      serverApi.get('/admin/messages/usage', { $search: {} }, { headers }),
     ]);
   const [messageError, messageUsage] = messageResult;
   const [searchError, searchUsage] = searchResult;
@@ -53,7 +48,7 @@ export async function loader({
       isAuthorizationError(listenerError)
     ) {
       return {
-        messageUsage: { roomId, total: 0, points: [], generatedAt: '' },
+        messageUsage: { roomId: '', total: 0, points: [], generatedAt: '' },
         listenerUsage: { points: [], generatedAt: '' },
         searchUsage: { points: [], generatedAt: '' },
         stats: stats ?? { totalListeners: 0, totalRooms: 0, totalSongs: 0 },

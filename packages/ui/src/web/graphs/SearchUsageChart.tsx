@@ -2,7 +2,7 @@ import type { AdminSearchUsage } from '@vibes/models';
 import { useState } from 'react';
 import { getProviderDisplayName } from '../../shared';
 import { SegmentedControl } from '../components/SegmentedControl';
-import { RoomUsageChart } from './RoomUsageChart';
+import { RoomUsageChart, type RoomUsageValue } from './RoomUsageChart';
 
 export function SearchUsageChart({
   generatedAt,
@@ -32,17 +32,24 @@ export function SearchUsageChart({
     const matching = totals.filter(
       (point) => new Date(point.timestamp).getTime() === timestamp.getTime(),
     );
-    const rooms = new Map<string, number>();
+    const rooms = new Map<string, RoomUsageValue>();
     for (const point of attributed) {
       if (new Date(point.timestamp).getTime() !== timestamp.getTime()) continue;
-      rooms.set(point.roomId, (rooms.get(point.roomId) ?? 0) + point.total);
+      const current = rooms.get(point.roomId);
+      rooms.set(point.roomId, {
+        roomId: point.roomId,
+        value: (current?.value ?? 0) + point.total,
+        cached: (current?.cached ?? 0) + point.cached,
+        live: (current?.live ?? 0) + point.live,
+      });
     }
 
     return {
       timestamp,
       total: matching.reduce((sum, point) => sum + point.total, 0),
-      rooms: [...rooms].map(([roomId, value]) => ({ roomId, value })),
-      detail: `${matching.reduce((sum, point) => sum + point.live, 0)} live · ${matching.reduce((sum, point) => sum + point.cached, 0)} cached`,
+      rooms: [...rooms.values()],
+      live: matching.reduce((sum, point) => sum + point.live, 0),
+      cached: matching.reduce((sum, point) => sum + point.cached, 0),
     };
   });
 
@@ -75,13 +82,14 @@ export function SearchUsageChart({
         {totals.reduce((sum, point) => sum + point.total, 0).toLocaleString()}{' '}
         searches ·{' '}
         {totals.reduce((sum, point) => sum + point.live, 0).toLocaleString()}{' '}
-        live ·{' '}
+        uncached ·{' '}
         {totals.reduce((sum, point) => sum + point.cached, 0).toLocaleString()}{' '}
         cached
       </p>
       <RoomUsageChart
         buckets={buckets}
         label="Searches"
+        showCacheSplit
         tickFormat={period === 'hour' ? '%H:%M' : '%d %b'}
       />
     </div>
