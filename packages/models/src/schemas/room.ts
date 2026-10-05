@@ -153,11 +153,15 @@ const roomSettingsV2Shape = {
 export const roomSettingsV2Schema = z.compile(z.object(roomSettingsV2Shape));
 export type RoomSettingsV2 = z.infer<typeof roomSettingsV2Schema>;
 
+export const roomTypeSchema = z.enum(['MUSIC', 'WATCH']);
+export type RoomType = z.infer<typeof roomTypeSchema>;
+
 export const roomV2Schema = z.compile(
   z.object({
     id: z.string(),
     name: z.string(),
     mode: roomModeSchema,
+    roomType: roomTypeSchema.default('MUSIC'),
     hostId: z.string().nullable().optional(),
     createdAt: z.string(),
     hasPassword: z.boolean(),
@@ -201,6 +205,7 @@ export const publicRoomV3Schema = z.compile(
   z.object({
     id: z.string(),
     name: z.string(),
+    roomType: roomTypeSchema.default('MUSIC'),
     listenerCount: z.int().min(0),
     playlistItemCount: z.int().min(0),
   }),
