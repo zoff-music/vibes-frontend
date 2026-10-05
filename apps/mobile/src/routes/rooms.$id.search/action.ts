@@ -1,5 +1,8 @@
 import { createQueueAddRequests, createRoomQueueRequests } from '@vibes/api';
-import type { AddPlaylistRequest, AddSongRequest } from '@vibes/models';
+import type {
+  AddPlaylistItemRequest,
+  AddPlaylistRequestV2,
+} from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 
@@ -12,12 +15,12 @@ type SearchActionInput =
   | {
       credentials?: RemoteCredentials;
       intent: 'addPlaylist';
-      request: AddPlaylistRequest;
+      request: AddPlaylistRequestV2;
     }
   | {
       credentials?: RemoteCredentials;
-      intent: 'addSong';
-      request: AddSongRequest;
+      intent: 'addPlaylistItem';
+      request: AddPlaylistItemRequest;
     }
   | {
       credentials?: RemoteCredentials;
@@ -56,8 +59,10 @@ export async function action({
     return { data: { intent: 'success' }, error: '' };
   }
   const requests = createQueueAddRequests(client);
-  if (input.intent === 'addSong') {
-    const [error] = await requests.addSong(roomId, input.request, { signal });
+  if (input.intent === 'addPlaylistItem') {
+    const [error] = await requests.addPlaylistItem(roomId, input.request, {
+      signal,
+    });
     if (error) return failure(error, 'Could not add this song.');
 
     return { data: { intent: 'success' }, error: '' };
@@ -91,5 +96,7 @@ async function failure(
 
 function isSearchActionInput(input: unknown): input is SearchActionInput {
   if (!input || typeof input !== 'object' || !('intent' in input)) return false;
-  return ['addPlaylist', 'addSong', 'generate'].includes(String(input.intent));
+  return ['addPlaylist', 'addPlaylistItem', 'generate'].includes(
+    String(input.intent),
+  );
 }

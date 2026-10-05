@@ -1,4 +1,4 @@
-import type { PublicRoomResult } from '@vibes/models';
+import type { PublicRoomResultV3 } from '@vibes/models';
 import { PUBLIC_ROOM_PAGE_SIZE } from '@vibes/shared';
 
 export const publicRoomPageSize = PUBLIC_ROOM_PAGE_SIZE;
@@ -10,7 +10,7 @@ export interface RoomBrowserSearch {
 }
 
 export interface RoomBrowserLoaderData {
-  result: PublicRoomResult | null;
+  result: PublicRoomResultV3 | null;
   search: RoomBrowserSearch;
 }
 
@@ -32,7 +32,7 @@ export function readRoomBrowserSearch(request: Request): RoomBrowserSearch {
 }
 
 export function roomBrowserRedirect(
-  result: PublicRoomResult,
+  result: PublicRoomResultV3,
   search: RoomBrowserSearch,
 ): string | null {
   if (search.from === 0 || search.from < result.total) return null;

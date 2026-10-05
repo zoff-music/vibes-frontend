@@ -1,21 +1,25 @@
-import type { Song } from '@vibes/models';
-import { resolveSongThumbnail } from '@vibes/shared';
+import type { PlaylistItem } from '@vibes/models';
+import { resolvePlaylistItemThumbnail } from '@vibes/shared';
 import { formatPlaybackSeconds } from '../../../shared';
 import { VoteIcon } from '../../icons';
 import { Button } from '../Button';
 
 interface Props {
-  song: Song;
+  playlistItem: PlaylistItem;
   votingEnabled: boolean;
-  onVote: (songId: string) => void;
+  onVote: (playlistItemId: string) => void;
 }
 
-export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
-  const voteCount = song.voteCount ?? 0;
+export function EmbedQueuePlaylistItem({
+  playlistItem,
+  votingEnabled,
+  onVote,
+}: Props) {
+  const voteCount = playlistItem.voteCount ?? 0;
   const content = (
     <>
       <img
-        src={resolveSongThumbnail(song.thumbnailUrl, true)}
+        src={resolvePlaylistItemThumbnail(playlistItem.thumbnailUrl, true)}
         alt=""
         className="h-11 w-11 shrink-0 rounded-lg object-cover"
         decoding="async"
@@ -23,10 +27,12 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
         loading="lazy"
       />
       <span className="min-w-0 flex-1 text-left">
-        <span className="block truncate text-theme text-xs">{song.title}</span>
+        <span className="block truncate text-theme text-xs">
+          {playlistItem.title}
+        </span>
         <span className="mt-0.5 block truncate text-theme-muted text-xs">
-          {song.artist || 'Unknown artist'} ·{' '}
-          {formatPlaybackSeconds(song.duration)}
+          {playlistItem.publisher || 'Unknown artist'} ·{' '}
+          {formatPlaybackSeconds(playlistItem.duration)}
         </span>
       </span>
       <span className="relative flex shrink-0 items-center gap-1.5 rounded-lg border border-secondary/20 bg-secondary/10 px-2 py-1.5 text-theme text-xs">
@@ -50,9 +56,9 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
       variant="tertiary"
       size="none"
       className="w-full justify-start gap-3 rounded-2xl p-3 text-left transition-shadow hover:shadow-primary-soft"
-      onClick={() => onVote(song.id)}
-      aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
-      title={`Vote for ${song.title} (${voteCount} votes)`}
+      onClick={() => onVote(playlistItem.id)}
+      aria-label={`Vote for ${playlistItem.title} by ${playlistItem.publisher || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
+      title={`Vote for ${playlistItem.title} (${voteCount} votes)`}
     >
       {content}
     </Button>

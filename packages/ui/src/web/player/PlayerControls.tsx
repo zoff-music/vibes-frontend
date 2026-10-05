@@ -23,7 +23,7 @@ interface Props {
   onPause: () => void;
   onReset: () => void;
   onSkip: () => void;
-  onAddSong: () => void;
+  onAddPlaylistItem: () => void;
   onOpenCast: () => void;
   showCast: boolean;
   isCasting: boolean;
@@ -129,7 +129,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
   onPause,
   onReset,
   onSkip,
-  onAddSong,
+  onAddPlaylistItem,
   onOpenCast,
   showCast,
   isCasting,
@@ -232,7 +232,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </div>
           <div className="hidden sm:block">
             <Button
-              onClick={onAddSong}
+              onClick={onAddPlaylistItem}
               variant="primary"
               className="h-12 min-w-0 gap-3 px-4 sm:px-6"
               title="Add Song"

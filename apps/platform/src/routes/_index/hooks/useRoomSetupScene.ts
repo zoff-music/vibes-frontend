@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { queueDemoSongs } from '../../../components/seo/previewSongs';
+import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 import type { RoomSetupId, RoomSetupSettings } from './roomSetups';
 
 interface RoomSetupSceneOptions {
@@ -24,11 +24,12 @@ export function useRoomSetupScene({
   const advanced = complete && elapsed >= SETTLE_TIME_MS;
   const running = active && !reducedMotion && elapsed < SETTLE_TIME_MS;
   const blocked =
-    (setupId === 'adding' && settings.onlyAdminAddSongs) ||
+    (setupId === 'adding' && settings.onlyAdminAddPlaylistItems) ||
     (setupId === 'skipping' && !settings.skipAllowed);
-  const changedSong = advanced && !blocked && setupId !== 'adding';
-  const currentSong = queueDemoSongs[changedSong ? 1 : 0];
-  const positionMs = changedSong
+  const changedPlaylistItem = advanced && !blocked && setupId !== 'adding';
+  const currentPlaylistItem =
+    queueDemoPlaylistItems[changedPlaylistItem ? 1 : 0];
+  const positionMs = changedPlaylistItem
     ? 0
     : setupId === 'repeating'
       ? 207600 + Math.min(elapsed, ACTION_TIME_MS)
@@ -58,7 +59,7 @@ export function useRoomSetupScene({
     caption = settings.skipAllowed
       ? 'Try skipping as a listener.'
       : 'Skipping is locked to admins.';
-    if (changedSong) caption = 'Skipped to Song title 02.';
+    if (changedPlaylistItem) caption = 'Skipped to Song title 02.';
   }
 
   if (setupId === 'repeating') {
@@ -77,13 +78,13 @@ export function useRoomSetupScene({
 
   return {
     state: {
-      currentSong,
+      currentPlaylistItem,
       positionMs,
       caption,
       complete,
       advanced,
       blocked,
-      changedSong,
+      changedPlaylistItem,
       requested,
     },
     actions: { performAction },

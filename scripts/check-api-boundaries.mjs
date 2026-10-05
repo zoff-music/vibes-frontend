@@ -114,6 +114,7 @@ const allowedApiHooks = new Set([
   'useRemoteEvents',
   'useRoomEvents',
   'useRoomEventsV2',
+  'useRoomEventsV3',
   'useRoomMessages',
 ]);
 const allowedApiHookFiles = new Set(

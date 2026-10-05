@@ -27,7 +27,7 @@ export function CommunityStats() {
             Songs in queues
           </dt>
           <dd className="mt-1 font-pixel text-2xl text-theme tabular-nums sm:text-5xl">
-            <AnimatedNumber value={stats.totalSongs} />
+            <AnimatedNumber value={stats.totalPlaylistItems} />
           </dd>
         </div>
         <div className="border-theme border-l pl-3 sm:pl-6">

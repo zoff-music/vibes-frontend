@@ -1,5 +1,5 @@
 import { createRemoteRequests } from '@vibes/api';
-import type { RemoteSession, RemoteUpdateRequest } from '@vibes/models';
+import type { RemoteSessionV2, RemoteUpdateRequestV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 
@@ -10,10 +10,10 @@ type ControllerRemoteActionInput =
       pairingCode?: string;
       pairingToken?: string;
     }
-  | { intent: 'remoteState'; request: RemoteUpdateRequest };
+  | { intent: 'remoteState'; request: RemoteUpdateRequestV2 };
 
 export type ControllerRemoteActionData =
-  | { intent: 'paired'; session: RemoteSession }
+  | { intent: 'paired'; session: RemoteSessionV2 }
   | { intent: 'success' };
 
 export async function action({

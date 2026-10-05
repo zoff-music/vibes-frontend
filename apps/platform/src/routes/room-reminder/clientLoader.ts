@@ -24,8 +24,8 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
 
   const options = { retry: 0, signal: request.signal };
   const [roomResult, playbackResult] = await Promise.all([
-    api.get('/rooms/{id}', { id: roomId }, options),
-    api.get('/rooms/{id}/states', { id: roomId }, options),
+    api.v2.get('/rooms/{id}', { id: roomId }, options),
+    api.v2.get('/rooms/{id}/states', { id: roomId }, options),
   ]);
   const [roomError, room] = roomResult;
   const [playbackError, playback] = playbackResult;
@@ -43,7 +43,7 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
       id: room.id,
       name: room.name,
       listenerCount: room.userCount ?? 0,
-      song: playback.currentSong,
+      playlistItem: playback.currentPlaylistItem,
       isPlaying: playback.isPlaying,
     },
   };

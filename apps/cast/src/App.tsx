@@ -8,7 +8,7 @@ import { IdleView } from './components/IdleView';
 import type { CastLoaderData } from './routes/cast/loader';
 
 const CastAppContent = () => {
-  const { currentSong, debugMode, roomId } = useCast();
+  const { currentPlaylistItem, debugMode, roomId } = useCast();
 
   useEffect(() => {
     const path = roomId ? getRoomAnalyticsPath(roomId) : '/casting/receiver';
@@ -19,8 +19,8 @@ const CastAppContent = () => {
     <>
       <div className="cast-shell relative flex h-screen w-screen items-center justify-center overflow-hidden text-theme">
         <div className="relative z-10 flex h-full w-full items-center justify-center">
-          {currentSong && <ActiveView />}
-          {!currentSong && <IdleView />}
+          {currentPlaylistItem && <ActiveView />}
+          {!currentPlaylistItem && <IdleView />}
         </div>
       </div>
       {debugMode && <DebugConsole enabled />}

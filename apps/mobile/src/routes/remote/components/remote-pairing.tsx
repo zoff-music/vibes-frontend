@@ -25,7 +25,7 @@ interface RemotePairingProps {
   controllerActions: ControllerRemoteActions;
 }
 
-export function RemotePairing({
+export function RemotePairingV2({
   controller,
   controllerActions,
 }: RemotePairingProps) {

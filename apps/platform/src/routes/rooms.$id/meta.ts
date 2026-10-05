@@ -10,19 +10,19 @@ export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
     ];
   }
 
-  const currentSong = loaderData.playback?.currentSong ?? null;
+  const currentPlaylistItem = loaderData.playback?.currentPlaylistItem ?? null;
   const listenerCount = loaderData.room.userCount ?? 0;
-  const title = createRoomShareTitle(loaderData.room.name, currentSong);
+  const title = createRoomShareTitle(loaderData.room.name, currentPlaylistItem);
   const description = createRoomShareDescription(
     loaderData.room.name,
-    currentSong,
+    currentPlaylistItem,
     listenerCount,
   );
   const imageUrl =
-    currentSong?.thumbnailUrl ||
+    currentPlaylistItem?.thumbnailUrl ||
     new URL('/logo.png', loaderData.pageUrl).toString();
-  const imageAlt = currentSong
-    ? `${currentSong.title} artwork`
+  const imageAlt = currentPlaylistItem
+    ? `${currentPlaylistItem.title} artwork`
     : 'Zoff shared music rooms';
 
   return [

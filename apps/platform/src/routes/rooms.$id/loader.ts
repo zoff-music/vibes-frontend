@@ -1,6 +1,10 @@
 import { getHttpError } from '@vibes/api';
-import type { Providers, Room as RoomModel, Song } from '@vibes/models';
-import type { PlaybackState } from '@vibes/shared';
+import type {
+  PlaylistItem,
+  Providers,
+  RoomV2 as RoomModel,
+} from '@vibes/models';
+import type { PlaybackStateV2 } from '@vibes/shared';
 import type { LoaderFunctionArgs } from 'react-router';
 import { redirect } from 'react-router';
 import { getServerApi } from '../../http.server';
@@ -8,8 +12,8 @@ import { createRoomPageUrl } from './share';
 
 export interface RoomLoaderData {
   room: RoomModel;
-  songs: Song[];
-  playback?: PlaybackState;
+  playlistItems: PlaylistItem[];
+  playback?: PlaybackStateV2;
   providers: Providers;
   pageUrl: string;
 }
@@ -27,23 +31,28 @@ export async function loader({
   const cookieHeader = request.headers.get('cookie') ?? undefined;
   const requestHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
 
-  const [roomRes, songsRes, playbackRes, providersRes] = await Promise.all([
-    serverApi.get('/rooms/{id}', { id: roomId }, { headers: requestHeaders }),
-    serverApi.get(
-      '/rooms/{id}/songs',
-      { id: roomId },
-      { headers: requestHeaders },
-    ),
-    serverApi.get(
-      '/rooms/{id}/states',
-      { id: roomId },
-      { headers: requestHeaders },
-    ),
-    serverApi.get('/providers', null, { headers: requestHeaders }),
-  ]);
+  const [roomRes, playlistItemsRes, playbackRes, providersRes] =
+    await Promise.all([
+      serverApi.v2.get(
+        '/rooms/{id}',
+        { id: roomId },
+        { headers: requestHeaders },
+      ),
+      serverApi.v2.get(
+        '/rooms/{id}/playlist-items',
+        { id: roomId },
+        { headers: requestHeaders },
+      ),
+      serverApi.v2.get(
+        '/rooms/{id}/states',
+        { id: roomId },
+        { headers: requestHeaders },
+      ),
+      serverApi.get('/providers', null, { headers: requestHeaders }),
+    ]);
 
   const [roomErr, room] = roomRes;
-  const [songsErr, songs] = songsRes;
+  const [playlistItemsErr, playlistItems] = playlistItemsRes;
   const [playbackErr, playback] = playbackRes;
   const [providersErr, providers] = providersRes;
   if (roomErr || !room) {
@@ -58,7 +67,7 @@ export async function loader({
     createUrl.searchParams.set('name', roomId);
     return redirect(createUrl.toString());
   }
-  if (songsErr || playbackErr || providersErr) {
+  if (playlistItemsErr || playbackErr || providersErr) {
     throw new Response('Room temporarily unavailable', {
       status: 503,
       statusText: 'Room temporarily unavailable',
@@ -68,8 +77,8 @@ export async function loader({
   return {
     pageUrl: createRoomPageUrl(request.url, roomId),
     room,
-    songs: songs || [],
-    playback: (playback || undefined) as PlaybackState | undefined,
+    playlistItems: playlistItems || [],
+    playback: (playback || undefined) as PlaybackStateV2 | undefined,
     providers: providers ?? [],
   };
 }

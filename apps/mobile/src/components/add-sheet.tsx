@@ -1,4 +1,4 @@
-import type { Room } from '@vibes/models';
+import type { RoomV2 } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { useEffect, useState } from 'react';
 import { Modal } from 'react-native';
@@ -7,13 +7,16 @@ import { SearchSheet } from '@/components/search-sheet';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
 import type { ControllerRemoteData } from '@/routes/remotes.controller.$id/loader';
 
-interface AddSongSheetProps {
+interface AddPlaylistItemSheetProps {
   onClose: () => void;
   visible: boolean;
 }
 
-export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
-  const { controllerRemote, room, songs } = useRoomSession();
+export function AddPlaylistItemSheet({
+  onClose,
+  visible,
+}: AddPlaylistItemSheetProps) {
+  const { controllerRemote, room, playlistItems } = useRoomSession();
   const { refresh } = useRoomActions();
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
   const [, roomFetcher] = useFetcher<ControllerRemoteData>({
@@ -23,13 +26,15 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
     },
     routeId: 'remotes.controller.$id',
   });
-  const [targetRoom, setTargetRoom] = useState<Room | null>(room);
-  const [targetSongCount, setTargetSongCount] = useState(songs.length);
+  const [targetRoom, setTargetRoom] = useState<RoomV2 | null>(room);
+  const [targetPlaylistItemCount, setTargetPlaylistItemCount] = useState(
+    playlistItems.length,
+  );
 
   useEffect(() => {
     if (!controllerRemote?.roomId) {
       setTargetRoom(room);
-      setTargetSongCount(songs.length);
+      setTargetPlaylistItemCount(playlistItems.length);
       return;
     }
     const loadRoom = async () => {
@@ -42,7 +47,7 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
       const snapshot = result.data?.snapshot;
       if (!snapshot) return;
       setTargetRoom(snapshot.room);
-      setTargetSongCount(snapshot.songs.length);
+      setTargetPlaylistItemCount(snapshot.playlistItems.length);
     };
     void loadRoom();
   }, [
@@ -51,7 +56,7 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
     controllerRemote?.roomId,
     room,
     roomFetcher.load,
-    songs.length,
+    playlistItems.length,
   ]);
 
   if (!roomId) return null;
@@ -59,8 +64,10 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
   const hasGenerationPermission =
     Boolean(targetRoom) &&
     (!targetRoom?.hasPassword || Boolean(targetRoom.isAdmin));
-  const songCountCutoff = (targetRoom?.roomGenerationMaxExistingSongs ?? 0) + 1;
-  const isAboveSongLimit = targetSongCount >= songCountCutoff;
+  const playlistItemCountCutoff =
+    (targetRoom?.roomGenerationMaxExistingPlaylistItems ?? 0) + 1;
+  const isAbovePlaylistItemLimit =
+    targetPlaylistItemCount >= playlistItemCountCutoff;
   const isAboveDailyLimit =
     (targetRoom?.generationCount ?? 0) >=
     (targetRoom?.roomGenerationMaxDailyCount ?? 0);
@@ -72,13 +79,13 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
   if (targetRoom && !hasGenerationPermission) {
     generationUnavailableReason = 'Log in as room admin to fill this playlist.';
   }
-  if (targetRoom && hasGenerationPermission && isAboveSongLimit) {
-    generationUnavailableReason = `AI fill is unavailable when the room has ${songCountCutoff} songs or more.`;
+  if (targetRoom && hasGenerationPermission && isAbovePlaylistItemLimit) {
+    generationUnavailableReason = `AI fill is unavailable when the room has ${playlistItemCountCutoff} songs or more.`;
   }
   if (
     targetRoom &&
     hasGenerationPermission &&
-    !isAboveSongLimit &&
+    !isAbovePlaylistItemLimit &&
     targetRoom.isGenerating
   ) {
     generationUnavailableReason = 'A playlist is already being generated.';
@@ -86,7 +93,7 @@ export function AddSongSheet({ onClose, visible }: AddSongSheetProps) {
   if (
     targetRoom &&
     hasGenerationPermission &&
-    !isAboveSongLimit &&
+    !isAbovePlaylistItemLimit &&
     !targetRoom.isGenerating &&
     isAboveDailyLimit
   ) {

@@ -1,5 +1,9 @@
 import { useRemoteEvents } from '@vibes/api';
-import type { RemoteEvent, RemotePairing, RemoteStatus } from '@vibes/models';
+import type {
+  RemoteEventV2,
+  RemotePairingV2,
+  RemoteStatusV2,
+} from '@vibes/models';
 import {
   classNames,
   showToast,
@@ -58,7 +62,7 @@ const RemoteControlContext = createContext<RemoteControlContextValue | null>(
 
 interface Props {
   children: ReactNode;
-  initialRemote?: RemoteStatus;
+  initialRemote?: RemoteStatusV2;
 }
 
 export function RemoteControlProvider({ children, initialRemote }: Props) {
@@ -67,8 +71,8 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   const controlFetcher = useFetcher<RemoteControlActionData>();
   const [isOpen, setIsOpen] = useState(false);
   const [machineRoomId, setMachineRoomId] = useState('');
-  const currentSongId = usePlaybackStore(
-    (state) => state.currentSong?.id ?? '',
+  const currentPlaylistItemId = usePlaybackStore(
+    (state) => state.currentPlaylistItem?.id ?? '',
   );
   const roomMode = useRoomStore((state) => state.room?.mode);
   const setLocalPlaybackPosition = usePlaybackStore(
@@ -77,10 +81,10 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   const setLocalPlayingState = usePlaybackStore(
     (state) => state.setLocalPlayingState,
   );
-  const [remote, setRemote] = useState<RemoteStatus>(
+  const [remote, setRemote] = useState<RemoteStatusV2>(
     initialRemote ?? createEmptyRemoteStatus,
   );
-  const [pairing, setPairing] = useState<RemotePairing | null>(null);
+  const [pairing, setPairing] = useState<RemotePairingV2 | null>(null);
 
   useEffect(() => {
     if (controlFetcher.state !== 'idle' || !controlFetcher.data) return;
@@ -96,7 +100,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
       setPairing(nextPairing);
       setRemote({
         currentRoomId: nextPairing.currentRoomId,
-        currentSongId: nextPairing.currentSongId,
+        currentPlaylistItemId: nextPairing.currentPlaylistItemId,
         enabled: true,
         id: nextPairing.id,
         online: true,
@@ -125,11 +129,11 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   );
 
   const handleRemoteStateUpdate = useCallback(
-    (event: RemoteEvent) => {
+    (event: RemoteEventV2) => {
       setRemote((current) => ({
         ...current,
         currentRoomId: event.roomId,
-        currentSongId: event.currentSongId,
+        currentPlaylistItemId: event.currentPlaylistItemId,
         online: event.online,
         paired: event.paired,
         playbackIsPlaying: event.playbackIsPlaying,
@@ -151,13 +155,16 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
       ) {
         return;
       }
-      if (!event.currentSongId || event.currentSongId === currentSongId) {
+      if (
+        !event.currentPlaylistItemId ||
+        event.currentPlaylistItemId === currentPlaylistItemId
+      ) {
         setLocalPlaybackPosition(event.playbackPositionMs);
       }
       setLocalPlayingState(event.playbackIsPlaying, roomMode);
     },
     [
-      currentSongId,
+      currentPlaylistItemId,
       machineRoomId,
       roomMode,
       setLocalPlaybackPosition,

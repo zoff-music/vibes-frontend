@@ -1,4 +1,4 @@
-import type { PublicRoom } from '@vibes/models';
+import type { PublicRoomV3 } from '@vibes/models';
 import {
   generatedPlaylistPromptMaxLength,
   roomNameMaxLength,
@@ -42,7 +42,7 @@ interface TerminalRoomsHomeProps {
   onSubmit: () => void;
   onToggleAIMode: () => void;
   providers: string[];
-  publicRooms: PublicRoom[];
+  publicRooms: PublicRoomV3[];
   refreshControl: ReactElement<RefreshControlProps>;
   refreshLogo: ReactNode;
   submitLabel: string;
@@ -232,8 +232,8 @@ export function TerminalRoomsHome({
                         </Text>
                         <Text className="font-heading text-[#a6ffd0]/55 text-[10px] uppercase tracking-wider">
                           {room.listenerCount.toString().padStart(3, '0')} USERS
-                          / {room.songCount.toString().padStart(3, '0')} TRACKS
-                          / ONLINE
+                          / {room.playlistItemCount.toString().padStart(3, '0')}{' '}
+                          TRACKS / ONLINE
                         </Text>
                       </View>
                       <Text className="font-heading text-[#71f5ad] text-xs uppercase">

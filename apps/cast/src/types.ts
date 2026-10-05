@@ -1,11 +1,12 @@
-import type { ResolvedColorScheme, Song } from '@vibes/shared';
+import type { Song } from '@vibes/models';
+import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
 
 export interface RoomInfo {
   name: string;
   participantCount: number;
 }
 
-export type QueueItem = Song;
+export type QueueItem = PlaylistItem;
 
 export type LocalCastMessage =
   | {
@@ -14,17 +15,17 @@ export type LocalCastMessage =
     }
   | {
       action: 'updatePlayback';
-      currentSong?: QueueItem;
+      currentSong?: Song;
       isPlaying?: boolean;
       positionMs?: number;
       updatedAt?: string;
       serverTimeMs?: number;
-      queue?: QueueItem[];
+      queue?: Song[];
       roomInfo?: RoomInfo;
     }
   | {
       action: 'syncPlayback';
-      currentSong?: QueueItem;
+      currentSong?: Song;
       isPlaying?: boolean;
       positionMs?: number;
       updatedAt?: string;
@@ -32,7 +33,7 @@ export type LocalCastMessage =
     }
   | {
       action: 'updateQueue';
-      queue?: QueueItem[];
+      queue?: Song[];
     }
   | {
       action: 'updateRoomInfo';

@@ -5,7 +5,7 @@ interface ReturnToRoomCardProps {
     id: string;
     name: string;
     listenerCount: number;
-    song: { title: string; artist?: string } | null;
+    playlistItem: { title: string; publisher?: string } | null;
     isPlaying: boolean;
   };
   onJoinRoom: (roomId: string) => void;
@@ -31,18 +31,20 @@ export function ReturnToRoomCard({
         <span className="block truncate font-pixel text-sm text-theme">
           Back to <span className="text-primary">{room.name}</span>
         </span>
-        {room.song && (
+        {room.playlistItem && (
           <span
             className="mt-1 block truncate text-theme-muted text-xs"
-            title={[room.song.title, room.song.artist]
+            title={[room.playlistItem.title, room.playlistItem.publisher]
               .filter(Boolean)
               .join(' · ')}
           >
             {room.isPlaying ? 'Playing' : 'Paused'}:{' '}
-            {[room.song.title, room.song.artist].filter(Boolean).join(' · ')}
+            {[room.playlistItem.title, room.playlistItem.publisher]
+              .filter(Boolean)
+              .join(' · ')}
           </span>
         )}
-        {!room.song && (
+        {!room.playlistItem && (
           <span className="mt-1 block text-theme-muted text-xs">
             Nothing playing right now
           </span>

@@ -1,9 +1,9 @@
 import {
   ContentTransition,
-  NowPlayingSong,
+  NowPlayingPlaylistItem,
   PlaybackProgress,
 } from '@vibes/ui/web';
-import { queueDemoSongs } from '../../../../components/seo/previewSongs';
+import { queueDemoPlaylistItems } from '../../../../components/seo/preview';
 import { usePlaybackPreview } from '../../hooks/usePlaybackPreview';
 
 interface ListeningSceneProps {
@@ -12,8 +12,8 @@ interface ListeningSceneProps {
 
 export function ListeningScene({ playing }: ListeningSceneProps) {
   const { state } = usePlaybackPreview(false, playing);
-  const song = {
-    ...queueDemoSongs[state.track % queueDemoSongs.length],
+  const playlistItem = {
+    ...queueDemoPlaylistItems[state.track % queueDemoPlaylistItems.length],
     duration: state.durationMs / 1000,
   };
 
@@ -30,8 +30,8 @@ export function ListeningScene({ playing }: ListeningSceneProps) {
             <span className="font-pixel text-secondary">electro</span>
           </div>
           <ContentTransition transitionKey={state.track}>
-            <NowPlayingSong
-              song={song}
+            <NowPlayingPlaylistItem
+              playlistItem={playlistItem}
               isPlaying={playing}
               providerLink={false}
               animate={false}

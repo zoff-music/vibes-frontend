@@ -1,8 +1,8 @@
 import type {
-  PlaybackState,
-  RemoteEvent,
-  RemotePairing,
-  RemoteStatus,
+  PlaybackStateV2,
+  RemoteEventV2,
+  RemotePairingV2,
+  RemoteStatusV2,
 } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { getClientReferenceTimeMs } from '@vibes/shared';
@@ -12,21 +12,21 @@ import { useCallback, useEffect, useState } from 'react';
 import type { MachineRemoteActionData } from '@/routes/remotes.machine/action';
 
 interface UseMachineRemoteOptions {
-  playbackRef: RefObject<PlaybackState | null>;
+  playbackRef: RefObject<PlaybackStateV2 | null>;
   roomId: string;
   setError: (message: string) => void;
 }
 
 interface MachineRemoteActions {
-  applyMachineRemoteEvent: (event: RemoteEvent) => void;
+  applyMachineRemoteEvent: (event: RemoteEventV2) => void;
   disableMachineRemote: () => Promise<void>;
   enableMachineRemote: () => Promise<void>;
   refreshMachineRemote: () => Promise<void>;
 }
 
 interface MachineRemoteState {
-  machinePairing: RemotePairing | null;
-  machineRemote: RemoteStatus | null;
+  machinePairing: RemotePairingV2 | null;
+  machineRemote: RemoteStatusV2 | null;
 }
 
 export function useMachineRemote({
@@ -37,24 +37,26 @@ export function useMachineRemote({
   MachineRemoteState,
   MachineRemoteActions,
 ] {
-  const [, remoteLoader] = useFetcher<RemoteStatus>({
+  const [, remoteLoader] = useFetcher<RemoteStatusV2>({
     routeId: 'remotes.machine',
   });
   const [, remoteAction] = useFetcher<MachineRemoteActionData>({
     routeId: 'remotes.machine',
   });
-  const [machinePairing, setMachinePairing] = useState<RemotePairing | null>(
+  const [machinePairing, setMachinePairing] = useState<RemotePairingV2 | null>(
     null,
   );
-  const [machineRemote, setMachineRemote] = useState<RemoteStatus | null>(null);
+  const [machineRemote, setMachineRemote] = useState<RemoteStatusV2 | null>(
+    null,
+  );
 
-  const applyMachineRemoteEvent = useCallback((event: RemoteEvent) => {
+  const applyMachineRemoteEvent = useCallback((event: RemoteEventV2) => {
     setMachineRemote((current) => {
       if (!current) return current;
       return {
         ...current,
         currentRoomId: event.roomId,
-        currentSongId: event.currentSongId,
+        currentPlaylistItemId: event.currentPlaylistItemId,
         online: event.online,
         paired: event.paired,
         playbackIsPlaying: event.playbackIsPlaying,
@@ -81,7 +83,7 @@ export function useMachineRemote({
     const result = await remoteAction.submit({
       intent: 'enable',
       request: {
-        currentSongId: playback?.currentSong?.id ?? '',
+        currentPlaylistItemId: playback?.currentPlaylistItem?.id ?? '',
         playbackIsPlaying: playback?.isPlaying ?? false,
         playbackPositionMs: getObservedPosition(playback),
         roomId,
@@ -95,7 +97,7 @@ export function useMachineRemote({
     setMachinePairing(pairing);
     setMachineRemote({
       currentRoomId: pairing.currentRoomId,
-      currentSongId: pairing.currentSongId,
+      currentPlaylistItemId: pairing.currentPlaylistItemId,
       enabled: true,
       id: pairing.id,
       online: true,
@@ -137,11 +139,11 @@ export function useMachineRemote({
   ];
 }
 
-export function getObservedPosition(playback: PlaybackState | null) {
+export function getObservedPosition(playback: PlaybackStateV2 | null) {
   if (!playback) return 0;
   if (!playback.isPlaying) return playback.positionMs;
   const referenceTimeMs = getClientReferenceTimeMs(playback.serverTimeMs);
   const elapsed = Math.max(Date.now() - referenceTimeMs, 0);
-  const duration = (playback.currentSong?.duration ?? 0) * 1_000;
+  const duration = (playback.currentPlaylistItem?.duration ?? 0) * 1_000;
   return Math.min(playback.positionMs + elapsed, duration || Number.MAX_VALUE);
 }

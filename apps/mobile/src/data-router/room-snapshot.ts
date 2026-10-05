@@ -1,7 +1,7 @@
-import type { PlaybackState, Room, Song } from '@vibes/models';
+import type { PlaybackStateV2, PlaylistItem, RoomV2 } from '@vibes/models';
 
 export interface RoomSnapshot {
-  playback: PlaybackState;
-  room: Room;
-  songs: Song[];
+  playback: PlaybackStateV2;
+  room: RoomV2;
+  playlistItems: PlaylistItem[];
 }

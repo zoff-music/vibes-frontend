@@ -1,8 +1,8 @@
 import {
   type Providers,
-  type Room,
-  type RoomSettings,
-  type RoomUpdate,
+  type RoomSettingsV2,
+  type RoomUpdateV2,
+  type RoomV2,
   type SourceType,
 } from '@vibes/models';
 import {
@@ -24,7 +24,7 @@ interface TerminalRoomSettingsProps {
   adminPassword: string;
   focusAdminLogin: boolean;
   currentTheme: Theme;
-  displayRoom: Room | null;
+  displayRoom: RoomV2 | null;
   isAdmin: boolean;
   isAuthenticating: boolean;
   onAdminPasswordChange: (value: string) => void;
@@ -34,10 +34,10 @@ interface TerminalRoomSettingsProps {
   onShareRoom: () => void;
   onToggleDarkMode: () => void;
   providers: Providers;
-  room: Room | null;
+  room: RoomV2 | null;
   settingsMenuRef?: RefObject<HTMLDivElement | null>;
-  updateRoom: (data: RoomUpdate) => void;
-  updateRoomSettings: (settings: RoomSettings) => void;
+  updateRoom: (data: RoomUpdateV2) => void;
+  updateRoomSettings: (settings: RoomSettingsV2) => void;
 }
 
 export function TerminalRoomSettings({
@@ -67,10 +67,10 @@ export function TerminalRoomSettings({
   const accessRestricted = room.hasPassword && !isAdmin;
   const updateBooleanSetting = (
     setting: keyof Pick<
-      RoomSettings,
+      RoomSettingsV2,
       | 'allowDuplicates'
       | 'democraticSkip'
-      | 'onlyAdminAddSongs'
+      | 'onlyAdminAddPlaylistItems'
       | 'playlistImport'
       | 'public'
       | 'removeOnPlay'
@@ -141,12 +141,12 @@ export function TerminalRoomSettings({
             }
           />
           <TerminalToggle
-            checked={room.settings.onlyAdminAddSongs ?? false}
+            checked={room.settings.onlyAdminAddPlaylistItems ?? false}
             disabled={accessRestricted}
             label="ADMINS ONLY ADD"
             onChange={(checked) => {
               if (checked && !room.hasPassword && !adminPassword) return;
-              updateBooleanSetting('onlyAdminAddSongs', checked);
+              updateBooleanSetting('onlyAdminAddPlaylistItems', checked);
             }}
           />
           <TerminalToggle

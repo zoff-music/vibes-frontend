@@ -1,16 +1,16 @@
-import type { PublicRoomResult } from '@vibes/models';
+import type { PublicRoomResultV3 } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
 import { mobileRoomPageSize } from '@/constants/public-rooms';
-import { getRequestErrorMessage, mobileApiV2 } from '@/lib/api';
+import { getRequestErrorMessage, mobileApiV3 } from '@/lib/api';
 
 export async function loader({
   params,
   signal,
-}: LoaderFunctionArgs): Promise<DataResult<PublicRoomResult>> {
+}: LoaderFunctionArgs): Promise<DataResult<PublicRoomResultV3>> {
   const parsedFrom = Number(params.from ?? 0);
   const from =
     Number.isSafeInteger(parsedFrom) && parsedFrom >= 0 ? parsedFrom : 0;
-  const [error, data] = await mobileApiV2.get(
+  const [error, data] = await mobileApiV3.get(
     '/rooms/public',
     {
       $search: {

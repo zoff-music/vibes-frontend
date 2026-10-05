@@ -1,8 +1,8 @@
 import {
   classNames,
-  getProviderTrackUrl,
-  resolveSongThumbnail,
-  type Song,
+  getProviderItemUrl,
+  type PlaylistItem,
+  resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
 import { motion } from 'framer-motion';
 import React from 'react';
@@ -13,7 +13,7 @@ import { ProviderIcon } from '../ProviderIcon';
 import { Tooltip } from '../Tooltip';
 
 interface Props {
-  song: Song;
+  playlistItem: PlaylistItem;
   position: number;
   onRemove?: (id: string) => void;
   onVote?: (id: string) => void;
@@ -24,7 +24,7 @@ interface Props {
 }
 
 const QueueItemComponent: React.FC<Props> = ({
-  song,
+  playlistItem,
   position,
   onRemove,
   onVote,
@@ -34,26 +34,26 @@ const QueueItemComponent: React.FC<Props> = ({
   density = 'normal',
 }) => {
   const handleVote = () => {
-    onVote?.(song.id);
+    onVote?.(playlistItem.id);
   };
 
   const handleRemove = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    onRemove?.(song.id);
+    onRemove?.(playlistItem.id);
   };
 
-  const providerUrl = getProviderTrackUrl(
-    song.sourceType,
-    song.sourceId,
-    song.providerUrl,
+  const providerUrl = getProviderItemUrl(
+    playlistItem.sourceType,
+    playlistItem.sourceId,
+    playlistItem.providerUrl,
   );
-  const voteCount = song.voteCount || 0;
+  const voteCount = playlistItem.voteCount || 0;
 
   return (
     <Tooltip
       as="div"
       className="min-w-0"
-      content={song.addedBy ? `Added by ${song.addedBy}` : ''}
+      content={playlistItem.addedBy ? `Added by ${playlistItem.addedBy}` : ''}
     >
       <article
         className={classNames(
@@ -66,7 +66,7 @@ const QueueItemComponent: React.FC<Props> = ({
         </div>
 
         <img
-          src={resolveSongThumbnail(song.thumbnailUrl, true)}
+          src={resolvePlaylistItemThumbnail(playlistItem.thumbnailUrl, true)}
           alt=""
           className={classNames(
             'shrink-0 rounded-xl border border-theme bg-theme-surface object-cover',
@@ -81,32 +81,32 @@ const QueueItemComponent: React.FC<Props> = ({
 
         <div className="min-w-0 flex-1 overflow-hidden">
           <h3 className="block max-w-full truncate text-left text-theme text-xs">
-            {song.title}
+            {playlistItem.title}
           </h3>
           <div className="mt-1 flex min-w-0 items-center gap-1.5 overflow-hidden text-theme-muted text-xs">
             <span className="min-w-0 truncate">
-              {song.artist || 'Unknown Artist'}
+              {playlistItem.publisher || 'Unknown Artist'}
             </span>
             <span className="text-theme-subtle">•</span>
             <span className="shrink-0 text-theme-muted text-xs">
-              {formatPlaybackSeconds(song.duration)}
+              {formatPlaybackSeconds(playlistItem.duration)}
             </span>
             {providerUrl && providerLink && (
               <Tooltip
                 align="start"
                 className="inline-flex shrink-0"
-                content={`Open on ${getProviderDisplayName(song.sourceType)}`}
+                content={`Open on ${getProviderDisplayName(playlistItem.sourceType)}`}
               >
                 <a
                   href={providerUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex min-h-7 min-w-7 cursor-pointer items-center justify-center rounded-lg text-theme-muted transition-colors hover:bg-theme hover:text-theme focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
-                  aria-label={`Open ${song.title} on ${getProviderDisplayName(song.sourceType)}`}
+                  aria-label={`Open ${playlistItem.title} on ${getProviderDisplayName(playlistItem.sourceType)}`}
                 >
                   <ProviderIcon
                     className="h-3.5 w-3.5 text-white"
-                    provider={song.sourceType}
+                    provider={playlistItem.sourceType}
                   />
                 </a>
               </Tooltip>
@@ -115,7 +115,7 @@ const QueueItemComponent: React.FC<Props> = ({
               <span className="inline-flex min-h-7 min-w-7 shrink-0 items-center justify-center">
                 <ProviderIcon
                   className="h-3.5 w-3.5 text-theme-muted"
-                  provider={song.sourceType}
+                  provider={playlistItem.sourceType}
                 />
               </span>
             )}
@@ -136,7 +136,7 @@ const QueueItemComponent: React.FC<Props> = ({
                   variant="tertiary"
                   size="none"
                   className="h-9 shrink-0 gap-1.5 whitespace-nowrap rounded-lg px-2 font-pixel text-2xs leading-none sm:h-8"
-                  aria-label={`Vote for ${song.title} by ${song.artist || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
+                  aria-label={`Vote for ${playlistItem.title} by ${playlistItem.publisher || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
                   aria-busy={isVoting}
                 >
                   <motion.span
@@ -170,7 +170,7 @@ const QueueItemComponent: React.FC<Props> = ({
                 variant="destructive"
                 size="none"
                 className="min-h-9 min-w-9 rounded-xl p-2"
-                aria-label={`Remove ${song.title} from queue`}
+                aria-label={`Remove ${playlistItem.title} from queue`}
               >
                 <TrashIcon className="h-4 w-4" />
               </Button>
@@ -178,8 +178,8 @@ const QueueItemComponent: React.FC<Props> = ({
           )}
         </div>
 
-        {song.addedBy && (
-          <span className="sr-only">Added by {song.addedBy}.</span>
+        {playlistItem.addedBy && (
+          <span className="sr-only">Added by {playlistItem.addedBy}.</span>
         )}
       </article>
     </Tooltip>

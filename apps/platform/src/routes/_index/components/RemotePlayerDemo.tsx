@@ -1,6 +1,6 @@
 import {
   CheckIcon,
-  NowPlayingSong,
+  NowPlayingPlaylistItem,
   PlaybackProgress,
   RemoteIcon,
 } from '@vibes/ui/web';
@@ -61,8 +61,8 @@ export function RemotePlayerDemo() {
                 {!paired && <RemotePairingDetails />}
                 {paired && (
                   <div>
-                    <NowPlayingSong
-                      song={state.song}
+                    <NowPlayingPlaylistItem
+                      playlistItem={state.playlistItem}
                       isPlaying={state.playing}
                       providerLink={false}
                       animate={false}
@@ -111,7 +111,7 @@ export function RemotePlayerDemo() {
                 )}
                 {paired && (
                   <RemoteControlPreview
-                    song={state.song}
+                    playlistItem={state.playlistItem}
                     playing={state.playing}
                     durationMs={state.durationMs}
                     position={state.position}

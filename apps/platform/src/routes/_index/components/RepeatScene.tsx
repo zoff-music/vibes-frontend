@@ -1,17 +1,17 @@
-import { type Song } from '@vibes/shared';
+import { type PlaylistItem } from '@vibes/shared';
 import {
   Button,
   ContentTransition,
-  NowPlayingSong,
+  NowPlayingPlaylistItem,
   PlaybackProgress,
   QueueItem,
   ResetIcon,
 } from '@vibes/ui/web';
 import { motion } from 'framer-motion';
-import { queueDemoSongs } from '../../../components/seo/previewSongs';
+import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
-interface RepeatSongSetupSceneProps {
-  song: Song;
+interface RepeatPlaylistItemSetupSceneProps {
+  playlistItem: PlaylistItem;
   positionMs: number;
   advanced: boolean;
   removePlayed: boolean;
@@ -19,19 +19,19 @@ interface RepeatSongSetupSceneProps {
   onFinish: () => void;
 }
 
-export function RepeatSongSetupScene({
-  song,
+export function RepeatPlaylistItemSetupScene({
+  playlistItem,
   positionMs,
   advanced,
   removePlayed,
   reducedMotion,
   onFinish,
-}: RepeatSongSetupSceneProps) {
+}: RepeatPlaylistItemSetupSceneProps) {
   return (
     <div>
-      <ContentTransition transitionKey={song.id}>
-        <NowPlayingSong
-          song={song}
+      <ContentTransition transitionKey={playlistItem.id}>
+        <NowPlayingPlaylistItem
+          playlistItem={playlistItem}
           isPlaying
           providerLink={false}
           animate={false}
@@ -40,7 +40,7 @@ export function RepeatSongSetupScene({
         />
         <div className="mt-2">
           <PlaybackProgress
-            durationMs={song.duration * 1000}
+            durationMs={playlistItem.duration * 1000}
             positionMs={positionMs}
           />
         </div>
@@ -73,7 +73,7 @@ export function RepeatSongSetupScene({
       <ContentTransition transitionKey={advanced ? 'finished' : 'playing'}>
         {!advanced && (
           <QueueItem
-            song={queueDemoSongs[1]}
+            playlistItem={queueDemoPlaylistItems[1]}
             position={1}
             providerLink={false}
             density="compact"
@@ -81,7 +81,7 @@ export function RepeatSongSetupScene({
         )}
         {advanced && !removePlayed && (
           <QueueItem
-            song={queueDemoSongs[0]}
+            playlistItem={queueDemoPlaylistItems[0]}
             position={1}
             providerLink={false}
             density="compact"

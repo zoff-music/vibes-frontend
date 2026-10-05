@@ -23,7 +23,7 @@ export async function clientAction({
       };
     }
 
-    const [createError, room] = await api.post('/rooms/generation', null, {
+    const [createError, room] = await api.v2.post('/rooms/generation', null, {
       prompt,
     });
     if (createError) {
@@ -50,7 +50,7 @@ export async function clientAction({
     };
   }
 
-  const [error] = await api.get('/rooms/{id}', { id: roomCode });
+  const [error] = await api.v2.get('/rooms/{id}', { id: roomCode });
 
   return {
     intent: 'roomExists',

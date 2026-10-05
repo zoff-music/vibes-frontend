@@ -16,18 +16,24 @@ export async function embedRoomClientLoader({
     throw new Response('Room not found', { status: 404 });
   }
 
-  const [roomResult, songsResult, playbackResult, providersResult] =
+  const [roomResult, playlistItemsResult, playbackResult, providersResult] =
     await Promise.all([
-      api.get('/rooms/{id}', { id: roomId }),
-      api.get('/rooms/{id}/songs', { id: roomId }),
-      api.get('/rooms/{id}/states', { id: roomId }),
+      api.v2.get('/rooms/{id}', { id: roomId }),
+      api.v2.get('/rooms/{id}/playlist-items', { id: roomId }),
+      api.v2.get('/rooms/{id}/states', { id: roomId }),
       api.get('/providers', null),
     ]);
   const [roomError, room] = roomResult;
-  const [songsError, songs] = songsResult;
+  const [playlistItemsError, playlistItems] = playlistItemsResult;
   const [playbackError, playback] = playbackResult;
   const [providersError, providers] = providersResult;
-  if (roomError || songsError || playbackError || providersError || !room) {
+  if (
+    roomError ||
+    playlistItemsError ||
+    playbackError ||
+    providersError ||
+    !room
+  ) {
     const roomStatus = roomError
       ? getHttpError(roomError)?.response.status
       : null;
@@ -53,6 +59,6 @@ export async function embedRoomClientLoader({
     providers: providers ?? [],
     room,
     roomId,
-    songs: songs ?? [],
+    playlistItems: playlistItems ?? [],
   };
 }

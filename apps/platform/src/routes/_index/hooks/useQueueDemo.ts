@@ -1,7 +1,7 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { queueDemoSongs } from '../../../components/seo/previewSongs';
+import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
 const durations = [2200, 650, 2600, 900, 3200, 800, 1400];
 
@@ -52,13 +52,15 @@ export function useQueueDemo() {
     return () => window.clearTimeout(timeout);
   }, [pending]);
 
-  const songs = queueDemoSongs
+  const playlistItems = queueDemoPlaylistItems
     .slice(0, phase >= 4 ? 4 : 3)
-    .map((song) => ({
-      ...song,
+    .map((playlistItem) => ({
+      ...playlistItem,
       voteCount:
-        Number((song.id === 'demo-2' && phase >= 2) || song.id === 'demo-4') +
-        Number(voted.includes(song.id)),
+        Number(
+          (playlistItem.id === 'demo-2' && phase >= 2) ||
+            playlistItem.id === 'demo-4',
+        ) + Number(voted.includes(playlistItem.id)),
     }))
     .sort(
       (a, b) =>
@@ -85,9 +87,9 @@ export function useQueueDemo() {
       playing,
       reduceMotion,
       phase,
-      songs,
+      playlistItems,
       announcement,
-      votingSongId: pending ?? (phase === 1 ? 'demo-2' : null),
+      votingPlaylistItemId: pending ?? (phase === 1 ? 'demo-2' : null),
     },
     actions: { vote },
   };

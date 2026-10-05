@@ -1,6 +1,6 @@
 import {
   createApiClientWithBaseUrl,
-  createApiV2ClientWithBaseUrl,
+  createApiV3ClientWithBaseUrl,
 } from '@vibes/api';
 import { createTracedApiFetchLifecycle } from '@vibes/serve';
 import { safeWrap } from '@vibes/shared';
@@ -48,8 +48,8 @@ export function getServerApi(request?: Request) {
   });
 }
 
-export function getServerApiV2(request?: Request) {
-  return createApiV2ClientWithBaseUrl(resolveServerApiBaseUrl(request), {
+export function getServerApiV3(request?: Request) {
+  return createApiV3ClientWithBaseUrl(resolveServerApiBaseUrl(request), {
     fetchLifecycle: createTracedApiFetchLifecycle(serviceName),
   });
 }

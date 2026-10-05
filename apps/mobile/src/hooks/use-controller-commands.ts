@@ -1,4 +1,9 @@
-import type { PlaybackState, RemoteStatus, Room, Song } from '@vibes/models';
+import type {
+  PlaybackStateV2,
+  PlaylistItem,
+  RemoteStatusV2,
+  RoomV2,
+} from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import type { Dispatch, SetStateAction } from 'react';
 import { useState } from 'react';
@@ -9,21 +14,21 @@ import type { ControllerQueueActionData } from '@/routes/remotes.controller.$id.
 interface ControllerCommandsOptions {
   controllerToken: string;
   livePosition: number;
-  playback: PlaybackState | null;
-  remote: RemoteStatus | null;
+  playback: PlaybackStateV2 | null;
+  remote: RemoteStatusV2 | null;
   remoteId: string;
-  room: Room | null;
+  room: RoomV2 | null;
   setError: (message: string) => void;
-  setRemote: Dispatch<SetStateAction<RemoteStatus | null>>;
+  setRemote: Dispatch<SetStateAction<RemoteStatusV2 | null>>;
 }
 
 export interface ControllerCommandActions {
   action: (kind: 'play' | 'pause' | 'skip') => Promise<void>;
   changeRoom: () => Promise<void>;
-  remove: (song: Song) => Promise<void>;
+  remove: (playlistItem: PlaylistItem) => Promise<void>;
   seek: (positionMs: number) => Promise<void>;
   setNextRoomId: (roomId: string) => void;
-  vote: (song: Song) => Promise<void>;
+  vote: (playlistItem: PlaylistItem) => Promise<void>;
 }
 
 export function useControllerCommands({
@@ -75,7 +80,7 @@ export function useControllerCommands({
     const result = await remoteAction.submit({
       intent: 'remoteState',
       request: {
-        currentSongId: playback?.currentSong?.id ?? '',
+        currentPlaylistItemId: playback?.currentPlaylistItem?.id ?? '',
         playbackIsPlaying: isPlaying,
         playbackPositionMs: livePosition,
       },
@@ -96,22 +101,22 @@ export function useControllerCommands({
     setError('');
   };
 
-  const vote = async (song: Song) => {
+  const vote = async (playlistItem: PlaylistItem) => {
     if (!remote?.currentRoomId) return;
     const result = await queueAction.submit({
       intent: 'vote',
       roomId: remote.currentRoomId,
-      songId: song.id,
+      playlistItemId: playlistItem.id,
     });
     if (result.error) setError(result.error);
   };
 
-  const remove = async (song: Song) => {
+  const remove = async (playlistItem: PlaylistItem) => {
     if (!remote?.currentRoomId) return;
     const result = await queueAction.submit({
       intent: 'remove',
       roomId: remote.currentRoomId,
-      songId: song.id,
+      playlistItemId: playlistItem.id,
     });
     if (result.error) setError(result.error);
   };

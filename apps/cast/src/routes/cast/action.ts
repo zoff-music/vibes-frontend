@@ -26,11 +26,11 @@ export async function action({
 
   const castToken = formData.get('castToken');
   const roomId = formData.get('roomId');
-  const songId = formData.get('songId');
+  const playlistItemId = formData.get('playlistItemId');
   if (
     typeof castToken !== 'string' ||
     typeof roomId !== 'string' ||
-    typeof songId !== 'string'
+    typeof playlistItemId !== 'string'
   ) {
     return {
       error: 'The playback problem could not be reported.',
@@ -40,10 +40,10 @@ export async function action({
   }
 
   const client = createApiClient({ Authorization: `Bearer ${castToken}` });
-  const [requestError] = await client.post(
-    '/rooms/{id}/playbackfailures',
+  const [requestError] = await client.v2.post(
+    '/rooms/{id}/failures',
     { id: roomId },
-    { songId },
+    { playlistItemId },
   );
   if (requestError) {
     const apiError = await getAPIErrorMessage(requestError);

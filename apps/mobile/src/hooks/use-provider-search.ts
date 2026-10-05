@@ -1,15 +1,15 @@
 import type {
-  MusicPlaylist,
+  ProviderItem,
+  ProviderPlaylist,
   Providers,
-  SearchResult,
   SourceType,
 } from '@vibes/models';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import {
   parseISODuration,
+  parseProviderItemLink,
   parseProviderPlaylistLink,
-  parseProviderTrackLink,
 } from '@vibes/shared';
 import { useEffect, useState } from 'react';
 import { Keyboard } from 'react-native';
@@ -24,7 +24,7 @@ interface SearchRemoteCredentials {
   remoteId: string;
 }
 
-interface UseMusicSearchOptions {
+interface UseProviderSearchOptions {
   canGenerate: boolean;
   generationUnavailableReason: string;
   onAdded?: () => Promise<void>;
@@ -36,8 +36,8 @@ interface UseMusicSearchOptions {
   roomIdOverride?: string;
 }
 
-interface MusicSearchActions {
-  add: (result: SearchResult) => Promise<void>;
+interface ProviderSearchActions {
+  add: (result: ProviderItem) => Promise<void>;
   addPlaylist: () => Promise<void>;
   search: () => Promise<void>;
   setProvider: (provider: SourceType) => void;
@@ -45,18 +45,18 @@ interface MusicSearchActions {
   updateQuery: (query: string) => void;
 }
 
-interface MusicSearchState {
+interface ProviderSearchState {
   enabledProviders: SourceType[];
   error: string;
   isAIMode: boolean;
   loading: boolean;
-  playlist: MusicPlaylist | null;
+  playlist: ProviderPlaylist | null;
   provider: SourceType;
   query: string;
-  results: SearchResult[];
+  results: ProviderItem[];
 }
 
-export function useMusicSearch({
+export function useProviderSearch({
   canGenerate,
   generationUnavailableReason,
   onAdded,
@@ -66,14 +66,17 @@ export function useMusicSearch({
   providersOverride,
   remoteCredentials,
   roomIdOverride,
-}: UseMusicSearchOptions): readonly [MusicSearchState, MusicSearchActions] {
+}: UseProviderSearchOptions): readonly [
+  ProviderSearchState,
+  ProviderSearchActions,
+] {
   const { showToast } = useToast();
   const { providers, roomId } = useRoomSession();
   const { refresh } = useRoomActions();
   const [provider, setProvider] = useState<SourceType>('youtube');
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [playlist, setPlaylist] = useState<MusicPlaylist | null>(null);
+  const [results, setResults] = useState<ProviderItem[]>([]);
+  const [playlist, setPlaylist] = useState<ProviderPlaylist | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
@@ -173,12 +176,12 @@ export function useMusicSearch({
       return;
     }
     const playlistLink = parseProviderPlaylistLink(trimmedQuery);
-    const trackLink = parseProviderTrackLink(trimmedQuery);
+    const itemLink = parseProviderItemLink(trimmedQuery);
     if (playlistLink && !playlistImportAllowed) {
       setError('Playlist importing is disabled in this room.');
       return;
     }
-    if (!playlistLink && !trackLink && trimmedQuery.length < 3) {
+    if (!playlistLink && !itemLink && trimmedQuery.length < 3) {
       setError('Search needs at least 3 characters.');
       return;
     }
@@ -187,7 +190,7 @@ export function useMusicSearch({
     setLoading(true);
     Keyboard.dismiss();
 
-    const linkedProvider = playlistLink?.provider ?? trackLink?.provider;
+    const linkedProvider = playlistLink?.provider ?? itemLink?.provider;
     if (linkedProvider && !enabledProviders.includes(linkedProvider)) {
       setLoading(false);
       setError(`${linkedProvider} is not enabled in this room.`);
@@ -211,20 +214,20 @@ export function useMusicSearch({
     setResults(result.data.results);
   };
 
-  const add = async (result: SearchResult) => {
+  const add = async (result: ProviderItem) => {
     if (!targetRoomId) {
       setError('Join a room before adding music.');
       return;
     }
     const actionResult = await searchAction.submit(
       {
-        intent: 'addSong',
+        intent: 'addPlaylistItem',
         request: {
           sourceType: result.source,
           sourceId: result.id,
           providerUrl: result.providerUrl,
           title: result.title,
-          artist: result.channelTitle,
+          publisher: result.publisher,
           thumbnailUrl: result.thumbnailUrl ?? '',
           duration: parseISODuration(result.duration),
         },
@@ -250,20 +253,20 @@ export function useMusicSearch({
       setError('Join a room before adding a playlist.');
       return;
     }
-    if (!playlist || playlist.tracks.length === 0) return;
+    if (!playlist || playlist.items.length === 0) return;
     setLoading(true);
     const result = await searchAction.submit(
       {
         intent: 'addPlaylist',
         request: {
-          songs: playlist.tracks.map((track) => ({
-            artist: track.channelTitle,
-            duration: parseISODuration(track.duration),
-            providerUrl: track.providerUrl,
-            sourceId: track.id,
-            sourceType: track.source,
-            thumbnailUrl: track.thumbnailUrl ?? '',
-            title: track.title,
+          playlistItems: playlist.items.map((item) => ({
+            publisher: item.publisher,
+            duration: parseISODuration(item.duration),
+            providerUrl: item.providerUrl,
+            sourceId: item.id,
+            sourceType: item.source,
+            thumbnailUrl: item.thumbnailUrl ?? '',
+            title: item.title,
           })),
         },
         ...(remoteCredentials ? { credentials: remoteCredentials } : {}),
@@ -276,7 +279,7 @@ export function useMusicSearch({
       return;
     }
     showToast(
-      `Queued ${result.data?.queuedCount ?? playlist.tracks.length} songs. They will appear as the playlist is imported.`,
+      `Queued ${result.data?.queuedCount ?? playlist.items.length} songs. They will appear as the playlist is imported.`,
     );
     onClose();
   };

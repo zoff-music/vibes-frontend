@@ -1,11 +1,11 @@
-import type { Song } from '@vibes/models';
+import type { PlaylistItem } from '@vibes/models';
 import { useEffect, useRef } from 'react';
 import { safeWrap } from '../utils/wrap';
 
 interface UseMediaSessionProps {
   canPlay: boolean;
   canSkip: boolean;
-  currentSong: Song | null;
+  currentPlaylistItem: PlaylistItem | null;
   isPlaying: boolean;
   onPause: () => void;
   onPlay: () => void;
@@ -15,7 +15,7 @@ interface UseMediaSessionProps {
 export function useMediaSession({
   canPlay,
   canSkip,
-  currentSong,
+  currentPlaylistItem,
   isPlaying,
   onPause,
   onPlay,
@@ -36,27 +36,27 @@ export function useMediaSession({
       return;
     }
 
-    navigator.mediaSession.playbackState = currentSong
+    navigator.mediaSession.playbackState = currentPlaylistItem
       ? isPlaying
         ? 'playing'
         : 'paused'
       : 'none';
 
-    if (!currentSong || !('MediaMetadata' in window)) {
+    if (!currentPlaylistItem || !('MediaMetadata' in window)) {
       navigator.mediaSession.metadata = null;
       return;
     }
 
-    const artwork = currentSong.thumbnailUrl
-      ? [{ src: currentSong.thumbnailUrl }]
+    const artwork = currentPlaylistItem.thumbnailUrl
+      ? [{ src: currentPlaylistItem.thumbnailUrl }]
       : [];
     navigator.mediaSession.metadata = new MediaMetadata({
       album: 'Zoff',
-      artist: currentSong.artist,
+      artist: currentPlaylistItem.publisher,
       artwork,
-      title: currentSong.title,
+      title: currentPlaylistItem.title,
     });
-  }, [currentSong, isPlaying]);
+  }, [currentPlaylistItem, isPlaying]);
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) {

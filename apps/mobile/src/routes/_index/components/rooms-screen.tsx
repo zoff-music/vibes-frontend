@@ -1,4 +1,4 @@
-import type { PublicRoom, PublicRoomResult } from '@vibes/models';
+import type { PublicRoomResultV3, PublicRoomV3 } from '@vibes/models';
 import {
   generatedPlaylistPromptMaxLength,
   roomNameMaxLength,
@@ -76,7 +76,7 @@ export function RoomsScreen() {
   const [value, setValue] = useState(roomId);
   const [discoveryData, setDiscoveryData] = useState(discovery);
   const [browseMode, setBrowseMode] = useState('live');
-  const [browseResult, setBrowseResult] = useState<PublicRoomResult | null>(
+  const [browseResult, setBrowseResult] = useState<PublicRoomResultV3 | null>(
     null,
   );
   const [browseQuery, setBrowseQuery] = useState('');
@@ -84,7 +84,7 @@ export function RoomsScreen() {
   const [browsing, setBrowsing] = useState(false);
   const browseRequest = useRef(0);
   const landingScroll = useRef<ScrollView>(null);
-  const [, roomBrowser] = useFetcher<PublicRoomResult>({
+  const [, roomBrowser] = useFetcher<PublicRoomResultV3>({
     routeId: 'rooms.public',
   });
   const publicRooms =
@@ -322,7 +322,7 @@ export function RoomsScreen() {
     return true;
   };
 
-  const renderPublicRoom = (item: PublicRoom, index: number) => {
+  const renderPublicRoom = (item: PublicRoomV3, index: number) => {
     return (
       <Animated.View
         className="w-full min-w-0"
@@ -346,7 +346,7 @@ export function RoomsScreen() {
               {item.name}
             </Text>
             <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-              {item.listenerCount} listening · {item.songCount} songs
+              {item.listenerCount} listening · {item.playlistItemCount} songs
             </Text>
           </View>
           <Text className="font-heading text-accent text-xl">→</Text>

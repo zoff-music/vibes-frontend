@@ -1,10 +1,10 @@
-import type { Song } from '@vibes/models';
+import type { PlaylistItem } from '@vibes/models';
 import { NativeIcon } from '@vibes/ui/native';
 import { soundCloudProviderIcon, youTubeProviderIcon } from '@vibes/ui/shared';
 
 interface ProviderIconProps {
   color: string;
-  provider: Song['sourceType'];
+  provider: PlaylistItem['sourceType'];
   size: number;
 }
 

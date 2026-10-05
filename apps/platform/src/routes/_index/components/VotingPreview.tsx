@@ -48,13 +48,13 @@ export function VotingPreview() {
               transition={{ duration: 0.15, delay: branding ? 0 : 0.4 }}
             >
               <h3 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
-                Up Next ({state.songs.length})
+                Up Next ({state.playlistItems.length})
               </h3>
               <ol aria-label="Preview queue" className="space-y-2">
                 <AnimatePresence initial={false} mode="popLayout">
-                  {state.songs.map((song, index) => (
+                  {state.playlistItems.map((playlistItem, index) => (
                     <motion.li
-                      key={song.id}
+                      key={playlistItem.id}
                       layout="position"
                       initial={{ opacity: 0, y: 20, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -68,11 +68,13 @@ export function VotingPreview() {
                       className="relative"
                     >
                       <QueueItem
-                        song={song}
+                        playlistItem={playlistItem}
                         providerLink={false}
                         position={index + 1}
                         onVote={actions.vote}
-                        isVoting={state.votingSongId === song.id}
+                        isVoting={
+                          state.votingPlaylistItemId === playlistItem.id
+                        }
                       />
                     </motion.li>
                   ))}

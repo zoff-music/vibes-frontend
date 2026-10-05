@@ -12,14 +12,17 @@ const remoteStatusShape = {
   paired: z.boolean().default(false),
 };
 
+/** @deprecated V1 remote status. Use remoteStatusV2Schema for current clients. */
 export const remoteStatusSchema = z.compile(z.object(remoteStatusShape));
 export type RemoteStatus = z.infer<typeof remoteStatusSchema>;
 
+/** @deprecated V1 pairing response. Use remoteSessionV2Schema for current clients. */
 export const remoteSessionSchema = z.compile(
   z.object({ ...remoteStatusShape, controllerToken: z.string() }),
 );
 export type RemoteSession = z.infer<typeof remoteSessionSchema>;
 
+/** @deprecated V1 pairing state. Use remotePairingV2Schema for current clients. */
 export const remotePairingSchema = z.compile(
   z.object({
     id: z.string(),
@@ -44,6 +47,7 @@ export const remotePairingRequestSchema = z.compile(
 );
 export type RemotePairingRequest = z.infer<typeof remotePairingRequestSchema>;
 
+/** @deprecated V1 remote update. Use remoteUpdateRequestV2Schema for current clients. */
 export const remoteUpdateRequestSchema = z.compile(
   z.object({
     roomId: z.string().optional(),
@@ -54,6 +58,7 @@ export const remoteUpdateRequestSchema = z.compile(
 );
 export type RemoteUpdateRequest = z.infer<typeof remoteUpdateRequestSchema>;
 
+/** @deprecated V1 remote SSE event. Use remoteEventV2Schema for current clients. */
 export const remoteEventSchema = z.compile(
   z.object({
     type: z.enum(['remote_room_update', 'remote_state_update']),
@@ -68,3 +73,36 @@ export const remoteEventSchema = z.compile(
   }),
 );
 export type RemoteEvent = z.infer<typeof remoteEventSchema>;
+
+export const remoteStatusV2Schema = z.compile(
+  remoteStatusSchema.omit({ currentSongId: true }).extend({
+    currentPlaylistItemId: z.string().default(''),
+  }),
+);
+export type RemoteStatusV2 = z.infer<typeof remoteStatusV2Schema>;
+
+export const remoteSessionV2Schema = z.compile(
+  remoteStatusV2Schema.extend({ controllerToken: z.string() }),
+);
+export type RemoteSessionV2 = z.infer<typeof remoteSessionV2Schema>;
+
+export const remotePairingV2Schema = z.compile(
+  remotePairingSchema.omit({ currentSongId: true }).extend({
+    currentPlaylistItemId: z.string().default(''),
+  }),
+);
+export type RemotePairingV2 = z.infer<typeof remotePairingV2Schema>;
+
+export const remoteUpdateRequestV2Schema = z.compile(
+  remoteUpdateRequestSchema.omit({ currentSongId: true }).extend({
+    currentPlaylistItemId: z.string().optional(),
+  }),
+);
+export type RemoteUpdateRequestV2 = z.infer<typeof remoteUpdateRequestV2Schema>;
+
+export const remoteEventV2Schema = z.compile(
+  remoteEventSchema.omit({ currentSongId: true }).extend({
+    currentPlaylistItemId: z.string().default(''),
+  }),
+);
+export type RemoteEventV2 = z.infer<typeof remoteEventV2Schema>;

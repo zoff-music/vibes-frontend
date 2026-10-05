@@ -1,17 +1,16 @@
-import type { Song } from '@vibes/models';
-import { useProgressiveList } from '@vibes/ui/web';
+import type { PlaylistItem } from '@vibes/models';
+import { EmbedQueuePlaylistItem, useProgressiveList } from '@vibes/ui/web';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EmbedQueueSong } from './queue-song';
 
 interface Props {
-  songs: Song[];
+  playlistItems: PlaylistItem[];
   votingEnabled: boolean;
-  onVote: (songId: string) => void;
+  onVote: (playlistItemId: string) => void;
 }
 
-export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
-  const [visibleCount, sentinelRef] = useProgressiveList(songs.length);
-  const visibleSongs = songs.slice(0, visibleCount);
+export function EmbedPlaylist({ playlistItems, votingEnabled, onVote }: Props) {
+  const [visibleCount, sentinelRef] = useProgressiveList(playlistItems.length);
+  const visiblePlaylistItems = playlistItems.slice(0, visibleCount);
   return (
     <div
       className="relative h-full min-h-0 min-w-0 overflow-y-auto overflow-x-hidden overscroll-none pr-1"
@@ -27,9 +26,9 @@ export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
       </div>
       <div className="space-y-2">
         <AnimatePresence initial={false} mode="popLayout">
-          {visibleSongs.map((song) => (
+          {visiblePlaylistItems.map((playlistItem) => (
             <motion.div
-              key={song.id}
+              key={playlistItem.id}
               layout="position"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -46,18 +45,18 @@ export function EmbedPlaylist({ songs, votingEnabled, onVote }: Props) {
                 opacity: { duration: 0.1 },
               }}
             >
-              <EmbedQueueSong
-                song={song}
+              <EmbedQueuePlaylistItem
+                playlistItem={playlistItem}
                 votingEnabled={votingEnabled}
                 onVote={onVote}
               />
             </motion.div>
           ))}
         </AnimatePresence>
-        {visibleCount < songs.length && (
+        {visibleCount < playlistItems.length && (
           <div aria-hidden="true" className="h-10" ref={sentinelRef} />
         )}
-        {songs.length === 0 && (
+        {playlistItems.length === 0 && (
           <div className="rounded-xl border border-theme bg-theme-surface p-6 text-center text-theme-muted text-xs">
             The queue is empty
           </div>

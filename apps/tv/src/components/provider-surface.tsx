@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/models';
+import type { PlaylistItem } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,21 +8,24 @@ interface ProviderSurfaceProps {
   isPlaying: boolean;
   playbackKey: string;
   positionMs: number;
-  song: Song | null;
+  playlistItem: PlaylistItem | null;
 }
 
 export function ProviderSurface({
   isPlaying,
   playbackKey,
   positionMs,
-  song,
+  playlistItem,
 }: ProviderSurfaceProps) {
   const [surfaceSize, setSurfaceSize] = useState(initialSurfaceSize);
-  const [retainedYouTubeSong, setRetainedYouTubeSong] = useState<Song | null>(
-    song?.sourceType === 'youtube' ? song : null,
-  );
-  const [retainedSoundCloudSong, setRetainedSoundCloudSong] =
-    useState<Song | null>(song?.sourceType === 'soundcloud' ? song : null);
+  const [retainedYouTubePlaylistItem, setRetainedYouTubePlaylistItem] =
+    useState<PlaylistItem | null>(
+      playlistItem?.sourceType === 'youtube' ? playlistItem : null,
+    );
+  const [retainedSoundCloudPlaylistItem, setRetainedSoundCloudPlaylistItem] =
+    useState<PlaylistItem | null>(
+      playlistItem?.sourceType === 'soundcloud' ? playlistItem : null,
+    );
   const handleSurfaceLayout = useCallback((event: LayoutChangeEvent) => {
     const { height, width } = event.nativeEvent.layout;
     setSurfaceSize((currentSize) => {
@@ -37,18 +40,24 @@ export function ProviderSurface({
     surfaceSize.height * youtubeAspectRatio,
   );
   const playerHeight = playerWidth / youtubeAspectRatio;
-  const youtubeSong =
-    song?.sourceType === 'youtube' ? song : retainedYouTubeSong;
-  const soundCloudSong =
-    song?.sourceType === 'soundcloud' ? song : retainedSoundCloudSong;
-  const isYouTubeActive = song?.sourceType === 'youtube';
-  const isSoundCloudActive = song?.sourceType === 'soundcloud';
+  const youtubePlaylistItem =
+    playlistItem?.sourceType === 'youtube'
+      ? playlistItem
+      : retainedYouTubePlaylistItem;
+  const soundCloudPlaylistItem =
+    playlistItem?.sourceType === 'soundcloud'
+      ? playlistItem
+      : retainedSoundCloudPlaylistItem;
+  const isYouTubeActive = playlistItem?.sourceType === 'youtube';
+  const isSoundCloudActive = playlistItem?.sourceType === 'soundcloud';
 
   useEffect(() => {
-    if (song?.sourceType === 'youtube') setRetainedYouTubeSong(song);
-    if (song?.sourceType === 'soundcloud') setRetainedSoundCloudSong(song);
-  }, [song]);
-  if (!song) {
+    if (playlistItem?.sourceType === 'youtube')
+      setRetainedYouTubePlaylistItem(playlistItem);
+    if (playlistItem?.sourceType === 'soundcloud')
+      setRetainedSoundCloudPlaylistItem(playlistItem);
+  }, [playlistItem]);
+  if (!playlistItem) {
     return (
       <View className="h-full items-center justify-center rounded-[2rem] bg-black">
         <Text className="font-heading text-4xl text-tv-muted">
@@ -63,7 +72,7 @@ export function ProviderSurface({
       className="h-full items-center justify-center overflow-hidden rounded-[2rem] bg-black"
       onLayout={handleSurfaceLayout}
     >
-      {youtubeSong && (
+      {youtubePlaylistItem && (
         <View
           className={classNames(
             'absolute inset-0 items-center justify-center',
@@ -77,13 +86,13 @@ export function ProviderSurface({
             isPlaying={isYouTubeActive && isPlaying}
             positionMs={isYouTubeActive ? positionMs : 0}
             resetVersion={playbackKey}
-            sourceId={youtubeSong.sourceId}
+            sourceId={youtubePlaylistItem.sourceId}
             synchronizePosition={false}
             width={playerWidth}
           />
         </View>
       )}
-      {soundCloudSong && (
+      {soundCloudPlaylistItem && (
         <View
           className={classNames(
             'absolute inset-0 items-center justify-center',
@@ -93,17 +102,17 @@ export function ProviderSurface({
           pointerEvents="none"
         >
           <NativeSoundCloudPlayer
-            artworkUrl={soundCloudSong.thumbnailUrl}
+            artworkUrl={soundCloudPlaylistItem.thumbnailUrl}
             height={surfaceSize.height}
             interactive={false}
             isPlaying={isSoundCloudActive && isPlaying}
             positionMs={isSoundCloudActive ? positionMs : 0}
             resetVersion={playbackKey}
-            sourceId={soundCloudSong.sourceId}
+            sourceId={soundCloudPlaylistItem.sourceId}
             synchronizePosition={isSoundCloudActive}
             width={surfaceSize.width}
-            {...(soundCloudSong.providerUrl
-              ? { providerUrl: soundCloudSong.providerUrl }
+            {...(soundCloudPlaylistItem.providerUrl
+              ? { providerUrl: soundCloudPlaylistItem.providerUrl }
               : {})}
           />
         </View>

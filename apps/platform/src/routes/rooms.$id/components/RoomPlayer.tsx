@@ -1,8 +1,8 @@
 import {
-  type PlaybackState,
+  type PlaybackStateV2,
+  type PlaylistItem,
   type Providers,
-  type Room,
-  type Song,
+  type RoomV2,
 } from '@vibes/models';
 import {
   browserDebugLog,
@@ -42,10 +42,10 @@ const LazyTerminalPlayerControls = lazy(async () => {
 
 interface RoomPlayerProps {
   roomId: string;
-  displayRoom: Room | null;
-  onAddSong: () => void;
+  displayRoom: RoomV2 | null;
+  onAddPlaylistItem: () => void;
   onOpenCast: () => void;
-  initialPlayback?: PlaybackState;
+  initialPlayback?: PlaybackStateV2;
   providers: Providers;
   terminalMode?: boolean;
 }
@@ -57,7 +57,7 @@ interface PlayerProps {
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   appContext?: 'platform' | 'cast';
-  preloadSong?: Song | null;
+  preloadPlaylistItem?: PlaylistItem | null;
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
@@ -74,14 +74,14 @@ interface PlayerLoadErrors {
 }
 
 interface AutoSkipHandlerProps {
-  currentSong: Song | null;
+  currentPlaylistItem: PlaylistItem | null;
   isPlaying: boolean;
   skip: (shouldShowToast?: boolean) => void;
   mode?: string;
 }
 
 const AutoSkipHandler = ({
-  currentSong,
+  currentPlaylistItem,
   isPlaying,
   skip,
   mode,
@@ -90,24 +90,24 @@ const AutoSkipHandler = ({
   const autoSkipRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!currentSong?.id) {
+    if (!currentPlaylistItem?.id) {
       autoSkipRef.current = null;
       return;
     }
     if (mode !== 'host') return;
-    if (!isPlaying || !currentSong.duration) return;
+    if (!isPlaying || !currentPlaylistItem.duration) return;
 
-    const durationMs = currentSong.duration * 1000;
+    const durationMs = currentPlaylistItem.duration * 1000;
     const shouldAutoSkip = actualPositionMs >= durationMs - 750;
 
-    if (shouldAutoSkip && autoSkipRef.current !== currentSong.id) {
-      autoSkipRef.current = currentSong.id;
+    if (shouldAutoSkip && autoSkipRef.current !== currentPlaylistItem.id) {
+      autoSkipRef.current = currentPlaylistItem.id;
       skip(false);
     }
   }, [
     actualPositionMs,
-    currentSong?.id,
-    currentSong?.duration,
+    currentPlaylistItem?.id,
+    currentPlaylistItem?.duration,
     mode,
     isPlaying,
     skip,
@@ -120,7 +120,7 @@ export const RoomPlayer = React.memo(
   ({
     roomId,
     displayRoom,
-    onAddSong,
+    onAddPlaylistItem,
     onOpenCast,
     initialPlayback,
     providers,
@@ -128,14 +128,16 @@ export const RoomPlayer = React.memo(
   }: RoomPlayerProps) => {
     /* 1. Hooks */
     const playbackFetcher = useFetcher<RoomActionData>();
-    const songs = useQueueStore((state) => state.songs);
+    const playlistItems = useQueueStore((state) => state.playlistItems);
     const { isConnected, castDeviceName } = useCasting(roomId);
     const showCast = useCastStore((state) => state.isInitialized);
     const { volume, setVolume, toggleMuted } = usePersistentPlayerVolume();
 
     // Granular store subscriptions
     const isPlaying = usePlaybackStore((state) => state.isPlaying);
-    const currentSongFromStore = usePlaybackStore((state) => state.currentSong);
+    const currentPlaylistItemFromStore = usePlaybackStore(
+      (state) => state.currentPlaylistItem,
+    );
     const setPlaybackState = usePlaybackStore(
       (state) => state.setPlaybackState,
     );
@@ -157,19 +159,21 @@ export const RoomPlayer = React.memo(
     const isAdmin = useRoomStore((state) => state.isAdmin);
 
     /* 2. State & Computed */
-    const currentSong =
-      currentSongFromStore || initialPlayback?.currentSong || null;
+    const currentPlaylistItem =
+      currentPlaylistItemFromStore ||
+      initialPlayback?.currentPlaylistItem ||
+      null;
     const hasHostPlaybackAuthority =
       displayRoom?.mode === 'host' &&
       (isAdmin ||
         (!!displayRoom.userId && displayRoom.hostId === displayRoom.userId));
     const canControlRoomPlayback =
       displayRoom?.mode !== 'host' || hasHostPlaybackAuthority;
-    const canSkipSong =
+    const canSkipPlaylistItem =
       canControlRoomPlayback &&
       (isAdmin || Boolean(displayRoom?.settings.skipAllowed));
 
-    const currentSourceType = currentSong?.sourceType ?? null;
+    const currentSourceType = currentPlaylistItem?.sourceType ?? null;
     const needsSoundCloudPlayer = currentSourceType === 'soundcloud';
     const needsVideoPlayer = currentSourceType === 'youtube';
     const enabledSources = displayRoom?.settings.enabledSources ?? [];
@@ -180,10 +184,14 @@ export const RoomPlayer = React.memo(
     const shouldPrepareVideoPlayer =
       needsVideoPlayer ||
       (providers.includes('youtube') && enabledSources.includes('youtube'));
-    const preloadSoundCloudSong =
-      songs.find((song) => song.sourceType === 'soundcloud') ?? null;
-    const preloadVideoSong =
-      songs.find((song) => song.sourceType === 'youtube') ?? null;
+    const preloadSoundCloudPlaylistItem =
+      playlistItems.find(
+        (playlistItem) => playlistItem.sourceType === 'soundcloud',
+      ) ?? null;
+    const preloadVideoPlaylistItem =
+      playlistItems.find(
+        (playlistItem) => playlistItem.sourceType === 'youtube',
+      ) ?? null;
 
     const [SoundCloudPlayerComponent, setSoundCloudPlayerComponent] =
       useState<PlayerComponent | null>(null);
@@ -245,7 +253,8 @@ export const RoomPlayer = React.memo(
         }
 
         const canPlay =
-          canControlRoomPlayback && Boolean(currentSong || songs.length > 0);
+          canControlRoomPlayback &&
+          Boolean(currentPlaylistItem || playlistItems.length > 0);
         if (!canPlay) return;
 
         event.preventDefault();
@@ -260,12 +269,12 @@ export const RoomPlayer = React.memo(
       return () => window.removeEventListener('keydown', handleKeyDown);
     }, [
       canControlRoomPlayback,
-      currentSong,
+      currentPlaylistItem,
       isPlaybackBlocked,
       isPlaying,
       pause,
       play,
-      songs.length,
+      playlistItems.length,
     ]);
 
     const handleLocalPause = useCallback(() => {
@@ -335,9 +344,10 @@ export const RoomPlayer = React.memo(
 
     useMediaSession({
       canPlay:
-        canControlRoomPlayback && Boolean(currentSong || songs.length > 0),
-      canSkip: canSkipSong && Boolean(currentSong),
-      currentSong,
+        canControlRoomPlayback &&
+        Boolean(currentPlaylistItem || playlistItems.length > 0),
+      canSkip: canSkipPlaylistItem && Boolean(currentPlaylistItem),
+      currentPlaylistItem,
       isPlaying: isPlaying && !isPlaybackBlocked,
       onPause: pause,
       onPlay: play,
@@ -349,13 +359,15 @@ export const RoomPlayer = React.memo(
       setPlayerLoadErrors((prev) => ({
         ...prev,
         soundcloud:
-          currentSong?.sourceType === 'soundcloud' ? null : prev.soundcloud,
+          currentPlaylistItem?.sourceType === 'soundcloud'
+            ? null
+            : prev.soundcloud,
         video:
-          currentSong && currentSong.sourceType === 'youtube'
+          currentPlaylistItem && currentPlaylistItem.sourceType === 'youtube'
             ? null
             : prev.video,
       }));
-    }, [currentSong?.sourceType, currentSong]);
+    }, [currentPlaylistItem?.sourceType, currentPlaylistItem]);
 
     useEffect(() => {
       if (playbackFetcher.state !== 'idle' || !playbackFetcher.data) return;
@@ -475,9 +487,9 @@ export const RoomPlayer = React.memo(
       };
     }, [roomId]);
 
-    const isSoundCloudTrack = currentSong?.sourceType === 'soundcloud';
-    const isVideoTrack = currentSong
-      ? currentSong.sourceType === 'youtube'
+    const isSoundCloudTrack = currentPlaylistItem?.sourceType === 'soundcloud';
+    const isVideoTrack = currentPlaylistItem
+      ? currentPlaylistItem.sourceType === 'youtube'
       : false;
     const isPlayerMissing =
       (isSoundCloudTrack && !SoundCloudPlayerComponent) ||
@@ -497,7 +509,7 @@ export const RoomPlayer = React.memo(
         )}
       >
         <AutoSkipHandler
-          currentSong={currentSong}
+          currentPlaylistItem={currentPlaylistItem}
           isPlaying={isPlaying}
           skip={skip}
           {...(hasHostPlaybackAuthority && { mode: 'host' })}
@@ -537,7 +549,7 @@ export const RoomPlayer = React.memo(
                 isVisible={!isConnected && isVideoTrack}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 appContext="platform"
-                preloadSong={preloadVideoSong}
+                preloadPlaylistItem={preloadVideoPlaylistItem}
                 volume={volume}
               />
             </div>
@@ -550,7 +562,7 @@ export const RoomPlayer = React.memo(
               </div>
             </div>
           )}
-          {currentSong && isPlayerMissing && (
+          {currentPlaylistItem && isPlayerMissing && (
             <div className="min-h-player-min">
               <div className="absolute inset-0 flex items-center justify-center bg-black">
                 {/* SIGNAL CRT */}
@@ -587,13 +599,13 @@ export const RoomPlayer = React.memo(
                   onEnded: handleEnded,
                 })}
                 isVisible={!isConnected && isSoundCloudTrack}
-                preloadSong={preloadSoundCloudSong}
+                preloadPlaylistItem={preloadSoundCloudPlaylistItem}
                 showInitialPlaybackOverlay
                 volume={volume}
               />
             </div>
           )}
-          {!currentSong && songs.length > 0 && (
+          {!currentPlaylistItem && playlistItems.length > 0 && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               {/* SIGNAL CRT */}
               <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
@@ -608,7 +620,7 @@ export const RoomPlayer = React.memo(
               </div>
             </div>
           )}
-          {!currentSong && songs.length === 0 && (
+          {!currentPlaylistItem && playlistItems.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-black">
               {/* SIGNAL CRT */}
               <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
@@ -635,16 +647,17 @@ export const RoomPlayer = React.memo(
           <PlayerControls
             isPlaying={isPlaying && !isPlaybackBlocked}
             canPlay={
-              canControlRoomPlayback && Boolean(currentSong || songs.length > 0)
+              canControlRoomPlayback &&
+              Boolean(currentPlaylistItem || playlistItems.length > 0)
             }
-            canSkip={canSkipSong && Boolean(currentSong)}
+            canSkip={canSkipPlaylistItem && Boolean(currentPlaylistItem)}
             isSkipping={isSkipPending}
-            showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
+            showReset={Boolean(currentPlaylistItem) && hasLocalPlaybackChanges}
             onPlay={play}
             onPause={pause}
             onSkip={skip}
             onReset={reset}
-            onAddSong={onAddSong}
+            onAddPlaylistItem={onAddPlaylistItem}
             onOpenCast={onOpenCast}
             showCast={showCast}
             isCasting={isConnected}
@@ -665,15 +678,15 @@ export const RoomPlayer = React.memo(
             <LazyTerminalPlayerControls
               canPlay={
                 canControlRoomPlayback &&
-                Boolean(currentSong || songs.length > 0)
+                Boolean(currentPlaylistItem || playlistItems.length > 0)
               }
-              canSkip={canSkipSong && Boolean(currentSong)}
+              canSkip={canSkipPlaylistItem && Boolean(currentPlaylistItem)}
               castDeviceName={castDeviceName}
-              currentSong={currentSong}
+              currentPlaylistItem={currentPlaylistItem}
               isCasting={isConnected}
               isPlaying={isPlaying && !isPlaybackBlocked}
               isSkipping={isSkipPending}
-              onAddSong={onAddSong}
+              onAddPlaylistItem={onAddPlaylistItem}
               onOpenCast={onOpenCast}
               onPause={pause}
               onPlay={play}
@@ -681,7 +694,9 @@ export const RoomPlayer = React.memo(
               onSkip={skip}
               onToggleMuted={toggleMuted}
               onVolumeChange={setVolume}
-              showReset={Boolean(currentSong) && hasLocalPlaybackChanges}
+              showReset={
+                Boolean(currentPlaylistItem) && hasLocalPlaybackChanges
+              }
               showCast={showCast}
               volume={volume}
             />

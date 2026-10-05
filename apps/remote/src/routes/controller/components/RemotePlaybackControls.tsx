@@ -1,4 +1,4 @@
-import type { RemoteStatus, Room, Song } from '@vibes/models';
+import type { PlaylistItem, RemoteStatusV2, RoomV2 } from '@vibes/models';
 import { usePlaybackStore } from '@vibes/shared';
 import {
   Button,
@@ -21,36 +21,37 @@ import type { ControllerActionData } from '../action';
 
 interface RemotePlaybackControlsProps {
   canSeek: boolean;
-  currentSong: Song | null;
+  currentPlaylistItem: PlaylistItem | null;
   fetcher: ReturnType<typeof useFetcher<ControllerActionData>>;
   initialPositionMs: number;
-  isMachineSongCurrent: boolean;
+  isMachinePlaylistItemCurrent: boolean;
   isPlaying: boolean;
-  onAddSong: () => void;
-  remoteStatus?: RemoteStatus;
-  room: Room;
+  onAddPlaylistItem: () => void;
+  remoteStatus?: RemoteStatusV2;
+  room: RoomV2;
 }
 
 export function RemotePlaybackControls({
   canSeek,
-  currentSong,
+  currentPlaylistItem,
   fetcher,
   initialPositionMs,
-  isMachineSongCurrent,
+  isMachinePlaylistItemCurrent,
   isPlaying,
-  onAddSong,
+  onAddPlaylistItem,
   remoteStatus,
   room,
 }: RemotePlaybackControlsProps) {
   const serverPositionMs =
     usePlaybackStore((state) => state.actualPositionMs) ?? initialPositionMs;
-  const durationMs = (currentSong?.duration ?? 0) * millisecondsPerSecond;
+  const durationMs =
+    (currentPlaylistItem?.duration ?? 0) * millisecondsPerSecond;
   const [positionMs, setPositionMs] = useState(serverPositionMs);
   const [seekPositionMs, setSeekPositionMs] = useState(serverPositionMs);
   const isSeekingRef = useRef(false);
 
   useEffect(() => {
-    if (!isMachineSongCurrent || !remoteStatus) {
+    if (!isMachinePlaylistItemCurrent || !remoteStatus) {
       setPositionMs(serverPositionMs);
       return;
     }
@@ -76,7 +77,12 @@ export function RemotePlaybackControls({
       remotePositionUpdateIntervalMs,
     );
     return () => window.clearInterval(interval);
-  }, [durationMs, isMachineSongCurrent, remoteStatus, serverPositionMs]);
+  }, [
+    durationMs,
+    isMachinePlaylistItemCurrent,
+    remoteStatus,
+    serverPositionMs,
+  ]);
 
   useEffect(() => {
     if (!isSeekingRef.current) {
@@ -103,10 +109,10 @@ export function RemotePlaybackControls({
         Now playing
       </p>
       <h2 className="mt-4 line-clamp-2 font-display text-lg text-theme">
-        {currentSong?.title ?? 'Nothing playing'}
+        {currentPlaylistItem?.title ?? 'Nothing playing'}
       </h2>
       <p className="mt-2 truncate text-sm text-theme-muted">
-        {currentSong?.artist ?? 'Add a song to begin'}
+        {currentPlaylistItem?.publisher ?? 'Add a song to begin'}
       </p>
 
       <div className="mt-6 flex items-center gap-3">
@@ -140,7 +146,7 @@ export function RemotePlaybackControls({
             <SkipIcon className="h-5 w-5" />
           </Button>
         </fetcher.Form>
-        <Button onClick={onAddSong} type="button" variant="primary">
+        <Button onClick={onAddPlaylistItem} type="button" variant="primary">
           <PlusIcon className="h-5 w-5" />
           Add Song
         </Button>

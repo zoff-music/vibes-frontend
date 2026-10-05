@@ -1,9 +1,9 @@
-import { useRoomEventsV2 } from '@vibes/api';
+import { useRoomEventsV3 } from '@vibes/api';
 import type {
-  PlaybackState,
-  Room,
+  PlaybackStateV2,
+  PlaylistItem,
   RoomGenerationUpdate,
-  Song,
+  RoomV2,
 } from '@vibes/models';
 import {
   synchronizeServerClock,
@@ -12,7 +12,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useMemo } from 'react';
-import { tvApiV2 } from '@/lib/api';
+import { tvApiV3 } from '@/lib/api';
 
 export function useTvRoomEvents(roomId: string) {
   const callbacks = useMemo(
@@ -33,25 +33,31 @@ export function useTvRoomEvents(roomId: string) {
       onHostUpdate: ({ userId }: { userId: string }) => {
         useRoomStore.getState().setHost(userId);
       },
-      onPlaybackUpdate: (playback: PlaybackState) => {
+      onPlaybackUpdate: (playback: PlaybackStateV2) => {
         synchronizeServerClock(playback.serverTimeMs);
         const roomMode = useRoomStore.getState().room?.mode;
         usePlaybackStore.getState().setPlaybackState(playback, roomMode);
       },
-      onRoomUpdate: (room: Room) => {
+      onRoomUpdate: (room: RoomV2) => {
         useRoomStore.getState().setRoom(room);
       },
-      onSongAdded: (song: Song) => {
-        useQueueStore.getState().addSong(song);
+      onPlaylistItemAdded: (playlistItem: PlaylistItem) => {
+        useQueueStore.getState().addPlaylistItem(playlistItem);
       },
-      onSongRemoved: ({ id }: { id: string }) => {
-        useQueueStore.getState().removeSong(id);
+      onPlaylistItemRemoved: ({ id }: { id: string }) => {
+        useQueueStore.getState().removePlaylistItem(id);
       },
-      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
-        useQueueStore.getState().positionSong(song, position);
+      onPlaylistItemUpdated: ({
+        playlistItem,
+        position,
+      }: {
+        playlistItem: PlaylistItem;
+        position: number;
+      }) => {
+        useQueueStore.getState().positionPlaylistItem(playlistItem, position);
       },
-      onSongsUpdate: (songs: Song[]) => {
-        useQueueStore.getState().setSongs(songs);
+      onPlaylistItemsUpdate: (playlistItems: PlaylistItem[]) => {
+        useQueueStore.getState().setPlaylistItems(playlistItems);
       },
       onUsersUpdate: (count: number) => {
         useRoomStore.getState().setUsersCount(count);
@@ -59,5 +65,5 @@ export function useTvRoomEvents(roomId: string) {
     }),
     [],
   );
-  useRoomEventsV2(roomId || undefined, callbacks, tvApiV2);
+  useRoomEventsV3(roomId || undefined, callbacks, tvApiV3);
 }

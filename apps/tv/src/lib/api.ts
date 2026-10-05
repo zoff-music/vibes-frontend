@@ -1,6 +1,6 @@
 import {
   createApiClientWithBaseUrl,
-  createApiV2ClientWithBaseUrl,
+  createApiV3ClientWithBaseUrl,
 } from '@vibes/api';
 import { fetch as expoFetch } from 'expo/fetch';
 
@@ -10,6 +10,6 @@ export const tvApi = createApiClientWithBaseUrl(apiUrl, {
   fetcher: expoFetch,
 });
 
-export const tvApiV2 = createApiV2ClientWithBaseUrl(apiUrl, {
+export const tvApiV3 = createApiV3ClientWithBaseUrl(apiUrl, {
   fetcher: expoFetch,
 });

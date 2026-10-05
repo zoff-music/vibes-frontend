@@ -35,15 +35,19 @@ export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
   const serverApi = getServerApi();
   const cookieHeader = request.headers.get('cookie') ?? undefined;
   const requestHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
-  const [roomResult, songsResult, playbackResult, providersResult] =
+  const [roomResult, playlistItemsResult, playbackResult, providersResult] =
     await Promise.all([
-      serverApi.get('/rooms/{id}', { id: roomId }, { headers: requestHeaders }),
-      serverApi.get(
-        '/rooms/{id}/songs',
+      serverApi.v2.get(
+        '/rooms/{id}',
         { id: roomId },
         { headers: requestHeaders },
       ),
-      serverApi.get(
+      serverApi.v2.get(
+        '/rooms/{id}/playlist-items',
+        { id: roomId },
+        { headers: requestHeaders },
+      ),
+      serverApi.v2.get(
         '/rooms/{id}/states',
         { id: roomId },
         { headers: requestHeaders },
@@ -52,10 +56,16 @@ export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
     ]);
 
   const [roomError, room] = roomResult;
-  const [songsError, songs] = songsResult;
+  const [playlistItemsError, playlistItems] = playlistItemsResult;
   const [playbackError, playback] = playbackResult;
   const [providersError, providers] = providersResult;
-  if (roomError || songsError || playbackError || providersError || !room) {
+  if (
+    roomError ||
+    playlistItemsError ||
+    playbackError ||
+    providersError ||
+    !room
+  ) {
     const roomStatus = roomError
       ? getHttpError(roomError)?.response.status
       : null;
@@ -71,7 +81,7 @@ export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
   return {
     room,
     roomId,
-    songs: songs ?? [],
+    playlistItems: playlistItems ?? [],
     playback: playback ?? undefined,
     providers: providers ?? [],
     options: {

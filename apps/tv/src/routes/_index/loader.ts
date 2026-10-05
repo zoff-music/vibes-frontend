@@ -1,11 +1,11 @@
 import { createRoomDiscoveryRequests } from '@vibes/api';
-import type { Providers, PublicRoom } from '@vibes/models';
+import type { Providers, PublicRoomV3 } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
 import { tvApi } from '@/lib/api';
 
 export interface DiscoveryData {
   providers: Providers;
-  publicRooms: PublicRoom[];
+  publicRooms: PublicRoomV3[];
   warning: string;
 }
 

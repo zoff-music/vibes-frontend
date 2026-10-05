@@ -19,14 +19,17 @@ export async function loader({
   if (!roomId) return { data: null, error: 'Enter a room name.' };
   const results = await Promise.all([
     readRequests.fetchRoom(roomId, { signal }),
-    readRequests.fetchSongs(roomId, { signal }),
+    readRequests.fetchPlaylistItems(roomId, { signal }),
     playbackRequests.fetchPlayback(roomId, { signal }),
   ]);
   const [roomError, room] = results[0];
-  const [songsError, songs] = results[1];
+  const [playlistItemsError, playlistItems] = results[1];
   const [playbackError, playback] = results[2];
-  const error = roomError ?? songsError ?? playbackError;
-  const snapshot = room && songs && playback ? { playback, room, songs } : null;
+  const error = roomError ?? playlistItemsError ?? playbackError;
+  const snapshot =
+    room && playlistItems && playback
+      ? { playback, room, playlistItems }
+      : null;
   if (error || !snapshot) {
     if (getHttpError(error)?.response.status === notFoundStatus) {
       return { data: null, error: roomNotFoundError };

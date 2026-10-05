@@ -1,36 +1,36 @@
-import type { Song } from '@vibes/shared';
+import type { PlaylistItem } from '@vibes/shared';
 import {
   ContentTransition,
-  NowPlayingSong,
+  NowPlayingPlaylistItem,
   PlaybackProgress,
   SkipButton,
 } from '@vibes/ui/web';
 
-interface SkipSongSetupSceneProps {
-  song: Song;
+interface SkipPlaylistItemSetupSceneProps {
+  playlistItem: PlaylistItem;
   positionMs: number;
   canSkip: boolean;
-  changedSong: boolean;
+  changedPlaylistItem: boolean;
   isSkipping: boolean;
   onSkip: () => void;
 }
 
-export function SkipSongSetupScene({
-  song,
+export function SkipPlaylistItemSetupScene({
+  playlistItem,
   positionMs,
   canSkip,
-  changedSong,
+  changedPlaylistItem,
   isSkipping,
   onSkip,
-}: SkipSongSetupSceneProps) {
+}: SkipPlaylistItemSetupSceneProps) {
   return (
     <div>
       <p className="mb-3 text-theme-muted text-xs">
-        {changedSong ? 'Next song playing' : 'Now playing'}
+        {changedPlaylistItem ? 'Next song playing' : 'Now playing'}
       </p>
-      <ContentTransition transitionKey={song.id}>
-        <NowPlayingSong
-          song={song}
+      <ContentTransition transitionKey={playlistItem.id}>
+        <NowPlayingPlaylistItem
+          playlistItem={playlistItem}
           isPlaying
           providerLink={false}
           animate={false}
@@ -39,7 +39,7 @@ export function SkipSongSetupScene({
         />
         <div className="mt-2">
           <PlaybackProgress
-            durationMs={song.duration * 1000}
+            durationMs={playlistItem.duration * 1000}
             positionMs={positionMs}
           />
         </div>

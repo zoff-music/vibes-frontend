@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/shared';
+import type { PlaylistItem } from '@vibes/shared';
 import {
   Button,
   PauseIcon,
@@ -9,7 +9,7 @@ import {
 import type { Ref } from 'react';
 
 interface RemoteControlPreviewProps {
-  song: Song;
+  playlistItem: PlaylistItem;
   playing: boolean;
   durationMs: number;
   position: number;
@@ -20,7 +20,7 @@ interface RemoteControlPreviewProps {
 }
 
 export function RemoteControlPreview({
-  song,
+  playlistItem,
   playing,
   durationMs,
   position,
@@ -33,9 +33,9 @@ export function RemoteControlPreview({
     <div className="flex h-full flex-col justify-center">
       <p className="font-pixel text-theme-muted text-xs">Controlling electro</p>
       <h3 className="mt-3 truncate font-display text-base text-theme">
-        {song.title}
+        {playlistItem.title}
       </h3>
-      <p className="mt-1 text-sm text-theme-muted">{song.artist}</p>
+      <p className="mt-1 text-sm text-theme-muted">{playlistItem.publisher}</p>
       <div className="mt-5 grid grid-cols-2 gap-3">
         <Button
           ref={playButtonRef}

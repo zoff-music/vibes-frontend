@@ -1,10 +1,10 @@
-import { formatDuration, resolveSongThumbnail } from '@vibes/shared';
+import { formatDuration, resolvePlaylistItemThumbnail } from '@vibes/shared';
 import type { ReactNode } from 'react';
 import { Button } from '../Button';
 
-interface SongSearchResultProps {
+interface PlaylistItemSearchResultProps {
   title: string;
-  artist: string;
+  publisher: string;
   thumbnailUrl: string;
   durationSeconds?: number;
   onSelect: () => void;
@@ -12,27 +12,27 @@ interface SongSearchResultProps {
   children?: ReactNode;
 }
 
-export function SongSearchResult({
+export function PlaylistItemSearchResult({
   title,
-  artist,
+  publisher,
   thumbnailUrl,
   durationSeconds,
   onSelect,
   attribution,
   children,
-}: SongSearchResultProps) {
+}: PlaylistItemSearchResultProps) {
   return (
     <div className="flex min-w-0 border-theme border-t first:border-t-0">
       <Button
         onClick={onSelect}
         variant="ghost"
         size="none"
-        aria-label={`Add ${title} by ${artist}`}
+        aria-label={`Add ${title} by ${publisher}`}
         className="min-w-0 flex-1 justify-start gap-2 p-3 text-left hover:bg-theme sm:gap-3 sm:p-4"
       >
         <div className="relative shrink-0">
           <img
-            src={resolveSongThumbnail(thumbnailUrl)}
+            src={resolvePlaylistItemThumbnail(thumbnailUrl)}
             alt=""
             className="h-16 w-20 rounded-xl border border-theme bg-theme-surface object-cover sm:h-20 sm:w-28"
           />
@@ -46,7 +46,7 @@ export function SongSearchResult({
           <h4 className="mb-1.5 line-clamp-2 text-sm text-theme leading-snug">
             {title}
           </h4>
-          <p className="line-clamp-1 text-theme-muted text-xs">{artist}</p>
+          <p className="line-clamp-1 text-theme-muted text-xs">{publisher}</p>
           {children}
         </div>
       </Button>

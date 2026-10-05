@@ -1,14 +1,14 @@
 import { createRoomLifecycleRequests } from '@vibes/api';
-import type { Room, RoomUpdate } from '@vibes/models';
+import type { RoomUpdateV2, RoomV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface RoomSettingsActionInput {
-  update: RoomUpdate;
+  update: RoomUpdateV2;
 }
 
 export interface RoomSettingsActionData {
-  room: Room;
+  room: RoomV2;
 }
 
 const requests = createRoomLifecycleRequests(mobileApi);

@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { useControllerRemote } from '@/hooks/use-controller-remote';
 import { useRoomSession } from '@/providers/app-provider';
 import { RemoteControl } from './remote-control';
-import { RemotePairing } from './remote-pairing';
+import { RemotePairingV2 } from './remote-pairing';
 
 export function RemoteScreen() {
   const searchParams = useLocalSearchParams<{
@@ -41,7 +41,7 @@ export function RemoteScreen() {
 
   if (!controller.remote) {
     return (
-      <RemotePairing
+      <RemotePairingV2
         controller={controller}
         controllerActions={controllerActions}
       />

@@ -1,4 +1,4 @@
-import { resolveSongThumbnail } from '@vibes/shared';
+import { resolvePlaylistItemThumbnail } from '@vibes/shared';
 import { SoundCloudIcon, YouTubeIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
@@ -8,12 +8,14 @@ import { CastTrackProgress } from './CastTrackProgress';
 import { PlayerLayer } from './PlayerLayer';
 
 export const ActiveView: React.FC = () => {
-  const { currentSong, queue, roomInfo, roomId } = useCast();
+  const { currentPlaylistItem, queue, roomInfo, roomId } = useCast();
 
-  if (!currentSong) return null;
+  if (!currentPlaylistItem) return null;
 
   const joinUrl = `${window.location.origin}/${encodeURIComponent(roomId ?? '')}`;
-  const upNext = queue.filter((song) => song.id !== currentSong.id);
+  const upNext = queue.filter(
+    (playlistItem) => playlistItem.id !== currentPlaylistItem.id,
+  );
   const participantCount = roomInfo?.participantCount ?? 0;
   const roomName = roomInfo?.name ?? roomId;
 
@@ -28,32 +30,34 @@ export const ActiveView: React.FC = () => {
           <div className="cast-track-summary flex items-end gap-6">
             <div className="cast-track-artwork relative shrink-0">
               <img
-                src={resolveSongThumbnail(currentSong.thumbnailUrl)}
-                alt={currentSong.title}
+                src={resolvePlaylistItemThumbnail(
+                  currentPlaylistItem.thumbnailUrl,
+                )}
+                alt={currentPlaylistItem.title}
                 decoding="async"
                 className="cast-track-thumbnail h-20 w-20 rounded-xl border object-cover"
               />
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="cast-track-title mb-2 truncate font-display text-2xl text-theme leading-tight">
-                {currentSong.title}
+                {currentPlaylistItem.title}
               </h1>
               <p className="cast-track-artist truncate font-light font-sans text-lg text-theme-muted">
-                {currentSong.artist || 'Unknown Artist'}
+                {currentPlaylistItem.publisher || 'Unknown Artist'}
               </p>
             </div>
 
             <div className="cast-track-provider flex shrink-0 items-center justify-center pr-2">
-              {currentSong.sourceType === 'soundcloud' && (
+              {currentPlaylistItem.sourceType === 'soundcloud' && (
                 <SoundCloudIcon className="h-8 w-8 text-theme-muted" />
               )}
-              {currentSong.sourceType !== 'soundcloud' && (
+              {currentPlaylistItem.sourceType !== 'soundcloud' && (
                 <YouTubeIcon className="h-8 w-8 text-theme-muted" />
               )}
             </div>
           </div>
 
-          <CastTrackProgress song={currentSong} />
+          <CastTrackProgress playlistItem={currentPlaylistItem} />
         </div>
       </div>
 
@@ -69,7 +73,7 @@ export const ActiveView: React.FC = () => {
           </div>
         </div>
 
-        <CastQueue songs={upNext} />
+        <CastQueue playlistItems={upNext} />
 
         <div className="cast-room-card mt-5 rounded-3xl border border-primary/30 p-4">
           <div className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white p-2">

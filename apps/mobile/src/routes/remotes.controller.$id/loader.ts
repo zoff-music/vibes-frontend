@@ -4,14 +4,14 @@ import {
   createRoomReadRequests,
   getHttpError,
 } from '@vibes/api';
-import type { RemoteStatus } from '@vibes/models';
+import type { RemoteStatusV2 } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
 import type { RoomSnapshot } from '@/data-router/room-snapshot';
 import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
 import { normalizeMobileSnapshot } from '@/lib/mobile-content';
 
 export interface ControllerRemoteData {
-  remote: RemoteStatus;
+  remote: RemoteStatusV2;
   snapshot: RoomSnapshot | null;
 }
 
@@ -48,13 +48,19 @@ export async function loader({
   }
   const readRequests = createRoomReadRequests(client);
   const playbackRequests = createRoomPlaybackRequests(client);
-  const [roomResult, songsResult, playbackResult] = await Promise.all([
+  const [roomResult, playlistItemsResult, playbackResult] = await Promise.all([
     readRequests.fetchRoom(remote.currentRoomId, { signal }),
-    readRequests.fetchSongs(remote.currentRoomId, { signal }),
+    readRequests.fetchPlaylistItems(remote.currentRoomId, { signal }),
     playbackRequests.fetchPlayback(remote.currentRoomId, { signal }),
   ]);
-  const roomError = roomResult[0] ?? songsResult[0] ?? playbackResult[0];
-  if (roomError || !roomResult[1] || !songsResult[1] || !playbackResult[1]) {
+  const roomError =
+    roomResult[0] ?? playlistItemsResult[0] ?? playbackResult[0];
+  if (
+    roomError ||
+    !roomResult[1] ||
+    !playlistItemsResult[1] ||
+    !playbackResult[1]
+  ) {
     return {
       data: null,
       error: await getRequestErrorMessage(
@@ -66,7 +72,7 @@ export async function loader({
   const snapshot: RoomSnapshot = normalizeMobileSnapshot({
     playback: playbackResult[1],
     room: roomResult[1],
-    songs: songsResult[1],
+    playlistItems: playlistItemsResult[1],
   });
   return {
     data: { remote, snapshot },

@@ -1,12 +1,12 @@
-import type { RemoteEvent } from '@vibes/models';
+import type { RemoteEventV2 } from '@vibes/models';
 import { type ApiClient, api, createApiClient } from './client';
 
 export interface RemoteEventSubscriptionOptions {
   client?: ApiClient;
   remoteId?: string;
   controller?: boolean;
-  onRoomUpdate: (event: RemoteEvent) => void;
-  onStateUpdate?: (event: RemoteEvent) => void;
+  onRoomUpdate: (event: RemoteEventV2) => void;
+  onStateUpdate?: (event: RemoteEventV2) => void;
 }
 
 export function subscribeRemoteEvents({
@@ -23,7 +23,7 @@ export function subscribeRemoteEvents({
   const client =
     eventClient ??
     (controller ? createApiClient({ 'X-Zoff-Remote-ID': remoteId }) : api);
-  return client.sse(
+  return client.v2.sse(
     '/remotes/{id}/events',
     { id: remoteId },
     ([eventError, message]) => {

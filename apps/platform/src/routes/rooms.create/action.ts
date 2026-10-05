@@ -62,7 +62,7 @@ export async function clientAction({
     formData.get('reservationToken') ?? '',
   ).trim();
   const mode = formData.get('mode') === 'host' ? 'host' : 'server';
-  const [err, room] = await api.post('/rooms', null, {
+  const [err, room] = await api.v2.post('/rooms', null, {
     name,
     password: password || undefined,
     reservationToken: reservationToken || undefined,
@@ -73,7 +73,10 @@ export async function clientAction({
       removeOnPlay: readBoolean(formData, 'removeOnPlay'),
       allowDuplicates: readBoolean(formData, 'allowDuplicates'),
       enabledSources: readEnabledSources(formData),
-      onlyAdminAddSongs: readBoolean(formData, 'onlyAdminAddSongs'),
+      onlyAdminAddPlaylistItems: readBoolean(
+        formData,
+        'onlyAdminAddPlaylistItems',
+      ),
       public: isPublic,
       playlistImport: readBoolean(formData, 'playlistImport'),
     },

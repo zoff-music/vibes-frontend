@@ -1,10 +1,10 @@
-import type { PlaybackState } from '@vibes/models';
+import type { PlaybackStateV2 } from '@vibes/models';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
 import { YouTubeIframePlayer } from '@/tizen/youtube-iframe-player';
 
 interface TizenProviderSurfaceProps {
   isGenerating: boolean;
-  playback: PlaybackState;
+  playback: PlaybackStateV2;
 }
 
 export function TizenProviderSurface({
@@ -12,9 +12,9 @@ export function TizenProviderSurface({
   playback,
 }: TizenProviderSurfaceProps) {
   const generationMessage = useGenerationMessage(isGenerating);
-  const song = playback.currentSong;
+  const playlistItem = playback.currentPlaylistItem;
 
-  if (isGenerating && !song) {
+  if (isGenerating && !playlistItem) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-6 bg-tv-surface">
         <div className="size-14 animate-spin rounded-full border-4 border-tv-border border-t-accent" />
@@ -26,7 +26,7 @@ export function TizenProviderSurface({
     );
   }
 
-  if (!song) {
+  if (!playlistItem) {
     return (
       <div className="flex h-full items-center justify-center bg-black text-4xl text-tv-muted">
         No song is playing
@@ -34,25 +34,25 @@ export function TizenProviderSurface({
     );
   }
 
-  if (song.sourceType === 'youtube') {
+  if (playlistItem.sourceType === 'youtube') {
     return (
       <YouTubeIframePlayer
-        key={`${song.sourceId}:${playback.updatedAt}`}
+        key={`${playlistItem.sourceId}:${playback.updatedAt}`}
         positionMs={playback.positionMs}
-        sourceId={song.sourceId}
-        title={song.title}
+        sourceId={playlistItem.sourceId}
+        title={playlistItem.title}
       />
     );
   }
 
-  if (song.sourceType === 'soundcloud' && song.providerUrl) {
-    const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(song.providerUrl)}&auto_play=${String(playback.isPlaying)}&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true`;
+  if (playlistItem.sourceType === 'soundcloud' && playlistItem.providerUrl) {
+    const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(playlistItem.providerUrl)}&auto_play=${String(playback.isPlaying)}&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true`;
     return (
       <iframe
         allow="autoplay"
         className="h-full w-full border-0"
         src={src}
-        title={song.title}
+        title={playlistItem.title}
       />
     );
   }
@@ -62,12 +62,12 @@ export function TizenProviderSurface({
       <img
         alt=""
         className="absolute inset-0 h-full w-full object-cover opacity-40"
-        src={song.thumbnailUrl}
+        src={playlistItem.thumbnailUrl}
       />
       <img
         alt=""
         className="relative size-80 rounded-3xl object-cover"
-        src={song.thumbnailUrl}
+        src={playlistItem.thumbnailUrl}
       />
     </div>
   );

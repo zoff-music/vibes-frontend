@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/** @deprecated V1 admin room summary. Use adminRoomSummaryV2Schema for current clients. */
 export const adminRoomSummarySchema = z.compile(
   z.object({
     id: z.string(),
@@ -15,6 +16,7 @@ export type AdminRoomSummary = z.infer<typeof adminRoomSummarySchema>;
 export const adminRoomsSchema = z.compile(z.array(adminRoomSummarySchema));
 export type AdminRooms = z.infer<typeof adminRoomsSchema>;
 
+/** @deprecated V1 admin room page. Use adminRoomResultV2Schema for current clients. */
 export const adminRoomResultSchema = z.compile(
   z.object({
     rooms: adminRoomsSchema,
@@ -26,6 +28,7 @@ export const adminRoomResultSchema = z.compile(
 );
 export type AdminRoomResult = z.infer<typeof adminRoomResultSchema>;
 
+/** @deprecated V1 sort names. Use adminRoomSearchV2Schema for current clients. */
 export const adminRoomSearchSchema = z.compile(
   z.object({
     q: z.string().optional(),
@@ -33,6 +36,27 @@ export const adminRoomSearchSchema = z.compile(
     order: z.enum(['asc', 'desc']).optional(),
     from: z.int().min(0).optional(),
     to: z.int().min(0).optional(),
+  }),
+);
+
+export const adminRoomSummaryV2Schema = z.compile(
+  adminRoomSummarySchema.omit({ songCount: true }).extend({
+    playlistItemCount: z.number(),
+  }),
+);
+export type AdminRoomSummaryV2 = z.infer<typeof adminRoomSummaryV2Schema>;
+
+export const adminRoomsV2Schema = z.compile(z.array(adminRoomSummaryV2Schema));
+export type AdminRoomsV2 = z.infer<typeof adminRoomsV2Schema>;
+
+export const adminRoomResultV2Schema = z.compile(
+  adminRoomResultSchema.extend({ rooms: adminRoomsV2Schema }),
+);
+export type AdminRoomResultV2 = z.infer<typeof adminRoomResultV2Schema>;
+
+export const adminRoomSearchV2Schema = z.compile(
+  adminRoomSearchSchema.extend({
+    sortBy: z.enum(['listeners', 'playlistItems']).optional(),
   }),
 );
 

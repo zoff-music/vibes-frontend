@@ -1,4 +1,9 @@
-import type { Providers, Room, RoomSettings, RoomUpdate } from '@vibes/models';
+import type {
+  Providers,
+  RoomSettingsV2,
+  RoomUpdateV2,
+  RoomV2,
+} from '@vibes/models';
 import { classNames, useRoomStore } from '@vibes/shared';
 import {
   TerminalButton,
@@ -74,7 +79,7 @@ function DeferredSettingsLoading() {
 
 interface RoomHeaderProps {
   headerRef: RefObject<HTMLDivElement | null>;
-  displayRoom: Room | null;
+  displayRoom: RoomV2 | null;
   roomId: string;
   showShare: boolean;
   onToggleShare: () => void;
@@ -167,7 +172,7 @@ export const RoomHeader = React.memo(
     }, [headerRef]);
 
     const updateRoom = useCallback(
-      (room: RoomUpdate) => {
+      (room: RoomUpdateV2) => {
         settingsFetcher.submit(
           { intent: 'updateRoom', room },
           { encType: 'application/json', method: 'post' },
@@ -177,7 +182,7 @@ export const RoomHeader = React.memo(
     );
 
     const updateRoomSettings = useCallback(
-      (settings: RoomSettings) => {
+      (settings: RoomSettingsV2) => {
         updateRoom({ settings });
       },
       [updateRoom],

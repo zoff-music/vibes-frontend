@@ -1,11 +1,11 @@
-import { useRemoteEvents, useRoomEventsV2 } from '@vibes/api';
+import { useRemoteEvents, useRoomEventsV3 } from '@vibes/api';
 import type {
-  PlaybackState,
-  RemoteEvent,
-  RemoteSession,
-  RemoteStatus,
-  Room,
-  Song,
+  PlaybackStateV2,
+  PlaylistItem,
+  RemoteEventV2,
+  RemoteSessionV2,
+  RemoteStatusV2,
+  RoomV2,
 } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { synchronizeServerClock } from '@vibes/shared';
@@ -14,13 +14,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useControllerCommands } from '@/hooks/use-controller-commands';
 import { useControllerPairing } from '@/hooks/use-controller-pairing';
 import { useLivePosition } from '@/hooks/use-live-position';
-import { createRemoteApi, createRemoteApiV2 } from '@/lib/api';
+import { createRemoteApi, createRemoteApiV3 } from '@/lib/api';
 import {
-  filterMobileSongs,
+  filterMobilePlaylistItems,
   isMobileProvider,
   normalizeMobilePlayback,
   normalizeMobileRoom,
-  positionMobileSong,
+  positionMobilePlaylistItem,
 } from '@/lib/mobile-content';
 import {
   useControllerSessionActions,
@@ -37,14 +37,14 @@ export interface ControllerRemoteActions {
   pair: () => Promise<void>;
   pairWithToken: (remoteId: string, pairingToken: string) => Promise<void>;
   refresh: () => Promise<void>;
-  remove: (song: Song) => Promise<void>;
+  remove: (playlistItem: PlaylistItem) => Promise<void>;
   seek: (positionMs: number) => Promise<void>;
   setNextRoomId: (roomId: string) => void;
   setPairingCode: (code: string) => void;
   setRemoteId: (remoteId: string) => void;
   setScannerVisible: (visible: boolean) => void;
   setSettingsVisible: (visible: boolean) => void;
-  vote: (song: Song) => Promise<void>;
+  vote: (playlistItem: PlaylistItem) => Promise<void>;
 }
 
 export interface ControllerRemoteState {
@@ -53,11 +53,11 @@ export interface ControllerRemoteState {
   livePosition: number;
   nextRoomId: string;
   pairingCode: string;
-  playback: PlaybackState | null;
-  queuedSongs: Song[];
-  remote: RemoteStatus | null;
+  playback: PlaybackStateV2 | null;
+  queuedPlaylistItems: PlaylistItem[];
+  remote: RemoteStatusV2 | null;
   remoteId: string;
-  room: Room | null;
+  room: RoomV2 | null;
   scannerVisible: boolean;
   settingsVisible: boolean;
 }
@@ -69,14 +69,14 @@ export function useControllerRemote(): readonly [
   const { controllerRemote } = useRoomSession();
   const { activateControllerRemote, clearControllerRemote } =
     useControllerSessionActions();
-  const [remote, setRemote] = useState<RemoteStatus | null>(null);
-  const [room, setRoom] = useState<Room | null>(null);
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [playback, setPlayback] = useState<PlaybackState | null>(null);
+  const [remote, setRemote] = useState<RemoteStatusV2 | null>(null);
+  const [room, setRoom] = useState<RoomV2 | null>(null);
+  const [playlistItems, setPlaylistItems] = useState<PlaylistItem[]>([]);
+  const [playback, setPlayback] = useState<PlaybackStateV2 | null>(null);
   const [error, setError] = useState('');
   const [settingsVisible, setSettingsVisible] = useState(false);
   const handlePaired = useCallback(
-    async (remoteId: string, session: RemoteSession) => {
+    async (remoteId: string, session: RemoteSessionV2) => {
       setRemote(session);
       await activateControllerRemote(
         remoteId,
@@ -112,13 +112,13 @@ export function useControllerRemote(): readonly [
     [controllerToken, remoteId],
   );
   const roomEventsClient = useMemo(
-    () => createRemoteApiV2(remoteId, controllerToken),
+    () => createRemoteApiV3(remoteId, controllerToken),
     [controllerToken, remoteId],
   );
   const livePosition = useLivePosition(
     remote?.playbackPositionMs ?? 0,
     remote?.playbackIsPlaying ?? false,
-    playback?.currentSong?.duration ?? 0,
+    playback?.currentPlaylistItem?.duration ?? 0,
   );
   const [
     nextRoomId,
@@ -133,9 +133,11 @@ export function useControllerRemote(): readonly [
     setError,
     setRemote,
   });
-  const queuedSongs = playback?.currentSong
-    ? songs.filter((song) => song.id !== playback.currentSong?.id)
-    : songs;
+  const queuedPlaylistItems = playback?.currentPlaylistItem
+    ? playlistItems.filter(
+        (playlistItem) => playlistItem.id !== playback.currentPlaylistItem?.id,
+      )
+    : playlistItems;
 
   const refresh = useCallback(async () => {
     if (!remoteId || !controllerToken) return;
@@ -145,7 +147,7 @@ export function useControllerRemote(): readonly [
         clearCredentials();
         setRemote(null);
         setRoom(null);
-        setSongs([]);
+        setPlaylistItems([]);
         setPlayback(null);
         await clearControllerRemote();
       }
@@ -167,14 +169,14 @@ export function useControllerRemote(): readonly [
     }
     if (!nextRemote.currentRoomId) {
       setRoom(null);
-      setSongs([]);
+      setPlaylistItems([]);
       setPlayback(null);
       setError('');
       return;
     }
     if (!snapshot) return;
     setRoom(normalizeMobileRoom(snapshot.room));
-    setSongs(filterMobileSongs(snapshot.songs));
+    setPlaylistItems(filterMobilePlaylistItems(snapshot.playlistItems));
     synchronizeServerClock(snapshot.playback.serverTimeMs);
     setPlayback(normalizeMobilePlayback(snapshot.playback));
     setError('');
@@ -193,20 +195,20 @@ export function useControllerRemote(): readonly [
   }, [refresh]);
 
   const handleRemoteRoomUpdate = useCallback(
-    (event: RemoteEvent) => {
+    (event: RemoteEventV2) => {
       if (!event.roomId || event.roomId === remote?.currentRoomId) return;
       void refresh();
     },
     [refresh, remote?.currentRoomId],
   );
 
-  const handleRemoteStateUpdate = useCallback((event: RemoteEvent) => {
+  const handleRemoteStateUpdate = useCallback((event: RemoteEventV2) => {
     setRemote((current) => {
       if (!current) return current;
       return {
         ...current,
         currentRoomId: event.roomId,
-        currentSongId: event.currentSongId,
+        currentPlaylistItemId: event.currentPlaylistItemId,
         online: event.online,
         paired: event.paired,
         playbackIsPlaying: event.playbackIsPlaying,
@@ -227,27 +229,39 @@ export function useControllerRemote(): readonly [
   const roomEventCallbacks = useMemo(
     () => ({
       onConnected: synchronizeServerClock,
-      onPlaybackUpdate: (nextPlayback: PlaybackState) => {
+      onPlaybackUpdate: (nextPlayback: PlaybackStateV2) => {
         synchronizeServerClock(nextPlayback.serverTimeMs);
         setPlayback(normalizeMobilePlayback(nextPlayback));
       },
       onReconnect: () => void refresh(),
-      onRoomUpdate: (nextRoom: Room) => setRoom(normalizeMobileRoom(nextRoom)),
-      onSongAdded: (song: Song) => {
-        if (!isMobileProvider(song.sourceType)) return;
-        setSongs((current) => {
-          if (current.some((item) => item.id === song.id)) return current;
-          return [...current, song];
+      onRoomUpdate: (nextRoom: RoomV2) =>
+        setRoom(normalizeMobileRoom(nextRoom)),
+      onPlaylistItemAdded: (playlistItem: PlaylistItem) => {
+        if (!isMobileProvider(playlistItem.sourceType)) return;
+        setPlaylistItems((current) => {
+          if (current.some((item) => item.id === playlistItem.id))
+            return current;
+          return [...current, playlistItem];
         });
       },
-      onSongRemoved: ({ id }: { id: string }) => {
-        setSongs((current) => current.filter((song) => song.id !== id));
+      onPlaylistItemRemoved: ({ id }: { id: string }) => {
+        setPlaylistItems((current) =>
+          current.filter((playlistItem) => playlistItem.id !== id),
+        );
       },
-      onSongUpdated: ({ song, position }: { song: Song; position: number }) => {
-        setSongs((current) => positionMobileSong(current, song, position));
+      onPlaylistItemUpdated: ({
+        playlistItem,
+        position,
+      }: {
+        playlistItem: PlaylistItem;
+        position: number;
+      }) => {
+        setPlaylistItems((current) =>
+          positionMobilePlaylistItem(current, playlistItem, position),
+        );
       },
-      onSongsUpdate: (nextSongs: Song[]) =>
-        setSongs(filterMobileSongs(nextSongs)),
+      onPlaylistItemsUpdate: (nextPlaylistItems: PlaylistItem[]) =>
+        setPlaylistItems(filterMobilePlaylistItems(nextPlaylistItems)),
       onUsersUpdate: (count: number) => {
         setRoom((current) => {
           if (!current) return current;
@@ -257,7 +271,7 @@ export function useControllerRemote(): readonly [
     }),
     [refresh],
   );
-  useRoomEventsV2(
+  useRoomEventsV3(
     remote?.currentRoomId || undefined,
     roomEventCallbacks,
     roomEventsClient,
@@ -267,7 +281,7 @@ export function useControllerRemote(): readonly [
     setRemote(null);
     clearCredentials();
     setRoom(null);
-    setSongs([]);
+    setPlaylistItems([]);
     setPlayback(null);
     await clearControllerRemote();
   };
@@ -280,7 +294,7 @@ export function useControllerRemote(): readonly [
       nextRoomId,
       pairingCode,
       playback,
-      queuedSongs,
+      queuedPlaylistItems,
       remote,
       remoteId,
       room,

@@ -1,10 +1,10 @@
 import { getRequestErrorMessage } from '@vibes/api';
-import type { PublicRoomResult } from '@vibes/models';
+import type { PublicRoomResultV3 } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
-import { tizenApiV2 } from '@/tizen/api';
+import { tizenApiV3 } from '@/tizen/api';
 
 export interface PublicRoomsData {
-  result: PublicRoomResult | null;
+  result: PublicRoomResultV3 | null;
   error: string;
 }
 
@@ -14,7 +14,7 @@ export async function loader({
   const params = new URL(request.url).searchParams;
   const offset = Number(params.get('from') ?? 0);
   const from = Number.isSafeInteger(offset) && offset >= 0 ? offset : 0;
-  const [error, result] = await tizenApiV2.get(
+  const [error, result] = await tizenApiV3.get(
     '/rooms/public',
     {
       $search: {

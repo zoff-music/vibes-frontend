@@ -1,9 +1,9 @@
 import type {
-  PlaybackState,
+  PlaybackStateV2,
+  PlaylistItem,
   Providers,
-  PublicRoom,
-  Room,
-  Song,
+  PublicRoomV3,
+  RoomV2,
 } from '@vibes/models';
 import { useFetcher, useLoaderData } from '@vibes/native-router';
 import { usePlaybackStore, useQueueStore, useRoomStore } from '@vibes/shared';
@@ -29,12 +29,12 @@ export interface TvSessionState {
   hydrating: boolean;
   listenerCount: number;
   loading: boolean;
-  playback: PlaybackState;
+  playback: PlaybackStateV2;
   providers: Providers;
-  publicRooms: PublicRoom[];
-  room: Room | null;
+  publicRooms: PublicRoomV3[];
+  room: RoomV2 | null;
   roomId: string;
-  songs: Song[];
+  playlistItems: PlaylistItem[];
 }
 
 export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
@@ -46,15 +46,23 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
   const submitCreate = createFetcher.submit;
   const room = useRoomStore((state) => state.room);
   const listenerCount = useRoomStore((state) => state.usersCount);
-  const songs = useQueueStore((state) => state.songs);
-  const currentSong = usePlaybackStore((state) => state.currentSong);
+  const playlistItems = useQueueStore((state) => state.playlistItems);
+  const currentPlaylistItem = usePlaybackStore(
+    (state) => state.currentPlaylistItem,
+  );
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
   const positionMs = usePlaybackStore((state) => state.positionMs);
   const serverTimeMs = usePlaybackStore((state) => state.serverTimeMs);
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
-  const playback = useMemo<PlaybackState>(
-    () => ({ currentSong, isPlaying, positionMs, serverTimeMs, updatedAt }),
-    [currentSong, isPlaying, positionMs, serverTimeMs, updatedAt],
+  const playback = useMemo<PlaybackStateV2>(
+    () => ({
+      currentPlaylistItem,
+      isPlaying,
+      positionMs,
+      serverTimeMs,
+      updatedAt,
+    }),
+    [currentPlaylistItem, isPlaying, positionMs, serverTimeMs, updatedAt],
   );
   const [roomId, setRoomId] = useState('');
   const [requestError, setRequestError] = useState('');
@@ -141,7 +149,7 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
     setRoomId('');
     setRequestError('');
     useRoomStore.getState().reset();
-    useQueueStore.getState().setSongs([]);
+    useQueueStore.getState().setPlaylistItems([]);
     usePlaybackStore.getState().resetPlaybackState(emptyPlaybackState);
   }, []);
 
@@ -156,15 +164,15 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
       publicRooms,
       room,
       roomId,
-      songs,
+      playlistItems,
     },
     { createRoom, generateRoom, leaveRoom, loadRoom },
   ];
 }
 
 const roomNotFoundError = 'ROOM_NOT_FOUND';
-const emptyPlaybackState: PlaybackState = {
-  currentSong: null,
+const emptyPlaybackState: PlaybackStateV2 = {
+  currentPlaylistItem: null,
   isPlaying: false,
   positionMs: 0,
   serverTimeMs: 0,

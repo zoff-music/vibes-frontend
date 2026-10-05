@@ -46,7 +46,7 @@ export function PersistentRoomPlayer() {
   const livePositionMs = useLivePosition(
     playback?.positionMs ?? 0,
     playback?.isPlaying ?? false,
-    playback?.currentSong?.duration ?? 0,
+    playback?.currentPlaylistItem?.duration ?? 0,
     playback?.serverTimeMs,
   );
 
@@ -76,7 +76,7 @@ export function PersistentRoomPlayer() {
         onLocalPositionObserved={observeLocalPlaybackPosition}
         onLocalSeek={(positionMs) => {
           if (
-            playback?.currentSong?.sourceType !== 'soundcloud' ||
+            playback?.currentPlaylistItem?.sourceType !== 'soundcloud' ||
             room.mode === 'server'
           ) {
             setLocalPlaybackPosition(positionMs);
@@ -99,7 +99,7 @@ export function PersistentRoomPlayer() {
         playback={playback}
         positionMs={livePositionMs}
         resetVersion={playbackResetVersion}
-        song={playback?.currentSong ?? null}
+        playlistItem={playback?.currentPlaylistItem ?? null}
         suppressPlayback={isCasting}
         synchronizePosition={room.mode === 'host'}
         onLocalPlayingChange={(isPlaying) => {

@@ -20,7 +20,7 @@ export function ReturnToRoomPreview({
         id: 'electro',
         name: 'electro',
         listenerCount,
-        song: { title: 'Midnight City', artist: 'M83' },
+        playlistItem: { title: 'Midnight City', publisher: 'M83' },
         isPlaying: true,
       }}
       onJoinRoom={onJoinRoom}

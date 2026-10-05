@@ -1,4 +1,4 @@
-import type { PublicRoom } from '@vibes/models';
+import type { PublicRoomV3 } from '@vibes/models';
 import {
   generatedPlaylistPromptMaxLength,
   roomNameMaxLength,
@@ -17,7 +17,7 @@ interface TizenLandingProps {
   onGenerateRoom: (value: string) => void;
   onJoinOrCreateRoom: (value: string) => void;
   onToggleAIMode: () => void;
-  publicRooms: PublicRoom[];
+  publicRooms: PublicRoomV3[];
 }
 
 export function TizenLanding({
@@ -205,7 +205,8 @@ export function TizenLanding({
                         {room.name}
                       </strong>
                       <span className="mt-1 block truncate text-base text-tv-muted">
-                        {room.listenerCount} listening · {room.songCount} songs
+                        {room.listenerCount} listening ·{' '}
+                        {room.playlistItemCount} songs
                       </span>
                     </span>
                     <span className="shrink-0 text-accent text-lg">Join →</span>

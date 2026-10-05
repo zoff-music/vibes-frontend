@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import { ChatMessageLine, QueueItem, SegmentedToggle } from '@vibes/ui/web';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
-import { queueDemoSongs } from '../../../components/seo/previewSongs';
+import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 import { useChatPreview } from '../hooks/useChatPreview';
 
 export function ChatPreview() {
@@ -98,15 +98,17 @@ export function ChatPreview() {
                     transition={{ duration: state.reducedMotion ? 0 : 0.3 }}
                     className="min-h-0 flex-1 space-y-3 p-3 sm:p-5"
                   >
-                    {queueDemoSongs.slice(0, 3).map((song, index) => (
-                      <QueueItem
-                        key={song.id}
-                        song={song}
-                        position={index + 1}
-                        providerLink={false}
-                        density="compact"
-                      />
-                    ))}
+                    {queueDemoPlaylistItems
+                      .slice(0, 3)
+                      .map((playlistItem, index) => (
+                        <QueueItem
+                          key={playlistItem.id}
+                          playlistItem={playlistItem}
+                          position={index + 1}
+                          providerLink={false}
+                          density="compact"
+                        />
+                      ))}
                     <p className="px-2 pt-4 text-sm text-theme-muted">
                       Chat off. Music on.
                     </p>

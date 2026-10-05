@@ -1,4 +1,4 @@
-import type { RemoteStatus, SessionProfile } from '@vibes/models';
+import type { RemoteStatusV2, SessionProfile } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../http.server';
 import { getKonamiModeFromCookies } from '../ssr/konamiMode.server';
@@ -21,12 +21,12 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   // Optional session UI must not hold every document through retry backoff.
   const options = { headers, retry: 0, signal: request.signal };
   const [remoteResult, profileResult] = await Promise.all([
-    serverApi.get('/remotes', null, options),
+    serverApi.v2.get('/remotes', null, options),
     serverApi.get('/sessions', null, options),
   ]);
   const [remoteError, remote] = remoteResult;
   const [profileError, profile] = profileResult;
-  const remoteStatus: RemoteStatus =
+  const remoteStatus: RemoteStatusV2 =
     remoteError || !remote ? createEmptyRemoteStatus() : remote;
   const sessionProfile: SessionProfile | null =
     profileError || !profile ? null : profile;

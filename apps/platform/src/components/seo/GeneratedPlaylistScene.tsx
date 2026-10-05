@@ -5,7 +5,7 @@ import {
   SparklesIcon,
 } from '@vibes/ui/web';
 import { MotionConfig, motion } from 'framer-motion';
-import { queueDemoSongs } from './previewSongs';
+import { queueDemoPlaylistItems } from './preview';
 import { useGeneratedPlaylistPreview } from './useGeneratedPlaylistPreview';
 
 interface GeneratedPlaylistSceneProps {
@@ -89,23 +89,25 @@ export function GeneratedPlaylistScene({
                 aria-label="AI-generated playlist preview"
                 className="space-y-2"
               >
-                {queueDemoSongs.slice(0, state.count).map((song, index) => (
-                  <motion.li
-                    key={song.id}
-                    initial={{
-                      opacity: state.reducedMotion ? 1 : 0,
-                      y: state.reducedMotion ? 0 : 12,
-                    }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: state.reducedMotion ? 0 : 0.25 }}
-                  >
-                    <QueueItem
-                      song={song}
-                      position={index + 1}
-                      providerLink={false}
-                    />
-                  </motion.li>
-                ))}
+                {queueDemoPlaylistItems
+                  .slice(0, state.count)
+                  .map((playlistItem, index) => (
+                    <motion.li
+                      key={playlistItem.id}
+                      initial={{
+                        opacity: state.reducedMotion ? 1 : 0,
+                        y: state.reducedMotion ? 0 : 12,
+                      }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: state.reducedMotion ? 0 : 0.25 }}
+                    >
+                      <QueueItem
+                        playlistItem={playlistItem}
+                        position={index + 1}
+                        providerLink={false}
+                      />
+                    </motion.li>
+                  ))}
               </ol>
             </div>
           )}

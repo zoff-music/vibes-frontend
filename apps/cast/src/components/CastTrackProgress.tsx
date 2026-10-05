@@ -1,4 +1,4 @@
-import type { Song } from '@vibes/shared';
+import type { PlaylistItem } from '@vibes/shared';
 import { usePlaybackStore } from '@vibes/shared';
 import {
   formatPlaybackMilliseconds,
@@ -7,10 +7,10 @@ import {
 import { useEffect, useState } from 'react';
 
 interface Props {
-  song: Song;
+  playlistItem: PlaylistItem;
 }
 
-export function CastTrackProgress({ song }: Props) {
+export function CastTrackProgress({ playlistItem }: Props) {
   const authoritativePlayback = usePlaybackStore(
     (state) => state.authoritativePlayback,
   );
@@ -20,7 +20,7 @@ export function CastTrackProgress({ song }: Props) {
   const [authoritativePositionMs, setAuthoritativePositionMs] = useState(
     authoritativePlayback.positionMs,
   );
-  const durationMs = (song.duration || 0) * millisecondsPerSecond;
+  const durationMs = (playlistItem.duration || 0) * millisecondsPerSecond;
   const { boundedPositionMs } = getPlaybackPresentation(
     authoritativePositionMs,
     durationMs,

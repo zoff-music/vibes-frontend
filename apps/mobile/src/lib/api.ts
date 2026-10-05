@@ -1,6 +1,6 @@
 import {
   createApiClientWithBaseUrl,
-  createApiV2ClientWithBaseUrl,
+  createApiV3ClientWithBaseUrl,
   getRequestErrorMessage as getApiRequestErrorMessage,
   getHttpError,
 } from '@vibes/api';
@@ -14,7 +14,7 @@ export const mobileApi = createApiClientWithBaseUrl(apiUrl, {
   fetcher: nativeFetch,
 });
 
-export const mobileApiV2 = createApiV2ClientWithBaseUrl(apiUrl, {
+export const mobileApiV3 = createApiV3ClientWithBaseUrl(apiUrl, {
   fetcher: nativeFetch,
 });
 
@@ -28,8 +28,8 @@ export function createRemoteApi(remoteId: string, controllerToken: string) {
   });
 }
 
-export function createRemoteApiV2(remoteId: string, controllerToken: string) {
-  return createApiV2ClientWithBaseUrl(apiUrl, {
+export function createRemoteApiV3(remoteId: string, controllerToken: string) {
+  return createApiV3ClientWithBaseUrl(apiUrl, {
     customHeaders: {
       'X-Zoff-Remote-ID': remoteId,
       'X-Zoff-Remote-Token': controllerToken,

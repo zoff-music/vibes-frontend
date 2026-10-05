@@ -1,8 +1,8 @@
 import type {
-  PlaybackState,
+  PlaybackStateV2,
+  PlaylistItem,
   Providers,
-  Room,
-  Song,
+  RoomV2,
   SourceType,
 } from '@vibes/models';
 import type { RoomSnapshot } from '@/data-router/room-snapshot';
@@ -17,37 +17,49 @@ export function filterMobileProviders(providers: Providers): Providers {
   return providers.filter(isMobileProvider);
 }
 
-export function filterMobileSongs(songs: Song[]) {
-  return songs.filter((song) => isMobileProvider(song.sourceType));
+export function filterMobilePlaylistItems(playlistItems: PlaylistItem[]) {
+  return playlistItems.filter((playlistItem) =>
+    isMobileProvider(playlistItem.sourceType),
+  );
 }
 
-export function positionMobileSong(
-  songs: Song[],
-  song: Song,
+export function positionMobilePlaylistItem(
+  playlistItems: PlaylistItem[],
+  playlistItem: PlaylistItem,
   position: number,
-): Song[] {
-  const nextSongs = songs.filter((item) => item.id !== song.id);
-  if (!isMobileProvider(song.sourceType)) return nextSongs;
+): PlaylistItem[] {
+  const nextPlaylistItems = playlistItems.filter(
+    (item) => item.id !== playlistItem.id,
+  );
+  if (!isMobileProvider(playlistItem.sourceType)) return nextPlaylistItems;
 
-  const boundedPosition = Math.min(Math.max(position, 0), nextSongs.length);
-  nextSongs.splice(boundedPosition, 0, song);
+  const boundedPosition = Math.min(
+    Math.max(position, 0),
+    nextPlaylistItems.length,
+  );
+  nextPlaylistItems.splice(boundedPosition, 0, playlistItem);
 
-  return nextSongs;
+  return nextPlaylistItems;
 }
 
 export function normalizeMobilePlayback(
-  playback: PlaybackState,
-): PlaybackState {
+  playback: PlaybackStateV2,
+): PlaybackStateV2 {
   if (
-    !playback.currentSong ||
-    isMobileProvider(playback.currentSong.sourceType)
+    !playback.currentPlaylistItem ||
+    isMobileProvider(playback.currentPlaylistItem.sourceType)
   ) {
     return playback;
   }
-  return { ...playback, currentSong: null, isPlaying: false, positionMs: 0 };
+  return {
+    ...playback,
+    currentPlaylistItem: null,
+    isPlaying: false,
+    positionMs: 0,
+  };
 }
 
-export function normalizeMobileRoom(room: Room): Room {
+export function normalizeMobileRoom(room: RoomV2): RoomV2 {
   return {
     ...room,
     settings: {
@@ -61,6 +73,6 @@ export function normalizeMobileSnapshot(snapshot: RoomSnapshot): RoomSnapshot {
   return {
     playback: normalizeMobilePlayback(snapshot.playback),
     room: normalizeMobileRoom(snapshot.room),
-    songs: filterMobileSongs(snapshot.songs),
+    playlistItems: filterMobilePlaylistItems(snapshot.playlistItems),
   };
 }

@@ -1,4 +1,4 @@
-import type { RemoteSession } from '@vibes/models';
+import type { RemoteSessionV2 } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { safeWrap } from '@vibes/shared';
 import type { BarcodeScanningResult } from 'expo-camera';
@@ -8,7 +8,7 @@ import type { ControllerRemoteSession } from '@/providers/app-provider';
 import type { ControllerRemoteActionData } from '@/routes/remotes.controller.$id/action';
 
 interface ControllerPairingOptions {
-  onPaired: (remoteId: string, session: RemoteSession) => Promise<void>;
+  onPaired: (remoteId: string, session: RemoteSessionV2) => Promise<void>;
   session: ControllerRemoteSession | null;
   setError: (message: string) => void;
 }

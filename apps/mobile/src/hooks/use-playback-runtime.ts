@@ -1,4 +1,4 @@
-import type { PlaybackState, Room } from '@vibes/models';
+import type { PlaybackStateV2, RoomV2 } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import {
   getEstimatedServerTimeMs,
@@ -10,21 +10,21 @@ import { getObservedPosition } from '@/hooks/use-machine-remote';
 
 interface PlaybackRuntimeOptions {
   roomId: string;
-  roomModeRef: MutableRefObject<Room['mode'] | null>;
+  roomModeRef: MutableRefObject<RoomV2['mode'] | null>;
   setError: (message: string) => void;
 }
 
 export interface PlaybackRuntimeState {
-  authoritativePlayback: PlaybackState | null;
+  authoritativePlayback: PlaybackStateV2 | null;
   hasLocalPlaybackChanges: boolean;
   hasLocalPlaybackPositionDrift: boolean;
-  playback: PlaybackState | null;
-  playbackRef: MutableRefObject<PlaybackState | null>;
+  playback: PlaybackStateV2 | null;
+  playbackRef: MutableRefObject<PlaybackStateV2 | null>;
   playbackResetVersion: number;
 }
 
 export interface PlaybackRuntimeActions {
-  applyPlaybackUpdate: (playback: PlaybackState) => void;
+  applyPlaybackUpdate: (playback: PlaybackStateV2) => void;
   clearLocalOverrides: () => void;
   clearPlayback: () => void;
   observeLocalPlaybackPosition: (positionMs: number) => void;
@@ -42,18 +42,18 @@ export function usePlaybackRuntime({
   PlaybackRuntimeState,
   PlaybackRuntimeActions,
 ] {
-  const [, playbackLoader] = useFetcher<PlaybackState>({
+  const [, playbackLoader] = useFetcher<PlaybackStateV2>({
     routeId: 'rooms.$id.playback',
   });
-  const [playback, setPlayback] = useState<PlaybackState | null>(null);
+  const [playback, setPlayback] = useState<PlaybackStateV2 | null>(null);
   const [authoritativePlayback, setAuthoritativePlayback] =
-    useState<PlaybackState | null>(null);
+    useState<PlaybackStateV2 | null>(null);
   const [hasLocalPlaybackChanges, setHasLocalPlaybackChanges] = useState(false);
   const [hasLocalPlaybackPositionDrift, setHasLocalPlaybackPositionDrift] =
     useState(false);
   const [playbackResetVersion, setPlaybackResetVersion] = useState(0);
-  const playbackRef = useRef<PlaybackState | null>(null);
-  const authoritativePlaybackRef = useRef<PlaybackState | null>(null);
+  const playbackRef = useRef<PlaybackStateV2 | null>(null);
+  const authoritativePlaybackRef = useRef<PlaybackStateV2 | null>(null);
   const localPlayingRef = useRef<boolean | null>(null);
 
   const setLocalPlaying = useCallback(
@@ -119,10 +119,11 @@ export function usePlaybackRuntime({
   }, []);
 
   const applyPlaybackUpdate = useCallback(
-    (incomingPlayback: PlaybackState) => {
+    (incomingPlayback: PlaybackStateV2) => {
       const previousPlayback = playbackRef.current;
-      const isSameSong =
-        previousPlayback?.currentSong?.id === incomingPlayback.currentSong?.id;
+      const isSamePlaylistItem =
+        previousPlayback?.currentPlaylistItem?.id ===
+        incomingPlayback.currentPlaylistItem?.id;
       let nextPlayback = incomingPlayback;
       authoritativePlaybackRef.current = incomingPlayback;
       setAuthoritativePlayback(incomingPlayback);
@@ -136,7 +137,7 @@ export function usePlaybackRuntime({
         };
         if (
           localPlayingRef.current === false &&
-          isSameSong &&
+          isSamePlaylistItem &&
           previousPlayback
         ) {
           nextPlayback.positionMs = previousPlayback.positionMs;
@@ -147,7 +148,7 @@ export function usePlaybackRuntime({
         setHasLocalPlaybackChanges(false);
         setHasLocalPlaybackPositionDrift(false);
       }
-      if (!isSameSong) setHasLocalPlaybackPositionDrift(false);
+      if (!isSamePlaylistItem) setHasLocalPlaybackPositionDrift(false);
       playbackRef.current = nextPlayback;
       setPlayback(nextPlayback);
     },

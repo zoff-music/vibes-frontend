@@ -1,22 +1,22 @@
 import {
-  AddSongOutcome,
-  AddSongResponse,
-  PlaybackState,
-  Room,
-  RoomSettings,
-  RoomUpdate,
-  Song,
+  AddPlaylistItemOutcome,
+  AddPlaylistItemResponse,
+  PlaybackStateV2,
+  PlaylistItem,
+  RoomSettingsV2,
+  RoomUpdateV2,
+  RoomV2,
   SourceType,
 } from '@vibes/models';
 
 export type {
-  AddSongOutcome,
-  AddSongResponse,
-  PlaybackState,
-  Room,
-  RoomSettings,
-  RoomUpdate,
-  Song,
+  AddPlaylistItemOutcome,
+  AddPlaylistItemResponse,
+  PlaybackStateV2,
+  PlaylistItem,
+  RoomSettingsV2,
+  RoomUpdateV2,
+  RoomV2,
   SourceType,
 };
 
@@ -24,8 +24,8 @@ export type ColorScheme = 'auto' | 'light' | 'dark';
 
 export type ResolvedColorScheme = Exclude<ColorScheme, 'auto'>;
 
-type DefaultRoomSettings = Omit<RoomSettings, 'onlyAdminAddSongs'> & {
-  onlyAdminAddSongs: boolean;
+type DefaultRoomSettings = Omit<RoomSettingsV2, 'onlyAdminAddPlaylistItems'> & {
+  onlyAdminAddPlaylistItems: boolean;
 };
 
 export const DEFAULT_ROOM_SETTINGS: DefaultRoomSettings = {
@@ -36,7 +36,7 @@ export const DEFAULT_ROOM_SETTINGS: DefaultRoomSettings = {
   removeOnPlay: false,
   allowDuplicates: false,
   enabledSources: ['youtube', 'soundcloud'],
-  onlyAdminAddSongs: false,
+  onlyAdminAddPlaylistItems: false,
   public: false,
   playlistImport: true,
 };

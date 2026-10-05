@@ -1,15 +1,15 @@
 import { createRemoteRequests } from '@vibes/api';
-import type { RemotePairing, RemoteUpdateRequest } from '@vibes/models';
+import type { RemotePairingV2, RemoteUpdateRequestV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 type MachineRemoteActionInput =
   | { intent: 'disable'; remoteId: string }
-  | { intent: 'enable'; request: RemoteUpdateRequest };
+  | { intent: 'enable'; request: RemoteUpdateRequestV2 };
 
 export type MachineRemoteActionData =
   | { intent: 'disabled' }
-  | { intent: 'enabled'; pairing: RemotePairing };
+  | { intent: 'enabled'; pairing: RemotePairingV2 };
 
 const requests = createRemoteRequests(mobileApi);
 

@@ -1,15 +1,15 @@
 import { createRoomLifecycleRequests } from '@vibes/api';
-import type { Room, RoomUpdate } from '@vibes/models';
+import type { RoomUpdateV2, RoomV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
 import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
 
 type ControllerRoomActionInput =
   | { intent: 'authenticate'; password: string; roomId: string }
   | { intent: 'logout'; roomId: string }
-  | { intent: 'settings'; roomId: string; update: RoomUpdate };
+  | { intent: 'settings'; roomId: string; update: RoomUpdateV2 };
 
 export type ControllerRoomActionData =
-  | { intent: 'roomUpdated'; room: Room }
+  | { intent: 'roomUpdated'; room: RoomV2 }
   | { intent: 'success' };
 
 export async function action({

@@ -1,7 +1,7 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { queueDemoSongs } from '../../../components/seo/previewSongs';
+import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 import { previewPairingCode } from './remotePreviewData';
 
 type PairingPhase = 'entering' | 'connecting' | 'paired';
@@ -19,8 +19,9 @@ export function useRemotePreview() {
   const pairedElapsed = useRef(0);
   const [playing, setPlaying] = useState(true);
   const [playback, setPlayback] = useState({ track: 0, position: 45000 });
-  const song = queueDemoSongs[playback.track % queueDemoSongs.length];
-  const durationMs = song.duration * 1000;
+  const playlistItem =
+    queueDemoPlaylistItems[playback.track % queueDemoPlaylistItems.length];
+  const durationMs = playlistItem.duration * 1000;
   const animate = inView && visible && !reducedMotion;
 
   useEffect(() => {
@@ -144,7 +145,7 @@ export function useRemotePreview() {
         ? previewPairingCode
         : previewPairingCode.slice(0, entered),
       playing,
-      song,
+      playlistItem,
       durationMs,
       position: playback.position,
     },

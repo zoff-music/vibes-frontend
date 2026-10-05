@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { AddSongSheet } from '@/components/add-song-sheet';
+import { AddPlaylistItemSheet } from '@/components/add-sheet';
 import { IconButton } from '@/components/native';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
 import { useKonamiMode } from '@/providers/konami-mode-provider';
 
-export function TabletAddSongButton() {
+export function TabletAddPlaylistItemButton() {
   const tabletLayout = useTabletLandscapeLayout();
   const keyboardVisible = useKeyboardVisible();
-  const { canAddSongs } = useRoomNavigation();
+  const { canAddPlaylistItems } = useRoomNavigation();
   const { enabled: konamiEnabled } = useKonamiMode();
-  const [addSongVisible, setAddSongVisible] = useState(false);
+  const [addPlaylistItemVisible, setAddPlaylistItemVisible] = useState(false);
   if (
     !tabletLayout.isTablet ||
-    !canAddSongs ||
+    !canAddPlaylistItems ||
     konamiEnabled ||
     keyboardVisible
   )
@@ -28,12 +28,12 @@ export function TabletAddSongButton() {
         <IconButton
           accessibilityLabel="Add song"
           icon="add"
-          onPress={() => setAddSongVisible(true)}
+          onPress={() => setAddPlaylistItemVisible(true)}
         />
       </View>
-      <AddSongSheet
-        visible={addSongVisible}
-        onClose={() => setAddSongVisible(false)}
+      <AddPlaylistItemSheet
+        visible={addPlaylistItemVisible}
+        onClose={() => setAddPlaylistItemVisible(false)}
       />
     </>
   );

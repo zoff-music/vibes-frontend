@@ -1,8 +1,8 @@
 import type { RoomSetupId, RoomSetupSettings } from '../hooks/roomSetups';
 import { useRoomSetupScene } from '../hooks/useRoomSetupScene';
-import { AddSongSetupScene } from './AddSongSetupScene';
-import { RepeatSongSetupScene } from './RepeatSongSetupScene';
-import { SkipSongSetupScene } from './SkipSongSetupScene';
+import { AddPlaylistItemSetupScene } from './AddScene';
+import { RepeatPlaylistItemSetupScene } from './RepeatScene';
+import { SkipPlaylistItemSetupScene } from './SkipScene';
 
 interface RoomSetupSceneProps {
   setupId: RoomSetupId;
@@ -35,7 +35,7 @@ export function RoomSetupScene({
     <div>
       <div className="min-h-60">
         {setupId === 'adding' && (
-          <AddSongSetupScene
+          <AddPlaylistItemSetupScene
             complete={state.complete}
             blocked={state.blocked}
             reducedMotion={reducedMotion}
@@ -43,11 +43,11 @@ export function RoomSetupScene({
           />
         )}
         {setupId === 'skipping' && (
-          <SkipSongSetupScene
-            song={state.currentSong}
+          <SkipPlaylistItemSetupScene
+            playlistItem={state.currentPlaylistItem}
             positionMs={state.positionMs}
-            canSkip={settings.skipAllowed && !state.changedSong}
-            changedSong={state.changedSong}
+            canSkip={settings.skipAllowed && !state.changedPlaylistItem}
+            changedPlaylistItem={state.changedPlaylistItem}
             isSkipping={
               state.complete && !state.advanced && settings.skipAllowed
             }
@@ -55,8 +55,8 @@ export function RoomSetupScene({
           />
         )}
         {setupId === 'repeating' && (
-          <RepeatSongSetupScene
-            song={state.currentSong}
+          <RepeatPlaylistItemSetupScene
+            playlistItem={state.currentPlaylistItem}
             positionMs={state.positionMs}
             advanced={state.advanced}
             removePlayed={settings.removeOnPlay}

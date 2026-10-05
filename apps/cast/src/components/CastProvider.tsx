@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '@vibes/api';
-import type { ResolvedColorScheme, Song } from '@vibes/shared';
+import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
 import {
   isBrowserDebugEnabled,
   safeWrap,
@@ -28,7 +28,7 @@ interface CastContextType {
   queue: QueueItem[];
   statusText: string;
   roomMode: string | null;
-  currentSong: Song | null;
+  currentPlaylistItem: PlaylistItem | null;
   debugMode: boolean;
   roomId: string | null;
   casterId: string | null;
@@ -36,7 +36,7 @@ interface CastContextType {
   error: string | null;
   apiUrl: string;
   enabledProviders: string[];
-  reportPlaybackFailure: (songId: string) => void;
+  reportPlaybackFailure: (playlistItemId: string) => void;
 }
 
 const CastContext = createContext<CastContextType | undefined>(undefined);
@@ -75,7 +75,9 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
   }, []);
 
   // --- Store ---
-  const currentSong = usePlaybackStore((state) => state.currentSong);
+  const currentPlaylistItem = usePlaybackStore(
+    (state) => state.currentPlaylistItem,
+  );
 
   // --- Hooks ---
   const updateMediaMetadata = useMediaMetadata();
@@ -132,10 +134,10 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
     updateMediaMetadata,
   });
   const reportPlaybackFailure = useCallback(
-    (songId: string) => {
+    (playlistItemId: string) => {
       if (!castToken || !roomId) return;
       failureFetcher.submit(
-        { castToken, intent: 'reportPlaybackFailure', roomId, songId },
+        { castToken, intent: 'reportPlaybackFailure', roomId, playlistItemId },
         { method: 'post' },
       );
     },
@@ -203,7 +205,7 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
         queue,
         statusText,
         roomMode,
-        currentSong,
+        currentPlaylistItem,
         debugMode,
         roomId: roomId || null,
         casterId: casterId || null,

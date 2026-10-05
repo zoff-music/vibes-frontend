@@ -20,34 +20,36 @@ export function EmbedRoomView({ loaderData }: Props) {
   const actions = useEmbedRoomActions({ roomMode: roomState.room.mode });
   const capabilities = getEmbedPlaybackCapabilities(
     options,
-    roomState.currentSong,
+    roomState.currentPlaylistItem,
   );
   const localPlayback = useEmbedLocalPlayback({
     ...capabilities,
     autoplay: options.player && options.autoplay,
-    currentSong: roomState.currentSong,
+    currentPlaylistItem: roomState.currentPlaylistItem,
     isPlaying: roomState.isPlaying,
     onSkip: actions.handleSkip,
     roomId,
     roomMode: roomState.room.mode,
   });
   const {
-    currentSong,
+    currentPlaylistItem,
     hasLocalPlaybackChanges,
     isPlaying,
     positionMs,
     room,
-    songs,
+    playlistItems,
   } = roomState;
-  const durationMs = (currentSong?.duration ?? 0) * 1000;
-  const queuedSongs = songs.filter((song) => song.id !== currentSong?.id);
+  const durationMs = (currentPlaylistItem?.duration ?? 0) * 1000;
+  const queuedPlaylistItems = playlistItems.filter(
+    (playlistItem) => playlistItem.id !== currentPlaylistItem?.id,
+  );
   const enabledProviders = loaderData.providers.filter((provider) =>
     room.settings.enabledSources.includes(provider),
   );
   const player = options.player && (
     <EmbedPlayerCard
       autoplay={options.autoplay}
-      currentSong={currentSong}
+      currentPlaylistItem={currentPlaylistItem}
       durationMs={durationMs}
       enabledProviders={enabledProviders}
       onLocalAlignmentChange={localPlayback.handleLocalAlignmentChange}
@@ -55,7 +57,7 @@ export function EmbedRoomView({ loaderData }: Props) {
       onNeedsUserGestureChange={localPlayback.handleNeedsUserGestureChange}
       onStartPlayback={localPlayback.handleLocalPlay}
       positionMs={positionMs}
-      songs={songs}
+      playlistItems={playlistItems}
     />
   );
   const showPlayerAndPlaylist = options.player && options.playlist;
@@ -63,13 +65,15 @@ export function EmbedRoomView({ loaderData }: Props) {
   const showPlaylistOnly = !options.player && options.playlist;
   const showEmptyState = !options.player && !options.playlist;
   const canSkip =
-    Boolean(currentSong) && room.mode !== 'host' && room.settings.skipAllowed;
+    Boolean(currentPlaylistItem) &&
+    room.mode !== 'host' &&
+    room.settings.skipAllowed;
 
   return (
     <main className="h-full min-h-0 overflow-hidden bg-theme text-theme">
       <section className="flex h-full w-full flex-col overflow-hidden border border-theme bg-theme">
         <EmbedRoomHeader
-          canControlPlayback={Boolean(currentSong)}
+          canControlPlayback={Boolean(currentPlaylistItem)}
           canSkip={canSkip}
           isPlaying={isPlaying && !localPlayback.isPlaybackBlocked}
           showPlaybackControls={options.player}
@@ -79,7 +83,9 @@ export function EmbedRoomView({ loaderData }: Props) {
           room={room}
           roomId={roomId}
           showReset={
-            options.player && Boolean(currentSong) && hasLocalPlaybackChanges
+            options.player &&
+            Boolean(currentPlaylistItem) &&
+            hasLocalPlaybackChanges
           }
           showSkip={options.skip}
         />
@@ -88,7 +94,7 @@ export function EmbedRoomView({ loaderData }: Props) {
           <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.2fr)_minmax(0,0.8fr)] gap-4 overflow-hidden p-4 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] md:grid-rows-1">
             {player}
             <EmbedPlaylist
-              songs={queuedSongs}
+              playlistItems={queuedPlaylistItems}
               votingEnabled={options.vote}
               onVote={actions.handleVote}
             />
@@ -102,7 +108,7 @@ export function EmbedRoomView({ loaderData }: Props) {
         {showPlaylistOnly && (
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4">
             <EmbedPlaylist
-              songs={queuedSongs}
+              playlistItems={queuedPlaylistItems}
               votingEnabled={options.vote}
               onVote={actions.handleVote}
             />

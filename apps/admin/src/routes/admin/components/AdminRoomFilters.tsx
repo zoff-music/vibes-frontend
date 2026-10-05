@@ -36,7 +36,7 @@ export function AdminRoomFilters({
   const handleSort = (event: ChangeEvent<HTMLSelectElement>) => {
     const [sortBy, order] = event.target.value.split(':');
     if (
-      (sortBy !== 'listeners' && sortBy !== 'songs') ||
+      (sortBy !== 'listeners' && sortBy !== 'playlistItems') ||
       (order !== 'asc' && order !== 'desc')
     ) {
       return;
@@ -82,8 +82,8 @@ export function AdminRoomFilters({
 const roomSortOptions = [
   { label: 'Most listeners', value: 'listeners:desc' },
   { label: 'Fewest listeners', value: 'listeners:asc' },
-  { label: 'Most songs', value: 'songs:desc' },
-  { label: 'Fewest songs', value: 'songs:asc' },
+  { label: 'Most songs', value: 'playlistItems:desc' },
+  { label: 'Fewest songs', value: 'playlistItems:asc' },
 ];
 
 const roomQueryMaximumLength = 100;

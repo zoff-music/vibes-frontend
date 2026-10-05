@@ -1,7 +1,7 @@
 import {
   classNames,
   isBrowserDebugEnabled,
-  type Song,
+  type PlaylistItem,
   safeWrap,
   usePlaybackStore,
 } from '@vibes/shared';
@@ -34,13 +34,13 @@ interface Props {
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   appContext?: 'platform' | 'cast';
-  preloadSong?: Song | null;
+  preloadPlaylistItem?: PlaylistItem | null;
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
   onLocalSeek?: (positionMs: number) => void;
   onLocalAlignmentChange?: (isAligned: boolean) => void;
   onLocalVolumeChange?: () => void;
-  onPlaybackError?: (songId: string) => void;
+  onPlaybackError?: (playlistItemId: string) => void;
   volume?: number;
 }
 
@@ -84,7 +84,7 @@ const VideoPlayerComponent = ({
   fill = false,
   onNeedsUserGestureChange,
   appContext = 'platform',
-  preloadSong = null,
+  preloadPlaylistItem = null,
   onLocalAlignmentChange,
   onLocalPause,
   onLocalPlay,
@@ -92,7 +92,9 @@ const VideoPlayerComponent = ({
   onPlaybackError,
   volume = MAX_VOLUME,
 }: Props) => {
-  const currentSong = usePlaybackStore((state) => state.currentSong);
+  const currentPlaylistItem = usePlaybackStore(
+    (state) => state.currentPlaylistItem,
+  );
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
   const resetVersion = usePlaybackStore((state) => state.resetVersion);
   const updatedAt = usePlaybackStore((state) => state.updatedAt);
@@ -126,7 +128,9 @@ const VideoPlayerComponent = ({
     desiredVolumeRef.current = desiredVolume;
   }, [desiredVolume]);
   const isYouTubeActive =
-    isVisible && currentSong?.sourceType === 'youtube' && !!currentSong;
+    isVisible &&
+    currentPlaylistItem?.sourceType === 'youtube' &&
+    !!currentPlaylistItem;
   const isYouTubeActiveRef = useRef(isYouTubeActive);
   useLayoutEffect(() => {
     isYouTubeActiveRef.current = isYouTubeActive;
@@ -137,10 +141,10 @@ const VideoPlayerComponent = ({
   const shouldPlay =
     isYouTubeActive && isPlaying && !(allowUnmutedAutoplay && needsUserGesture);
   const candidateVideoId =
-    currentSong?.sourceType === 'youtube'
-      ? currentSong.sourceId
-      : preloadSong?.sourceType === 'youtube'
-        ? preloadSong.sourceId
+    currentPlaylistItem?.sourceType === 'youtube'
+      ? currentPlaylistItem.sourceId
+      : preloadPlaylistItem?.sourceType === 'youtube'
+        ? preloadPlaylistItem.sourceId
         : null;
   const [retainedVideoId, setRetainedVideoId] = useState(candidateVideoId);
   if (candidateVideoId && candidateVideoId !== retainedVideoId) {
@@ -179,7 +183,7 @@ const VideoPlayerComponent = ({
       if (!isYouTubeActiveRef.current) return;
       const playbackState = usePlaybackStore.getState();
       safeWrap(() => {
-        if (playbackState.currentSong?.sourceType !== 'youtube') {
+        if (playbackState.currentPlaylistItem?.sourceType !== 'youtube') {
           const player = playerRef.current;
           if (!player) return;
           player.mute();
@@ -238,9 +242,9 @@ const VideoPlayerComponent = ({
     if (isYouTubeActive && !canPlayAudio && !isCastReceiver) {
       setNeedsUserGesture(true);
     }
-    debugLog('song-change', { currentSongId: currentSong?.id });
+    debugLog('song-change', { currentPlaylistItemId: currentPlaylistItem?.id });
   }, [
-    currentSong?.id,
+    currentPlaylistItem?.id,
     isYouTubeActive,
     canPlayAudio,
     isCastReceiver,
@@ -255,11 +259,11 @@ const VideoPlayerComponent = ({
   }, [debugLog]);
 
   useEffect(() => {
-    if (!currentSong && !isPlaying) {
+    if (!currentPlaylistItem && !isPlaying) {
       lastLoadedVideoIdRef.current = null;
       pendingVideoIdRef.current = null;
     }
-  }, [currentSong, isPlaying]);
+  }, [currentPlaylistItem, isPlaying]);
 
   useEffect(() => {
     if (!isYouTubeActive) {
@@ -397,7 +401,8 @@ const VideoPlayerComponent = ({
         const isLocallyPlaying =
           state === YOUTUBE_STATE_PLAYING || state === YOUTUBE_STATE_BUFFERING;
         const isAligned =
-          loadedVideoID === authoritativePlayback.currentSong?.sourceId &&
+          loadedVideoID ===
+            authoritativePlayback.currentPlaylistItem?.sourceId &&
           isLocallyPlaying === authoritativePlayback.isPlaying &&
           Math.abs(positionSeconds * 1000 - authoritativePositionMs) <=
             ALIGNED_POSITION_TOLERANCE_MS;
@@ -653,7 +658,7 @@ const VideoPlayerComponent = ({
         !isCastReceiver ||
         !isYouTubeActive ||
         !shouldPlay ||
-        playbackState.currentSong?.sourceType !== 'youtube' ||
+        playbackState.currentPlaylistItem?.sourceType !== 'youtube' ||
         !playbackState.isPlaying
       ) {
         return;
@@ -700,7 +705,7 @@ const VideoPlayerComponent = ({
       }
       if (
         !isYouTubeActiveRef.current ||
-        playbackState.currentSong?.sourceType !== 'youtube'
+        playbackState.currentPlaylistItem?.sourceType !== 'youtube'
       ) {
         expectedPlayingStateRef.current = false;
         silenceProviderPlayback('youtube');
@@ -712,14 +717,17 @@ const VideoPlayerComponent = ({
         const targetTime = actualPositionMs / 1000;
         event.target.seekTo(targetTime, true);
       }
-      const activeSong = usePlaybackStore.getState().currentSong;
-      if (activeSong?.sourceType === 'youtube') {
-        lastLoadedVideoIdRef.current = activeSong.sourceId;
-        if (event.target.getVideoData().video_id === activeSong.sourceId) {
+      const activePlaylistItem =
+        usePlaybackStore.getState().currentPlaylistItem;
+      if (activePlaylistItem?.sourceType === 'youtube') {
+        lastLoadedVideoIdRef.current = activePlaylistItem.sourceId;
+        if (
+          event.target.getVideoData().video_id === activePlaylistItem.sourceId
+        ) {
           pendingVideoIdRef.current = null;
         }
         if (!isCastReceiver && !usePlaybackStore.getState().isPlaying) {
-          pauseAfterLoadVideoIdRef.current = activeSong.sourceId;
+          pauseAfterLoadVideoIdRef.current = activePlaylistItem.sourceId;
         }
       }
 
@@ -763,7 +771,7 @@ const VideoPlayerComponent = ({
         (state === YOUTUBE_STATE_PLAYING ||
           state === YOUTUBE_STATE_BUFFERING) &&
         (!isYouTubeActiveRef.current ||
-          playbackState.currentSong?.sourceType !== 'youtube')
+          playbackState.currentPlaylistItem?.sourceType !== 'youtube')
       ) {
         expectedPlayingStateRef.current = false;
         silenceProviderPlayback('youtube');
@@ -773,7 +781,7 @@ const VideoPlayerComponent = ({
         setSlowStartupVideoId(null);
         claimProviderPlayback('youtube');
         if (
-          playbackState.currentSong?.sourceType === 'youtube' &&
+          playbackState.currentPlaylistItem?.sourceType === 'youtube' &&
           (isCastReceiver ||
             allowUnmutedAutoplay ||
             isPlaybackGestureUnlocked())
@@ -966,16 +974,16 @@ const VideoPlayerComponent = ({
       if (
         !isCastReceiver ||
         !isVisible ||
-        !currentSong ||
-        reportedPlaybackErrorVideoIdRef.current === currentSong.sourceId
+        !currentPlaylistItem ||
+        reportedPlaybackErrorVideoIdRef.current === currentPlaylistItem.sourceId
       ) {
         return;
       }
 
-      reportedPlaybackErrorVideoIdRef.current = currentSong.sourceId;
-      onPlaybackError?.(currentSong.id);
+      reportedPlaybackErrorVideoIdRef.current = currentPlaylistItem.sourceId;
+      onPlaybackError?.(currentPlaylistItem.id);
     },
-    [currentSong, isCastReceiver, isVisible, onPlaybackError],
+    [currentPlaylistItem, isCastReceiver, isVisible, onPlaybackError],
   );
 
   const resolvedVideoId = videoId;
@@ -1030,7 +1038,8 @@ const VideoPlayerComponent = ({
     if (lastLoadedVideoIdRef.current === videoId) return;
 
     const playbackState = usePlaybackStore.getState();
-    const isActiveYouTube = playbackState.currentSong?.sourceType === 'youtube';
+    const isActiveYouTube =
+      playbackState.currentPlaylistItem?.sourceType === 'youtube';
     const actualPositionMs = playbackState.actualPositionMs;
     const startSeconds = actualPositionMs > 0 ? actualPositionMs / 1000 : 0;
     const shouldPauseAfterLoad =

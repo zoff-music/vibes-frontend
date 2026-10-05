@@ -1,4 +1,4 @@
-import type { PublicRoomResult } from '@vibes/models';
+import type { PublicRoomResultV3 } from '@vibes/models';
 import { Link } from 'react-router';
 import {
   publicRoomPageSize,
@@ -7,7 +7,7 @@ import {
 } from '../search';
 
 interface RoomBrowserPaginationProps {
-  result: PublicRoomResult;
+  result: PublicRoomResultV3;
   search: RoomBrowserSearch;
   pending: boolean;
 }

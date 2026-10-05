@@ -1,12 +1,14 @@
-import type { PublicRoomResult } from '@vibes/models';
+import type { PublicRoomResultV3 } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { useRef, useState } from 'react';
 
 export function useRoomBrowser() {
-  const [, fetcher] = useFetcher<PublicRoomResult>({ routeId: 'rooms.public' });
+  const [, fetcher] = useFetcher<PublicRoomResultV3>({
+    routeId: 'rooms.public',
+  });
   const [browsing, setBrowsing] = useState(false);
   const [query, setQuery] = useState('');
-  const [result, setResult] = useState<PublicRoomResult | null>(null);
+  const [result, setResult] = useState<PublicRoomResultV3 | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const requestId = useRef(0);

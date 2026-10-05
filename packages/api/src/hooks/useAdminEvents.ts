@@ -1,10 +1,10 @@
-import type { AdminRoomSummary } from '@vibes/models';
+import type { AdminRoomSummaryV2 } from '@vibes/models';
 import { useEffect, useRef } from 'react';
 import { subscribeAdminEvents } from '../adminEvents';
 
 interface UseAdminEventsParameters {
   enabled: boolean;
-  onRoomsUpdate: (rooms: AdminRoomSummary[]) => void;
+  onRoomsUpdate: (rooms: AdminRoomSummaryV2[]) => void;
 }
 
 export function useAdminEvents({

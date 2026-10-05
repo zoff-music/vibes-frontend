@@ -1,11 +1,11 @@
 import { api, getAPIErrorMessage, getRateLimitMessage } from '@vibes/api';
-import type { RemotePairing } from '@vibes/models';
+import type { RemotePairingV2 } from '@vibes/models';
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface RemoteControlActionData {
   error?: string;
   intent: 'delete' | 'enable' | 'unknown';
-  pairing?: RemotePairing;
+  pairing?: RemotePairingV2;
 }
 
 export async function clientAction({
@@ -17,7 +17,7 @@ export async function clientAction({
   const roomId = String(formData.get('roomId') ?? '');
 
   if (intent === 'enable') {
-    const [error, pairing] = await api.post('/remotes', null, { roomId });
+    const [error, pairing] = await api.v2.post('/remotes', null, { roomId });
     if (error || !pairing) {
       return createErrorData('enable', error);
     }
