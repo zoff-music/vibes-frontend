@@ -7,6 +7,7 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
+import { markPlaybackGestureUnlocked } from '@vibes/ui/web';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useRevalidator } from 'react-router';
 import type { EmbedActionData } from '../action';
@@ -187,6 +188,7 @@ export function useEmbedLocalPlayback({
     useState(false);
   const interactionRoomIdRef = useRef(roomId);
   const autoplayRoomIdRef = useRef<string | null>(null);
+  const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
   const setLocalPlaybackAligned = usePlaybackStore(
     (state) => state.setLocalPlaybackAligned,
   );
@@ -219,21 +221,28 @@ export function useEmbedLocalPlayback({
     setLocalPlayingState,
   ]);
 
-  const handlePlay = useCallback(() => {
+  const handleLocalPlay = useCallback(() => {
+    setIsPlaybackBlocked(false);
     setHasLocalPlayerInteraction(true);
     setLocalPlayingState(true, roomMode);
   }, [roomMode, setLocalPlayingState]);
+
+  const handlePlay = useCallback(() => {
+    markPlaybackGestureUnlocked();
+    handleLocalPlay();
+  }, [handleLocalPlay]);
+
   const handlePause = useCallback(() => {
     setHasLocalPlayerInteraction(true);
     setLocalPlayingState(false, roomMode);
   }, [roomMode, setLocalPlayingState]);
   const handlePlayPause = useCallback(() => {
-    if (isPlaying) {
+    if (isPlaying && !isPlaybackBlocked) {
       handlePause();
       return;
     }
     handlePlay();
-  }, [handlePause, handlePlay, isPlaying]);
+  }, [handlePause, handlePlay, isPlaying, isPlaybackBlocked]);
   const handleLocalAlignmentChange = useCallback(
     (isAligned: boolean) => {
       if (!autoplay && !hasLocalPlayerInteraction) return;
@@ -241,13 +250,7 @@ export function useEmbedLocalPlayback({
     },
     [autoplay, hasLocalPlayerInteraction, setLocalPlaybackAligned],
   );
-  const handleNeedsUserGestureChange = useCallback(
-    (needsGesture: boolean) => {
-      if (!autoplay || !needsGesture) return;
-      setLocalPlayingState(false, roomMode);
-    },
-    [autoplay, roomMode, setLocalPlayingState],
-  );
+  const handleNeedsUserGestureChange = setIsPlaybackBlocked;
 
   useMediaSession({
     canPlay,
@@ -264,8 +267,10 @@ export function useEmbedLocalPlayback({
     handleNeedsUserGestureChange,
     handleLocalPlayerInteraction: () => setHasLocalPlayerInteraction(true),
     handlePlay,
+    handleLocalPlay,
     handlePlayPause,
     hasLocalPlayerInteraction,
+    isPlaybackBlocked,
   };
 }
 

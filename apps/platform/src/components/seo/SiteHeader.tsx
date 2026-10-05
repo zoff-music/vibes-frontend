@@ -1,11 +1,15 @@
 import { Button, SettingsIcon, Tooltip } from '@vibes/ui/web';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link, NavLink } from 'react-router';
 import headerLogo from '../../assets/logo-header.webp';
 import headerLogo48 from '../../assets/logo-header-48.webp?no-inline';
 import headerLogo96 from '../../assets/logo-header-96.webp?no-inline';
 import headerLogo128 from '../../assets/logo-header-128.webp?no-inline';
-import { ProfileSettingsModal } from '../profile/ProfileSettingsModal';
+
+const LazyProfileSettingsModal = lazy(async () => {
+  const module = await import('../profile/ProfileSettingsModal');
+  return { default: module.ProfileSettingsModal };
+});
 
 export function SiteHeader() {
   const [showSettings, setShowSettings] = useState(false);
@@ -69,10 +73,20 @@ export function SiteHeader() {
           </Tooltip>
         </nav>
       </header>
-      <ProfileSettingsModal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
+      {showSettings && (
+        <Suspense
+          fallback={
+            <p role="status" className="sr-only">
+              Loading settings...
+            </p>
+          }
+        >
+          <LazyProfileSettingsModal
+            isOpen
+            onClose={() => setShowSettings(false)}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

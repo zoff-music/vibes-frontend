@@ -687,7 +687,7 @@ export default function Room() {
         initial={roomEntryInitial}
         transition={roomEntryTransition}
       >
-        <div className="relative z-10 flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+        <main className="relative z-10 flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden">
           {!isPartyScreen && (
             <RoomHeader
               adminError={adminError}
@@ -823,7 +823,7 @@ export default function Room() {
               />
             </Suspense>
           )}
-        </div>
+        </main>
       </motion.div>
       {!isAddModalVisible && !chatOpen && (
         <div className="sm:hidden">

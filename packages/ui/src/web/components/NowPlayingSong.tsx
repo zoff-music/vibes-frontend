@@ -64,8 +64,10 @@ export function NowPlayingSong({
           <div className="vhs-scanlines pointer-events-none absolute inset-0" />
           <div className="relative z-10 shrink-0">
             <img
-              src={resolveSongThumbnail(song.thumbnailUrl)}
+              src={resolveSongThumbnail(song.thumbnailUrl, true)}
               alt=""
+              width={64}
+              height={64}
               className={classNames(
                 'rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105',
                 density === 'compact' ? 'h-12 w-12' : 'h-16 w-16',
@@ -73,15 +75,15 @@ export function NowPlayingSong({
             />
           </div>
           <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
-            <h3 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
+            <h2 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
               {song.title}
-            </h3>
+            </h2>
             <div className="flex min-w-0 items-center gap-2 overflow-hidden text-theme-muted text-xs">
               <span className="min-w-0 truncate">
                 {song.artist || 'Unknown Artist'}
               </span>
               <span className="text-theme-subtle">•</span>
-              <span className="shrink-0 font-mono text-theme-subtle text-xs">
+              <span className="shrink-0 font-mono text-theme-muted text-xs">
                 {formatPlaybackSeconds(song.duration)}
               </span>
             </div>

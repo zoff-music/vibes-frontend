@@ -62,31 +62,33 @@ const QueueItemComponent: React.FC<Props> = ({
         )}
       >
         <div className="w-5 shrink-0 text-center sm:w-6">
-          <span className="text-theme-subtle text-xs">{position}</span>
+          <span className="text-theme-muted text-xs">{position}</span>
         </div>
 
         <img
-          src={resolveSongThumbnail(song.thumbnailUrl)}
+          src={resolveSongThumbnail(song.thumbnailUrl, true)}
           alt=""
           className={classNames(
             'shrink-0 rounded-xl border border-theme bg-theme-surface object-cover',
             density === 'compact' ? 'h-10 w-10' : 'h-12 w-12 sm:h-14 sm:w-14',
           )}
           decoding="async"
-          fetchPriority="low"
-          loading="lazy"
+          fetchPriority={position === 1 ? 'high' : 'auto'}
+          loading={position <= 3 ? 'eager' : 'lazy'}
+          width={56}
+          height={56}
         />
 
         <div className="min-w-0 flex-1 overflow-hidden">
-          <h4 className="block max-w-full truncate text-left text-theme text-xs">
+          <h3 className="block max-w-full truncate text-left text-theme text-xs">
             {song.title}
-          </h4>
+          </h3>
           <div className="mt-1 flex min-w-0 items-center gap-1.5 overflow-hidden text-theme-muted text-xs">
             <span className="min-w-0 truncate">
               {song.artist || 'Unknown Artist'}
             </span>
             <span className="text-theme-subtle">•</span>
-            <span className="shrink-0 text-theme-subtle text-xs">
+            <span className="shrink-0 text-theme-muted text-xs">
               {formatPlaybackSeconds(song.duration)}
             </span>
             {providerUrl && providerLink && (

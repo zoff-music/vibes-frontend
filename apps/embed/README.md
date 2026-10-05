@@ -67,6 +67,11 @@ audible autoplay: request sound through the official provider SDK, then show
 the click-to-play overlay when playback is blocked. Never silently fall back
 to muted autoplay or mark an automatic attempt as a visitor gesture.
 
+Prepare both enabled providers, including the inactive player, so switching
+providers retains autoplay readiness. A slow-start fallback must not cancel
+the original playback request. Both the overlay and header Play control must
+unlock playback when the visitor clicks them.
+
 Check light, dark, and automatic themes with player and playlist together,
 player only, playlist only, and voting disabled. Queue cards should retain
 their surface and geometry when voting is disabled. Keep the official provider

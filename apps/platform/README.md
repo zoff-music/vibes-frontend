@@ -22,6 +22,10 @@ intact. Do not send room-wide play commands just because a listener joins.
 Browser-blocked autoplay keeps the click-to-play fallback. Embed autoplay is
 still a separate, default-off sharing option.
 
+Prepare both enabled provider players when entering a room, including the
+inactive provider. This preparation is required for autoplay across provider
+changes and must not be removed as a loading optimization.
+
 ### Return to a room
 
 Opening a room remembers its ID locally. Leaving through in-app navigation or

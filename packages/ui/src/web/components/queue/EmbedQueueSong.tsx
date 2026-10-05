@@ -15,7 +15,7 @@ export function EmbedQueueSong({ song, votingEnabled, onVote }: Props) {
   const content = (
     <>
       <img
-        src={resolveSongThumbnail(song.thumbnailUrl)}
+        src={resolveSongThumbnail(song.thumbnailUrl, true)}
         alt=""
         className="h-11 w-11 shrink-0 rounded-lg object-cover"
         decoding="async"

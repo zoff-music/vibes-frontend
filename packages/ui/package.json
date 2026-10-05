@@ -6,6 +6,7 @@
   "exports": {
     "./web": "./src/web/index.ts",
     "./web/components/DebugConsole": "./src/web/components/DebugConsole.tsx",
+    "./web/components/Modal": "./src/web/components/Modal.tsx",
     "./web/player/SoundCloudPlayer": "./src/web/player/SoundCloudPlayer.tsx",
     "./web/player/VideoPlayer": "./src/web/player/VideoPlayer.tsx",
     "./konami": "./src/konami/index.ts",

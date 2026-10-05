@@ -53,7 +53,7 @@ export function EmbedRoomView({ loaderData }: Props) {
       onLocalAlignmentChange={localPlayback.handleLocalAlignmentChange}
       onLocalInteraction={localPlayback.handleLocalPlayerInteraction}
       onNeedsUserGestureChange={localPlayback.handleNeedsUserGestureChange}
-      onStartPlayback={localPlayback.handlePlay}
+      onStartPlayback={localPlayback.handleLocalPlay}
       positionMs={positionMs}
       songs={songs}
     />
@@ -71,7 +71,7 @@ export function EmbedRoomView({ loaderData }: Props) {
         <EmbedRoomHeader
           canControlPlayback={Boolean(currentSong)}
           canSkip={canSkip}
-          isPlaying={isPlaying}
+          isPlaying={isPlaying && !localPlayback.isPlaybackBlocked}
           showPlaybackControls={options.player}
           onPlayPause={localPlayback.handlePlayPause}
           onReset={actions.handleReset}
