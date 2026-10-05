@@ -17,7 +17,7 @@ interface TooltipProps {
   as?: 'div' | 'span';
   children: ReactNode;
   className: string;
-  content: string;
+  content: ReactNode;
   side?: TooltipSide;
 }
 

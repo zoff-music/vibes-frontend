@@ -91,6 +91,9 @@ export default function AdminOverview() {
           )}
         </div>
         <ListenerUsageChart
+          {...(listenerUsage.roomPoints && {
+            roomPoints: listenerUsage.roomPoints,
+          })}
           generatedAt={listenerUsage.generatedAt}
           points={listenerUsage.points}
         />
@@ -111,6 +114,9 @@ export default function AdminOverview() {
           )}
         </div>
         <SearchUsageChart
+          {...(searchUsage.roomPoints && {
+            roomPoints: searchUsage.roomPoints,
+          })}
           generatedAt={searchUsage.generatedAt}
           points={searchUsage.points}
         />

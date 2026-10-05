@@ -102,8 +102,12 @@ export async function clientAction({
     }
     const [error, searchResults] =
       provider === 'soundcloud'
-        ? await client.get('/soundcloud/search', { $search: { q: query } })
-        : await client.get('/youtube/search', { $search: { q: query } });
+        ? await client.get('/soundcloud/search', {
+            $search: { q: query, roomId },
+          })
+        : await client.get('/youtube/search', {
+            $search: { q: query, roomId },
+          });
     if (error || !searchResults) return errorResult(intent, error);
     return { intent, searchResults };
   }
