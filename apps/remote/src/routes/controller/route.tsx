@@ -5,6 +5,7 @@ import {
   useRemoteEvents,
   useRoomEventsV2,
 } from '@vibes/api';
+
 import type {
   PlaybackState,
   RemoteEvent,
@@ -53,6 +54,7 @@ import type { ControllerLoaderData } from './loadController';
 import { loader } from './loader';
 import { shouldRevalidate } from './shouldRevalidate';
 
+export { controllerMeta as meta } from './meta';
 export { clientAction, clientLoader, loader, shouldRevalidate };
 
 export function ErrorBoundary() {

@@ -68,7 +68,6 @@ export function Layout({ children }: { children: ReactNode }) {
         />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>ゾフ Admin</title>
         <script defer src="/plausible-init.js" />
         <script
           defer

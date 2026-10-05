@@ -18,6 +18,8 @@ import stylesUrl from './index.css?url';
 import { getPublicRouteErrorMessage } from './routeError';
 import { getThemeClass } from './theme.server';
 
+export { remoteMeta as meta } from './meta';
+
 export function loader({ request }: LoaderFunctionArgs) {
   return {
     debug: process.env.VITE_DEBUG === 'true',
@@ -54,7 +56,6 @@ export function Layout({ children }: { children: ReactNode }) {
           crossOrigin="anonymous"
         />
         <link rel="stylesheet" href={stylesUrl} />
-        <title>Zoff Remote</title>
         <Meta />
         <Links />
       </head>

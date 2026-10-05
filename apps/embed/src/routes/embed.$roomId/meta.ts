@@ -6,7 +6,9 @@ export const embedRoomMeta: MetaFunction<typeof embedRoomLoader> = ({
   loaderData,
 }) => {
   const roomName = loaderData?.room.name || loaderData?.roomId;
-  const title = roomName ? `${roomName} | Zoff` : 'Zoff embedded room';
+  const title = roomName
+    ? `${roomName} | Embedded Music Room | Zoff`
+    : 'Embedded Music Room | Zoff';
 
   return [
     { title },

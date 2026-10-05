@@ -16,6 +16,7 @@ import { action } from './action';
 import type { AdminLoaderData } from './loader';
 import { loader } from './loader';
 
+export { adminMeta as meta } from '../../meta';
 export { action, loader };
 
 export interface AdminOutletContext {
