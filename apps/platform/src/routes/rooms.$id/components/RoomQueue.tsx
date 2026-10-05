@@ -12,18 +12,18 @@ import {
   TerminalFeedback,
   TerminalSection,
 } from '@vibes/ui/konami';
-import {
-  ChatConversation,
-  NowPlayingSong,
-  QueueList,
-  useProgressiveList,
-} from '@vibes/ui/web';
-import React, { useEffect, useRef, useState } from 'react';
+import { NowPlayingSong, QueueList, useProgressiveList } from '@vibes/ui/web';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
 import { useChatPreferenceStore } from '../../../stores/chatPreferenceStore';
 
 import type { RoomActionData } from '../action';
 import { PlaybackProgress } from './PlaybackProgress';
+
+const LazyChatConversation = lazy(async () => {
+  const module = await import('@vibes/ui/web/components/ChatConversation');
+  return { default: module.ChatConversation };
+});
 
 interface RoomQueueProps {
   roomId: string;
@@ -320,13 +320,24 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             >
               {chat.open && (
                 <div className="flex min-h-0 flex-1 flex-col">
-                  <ChatConversation
-                    messages={chat.messages}
-                    active={chat.open}
-                    onSend={sendMessage}
-                    sending={chatFetcher.state !== 'idle'}
-                    error={chatFetcher.data?.error || chatError}
-                  />
+                  <Suspense
+                    fallback={
+                      <div
+                        className="panel-surface flex flex-1 items-center justify-center rounded-2xl p-4 text-theme-muted"
+                        role="status"
+                      >
+                        Loading chat...
+                      </div>
+                    }
+                  >
+                    <LazyChatConversation
+                      messages={chat.messages}
+                      active={chat.open}
+                      onSend={sendMessage}
+                      sending={chatFetcher.state !== 'idle'}
+                      error={chatFetcher.data?.error || chatError}
+                    />
+                  </Suspense>
                 </div>
               )}
               {!chat.open && (

@@ -26,6 +26,11 @@ Prepare both enabled provider players when entering a room, including the
 inactive provider. This preparation is required for autoplay across provider
 changes and must not be removed as a loading optimization.
 
+Normal room entry does not download the party-screen QR renderer or chat panel
+until those views are opened. Chat subscriptions and unread counts stay active
+outside the deferred panel. Keep the initial queue visible in server-rendered
+HTML, and avoid a persistent full-page blur filter around the player and queue.
+
 ### Return to a room
 
 Opening a room remembers its ID locally. Leaving through in-app navigation or

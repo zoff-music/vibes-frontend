@@ -41,7 +41,6 @@ import { useThemeStore } from '../../stores/themeStore';
 import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
-import { PartyScreenJoinCard } from './components/PartyScreenJoinCard';
 import { RoomErrorView } from './components/RoomErrorView';
 import { RoomGenerationProgress } from './components/RoomGenerationProgress';
 import { RoomHeader } from './components/RoomHeader';
@@ -66,6 +65,11 @@ export {
 };
 
 const GENERATION_REFRESH_DELAY_MS = 5 * 60 * 1000;
+
+const LazyPartyScreenJoinCard = lazy(async () => {
+  const module = await import('./components/PartyScreenJoinCard');
+  return { default: module.PartyScreenJoinCard };
+});
 
 interface PublicRoomError {
   isRoomNotFound: boolean;
@@ -774,13 +778,17 @@ export default function Room() {
                           initialSongs={loaderData.songs}
                         />
                       </div>
-                      <PartyScreenJoinCard
-                        initialListenerCount={displayRoom.userCount ?? 0}
-                        onExit={handleExitPartyScreen}
-                        roomId={id}
-                        roomName={displayRoom.name}
-                        url={shareUrl}
-                      />
+                      <Suspense
+                        fallback={<div className="mt-5 h-52 shrink-0" />}
+                      >
+                        <LazyPartyScreenJoinCard
+                          initialListenerCount={displayRoom.userCount ?? 0}
+                          onExit={handleExitPartyScreen}
+                          roomId={id}
+                          roomName={displayRoom.name}
+                          url={shareUrl}
+                        />
+                      </Suspense>
                     </div>
                   )}
                 </div>
@@ -844,7 +852,6 @@ export default function Room() {
 }
 
 const roomEntryInitialState = {
-  filter: 'blur(6px)',
   opacity: 0,
   scale: 1.012,
   y: 14,
@@ -858,7 +865,6 @@ const roomEntryTransition: Transition = {
 };
 
 const roomEntryVisibleState = {
-  filter: 'blur(0px)',
   opacity: 1,
   scale: 1,
   y: 0,
