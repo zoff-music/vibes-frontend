@@ -3,6 +3,7 @@ import { useInView, useReducedMotion } from 'framer-motion';
 import { lazy, memo, Suspense, useEffect, useRef, useState } from 'react';
 import type { NavigateFunction, NavigationType } from 'react-router';
 import { useKonamiMode } from '../../../components/konami/KonamiModeContext';
+import { useExperience } from '../../../hooks/useExperience';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import { canUseViewTransition } from '../../../utils/viewTransition';
 import { useAnimatedPlaceholder } from '../hooks/useAnimatedPlaceholder';
@@ -13,6 +14,7 @@ import { PlaylistGenerationControls } from './PlaylistGenerationControls';
 import { ProductIntroduction } from './ProductIntroduction';
 import { ReturnToRoom } from './ReturnToRoom';
 import { ReturnToRoomPreview } from './ReturnToRoomPreview';
+import { WatchEntry } from './WatchEntry';
 
 const LazyTerminalHome = lazy(async () => {
   const module = await import('./TerminalHome');
@@ -45,6 +47,7 @@ export const HomeScreen = memo(function HomeScreen({
   searchParams,
 }: HomeScreenProps) {
   const [roomCode, setRoomCode] = useState('');
+  const watch = useExperience() === 'WATCH';
   const previewReturn =
     import.meta.env.DEV && searchParams.get('preview') === 'return-to-room';
   const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
@@ -160,7 +163,8 @@ export const HomeScreen = memo(function HomeScreen({
         onJoinRoom={handleJoinRoom}
         data={data}
       >
-        {!isAIMode && (
+        {watch && <WatchEntry key={searchParams.get('mode') ?? 'room'} />}
+        {!watch && !isAIMode && (
           <HomeRoomControls
             inputRef={roomNameRef}
             onJoinRoom={handleJoinRoom}
@@ -171,7 +175,7 @@ export const HomeScreen = memo(function HomeScreen({
             roomCode={roomCode}
           />
         )}
-        {isAIMode && (
+        {!watch && isAIMode && (
           <PlaylistGenerationControls
             inputRef={playlistPromptRef}
             onPromptChange={handleRoomCodeChange}
@@ -181,13 +185,13 @@ export const HomeScreen = memo(function HomeScreen({
           />
         )}
       </HomeLanding>
-      {previewReturn && !pendingRoomSlug && (
+      {!watch && previewReturn && !pendingRoomSlug && (
         <ReturnToRoomPreview
           onJoinRoom={handleJoinRoom}
           listenerCount={searchParams.get('listeners') === '0' ? 0 : 3}
         />
       )}
-      {!previewReturn && !pendingRoomSlug && (
+      {!watch && !previewReturn && !pendingRoomSlug && (
         <ReturnToRoom onJoinRoom={handleJoinRoom} />
       )}
       {pendingRoomSlug && (

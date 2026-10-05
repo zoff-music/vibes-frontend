@@ -19,7 +19,7 @@ const messages: RoomMessage[] = [
     name: 'Sam',
     isAdmin: false,
     kind: 'added',
-    text: 'Song title 01',
+    text: 'Velvet keys',
     createdAt: 1789848010000,
   },
   {
@@ -28,7 +28,7 @@ const messages: RoomMessage[] = [
     name: 'Lou',
     isAdmin: false,
     kind: 'voted',
-    text: 'Song title 01',
+    text: 'Velvet keys',
     createdAt: 1789848020000,
   },
   {
@@ -46,7 +46,7 @@ const messages: RoomMessage[] = [
     name: 'Sam',
     isAdmin: false,
     kind: 'skipvoted',
-    text: 'Song title 02',
+    text: 'Streetlight swing',
     createdAt: 1789848040000,
   },
   {
@@ -55,7 +55,7 @@ const messages: RoomMessage[] = [
     name: 'Mia',
     isAdmin: true,
     kind: 'skipped',
-    text: 'Song title 02',
+    text: 'Streetlight swing',
     createdAt: 1789848050000,
   },
   {
@@ -64,7 +64,7 @@ const messages: RoomMessage[] = [
     name: 'Mia',
     isAdmin: true,
     kind: 'deleted',
-    text: 'Song title 03',
+    text: 'After the last train',
     createdAt: 1789848060000,
   },
   {
@@ -91,7 +91,25 @@ const durations = [
   1800, 1500, 1500, 1800, 1800, 1800, 1600, 1800, 3200, 4000, 650, 1500,
 ];
 
-export function useChatPreview() {
+const watchCopy: Record<string, string> = {
+  hello: 'Wait for the view around this corner.',
+  added: 'Beyond the city lights',
+  voted: 'Beyond the city lights',
+  reply: 'That looks unreal. Where is this?',
+  skipvoted: 'The long way home',
+  skipped: 'The long way home',
+  deleted: 'Another late night',
+  renamed: 'Front row',
+  again: 'One more film?',
+};
+
+const watchMessages: RoomMessage[] = messages.map((message) => ({
+  ...message,
+  name: message.id === 'again' ? 'Front row' : message.name,
+  text: watchCopy[message.id] ?? message.text,
+}));
+
+export function useChatPreview(watch = false) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { amount: 0.3 });
   const visible = usePageVisibility();
@@ -108,6 +126,7 @@ export function useChatPreview() {
   }, [phase, playing]);
 
   const count = Math.min(phase + 1, messages.length);
+  const conversation = watch ? watchMessages : messages;
 
   return {
     ref,
@@ -120,8 +139,8 @@ export function useChatPreview() {
         setPhase(enabled ? 0 : messages.length),
       phase,
       messages: reducedMotion
-        ? messages.slice(-5)
-        : messages.slice(Math.max(0, count - 5), count),
+        ? conversation.slice(-5)
+        : conversation.slice(Math.max(0, count - 5), count),
     },
   };
 }

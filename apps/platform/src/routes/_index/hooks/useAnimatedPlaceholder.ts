@@ -51,8 +51,21 @@ const AI_PROMPTS = [
   'heavy riffs for an intense gym session',
 ];
 
-export function useAnimatedPlaceholder(isAIMode: boolean, enabled: boolean) {
-  const initialWord = isAIMode ? AI_PROMPTS[0] : ANIMATED_WORDS[0];
+const WATCH_WORDS = ['afterhours', 'movieclub', 'one-more-video', 'front-row'];
+const WATCH_PROMPTS = [
+  'beautiful places after dark',
+  'short films with a twist',
+  'a trip through the solar system',
+];
+
+export function useAnimatedPlaceholder(
+  isAIMode: boolean,
+  enabled: boolean,
+  watch = false,
+) {
+  const words = watch ? WATCH_WORDS : ANIMATED_WORDS;
+  const prompts = watch ? WATCH_PROMPTS : AI_PROMPTS;
+  const initialWord = isAIMode ? prompts[0] : words[0];
   const initialPlaceholder = `${initialWord}...`;
   const [placeholderText, setPlaceholderText] = useState(initialPlaceholder);
   const [wordIndex, setWordIndex] = useState(0);
@@ -72,8 +85,8 @@ export function useAnimatedPlaceholder(isAIMode: boolean, enabled: boolean) {
     if (!active) {
       return;
     }
-    const animatedWords = isAIMode ? AI_PROMPTS : ANIMATED_WORDS;
-    const currentWord = animatedWords[wordIndex];
+    const animatedWords = isAIMode ? prompts : words;
+    const currentWord = animatedWords[wordIndex % animatedWords.length];
     const fullTarget = `${currentWord}...`;
     const typingDelay = Math.max(10, Math.floor(700 / fullTarget.length));
 
@@ -95,7 +108,7 @@ export function useAnimatedPlaceholder(isAIMode: boolean, enabled: boolean) {
     }
 
     setIsPaused(true);
-  }, [wordIndex, charIndex, isPaused, active, isAIMode]);
+  }, [wordIndex, charIndex, isPaused, active, isAIMode, prompts, words]);
 
   useEffect(() => {
     if (!active) {

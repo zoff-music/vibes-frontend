@@ -3,6 +3,7 @@ import { useId } from 'react';
 
 interface RetroSunProps {
   paused: boolean;
+  watch?: boolean;
 }
 
 const sunBands = [
@@ -14,7 +15,7 @@ const sunBands = [
   { top: 95, height: 5, delay: 'motion-safe:[animation-delay:0s]' },
 ];
 
-export function RetroSun({ paused }: RetroSunProps) {
+export function RetroSun({ paused, watch = false }: RetroSunProps) {
   const id = useId();
   const gradientId = `${id}-sun-gradient`;
   const maskId = `${id}-sun-bands`;
@@ -40,8 +41,8 @@ export function RetroSun({ paused }: RetroSunProps) {
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ffe8a3" />
-            <stop offset="24%" stopColor="#ffb574" />
+            <stop offset="0%" stopColor={watch ? '#c4c8ff' : '#ffe8a3'} />
+            <stop offset="24%" stopColor={watch ? '#78d4f5' : '#ffb574'} />
             <stop offset="48%" stopColor="#ff6b9b" />
             <stop offset="70%" stopColor="#f336a4" />
             <stop offset="100%" stopColor="#ac42d5" />
@@ -78,6 +79,20 @@ export function RetroSun({ paused }: RetroSunProps) {
           fill={`url(#${gradientId})`}
           mask={`url(#${maskId})`}
         />
+        {watch && <circle cx="46" cy="45" r="42" className="fill-[#171125]" />}
+        {watch && (
+          <ellipse
+            cx="50"
+            cy="50"
+            rx="49"
+            ry="18"
+            fill="none"
+            stroke="#c4b5fd"
+            strokeWidth="0.35"
+            transform="rotate(-32 50 50)"
+            opacity=".6"
+          />
+        )}
       </svg>
     </div>
   );

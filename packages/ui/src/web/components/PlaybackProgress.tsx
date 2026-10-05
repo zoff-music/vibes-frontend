@@ -6,6 +6,7 @@ import {
 } from '../../shared';
 
 interface PlaybackProgressProps {
+  smooth?: boolean;
   disabled?: boolean;
   durationMs: number;
   name?: string;
@@ -19,6 +20,7 @@ interface PlaybackProgressProps {
 }
 
 export function PlaybackProgress({
+  smooth = false,
   disabled = true,
   durationMs,
   name,
@@ -49,7 +51,11 @@ export function PlaybackProgress({
           className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/12"
         >
           <div
-            className="absolute inset-0 bg-[linear-gradient(90deg,#ff3fa4,#00d9ff)] shadow-[0_0_12px_rgba(255,63,164,0.6)]"
+            className={classNames(
+              'absolute inset-0 bg-[linear-gradient(90deg,#ff3fa4,#00d9ff)] shadow-[0_0_12px_rgba(255,63,164,0.6)]',
+              smooth &&
+                'motion-safe:transition-[clip-path] motion-safe:duration-700 motion-safe:ease-linear',
+            )}
             style={{ clipPath: `inset(0 ${100 - progress * 100}% 0 0)` }}
           />
         </div>

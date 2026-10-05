@@ -1,11 +1,20 @@
 import { classNames } from '@vibes/shared';
 import { ChatMessageLine, QueueItem, SegmentedToggle } from '@vibes/ui/web';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
-import { queueDemoPlaylistItems } from '../../../components/seo/preview';
+import logo from '../../../assets/logo-header.webp';
+import {
+  queueDemoPlaylistItems,
+  watchDemoPlaylistItems,
+} from '../../../components/seo/preview';
 import { useChatPreview } from '../hooks/useChatPreview';
 
-export function ChatPreview() {
-  const { ref, state } = useChatPreview();
+interface ChatPreviewProps {
+  watch?: boolean;
+}
+
+export function ChatPreview({ watch = false }: ChatPreviewProps) {
+  const { ref, state } = useChatPreview(watch);
+  const playlistItems = watch ? watchDemoPlaylistItems : queueDemoPlaylistItems;
 
   return (
     <MotionConfig reducedMotion="user">
@@ -53,7 +62,9 @@ export function ChatPreview() {
               className="flex h-full min-w-0 flex-col"
             >
               <div className="flex shrink-0 items-center justify-between gap-3 border-theme border-b px-5 py-4">
-                <span className="font-pixel text-sm text-theme">electro</span>
+                <span className="font-pixel text-sm text-theme">
+                  {watch ? 'afterhours' : 'electro'}
+                </span>
                 <span className="flex items-center gap-2 text-secondary text-xs">
                   <span className="size-1.5 rounded-full bg-secondary" />
                   {state.chatEnabled ? 'Room chat' : 'Up next'}
@@ -98,19 +109,17 @@ export function ChatPreview() {
                     transition={{ duration: state.reducedMotion ? 0 : 0.3 }}
                     className="min-h-0 flex-1 space-y-3 p-3 sm:p-5"
                   >
-                    {queueDemoPlaylistItems
-                      .slice(0, 3)
-                      .map((playlistItem, index) => (
-                        <QueueItem
-                          key={playlistItem.id}
-                          playlistItem={playlistItem}
-                          position={index + 1}
-                          providerLink={false}
-                          density="compact"
-                        />
-                      ))}
+                    {playlistItems.slice(0, 3).map((playlistItem, index) => (
+                      <QueueItem
+                        key={playlistItem.id}
+                        playlistItem={playlistItem}
+                        position={index + 1}
+                        providerLink={false}
+                        density="compact"
+                      />
+                    ))}
                     <p className="px-2 pt-4 text-sm text-theme-muted">
-                      Chat off. Music on.
+                      {watch ? 'Chat off. Film on.' : 'Chat off. Music on.'}
                     </p>
                   </motion.div>
                 )}
@@ -130,7 +139,7 @@ export function ChatPreview() {
             className="pointer-events-none z-10 col-start-1 row-start-1"
           >
             <img
-              src="/logo.png"
+              src={logo}
               alt=""
               width={1024}
               height={1024}
@@ -151,10 +160,10 @@ export function ChatPreview() {
           </span>
           <span className="sr-only">
             {' '}
-            An example conversation shows friends adding and voting for songs,
-            voting to skip, skipping, deleting a song and changing a display
-            name. Turn Chat off to hide the conversation on this device and
-            return to the queue without stopping the music.
+            An example conversation shows friends adding and voting for playlist
+            items, voting to skip, skipping, deleting an item and changing a
+            display name. Turn Chat off to hide the conversation on this device
+            and return to the queue without stopping playback.
           </span>
         </figcaption>
       </figure>

@@ -44,7 +44,7 @@ export function Showcase({
         </div>
       </div>
       <div className="relative">
-        <h2 className="font-pixel text-primary text-xs tracking-widest">
+        <h2 className="font-pixel text-pink-800 text-xs tracking-widest dark:text-primary">
           {label}
         </h2>
       </div>

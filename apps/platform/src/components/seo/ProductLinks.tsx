@@ -1,16 +1,30 @@
 import { classNames } from '@vibes/shared';
 import { ArrowRightIcon, CheckIcon } from '@vibes/ui/web';
 import { Link } from 'react-router';
-import { productNavigation } from '../../seo/productNavigation';
+import {
+  productNavigation,
+  watchNavigation,
+} from '../../seo/productNavigation';
 
 interface ProductLinksProps {
   currentSlug?: string;
+  watch?: boolean;
 }
 
-export function ProductLinks({ currentSlug }: ProductLinksProps) {
+export function ProductLinks({
+  currentSlug,
+  watch = false,
+}: ProductLinksProps) {
+  const pages = watch ? watchNavigation : productNavigation;
   return (
-    <nav aria-label="Zoff guides" className="grid gap-3 sm:grid-cols-2">
-      {productNavigation.map((page) => (
+    <nav
+      aria-label={watch ? 'Zoff Watch guides' : 'Zoff guides'}
+      className={classNames(
+        'grid gap-3',
+        watch ? 'sm:grid-cols-3' : 'sm:grid-cols-2',
+      )}
+    >
+      {pages.map((page) => (
         <Link
           key={page.slug}
           to={`/discovery/${page.slug}`}

@@ -1,15 +1,16 @@
 import { QueueItem } from '@vibes/ui/web';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
+import logo from '../../../assets/logo-header.webp';
 import { useQueueDemo } from '../hooks/useQueueDemo';
 
 export function VotingPreview() {
   const { ref, state, actions } = useQueueDemo();
   const branding = state.phase >= 5;
   let caption = 'Vote for a song to move it up the queue.';
-  if (state.phase === 1) caption = 'Voting for Song title 02…';
+  if (state.phase === 1) caption = 'Mira votes for Streetlight swing…';
   if (state.phase === 2) caption = 'Vote added. Queue updated.';
-  if (state.phase === 3) caption = 'Adding Song title 04…';
-  if (state.phase === 4) caption = 'Song title 04 added to the queue.';
+  if (state.phase === 3) caption = 'Alex adds One more night…';
+  if (state.phase === 4) caption = 'A new find. Straight into the queue.';
   if (branding) caption = '';
 
   return (
@@ -22,9 +23,12 @@ export function VotingPreview() {
         data-phase={state.phase}
         className="min-h-140 w-full min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:min-h-148"
       >
-        <div className="mb-5 px-1">
+        <div className="mb-5 flex items-center justify-between gap-3 px-1">
           <span className="font-pixel text-theme-muted text-xs tracking-widest">
             ELECTRO
+          </span>
+          <span className="text-theme-muted text-xs">
+            Every vote moves the night.
           </span>
         </div>
         <div className="relative grid h-108 place-items-center sm:h-116">
@@ -85,7 +89,11 @@ export function VotingPreview() {
           <motion.div
             aria-hidden="true"
             initial={false}
-            animate={{ opacity: branding ? 1 : 0, scale: branding ? 1 : 0.5 }}
+            animate={{
+              opacity: branding ? 1 : 0,
+              scale: branding ? 1 : 0.5,
+              rotate: branding && !state.reduceMotion ? 360 : 0,
+            }}
             transition={{
               duration: state.reduceMotion ? 0 : 0.65,
               delay: branding ? 0.2 : 0,
@@ -93,9 +101,9 @@ export function VotingPreview() {
             className="pointer-events-none z-10 col-start-1 row-start-1 flex items-center justify-center"
           >
             <img
-              src="/logo.png"
-              width={1024}
-              height={1024}
+              src={logo}
+              width={256}
+              height={256}
               alt=""
               className="h-36 w-36 rounded-full"
             />

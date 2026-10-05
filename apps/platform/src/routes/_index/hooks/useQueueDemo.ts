@@ -3,7 +3,7 @@ import { useInView, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
-const durations = [2200, 650, 2600, 900, 3200, 800, 1400];
+const durations = [1800, 550, 1800, 700, 2200, 650, 1200];
 
 export function useQueueDemo() {
   const ref = useRef<HTMLElement>(null);
