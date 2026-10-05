@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/** @deprecated V1 admin room summary. Use adminRoomSummaryV2Schema for current clients. */
 export const adminRoomSummarySchema = z.compile(
   z.object({
     id: z.string(),
@@ -15,6 +16,7 @@ export type AdminRoomSummary = z.infer<typeof adminRoomSummarySchema>;
 export const adminRoomsSchema = z.compile(z.array(adminRoomSummarySchema));
 export type AdminRooms = z.infer<typeof adminRoomsSchema>;
 
+/** @deprecated V1 admin room page. Use adminRoomResultV2Schema for current clients. */
 export const adminRoomResultSchema = z.compile(
   z.object({
     rooms: adminRoomsSchema,
@@ -26,6 +28,7 @@ export const adminRoomResultSchema = z.compile(
 );
 export type AdminRoomResult = z.infer<typeof adminRoomResultSchema>;
 
+/** @deprecated V1 sort names. Use adminRoomSearchV2Schema for current clients. */
 export const adminRoomSearchSchema = z.compile(
   z.object({
     q: z.string().optional(),

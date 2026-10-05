@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/** @deprecated V1 statistics response. Use statsV2Schema for current clients. */
 export const statsSchema = z.compile(
   z.object({
     totalListeners: z.int().min(0),

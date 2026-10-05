@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { playlistItemSchema } from './playlist';
 import { songSchema } from './songs';
 
+/** @deprecated Legacy API/SSE contract. Use playbackStateV2Schema for current clients. */
 export const playbackStateSchema = z.compile(
   z.object({
     currentSong: songSchema.nullable(),
@@ -11,6 +12,7 @@ export const playbackStateSchema = z.compile(
     serverTimeMs: z.number(),
   }),
 );
+/** @deprecated Legacy API/SSE contract. Use PlaybackStateV2 for current clients. */
 export type PlaybackState = z.infer<typeof playbackStateSchema>;
 
 export const roomActionRequestSchema = z.compile(
@@ -21,6 +23,7 @@ export const roomActionRequestSchema = z.compile(
 );
 export type RoomActionRequest = z.infer<typeof roomActionRequestSchema>;
 
+/** @deprecated V1 failure request. Use playbackFailureRequestV2Schema for v2. */
 export const playbackFailureRequestSchema = z.compile(
   z.object({ songId: z.string() }),
 );
@@ -28,6 +31,7 @@ export type PlaybackFailureRequest = z.infer<
   typeof playbackFailureRequestSchema
 >;
 
+/** @deprecated V1 skip response. Use skipPlaylistItemResponseSchema for v2. */
 export const skipActionResponseSchema = z.compile(
   z.object({
     action: z.literal('skip'),
@@ -42,6 +46,7 @@ export const skipActionResponseSchema = z.compile(
 );
 export type SkipActionResponse = z.infer<typeof skipActionResponseSchema>;
 
+/** @deprecated Legacy room SSE payload. Use skipVoteUpdateV2Schema for v3 SSE. */
 export const skipVoteUpdateSchema = z.compile(
   z.object({
     userId: z.string(),

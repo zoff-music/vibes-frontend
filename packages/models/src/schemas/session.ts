@@ -14,6 +14,7 @@ export const roomUserSchema = z.compile(
 );
 export type RoomUser = z.infer<typeof roomUserSchema>;
 
+/** @deprecated V1 session response. Use sessionResponseV2Schema for current clients. */
 export const sessionResponseSchema = z.compile(
   z.object({
     userId: z.string(),

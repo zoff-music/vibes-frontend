@@ -23,6 +23,7 @@ const roomSettingsShape = {
   playlistImport: z.boolean(),
 };
 
+/** @deprecated Legacy settings contract. Use roomSettingsV2Schema for current clients. */
 export const roomSettingsSchema = z.compile(z.object(roomSettingsShape));
 export type RoomSettings = z.infer<typeof roomSettingsSchema>;
 
@@ -31,6 +32,7 @@ const roomModeSchema = z.preprocess(
   z.enum(['server', 'host']).default('server'),
 );
 
+/** @deprecated V1 room and legacy SSE contract. Use roomV2Schema for current clients. */
 export const roomSchema = z.compile(
   z.object({
     id: z.string(),
@@ -51,6 +53,7 @@ export const roomSchema = z.compile(
     generationError: z.string().optional(),
   }),
 );
+/** @deprecated V1 room and legacy SSE contract. Use RoomV2 for current clients. */
 export type Room = z.infer<typeof roomSchema>;
 
 export const roomHostUpdateSchema = z.compile(
@@ -74,6 +77,7 @@ export const usersUpdateSchema = z.compile(z.number());
 
 const partialRoomSettingsSchema = z.object(roomSettingsShape).partial();
 
+/** @deprecated V1 room creation contract. Use createRoomRequestV2Schema for v2. */
 export const createRoomRequestSchema = z.compile(
   z.object({
     name: roomNameField,
@@ -88,6 +92,7 @@ export type CreateRoomRequest = z.infer<typeof createRoomRequestSchema>;
 export const createRoomResponseSchema = z.compile(z.object({ id: z.string() }));
 export type CreateRoomResponse = z.infer<typeof createRoomResponseSchema>;
 
+/** @deprecated V1 room update contract. Use roomUpdateV2Schema for v2. */
 export const roomUpdateSchema = z.compile(
   z.object({
     name: roomNameField.optional(),
@@ -97,6 +102,7 @@ export const roomUpdateSchema = z.compile(
 );
 export type RoomUpdate = z.infer<typeof roomUpdateSchema>;
 
+/** @deprecated V1/v2 discovery entry. Use publicRoomV3Schema for v3. */
 export const publicRoomSchema = z.compile(
   z.object({
     id: z.string(),
@@ -119,6 +125,7 @@ export const publicRoomSearchSchema = z.compile(
 );
 export type PublicRoomSearch = z.infer<typeof publicRoomSearchSchema>;
 
+/** @deprecated V2 discovery response. Use publicRoomResultV3Schema for v3. */
 export const publicRoomResultSchema = z.compile(
   z.object({
     rooms: publicRoomsSchema,
