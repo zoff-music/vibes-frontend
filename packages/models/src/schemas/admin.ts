@@ -98,6 +98,14 @@ export type AdminSearchUsagePoint = z.infer<typeof adminSearchUsagePointSchema>;
 
 export const adminSearchUsageSchema = z.compile(
   z.object({
+    roomPoints: z
+      .array(
+        z.object({
+          ...adminSearchUsagePointSchema.omit({ unique: true }).shape,
+          roomId: z.string(),
+        }),
+      )
+      .optional(),
     points: z.array(adminSearchUsagePointSchema),
     generatedAt: z.string(),
   }),
@@ -115,6 +123,14 @@ export type ListenerUsagePoint = z.infer<typeof listenerUsagePointSchema>;
 
 export const adminListenerUsageSchema = z.compile(
   z.object({
+    roomPoints: z
+      .array(
+        z.object({
+          ...listenerUsagePointSchema.shape,
+          roomId: z.string(),
+        }),
+      )
+      .optional(),
     points: z.array(listenerUsagePointSchema),
     generatedAt: z.string(),
   }),
@@ -123,6 +139,16 @@ export type AdminListenerUsage = z.infer<typeof adminListenerUsageSchema>;
 
 export const adminMessageUsageSchema = z.compile(
   z.object({
+    roomPoints: z
+      .array(
+        z.object({
+          roomId: z.string(),
+          window: z.enum(['hour', 'day', 'month']),
+          timestamp: z.string(),
+          messages: z.number(),
+        }),
+      )
+      .optional(),
     roomId: z.string(),
     total: z.number(),
     generatedAt: z.string(),

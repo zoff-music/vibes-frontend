@@ -401,7 +401,7 @@ export async function clientAction({
 
     if (body.provider === 'youtube') {
       const [error, searchResults] = await api.get('/youtube/search', {
-        $search: { q: prompt },
+        $search: { q: prompt, roomId },
       });
       if (error || !searchResults) {
         return createErrorData(body.intent, error);
@@ -410,7 +410,7 @@ export async function clientAction({
     }
 
     const [error, searchResults] = await api.get('/soundcloud/search', {
-      $search: { q: prompt },
+      $search: { q: prompt, roomId },
     });
     if (error || !searchResults) {
       return createErrorData(body.intent, error);

@@ -20,6 +20,9 @@ export const youTubeSearchResponseSchema = z.compile(
 export type YouTubeSearchResponse = z.infer<typeof youTubeSearchResponseSchema>;
 
 export const youTubeSearchQuerySchema = z.compile(
-  z.object({ q: z.string().trim().min(3) }),
+  z.object({
+    q: z.string().trim().min(3),
+    roomId: z.string().max(200).optional(),
+  }),
 );
 export type YouTubeSearchQuery = z.infer<typeof youTubeSearchQuerySchema>;

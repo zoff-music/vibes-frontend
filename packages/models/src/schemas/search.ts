@@ -32,7 +32,10 @@ export const searchResponseSchema = z.compile(z.array(searchResultSchema));
 export type SearchResponse = z.infer<typeof searchResponseSchema>;
 
 export const searchQuerySchema = z.compile(
-  z.object({ q: z.string().trim().min(3) }),
+  z.object({
+    q: z.string().trim().min(3),
+    roomId: z.string().max(200).optional(),
+  }),
 );
 export type SearchQuery = z.infer<typeof searchQuerySchema>;
 
