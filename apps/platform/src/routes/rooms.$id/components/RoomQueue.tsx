@@ -276,10 +276,11 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
               {!chatEnabled && (
-                <h3 className="py-4 font-display text-2xs text-theme-muted tracking-label">
+                <h2 className="py-4 font-display text-2xs text-theme-muted tracking-label">
                   Up next ({queuedSongCount})
-                </h3>
+                </h2>
               )}
+              {chatEnabled && <h2 className="sr-only">Queue and chat</h2>}
               {chatEnabled && (
                 <button
                   type="button"

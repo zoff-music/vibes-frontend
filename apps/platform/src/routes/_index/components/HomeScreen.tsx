@@ -1,21 +1,14 @@
 import { classNames } from '@vibes/shared';
-import {
-  AnimatePresence,
-  motion,
-  useInView,
-  useReducedMotion,
-} from 'framer-motion';
+import { useInView, useReducedMotion } from 'framer-motion';
 import { lazy, memo, Suspense, useEffect, useRef, useState } from 'react';
 import type { NavigateFunction, NavigationType } from 'react-router';
 import { useKonamiMode } from '../../../components/konami/KonamiModeContext';
-import { ProfileSettingsModal } from '../../../components/profile/ProfileSettingsModal';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import { canUseViewTransition } from '../../../utils/viewTransition';
 import { useAnimatedPlaceholder } from '../hooks/useAnimatedPlaceholder';
 import type { HomeLoaderData } from '../loader';
 import { HomeLanding } from './HomeLanding';
 import { HomeRoomControls } from './HomeRoomControls';
-import { JoiningRoomState } from './JoiningRoomState';
 import { PlaylistGenerationControls } from './PlaylistGenerationControls';
 import { ProductIntroduction } from './ProductIntroduction';
 import { ReturnToRoom } from './ReturnToRoom';
@@ -24,6 +17,18 @@ import { ReturnToRoomPreview } from './ReturnToRoomPreview';
 const LazyTerminalHome = lazy(async () => {
   const module = await import('./TerminalHome');
   return { default: module.TerminalHome };
+});
+
+const LazyProfileSettingsModal = lazy(async () => {
+  const module = await import(
+    '../../../components/profile/ProfileSettingsModal'
+  );
+  return { default: module.ProfileSettingsModal };
+});
+
+const LazyJoiningRoomState = lazy(async () => {
+  const module = await import('./JoiningRoomState');
+  return { default: module.JoiningRoomState };
 });
 
 interface HomeScreenProps extends HomeLoaderData {
@@ -129,23 +134,25 @@ export const HomeScreen = memo(function HomeScreen({
         <div className="product-content relative z-10 px-5 sm:px-6">
           <ProductIntroduction onGeneratePlaylist={handleGeneratePlaylist} />
         </div>
-        <ProfileSettingsModal
-          isOpen={showProfileSettings}
-          onClose={() => setShowProfileSettings(false)}
-        />
+        {showProfileSettings && (
+          <Suspense fallback={null}>
+            <LazyProfileSettingsModal
+              isOpen
+              onClose={() => setShowProfileSettings(false)}
+            />
+          </Suspense>
+        )}
       </>
     );
   }
 
   return (
-    <motion.div
-      animate={{ opacity: 1 }}
+    <div
       className={classNames(
         'home-entry relative w-full',
         shouldFadeIn && 'animate-fade-in',
         pendingRoomSlug && 'pointer-events-none',
       )}
-      initial={{ opacity: 1 }}
     >
       <HomeLanding
         heroRef={heroRef}
@@ -183,10 +190,18 @@ export const HomeScreen = memo(function HomeScreen({
       {!previewReturn && !pendingRoomSlug && (
         <ReturnToRoom onJoinRoom={handleJoinRoom} />
       )}
-      <AnimatePresence>
-        {pendingRoomSlug && <JoiningRoomState roomId={pendingRoomSlug} />}
-      </AnimatePresence>
-    </motion.div>
+      {pendingRoomSlug && (
+        <Suspense
+          fallback={
+            <p role="status" className="sr-only">
+              Joining room...
+            </p>
+          }
+        >
+          <LazyJoiningRoomState roomId={pendingRoomSlug} />
+        </Suspense>
+      )}
+    </div>
   );
 });
 

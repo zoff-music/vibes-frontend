@@ -105,6 +105,9 @@ const VideoPlayerComponent = ({
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
+  const [slowStartupVideoId, setSlowStartupVideoId] = useState<string | null>(
+    null,
+  );
 
   const autoPlayRetryRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoPlayKickCountRef = useRef(0);
@@ -767,6 +770,7 @@ const VideoPlayerComponent = ({
         return;
       }
       if (state === YOUTUBE_STATE_PLAYING) {
+        setSlowStartupVideoId(null);
         claimProviderPlayback('youtube');
         if (
           playbackState.currentSong?.sourceType === 'youtube' &&
@@ -949,10 +953,10 @@ const VideoPlayerComponent = ({
       const state = player.getPlayerState();
       if (state === YOUTUBE_STATE_PLAYING || state === YOUTUBE_STATE_BUFFERING)
         return;
-      setNeedsUserGesture(true);
+      setSlowStartupVideoId(videoId);
     }, AUTOPLAY_CONFIRMATION_MS);
     return () => clearTimeout(timeout);
-  }, [allowUnmutedAutoplay, isReady, shouldPlay, playerState]);
+  }, [allowUnmutedAutoplay, isReady, shouldPlay, playerState, videoId]);
 
   const handleError = useCallback(
     (event: unknown) => {
@@ -1076,6 +1080,8 @@ const VideoPlayerComponent = ({
     !isCastReceiver &&
     (!canPlayAudio ||
       needsUserGesture ||
+      (slowStartupVideoId === videoId &&
+        playerState !== YOUTUBE_STATE_PLAYING) ||
       (shouldPlay && isMutedState && desiredVolume > MIN_VOLUME)) &&
     !error;
 
@@ -1110,8 +1116,9 @@ const VideoPlayerComponent = ({
   }, [debugLog, onLocalPlay, videoId]);
 
   useEffect(() => {
+    if (!isYouTubeActive) return;
     onNeedsUserGestureChange?.(showClickToPlay);
-  }, [showClickToPlay, onNeedsUserGestureChange]);
+  }, [isYouTubeActive, showClickToPlay, onNeedsUserGestureChange]);
 
   const containerClass = fill
     ? 'relative flex h-full w-full flex-col overflow-hidden bg-black'

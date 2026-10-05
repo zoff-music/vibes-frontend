@@ -149,6 +149,9 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const [isWidgetPlaying, setIsWidgetPlaying] = useState(false);
   const [isWidgetMuted, setIsWidgetMuted] = useState(true);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
+  const [slowStartupSongId, setSlowStartupSongId] = useState<string | null>(
+    null,
+  );
 
   useLayoutEffect(() => {
     desiredVolumeRef.current = desiredVolume;
@@ -273,6 +276,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       widget.setVolume(desiredVolumeRef.current);
       setIsWidgetMuted(desiredVolumeRef.current === MIN_VOLUME);
       setIsWidgetPlaying(true);
+      setSlowStartupSongId(null);
     });
 
     widget.bind(soundCloud.Widget.Events.PAUSE, () => {
@@ -397,8 +401,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     const timeout = setTimeout(() => {
       widgetRef.current?.isPaused((isPaused) => {
         if (cancelled || !isPaused) return;
-        needsUserGestureRef.current = true;
-        setNeedsUserGesture(true);
+        setSlowStartupSongId(currentSong?.id ?? null);
       });
     }, AUTOPLAY_CONFIRMATION_MS);
     return () => {
@@ -412,6 +415,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     isPlaying,
     isWidgetPlaying,
     needsUserGesture,
+    currentSong?.id,
   ]);
 
   useEffect(() => {
@@ -509,6 +513,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const showClickToPlay =
     isActive &&
     (needsUserGesture ||
+      (slowStartupSongId === currentSong?.id && !isWidgetPlaying) ||
       (showInitialPlaybackOverlay &&
         !isPlaybackUnlocked &&
         !allowUnmutedAutoplay));
