@@ -15,7 +15,7 @@ export function RemotePreview() {
       className="grid items-center gap-8 py-16 sm:py-28 lg:grid-cols-5 lg:gap-16"
     >
       <div className="lg:order-2 lg:col-span-2">
-        <p className="font-pixel text-secondary text-xs tracking-label">
+        <p className="font-pixel text-cyan-800 text-xs tracking-label dark:text-secondary">
           REMOTE CONTROL
         </p>
         <h2

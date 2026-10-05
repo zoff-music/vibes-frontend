@@ -14,6 +14,7 @@ import {
   useRouteError,
 } from 'react-router';
 import { App } from './App';
+import analyticsUrl from './assets/analytics.js?no-inline&url';
 import { PlatformErrorView } from './components/errors/PlatformErrorView';
 import { Background } from './components/layout/Background';
 import { SiteLayout } from './components/layout/SiteLayout';
@@ -90,6 +91,7 @@ export function Layout({ children }: Props) {
         />
         <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
         <link rel="stylesheet" href={stylesUrl} />
+        <link rel="describedby" href="/llms.txt" type="text/plain" />
         {konamiEnabled && <link rel="stylesheet" href={retroStylesUrl} />}
         <link
           rel="icon"
@@ -105,12 +107,7 @@ export function Layout({ children }: Props) {
           href="/apple-touch-icon.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
-        <script defer src="/plausible-init.js" />
-        <script
-          defer
-          data-domain="zoff.me"
-          src="https://analytics.zoff.me/js/script.outbound-links.tagged-events.js"
-        />
+        <script defer src={analyticsUrl} />
         <Meta />
         <Links />
       </head>

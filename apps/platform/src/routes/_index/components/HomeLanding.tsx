@@ -76,10 +76,7 @@ export function HomeLanding({
         rooms={data.publicRooms ?? []}
       />
       <ProductIntroduction onGeneratePlaylist={onGeneratePlaylist} />
-      <p
-        lang="ja"
-        className="jp-art mt-6 text-center text-theme-subtle text-xs"
-      >
+      <p lang="ja" className="jp-art mt-6 text-center text-theme-muted text-xs">
         音楽は共有するもの
       </p>
     </SitePage>

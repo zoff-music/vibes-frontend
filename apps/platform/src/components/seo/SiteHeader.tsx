@@ -2,6 +2,9 @@ import { Button, SettingsIcon, Tooltip } from '@vibes/ui/web';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router';
 import headerLogo from '../../assets/logo-header.webp';
+import headerLogo48 from '../../assets/logo-header-48.webp?no-inline';
+import headerLogo96 from '../../assets/logo-header-96.webp?no-inline';
+import headerLogo128 from '../../assets/logo-header-128.webp?no-inline';
 import { ProfileSettingsModal } from '../profile/ProfileSettingsModal';
 
 export function SiteHeader() {
@@ -16,7 +19,9 @@ export function SiteHeader() {
           className="group flex shrink-0 cursor-pointer items-center gap-3 rounded-xl transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
         >
           <img
-            src={headerLogo}
+            src={headerLogo48}
+            srcSet={`${headerLogo48} 48w, ${headerLogo96} 96w, ${headerLogo128} 128w, ${headerLogo} 256w`}
+            sizes="(min-width: 640px) 64px, 48px"
             alt=""
             width={256}
             height={256}

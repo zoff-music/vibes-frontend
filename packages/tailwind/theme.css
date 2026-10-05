@@ -25,6 +25,7 @@
   --color-soundcloud: #ff5500;
   --color-on-soundcloud: #1c0900;
   --color-on-secondary: #04151a;
+  --color-on-primary: #2a0820;
 
   --shadow-focus-primary: 0 0 0 3px rgba(255, 46, 151, 0.1);
   --shadow-auth: 0 0 80px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 46, 151, 0.3);
