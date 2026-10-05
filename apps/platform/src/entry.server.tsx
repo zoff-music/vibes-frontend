@@ -3,11 +3,13 @@ import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?u
 import { renderToReadableStream } from 'react-dom/server';
 import type { EntryContext, HandleErrorFunction } from 'react-router';
 import { ServerRouter } from 'react-router';
+import stylesUrl from './index.css?url';
 
 export const handleError: HandleErrorFunction = handleServerError;
 
 export const documentPreloads = [
   `<${regularFontUrl}>; rel=preload; as=font; type="font/woff2"; crossorigin`,
+  `<${stylesUrl}>; rel=preload; as=style`,
 ];
 
 export default async function handleRequest(

@@ -157,6 +157,10 @@ its sitemap entry. Keep the lightweight navigation list in
 `/sitemap.xml` contains only stable product and policy URLs, never live rooms
 or session data. `/robots.txt` points to this sitemap. The homepage identifies
 the application and its store listings with SoftwareApplication JSON-LD.
+`/llms.txt` returns a cached Markdown navigation guide with a project heading
+and canonical product and policy links. It is an explicit resource route so
+it cannot be mistaken for a room name, and the document links to it with
+`rel="describedby"`. It does not replace robots.txt or grant access to private data.
 All these public pages also use server-rendered WebSite and WebPage JSON-LD,
 with stable canonical `@id` references to the same website and application.
 Non-home pages have a two-step BreadcrumbList from the homepage to the current
@@ -397,11 +401,18 @@ PORT=3000
 
 The production SSR entry exports `documentPreloads` for the shared server to
 send before loaders finish using `103 Early Hints`. The final response also
-includes a `Link` header, and the document retains its font preload for browsers
+includes a `Link` header, and the document retains its font and stylesheet preloads for browsers
 or proxies that do not support informational responses. This uses preload, not
 the retired HTTP/2 server-push mechanism. Only HTML GET requests receive hints.
 
-The regular Latin font is preloaded. CSS unicode ranges load the remaining
+The regular Latin font and main stylesheet are preloaded before loaders finish.
+The DOM stylesheet excludes native-only components from Tailwind's source scan.
+The header logo uses responsive WebP sizes, and provider marks declare their
+intrinsic dimensions. Keep these dimensions when replacing brand assets.
+The content-hashed analytics bootstrap queues events immediately and starts the
+external tracker after load and a paint opportunity, avoiding its layout reads
+during initial rendering.
+CSS unicode ranges load the remaining
 characters and bold weight only when needed, preserving the original font's
 character coverage. Native font assets are unchanged. To regenerate the web
 subsets after updating the source WOFF2 fonts:

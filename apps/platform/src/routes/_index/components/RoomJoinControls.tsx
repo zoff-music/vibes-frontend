@@ -54,13 +54,17 @@ export function RoomJoinControls({
           Room name
         </label>
         <div className="flex h-14 min-w-0 items-center rounded-2xl border border-theme bg-theme-surface transition-colors focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/30">
-          <label
+          <button
+            type="button"
+            tabIndex={-1}
             aria-hidden="true"
-            htmlFor="room-name"
-            className="flex h-full shrink-0 cursor-text items-center pl-4 text-sm text-theme-subtle"
+            onClick={(event) =>
+              event.currentTarget.parentElement?.querySelector('input')?.focus()
+            }
+            className="flex h-full shrink-0 cursor-text items-center pl-4 text-sm text-theme-muted"
           >
             zoff.me/
-          </label>
+          </button>
           <input
             {...(inputRef && { ref: inputRef })}
             id="room-name"

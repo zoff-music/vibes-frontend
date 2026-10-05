@@ -3,6 +3,7 @@ import { index, route } from '@react-router/dev/routes';
 export default [
   index('./routes/_index/route.tsx'),
   route('robots.txt', './routes/robots/loader.ts'),
+  route('llms.txt', './routes/llms/loader.ts'),
   route('sitemap.xml', './routes/sitemap/loader.ts'),
   route('discovery/:topic', './routes/discover/route.tsx'),
   route('rooms/explore', './routes/explore.rooms/route.tsx'),

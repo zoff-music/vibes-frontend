@@ -13,7 +13,7 @@ export function RoomControlsPreview() {
     <section aria-labelledby="room-controls-heading" className="py-16 sm:py-28">
       <div className="mb-6 grid gap-4 sm:mb-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="min-w-0">
-          <p className="font-pixel text-primary text-xs tracking-label">
+          <p className="font-pixel text-pink-800 text-xs tracking-label dark:text-primary">
             ROOM CONTROLS
           </p>
           <h2

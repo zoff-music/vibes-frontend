@@ -26,7 +26,7 @@ export function GeneratedPlaylistSection({
       className="grid scroll-mt-8 items-center gap-12 py-20 sm:py-28 lg:grid-cols-5 lg:gap-16"
     >
       <div className="min-w-0 lg:col-span-2">
-        <p className="flex items-center gap-3 font-pixel text-primary text-xs tracking-label">
+        <p className="flex items-center gap-3 font-pixel text-pink-800 text-xs tracking-label dark:text-primary">
           <SparklesIcon aria-hidden="true" className="h-6 w-6 shrink-0" />
           AI PLAYLISTS
         </p>

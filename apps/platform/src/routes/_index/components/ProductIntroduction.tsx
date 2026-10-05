@@ -29,7 +29,7 @@ export function ProductIntroduction({
         className="grid scroll-mt-8 items-center gap-12 py-20 sm:py-32 lg:grid-cols-5 lg:gap-16"
       >
         <div id="voting" className="min-w-0 scroll-mt-12 lg:col-span-2">
-          <p className="font-pixel text-primary text-xs tracking-label">
+          <p className="font-pixel text-pink-800 text-xs tracking-label dark:text-primary">
             THE SHARED QUEUE
           </p>
           <h2
@@ -68,7 +68,7 @@ export function ProductIntroduction({
         aria-labelledby="find-your-moment-heading"
         className="flex min-h-[65svh] scroll-mt-8 flex-col justify-center py-20 sm:py-32"
       >
-        <p className="font-pixel text-2xs text-primary tracking-label">
+        <p className="font-pixel text-2xs text-pink-800 tracking-label dark:text-primary">
           MORE ABOUT ZOFF
         </p>
         <div className="mt-3 mb-6 flex flex-wrap items-end justify-between gap-3">

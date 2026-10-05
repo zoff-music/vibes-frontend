@@ -22,12 +22,16 @@ export function ProviderMark({
         alt={getProviderDisplayName(provider)}
         className={classNames('provider-mark-light object-contain', className)}
         src={marks.light}
+        width={marks.width}
+        height={marks.height}
       />
       <img
         alt=""
         aria-hidden="true"
         className={classNames('provider-mark-dark object-contain', className)}
         src={marks.dark}
+        width={marks.width}
+        height={marks.height}
       />
     </>
   );
@@ -38,14 +42,20 @@ const providerMarks: Record<
   {
     dark: string;
     light: string;
+    width: number;
+    height: number;
   }
 > = {
   soundcloud: {
     dark: soundCloudDark,
     light: soundCloudLight,
+    width: 104,
+    height: 16,
   },
   youtube: {
     dark: youTubeDark,
     light: youTubeLight,
+    width: 492,
+    height: 110,
   },
 };
