@@ -1,11 +1,13 @@
 import { classNames } from '@vibes/shared';
-import { scaleLinear, utcFormat } from 'd3';
+import { area, line, scaleLinear, utcFormat } from 'd3';
 import { useId, useState } from 'react';
 import { Tooltip } from '../components/Tooltip';
 
 export interface RoomUsageValue {
   roomId: string;
   value: number;
+  cached?: number;
+  live?: number;
 }
 
 export interface RoomUsageBucket {
@@ -13,18 +15,28 @@ export interface RoomUsageBucket {
   total: number;
   rooms: RoomUsageValue[];
   detail?: string;
+  cached?: number;
+  live?: number;
 }
 
 interface RoomUsageChartProps {
   buckets: RoomUsageBucket[];
   label: string;
   tickFormat: string;
+  showCacheSplit?: boolean;
+}
+
+interface RoomUsageSeries {
+  room: string;
+  metric: 'value' | 'live' | 'cached';
+  label: string;
 }
 
 export function RoomUsageChart({
   buckets,
   label,
   tickFormat,
+  showCacheSplit = false,
 }: RoomUsageChartProps) {
   const id = useId();
   const [selectedRoom, setSelectedRoom] = useState('*');
@@ -45,39 +57,51 @@ export function RoomUsageChart({
   );
   const activeRoom =
     selectedRoom === '*' || roomTotals.has(selectedRoom) ? selectedRoom : '*';
-  const featured = rooms.slice(0, 7).map(([room]) => room);
-  const paletteRooms = [...featured].sort();
+  const paletteRooms = rooms.map(([room]) => room).sort();
   const color = (room: string) => roomColor(room, paletteRooms.indexOf(room));
-  const series =
+  const roomSeries =
     activeRoom === '*'
-      ? [...featured, ...(rooms.length > 7 ? ['*other'] : []), '*unknown']
+      ? [...rooms.map(([room]) => room), '*unknown']
       : [activeRoom];
+  const series = roomSeries.flatMap<RoomUsageSeries>((room) => {
+    if (showCacheSplit) {
+      return [
+        {
+          room,
+          metric: 'live' as const,
+          label: `${roomLabel(room)} · Uncached`,
+        },
+        {
+          room,
+          metric: 'cached' as const,
+          label: `${roomLabel(room)} · Cached`,
+        },
+      ];
+    }
+
+    return [{ room, metric: 'value' as const, label: roomLabel(room) }];
+  });
   const chartBuckets = buckets.map((bucket) => {
-    const counts = new Map(
-      bucket.rooms.map((room) => [room.roomId, room.value]),
-    );
-    const attributed = bucket.rooms.reduce(
-      (sum, room) => sum + (room.roomId ? room.value : 0),
-      0,
-    );
-    const values = series.map((room) => {
-      if (room === '*unknown') return Math.max(0, bucket.total - attributed);
-      if (room === '*other')
-        return bucket.rooms.reduce(
-          (sum, entry) =>
-            sum +
-            (!entry.roomId || featured.includes(entry.roomId)
-              ? 0
-              : entry.value),
+    const counts = new Map(bucket.rooms.map((room) => [room.roomId, room]));
+    const values = series.map(({ room, metric }) => {
+      if (room === '*unknown') {
+        const total = metric === 'value' ? bucket.total : (bucket[metric] ?? 0);
+        const attributed = bucket.rooms.reduce(
+          (sum, entry) => sum + (entry.roomId ? (entry[metric] ?? 0) : 0),
           0,
         );
-      return counts.get(room) ?? 0;
+
+        return Math.max(0, total - attributed);
+      }
+
+      return counts.get(room)?.[metric] ?? 0;
     });
+    const shownTotal = values.reduce((sum, value) => sum + value, 0);
 
     return {
       ...bucket,
       values,
-      shownTotal: values.reduce((sum, value) => sum + value, 0),
+      shownTotal,
     };
   });
   const maximum = Math.max(
@@ -87,9 +111,40 @@ export function RoomUsageChart({
   const y = scaleLinear().domain([0, maximum]).nice(4).range([250, 16]);
   const step = 640 / Math.max(1, buckets.length);
   const timestampFormat = utcFormat('%d %b %Y, %H:%M UTC');
-  const visibleSeries = series.filter((_, index) =>
-    chartBuckets.some((bucket) => bucket.values[index] > 0),
+  const visibleRooms = roomSeries.filter((room) =>
+    series.some(
+      (entry, index) =>
+        entry.room === room &&
+        chartBuckets.some((bucket) => bucket.values[index] > 0),
+    ),
   );
+  const paths = series.map((entry, roomIndex) => {
+    const points = chartBuckets.map((bucket, index) => {
+      const bottom = bucket.values
+        .slice(0, roomIndex)
+        .reduce((sum, value) => sum + value, 0);
+
+      return {
+        x: 52 + (index + 0.5) * step,
+        bottom: y(bottom),
+        top: y(bottom + bucket.values[roomIndex]),
+      };
+    });
+
+    return {
+      ...entry,
+      points,
+      line:
+        line<(typeof points)[number]>()
+          .x((point) => point.x)
+          .y((point) => point.top)(points) ?? '',
+      area:
+        area<(typeof points)[number]>()
+          .x((point) => point.x)
+          .y0((point) => point.bottom)
+          .y1((point) => point.top)(points) ?? '',
+    };
+  });
 
   return (
     <div className="mt-5 space-y-4">
@@ -100,6 +155,11 @@ export function RoomUsageChart({
             Hover, focus or tap an interval for exact counts. Times are UTC.
           </p>
         </div>
+        {showCacheSplit && (
+          <p className="text-theme-muted text-xs">
+            Solid: uncached · Dashed: cached. Both stack within each room.
+          </p>
+        )}
         <label htmlFor={id} className="space-y-1 text-sm text-theme-muted">
           <span className="block">Room breakdown</span>
           <select
@@ -122,7 +182,7 @@ export function RoomUsageChart({
           <svg
             viewBox="0 0 720 290"
             role="img"
-            aria-label={`${label} stacked by room`}
+            aria-label={`${label} stacked by room${showCacheSplit ? ', uncached and cached' : ''}`}
             className="block w-full"
           >
             {y
@@ -147,39 +207,51 @@ export function RoomUsageChart({
                   </text>
                 </g>
               ))}
-            {chartBuckets.map((bucket, index) => {
-              let cumulative = 0;
-
-              return (
-                <g key={bucket.timestamp.toISOString()}>
-                  {bucket.values.map((value, roomIndex) => {
-                    const bottom = cumulative;
-                    cumulative += value;
-
-                    return (
-                      <rect
-                        key={series[roomIndex]}
-                        x={52 + index * step + 1}
-                        y={y(cumulative)}
-                        width={Math.max(1, step - 2)}
-                        height={y(bottom) - y(cumulative)}
-                        className={color(series[roomIndex])}
-                      />
-                    );
-                  })}
-                  {index % Math.ceil(chartBuckets.length / 6) === 0 && (
-                    <text
-                      x={52 + (index + 0.5) * step}
-                      y={278}
-                      textAnchor="middle"
-                      className="fill-theme-muted text-xs"
-                    >
-                      {utcFormat(tickFormat)(bucket.timestamp)}
-                    </text>
-                  )}
+            {paths
+              .filter((path) =>
+                path.points.some((point) => point.top < point.bottom),
+              )
+              .map((path) => (
+                <g key={path.label} className={color(path.room)}>
+                  <path
+                    d={path.area}
+                    fill="currentColor"
+                    fillOpacity={path.metric === 'cached' ? 0.06 : 0.18}
+                  />
+                  <path
+                    d={path.line}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    strokeLinejoin="round"
+                    strokeDasharray={path.metric === 'cached' ? '5 4' : 'none'}
+                    strokeOpacity={path.metric === 'cached' ? 0.65 : 1}
+                  />
+                  {path.points.map((point, index) => (
+                    <circle
+                      key={chartBuckets[index].timestamp.toISOString()}
+                      cx={point.x}
+                      cy={point.top}
+                      r={2.5}
+                      fill="currentColor"
+                    />
+                  ))}
                 </g>
-              );
-            })}
+              ))}
+            {chartBuckets.map((bucket, index) => (
+              <g key={bucket.timestamp.toISOString()}>
+                {index % Math.ceil(chartBuckets.length / 6) === 0 && (
+                  <text
+                    x={52 + (index + 0.5) * step}
+                    y={278}
+                    textAnchor="middle"
+                    className="fill-theme-muted text-xs"
+                  >
+                    {utcFormat(tickFormat)(bucket.timestamp)}
+                  </text>
+                )}
+              </g>
+            ))}
           </svg>
           <div className="absolute top-[5.517%] right-[3.889%] bottom-[13.793%] left-[7.222%] flex">
             {chartBuckets.map((bucket) => (
@@ -188,55 +260,74 @@ export function RoomUsageChart({
                 as="div"
                 className="min-w-0 flex-1"
                 content={
-                  <span className="block w-64 space-y-2 whitespace-normal font-sans text-sm">
+                  <span className="block w-72 space-y-2 whitespace-normal font-sans text-sm">
                     <span className="block text-theme-muted">
                       {timestampFormat(bucket.timestamp)}
                     </span>
                     <span className="block font-bold">
                       {bucket.shownTotal.toLocaleString()} {label.toLowerCase()}
                     </span>
-                    {bucket.detail && activeRoom === '*' && (
+                    {!showCacheSplit && bucket.detail && activeRoom === '*' && (
                       <span className="block text-theme-muted text-xs">
                         {bucket.detail}
                       </span>
                     )}
-                    {series.map(
-                      (room, index) =>
-                        bucket.values[index] > 0 && (
-                          <span
-                            key={room}
-                            className="flex justify-between gap-4"
-                          >
-                            <span className="flex min-w-0 items-center gap-2">
-                              <svg
-                                viewBox="0 0 8 8"
-                                className="h-2 w-2 shrink-0"
-                                aria-hidden="true"
-                              >
-                                <rect
-                                  width="8"
-                                  height="8"
-                                  rx="2"
-                                  className={color(room)}
-                                />
-                              </svg>
-                              <span className="truncate">
-                                {roomLabel(room)}
-                              </span>
-                            </span>
-                            <span className="tabular-nums">
-                              {bucket.values[index].toLocaleString()}
-                            </span>
-                          </span>
-                        ),
+                    {showCacheSplit && (
+                      <span className="grid grid-cols-[1fr_4rem_4rem] gap-2 text-theme-muted text-xs">
+                        <span>Room</span>
+                        <span className="text-right">Uncached</span>
+                        <span className="text-right">Cached</span>
+                      </span>
                     )}
+                    {visibleRooms.map((room) => {
+                      const index = series.findIndex(
+                        (entry) => entry.room === room,
+                      );
+
+                      return (
+                        <span
+                          key={room}
+                          className={classNames(
+                            'grid gap-2',
+                            showCacheSplit
+                              ? 'grid-cols-[1fr_4rem_4rem]'
+                              : 'grid-cols-[1fr_4rem]',
+                          )}
+                        >
+                          <span className="flex min-w-0 items-center gap-2">
+                            <svg
+                              viewBox="0 0 8 8"
+                              className="h-2 w-2 shrink-0"
+                              aria-hidden="true"
+                            >
+                              <rect
+                                width="8"
+                                height="8"
+                                rx="2"
+                                fill="currentColor"
+                                className={color(room)}
+                              />
+                            </svg>
+                            <span className="truncate">{roomLabel(room)}</span>
+                          </span>
+                          <span className="text-right tabular-nums">
+                            {bucket.values[index].toLocaleString()}
+                          </span>
+                          {showCacheSplit && (
+                            <span className="text-right tabular-nums">
+                              {bucket.values[index + 1].toLocaleString()}
+                            </span>
+                          )}
+                        </span>
+                      );
+                    })}
                   </span>
                 }
               >
                 <button
                   type="button"
                   className="h-full w-full cursor-crosshair rounded-sm hover:bg-secondary/10 focus-visible:bg-secondary/10 focus-visible:outline-2 focus-visible:outline-secondary"
-                  aria-label={`${timestampFormat(bucket.timestamp)}: ${bucket.shownTotal} ${label.toLowerCase()}. ${series.map((room, index) => `${roomLabel(room)}: ${bucket.values[index]}`).join(', ')}`}
+                  aria-label={`${timestampFormat(bucket.timestamp)}: ${bucket.shownTotal} ${label.toLowerCase()}. ${series.map((entry, index) => `${entry.label}: ${bucket.values[index]}`).join(', ')}`}
                 />
               </Tooltip>
             ))}
@@ -253,10 +344,16 @@ export function RoomUsageChart({
         className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-theme-muted"
         aria-label="Room legend"
       >
-        {visibleSeries.map((room) => (
+        {visibleRooms.map((room) => (
           <li key={room} className="flex items-center gap-2">
             <svg viewBox="0 0 8 8" className="h-2.5 w-2.5" aria-hidden="true">
-              <rect width="8" height="8" rx="2" className={color(room)} />
+              <rect
+                width="8"
+                height="8"
+                rx="2"
+                fill="currentColor"
+                className={color(room)}
+              />
             </svg>
             {roomLabel(room)}
           </li>
@@ -272,23 +369,21 @@ export function RoomUsageChart({
 
 function roomLabel(room: string) {
   if (room === '*unknown' || room === '') return 'Unattributed';
-  if (room === '*other') return 'Other rooms';
   return room;
 }
 
 function roomColor(room: string, index: number) {
-  if (room === '*unknown' || room === '') return 'fill-slate-400';
-  if (room === '*other') return 'fill-violet-400';
+  if (room === '*unknown' || room === '') return 'text-slate-400';
 
   return classNames(roomColors[Math.max(0, index) % roomColors.length]);
 }
 
 const roomColors = [
-  'fill-cyan-400',
-  'fill-pink-500',
-  'fill-indigo-400',
-  'fill-teal-400',
-  'fill-rose-400',
-  'fill-sky-500',
-  'fill-fuchsia-400',
+  'text-cyan-400',
+  'text-pink-500',
+  'text-indigo-400',
+  'text-teal-400',
+  'text-rose-400',
+  'text-sky-500',
+  'text-fuchsia-400',
 ];
