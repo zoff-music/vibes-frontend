@@ -2,6 +2,7 @@ import { ArrowRightIcon, DeferredContent } from '@vibes/ui/web';
 import { lazy } from 'react';
 import { Link } from 'react-router';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
+import { CommunityStats } from './CommunityStats';
 
 const LazyWatchScene = lazy(() =>
   import('../../../components/seo/WatchScene').then((module) => ({
@@ -23,6 +24,8 @@ const LazyGeneratedPlaylistDemo = lazy(() =>
 export function WatchIntroduction() {
   return (
     <div className="mx-auto max-w-6xl">
+      <CommunityStats />
+
       <section
         className="grid items-center gap-10 py-20 sm:py-28 lg:grid-cols-5 lg:gap-16"
         aria-labelledby="watch-moment-heading"
