@@ -1,7 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { Link, useLocation } from 'react-router';
 import { useExperience } from '../../hooks/useExperience';
-import { canUseViewTransition } from '../../utils/viewTransition';
 
 export function ExperienceSwitch() {
   const experience = useExperience();
@@ -27,7 +26,7 @@ export function ExperienceSwitch() {
           key={item.type}
           to={item.href}
           prefetch="intent"
-          viewTransition={isLandingPage && canUseViewTransition()}
+          state={{ experienceTransition: isLandingPage }}
           aria-current={experience === item.type ? 'page' : false}
           className={classNames(
             'relative flex min-h-11 min-w-28 cursor-pointer items-center justify-center gap-2 rounded-full border px-5 font-pixel text-sm transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary',

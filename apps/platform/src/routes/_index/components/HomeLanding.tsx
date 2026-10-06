@@ -1,7 +1,7 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView } from 'framer-motion';
 import { type ReactNode, type RefObject, useRef } from 'react';
-import { useViewTransitionState } from 'react-router';
+import { useLocation } from 'react-router';
 import { RetroSun } from '../../../components/layout/RetroSun';
 import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';
@@ -31,14 +31,18 @@ export function HomeLanding({
   const sunVisible = useInView(sunRef);
   const pageVisible = usePageVisibility();
   const watch = useExperience() === 'WATCH';
-  const enteringWatch = useViewTransitionState('/features/watch');
-  const enteringMusic = useViewTransitionState('/features/music');
+  const location = useLocation();
+  const navigationState: unknown = location.state;
+  const animateExperience =
+    typeof navigationState === 'object' &&
+    navigationState !== null &&
+    'experienceTransition' in navigationState &&
+    navigationState.experienceTransition === true;
 
   return (
     <SitePage>
       <div
         ref={heroRef}
-        data-experience-transition={enteringWatch || enteringMusic}
         data-experience={watch ? 'watch' : 'music'}
         className="flex min-h-[calc(100svh-8rem)] flex-col gap-8 pt-24 pb-8 sm:gap-10 sm:pt-32 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-4xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl"
       >
@@ -48,11 +52,16 @@ export function HomeLanding({
             aria-hidden="true"
             className="pointer-events-none absolute -top-24 left-1/2 w-screen -translate-x-1/2 overflow-x-clip sm:-top-32"
           >
-            <div className="experience-orbit mx-auto w-72 max-w-full sm:w-96">
-              <RetroSun watch={watch} paused={!pageVisible || !sunVisible} />
+            <div className="experience-orbit isolate mx-auto w-72 max-w-full sm:w-96">
+              <RetroSun
+                key={watch ? 'watch' : 'music'}
+                watch={watch}
+                animate={animateExperience}
+                paused={!pageVisible || !sunVisible}
+              />
             </div>
           </div>
-          <div className="experience-hero relative z-10 [&_.site-hero]:bg-theme [&_.site-hero]:backdrop-filter-none">
+          <div className="experience-hero relative z-10 [&_.site-hero>div]:transform-gpu [&_.site-hero]:bg-theme [&_.site-hero]:backdrop-filter-none">
             <SiteHero
               id="home-heading"
               layout="centered"
