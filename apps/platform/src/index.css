@@ -228,24 +228,40 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   animation-duration: 300ms;
 }
 
+@property --experience-eclipse-radius {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
 ::view-transition-old(experience-orbit) {
-  animation: none;
+  animation: eclipse-cover 2400ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
+  mask-image: radial-gradient(
+    circle at 50% 0%,
+    transparent var(--experience-eclipse-radius),
+    #000 var(--experience-eclipse-radius)
+  );
   mix-blend-mode: normal;
   opacity: 1;
 }
 
 ::view-transition-new(experience-orbit) {
   animation: eclipse-cover 2400ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
+  mask-image: radial-gradient(
+    circle at 50% 0%,
+    #000 var(--experience-eclipse-radius),
+    transparent var(--experience-eclipse-radius)
+  );
   mix-blend-mode: normal;
   opacity: 1;
 }
 
 @keyframes eclipse-cover {
   from {
-    clip-path: circle(0% at 50% 0%);
+    --experience-eclipse-radius: 0%;
   }
   to {
-    clip-path: circle(115% at 50% 0%);
+    --experience-eclipse-radius: 100%;
   }
 }
 
@@ -280,6 +296,14 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   ::view-transition-old(experience-hero),
   ::view-transition-new(experience-hero) {
     animation: none;
+  }
+
+  ::view-transition-old(experience-orbit) {
+    display: none;
+  }
+
+  ::view-transition-new(experience-orbit) {
+    mask-image: none;
   }
 
   ::view-transition-group(experience-pill),
