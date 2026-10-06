@@ -3,6 +3,7 @@ import { NativeButton, NativeIcon, NativeQrCode } from '@vibes/ui/native';
 import {
   formatPlaybackSeconds,
   getQueueRemainderLabel,
+  getRoomLabels,
   voteIcon,
 } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
@@ -26,6 +27,7 @@ interface RoomScreenProps {
 }
 
 export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
+  const labels = getRoomLabels(session.room?.roomType ?? session.roomType);
   const { height, width } = useWindowDimensions();
   const compact = width <= compactScreenWidth || height <= compactScreenHeight;
   const queueTrackHeight = compact
@@ -134,8 +136,8 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
               <Text className="font-heading text-tv-muted text-xs">
                 {session.listenerCount || session.room?.userCount || 0}{' '}
                 {(session.listenerCount || session.room?.userCount || 0) === 1
-                  ? 'listener'
-                  : 'listeners'}
+                  ? labels.participant
+                  : labels.participants}
               </Text>
             </View>
             <NativeButton
@@ -251,7 +253,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
             </Text>
             {!compact && (
               <Text className="mt-1 font-heading text-tv-muted text-xs">
-                Add songs and vote from your phone
+                Add {labels.items} and vote from your phone
               </Text>
             )}
           </View>

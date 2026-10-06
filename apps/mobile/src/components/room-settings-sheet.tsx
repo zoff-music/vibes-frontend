@@ -251,6 +251,7 @@ export function RoomSettingsSheet({
         </Card>
       )}
       <RoomConfiguration
+        roomType={activeRoom.roomType}
         disabled={!canEdit || loading}
         hasPassword={activeRoom.hasPassword}
         mode={mode}

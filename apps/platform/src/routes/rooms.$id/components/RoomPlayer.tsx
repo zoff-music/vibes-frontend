@@ -632,10 +632,13 @@ export const RoomPlayer = React.memo(
                   NO SIGNAL
                 </div>
                 <h3 className="mb-2 font-display text-base text-theme">
-                  Add a song to light up the room
+                  Add a {displayRoom?.roomType === 'WATCH' ? 'video' : 'song'}{' '}
+                  to light up the room
                 </h3>
                 <p className="text-theme-muted text-xs">
-                  Tap "Add Song" to start the music flow.
+                  {displayRoom?.roomType === 'WATCH'
+                    ? 'Pick a video and watch together.'
+                    : 'Pick a song and listen together.'}
                 </p>
               </div>
             </div>
@@ -645,6 +648,7 @@ export const RoomPlayer = React.memo(
         {/* Controls (always below video) */}
         {!terminalMode && (
           <PlayerControls
+            roomType={displayRoom?.roomType ?? 'MUSIC'}
             isPlaying={isPlaying && !isPlaybackBlocked}
             canPlay={
               canControlRoomPlayback &&
@@ -665,6 +669,7 @@ export const RoomPlayer = React.memo(
             mobileTrailingContent={
               <UserCount
                 initialCount={displayRoom?.userCount ?? 0}
+                roomType={displayRoom?.roomType ?? 'MUSIC'}
                 roomId={roomId}
               />
             }

@@ -54,7 +54,7 @@ export function HomeLanding({
               layout="centered"
               title={
                 <>
-                  {watch ? 'Watch YouTube' : 'Listen to music'}{' '}
+                  {watch ? 'Watch' : 'Listen to music'}{' '}
                   <span className="block text-primary">together.</span>
                 </>
               }
@@ -65,17 +65,15 @@ export function HomeLanding({
               }
               eyebrow={
                 watch
-                  ? 'ZOFF WATCH / DESIGN PREVIEW'
+                  ? 'GOOD VIDEOS. BETTER COMPANY.'
                   : 'GOOD MUSIC. BETTER COMPANY.'
               }
               aside={
                 <div className="min-h-60 md:min-h-48">
                   {children}
-                  {!watch && (
-                    <p className="mt-3 text-theme-muted text-xs md:text-center">
-                      Always free. No account needed.
-                    </p>
-                  )}
+                  <p className="mt-3 text-theme-muted text-xs md:text-center">
+                    Always free. No account needed.
+                  </p>
                 </div>
               }
               footer={
@@ -90,12 +88,10 @@ export function HomeLanding({
           </ContentTransition>
         </div>
       </div>
-      {!watch && (
-        <PublicRoomDiscovery
-          onJoinRoom={onJoinRoom}
-          rooms={data.publicRooms ?? []}
-        />
-      )}
+      <PublicRoomDiscovery
+        onJoinRoom={onJoinRoom}
+        rooms={data.publicRooms ?? []}
+      />
       {!watch && (
         <ProductIntroduction onGeneratePlaylist={onGeneratePlaylist} />
       )}

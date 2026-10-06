@@ -1,16 +1,19 @@
 import { siteUrl } from '../../seo/metadata';
 import { productPages } from '../../seo/productPages';
+import { watchPages } from '../../seo/watchPages';
 
 export function loader() {
   // Only stable public product pages belong here, never room/session data.
   const paths = [
     '/',
+    '/features/watch',
     '/rooms/create',
     '/rooms/explore',
     '/privacy-policy',
     '/terms-of-service',
     '/security',
     ...productPages.map((page) => `/discovery/${page.slug}`),
+    ...watchPages.map((page) => `/discovery/${page.slug}`),
   ];
   const urls = paths
     .map((path) => `<url><loc>${siteUrl}${path}</loc></url>`)

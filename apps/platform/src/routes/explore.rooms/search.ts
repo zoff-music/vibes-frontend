@@ -1,9 +1,10 @@
-import type { PublicRoomResultV3 } from '@vibes/models';
+import type { PublicRoomResultV3, RoomType } from '@vibes/models';
 import { PUBLIC_ROOM_PAGE_SIZE } from '@vibes/shared';
 
 export const publicRoomPageSize = PUBLIC_ROOM_PAGE_SIZE;
 
 export interface RoomBrowserSearch {
+  roomType: RoomType;
   q: string;
   live: boolean;
   from: number;
@@ -23,6 +24,7 @@ export function readRoomBrowserSearch(request: Request): RoomBrowserSearch {
     parsedFrom <= 2_147_483_638;
 
   return {
+    roomType: url.searchParams.get('type') === 'watch' ? 'WATCH' : 'MUSIC',
     q: (url.searchParams.get('q') ?? '').trim().slice(0, 100),
     live: url.searchParams.get('live') !== 'false',
     from: validFrom
@@ -43,8 +45,9 @@ export function roomBrowserRedirect(
   return roomBrowserUrl({ ...search, from: lastPage * publicRoomPageSize });
 }
 
-export function roomBrowserUrl({ q, live, from }: RoomBrowserSearch) {
+export function roomBrowserUrl({ q, live, from, roomType }: RoomBrowserSearch) {
   const params = new URLSearchParams();
+  if (roomType === 'WATCH') params.set('type', 'watch');
   if (q) params.set('q', q);
   if (!live) params.set('live', 'false');
   if (from > 0) params.set('from', String(from));

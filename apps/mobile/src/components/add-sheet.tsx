@@ -119,6 +119,7 @@ export function AddPlaylistItemSheet({
       onRequestClose={onClose}
     >
       <SearchSheet
+        roomType={targetRoom?.roomType ?? 'MUSIC'}
         canGenerate={canGenerate}
         generationUnavailableReason={generationUnavailableReason}
         playlistImportAllowed={targetRoom?.settings.playlistImport ?? false}

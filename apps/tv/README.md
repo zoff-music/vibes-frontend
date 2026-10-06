@@ -26,6 +26,8 @@ media streams is not a supported or policy-compliant replacement.
 
 ## Features
 
+- Music and Watch selection with type-specific public rooms and generation
+  prompts. Watch supports YouTube videos; Music retains its music providers.
 - Join or create a room by name.
 - Generate a new room and playlist from the AI prompt toggle.
 - Browse up to six currently active public rooms.
@@ -35,6 +37,9 @@ media streams is not a supported or policy-compliant replacement.
 - Cast-style current track, five-song queue, listener count, votes, and a QR
   code linking directly to the room.
 - Directional focus and visible focus feedback for television remotes.
+
+Room type is fixed at creation. The backend applies the selected room's provider
+and content rules to search, pasted links, imports and generated queues.
 
 ## Install and validate
 

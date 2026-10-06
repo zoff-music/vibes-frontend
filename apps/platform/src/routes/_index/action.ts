@@ -16,6 +16,7 @@ export async function clientAction({
 
   if (intent === 'generateRoom') {
     const prompt = String(formData.get('prompt') ?? '').trim();
+    const roomType = formData.get('roomType') === 'WATCH' ? 'WATCH' : 'MUSIC';
     if (!prompt) {
       return {
         error: 'Describe the playlist you want.',
@@ -25,6 +26,7 @@ export async function clientAction({
 
     const [createError, room] = await api.v2.post('/rooms/generation', null, {
       prompt,
+      roomType,
     });
     if (createError) {
       const apiErrorMessage = await getAPIErrorMessage(createError);

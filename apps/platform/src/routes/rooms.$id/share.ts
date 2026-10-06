@@ -1,4 +1,5 @@
-import type { PlaylistItem } from '@vibes/models';
+import type { PlaylistItem, RoomType } from '@vibes/models';
+import { getRoomLabels } from '@vibes/ui/shared';
 
 export function createRoomPageUrl(requestUrl: string, roomId: string): string {
   const request = new URL(requestUrl);
@@ -43,8 +44,12 @@ export function createRoomShareDescription(
   roomName: string,
   playlistItem: PlaylistItem | null,
   listenerCount: number,
+  roomType: RoomType = 'MUSIC',
 ): string {
-  const listenerDescription = createListenerDescription(listenerCount);
+  const listenerDescription = createListenerDescription(
+    listenerCount,
+    roomType,
+  );
 
   if (playlistItem) {
     const details = [
@@ -56,22 +61,23 @@ export function createRoomShareDescription(
   }
 
   const details = [
-    `Join the shared music room ${roomName} on Zoff`,
+    `Join the shared ${roomType === 'WATCH' ? 'video' : 'music'} room ${roomName} on Zoff`,
     listenerDescription,
   ].filter(Boolean);
   return details.join(' · ');
 }
 
-function createListenerDescription(listenerCount: number): string {
+function createListenerDescription(
+  listenerCount: number,
+  roomType: RoomType,
+): string {
   if (listenerCount < 1) {
     return '';
   }
 
-  if (listenerCount === 1) {
-    return '1 listener';
-  }
+  const labels = getRoomLabels(roomType);
 
-  return `${listenerCount} listeners`;
+  return `${listenerCount} ${listenerCount === 1 ? labels.participant : labels.participants}`;
 }
 
 function createShareToken(value: string): string {

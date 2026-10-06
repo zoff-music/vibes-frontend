@@ -1,16 +1,15 @@
 import type { ProductPage } from './productPages';
 
-// Frontend concepts only. These guides must not claim an available Watch service.
 export const watchPages: ProductPage[] = [
   {
     slug: 'watch-together',
     label: 'Watch together',
-    title: 'Watch YouTube Together | Zoff Design Preview',
+    title: 'Watch Together Online | Shared Video Rooms | Zoff',
     description:
-      'Explore the Zoff Watch concept: a shared YouTube queue, synchronized playback and a place for your people.',
+      'Watch together with a shared YouTube queue, synchronized playback and room chat. Create a free Zoff Watch room without an account.',
     heading: 'Far apart. Same front row.',
     introduction:
-      'The plan is simple: one link, one shared moment. A new home for watching YouTube together, with the familiar feel of Zoff.',
+      'The plan is simple: one link, one shared moment. A new home for watching together, with the familiar feel of Zoff.',
     actionLabel: 'Explore Watch',
     sections: [
       {
@@ -22,8 +21,8 @@ export const watchPages: ProductPage[] = [
         body: 'A chat beside the video makes space for the running commentary. Want to focus on the film? Hide chat on your device without changing anyone else’s view.',
       },
       {
-        title: 'What can I try now?',
-        body: 'This is an interactive design preview. The scenes and participants are illustrative; Watch creation, video generation and new playback behavior are not connected to the backend.',
+        title: 'How do I start?',
+        body: 'Choose Watch, name your room and share its link. Search YouTube, paste a video or import a playlist. Watch rooms keep their type, so create a separate Music room when you want a music-only queue.',
       },
       {
         title: 'Will every YouTube video work?',
@@ -34,9 +33,9 @@ export const watchPages: ProductPage[] = [
   {
     slug: 'watch-party',
     label: 'Watch parties',
-    title: 'YouTube Watch Parties | Zoff Design Preview',
+    title: 'Watch Parties | Watch Videos with Friends | Zoff',
     description:
-      'A preview of watch parties on Zoff: bring friends, collect videos and choose the next thing together.',
+      'Start a free watch party on Zoff. Bring friends, collect YouTube videos, chat and vote on what to watch next.',
     heading: 'Your people. Your programme.',
     introduction:
       'Short films. Rabbit holes. That one video everyone has to see. Turn a pile of links into a night together.',
@@ -44,7 +43,7 @@ export const watchPages: ProductPage[] = [
     sections: [
       {
         title: 'Pass the link around',
-        body: 'The Watch concept keeps Zoff’s account-free approach. A room link brings everyone to the same queue, with room-specific permissions rather than a new account to manage.',
+        body: 'A room link brings everyone to the same queue. No account is needed, and each room has its own permissions for adding videos and controlling playback.',
       },
       {
         title: 'Give the night a direction',
@@ -52,20 +51,20 @@ export const watchPages: ProductPage[] = [
       },
       {
         title: 'One screen or several?',
-        body: 'For friends on a sofa, the concept puts the film on the big screen and the queue within reach. For friends elsewhere, each person follows the room on their own device.',
+        body: 'For friends on a sofa, use Cinema mode on the main screen and add videos from your phone. For friends elsewhere, each person follows the room on their own device.',
       },
       {
-        title: 'Is Watch available?',
-        body: 'Not in this preview. No real room is created and no requests are sent by the example controls. Existing Music rooms continue to work as before.',
+        title: 'Which videos can we add?',
+        body: 'Watch supports YouTube videos across categories, including longer videos. Live streams, upcoming broadcasts, made-for-kids videos and videos that disable embedding are excluded. Age and country restrictions may still affect playback.',
       },
     ],
   },
   {
     slug: 'watch-queue',
     label: 'A shared video queue',
-    title: 'Shared Video Queue | Zoff Design Preview',
+    title: 'Shared Video Queue | Collaborative Watch Playlists | Zoff',
     description:
-      'Preview a shared video queue for Zoff Watch, with ideas for a night of short films, discoveries and YouTube videos.',
+      'Build a shared video queue for a night of short films, discoveries and YouTube videos. Add together, vote and keep watching with Zoff.',
     heading: 'Less link juggling. More watching.',
     introduction:
       'Collect everyone’s finds in one place. Decide what comes next without losing what is playing now.',
@@ -73,15 +72,15 @@ export const watchPages: ProductPage[] = [
     sections: [
       {
         title: 'Build the lineup together',
-        body: 'The Watch direction carries over Zoff’s shared queue and votes. Add a discovery, give a favourite a vote and see the next item without scrolling through an old group chat.',
+        body: 'Add a discovery, give a favourite a vote and see the next item without scrolling through an old group chat. Room controls let you decide who can add or skip videos.',
       },
       {
         title: 'Start with a little curiosity',
-        body: 'Watch-specific generation ideas could turn “a trip through the solar system” or “beautiful places after dark” into a starting lineup. The prompt controls here are local previews, not a connected AI service.',
+        body: 'Describe what you want to watch, such as “a trip through the solar system” or “beautiful places after dark”. Zoff uses AI to suggest a lineup and checks the videos through YouTube. Review the results before settling in; generated suggestions can miss the mark.',
       },
       {
         title: 'Does this change music generation?',
-        body: 'No. Music keeps its current prompts, provider behavior and generation flow. The new Watch examples do not change the music-focused backend prompt.',
+        body: 'No. Music generates music playlists; Watch looks for videos around your idea. Inside a room, its fixed type determines which generation flow and providers are available.',
       },
       {
         title: 'What do the preview films represent?',

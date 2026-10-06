@@ -1,5 +1,6 @@
 import type { PlaylistItem, RemoteStatusV2, RoomV2 } from '@vibes/models';
 import { usePlaybackStore } from '@vibes/shared';
+import { getRoomLabels } from '@vibes/ui/shared';
 import {
   Button,
   PauseIcon,
@@ -42,6 +43,7 @@ export function RemotePlaybackControls({
   remoteStatus,
   room,
 }: RemotePlaybackControlsProps) {
+  const labels = getRoomLabels(room.roomType);
   const serverPositionMs =
     usePlaybackStore((state) => state.actualPositionMs) ?? initialPositionMs;
   const durationMs =
@@ -112,7 +114,7 @@ export function RemotePlaybackControls({
         {currentPlaylistItem?.title ?? 'Nothing playing'}
       </h2>
       <p className="mt-2 truncate text-sm text-theme-muted">
-        {currentPlaylistItem?.publisher ?? 'Add a song to begin'}
+        {currentPlaylistItem?.publisher ?? `Add a ${labels.item} to begin`}
       </p>
 
       <div className="mt-6 flex items-center gap-3">
@@ -148,7 +150,7 @@ export function RemotePlaybackControls({
         </fetcher.Form>
         <Button onClick={onAddPlaylistItem} type="button" variant="primary">
           <PlusIcon className="h-5 w-5" />
-          Add Song
+          {labels.add}
         </Button>
       </div>
 

@@ -1,5 +1,6 @@
 import type { PlaylistItem, Providers } from '@vibes/models';
 import { roomNameMaxLength } from '@vibes/models';
+import { getRoomLabels } from '@vibes/ui/shared';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -64,7 +65,8 @@ export function RemoteControl({
                     </Heading>
                     <Copy muted>
                       {remote.online ? 'Online' : 'Offline'} ·{' '}
-                      {room.userCount ?? 0} listeners
+                      {room.userCount ?? 0}{' '}
+                      {getRoomLabels(room.roomType).participants}
                     </Copy>
                     <Button
                       icon="settings"

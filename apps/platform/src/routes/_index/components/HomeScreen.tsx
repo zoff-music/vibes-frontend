@@ -14,7 +14,6 @@ import { PlaylistGenerationControls } from './PlaylistGenerationControls';
 import { ProductIntroduction } from './ProductIntroduction';
 import { ReturnToRoom } from './ReturnToRoom';
 import { ReturnToRoomPreview } from './ReturnToRoomPreview';
-import { WatchEntry } from './WatchEntry';
 
 const LazyTerminalHome = lazy(async () => {
   const module = await import('./TerminalHome');
@@ -83,6 +82,7 @@ export const HomeScreen = memo(function HomeScreen({
   const { placeholder, reset } = useAnimatedPlaceholder(
     isAIMode,
     heroVisible && roomCode.length === 0,
+    watch,
   );
   const previousPath = getPreviousPath();
   const konamiEnabled = useKonamiMode();
@@ -95,11 +95,15 @@ export const HomeScreen = memo(function HomeScreen({
     if (!requestedRoomId.trim()) return;
     const slug = requestedRoomId.trim().toLowerCase().replace(/\s+/g, '-');
     setPendingRoomSlug(slug);
-    navigate(`/${slug}`, { viewTransition: canUseViewTransition() });
+    navigate(`/${slug}${watch ? '?type=watch' : ''}`, {
+      viewTransition: canUseViewTransition(),
+    });
   };
 
   const handleStartSession = () => {
-    navigate('/rooms/create', { viewTransition: canUseViewTransition() });
+    navigate(watch ? '/rooms/create?type=watch' : '/rooms/create', {
+      viewTransition: canUseViewTransition(),
+    });
   };
 
   const handleToggleAIMode = () => {
@@ -163,8 +167,7 @@ export const HomeScreen = memo(function HomeScreen({
         onJoinRoom={handleJoinRoom}
         data={data}
       >
-        {watch && <WatchEntry key={searchParams.get('mode') ?? 'room'} />}
-        {!watch && !isAIMode && (
+        {!isAIMode && (
           <HomeRoomControls
             inputRef={roomNameRef}
             onJoinRoom={handleJoinRoom}
@@ -175,7 +178,7 @@ export const HomeScreen = memo(function HomeScreen({
             roomCode={roomCode}
           />
         )}
-        {!watch && isAIMode && (
+        {isAIMode && (
           <PlaylistGenerationControls
             inputRef={playlistPromptRef}
             onPromptChange={handleRoomCodeChange}

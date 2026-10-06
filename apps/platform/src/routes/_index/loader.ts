@@ -16,12 +16,14 @@ export async function loader({
   const serverApi = getServerApi(request);
   const serverApiV3 = getServerApiV3(request);
   const options = { retry: 0, signal: request.signal };
+  const roomType =
+    new URL(request.url).pathname === '/features/watch' ? 'WATCH' : 'MUSIC';
   const [statsResult, providersResult, publicRoomsResult] = await Promise.all([
     serverApi.v2.get('/stats', null, options),
     serverApi.get('/providers', null, options),
     serverApiV3.get(
       '/rooms/public',
-      { $search: { live: true, from: 0, to: 2 } },
+      { $search: { live: true, from: 0, to: 2, roomType } },
       options,
     ),
   ]);

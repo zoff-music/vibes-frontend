@@ -1,16 +1,17 @@
-import type { PublicRoomV3 } from '@vibes/models';
+import type { PublicRoomV3, RoomType } from '@vibes/models';
 import {
   generatedPlaylistPromptMaxLength,
   roomNameMaxLength,
 } from '@vibes/models';
-import { chunkItems } from '@vibes/ui/shared';
+import { chunkItems, getRoomLabels } from '@vibes/ui/shared';
 import { useState } from 'react';
-import { useFetcher } from 'react-router';
+import { Link, useFetcher } from 'react-router';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
 import type { PublicRoomsData } from '@/tizen/routes/public-rooms/loader';
 import zoffLogo from '../../assets/icon.png';
 
 interface TizenLandingProps {
+  roomType: RoomType;
   error: string;
   isAIMode: boolean;
   loading: boolean;
@@ -21,6 +22,7 @@ interface TizenLandingProps {
 }
 
 export function TizenLanding({
+  roomType,
   error,
   isAIMode,
   loading,
@@ -29,6 +31,7 @@ export function TizenLanding({
   onToggleAIMode,
   publicRooms,
 }: TizenLandingProps) {
+  const watch = roomType === 'WATCH';
   const [value, setValue] = useState('');
   const [browsing, setBrowsing] = useState(false);
   const [query, setQuery] = useState('');
@@ -39,7 +42,7 @@ export function TizenLanding({
   const loadRooms = (from = 0) => {
     setBrowsing(true);
     void browser.load(
-      `/rooms/public?${new URLSearchParams({ from: String(from), q: query })}`,
+      `/rooms/public?${new URLSearchParams({ from: String(from), q: query, type: watch ? 'watch' : 'music' })}`,
     );
   };
   const publicRoomRows = chunkItems(
@@ -57,7 +60,9 @@ export function TizenLanding({
   let placeholder = 'Room name';
   let submitLabel = 'Join or create room';
   if (isAIMode) {
-    placeholder = 'Late-night synthwave for a rainy drive';
+    placeholder = watch
+      ? 'A trip through the solar system'
+      : 'Late-night synthwave for a rainy drive';
     submitLabel = 'Generate playlist';
   }
   if (loading && isAIMode) submitLabel = generationMessage;
@@ -69,6 +74,24 @@ export function TizenLanding({
           <h1 className="text-6xl">Zoff</h1>
           <p className="mt-2 text-2xl text-tv-muted">Rooms on your TV</p>
         </div>
+        <nav aria-label="Choose room type" className="ml-auto flex gap-4">
+          <Link
+            to="/"
+            prefetch="intent"
+            aria-current={!watch ? 'page' : false}
+            className="rounded-2xl border-2 border-tv-border bg-tv-card px-8 py-5 text-2xl aria-[current=page]:border-accent"
+          >
+            Music
+          </Link>
+          <Link
+            to="/?type=watch"
+            prefetch="intent"
+            aria-current={watch ? 'page' : false}
+            className="rounded-2xl border-2 border-tv-border bg-tv-card px-8 py-5 text-2xl aria-[current=page]:border-accent"
+          >
+            Watch
+          </Link>
+        </nav>
       </header>
       <div className="grid grid-cols-2 items-start gap-10">
         <section className="relative mt-24 rounded-[2rem] border-2 border-tv-border bg-tv-card/95 p-10">
@@ -79,9 +102,15 @@ export function TizenLanding({
             <div className="size-56 rounded-full bg-linear-to-b from-[#ffe8a3] via-[#ff6b9b] to-[#ac42d5] opacity-80 [mask-image:linear-gradient(to_bottom,black_0%,black_22%,transparent_22%,transparent_24%,black_24%,black_30%,transparent_30%,transparent_33%,black_33%,black_38%,transparent_38%,transparent_42%,black_42%,black_46%,transparent_46%)]" />
           </div>
           <h2 className="mb-8 text-4xl">
-            {isAIMode ? 'Set the ' : 'Listen to music '}
+            {isAIMode
+              ? watch
+                ? 'Follow your '
+                : 'Set the '
+              : watch
+                ? 'Watch '
+                : 'Listen to music '}
             <span className="text-primary">
-              {isAIMode ? 'mood.' : 'together.'}
+              {isAIMode ? (watch ? 'curiosity.' : 'mood.') : 'together.'}
             </span>
           </h2>
           <form
@@ -205,8 +234,10 @@ export function TizenLanding({
                         {room.name}
                       </strong>
                       <span className="mt-1 block truncate text-base text-tv-muted">
-                        {room.listenerCount} listening ·{' '}
-                        {room.playlistItemCount} songs
+                        {room.listenerCount}{' '}
+                        {getRoomLabels(room.roomType).activity} ·{' '}
+                        {room.playlistItemCount}{' '}
+                        {getRoomLabels(room.roomType).items}
                       </span>
                     </span>
                     <span className="shrink-0 text-accent text-lg">Join →</span>

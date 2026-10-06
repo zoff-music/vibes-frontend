@@ -17,6 +17,7 @@ export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
     loaderData.room.name,
     currentPlaylistItem,
     listenerCount,
+    loaderData.room.roomType,
   );
   const imageUrl =
     currentPlaylistItem?.thumbnailUrl ||

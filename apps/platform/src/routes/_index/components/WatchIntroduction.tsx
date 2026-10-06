@@ -45,7 +45,11 @@ export function WatchIntroduction() {
             The same video. The same moment. A room for the people you wish were
             on the sofa beside you.
           </p>
-          <Link className={guideClass} to="/discovery/watch-together">
+          <Link
+            prefetch="intent"
+            className={guideClass}
+            to="/discovery/watch-together"
+          >
             Explore watching together
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
@@ -78,7 +82,11 @@ export function WatchIntroduction() {
             A shared queue for your finds. Chat for everything in between. And
             an off switch when the film deserves your full attention.
           </p>
-          <Link className={guideClass} to="/discovery/watch-party">
+          <Link
+            prefetch="intent"
+            className={guideClass}
+            to="/discovery/watch-party"
+          >
             Plan a watch party
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
@@ -111,12 +119,16 @@ export function WatchIntroduction() {
             Night walks through distant cities. A detour into space. Short films
             that stay with you. Imagine where your next queue could take you.
           </p>
-          <Link className={guideClass} to="/?type=watch&mode=ai">
+          <Link
+            prefetch="intent"
+            className={guideClass}
+            to="/features/watch?mode=ai"
+          >
             Try a Watch idea
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
           <p className="mt-3 text-theme-muted text-xs">
-            Generation concept. Example results, no AI request.
+            Illustrative demo. Start your own queue with an idea.
           </p>
         </div>
         <div className="min-w-0 lg:col-span-3">

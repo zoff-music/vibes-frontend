@@ -8,6 +8,7 @@ import {
   useEffect,
 } from 'react';
 import { useFetcher } from 'react-router';
+import { useExperience } from '../../../hooks/useExperience';
 import type { HomeActionData } from '../action';
 
 interface PlaylistGenerationControlsProps {
@@ -26,6 +27,7 @@ export function PlaylistGenerationControls({
   prompt,
 }: PlaylistGenerationControlsProps) {
   const fetcher = useFetcher<HomeActionData>();
+  const roomType = useExperience();
   const isGenerating = fetcher.state !== 'idle';
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export function PlaylistGenerationControls({
     }
 
     fetcher.submit(
-      { intent: 'generateRoom', prompt: normalizedPrompt },
+      { intent: 'generateRoom', prompt: normalizedPrompt, roomType },
       { method: 'post' },
     );
   };

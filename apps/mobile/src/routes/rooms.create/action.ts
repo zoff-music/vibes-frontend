@@ -1,7 +1,11 @@
 import { createRoomLifecycleRequests } from '@vibes/api';
-import type { CreateRoomRequestV2, RoomNameReservation } from '@vibes/models';
+import type {
+  CreateRoomRequestV2,
+  RoomNameReservation,
+  RoomType,
+} from '@vibes/models';
 import {
-  createRoomRequestSchema,
+  createRoomRequestV2Schema,
   roomNameReservationRequestSchema,
 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
@@ -9,7 +13,7 @@ import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 type CreateRoomActionInput =
   | { intent: 'create'; request: CreateRoomRequestV2 }
-  | { intent: 'generate'; prompt: string }
+  | { intent: 'generate'; prompt: string; roomType?: RoomType }
   | { intent: 'reserve'; name?: string };
 
 export type CreateRoomActionData =
@@ -54,7 +58,7 @@ export async function action({
   }
   if (input.intent === 'generate') {
     const [error, room] = await requests.createGeneratedRoom(
-      { prompt: input.prompt },
+      { prompt: input.prompt, roomType: input.roomType ?? 'MUSIC' },
       { signal },
     );
     if (error || !room) {
@@ -68,7 +72,7 @@ export async function action({
     }
     return { data: { intent: 'generated', roomId: room.id }, error: '' };
   }
-  const parsed = createRoomRequestSchema.safeParse(input.request);
+  const parsed = createRoomRequestV2Schema.safeParse(input.request);
   if (!parsed.success) {
     return {
       data: null,

@@ -1,6 +1,6 @@
 import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
 import { getEstimatedServerTimeMs, usePlaybackStore } from '@vibes/shared';
-import { useCallback } from 'react';
+import { type Dispatch, type SetStateAction, useCallback } from 'react';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
 import { toPlaylistItem } from '../utils/item';
 
@@ -10,7 +10,7 @@ interface UseCastMessageHandlerProps {
     casterId?: string;
     roomId: string;
   }) => void;
-  setRoomInfo: (info: RoomInfo | null) => void;
+  setRoomInfo: Dispatch<SetStateAction<RoomInfo | null>>;
   setQueue: (queue: QueueItem[]) => void;
   setStatusText: (text: string) => void;
   updateMediaMetadata: (playlistItem: PlaylistItem) => void;
@@ -96,7 +96,11 @@ export const useCastMessageHandler = ({
             'roomInfo' in message &&
             message.roomInfo
           ) {
-            setRoomInfo(message.roomInfo);
+            const roomInfo = message.roomInfo;
+            setRoomInfo((current) => ({
+              ...roomInfo,
+              roomType: current?.roomType ?? roomInfo.roomType ?? 'MUSIC',
+            }));
           }
           break;
         }
@@ -109,7 +113,11 @@ export const useCastMessageHandler = ({
 
         case 'updateRoomInfo':
           if (message.roomInfo) {
-            setRoomInfo(message.roomInfo);
+            const roomInfo = message.roomInfo;
+            setRoomInfo((current) => ({
+              ...roomInfo,
+              roomType: current?.roomType ?? roomInfo.roomType ?? 'MUSIC',
+            }));
           }
           break;
 

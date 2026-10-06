@@ -62,7 +62,7 @@ export function EmbedRoomHeader({
         )}
       </div>
       <div className="ml-3 flex shrink-0 items-center gap-2">
-        <ListenerCount count={usersCount} />
+        <ListenerCount count={usersCount} roomType={room.roomType} />
         {showPlaybackControls && (
           <Button
             disabled={!canControlPlayback}

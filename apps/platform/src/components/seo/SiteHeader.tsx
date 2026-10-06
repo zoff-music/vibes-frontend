@@ -21,8 +21,9 @@ export function SiteHeader() {
     <>
       <header className="site-header product-content relative z-10 mx-auto grid w-full max-w-6xl grid-cols-[1fr_auto] items-center gap-4 px-5 py-5 sm:px-6 sm:py-7 lg:grid-cols-[1fr_auto_1fr]">
         <Link
-          to={watch ? '/?type=watch' : '/'}
+          to={watch ? '/features/watch' : '/'}
           aria-label="Zoff home"
+          prefetch="intent"
           className="group flex shrink-0 cursor-pointer items-center gap-3 rounded-xl transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
         >
           <img
@@ -53,16 +54,29 @@ export function SiteHeader() {
           aria-label="Product navigation"
           className="col-start-2 row-start-1 flex items-center gap-1 justify-self-end sm:gap-2 lg:col-start-3"
         >
-          <NavLink to="/rooms/explore" className={navigationClassName}>
+          <NavLink
+            prefetch="intent"
+            to={watch ? '/rooms/explore?type=watch' : '/rooms/explore'}
+            className={navigationClassName}
+          >
             Rooms
           </NavLink>
           <Link
-            to={watch ? '/?type=watch#explore-zoff' : '/#explore-zoff'}
+            to={
+              watch
+                ? '/features/watch#explore-zoff'
+                : '/features/music#explore-zoff'
+            }
+            prefetch="intent"
             className={navigationClassName}
           >
             Explore
           </Link>
-          <NavLink to="/discovery/apps" className={navigationClassName}>
+          <NavLink
+            prefetch="intent"
+            to="/discovery/apps"
+            className={navigationClassName}
+          >
             Apps
           </NavLink>
           <Tooltip

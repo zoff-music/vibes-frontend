@@ -10,11 +10,5 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData }) => {
     ];
   }
   const { page } = loaderData;
-  if (page.slug.startsWith('watch')) {
-    return [
-      ...pageMetadata(`/discovery/${page.slug}`, page.title, page.description),
-      { name: 'robots', content: 'noindex, follow' },
-    ];
-  }
   return pageMetadata(`/discovery/${page.slug}`, page.title, page.description);
 };

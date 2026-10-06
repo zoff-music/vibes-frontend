@@ -2,6 +2,7 @@ import type { PublicRoomV3 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { PublicRoomTile } from '@vibes/ui/web';
 import { Link } from 'react-router';
+import { useExperience } from '../../../hooks/useExperience';
 
 interface PublicRoomDiscoveryProps {
   onJoinRoom: (roomId: string) => void;
@@ -12,6 +13,7 @@ export function PublicRoomDiscovery({
   onJoinRoom,
   rooms,
 }: PublicRoomDiscoveryProps) {
+  const watch = useExperience() === 'WATCH';
   return (
     <section aria-labelledby="live-rooms-heading" className="mt-6">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -26,7 +28,12 @@ export function PublicRoomDiscovery({
           Live rooms
         </h2>
         <Link
-          to="/rooms/explore?live=false"
+          prefetch="intent"
+          to={
+            watch
+              ? '/rooms/explore?live=false&type=watch'
+              : '/rooms/explore?live=false'
+          }
           className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 text-cyan-800 text-sm transition-colors hover:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:text-secondary"
         >
           Browse all public <span aria-hidden="true">→</span>

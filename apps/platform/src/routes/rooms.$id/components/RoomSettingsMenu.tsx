@@ -76,6 +76,7 @@ export const RoomSettingsMenu = ({
   const adminSectionRef = useRef<HTMLDivElement>(null);
   const scrollPanelRef = useRef<HTMLDivElement>(null);
   const canChangePublicRoom = Boolean(room?.hasPassword && isAdmin);
+  const watch = (room ?? displayRoom)?.roomType === 'WATCH';
 
   let publicRoomDescription = 'Let anyone find this room in Browse';
   if (!room?.hasPassword) {
@@ -307,7 +308,11 @@ export const RoomSettingsMenu = ({
             <div className="group flex items-center justify-between">
               <SegmentedToggle
                 label="Admins Only Skip"
-                description="Only room admins can skip songs"
+                description={
+                  watch
+                    ? 'Only room admins can skip videos'
+                    : 'Only room admins can skip songs'
+                }
                 disabled={room?.hasPassword && !isAdmin}
                 checked={!(room?.settings.skipAllowed ?? true)}
                 onChange={(checked) =>
@@ -347,7 +352,11 @@ export const RoomSettingsMenu = ({
             <div className="group flex items-center justify-between">
               <SegmentedToggle
                 label="Allow Duplicates"
-                description="Same song multiple times"
+                description={
+                  watch
+                    ? 'Same video multiple times'
+                    : 'Same song multiple times'
+                }
                 disabled={room?.hasPassword && !isAdmin}
                 checked={room?.settings.allowDuplicates ?? false}
                 onChange={(checked) =>
@@ -381,7 +390,9 @@ export const RoomSettingsMenu = ({
             <div className="group flex items-center justify-between">
               <SegmentedToggle
                 label="Admins Only Add"
-                description="Only admins add songs"
+                description={
+                  watch ? 'Only admins add videos' : 'Only admins add songs'
+                }
                 disabled={room?.hasPassword && !isAdmin}
                 checked={room?.settings.onlyAdminAddPlaylistItems ?? false}
                 onChange={(checked) => {
@@ -484,7 +495,9 @@ export const RoomSettingsMenu = ({
                     Server Mode
                   </div>
                   <div className="w-full text-left text-caption text-current leading-relaxed opacity-75">
-                    Auto-play music 24/7. Perfect for radio stations.
+                    {watch
+                      ? 'Keep videos playing together, automatically.'
+                      : 'Auto-play music 24/7. Perfect for radio stations.'}
                   </div>
                 </Button>
 

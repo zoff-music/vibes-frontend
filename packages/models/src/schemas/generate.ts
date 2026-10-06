@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { roomTypeSchema } from './room';
 
 export const generatedPlaylistPromptMaxLength = 300;
 
@@ -20,6 +21,16 @@ export const generatedPlaylistRequestSchema = z.compile(
 );
 export type GeneratedPlaylistRequest = z.infer<
   typeof generatedPlaylistRequestSchema
+>;
+
+export const generatedRoomRequestV2Schema = z.compile(
+  z.object({
+    prompt: z.string().trim().max(generatedPlaylistPromptMaxLength),
+    roomType: roomTypeSchema.optional(),
+  }),
+);
+export type GeneratedRoomRequestV2 = z.infer<
+  typeof generatedRoomRequestV2Schema
 >;
 
 export const generatedPlaylistSchema = z.compile(

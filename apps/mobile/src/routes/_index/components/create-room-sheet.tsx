@@ -2,6 +2,7 @@ import type {
   Providers,
   RoomNameReservation,
   RoomSettingsV2,
+  RoomType,
 } from '@vibes/models';
 import { roomNameMaxLength } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
@@ -29,6 +30,7 @@ interface CreateRoomSheetProps {
   onCreated: (roomId: string, password: string) => Promise<boolean>;
   providers: Providers;
   visible: boolean;
+  roomType?: RoomType;
 }
 
 export function CreateRoomSheet({
@@ -37,6 +39,7 @@ export function CreateRoomSheet({
   onCreated,
   providers,
   visible,
+  roomType = 'MUSIC',
 }: CreateRoomSheetProps) {
   const [, { submit }] = useFetcher<CreateRoomActionData>({
     routeId: 'rooms.create',
@@ -100,11 +103,11 @@ export function CreateRoomSheet({
       return;
     }
     if (providers.length === 0) {
-      setError('Music providers are still loading. Try again in a moment.');
+      setError('Providers are still loading. Try again in a moment.');
       return;
     }
     if (settings.enabledSources.length === 0) {
-      setError('Enable at least one music provider.');
+      setError('Enable at least one provider.');
       return;
     }
 
@@ -133,6 +136,7 @@ export function CreateRoomSheet({
       request: {
         name: normalizedName,
         mode,
+        roomType,
         reservationToken: roomReservation.token,
         settings,
         ...(password ? { password } : {}),
@@ -189,6 +193,7 @@ export function CreateRoomSheet({
         </Copy>
       </Card>
       <RoomConfiguration
+        roomType={roomType}
         hasPassword={Boolean(password)}
         mode={mode}
         providers={providers}
@@ -220,7 +225,11 @@ export function CreateRoomSheet({
       <Screen>
         <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
           <View className="flex-row items-center justify-between gap-4 px-5 py-4">
-            <Heading>Create a room</Heading>
+            <Heading>
+              {roomType === 'WATCH'
+                ? 'Create a Watch room'
+                : 'Create a Music room'}
+            </Heading>
             <IconButton
               accessibilityLabel="Close create room"
               icon="close"

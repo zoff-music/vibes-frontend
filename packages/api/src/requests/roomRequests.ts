@@ -4,12 +4,14 @@ import type {
   CreateRoomResponse,
   EmptyObject,
   GeneratedPlaylistRequest,
+  GeneratedRoomRequestV2,
   PlaybackStateV2,
   PlaylistItem,
   Providers,
   PublicRoomV3,
   RoomGenerationUpdate,
   RoomNameReservation,
+  RoomType,
   RoomUpdateV2,
   RoomV2,
   SessionResponseV2,
@@ -36,7 +38,10 @@ export function createRoomReadRequests(client: ApiClient): RoomReadRequests {
 
 export interface RoomDiscoveryRequests {
   fetchProviders: (options?: ApiRequestOptions) => ApiResult<Providers>;
-  fetchPublicRooms: (options?: ApiRequestOptions) => ApiResult<PublicRoomV3[]>;
+  fetchPublicRooms: (
+    options?: ApiRequestOptions,
+    roomType?: RoomType,
+  ) => ApiResult<PublicRoomV3[]>;
 }
 
 export function createRoomDiscoveryRequests(
@@ -45,10 +50,13 @@ export function createRoomDiscoveryRequests(
   return {
     fetchProviders: (options?: ApiRequestOptions) =>
       client.get('/providers', null, options),
-    fetchPublicRooms: async (options?: ApiRequestOptions) => {
+    fetchPublicRooms: async (
+      options?: ApiRequestOptions,
+      roomType: RoomType = 'MUSIC',
+    ) => {
       const [error, result] = await client.v3.get(
         '/rooms/public',
-        { $search: { live: true, from: 0, to: 5 } },
+        { $search: { live: true, from: 0, to: 5, roomType } },
         options,
       );
       if (error) return [error, null];
@@ -60,7 +68,7 @@ export function createRoomDiscoveryRequests(
 
 export interface RoomLifecycleRequests {
   createGeneratedRoom: (
-    request: GeneratedPlaylistRequest,
+    request: GeneratedRoomRequestV2,
     options?: ApiRequestOptions,
   ) => ApiResult<CreateRoomResponse>;
   createRoom: (
@@ -92,7 +100,7 @@ export function createRoomLifecycleRequests(
 ): RoomLifecycleRequests {
   return {
     createGeneratedRoom: (
-      request: GeneratedPlaylistRequest,
+      request: GeneratedRoomRequestV2,
       options?: ApiRequestOptions,
     ) => client.v2.post('/rooms/generation', null, request, options),
     createRoom: (request: CreateRoomRequestV2, options?: ApiRequestOptions) =>

@@ -1,8 +1,8 @@
-import type { Providers } from '@vibes/models';
+import type { Providers, RoomType } from '@vibes/models';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useNativePresentation } from '@vibes/ui/native';
-import { getProviderDisplayName } from '@vibes/ui/shared';
+import { getProviderDisplayName, getRoomLabels } from '@vibes/ui/shared';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -19,6 +19,7 @@ interface SearchRemoteCredentials {
 }
 
 interface SearchSheetProps {
+  roomType: RoomType;
   canGenerate: boolean;
   generationUnavailableReason: string;
   onAdded?: () => Promise<void>;
@@ -32,6 +33,7 @@ interface SearchSheetProps {
 }
 
 export function SearchSheet({
+  roomType,
   canGenerate,
   generationUnavailableReason,
   onAdded,
@@ -44,6 +46,7 @@ export function SearchSheet({
   visible,
 }: SearchSheetProps) {
   const theme = useAppTheme();
+  const labels = getRoomLabels(roomType);
   const terminal = useNativePresentation() === 'terminal';
   const [
     {
@@ -58,6 +61,7 @@ export function SearchSheet({
     },
     { add, addPlaylist, search, setProvider, toggleAIMode, updateQuery },
   ] = useProviderSearch({
+    roomType,
     canGenerate,
     generationUnavailableReason,
     onClose,
@@ -87,10 +91,10 @@ export function SearchSheet({
                   terminal && 'text-[#dffff0]',
                 )}
               >
-                {isAIMode ? 'Fill playlist' : 'Add music'}
+                {isAIMode ? 'Fill playlist' : labels.add}
               </Text>
               <IconButton
-                accessibilityLabel="Close add music"
+                accessibilityLabel={`Close ${labels.add.toLowerCase()}`}
                 icon="close"
                 onPress={onClose}
               />
@@ -100,8 +104,8 @@ export function SearchSheet({
                 {isAIMode
                   ? 'Describe the playlist you want AI to build.'
                   : playlistImportAllowed
-                    ? 'Search or paste a song or playlist link.'
-                    : 'Search or paste a song link.'}
+                    ? `Search or paste a ${labels.item} or playlist link.`
+                    : `Search or paste a ${labels.item} link.`}
               </Copy>
             </View>
           </View>
@@ -157,8 +161,10 @@ export function SearchSheet({
                 onSubmitEditing={() => void search()}
                 placeholder={
                   isAIMode
-                    ? 'Late-night synthwave for a rainy drive'
-                    : 'Search music or paste a link'
+                    ? roomType === 'WATCH'
+                      ? 'A trip through the solar system'
+                      : 'Late-night synthwave for a rainy drive'
+                    : `Search ${labels.items} or paste a link`
                 }
               />
             </View>
@@ -228,13 +234,19 @@ export function SearchSheet({
             <View className="mb-4">
               {(playlist.skippedEmbeddingCount ?? 0) > 0 && (
                 <Copy muted>
-                  Skipped {playlist.skippedEmbeddingCount} songs because YouTube
-                  does not allow them to play in embedded players.
+                  Skipped {playlist.skippedEmbeddingCount} videos because
+                  YouTube does not allow them to play in embedded players.
+                </Copy>
+              )}
+              {(playlist.skippedRoomTypeCount ?? 0) > 0 && (
+                <Copy muted>
+                  Skipped {playlist.skippedRoomTypeCount} non-music videos. Use
+                  a Watch room to import videos from other categories.
                 </Copy>
               )}
               <Button
                 disabled={loading || playlist.items.length === 0}
-                label={`Add all ${playlist.items.length} songs`}
+                label={`Add all ${playlist.items.length} ${labels.items}`}
                 onPress={() => void addPlaylist()}
               />
             </View>

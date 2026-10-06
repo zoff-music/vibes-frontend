@@ -5,9 +5,14 @@ import { useSyncExternalStore } from 'react';
 interface UserCountProps {
   initialCount: number;
   roomId: string;
+  roomType: RoomType;
 }
 
-export const UserCount = ({ initialCount, roomId }: UserCountProps) => {
+export const UserCount = ({
+  initialCount,
+  roomId,
+  roomType,
+}: UserCountProps) => {
   const usersCount = useSyncExternalStore(
     useRoomStore.subscribe,
     () => {
@@ -18,5 +23,7 @@ export const UserCount = ({ initialCount, roomId }: UserCountProps) => {
     () => initialCount,
   );
 
-  return <ListenerCount count={usersCount} />;
+  return <ListenerCount count={usersCount} roomType={roomType} />;
 };
+
+import type { RoomType } from '@vibes/models';

@@ -12,7 +12,7 @@ export function Background() {
   const isTabVisible = usePageVisibility();
   const sunRef = useRef<HTMLDivElement>(null);
   const sunVisible = useInView(sunRef);
-  const isHome = location.pathname === '/';
+  const isHome = matches.some((match) => homeRouteIds.has(match.id));
   const showGrid = matches.some((match) => gridRouteIds.has(match.id));
 
   // The home hero positions its own sun behind the card.
@@ -78,6 +78,7 @@ export function Background() {
 
 const gridRouteIds = new Set([
   'routes/_index/route',
+  'routes/features/route',
   'routes/discover/route',
   'routes/explore.rooms/route',
   'routes/not-found/route',
@@ -86,3 +87,5 @@ const gridRouteIds = new Set([
   'routes/privacy-policy/route',
   'routes/terms-of-service/route',
 ]);
+
+const homeRouteIds = new Set(['routes/_index/route', 'routes/features/route']);

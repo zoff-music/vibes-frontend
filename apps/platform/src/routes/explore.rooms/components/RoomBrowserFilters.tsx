@@ -29,7 +29,7 @@ export function RoomBrowserFilters({
   const changeFilter = (value: string) => {
     setLive(value);
     submit(
-      { q: query.trim(), live: value },
+      { q: query.trim(), live: value, type: search.roomType.toLowerCase() },
       { method: 'get', action: '/rooms/explore', preventScrollReset: true },
     );
   };
@@ -43,6 +43,7 @@ export function RoomBrowserFilters({
       aria-label="Find public rooms"
       className="grid items-end gap-5 border-theme border-b pb-7 md:grid-cols-2 md:gap-10"
     >
+      <input type="hidden" name="type" value={search.roomType.toLowerCase()} />
       <div>
         <p className="mb-2 text-sm text-theme-muted">Show rooms</p>
         <SegmentedControl

@@ -12,11 +12,15 @@ export interface DiscoveryData {
 const requests = createRoomDiscoveryRequests(tvApi);
 
 export async function loader({
+  params,
   signal,
 }: LoaderFunctionArgs): Promise<DataResult<DiscoveryData>> {
   const [providersResult, roomsResult] = await Promise.all([
     requests.fetchProviders({ signal }),
-    requests.fetchPublicRooms({ signal }),
+    requests.fetchPublicRooms(
+      { signal },
+      params.roomType === 'WATCH' ? 'WATCH' : 'MUSIC',
+    ),
   ]);
   const error = providersResult[0] ?? roomsResult[0];
   return {

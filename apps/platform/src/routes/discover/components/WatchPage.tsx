@@ -20,7 +20,7 @@ export function WatchPage({ page }: WatchPageProps) {
         <div className="py-8 sm:py-12">
           <SiteHero
             id="watch-guide-heading"
-            eyebrow={`${page.label.toUpperCase()} / DESIGN PREVIEW`}
+            eyebrow={page.label.toUpperCase()}
             title={page.heading}
             description={page.introduction}
             aside={
@@ -32,14 +32,15 @@ export function WatchPage({ page }: WatchPageProps) {
             }
           >
             <Link
-              to="/?type=watch"
+              prefetch="intent"
+              to="/features/watch"
               className="mt-6 inline-flex min-h-12 items-center gap-4 rounded-xl bg-primary px-5 text-text-inverse hover:bg-primary-muted focus-visible:ring-2 focus-visible:ring-secondary"
             >
               {page.actionLabel}
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
             <p className="mt-3 text-theme-muted text-xs">
-              A look at what comes next. No live Watch rooms are created.
+              Always free. No account needed.
             </p>
           </SiteHero>
         </div>

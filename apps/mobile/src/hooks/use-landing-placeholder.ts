@@ -19,8 +19,26 @@ const promptExamples = [
   'Disco for the kitchen',
 ];
 
-export function useLandingPlaceholder(isAIMode: boolean, enabled: boolean) {
-  const examples = isAIMode ? promptExamples : roomExamples;
+const watchRoomExamples = ['frontrow', 'movienight', 'rabbit-hole', 'sofaclub'];
+const watchPromptExamples = [
+  'A trip through the solar system',
+  'Short films with surprising endings',
+  'Night walks through Tokyo',
+  'How things are made',
+];
+
+export function useLandingPlaceholder(
+  isAIMode: boolean,
+  enabled: boolean,
+  watch = false,
+) {
+  const examples = isAIMode
+    ? watch
+      ? watchPromptExamples
+      : promptExamples
+    : watch
+      ? watchRoomExamples
+      : roomExamples;
   const [placeholder, setPlaceholder] = useState(examples[0]);
   const [focused, setFocused] = useState(false);
   const [active, setActive] = useState(AppState.currentState === 'active');

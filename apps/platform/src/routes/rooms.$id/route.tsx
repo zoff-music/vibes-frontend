@@ -254,6 +254,7 @@ export default function RoomV2() {
     displayRoom.name,
     currentPlaylistItem,
     usersCount,
+    displayRoom.roomType,
   );
   const isAuthenticating = adminFetcher.state !== 'idle';
   const adminError =
@@ -805,6 +806,7 @@ export default function RoomV2() {
                           onExit={handleExitPartyScreen}
                           roomId={id}
                           roomName={displayRoom.name}
+                          roomType={displayRoom.roomType}
                           url={shareUrl}
                         />
                       </Suspense>
@@ -855,11 +857,13 @@ export default function RoomV2() {
       {!isAddModalVisible && !chatOpen && (
         <div className="sm:hidden">
           <Button
-            aria-label="Add Song"
+            aria-label={
+              displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'
+            }
             className="fixed right-5 bottom-5 z-40 h-14 w-14 rounded-full p-0 shadow-primary-popover"
             onClick={handleAddPlaylistItem}
             size="none"
-            title="Add Song"
+            title={displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'}
             variant="primary"
           >
             <PlusIcon className="h-6 w-6" />
