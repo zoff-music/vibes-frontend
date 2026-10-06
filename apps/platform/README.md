@@ -228,6 +228,8 @@ Experience transitions do not capture the document root: the header stays live
 and clickable throughout. All decorative snapshot layers ignore pointer events.
 Both directions use the same curved reveal from the visible top edge, without
 an ease-in pause or a rectangular wipe when returning to Music.
+Complementary circular masks remove the outgoing orb exactly where the incoming
+orb is revealed, so the moon's foreground and ring cannot linger beneath the sun.
 Only switches between landing pages use this eclipse. The same selector on
 policy, discovery and other pages navigates normally without capturing their
 content into hero transition layers.
