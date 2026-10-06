@@ -12,12 +12,12 @@ export interface HomeLoaderData {
 
 export async function loader({
   request,
+  params,
 }: LoaderFunctionArgs): Promise<HomeLoaderData> {
   const serverApi = getServerApi(request);
   const serverApiV3 = getServerApiV3(request);
   const options = { retry: 0, signal: request.signal };
-  const roomType =
-    new URL(request.url).pathname === '/features/watch' ? 'WATCH' : 'MUSIC';
+  const roomType = params.experience === 'watch' ? 'WATCH' : 'MUSIC';
   const [statsResult, providersResult, publicRoomsResult] = await Promise.all([
     serverApi.v2.get('/stats', null, options),
     serverApi.get('/providers', null, options),
@@ -32,7 +32,10 @@ export async function loader({
   const [publicRoomsError, publicRooms] = publicRoomsResult;
   const data = {
     providers: providersError ? null : providers,
-    publicRooms: publicRoomsError ? null : (publicRooms?.rooms ?? null),
+    publicRooms: publicRoomsError
+      ? null
+      : (publicRooms?.rooms.filter((room) => room.roomType === roomType) ??
+        null),
     stats: statsError ? null : stats,
   };
 
