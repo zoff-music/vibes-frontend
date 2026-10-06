@@ -19,6 +19,7 @@ export function RetroSun({ paused, watch = false }: RetroSunProps) {
   const id = useId();
   const gradientId = `${id}-sun-gradient`;
   const maskId = `${id}-sun-bands`;
+  const moonMaskId = `${id}-moon-cutout`;
 
   return (
     <div
@@ -40,6 +41,10 @@ export function RetroSun({ paused, watch = false }: RetroSunProps) {
         className="absolute inset-0 h-full w-full opacity-85"
       >
         <defs>
+          <mask id={moonMaskId}>
+            <rect width="100" height="100" className="fill-white" />
+            {watch && <circle cx="46" cy="45" r="42" className="fill-black" />}
+          </mask>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={watch ? '#c4c8ff' : '#ffe8a3'} />
             <stop offset="24%" stopColor={watch ? '#78d4f5' : '#ffb574'} />
@@ -72,14 +77,15 @@ export function RetroSun({ paused, watch = false }: RetroSunProps) {
             ))}
           </mask>
         </defs>
-        <circle
-          cx="50"
-          cy="50"
-          r="50"
-          fill={`url(#${gradientId})`}
-          mask={`url(#${maskId})`}
-        />
-        {watch && <circle cx="46" cy="45" r="42" className="fill-[#171125]" />}
+        <g mask={`url(#${moonMaskId})`}>
+          <circle
+            cx="50"
+            cy="50"
+            r="50"
+            fill={`url(#${gradientId})`}
+            mask={`url(#${maskId})`}
+          />
+        </g>
         {watch && (
           <ellipse
             cx="50"
