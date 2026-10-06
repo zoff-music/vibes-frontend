@@ -240,30 +240,12 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   opacity: 1;
 }
 
-:root:has([data-experience="music"])::view-transition-old(experience-orbit) {
-  z-index: 1;
-  animation: eclipse-uncover 2400ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
-}
-
-:root:has([data-experience="music"])::view-transition-new(experience-orbit) {
-  animation: none;
-}
-
 @keyframes eclipse-cover {
   from {
     clip-path: circle(0% at 50% 0%);
   }
   to {
     clip-path: circle(115% at 50% 0%);
-  }
-}
-
-@keyframes eclipse-uncover {
-  from {
-    clip-path: inset(0 0 0 0);
-  }
-  to {
-    clip-path: inset(100% 0 0 0);
   }
 }
 
@@ -297,10 +279,6 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   ::view-transition-new(experience-orbit),
   ::view-transition-old(experience-hero),
   ::view-transition-new(experience-hero) {
-    animation: none;
-  }
-
-  :root:has([data-experience="music"])::view-transition-old(experience-orbit) {
     animation: none;
   }
 
