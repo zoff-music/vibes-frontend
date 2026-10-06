@@ -180,6 +180,23 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   view-transition-name: experience-watch-label;
 }
 
+.experience-selector[data-transitioning="true"] .experience-new {
+  view-transition-name: experience-new;
+}
+
+::view-transition-group(experience-new) {
+  z-index: 5;
+  animation: none;
+}
+
+::view-transition-old(experience-new) {
+  display: none;
+}
+
+::view-transition-new(experience-new) {
+  animation: none;
+}
+
 ::view-transition-group(experience-pill) {
   z-index: 3;
   animation-duration: 500ms;
@@ -199,8 +216,7 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
 
 ::view-transition-group(experience-orbit) {
   z-index: 1;
-  animation-duration: 900ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation: none;
 }
 
 ::view-transition-group(experience-hero) {
@@ -209,40 +225,32 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
 }
 
 ::view-transition-old(experience-orbit) {
-  animation: orbit-set 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: none;
+  mix-blend-mode: normal;
+  opacity: 1;
 }
 
 ::view-transition-new(experience-orbit) {
-  animation: orbit-rise 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: eclipse-cover 2400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  mix-blend-mode: normal;
+  opacity: 1;
 }
 
-@keyframes orbit-set {
-  0% {
-    opacity: 1;
-    transform: translateY(0) rotate(0);
-  }
-  45% {
-    opacity: 0.45;
-    transform: translateY(-24px) rotate(-6deg);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(0) rotate(-12deg);
-  }
+:root:has([data-experience="music"])::view-transition-old(experience-orbit) {
+  z-index: 1;
+  animation: eclipse-cover 2400ms cubic-bezier(0.4, 0, 0.2, 1) reverse both;
 }
 
-@keyframes orbit-rise {
-  0% {
-    opacity: 0;
-    transform: translateY(0) rotate(12deg);
+:root:has([data-experience="music"])::view-transition-new(experience-orbit) {
+  animation: none;
+}
+
+@keyframes eclipse-cover {
+  from {
+    clip-path: circle(0% at 46% 45%);
   }
-  45% {
-    opacity: 0.65;
-    transform: translateY(-24px) rotate(6deg);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) rotate(0);
+  to {
+    clip-path: circle(150% at 46% 45%);
   }
 }
 
@@ -271,6 +279,10 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   ::view-transition-new(experience-orbit),
   ::view-transition-old(experience-hero),
   ::view-transition-new(experience-hero) {
+    animation: none;
+  }
+
+  :root:has([data-experience="music"])::view-transition-old(experience-orbit) {
     animation: none;
   }
 
