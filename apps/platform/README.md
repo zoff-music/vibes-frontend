@@ -218,18 +218,21 @@ type's short-lived cache separate; requests without a type retain combined
 totals for older clients.
 
 The Music/Watch selector keeps intent prefetching and uses a shared sliding
-selection pill. Supporting browsers animate named view-transition layers for
-the pill and the hero's sun/moon, with the orbit behind the solid hero surface.
+selection pill using a live CSS transform. Supporting browsers animate named
+view-transition layers for the hero's sun/moon, with the orbit behind the solid hero surface.
 The orb stays centered in both modes. A slow circular eclipse reveals the moon
 and its colors over the sun, reversing when returning to Music, without moving
-or rotating the orb. The header labels remain above the pill, and the NEW sticker
-has its own higher transition layer outside it.
+or rotating the orb. The header labels and NEW sticker stay in the live header,
+outside the snapshot layers, so Safari cannot hide them behind the pill.
 Experience transitions do not capture the document root: the header stays live
 and clickable throughout. All decorative snapshot layers ignore pointer events.
 Both directions use the same curved reveal from the visible top edge, without
 an ease-in pause or a rectangular wipe when returning to Music.
 Complementary circular masks remove the outgoing orb exactly where the incoming
 orb is revealed, so the moon's foreground and ring cannot linger beneath the sun.
+Only the orb artwork is captured, not its ambient glow. The snapshot is clipped
+to the visible area above the card. Hero copy uses only the page transition,
+without a second exit/entrance animation that could capture overlapping text.
 Only switches between landing pages use this eclipse. The same selector on
 policy, discovery and other pages navigates normally without capturing their
 content into hero transition layers.

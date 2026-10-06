@@ -37,7 +37,7 @@ export function RetroSun({ paused, watch = false }: RetroSunProps) {
         aria-hidden="true"
         focusable="false"
         viewBox="0 0 100 100"
-        className="absolute inset-0 h-full w-full opacity-85"
+        className="retro-orbit-art absolute inset-0 h-full w-full opacity-85"
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">

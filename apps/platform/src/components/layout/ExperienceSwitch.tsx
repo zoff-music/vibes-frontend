@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { Link, useLocation, useViewTransitionState } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { useExperience } from '../../hooks/useExperience';
 import { canUseViewTransition } from '../../utils/viewTransition';
 
@@ -9,13 +9,10 @@ export function ExperienceSwitch() {
   const path = pathname.replace(/\/+$/, '') || '/';
   const isLandingPage =
     path === '/' || path === '/features/music' || path === '/features/watch';
-  const enteringWatch = useViewTransitionState('/features/watch');
-  const enteringMusic = useViewTransitionState('/features/music');
 
   return (
     <nav
       aria-label="Choose your Zoff experience"
-      data-transitioning={enteringWatch || enteringMusic}
       className="experience-selector relative inline-grid grid-cols-2 rounded-full border border-theme bg-theme-surface p-1 shadow-sm"
     >
       <span
