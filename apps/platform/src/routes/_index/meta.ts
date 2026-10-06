@@ -6,8 +6,8 @@ import {
   siteUrl,
 } from '../../seo/metadata';
 
-export const meta: MetaFunction = ({ location }) => {
-  const watch = location.pathname === '/features/watch';
+export const meta: MetaFunction = ({ params }) => {
+  const watch = params.experience === 'watch';
   const metadata = watch
     ? pageMetadata(
         '/features/watch',
