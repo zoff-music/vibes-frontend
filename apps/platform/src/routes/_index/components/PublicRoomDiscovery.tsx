@@ -13,7 +13,10 @@ export function PublicRoomDiscovery({
   onJoinRoom,
   rooms,
 }: PublicRoomDiscoveryProps) {
-  const watch = useExperience() === 'WATCH';
+  const roomType = useExperience();
+  const watch = roomType === 'WATCH';
+  const visibleRooms = rooms.filter((room) => room.roomType === roomType);
+
   return (
     <section aria-labelledby="live-rooms-heading" className="mt-6">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -39,7 +42,7 @@ export function PublicRoomDiscovery({
           Browse all public <span aria-hidden="true">→</span>
         </Link>
       </div>
-      {rooms.length === 0 && (
+      {visibleRooms.length === 0 && (
         <p className="text-sm text-theme-muted">
           No rooms are live right now. Browse public rooms or start your own.
         </p>
@@ -48,11 +51,11 @@ export function PublicRoomDiscovery({
       <div
         className={classNames(
           'grid gap-2',
-          rooms.length === 2 && 'sm:grid-cols-2',
-          rooms.length >= 3 && 'sm:grid-cols-3',
+          visibleRooms.length === 2 && 'sm:grid-cols-2',
+          visibleRooms.length >= 3 && 'sm:grid-cols-3',
         )}
       >
-        {rooms.map((room) => (
+        {visibleRooms.map((room) => (
           <PublicRoomTile key={room.id} room={room} onJoin={onJoinRoom} />
         ))}
       </div>
