@@ -417,7 +417,8 @@ export function RoomsScreen() {
         generationLoading={generationLoading}
         isAIMode={isAIMode}
         loading={loading}
-        providers={providers}
+        providers={availableProviders}
+        roomType={roomType}
         publicRooms={publicRooms}
         refreshControl={refreshControl}
         refreshLogo={refreshLogo}
@@ -501,7 +502,7 @@ export function RoomsScreen() {
                 </View>
                 <View className="gap-8">
                   <View className="w-full">
-                    <NativeLandingSun />
+                    <NativeLandingSun watch={watch} />
                     <Card className="gap-6 rounded-3xl p-6">
                       <View className="gap-1">
                         <Heading>

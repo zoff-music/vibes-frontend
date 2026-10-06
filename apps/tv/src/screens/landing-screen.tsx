@@ -136,7 +136,7 @@ export function LandingScreen({
         </View>
         <View className="flex-row items-start gap-8">
           <View className="min-w-0 flex-1">
-            <NativeLandingSun />
+            <NativeLandingSun watch={watch} />
             <NativeCard
               className={classNames(
                 'rounded-3xl border-2',

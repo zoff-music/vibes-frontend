@@ -99,7 +99,14 @@ export function TizenLanding({
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 -top-24 flex h-24 justify-center overflow-hidden"
           >
-            <div className="size-56 rounded-full bg-linear-to-b from-[#ffe8a3] via-[#ff6b9b] to-[#ac42d5] opacity-80 [mask-image:linear-gradient(to_bottom,black_0%,black_22%,transparent_22%,transparent_24%,black_24%,black_30%,transparent_30%,transparent_33%,black_33%,black_38%,transparent_38%,transparent_42%,black_42%,black_46%,transparent_46%)]" />
+            {!watch && (
+              <div className="size-56 rounded-full bg-linear-to-b from-[#ffe8a3] via-[#ff6b9b] to-[#ac42d5] opacity-80 [mask-image:linear-gradient(to_bottom,black_0%,black_22%,transparent_22%,transparent_24%,black_24%,black_30%,transparent_30%,transparent_33%,black_33%,black_38%,transparent_38%,transparent_42%,black_42%,black_46%,transparent_46%)]" />
+            )}
+            {watch && (
+              <div className="relative size-56 overflow-hidden rounded-full bg-linear-to-br from-[#d8bcff] via-accent to-[#a74fe8] opacity-80">
+                <div className="absolute top-3 right-3 size-52 rounded-full bg-tv-background" />
+              </div>
+            )}
           </div>
           <h2 className="mb-8 text-4xl">
             {isAIMode
