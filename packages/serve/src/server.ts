@@ -78,14 +78,6 @@ function resolveBodySizeLimitBytes(config: ServerConfig) {
 }
 
 async function setupRoutes(app: express.Express, config: ServerConfig) {
-  app.use((req, res, next) => {
-    const contentType = config.staticContentTypes?.[req.path];
-    if (contentType) {
-      res.type(contentType);
-    }
-    next();
-  });
-
   if (config.dev) {
     const { createRequestHandler } = await import('@react-router/express');
     const vite = await import('vite');
@@ -118,7 +110,24 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
         maxAge: '1y',
       }),
     );
-    app.use(express.static(config.staticDir, { maxAge: '1h', index: false }));
+    const staticOptions: Parameters<typeof express.static>[1] = {
+      maxAge: '1h',
+      index: false,
+      setHeaders(res, filePath) {
+        const routePath = `/${path.relative(config.staticDir, filePath).split(path.sep).join('/')}`;
+        const contentType = config.staticContentTypes?.[routePath];
+
+        if (contentType) {
+          res.setHeader('Content-Type', contentType);
+        }
+      },
+    };
+
+    app.use(
+      '/.well-known',
+      express.static(path.join(config.staticDir, '.well-known'), staticOptions),
+    );
+    app.use(express.static(config.staticDir, staticOptions));
 
     const { createRequestHandler } = await import('@react-router/express');
     const { loadBuild } = config.mode;
