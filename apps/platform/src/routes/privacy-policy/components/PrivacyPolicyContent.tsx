@@ -21,14 +21,15 @@ export function PrivacyPolicyContent({
 
   return (
     <LegalDocument
-      description="This policy explains what information Zoff processes, why it is needed, how long it is kept, and how third-party music and infrastructure providers handle data."
+      description="This policy explains data processing in Zoff Music and Watch rooms, including providers, shared queues, chat, and AI playlist generation."
       title="Privacy Policy"
-      updatedAt="4 October 2026"
+      updatedAt="6 October 2026"
     >
       <LegalSection id="policy-1-who-operates-zoff" title="Who operates Zoff">
         <p>
-          Zoff is a free shared-music-room service operated by its developer.
-          Questions, privacy requests, and deletion requests can be sent to{' '}
+          Zoff is a free service for listening and watching together in shared
+          rooms, operated by its developer. Questions, privacy requests, and
+          deletion requests can be sent to{' '}
           <a
             className="text-secondary underline decoration-secondary/40 underline-offset-4 transition-colors hover:text-theme"
             href={`mailto:${privacyEmail}`}
@@ -43,11 +44,14 @@ export function PrivacyPolicyContent({
         id="policy-2-information-zoff-processes"
         title="Information Zoff processes"
       >
-        <p>Zoff processes the information needed to run a listening room:</p>
+        <p>
+          Zoff processes the information needed to run Music and Watch rooms:
+        </p>
         <ul className="list-disc space-y-2 pl-6">
           <li>
-            Room names, settings, queue entries, votes, playback state, and
-            optional participant nicknames.
+            Room names, room type (Music or Watch), settings, queue entries,
+            votes, playback state, chat messages, room activity, and optional
+            participant nicknames.
           </li>
           <li>
             Search terms and playlist-generation prompts that users submit.
@@ -71,6 +75,13 @@ export function PrivacyPolicyContent({
           </li>
         </ul>
         <p>
+          Room participants can see the shared queue, participant nicknames,
+          chat messages, and room activity. Public rooms can appear in the
+          corresponding Music or Watch room browser with their name, participant
+          count, and queue size. Do not share confidential information in a
+          room.
+        </p>
+        <p>
           Room administrator passwords are optional. When provided, they are
           processed to authenticate room administration and are stored as
           password hashes rather than readable passwords.
@@ -80,7 +91,10 @@ export function PrivacyPolicyContent({
       {hasProviders && (
         <LegalSection id="policy-3-providers" title="Providers">
           <p>
-            Zoff connects to the music providers enabled for the service.
+            Zoff connects to the media providers enabled for the service. Music
+            rooms support enabled YouTube and SoundCloud integrations; Watch
+            rooms use YouTube only. The room type determines the search and
+            import rules and is fixed when the room is created.
             Provider-specific processing and terms are described below only when
             that integration is available.
           </p>
@@ -97,13 +111,13 @@ export function PrivacyPolicyContent({
               <p>
                 YouTube search results are cached for up to three days to reduce
                 duplicate API requests. When a user adds a result to a room, the
-                relevant public track information is stored with that room so
+                relevant public video information is stored with that room so
                 the shared queue can function. Queue metadata is scheduled for
                 refresh after 21 days. If it cannot be refreshed, a separate
                 cleanup removes it after 25 days without a successful refresh,
-                including a paused or currently selected track. This leaves time
+                including a paused or currently selected video. This leaves time
                 for the search cache, import staging, and event replay before
-                the 30-day retention limit. An expired current track stops
+                the 30-day retention limit. An expired current video stops
                 playing locally when the room receives the update.
               </p>
               <p>
@@ -183,9 +197,12 @@ export function PrivacyPolicyContent({
       <LegalSection title="AI playlist generation">
         <p>
           If a user asks Zoff to generate a playlist, the submitted prompt is
-          sent to Google&apos;s Gemini API to produce song and artist
-          suggestions. Zoff then checks suggested public music metadata with an
-          enabled music provider. Users should not include personal,
+          sent to Google&apos;s Gemini API. Music prompts request music
+          suggestions; Watch prompts request videos to watch. For generation
+          within an existing room, titles and publisher names from the current
+          item and queued items may also be sent to avoid duplicate suggestions.
+          Zoff then checks suggested public metadata with the room&apos;s
+          supported media provider. Users should not include personal,
           confidential, or sensitive information in a playlist prompt.
         </p>
         <p>
@@ -216,7 +233,7 @@ export function PrivacyPolicyContent({
           by contacting {privacyEmail}. Zoff may need information sufficient to
           identify the relevant session or room. Verified deletion requests are
           completed within seven days. Deleting data held by Zoff does not
-          delete data held by YouTube, Google, or another music provider;
+          delete data held by YouTube, Google, or another media provider;
           provider data and permissions must be managed directly with that
           provider.
         </p>
@@ -227,7 +244,7 @@ export function PrivacyPolicyContent({
           Zoff shares information only when needed to operate the service,
           including with hosting and infrastructure providers, analytics
           infrastructure, Google when Gemini playlist generation is requested,
-          and the enabled music providers. Zoff does not sell personal
+          and the enabled media providers. Zoff does not sell personal
           information or use it for targeted advertising.
         </p>
         <p>

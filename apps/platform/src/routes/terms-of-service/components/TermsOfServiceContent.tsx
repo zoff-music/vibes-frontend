@@ -19,9 +19,9 @@ export function TermsOfServiceContent({
 
   return (
     <LegalDocument
-      description="These terms govern use of Zoff, including shared rooms, music-provider integrations, playback, and playlist generation."
+      description="These terms govern Zoff Music and Watch rooms, provider integrations, shared playback, chat, and playlist generation."
       title="Terms of Service"
-      updatedAt="25 July 2026"
+      updatedAt="6 October 2026"
     >
       <LegalSection id="policy-1-agreement" title="Agreement">
         <p>
@@ -38,14 +38,28 @@ export function TermsOfServiceContent({
 
       <LegalSection id="policy-2-the-service" title="The service">
         <p>
-          Zoff provides shared listening rooms in which participants can search
-          enabled music providers, add tracks to a queue, vote, control playback
-          when permitted by room settings, and optionally generate playlist
-          suggestions.
+          Zoff provides Music rooms for listening together and Watch rooms for
+          watching together. Participants can search supported providers, add
+          playlist items, vote, chat, control playback when permitted by room
+          settings, and optionally generate playlist suggestions.
+        </p>
+        <p>
+          The room type is chosen when a room is created and cannot be changed.
+          Music rooms support enabled music providers, including YouTube and
+          SoundCloud. Watch rooms support YouTube videos across categories,
+          without the Music room duration limit. SoundCloud is not supported in
+          Watch rooms, including through pasted links or playlist imports.
+        </p>
+        <p>
+          Zoff excludes live and upcoming broadcasts, videos marked as made for
+          kids, and videos that do not permit embedded playback. These are
+          Zoff&apos;s room-content rules, not a statement that those videos are
+          unavailable on YouTube itself. Filtering does not guarantee that a
+          video is suitable for every viewer or will play in every location.
         </p>
         <p>
           Zoff may add, change, suspend, limit, or remove features and provider
-          integrations. Music availability depends on the applicable provider,
+          integrations. Content availability depends on the applicable provider,
           territory, account eligibility, content owner, and network conditions.
         </p>
       </LegalSection>
@@ -55,8 +69,9 @@ export function TermsOfServiceContent({
         title="Rooms and user conduct"
       >
         <p>
-          Users are responsible for room names, nicknames, prompts, queue
-          choices, and other information they submit. Users must not:
+          Users are responsible for room names, nicknames, chat messages,
+          prompts, queue choices, and other information they submit. Users must
+          not:
         </p>
         <ul className="list-disc space-y-2 pl-6">
           <li>Break applicable law or another person&apos;s rights.</li>
@@ -129,17 +144,18 @@ export function TermsOfServiceContent({
 
       <LegalSection title="Playlist generation">
         <p>
-          Playlist generation uses Google&apos;s Gemini API to suggest songs
-          from a user&apos;s prompt. Suggestions can be incomplete, inaccurate,
-          unsuitable, or unavailable. Zoff attempts to validate provider
-          metadata but does not guarantee that every suggestion, provider ID,
-          result, ordering, or description is correct.
+          Playlist generation uses Google&apos;s Gemini API to suggest music for
+          Music rooms and videos to watch for Watch rooms, based on the
+          user&apos;s prompt and selected room type. Suggestions can be
+          incomplete, inaccurate, unsuitable, or unavailable. Zoff attempts to
+          validate provider metadata but does not guarantee that every
+          suggestion, provider ID, result, ordering, or description is correct.
         </p>
         <p>
           Users must not submit personal, confidential, illegal, or harmful
           information in prompts. Generated results are suggestions, not
           professional advice or a representation that Zoff owns, licenses, or
-          endorses the suggested music.
+          endorses the suggested content.
         </p>
       </LegalSection>
 

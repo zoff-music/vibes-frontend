@@ -12,7 +12,7 @@ export function SecurityContent({ securityEmail }: SecurityContentProps) {
     <LegalDocument
       description="This policy explains how to report a potential security vulnerability in Zoff and the rules for good-faith security research."
       title="Security Policy"
-      updatedAt="25 July 2026"
+      updatedAt="6 October 2026"
     >
       <LegalSection title="Reporting a vulnerability">
         <p>
@@ -68,9 +68,16 @@ export function SecurityContent({ securityEmail }: SecurityContentProps) {
         <p>
           This policy covers the public Zoff service at zoff.me and the
           open-source Zoff repositories maintained by the Zoff Music
-          organization. Third-party services, music providers, hosting
-          providers, and accounts or systems belonging to other people are
-          outside scope.
+          organization. This includes Music and Watch rooms, their chat and
+          playback controls, and Zoff&apos;s embed, remote, and Cast interfaces.
+          Third-party services, media providers, hosting providers, and accounts
+          or systems belonging to other people are outside scope.
+        </p>
+        <p>
+          When reporting a room issue, include its Music or Watch type and
+          whether it affects room permissions, provider restrictions, shared
+          playback, or data visibility. Use a room you control and avoid
+          including other participants&apos; messages or personal information.
         </p>
       </LegalSection>
 
