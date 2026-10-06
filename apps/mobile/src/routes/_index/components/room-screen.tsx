@@ -5,6 +5,7 @@ import {
   NativeKeyboardAvoidingView,
   useNativePresentation,
 } from '@vibes/ui/native';
+import { getRoomLabels } from '@vibes/ui/shared';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Share, Text, View } from 'react-native';
@@ -91,7 +92,7 @@ export function RoomScreen() {
   if (!roomId || !room) {
     return (
       <Screen>
-        <Empty>Join or create a room to start listening.</Empty>
+        <Empty>Join or create a room to get started.</Empty>
       </Screen>
     );
   }
@@ -102,6 +103,10 @@ export function RoomScreen() {
   const canControlPlayback = room.mode === 'server' || hasHostPlaybackAuthority;
   const canSkip =
     canControlPlayback && (room.isAdmin || room.settings.skipAllowed);
+  const labels = getRoomLabels(room.roomType);
+  const emptyQueueMessage = room.isGenerating
+    ? `Your ${labels.items} will appear here as the playlist is generated.`
+    : `No ${labels.items} are queued yet.`;
 
   const sendAction = async (action: 'play' | 'pause') => {
     if (room.mode === 'server') {
@@ -305,11 +310,7 @@ export function RoomScreen() {
           <Queue
             header={header}
             showHeading={showHeading}
-            emptyMessage={
-              room.isGenerating
-                ? 'Songs will appear here as the playlist is generated.'
-                : 'No songs are queued yet.'
-            }
+            emptyMessage={emptyQueueMessage}
             playlistItems={queuedPlaylistItems}
             onVote={(playlistItem) => void vote(playlistItem)}
             {...(room.isAdmin
@@ -345,11 +346,7 @@ export function RoomScreen() {
                 header={header}
                 showHeading={showHeading}
                 contained
-                emptyMessage={
-                  room.isGenerating
-                    ? 'Songs will appear here as the playlist is generated.'
-                    : 'No songs are queued yet.'
-                }
+                emptyMessage={emptyQueueMessage}
                 playlistItems={queuedPlaylistItems}
                 onVote={(playlistItem) => void vote(playlistItem)}
                 {...(room.isAdmin

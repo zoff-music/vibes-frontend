@@ -73,7 +73,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
           {generationMessage}
         </Text>
         <Text className="font-heading text-lg text-tv-muted">
-          Songs will appear here automatically.
+          Your {labels.items} will appear here automatically.
         </Text>
       </View>
     );

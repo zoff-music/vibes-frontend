@@ -73,6 +73,7 @@ export function PersistentRoomPlayer() {
         availableWidth={frame.width}
         availableHeight={frame.height}
         isGenerating={room.isGenerating}
+        roomType={room.roomType}
         onLocalPositionObserved={observeLocalPlaybackPosition}
         onLocalSeek={(positionMs) => {
           if (
