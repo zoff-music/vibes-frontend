@@ -11,7 +11,7 @@ import { useKonamiMode } from '@/providers/konami-mode-provider';
 export function TabletAddPlaylistItemButton() {
   const tabletLayout = useTabletLandscapeLayout();
   const keyboardVisible = useKeyboardVisible();
-  const { canAddPlaylistItems } = useRoomNavigation();
+  const { addLabel, canAddPlaylistItems } = useRoomNavigation();
   const { enabled: konamiEnabled } = useKonamiMode();
   const [addPlaylistItemVisible, setAddPlaylistItemVisible] = useState(false);
   if (
@@ -26,7 +26,7 @@ export function TabletAddPlaylistItemButton() {
     <>
       <View className="absolute right-6 bottom-6 z-50">
         <IconButton
-          accessibilityLabel="Add song"
+          accessibilityLabel={addLabel}
           icon="add"
           onPress={() => setAddPlaylistItemVisible(true)}
         />

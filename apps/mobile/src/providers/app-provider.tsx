@@ -109,6 +109,7 @@ const PlaybackSessionContext = createContext<PlaybackSessionState | null>(null);
 const RoomSessionContext = createContext<RoomSessionState | null>(null);
 
 interface RoomNavigationState {
+  addLabel: string;
   canAddPlaylistItems: boolean;
   hasRoom: boolean;
 }
@@ -578,9 +579,14 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   const hasRoom = Boolean(room);
   const canAddPlaylistItems = hasRoom || Boolean(controllerRemote?.roomId);
+  let addLabel = 'Add item';
+  if (room) {
+    addLabel = room.roomType === 'WATCH' ? 'Add video' : 'Add song';
+  }
+
   const roomNavigationValue = useMemo<RoomNavigationState>(
-    () => ({ canAddPlaylistItems, hasRoom }),
-    [canAddPlaylistItems, hasRoom],
+    () => ({ addLabel, canAddPlaylistItems, hasRoom }),
+    [addLabel, canAddPlaylistItems, hasRoom],
   );
   const machineRemoteValue = useMemo<MachineRemoteState>(
     () => ({

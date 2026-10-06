@@ -14,6 +14,7 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
     {
       $search: {
         q: search.q,
+        roomType: search.roomType,
         live: search.live,
         from: search.from,
         to: search.from + publicRoomPageSize - 1,

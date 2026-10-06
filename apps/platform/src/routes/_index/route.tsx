@@ -4,6 +4,7 @@ import {
   useNavigationType,
   useSearchParams,
 } from 'react-router';
+import { useExperience } from '../../hooks/useExperience';
 import { HomeScreen } from './components/HomeScreen';
 import { loader } from './loader';
 
@@ -16,8 +17,11 @@ export default function Home() {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const [searchParams] = useSearchParams();
+  const experience = useExperience();
+
   return (
     <HomeScreen
+      key={`${experience}:${searchParams.get('mode') ?? 'room'}`}
       data={data}
       navigate={navigate}
       navigationType={navigationType}

@@ -11,7 +11,7 @@ import {
   NativeHeading,
   NativeLandingSun,
 } from '@vibes/ui/native';
-import { chunkItems } from '@vibes/ui/shared';
+import { chunkItems, getRoomLabels } from '@vibes/ui/shared';
 import { useState } from 'react';
 import {
   Image,
@@ -40,7 +40,8 @@ export function LandingScreen({
   const { height, width } = useWindowDimensions();
   const compact = width <= compactScreenWidth || height <= compactScreenHeight;
   const [value, setValue] = useState('');
-  const browser = useRoomBrowser();
+  const browser = useRoomBrowser(session.roomType);
+  const watch = session.roomType === 'WATCH';
   const rooms = browser.browsing
     ? (browser.result?.rooms ?? [])
     : session.publicRooms;
@@ -69,7 +70,9 @@ export function LandingScreen({
   let placeholder = 'Room name';
   let aiTone: 'primary' | 'secondary' = 'secondary';
   if (isAIMode) {
-    placeholder = 'Late-night synthwave for a rainy drive';
+    placeholder = watch
+      ? 'A trip through the solar system'
+      : 'Late-night synthwave for a rainy drive';
     aiTone = 'primary';
   }
 
@@ -106,10 +109,34 @@ export function LandingScreen({
             </Text>
             <NativeCopy muted>Rooms on your TV</NativeCopy>
           </View>
+          <View className="ml-auto flex-row gap-3">
+            <NativeButton
+              label="Music"
+              disabled={session.loading}
+              tone="secondary"
+              selected={!watch}
+              onPress={() => {
+                browser.showLive();
+                setValue('');
+                void sessionActions.changeRoomType('MUSIC');
+              }}
+            />
+            <NativeButton
+              label="Watch"
+              disabled={session.loading}
+              tone="secondary"
+              selected={watch}
+              onPress={() => {
+                browser.showLive();
+                setValue('');
+                void sessionActions.changeRoomType('WATCH');
+              }}
+            />
+          </View>
         </View>
         <View className="flex-row items-start gap-8">
           <View className="min-w-0 flex-1">
-            <NativeLandingSun />
+            <NativeLandingSun watch={watch} />
             <NativeCard
               className={classNames(
                 'rounded-3xl border-2',
@@ -118,9 +145,15 @@ export function LandingScreen({
             >
               <View className="gap-2">
                 <NativeHeading>
-                  {isAIMode ? 'Set the ' : 'Listen to music '}
+                  {isAIMode
+                    ? watch
+                      ? 'Follow your '
+                      : 'Set the '
+                    : watch
+                      ? 'Watch '
+                      : 'Listen to music '}
                   <Text className="text-primary">
-                    {isAIMode ? 'mood.' : 'together.'}
+                    {isAIMode ? (watch ? 'curiosity.' : 'mood.') : 'together.'}
                   </Text>
                 </NativeHeading>
               </View>
@@ -284,8 +317,10 @@ export function LandingScreen({
                               )}
                               numberOfLines={1}
                             >
-                              {room.listenerCount} listening ·{' '}
-                              {room.playlistItemCount} songs
+                              {room.listenerCount}{' '}
+                              {getRoomLabels(room.roomType).activity} ·{' '}
+                              {room.playlistItemCount}{' '}
+                              {getRoomLabels(room.roomType).items}
                             </Text>
                           </View>
                           <Text

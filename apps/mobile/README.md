@@ -23,9 +23,12 @@ The app deliberately has no Expo web target.
 
 ## Included flows
 
+- Music and Watch entry points with separate public-room browsing and generation
+  prompts. Watch rooms support YouTube videos; Music rooms support the enabled
+  YouTube and SoundCloud sources. Room type is fixed when the room is created.
 - Join, create, and change rooms, including protected rooms and currently active
   public rooms.
-- Play, pause, host seek, skip, vote, search, and add songs or provider
+- Play, pause, host seek, skip, vote, search, and add playlist items or provider
   playlists from pasted links.
 - Official embedded players for enabled YouTube and SoundCloud
   tracks. YouTube uses `react-native-youtube-iframe`, which wraps the official
@@ -102,6 +105,8 @@ Test at least these flows before publishing:
    confirm the machine follows without counting the remote as a listener.
 5. Connect to a Cast device and confirm the receiver joins the selected room.
 6. Test light and dark device appearances on both iOS and Android.
+7. Switch Music/Watch, browse and generate in each, and verify Watch only offers
+   YouTube. Confirm Watch rooms use video and watcher labels throughout the app.
 
 ## EAS development and preview builds
 

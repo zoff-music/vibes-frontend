@@ -5,6 +5,7 @@ import type {
   AddPlaylistResponse,
   ProviderItem,
   ProviderPlaylist,
+  RoomType,
   SourceType,
 } from '@vibes/models';
 import type { ApiClient, ApiRequestOptions, ApiResult } from '../client';
@@ -45,10 +46,15 @@ export function createProviderPlaylistRequest(client: ApiClient) {
   return (
     provider: SourceType,
     source: string,
+    roomType: RoomType,
     options?: ApiRequestOptions,
   ): ApiResult<ProviderPlaylist> => {
     if (provider === 'youtube') {
-      return client.v2.get('/youtube/playlists/{id}', { id: source }, options);
+      return client.v2.get(
+        '/youtube/playlists/{id}',
+        { id: source, $search: { roomType } },
+        options,
+      );
     }
     return client.v2.get(
       '/soundcloud/playlists',

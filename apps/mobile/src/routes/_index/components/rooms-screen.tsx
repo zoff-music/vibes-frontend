@@ -1,4 +1,4 @@
-import type { PublicRoomResultV3, PublicRoomV3 } from '@vibes/models';
+import type { PublicRoomResultV3, PublicRoomV3, RoomType } from '@vibes/models';
 import {
   generatedPlaylistPromptMaxLength,
   roomNameMaxLength,
@@ -6,8 +6,9 @@ import {
 import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import { classNames } from '@vibes/shared';
 import { NativeLandingSun } from '@vibes/ui/native';
+import { getRoomLabels } from '@vibes/ui/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
   Keyboard,
@@ -74,6 +75,12 @@ export function RoomsScreen() {
   });
   const submitCreateRoom = createRoomFetcher.submit;
   const [value, setValue] = useState(roomId);
+  const [roomType, setRoomType] = useState<RoomType>('MUSIC');
+  const watch = roomType === 'WATCH';
+  const availableProviders = useMemo(
+    () => providers.filter((provider) => !watch || provider === 'youtube'),
+    [providers, watch],
+  );
   const [discoveryData, setDiscoveryData] = useState(discovery);
   const [browseMode, setBrowseMode] = useState('live');
   const [browseResult, setBrowseResult] = useState<PublicRoomResultV3 | null>(
@@ -104,7 +111,12 @@ export function RoomsScreen() {
     }
     setBrowsing(true);
     const result = await roomBrowser.load({
-      params: { live: String(mode === 'live'), from: String(from), q },
+      params: {
+        live: String(mode === 'live'),
+        from: String(from),
+        q,
+        roomType,
+      },
     });
     if (requestId !== browseRequest.current) return;
     setBrowseResult(result.data);
@@ -123,6 +135,7 @@ export function RoomsScreen() {
       !loading &&
       !konamiEnabled &&
       browseMode === 'live',
+    watch,
   );
   const [generationLoading, setGenerationLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -134,15 +147,18 @@ export function RoomsScreen() {
 
   useEffect(() => setValue(roomId), [roomId]);
   useEffect(() => {
-    setDiscoveryData(discovery);
-  }, [discovery]);
+    if (roomType === 'MUSIC') setDiscoveryData(discovery);
+  }, [discovery, roomType]);
 
   const refreshDiscovery = useCallback(async () => {
+    const requestId = ++browseRequest.current;
     setRefreshing(true);
     const [result] = await Promise.all([
-      discoveryFetcher.load(),
+      discoveryFetcher.load({ params: { roomType } }),
       waitForMinimumRefreshSpin(),
     ]);
+    if (requestId !== browseRequest.current) return;
+
     if (result.data) {
       setDiscoveryData(result.data);
       setBrowseResult(null);
@@ -150,7 +166,31 @@ export function RoomsScreen() {
       setBrowseQuery('');
     }
     setRefreshing(false);
-  }, [discoveryFetcher]);
+  }, [discoveryFetcher, roomType]);
+
+  const changeRoomType = async (nextType: RoomType) => {
+    if (nextType === roomType) return;
+
+    const requestId = ++browseRequest.current;
+    setRefreshing(false);
+    setRoomType(nextType);
+    setValue('');
+    setError('');
+    setBrowseMode('live');
+    setBrowseQuery('');
+    setBrowseResult(null);
+    setDiscoveryData(null);
+    setBrowsing(true);
+    const result = await discoveryFetcher.load({
+      params: { roomType: nextType },
+    });
+
+    if (requestId !== browseRequest.current) return;
+
+    setDiscoveryData(result.data);
+    setBrowseError(result.error);
+    setBrowsing(false);
+  };
 
   useEffect(() => {
     const hasRoom = Boolean(room && roomId);
@@ -299,6 +339,7 @@ export function RoomsScreen() {
     const result = await submitCreateRoom({
       intent: 'generate',
       prompt,
+      roomType,
     });
     setGenerationLoading(false);
     if (result.data?.intent !== 'generated') {
@@ -346,7 +387,8 @@ export function RoomsScreen() {
               {item.name}
             </Text>
             <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-              {item.listenerCount} listening · {item.playlistItemCount} songs
+              {item.listenerCount} {getRoomLabels(item.roomType).activity} ·{' '}
+              {item.playlistItemCount} {getRoomLabels(item.roomType).items}
             </Text>
           </View>
           <Text className="font-heading text-accent text-xl">→</Text>
@@ -375,7 +417,8 @@ export function RoomsScreen() {
         generationLoading={generationLoading}
         isAIMode={isAIMode}
         loading={loading}
-        providers={providers}
+        providers={availableProviders}
+        roomType={roomType}
         publicRooms={publicRooms}
         refreshControl={refreshControl}
         refreshLogo={refreshLogo}
@@ -427,19 +470,55 @@ export function RoomsScreen() {
                       Zoff
                     </Text>
                     <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                      Your rooms. Your music.
+                      {watch
+                        ? 'Your rooms. Your front row.'
+                        : 'Your rooms. Your music.'}
                     </Text>
                   </View>
                 </View>
+                <View
+                  accessibilityRole="tablist"
+                  className="flex-row gap-2 self-center rounded-full border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
+                >
+                  {roomTypes.map((type) => (
+                    <Pressable
+                      key={type}
+                      accessibilityRole="tab"
+                      accessibilityState={{ selected: roomType === type }}
+                      disabled={generationLoading}
+                      onPress={() => void changeRoomType(type)}
+                      className={classNames(
+                        'min-h-12 min-w-28 items-center justify-center rounded-full border px-5',
+                        roomType === type
+                          ? 'border-accent bg-mobile-background dark:bg-mobile-dark-background'
+                          : 'border-transparent',
+                      )}
+                    >
+                      <Text className="font-heading text-lg text-mobile-text dark:text-mobile-dark-text">
+                        {type === 'WATCH' ? 'Watch' : 'Music'}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
                 <View className="gap-8">
                   <View className="w-full">
-                    <NativeLandingSun />
+                    <NativeLandingSun watch={watch} />
                     <Card className="gap-6 rounded-3xl p-6">
                       <View className="gap-1">
                         <Heading>
-                          {isAIMode ? 'Set the ' : 'Listen to music '}
+                          {isAIMode
+                            ? watch
+                              ? 'Follow your '
+                              : 'Set the '
+                            : watch
+                              ? 'Watch '
+                              : 'Listen to music '}
                           <Text className="text-primary">
-                            {isAIMode ? 'mood.' : 'together.'}
+                            {isAIMode
+                              ? watch
+                                ? 'curiosity.'
+                                : 'mood.'
+                              : 'together.'}
                           </Text>
                         </Heading>
                       </View>
@@ -544,7 +623,7 @@ export function RoomsScreen() {
                     {Boolean(browseError) && <Copy muted>{browseError}</Copy>}
                     <View className="flex-row flex-wrap gap-3">
                       {publicRooms.map(renderPublicRoom)}
-                      {publicRooms.length === 0 && (
+                      {publicRooms.length === 0 && !browsing && (
                         <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
                           <Copy muted>
                             {browseMode === 'live'
@@ -608,7 +687,8 @@ export function RoomsScreen() {
         </View>
         <CreateRoomSheet
           initialName={value}
-          providers={providers}
+          providers={availableProviders}
+          roomType={roomType}
           visible={createVisible}
           onClose={() => setCreateVisible(false)}
           onCreated={handleCreated}
@@ -619,6 +699,7 @@ export function RoomsScreen() {
 }
 
 const refreshLogoRotationDurationMs = 1200;
+const roomTypes: RoomType[] = ['MUSIC', 'WATCH'];
 const minimumRefreshSpinDurationMs = refreshLogoRotationDurationMs + 200;
 
 function waitForMinimumRefreshSpin(): Promise<void> {

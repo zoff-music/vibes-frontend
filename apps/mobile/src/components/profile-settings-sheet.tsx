@@ -98,7 +98,7 @@ export function ProfileSettingsSheet({
           <View className="gap-4 px-5">
             <Card>
               <Copy>
-                Your display name appears beside songs you add and follows this
+                Your display name appears beside items you add and follows this
                 device across every room. It does not need to be unique.
               </Copy>
               <Field
@@ -114,7 +114,7 @@ export function ProfileSettingsSheet({
               />
               {error ? <Copy muted>{error}</Copy> : null}
               {name ? (
-                <Copy muted>New songs will show “Added by {name}”.</Copy>
+                <Copy muted>New items will show “Added by {name}”.</Copy>
               ) : null}
               <Button
                 disabled={loading || !name.trim()}

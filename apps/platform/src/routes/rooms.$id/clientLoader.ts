@@ -35,6 +35,9 @@ export async function clientLoader({
     }
     const createUrl = new URL('/rooms/create', request.url);
     createUrl.searchParams.set('name', roomId);
+    if (new URL(request.url).searchParams.get('type') === 'watch') {
+      createUrl.searchParams.set('type', 'watch');
+    }
     return redirect(createUrl.toString());
   }
   if (playlistItemsErr || playbackErr || providersErr) {
@@ -47,7 +50,9 @@ export async function clientLoader({
   return {
     pageUrl: createRoomPageUrl(request.url, roomId),
     playback: (playback || undefined) as PlaybackStateV2 | undefined,
-    providers: providers ?? [],
+    providers: (providers ?? []).filter(
+      (provider) => room.roomType === 'MUSIC' || provider === 'youtube',
+    ),
     room,
     playlistItems: playlistItems || [],
   };

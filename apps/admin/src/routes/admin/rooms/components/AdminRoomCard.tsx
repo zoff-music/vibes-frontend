@@ -1,4 +1,5 @@
 import type { AdminRoomSummaryV2 } from '@vibes/models';
+import { getRoomLabels } from '@vibes/ui/shared';
 import { Button, SoundCloudIcon, YouTubeIcon } from '@vibes/ui/web';
 import type { ChangeEvent, JSX, KeyboardEvent, MouseEvent } from 'react';
 
@@ -30,6 +31,7 @@ export function AdminRoomCard({
   room,
 }: AdminRoomCardProps) {
   const isEditing = editingRoomId === room.id;
+  const labels = getRoomLabels(room.roomType);
 
   return (
     <div className="panel-surface flex min-w-0 flex-col gap-5 overflow-hidden rounded-2xl border border-theme p-5 transition-all hover:border-primary/40">
@@ -45,11 +47,16 @@ export function AdminRoomCard({
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-sm text-theme-muted">
-            <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
-              {room.userCount} viewers
+            <span className="rounded-lg border border-secondary/30 bg-theme-surface px-2 py-1 font-semibold">
+              {room.roomType === 'WATCH' ? 'Watch' : 'Music'}
             </span>
             <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
-              {room.playlistItemCount} songs
+              {room.userCount}{' '}
+              {room.userCount === 1 ? labels.participant : labels.participants}
+            </span>
+            <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
+              {room.playlistItemCount}{' '}
+              {room.playlistItemCount === 1 ? labels.item : labels.items}
             </span>
             <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
               {room.hasAdminPassword ? 'password set' : 'no password'}

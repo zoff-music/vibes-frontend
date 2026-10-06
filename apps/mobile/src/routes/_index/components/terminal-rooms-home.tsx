@@ -1,4 +1,4 @@
-import type { PublicRoomV3 } from '@vibes/models';
+import type { PublicRoomV3, RoomType } from '@vibes/models';
 import {
   generatedPlaylistPromptMaxLength,
   roomNameMaxLength,
@@ -42,6 +42,7 @@ interface TerminalRoomsHomeProps {
   onSubmit: () => void;
   onToggleAIMode: () => void;
   providers: string[];
+  roomType: RoomType;
   publicRooms: PublicRoomV3[];
   refreshControl: ReactElement<RefreshControlProps>;
   refreshLogo: ReactNode;
@@ -59,12 +60,14 @@ export function TerminalRoomsHome({
   onSubmit,
   onToggleAIMode,
   providers,
+  roomType,
   publicRooms,
   refreshControl,
   refreshLogo,
   submitLabel,
   value,
 }: TerminalRoomsHomeProps) {
+  const participantLabel = roomType === 'WATCH' ? 'WATCHERS' : 'LISTENERS';
   const scrollEdgeFades = useScrollEdgeFades({ onScroll });
   const listenerCount = publicRooms.reduce(
     (total, room) => total + room.listenerCount,
@@ -99,7 +102,8 @@ export function TerminalRoomsHome({
               footer={
                 <>
                   <Text className="font-heading text-[#a6ffd0]/65 text-xs uppercase tracking-widest">
-                    {listenerCount.toString().padStart(3, '0')} LISTENERS
+                    {listenerCount.toString().padStart(3, '0')}{' '}
+                    {participantLabel}
                   </Text>
                   <Text className="font-heading text-[#a6ffd0]/65 text-xs uppercase tracking-widest">
                     KONAMI LINK ACTIVE
@@ -192,7 +196,7 @@ export function TerminalRoomsHome({
                       value={isAIMode ? 'AI GENERATOR' : 'ROOM DIRECTORY'}
                     />
                     <TerminalRegister
-                      label="LISTENERS"
+                      label={participantLabel}
                       value={`${listenerCount.toString().padStart(3, '0')} ONLINE`}
                     />
                     <TerminalRegister

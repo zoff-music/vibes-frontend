@@ -35,13 +35,16 @@ export async function loader({
     return {
       createRoomName: name,
       providers: [],
-      ...(await getLoaderError(err, 'Failed to load music providers')),
+      ...(await getLoaderError(err, 'Failed to load providers')),
     };
   }
 
   return {
     createRoomName: name,
-    providers,
+    providers: providers.filter(
+      (provider) =>
+        url.searchParams.get('type') !== 'watch' || provider === 'youtube',
+    ),
   };
 }
 

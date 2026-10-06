@@ -42,6 +42,7 @@ import {
   emptyObjectSchema,
   eventCursorSchema,
   generatedPlaylistRequestSchema,
+  generatedRoomRequestV2Schema,
   messageResponseSchema,
   musicPlaylistSchema,
   playbackFailureRequestSchema,
@@ -80,6 +81,7 @@ import {
   roomNameReservationRequestSchema,
   roomNameReservationSchema,
   roomSchema,
+  roomTypeQuerySchema,
   roomUpdateSchema,
   roomUpdateV2Schema,
   roomV2Schema,
@@ -557,7 +559,7 @@ const v2Endpoints = {
     },
   },
   '/rooms/generation': {
-    post: { request: generatedPlaylistRequestSchema, response: roomV2Schema },
+    post: { request: generatedRoomRequestV2Schema, response: roomV2Schema },
   },
   '/rooms/{id}/search/{provider}': {
     get: { $search: searchQuerySchema, response: providerSearchResponseSchema },
@@ -566,7 +568,7 @@ const v2Endpoints = {
     get: { response: providerItemSchema },
   },
   '/youtube/playlists/{id}': {
-    get: { response: providerPlaylistSchema },
+    get: { $search: roomTypeQuerySchema, response: providerPlaylistSchema },
   },
   '/soundcloud/items': {
     get: { $search: providerURLQuerySchema, response: providerItemSchema },

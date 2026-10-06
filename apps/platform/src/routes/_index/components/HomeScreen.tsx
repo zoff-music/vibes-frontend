@@ -3,6 +3,7 @@ import { useInView, useReducedMotion } from 'framer-motion';
 import { lazy, memo, Suspense, useEffect, useRef, useState } from 'react';
 import type { NavigateFunction, NavigationType } from 'react-router';
 import { useKonamiMode } from '../../../components/konami/KonamiModeContext';
+import { useExperience } from '../../../hooks/useExperience';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import { canUseViewTransition } from '../../../utils/viewTransition';
 import { useAnimatedPlaceholder } from '../hooks/useAnimatedPlaceholder';
@@ -45,6 +46,7 @@ export const HomeScreen = memo(function HomeScreen({
   searchParams,
 }: HomeScreenProps) {
   const [roomCode, setRoomCode] = useState('');
+  const watch = useExperience() === 'WATCH';
   const previewReturn =
     import.meta.env.DEV && searchParams.get('preview') === 'return-to-room';
   const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
@@ -80,6 +82,7 @@ export const HomeScreen = memo(function HomeScreen({
   const { placeholder, reset } = useAnimatedPlaceholder(
     isAIMode,
     heroVisible && roomCode.length === 0,
+    watch,
   );
   const previousPath = getPreviousPath();
   const konamiEnabled = useKonamiMode();
@@ -92,11 +95,15 @@ export const HomeScreen = memo(function HomeScreen({
     if (!requestedRoomId.trim()) return;
     const slug = requestedRoomId.trim().toLowerCase().replace(/\s+/g, '-');
     setPendingRoomSlug(slug);
-    navigate(`/${slug}`, { viewTransition: canUseViewTransition() });
+    navigate(`/${slug}${watch ? '?type=watch' : ''}`, {
+      viewTransition: canUseViewTransition(),
+    });
   };
 
   const handleStartSession = () => {
-    navigate('/rooms/create', { viewTransition: canUseViewTransition() });
+    navigate(watch ? '/rooms/create?type=watch' : '/rooms/create', {
+      viewTransition: canUseViewTransition(),
+    });
   };
 
   const handleToggleAIMode = () => {
@@ -181,13 +188,13 @@ export const HomeScreen = memo(function HomeScreen({
           />
         )}
       </HomeLanding>
-      {previewReturn && !pendingRoomSlug && (
+      {!watch && previewReturn && !pendingRoomSlug && (
         <ReturnToRoomPreview
           onJoinRoom={handleJoinRoom}
           listenerCount={searchParams.get('listeners') === '0' ? 0 : 3}
         />
       )}
-      {!previewReturn && !pendingRoomSlug && (
+      {!watch && !previewReturn && !pendingRoomSlug && (
         <ReturnToRoom onJoinRoom={handleJoinRoom} />
       )}
       {pendingRoomSlug && (

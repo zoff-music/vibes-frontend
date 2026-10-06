@@ -222,7 +222,7 @@ const QueueItem = memo(function QueueItem({
 
 export function Queue({
   contained,
-  emptyMessage = 'No songs are queued yet.',
+  emptyMessage = 'No items are queued yet.',
   header,
   showHeading = true,
   onDelete,

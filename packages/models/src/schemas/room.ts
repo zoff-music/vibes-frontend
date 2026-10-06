@@ -115,9 +115,17 @@ export type PublicRoom = z.infer<typeof publicRoomSchema>;
 
 export const publicRoomsSchema = z.compile(z.array(publicRoomSchema));
 
+export const roomTypeSchema = z.enum(['MUSIC', 'WATCH']);
+export type RoomType = z.infer<typeof roomTypeSchema>;
+
+export const roomTypeQuerySchema = z.compile(
+  z.object({ roomType: roomTypeSchema.optional() }),
+);
+
 export const publicRoomSearchSchema = z.compile(
   z.object({
     q: z.string().max(100).optional(),
+    roomType: roomTypeSchema.optional(),
     live: z.boolean().optional(),
     from: z.int().min(0).max(2_147_483_647).optional(),
     to: z.int().min(0).max(2_147_483_647).optional(),
@@ -153,9 +161,6 @@ const roomSettingsV2Shape = {
 export const roomSettingsV2Schema = z.compile(z.object(roomSettingsV2Shape));
 export type RoomSettingsV2 = z.infer<typeof roomSettingsV2Schema>;
 
-export const roomTypeSchema = z.enum(['MUSIC', 'WATCH']);
-export type RoomType = z.infer<typeof roomTypeSchema>;
-
 export const roomV2Schema = z.compile(
   z.object({
     id: z.string(),
@@ -184,6 +189,7 @@ const partialRoomSettingsV2Schema = z.object(roomSettingsV2Shape).partial();
 export const createRoomRequestV2Schema = z.compile(
   z.object({
     name: roomNameField,
+    roomType: roomTypeSchema.optional(),
     mode: z.enum(['server', 'host']).optional(),
     password: z.string().optional(),
     reservationToken: z.string().optional(),

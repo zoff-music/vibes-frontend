@@ -1,7 +1,8 @@
-import type { Song } from '@vibes/models';
+import type { RoomType, Song } from '@vibes/models';
 import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
 
 export interface RoomInfo {
+  roomType?: RoomType;
   name: string;
   participantCount: number;
 }

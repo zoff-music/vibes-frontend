@@ -62,17 +62,21 @@ export async function clientAction({
     formData.get('reservationToken') ?? '',
   ).trim();
   const mode = formData.get('mode') === 'host' ? 'host' : 'server';
+  const roomType = formData.get('roomType') === 'WATCH' ? 'WATCH' : 'MUSIC';
   const [err, room] = await api.v2.post('/rooms', null, {
     name,
     password: password || undefined,
     reservationToken: reservationToken || undefined,
     mode,
+    roomType,
     settings: {
       skipAllowed: readBoolean(formData, 'skipAllowed'),
       democraticSkip: readBoolean(formData, 'democraticSkip'),
       removeOnPlay: readBoolean(formData, 'removeOnPlay'),
       allowDuplicates: readBoolean(formData, 'allowDuplicates'),
-      enabledSources: readEnabledSources(formData),
+      enabledSources: readEnabledSources(formData).filter(
+        (source) => roomType === 'MUSIC' || source === 'youtube',
+      ),
       onlyAdminAddPlaylistItems: readBoolean(
         formData,
         'onlyAdminAddPlaylistItems',

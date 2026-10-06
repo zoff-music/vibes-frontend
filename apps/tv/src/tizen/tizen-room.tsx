@@ -3,6 +3,7 @@ import {
   formatPlaybackSeconds,
   getProviderDisplayName,
   getQueueRemainderLabel,
+  getRoomLabels,
 } from '@vibes/ui/shared';
 import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'react';
@@ -27,6 +28,7 @@ export function TizenRoom({
   roomId,
   playlistItems,
 }: TizenRoomProps) {
+  const labels = getRoomLabels(room.roomType);
   const queueRef = useRef<HTMLDivElement>(null);
   const [visibleQueueLength, setVisibleQueueLength] = useState(0);
   const isGenerating = Boolean(room.isGenerating);
@@ -105,7 +107,9 @@ export function TizenRoom({
             <div className="flex items-center gap-2 rounded-full border border-accent/30 px-4 py-2 text-sm text-tv-muted">
               <span className="size-2 rounded-full bg-accent" />
               {displayedListenerCount}{' '}
-              {displayedListenerCount === 1 ? 'listener' : 'listeners'}
+              {displayedListenerCount === 1
+                ? labels.participant
+                : labels.participants}
             </div>
             <button
               className="rounded-xl border border-tv-border bg-tv-surface px-4 py-2 text-sm"
@@ -180,7 +184,7 @@ export function TizenRoom({
             </p>
             <p className="mt-3 truncate text-2xl">{room.name}</p>
             <p className="mt-2 text-sm text-tv-muted">
-              Add songs and vote from your phone
+              Add {labels.items} and vote from your phone
             </p>
           </div>
         </div>

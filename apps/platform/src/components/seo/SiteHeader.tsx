@@ -5,6 +5,8 @@ import headerLogo from '../../assets/logo-header.webp';
 import headerLogo48 from '../../assets/logo-header-48.webp?no-inline';
 import headerLogo96 from '../../assets/logo-header-96.webp?no-inline';
 import headerLogo128 from '../../assets/logo-header-128.webp?no-inline';
+import { useExperience } from '../../hooks/useExperience';
+import { ExperienceSwitch } from '../layout/ExperienceSwitch';
 
 const LazyProfileSettingsModal = lazy(async () => {
   const module = await import('../profile/ProfileSettingsModal');
@@ -13,13 +15,15 @@ const LazyProfileSettingsModal = lazy(async () => {
 
 export function SiteHeader() {
   const [showSettings, setShowSettings] = useState(false);
+  const watch = useExperience() === 'WATCH';
 
   return (
     <>
-      <header className="site-header product-content relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-5 py-5 sm:gap-4 sm:px-6 sm:py-7">
+      <header className="site-header product-content relative z-10 mx-auto grid w-full max-w-6xl grid-cols-[1fr_auto] items-center gap-4 px-5 py-5 sm:px-6 sm:py-7 lg:grid-cols-[1fr_auto_1fr]">
         <Link
-          to="/"
+          to={watch ? '/features/watch' : '/'}
           aria-label="Zoff home"
+          prefetch="intent"
           className="group flex shrink-0 cursor-pointer items-center gap-3 rounded-xl transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
         >
           <img
@@ -43,17 +47,36 @@ export function SiteHeader() {
             </span>
           </span>
         </Link>
+        <div className="col-span-2 row-start-2 justify-self-center lg:col-span-1 lg:col-start-2 lg:row-start-1">
+          <ExperienceSwitch />
+        </div>
         <nav
           aria-label="Product navigation"
-          className="flex items-center gap-1 sm:gap-2"
+          className="col-start-2 row-start-1 flex items-center gap-1 justify-self-end sm:gap-2 lg:col-start-3"
         >
-          <NavLink to="/rooms/explore" className={navigationClassName}>
+          <NavLink
+            prefetch="intent"
+            to={watch ? '/rooms/explore?type=watch' : '/rooms/explore'}
+            className={navigationClassName}
+          >
             Rooms
           </NavLink>
-          <Link to="/#explore-zoff" className={navigationClassName}>
+          <Link
+            to={
+              watch
+                ? '/features/watch#explore-zoff'
+                : '/features/music#explore-zoff'
+            }
+            prefetch="intent"
+            className={navigationClassName}
+          >
             Explore
           </Link>
-          <NavLink to="/discovery/apps" className={navigationClassName}>
+          <NavLink
+            prefetch="intent"
+            to="/discovery/apps"
+            className={navigationClassName}
+          >
             Apps
           </NavLink>
           <Tooltip

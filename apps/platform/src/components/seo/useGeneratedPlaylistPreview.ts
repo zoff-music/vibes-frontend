@@ -32,13 +32,13 @@ export function useGeneratedPlaylistPreview(prompt: string, playing: boolean) {
       return;
     }
 
-    let delay = 700;
+    let delay = 450;
     if (progress.phase === 'typing' && progress.characters > 0) {
-      delay = progress.characters === prompt.length ? 650 : 65;
+      delay = progress.characters === prompt.length ? 450 : 45;
     } else if (progress.phase === 'searching') {
-      delay = 2600;
+      delay = 1500;
     } else if (progress.phase === 'ready') {
-      delay = 5000;
+      delay = 3800;
     } else if (progress.phase === 'resetting') {
       delay = 400;
     }

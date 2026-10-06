@@ -1,4 +1,5 @@
 import { resolvePlaylistItemThumbnail } from '@vibes/shared';
+import { getRoomLabels } from '@vibes/ui/shared';
 import { SoundCloudIcon, YouTubeIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
@@ -9,6 +10,7 @@ import { PlayerLayer } from './PlayerLayer';
 
 export const ActiveView: React.FC = () => {
   const { currentPlaylistItem, queue, roomInfo, roomId } = useCast();
+  const labels = getRoomLabels(roomInfo?.roomType ?? 'MUSIC');
 
   if (!currentPlaylistItem) return null;
 
@@ -43,7 +45,7 @@ export const ActiveView: React.FC = () => {
                 {currentPlaylistItem.title}
               </h1>
               <p className="cast-track-artist truncate font-light font-sans text-lg text-theme-muted">
-                {currentPlaylistItem.publisher || 'Unknown Artist'}
+                {currentPlaylistItem.publisher || 'Unknown publisher'}
               </p>
             </div>
 
@@ -69,7 +71,7 @@ export const ActiveView: React.FC = () => {
           <div className="cast-listener-badge flex items-center gap-2 rounded-full border border-secondary/30 px-4 py-2 text-sm text-theme-muted">
             <span className="h-2 w-2 rounded-full bg-secondary" />
             {participantCount}{' '}
-            {participantCount === 1 ? 'listener' : 'listeners'}
+            {participantCount === 1 ? labels.participant : labels.participants}
           </div>
         </div>
 
@@ -102,7 +104,7 @@ export const ActiveView: React.FC = () => {
               {roomName}
             </p>
             <p className="cast-room-help mt-2 text-sm text-theme-subtle">
-              Add songs and vote from your phone
+              Add {labels.items} and vote from your phone
             </p>
           </div>
         </div>

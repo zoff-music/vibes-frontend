@@ -285,6 +285,7 @@ export const RoomHeader = React.memo(
               <div className="hidden sm:block">
                 <UserCount
                   initialCount={displayRoom?.userCount ?? 0}
+                  roomType={displayRoom?.roomType ?? 'MUSIC'}
                   roomId={roomId}
                 />
               </div>
@@ -329,6 +330,7 @@ export const RoomHeader = React.memo(
                         <LazyRoomSharePanel
                           url={shareUrl}
                           roomId={roomId || ''}
+                          roomType={displayRoom?.roomType ?? 'MUSIC'}
                           onShare={onShareRoom}
                           onOpenPartyScreen={onOpenPartyScreen}
                         />

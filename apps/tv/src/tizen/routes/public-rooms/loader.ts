@@ -18,6 +18,7 @@ export async function loader({
     '/rooms/public',
     {
       $search: {
+        roomType: params.get('type') === 'watch' ? 'WATCH' : 'MUSIC',
         live: false,
         q: (params.get('q') ?? '').slice(0, 100),
         from,

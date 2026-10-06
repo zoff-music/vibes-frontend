@@ -25,6 +25,7 @@ import {
   TerminalModal,
   TerminalSection,
 } from '@vibes/ui/konami';
+import { getRoomLabels } from '@vibes/ui/shared';
 import {
   AlertCircleIcon,
   Button,
@@ -76,6 +77,7 @@ interface PlaylistPreview {
   truncated: boolean;
   skippedEmbeddingCount: number;
   skippedMadeForKidsCount: number;
+  skippedRoomTypeCount: number;
 }
 
 interface PreviewItem extends ProviderItem {
@@ -96,6 +98,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   onGenerationStarted,
   terminalMode = false,
 }) => {
+  const labels = getRoomLabels(room.roomType);
   const searchFetcher = useFetcher<RoomActionData>();
   const playlistItemFetcher = useFetcher<RoomActionData>();
   const generationFetcher = useFetcher<RoomActionData>();
@@ -125,7 +128,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     generationUnavailableReason = 'Log in as room admin to fill this playlist.';
   }
   if (hasGenerationPermission && isAbovePlaylistItemLimit) {
-    generationUnavailableReason = `AI fill is unavailable when the room has ${playlistItemCountCutoff} songs or more.`;
+    generationUnavailableReason = `AI fill is unavailable when the room has ${playlistItemCountCutoff} ${labels.items} or more.`;
   }
   if (hasGenerationPermission && !isAbovePlaylistItemLimit && isGenerating) {
     generationUnavailableReason = 'A playlist is already being generated.';
@@ -234,6 +237,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         truncated: playlist.truncated,
         skippedEmbeddingCount: playlist.skippedEmbeddingCount ?? 0,
         skippedMadeForKidsCount: playlist.skippedMadeForKidsCount ?? 0,
+        skippedRoomTypeCount: playlist.skippedRoomTypeCount ?? 0,
       });
       return;
     }
@@ -310,7 +314,10 @@ export const AddToQueueModal: React.FC<Props> = ({
       playlistItemFetcher.data.error ||
       !playlistItemFetcher.data.addPlaylistItem
     ) {
-      setError(playlistItemFetcher.data.error ?? 'Failed to add song to queue');
+      setError(
+        playlistItemFetcher.data.error ??
+          `Failed to add ${labels.item} to queue`,
+      );
       return;
     }
 
@@ -322,7 +329,12 @@ export const AddToQueueModal: React.FC<Props> = ({
       result.outcome === 'added' ? 800 : 1600,
     );
     return () => window.clearTimeout(timeout);
-  }, [onClose, playlistItemFetcher.data, playlistItemFetcher.state]);
+  }, [
+    onClose,
+    playlistItemFetcher.data,
+    playlistItemFetcher.state,
+    labels.item,
+  ]);
 
   const performSearch = (query: string) => {
     const trimmedQuery = query.trim();
@@ -563,16 +575,16 @@ export const AddToQueueModal: React.FC<Props> = ({
   let successTitle = 'Added to Queue!';
   let successDescription = 'Everyone will hear it soon';
   if (addOutcome === 'duplicate_voted') {
-    successTitle = 'Song already exists, voted on song';
+    successTitle = `Already queued, voted on ${labels.item}`;
     successDescription = 'Your vote moved it up the queue';
   }
   if (addOutcome === 'duplicate_already_voted') {
-    successTitle = 'Song already exists, vote already counted';
+    successTitle = 'Already queued, vote already counted';
     successDescription = 'Your existing vote is still counted';
   }
   if (queuedPlaylistCount > 0) {
-    successTitle = `Queued ${queuedPlaylistCount} songs`;
-    successDescription = 'Songs will appear as the playlist is imported';
+    successTitle = `Queued ${queuedPlaylistCount} ${labels.items}`;
+    successDescription = 'Items will appear as the playlist is imported';
   }
 
   if (!isVisible) return null;
@@ -724,14 +736,20 @@ export const AddToQueueModal: React.FC<Props> = ({
             </p>
             {previewPlaylist.skippedEmbeddingCount > 0 && (
               <p role="status" className="mt-2 text-theme-muted text-xs">
-                Skipped {previewPlaylist.skippedEmbeddingCount} songs because
-                YouTube does not allow them to play in embedded players.
+                Skipped {previewPlaylist.skippedEmbeddingCount} {labels.items}{' '}
+                because YouTube does not allow them to play in embedded players.
               </p>
             )}
             {previewPlaylist.skippedMadeForKidsCount > 0 && (
               <p role="status" className="mt-2 text-theme-muted text-xs">
                 Skipped {previewPlaylist.skippedMadeForKidsCount} videos marked
                 as made for kids on YouTube. Zoff does not support these videos.
+              </p>
+            )}
+            {previewPlaylist.skippedRoomTypeCount > 0 && (
+              <p role="status" className="mt-2 text-theme-muted text-xs">
+                Skipped {previewPlaylist.skippedRoomTypeCount} non-music videos.
+                Use a Watch room to import videos from other categories.
               </p>
             )}
             <ol className="mt-3 max-h-52 overflow-y-auto border-[#71f5ad]/20 border-t">
@@ -789,14 +807,14 @@ export const AddToQueueModal: React.FC<Props> = ({
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 id="add-song-title" className="text-base text-theme">
-              {isAIMode ? 'Fill Playlist' : 'Add a Song'}
+              {isAIMode ? 'Fill Playlist' : labels.add}
             </h2>
             <p className="mt-1 text-theme-muted text-xs">
               {isAIMode
                 ? 'Describe the playlist you want AI to build'
                 : room.settings.playlistImport
-                  ? 'Search by title, or paste a song or playlist link'
-                  : 'Search by title, or paste a song link'}
+                  ? `Search by title, or paste a ${labels.item} or playlist link`
+                  : `Search by title, or paste a ${labels.item} link`}
             </p>
           </div>
           <Button
@@ -804,7 +822,7 @@ export const AddToQueueModal: React.FC<Props> = ({
             variant="tertiary"
             size="icon"
             aria-label={
-              isAIMode ? 'Close playlist fill' : 'Close add-song search'
+              isAIMode ? 'Close playlist fill' : `Close ${labels.item} search`
             }
           >
             <CloseIcon className="h-5 w-5 text-theme-muted" />
@@ -872,7 +890,9 @@ export const AddToQueueModal: React.FC<Props> = ({
               type="text"
               placeholder={
                 isAIMode
-                  ? 'Late-night synthwave for a rainy drive'
+                  ? room.roomType === 'WATCH'
+                    ? 'A trip through the solar system'
+                    : 'Late-night synthwave for a rainy drive'
                   : `Search ${selectedProvider}...`
               }
               value={searchQuery}
@@ -1047,12 +1067,12 @@ export const AddToQueueModal: React.FC<Props> = ({
               {previewPlaylist.title ?? 'Playlist ready to import'}
             </h3>
             <p className="mt-1 text-theme-muted text-xs">
-              {previewPlaylist.items.length} songs found
+              {previewPlaylist.items.length} {labels.items} found
             </p>
             {previewPlaylist.skippedEmbeddingCount > 0 && (
               <p role="status" className="mt-2 text-theme-muted text-xs">
-                Skipped {previewPlaylist.skippedEmbeddingCount} songs because
-                YouTube does not allow them to play in embedded players.
+                Skipped {previewPlaylist.skippedEmbeddingCount} {labels.items}{' '}
+                because YouTube does not allow them to play in embedded players.
               </p>
             )}
             {previewPlaylist.skippedMadeForKidsCount > 0 && (
@@ -1061,9 +1081,15 @@ export const AddToQueueModal: React.FC<Props> = ({
                 as made for kids on YouTube. Zoff does not support these videos.
               </p>
             )}
+            {previewPlaylist.skippedRoomTypeCount > 0 && (
+              <p role="status" className="mt-2 text-theme-muted text-xs">
+                Skipped {previewPlaylist.skippedRoomTypeCount} non-music videos.
+                Use a Watch room to import videos from other categories.
+              </p>
+            )}
             {previewPlaylist.truncated && (
               <p className="mt-2 text-orange-400 text-xs">
-                This playlist is very large. The available songs shown below
+                This playlist is very large. The available items shown below
                 will be added.
               </p>
             )}

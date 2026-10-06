@@ -1,8 +1,8 @@
-import type { PublicRoomResultV3 } from '@vibes/models';
+import type { PublicRoomResultV3, RoomType } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { useRef, useState } from 'react';
 
-export function useRoomBrowser() {
+export function useRoomBrowser(roomType: RoomType) {
   const [, fetcher] = useFetcher<PublicRoomResultV3>({
     routeId: 'rooms.public',
   });
@@ -19,7 +19,7 @@ export function useRoomBrowser() {
     setLoading(true);
     setError('');
     const response = await fetcher.load({
-      params: { from: String(from), q: search },
+      params: { from: String(from), q: search, roomType },
     });
     if (id !== requestId.current) return;
     setResult(response.data);

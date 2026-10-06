@@ -1,8 +1,10 @@
+import { getRoomLabels } from '@vibes/ui/shared';
 import React from 'react';
 import { useCast } from './CastProvider';
 
 export const IdleView: React.FC = () => {
   const { statusText, roomInfo } = useCast();
+  const labels = getRoomLabels(roomInfo?.roomType ?? 'MUSIC');
 
   return (
     <div className="relative z-10 flex max-w-3xl flex-col items-center gap-8 px-6 text-center">
@@ -19,7 +21,7 @@ export const IdleView: React.FC = () => {
           </p>
         </div>
         <p className="font-display text-2xl text-readable text-theme">
-          Add a song to start listening
+          Add a {labels.item} to start {labels.activity}
         </p>
         <p className="mt-3 text-base text-theme-muted">
           {roomInfo

@@ -1,5 +1,6 @@
 import { classNames } from '@vibes/shared';
 import React from 'react';
+import { getRoomLabels } from '../../shared/room';
 import { Button } from '../components/Button';
 import { Tooltip } from '../components/Tooltip';
 import {
@@ -14,6 +15,7 @@ import {
 import { SkipButton } from './SkipButton';
 
 interface Props {
+  roomType?: RoomType;
   isPlaying: boolean;
   canPlay: boolean;
   canSkip: boolean;
@@ -120,6 +122,7 @@ const MAX_VOLUME = 100;
 const VOLUME_WHEEL_STEP = 5;
 
 const PlayerControlsComponent: React.FC<Props> = ({
+  roomType = 'MUSIC',
   isPlaying,
   canPlay,
   canSkip,
@@ -140,6 +143,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
   onToggleMuted,
 }) => {
   const playbackLabel = isPlaying ? 'Pause' : 'Play';
+  const labels = getRoomLabels(roomType);
 
   return (
     <div className="w-full">
@@ -235,11 +239,11 @@ const PlayerControlsComponent: React.FC<Props> = ({
               onClick={onAddPlaylistItem}
               variant="primary"
               className="h-12 min-w-0 gap-3 px-4 sm:px-6"
-              title="Add Song"
+              title={labels.add}
             >
               <PlusIcon className="h-5 w-5 shrink-0" />
               <span className="whitespace-nowrap font-display text-xs tracking-display">
-                Add Song
+                {labels.add}
               </span>
             </Button>
           </div>
@@ -250,3 +254,5 @@ const PlayerControlsComponent: React.FC<Props> = ({
 };
 
 export const PlayerControls = React.memo(PlayerControlsComponent);
+
+import type { RoomType } from '@vibes/models';

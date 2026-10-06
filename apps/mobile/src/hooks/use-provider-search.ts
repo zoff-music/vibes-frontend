@@ -2,6 +2,7 @@ import type {
   ProviderItem,
   ProviderPlaylist,
   Providers,
+  RoomType,
   SourceType,
 } from '@vibes/models';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
@@ -11,6 +12,7 @@ import {
   parseProviderItemLink,
   parseProviderPlaylistLink,
 } from '@vibes/shared';
+import { getRoomLabels } from '@vibes/ui/shared';
 import { useEffect, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { useToast } from '@/components/toast';
@@ -25,6 +27,7 @@ interface SearchRemoteCredentials {
 }
 
 interface UseProviderSearchOptions {
+  roomType: RoomType;
   canGenerate: boolean;
   generationUnavailableReason: string;
   onAdded?: () => Promise<void>;
@@ -57,6 +60,7 @@ interface ProviderSearchState {
 }
 
 export function useProviderSearch({
+  roomType,
   canGenerate,
   generationUnavailableReason,
   onAdded,
@@ -71,6 +75,7 @@ export function useProviderSearch({
   ProviderSearchActions,
 ] {
   const { showToast } = useToast();
+  const labels = getRoomLabels(roomType);
   const { providers, roomId } = useRoomSession();
   const { refresh } = useRoomActions();
   const [provider, setProvider] = useState<SourceType>('youtube');
@@ -99,7 +104,10 @@ export function useProviderSearch({
   });
   const roomProviders = providersOverride ?? providers;
   const enabledProviders = mobileProviders.filter(
-    (source) => providers.includes(source) && roomProviders.includes(source),
+    (source) =>
+      providers.includes(source) &&
+      roomProviders.includes(source) &&
+      (roomType !== 'WATCH' || source === 'youtube'),
   );
 
   useEffect(() => {
@@ -172,7 +180,7 @@ export function useProviderSearch({
     }
     const trimmedQuery = query.trim();
     if (enabledProviders.length === 0) {
-      setError('This room has no enabled music providers.');
+      setError('This room has no enabled providers.');
       return;
     }
     const playlistLink = parseProviderPlaylistLink(trimmedQuery);
@@ -206,7 +214,7 @@ export function useProviderSearch({
     });
     setLoading(false);
     if (!result.data) {
-      setError(result.error || 'Could not search for music.');
+      setError(result.error || `Could not search for ${labels.items}.`);
       return;
     }
     setProvider(result.data.provider);
@@ -216,7 +224,7 @@ export function useProviderSearch({
 
   const add = async (result: ProviderItem) => {
     if (!targetRoomId) {
-      setError('Join a room before adding music.');
+      setError(`Join a room before adding ${labels.items}.`);
       return;
     }
     const actionResult = await searchAction.submit(
@@ -279,7 +287,7 @@ export function useProviderSearch({
       return;
     }
     showToast(
-      `Queued ${result.data?.queuedCount ?? playlist.items.length} songs. They will appear as the playlist is imported.`,
+      `Queued ${result.data?.queuedCount ?? playlist.items.length} ${labels.items}. They will appear as the playlist is imported.`,
     );
     onClose();
   };

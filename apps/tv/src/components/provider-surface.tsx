@@ -61,7 +61,7 @@ export function ProviderSurface({
     return (
       <View className="h-full items-center justify-center rounded-[2rem] bg-black">
         <Text className="font-heading text-4xl text-tv-muted">
-          No song is playing
+          Nothing playing yet
         </Text>
       </View>
     );

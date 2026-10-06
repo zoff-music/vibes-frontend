@@ -20,3 +20,21 @@ export const productNavigation = [
     caption: 'Mobile apps, TV, casting and remotes.',
   },
 ];
+
+export const watchNavigation = [
+  {
+    slug: 'watch-together',
+    label: 'Watch together',
+    caption: 'Different places. The same moment.',
+  },
+  {
+    slug: 'watch-party',
+    label: 'Watch parties',
+    caption: 'Bring your people and the running commentary.',
+  },
+  {
+    slug: 'watch-queue',
+    label: 'A shared video queue',
+    caption: 'Turn a little curiosity into a whole evening.',
+  },
+];

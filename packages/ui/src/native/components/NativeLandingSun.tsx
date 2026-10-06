@@ -8,7 +8,11 @@ import Svg, {
   Stop,
 } from 'react-native-svg';
 
-export function NativeLandingSun() {
+interface NativeLandingSunProps {
+  watch?: boolean;
+}
+
+export function NativeLandingSun({ watch = false }: NativeLandingSunProps) {
   return (
     <View
       accessible={false}
@@ -20,6 +24,22 @@ export function NativeLandingSun() {
       <View className="size-56 opacity-80">
         <Svg width="100%" height="100%" viewBox="0 0 100 100">
           <Defs>
+            <LinearGradient id="landing-eclipse" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor="#d8bcff" />
+              <Stop offset="0.5" stopColor="#00cdea" />
+              <Stop offset="1" stopColor="#a74fe8" />
+            </LinearGradient>
+            <Mask
+              id="landing-crescent"
+              x="0"
+              y="0"
+              width="100"
+              height="100"
+              maskUnits="userSpaceOnUse"
+            >
+              <Circle cx="50" cy="50" r="50" fill="white" />
+              <Circle cx="47" cy="54" r="47" fill="black" />
+            </Mask>
             <LinearGradient id="landing-sunset" x1="0" y1="0" x2="0" y2="1">
               <Stop offset="0" stopColor="#ffe8a3" />
               <Stop offset="0.24" stopColor="#ffb574" />
@@ -45,8 +65,8 @@ export function NativeLandingSun() {
             cx="50"
             cy="50"
             r="50"
-            fill="url(#landing-sunset)"
-            mask="url(#landing-bands)"
+            fill={watch ? 'url(#landing-eclipse)' : 'url(#landing-sunset)'}
+            mask={watch ? 'url(#landing-crescent)' : 'url(#landing-bands)'}
           />
         </Svg>
       </View>

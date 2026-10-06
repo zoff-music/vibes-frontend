@@ -34,7 +34,7 @@ export async function action({
         error,
         input.intent === 'vote'
           ? 'Could not add your vote.'
-          : 'Could not remove this song.',
+          : 'Could not remove this item.',
       ),
     };
   }

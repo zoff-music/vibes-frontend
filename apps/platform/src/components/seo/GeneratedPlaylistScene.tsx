@@ -5,23 +5,36 @@ import {
   SparklesIcon,
 } from '@vibes/ui/web';
 import { MotionConfig, motion } from 'framer-motion';
-import { queueDemoPlaylistItems } from './preview';
+import { queueDemoPlaylistItems, watchDemoPlaylistItems } from './preview';
 import { useGeneratedPlaylistPreview } from './useGeneratedPlaylistPreview';
 
 interface GeneratedPlaylistSceneProps {
   prompt: string;
   playing: boolean;
+  watch?: boolean;
 }
 
 export function GeneratedPlaylistScene({
   prompt,
   playing,
+  watch = false,
 }: GeneratedPlaylistSceneProps) {
   const { state } = useGeneratedPlaylistPreview(prompt, playing);
   const searching = state.phase === 'searching';
   const typing = state.phase === 'typing';
   const resetting = state.phase === 'resetting';
   const showPlaylist = state.phase === 'arriving' || state.phase === 'ready';
+  const titles = prompt.includes('Disco')
+    ? ['Kitchen disco', 'After the party', 'One more dance']
+    : prompt.includes('focus')
+      ? ['Soft edges', 'A little headspace', 'Quiet hours']
+      : ['Velvet keys', 'Streetlight swing', 'After the last train'];
+
+  const watchTitles = prompt.includes('solar')
+    ? ['A little further out', 'The rings of Saturn', 'Until the stars fade']
+    : prompt.includes('films')
+      ? ['The last light', 'A different ending', 'Five minutes from home']
+      : ['Beyond the city lights', 'Midnight in motion', 'Nowhere to rush'];
 
   return (
     <MotionConfig reducedMotion="user">
@@ -34,7 +47,7 @@ export function GeneratedPlaylistScene({
       >
         <div className="rounded-2xl border border-theme bg-theme-surface p-4">
           <p className="mb-3 font-pixel text-theme-muted text-xs">
-            Your playlist prompt
+            {watch ? 'Your Watch idea' : 'Your playlist prompt'}
           </p>
           <div className="flex min-h-12 min-w-0 items-center gap-3">
             <SparklesIcon
@@ -54,12 +67,17 @@ export function GeneratedPlaylistScene({
           </div>
         </div>
         <div className="my-5 flex flex-wrap items-center justify-between gap-2 text-theme-muted text-xs">
-          <span className="font-pixel">electro</span>
+          <span className="font-pixel">
+            {watch ? 'afterhours / preview' : 'electro'}
+          </span>
           <span className="w-36 shrink-0 text-right">
             {typing && 'Describe your playlist'}
-            {searching && 'Generating with AI'}
-            {state.phase === 'arriving' && 'Adding songs…'}
-            {(state.phase === 'ready' || resetting) && 'AI playlist ready'}
+            {searching &&
+              (watch ? 'Imagining the lineup' : 'Generating with AI')}
+            {state.phase === 'arriving' &&
+              (watch ? 'Building the preview…' : 'Adding songs…')}
+            {(state.phase === 'ready' || resetting) &&
+              (watch ? 'Example lineup' : 'AI playlist ready')}
           </span>
         </div>
         <ContentTransition
@@ -76,20 +94,31 @@ export function GeneratedPlaylistScene({
                 transition={{ duration: state.reducedMotion ? 0 : 0.2 }}
                 className="w-full font-pixel text-sm text-theme"
               >
-                {searching
-                  ? 'Finding your songs…'
-                  : 'Start with a mood or a genre.'}
+                {watch &&
+                  (searching
+                    ? 'A night of new discoveries…'
+                    : 'Start with something you’re curious about.')}
+                {!watch &&
+                  (searching
+                    ? 'Finding your songs…'
+                    : 'Start with a mood or a genre.')}
               </motion.p>
             </div>
           )}
           {showPlaylist && (
             <div className="col-start-1 row-start-1 self-start">
-              <h3 className="sr-only">Generated songs</h3>
+              <h3 className="sr-only">
+                {watch ? 'Example video lineup' : 'Generated songs'}
+              </h3>
               <ol
-                aria-label="AI-generated playlist preview"
+                aria-label={
+                  watch
+                    ? 'Illustrative video lineup'
+                    : 'AI-generated playlist preview'
+                }
                 className="space-y-2"
               >
-                {queueDemoPlaylistItems
+                {(watch ? watchDemoPlaylistItems : queueDemoPlaylistItems)
                   .slice(0, state.count)
                   .map((playlistItem, index) => (
                     <motion.li
@@ -102,7 +131,13 @@ export function GeneratedPlaylistScene({
                       transition={{ duration: state.reducedMotion ? 0 : 0.25 }}
                     >
                       <QueueItem
-                        playlistItem={playlistItem}
+                        playlistItem={{
+                          ...playlistItem,
+                          title: watch ? watchTitles[index] : titles[index],
+                          publisher: watch
+                            ? 'Preview film'
+                            : playlistItem.publisher,
+                        }}
                         position={index + 1}
                         providerLink={false}
                       />

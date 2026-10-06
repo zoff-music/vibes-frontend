@@ -3,6 +3,7 @@ import type {
   PlaylistItem,
   Providers,
   PublicRoomV3,
+  RoomType,
   RoomV2,
 } from '@vibes/models';
 import { useFetcher, useLoaderData } from '@vibes/native-router';
@@ -18,6 +19,7 @@ import type { CreateRoomData } from '@/routes/rooms.create/action';
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
 
 export interface TvSessionActions {
+  changeRoomType: (roomType: RoomType) => Promise<void>;
   createRoom: (name: string) => Promise<void>;
   generateRoom: (prompt: string) => Promise<void>;
   leaveRoom: () => void;
@@ -25,6 +27,7 @@ export interface TvSessionActions {
 }
 
 export interface TvSessionState {
+  roomType: RoomType;
   error: string;
   hydrating: boolean;
   listenerCount: number;
@@ -39,6 +42,12 @@ export interface TvSessionState {
 
 export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
   const discovery = useLoaderData<DiscoveryData>();
+  const [, discoveryFetcher] = useFetcher<DiscoveryData>({ routeId: '_index' });
+  const [roomType, setRoomType] = useState<RoomType>('MUSIC');
+  const [selectedDiscovery, setSelectedDiscovery] =
+    useState<DiscoveryData | null>(null);
+  const [discoveryLoading, setDiscoveryLoading] = useState(false);
+  const discoveryRequest = useRef(0);
   const [, roomFetcher] = useFetcher<RoomSnapshot>({ routeId: 'rooms.$id' });
   const [createFetcherState, createFetcher] = useFetcher<CreateRoomData>({
     routeId: 'rooms.create',
@@ -68,8 +77,31 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
   const [requestError, setRequestError] = useState('');
   const [roomLoading, setRoomLoading] = useState(false);
   const roomRequest = useRef(0);
-  const providers = discovery?.providers ?? [];
-  const publicRooms = discovery?.publicRooms ?? [];
+  const activeDiscovery =
+    selectedDiscovery ?? (roomType === 'MUSIC' ? discovery : null);
+  const providers = activeDiscovery?.providers ?? [];
+  const publicRooms = discoveryLoading
+    ? []
+    : (activeDiscovery?.publicRooms ?? []);
+
+  const changeRoomType = async (nextType: RoomType) => {
+    if (nextType === roomType) return;
+
+    const requestId = ++discoveryRequest.current;
+    setRoomType(nextType);
+    setSelectedDiscovery(null);
+    setRequestError('');
+    setDiscoveryLoading(true);
+    const result = await discoveryFetcher.load({
+      params: { roomType: nextType },
+    });
+
+    if (requestId !== discoveryRequest.current) return;
+
+    setSelectedDiscovery(result.data);
+    setRequestError(result.error);
+    setDiscoveryLoading(false);
+  };
 
   useTvRoomEvents(roomId);
 
@@ -122,26 +154,35 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
 
   const generateRoom = useCallback(
     async (prompt: string) => {
-      const result = await submitCreate({ intent: 'generate', prompt });
+      const result = await submitCreate({
+        intent: 'generate',
+        prompt,
+        roomType,
+      });
       if (result.error || !result.data) {
         setRequestError(result.error || 'Could not generate the room.');
         return;
       }
       await loadRoom(result.data.roomId);
     },
-    [loadRoom, submitCreate],
+    [loadRoom, submitCreate, roomType],
   );
 
   const createRoom = useCallback(
     async (name: string) => {
-      const result = await submitCreate({ intent: 'create', name, providers });
+      const result = await submitCreate({
+        intent: 'create',
+        name,
+        providers,
+        roomType,
+      });
       if (result.error || !result.data) {
         setRequestError(result.error || 'Could not create the room.');
         return;
       }
       await loadRoom(result.data.roomId);
     },
-    [loadRoom, providers, submitCreate],
+    [loadRoom, providers, submitCreate, roomType],
   );
 
   const leaveRoom = useCallback(() => {
@@ -155,10 +196,14 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
 
   return [
     {
-      error: requestError || discovery?.warning || '',
+      error: requestError || activeDiscovery?.warning || '',
+      roomType,
       hydrating: discovery === null,
       listenerCount,
-      loading: roomLoading || createFetcherState.state === 'submitting',
+      loading:
+        discoveryLoading ||
+        roomLoading ||
+        createFetcherState.state === 'submitting',
       playback,
       providers,
       publicRooms,
@@ -166,7 +211,7 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
       roomId,
       playlistItems,
     },
-    { createRoom, generateRoom, leaveRoom, loadRoom },
+    { changeRoomType, createRoom, generateRoom, leaveRoom, loadRoom },
   ];
 }
 

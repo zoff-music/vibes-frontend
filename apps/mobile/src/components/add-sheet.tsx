@@ -80,7 +80,7 @@ export function AddPlaylistItemSheet({
     generationUnavailableReason = 'Log in as room admin to fill this playlist.';
   }
   if (targetRoom && hasGenerationPermission && isAbovePlaylistItemLimit) {
-    generationUnavailableReason = `AI fill is unavailable when the room has ${playlistItemCountCutoff} songs or more.`;
+    generationUnavailableReason = `AI fill is unavailable when the room has ${playlistItemCountCutoff} items or more.`;
   }
   if (
     targetRoom &&
@@ -119,6 +119,7 @@ export function AddPlaylistItemSheet({
       onRequestClose={onClose}
     >
       <SearchSheet
+        roomType={targetRoom?.roomType ?? 'MUSIC'}
         canGenerate={canGenerate}
         generationUnavailableReason={generationUnavailableReason}
         playlistImportAllowed={targetRoom?.settings.playlistImport ?? false}

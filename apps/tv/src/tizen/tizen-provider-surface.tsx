@@ -20,7 +20,7 @@ export function TizenProviderSurface({
         <div className="size-14 animate-spin rounded-full border-4 border-tv-border border-t-accent" />
         <div className="animate-pulse text-3xl">{generationMessage}</div>
         <div className="text-tv-muted text-xl">
-          Songs will appear here automatically.
+          Playlist items will appear here automatically.
         </div>
       </div>
     );
@@ -29,7 +29,7 @@ export function TizenProviderSurface({
   if (!playlistItem) {
     return (
       <div className="flex h-full items-center justify-center bg-black text-4xl text-tv-muted">
-        No song is playing
+        Nothing playing yet
       </div>
     );
   }

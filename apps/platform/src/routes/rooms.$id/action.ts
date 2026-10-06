@@ -361,12 +361,22 @@ export async function clientAction({
       return { error: 'Provider is required', intent: body.intent };
     }
 
+    const [roomError, room] = await api.v2.get('/rooms/{id}', { id: roomId });
+    if (roomError || !room) return createErrorData(body.intent, roomError);
+    if (room.roomType === 'WATCH' && body.provider !== 'youtube') {
+      return {
+        error: 'Watch rooms support YouTube videos.',
+        intent: body.intent,
+      };
+    }
+
     if (body.provider === 'youtube') {
       if (!body.sourceId) {
         return { error: 'Playlist ID is required', intent: body.intent };
       }
       const [error, playlist] = await api.v2.get('/youtube/playlists/{id}', {
         id: body.sourceId,
+        $search: { roomType: room.roomType },
       });
       if (error || !playlist) {
         return createErrorData(body.intent, error);

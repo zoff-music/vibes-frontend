@@ -61,6 +61,7 @@ const roomRouteIds = new Set([
 
 const terminalHeaderRouteIds = new Set([
   'routes/_index/route',
+  'routes/features/route',
   'routes/rooms.create/route',
   'routes/privacy-policy/route',
   'routes/terms-of-service/route',

@@ -1,5 +1,5 @@
 import { getHttpError, getRequestErrorMessage } from '@vibes/api';
-import type { Providers } from '@vibes/models';
+import type { Providers, RoomType } from '@vibes/models';
 import { DEFAULT_ROOM_SETTINGS, safeWrapAsync } from '@vibes/shared';
 import { type ActionFunctionArgs, redirect } from 'react-router';
 import { tizenApi } from '@/tizen/api';
@@ -19,20 +19,23 @@ export async function action({
   const formData = new URLSearchParams(body);
   const intent = formData.get('intent') ?? '';
   const value = formData.get('value')?.trim() ?? '';
+  const roomType = formData.get('roomType') === 'WATCH' ? 'WATCH' : 'MUSIC';
   if (!value) return { error: 'Enter a room name or playlist description.' };
-  if (intent === 'generate') return generateRoom(value);
-  if (intent === 'joinOrCreate') return joinOrCreateRoom(value);
+  if (intent === 'generate') return generateRoom(value, roomType);
+  if (intent === 'joinOrCreate') return joinOrCreateRoom(value, roomType);
   return { error: 'That TV action is not supported.' };
 }
 
 async function generateRoom(
   prompt: string,
+  roomType: RoomType,
 ): Promise<Response | TizenSessionActionData> {
   const [requestError, room] = await tizenApi.v2.post(
     '/rooms/generation',
     null,
     {
       prompt,
+      roomType,
     },
   );
   if (requestError || !room) {
@@ -48,6 +51,7 @@ async function generateRoom(
 
 async function joinOrCreateRoom(
   name: string,
+  roomType: RoomType,
 ): Promise<Response | TizenSessionActionData> {
   const roomId = name.toLowerCase().replace(/\s+/g, '-');
   const [roomError, room] = await tizenApi.v2.get('/rooms/{id}', {
@@ -72,12 +76,13 @@ async function joinOrCreateRoom(
       ),
     };
   }
-  return createRoom(roomId, providers);
+  return createRoom(roomId, providers, roomType);
 }
 
 async function createRoom(
   name: string,
   providers: Providers,
+  roomType: RoomType,
 ): Promise<Response | TizenSessionActionData> {
   const [reservationError, reservation] = await tizenApi.post(
     '/rooms/reservations',
@@ -96,8 +101,14 @@ async function createRoom(
   const [createError, room] = await tizenApi.v2.post('/rooms', null, {
     name,
     mode: 'server',
+    roomType,
     reservationToken: reservation.token,
-    settings: { ...DEFAULT_ROOM_SETTINGS, enabledSources: providers },
+    settings: {
+      ...DEFAULT_ROOM_SETTINGS,
+      enabledSources: providers.filter(
+        (provider) => roomType !== 'WATCH' || provider === 'youtube',
+      ),
+    },
   });
   if (createError || !room) {
     return {

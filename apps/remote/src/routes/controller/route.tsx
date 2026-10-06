@@ -279,7 +279,10 @@ export default function RemoteController() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <ListenerCount count={usersCount} />
+          <ListenerCount
+            count={usersCount}
+            roomType={room?.roomType ?? 'MUSIC'}
+          />
           {room && (
             <Button
               type="button"
@@ -365,6 +368,7 @@ export default function RemoteController() {
           onClose={() => setShowSearch(false)}
           providers={loaderData.providers}
           roomId={room.id}
+          roomType={room.roomType}
         />
       )}
       {room && (

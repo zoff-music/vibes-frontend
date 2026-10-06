@@ -1,11 +1,18 @@
-import type { Providers, RoomSettingsV2, SourceType } from '@vibes/models';
+import type {
+  Providers,
+  RoomSettingsV2,
+  RoomType,
+  SourceType,
+} from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { getRoomLabels } from '@vibes/ui/shared';
 import { Pressable, Switch, Text, View } from 'react-native';
 
 import { Card, Copy } from '@/components/native';
 import { useAppTheme } from '@/hooks/use-app-theme';
 
 interface RoomConfigurationProps {
+  roomType: RoomType;
   disabled?: boolean;
   hasPassword: boolean;
   mode: 'host' | 'server';
@@ -51,6 +58,7 @@ function SettingsSwitch({
 }
 
 export function RoomConfiguration({
+  roomType,
   disabled = false,
   hasPassword,
   mode,
@@ -59,6 +67,11 @@ export function RoomConfiguration({
   providers,
   settings,
 }: RoomConfigurationProps) {
+  const labels = getRoomLabels(roomType);
+  const availableProviders = providers.filter(
+    (provider) => roomType !== 'WATCH' || provider === 'youtube',
+  );
+
   const updateSetting = <Key extends keyof RoomSettingsV2>(
     key: Key,
     value: RoomSettingsV2[Key],
@@ -107,7 +120,7 @@ export function RoomConfiguration({
         <Copy muted>PLAYBACK</Copy>
         <Card>
           <SettingsSwitch
-            description="Only room admins can skip songs."
+            description={`Only room admins can skip ${labels.items}.`}
             disabled={disabled}
             label="Admins Only Skip"
             value={!settings.skipAllowed}
@@ -123,7 +136,7 @@ export function RoomConfiguration({
           />
           <Divider />
           <SettingsSwitch
-            description="Remove each song after it plays."
+            description={`Remove each ${labels.item} after it plays.`}
             disabled={disabled}
             label="Remove played"
             value={settings.removeOnPlay}
@@ -131,7 +144,7 @@ export function RoomConfiguration({
           />
           <Divider />
           <SettingsSwitch
-            description="Allow the same song more than once."
+            description={`Allow the same ${labels.item} more than once.`}
             disabled={disabled}
             label="Allow duplicates"
             value={settings.allowDuplicates}
@@ -139,7 +152,7 @@ export function RoomConfiguration({
           />
           <Divider />
           <SettingsSwitch
-            description="Only authenticated room admins may add songs."
+            description={`Only authenticated room admins may add ${labels.items}.`}
             disabled={disabled}
             label="Admins only add"
             value={settings.onlyAdminAddPlaylistItems ?? false}
@@ -167,13 +180,13 @@ export function RoomConfiguration({
       </View>
 
       <View className="gap-2">
-        <Copy muted>MUSIC PROVIDERS</Copy>
+        <Copy muted>PROVIDERS</Copy>
         <Card>
-          {providers.map((provider, index) => (
+          {availableProviders.map((provider, index) => (
             <View key={provider}>
               {index > 0 && <Divider />}
               <SettingsSwitch
-                description={`Allow ${provider} songs in this room.`}
+                description={`Allow ${provider} ${labels.items} in this room.`}
                 disabled={disabled}
                 label={provider}
                 value={settings.enabledSources.includes(provider)}
@@ -181,8 +194,8 @@ export function RoomConfiguration({
               />
             </View>
           ))}
-          {providers.length === 0 && (
-            <Copy muted>No music providers are currently enabled.</Copy>
+          {availableProviders.length === 0 && (
+            <Copy muted>No providers are currently available.</Copy>
           )}
         </Card>
       </View>

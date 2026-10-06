@@ -7,6 +7,7 @@ import { EmbedSharePanel } from './EmbedSharePanel';
 interface Props {
   url: string;
   roomId: string;
+  roomType: RoomType;
   onShare: () => void;
   onOpenPartyScreen: () => void;
 }
@@ -14,6 +15,7 @@ interface Props {
 export const RoomSharePanel = ({
   url,
   roomId,
+  roomType,
   onShare,
   onOpenPartyScreen,
 }: Props) => {
@@ -62,7 +64,7 @@ export const RoomSharePanel = ({
           variant="tertiary"
         >
           <CastIcon className="h-4 w-4" />
-          Party Screen
+          {getRoomLabels(roomType).presentation}
         </Button>
       </div>
     </div>
@@ -70,3 +72,6 @@ export const RoomSharePanel = ({
 };
 
 const platformLogoUrl = `${import.meta.env.BASE_URL}logo.png`;
+
+import type { RoomType } from '@vibes/models';
+import { getRoomLabels } from '@vibes/ui/shared';

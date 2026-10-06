@@ -15,6 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {
       $search: {
         q: search.q,
+        roomType: search.roomType,
         live: search.live,
         from: search.from,
         to: search.from + publicRoomPageSize - 1,

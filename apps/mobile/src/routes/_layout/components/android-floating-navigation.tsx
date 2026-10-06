@@ -23,7 +23,7 @@ export function AndroidFloatingNavigation() {
   const theme = useAppTheme();
   const { isTablet } = useTabletLandscapeLayout();
   const keyboardVisible = useKeyboardVisible();
-  const { canAddPlaylistItems, hasRoom } = useRoomNavigation();
+  const { addLabel, canAddPlaylistItems, hasRoom } = useRoomNavigation();
   const { enabled: konamiEnabled } = useKonamiMode();
 
   if (Platform.OS !== 'android' || isTablet || konamiEnabled || keyboardVisible)
@@ -73,7 +73,7 @@ export function AndroidFloatingNavigation() {
       </View>
       {canAddPlaylistItems && (
         <Pressable
-          accessibilityLabel="Add song"
+          accessibilityLabel={addLabel}
           className="size-16 items-center justify-center rounded-full border border-primary bg-primary shadow-lg shadow-primary/30 active:opacity-80"
           onPress={() => router.push('/add')}
         >

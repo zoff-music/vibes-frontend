@@ -41,7 +41,7 @@ export async function action({
   const roomId = params.id;
   if (!roomId) return { data: null, error: 'A room is required.' };
   if (!isSearchActionInput(input)) {
-    return { data: null, error: 'The music request was invalid.' };
+    return { data: null, error: 'The playlist request was invalid.' };
   }
   const client = input.credentials
     ? createRemoteApi(
@@ -63,7 +63,7 @@ export async function action({
     const [error] = await requests.addPlaylistItem(roomId, input.request, {
       signal,
     });
-    if (error) return failure(error, 'Could not add this song.');
+    if (error) return failure(error, 'Could not add this item.');
 
     return { data: { intent: 'success' }, error: '' };
   }

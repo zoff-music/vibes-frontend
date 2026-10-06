@@ -12,12 +12,15 @@ import { ChatGuide } from './ChatGuide';
 import { EmbedGuide } from './EmbedGuide';
 import { ListeningPreview } from './ListeningPreview';
 import { RoomModePreview } from './RoomModePreview';
+import { WatchPage } from './WatchPage';
 
 interface ProductPageContentProps {
   page: ProductPage;
 }
 
 export function ProductPageContent({ page }: ProductPageContentProps) {
+  if (page.slug.startsWith('watch')) return <WatchPage page={page} />;
+
   return (
     <SitePage>
       <article>

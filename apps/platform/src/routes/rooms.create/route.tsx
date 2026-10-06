@@ -32,6 +32,7 @@ import {
 import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { SiteHero } from '../../components/layout/SiteHero';
 import { SitePage } from '../../components/layout/SitePage';
+import { useExperience } from '../../hooks/useExperience';
 import { useThemeStore } from '../../stores/themeStore';
 import { canUseViewTransition } from '../../utils/viewTransition';
 import type { RoomsCreateActionData } from './action';
@@ -62,6 +63,7 @@ const CreateRoom: React.FC = () => {
   const suggestionFetcher = useFetcher<RoomsCreateActionData>();
   const availabilityFetcher = useFetcher<RoomsCreateActionData>();
   const [searchParams] = useSearchParams();
+  const roomType = useExperience();
   const navigate = useNavigate();
   const terminalMode = useKonamiMode();
   const setIsWarping = useThemeStore((state) => state.setIsWarping);
@@ -433,6 +435,7 @@ const CreateRoom: React.FC = () => {
               onSubmit={handleCreate}
             >
               <input name="intent" type="hidden" value="createRoom" />
+              <input name="roomType" type="hidden" value={roomType} />
               <input
                 name="reservationToken"
                 type="hidden"
@@ -476,6 +479,7 @@ const CreateRoom: React.FC = () => {
         className="relative z-10 flex w-full flex-col"
       >
         <input type="hidden" name="intent" value="createRoom" />
+        <input type="hidden" name="roomType" value={roomType} />
         <input
           type="hidden"
           name="reservationToken"
@@ -511,8 +515,14 @@ const CreateRoom: React.FC = () => {
 
         <SiteHero
           id="create-heading"
-          title="Create a session"
-          description="Build a listening room in seconds."
+          title={
+            roomType === 'WATCH' ? 'Create a watch session' : 'Create a session'
+          }
+          description={
+            roomType === 'WATCH'
+              ? 'Bring your people. Choose what to watch.'
+              : 'Build a listening room in seconds.'
+          }
         >
           <p className="jp-art mt-2 text-theme-subtle text-xs" lang="ja">
             セッションを作成
@@ -630,7 +640,7 @@ const CreateRoom: React.FC = () => {
                   )}
                 >
                   {wobblePassword
-                    ? 'Password required for "Only Admin Add Songs"'
+                    ? 'Password required for "Admins Only Add"'
                     : 'Leave empty to allow anyone to control playback.'}
                 </p>
               </div>
@@ -679,7 +689,9 @@ const CreateRoom: React.FC = () => {
                       SERVER MODE
                     </div>
                     <div className="text-current text-xs opacity-75">
-                      Auto-play music 24/7 for radio rooms.
+                      {roomType === 'WATCH'
+                        ? 'Keep videos playing together, automatically.'
+                        : 'Auto-play music 24/7 for radio rooms.'}
                     </div>
                   </Button>
                   <Button
@@ -711,7 +723,11 @@ const CreateRoom: React.FC = () => {
                 <div className="space-y-4">
                   <SegmentedToggle
                     label="ADMINS ONLY SKIP"
-                    description="Only room admins can skip songs"
+                    description={
+                      roomType === 'WATCH'
+                        ? 'Only room admins can skip videos'
+                        : 'Only room admins can skip songs'
+                    }
                     checked={!settings.skipAllowed}
                     onChange={(checked) =>
                       updateSetting('skipAllowed', !checked)
@@ -741,7 +757,11 @@ const CreateRoom: React.FC = () => {
                   <SegmentedToggle
                     name="allowDuplicates"
                     label="ALLOW DUPLICATES"
-                    description="Same song multiple times"
+                    description={
+                      roomType === 'WATCH'
+                        ? 'Same video multiple times'
+                        : 'Same song multiple times'
+                    }
                     checked={settings.allowDuplicates}
                     onChange={(checked) =>
                       updateSetting('allowDuplicates', checked)
@@ -751,7 +771,11 @@ const CreateRoom: React.FC = () => {
                   <SegmentedToggle
                     name="onlyAdminAddPlaylistItems"
                     label="ADMINS ONLY ADD"
-                    description="Only admins can add songs"
+                    description={
+                      roomType === 'WATCH'
+                        ? 'Only admins can add videos'
+                        : 'Only admins can add songs'
+                    }
                     checked={settings.onlyAdminAddPlaylistItems}
                     onChange={(checked) => {
                       if (checked && !password) {

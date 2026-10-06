@@ -27,6 +27,7 @@ export const providerPlaylistSchema = z.compile(
     truncated: z.boolean(),
     skippedEmbeddingCount: z.int().min(0).optional(),
     skippedMadeForKidsCount: z.int().min(0).optional(),
+    skippedRoomTypeCount: z.int().min(0).optional(),
   }),
 );
 export type ProviderPlaylist = z.infer<typeof providerPlaylistSchema>;

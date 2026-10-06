@@ -121,16 +121,21 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
 
   const submitRoomAction = useCallback(
     (intent: 'generate' | 'joinOrCreate', value: string) => {
-      submit({ intent, value }, { method: 'post' });
+      submit(
+        { intent, value, roomType: loaderData.roomType },
+        { method: 'post' },
+      );
     },
-    [submit],
+    [submit, loaderData.roomType],
   );
   const leaveRoom = useCallback(() => {
-    void navigate('/');
-  }, [navigate]);
+    void navigate(room?.roomType === 'WATCH' ? '/?type=watch' : '/');
+  }, [navigate, room?.roomType]);
 
   let screen = (
     <TizenLanding
+      key={loaderData.roomType}
+      roomType={loaderData.roomType}
       error={actionError || loaderData.error}
       isAIMode={isAIMode}
       loading={loading}

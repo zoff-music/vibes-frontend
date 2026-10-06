@@ -1,4 +1,5 @@
-import type { SourceType } from '@vibes/models';
+import type { RoomType, SourceType } from '@vibes/models';
+import { getRoomLabels } from '@vibes/ui/shared';
 import {
   Button,
   CloseIcon,
@@ -17,6 +18,7 @@ interface Props {
   onClose: () => void;
   providers: string[];
   roomId: string;
+  roomType: RoomType;
 }
 
 export function PlaylistItemSearchModal({
@@ -25,7 +27,9 @@ export function PlaylistItemSearchModal({
   onClose,
   providers,
   roomId,
+  roomType,
 }: Props) {
+  const labels = getRoomLabels(roomType);
   const [provider, setProvider] = useState<SourceType>('youtube');
   const results =
     fetcher.data?.intent === 'search' ? (fetcher.data.searchResults ?? []) : [];
@@ -43,7 +47,7 @@ export function PlaylistItemSearchModal({
             id="remote-search-title"
             className="font-display text-lg text-theme"
           >
-            Add a song
+            {labels.add}
           </h2>
           <p className="mt-2 text-sm text-theme-muted">
             Search enabled providers from the remote.
@@ -88,7 +92,7 @@ export function PlaylistItemSearchModal({
           containerClassName="mb-0!"
           name="query"
           minLength={3}
-          placeholder="Search songs"
+          placeholder={`Search ${labels.items}`}
           required
         />
         <Button className="h-full" type="submit" variant="primary">

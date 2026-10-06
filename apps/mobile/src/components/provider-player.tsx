@@ -1,4 +1,4 @@
-import type { PlaybackStateV2, PlaylistItem } from '@vibes/models';
+import type { PlaybackStateV2, PlaylistItem, RoomType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { NativeSoundCloudPlayer, NativeYouTubePlayer } from '@vibes/ui/native';
 import { useEffect, useState } from 'react';
@@ -12,6 +12,7 @@ interface ProviderPlayerProps {
   availableWidth?: number;
   horizontalMargin?: number;
   isGenerating: boolean;
+  roomType: RoomType;
   onLocalPlayingChange: (isPlaying: boolean) => void;
   onLocalPositionObserved: (positionMs: number) => void;
   onLocalSeek: (positionMs: number) => void;
@@ -28,6 +29,7 @@ export function ProviderPlayer({
   availableWidth,
   horizontalMargin = playerHorizontalMargin,
   isGenerating,
+  roomType,
   onLocalPlayingChange,
   onLocalPositionObserved,
   onLocalSeek,
@@ -179,7 +181,11 @@ export function ProviderPlayer({
         )}
         {!playlistItem && isGenerating && <RoomGenerationProgress />}
         {!playlistItem && !isGenerating && (
-          <Copy muted>Add a song to start listening.</Copy>
+          <Copy muted>
+            {roomType === 'WATCH'
+              ? 'Add a video to start watching.'
+              : 'Add a song to start listening.'}
+          </Copy>
         )}
       </View>
       <Toast message={error} />

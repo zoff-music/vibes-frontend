@@ -4,6 +4,7 @@ import type {
   PlaylistItem,
   Providers,
   PublicRoomV3,
+  RoomType,
   RoomV2,
 } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
@@ -16,6 +17,7 @@ export interface TizenRoomSnapshot {
 }
 
 export interface TizenSessionLoaderData {
+  roomType: RoomType;
   error: string;
   providers: Providers;
   publicRooms: PublicRoomV3[];
@@ -27,16 +29,21 @@ export async function loader({
   request,
 }: LoaderFunctionArgs): Promise<TizenSessionLoaderData> {
   const roomId = new URL(request.url).searchParams.get('room')?.trim() ?? '';
+  const roomType =
+    new URL(request.url).searchParams.get('type') === 'watch'
+      ? 'WATCH'
+      : 'MUSIC';
   const discoveryResults = await Promise.all([
     tizenApi.get('/providers', null),
     tizenApi.v3.get('/rooms/public', {
-      $search: { live: true, from: 0, to: 5 },
+      $search: { live: true, from: 0, to: 5, roomType },
     }),
   ]);
   const providers = discoveryResults[0][1] ?? [];
   const publicRooms = discoveryResults[1][1]?.rooms ?? [];
   if (!roomId) {
     return {
+      roomType,
       error: '',
       providers,
       publicRooms,
@@ -57,6 +64,7 @@ export async function loader({
   const playback = snapshotResults[2][1];
   if (requestError || !room || !playlistItems || !playback) {
     return {
+      roomType,
       error: await getRequestErrorMessage(
         requestError,
         'Could not load that room.',
@@ -69,6 +77,7 @@ export async function loader({
   }
 
   return {
+    roomType: room.roomType,
     error: '',
     providers,
     publicRooms,

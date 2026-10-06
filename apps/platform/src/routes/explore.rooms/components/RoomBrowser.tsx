@@ -55,7 +55,9 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
             Find a room.
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-theme-muted leading-relaxed">
-            Join people listening now, or explore all public rooms.
+            {search.roomType === 'WATCH'
+              ? 'Join people watching now, or explore public watch rooms.'
+              : 'Join people listening now, or explore public music rooms.'}
           </p>
         </div>
 
@@ -94,8 +96,13 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
                 <Link
                   to={
                     !search.q && !search.live
-                      ? '/rooms/create'
-                      : roomBrowserUrl({ q: '', live: false, from: 0 })
+                      ? `/rooms/create${search.roomType === 'WATCH' ? '?type=watch' : ''}`
+                      : roomBrowserUrl({
+                          ...search,
+                          q: '',
+                          live: false,
+                          from: 0,
+                        })
                   }
                   className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-theme bg-theme px-5 text-sm text-theme transition-colors hover:border-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >

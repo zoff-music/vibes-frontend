@@ -2,6 +2,7 @@ import {
   createProviderItemRequest,
   createProviderPlaylistRequest,
   createProviderSearchRequest,
+  createRoomReadRequests,
 } from '@vibes/api';
 import type { ProviderItem, ProviderPlaylist, SourceType } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
@@ -28,7 +29,29 @@ export async function loader({
     params.remoteId && params.controllerToken
       ? createRemoteApi(params.remoteId, params.controllerToken)
       : mobileApi;
+  const roomId = params.id ?? params.roomId ?? '';
+  const [roomError, room] = await createRoomReadRequests(client).fetchRoom(
+    roomId,
+    { signal },
+  );
+
+  if (roomError || !room) {
+    return failure(roomError, 'Could not load this room.');
+  }
+
   const playlistLink = parseProviderPlaylistLink(query);
+  const itemLink = parseProviderItemLink(query);
+  const requestedProvider =
+    playlistLink?.provider ?? itemLink?.provider ?? provider;
+
+  if (room.roomType === 'WATCH' && requestedProvider !== 'youtube') {
+    return { data: null, error: 'Watch rooms support YouTube only.' };
+  }
+
+  if (!room.settings.enabledSources.includes(requestedProvider)) {
+    return { data: null, error: 'This provider is disabled in this room.' };
+  }
+
   if (playlistLink) {
     if (!isMobileProvider(playlistLink.provider)) {
       return { data: null, error: 'This provider is not available on mobile.' };
@@ -37,6 +60,7 @@ export async function loader({
     const [error, playlist] = await createProviderPlaylistRequest(client)(
       playlistLink.provider,
       source,
+      room.roomType,
       { signal },
     );
     if (error || !playlist) {
@@ -51,7 +75,6 @@ export async function loader({
       error: '',
     };
   }
-  const itemLink = parseProviderItemLink(query);
   if (itemLink) {
     if (!isMobileProvider(itemLink.provider)) {
       return { data: null, error: 'This provider is not available on mobile.' };
@@ -62,14 +85,14 @@ export async function loader({
       source,
       { signal },
     );
-    if (error || !item) return failure(error, 'Could not load this song.');
+    if (error || !item) return failure(error, 'Could not load this item.');
     return {
       data: { playlist: null, provider: itemLink.provider, results: [item] },
       error: '',
     };
   }
   const [error, results] = await createProviderSearchRequest(client)(
-    params.id ?? params.roomId ?? '',
+    roomId,
     provider,
     query,
     { signal },

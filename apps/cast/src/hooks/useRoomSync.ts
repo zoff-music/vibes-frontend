@@ -53,6 +53,7 @@ export function useRoomSync({
     setError(null);
     setRoomInfo({
       name: snapshot.room.name,
+      roomType: snapshot.room.roomType,
       participantCount: snapshot.room.userCount ?? 0,
     });
     setRoomMode(snapshot.room.mode);
@@ -185,12 +186,14 @@ export function useRoomSync({
               );
               setRoomInfo((current) => ({
                 name: typedMessage.data.name,
+                roomType: typedMessage.data.roomType,
                 participantCount: current?.participantCount ?? 0,
               }));
               break;
             case 'users_update':
               setRoomInfo((current) => ({
                 name: current?.name || roomId,
+                roomType: current?.roomType ?? 'MUSIC',
                 participantCount: typedMessage.data,
               }));
               break;

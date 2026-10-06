@@ -42,7 +42,11 @@ export function createControllerRoomData({
   }
   return {
     ...(playback ? { playback } : {}),
-    providers: providers ?? [],
+    providers: (providers ?? []).filter(
+      (provider) =>
+        room.settings.enabledSources.includes(provider) &&
+        (room.roomType !== 'WATCH' || provider === 'youtube'),
+    ),
     remote,
     room,
     playlistItems: playlistItems ?? [],
