@@ -5,6 +5,7 @@ import {
   resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../shared';
+import { RemoteIcon } from '../icons';
 import { ProviderIcon } from './ProviderIcon';
 import { Tooltip } from './Tooltip';
 
@@ -15,6 +16,7 @@ interface NowPlayingPlaylistItemProps {
   animate?: boolean;
   density?: 'normal' | 'compact';
   showStatus?: boolean;
+  isHost?: boolean;
 }
 
 export function NowPlayingPlaylistItem({
@@ -24,6 +26,7 @@ export function NowPlayingPlaylistItem({
   animate = true,
   density = 'normal',
   showStatus = true,
+  isHost = false,
 }: NowPlayingPlaylistItemProps) {
   const providerUrl = getProviderItemUrl(
     playlistItem.sourceType,
@@ -46,6 +49,12 @@ export function NowPlayingPlaylistItem({
           <span className="font-display text-2xs text-theme-muted tracking-label">
             {isPlaying ? 'Now Playing' : 'Paused'}
           </span>
+          {isHost && (
+            <span className="ml-auto inline-flex items-center gap-1 text-secondary text-xs">
+              <RemoteIcon aria-hidden="true" className="h-4 w-4" />
+              You are hosting
+            </span>
+          )}
         </div>
       )}
       <div

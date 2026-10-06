@@ -7,6 +7,7 @@ import {
   crownIcon,
   formatChatMessage,
   formatChatTime,
+  remoteIcon,
 } from '../../shared';
 import { NativeIcon } from '../icons/NativeIcon';
 import { NativeButton } from './NativePrimitives';
@@ -70,6 +71,11 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
             {message.isAdmin && (
               <View accessibilityLabel="Room admin" className="pt-1">
                 <NativeIcon definition={crownIcon} color="#ff2994" size={14} />
+              </View>
+            )}
+            {message.isHost && (
+              <View accessibilityLabel="Room host" className="pt-1">
+                <NativeIcon definition={remoteIcon} color="#00cce9" size={14} />
               </View>
             )}
             <Text className="min-w-0 flex-1 font-heading text-native-text text-sm leading-6 dark:text-native-dark-text">

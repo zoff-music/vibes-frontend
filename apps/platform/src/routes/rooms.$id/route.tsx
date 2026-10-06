@@ -295,7 +295,24 @@ export default function RoomV2() {
     () => ({
       onConnected: synchronizeServerClock,
       onGenerationUpdate: handleGenerationUpdate,
-      onHostUpdate: ({ userId }: { userId: string }) => setHost(userId),
+      onHostUpdate: ({
+        userId,
+        message,
+      }: {
+        userId: string;
+        message: string;
+      }) => {
+        const currentRoom = useRoomStore.getState().room;
+        if (currentRoom?.hostId === userId) return;
+
+        setHost(userId);
+        showToast(
+          userId && userId === currentRoom?.userId
+            ? 'Host left, you are the new host.'
+            : message,
+          'info',
+        );
+      },
       onPlaybackUpdate: (playback: RoomLoaderData['playback']) => {
         if (!playback) return;
         setPlaybackState(playback, useRoomStore.getState().room?.mode);

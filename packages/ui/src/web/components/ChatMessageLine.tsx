@@ -5,7 +5,7 @@ import {
   formatChatMessage,
   formatChatTime,
 } from '../../shared/chat';
-import { CrownIcon } from '../icons';
+import { CrownIcon, RemoteIcon } from '../icons';
 
 const nameColors = [
   'text-sky-300 [.theme-light_&]:text-sky-700',
@@ -38,6 +38,15 @@ export function ChatMessageLine({ message }: ChatMessageLineProps) {
         >
           <span className="sr-only">Room admin </span>
           <CrownIcon aria-hidden="true" className="h-4 w-4" />
+        </span>
+      )}
+      {message.isHost && (
+        <span
+          title="Room host"
+          className="mr-1 inline-block align-middle text-secondary"
+        >
+          <span className="sr-only">Room host </span>
+          <RemoteIcon aria-hidden="true" className="h-4 w-4" />
         </span>
       )}
       <span

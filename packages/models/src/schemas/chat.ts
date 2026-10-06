@@ -8,6 +8,7 @@ export const roomMessageSchema = z.compile(
     userId: z.string(),
     name: z.string(),
     isAdmin: z.boolean(),
+    isHost: z.boolean().optional(),
     activity: z.boolean().optional(),
     kind: z.enum([
       'chat',

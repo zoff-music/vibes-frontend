@@ -222,6 +222,9 @@ export function RoomScreen() {
         <View className="flex-row items-center justify-between gap-3">
           <View className="min-w-0 flex-1 gap-1">
             <Copy muted>NOW PLAYING</Copy>
+            {room.mode === 'host' && room.hostId === room.userId && (
+              <Copy>You are hosting</Copy>
+            )}
             <Text
               numberOfLines={1}
               className={classNames(
@@ -234,14 +237,17 @@ export function RoomScreen() {
             </Text>
             <Copy muted>{current?.publisher ?? ''}</Copy>
           </View>
-          {playerEnabled && current && showsPlaybackReset && (
-            <IconButton
-              accessibilityLabel="Reset playback"
-              feedback
-              icon="reset"
-              onPress={() => void resetLocalPlayback()}
-            />
-          )}
+          {playerEnabled &&
+            current &&
+            showsPlaybackReset &&
+            !(room.mode === 'host' && room.hostId === room.userId) && (
+              <IconButton
+                accessibilityLabel="Reset playback"
+                feedback
+                icon="reset"
+                onPress={() => void resetLocalPlayback()}
+              />
+            )}
         </View>
         <View className="flex-row gap-2">
           {playerEnabled && (
@@ -298,6 +304,9 @@ export function RoomScreen() {
         chatHeader={
           <View className="gap-1 px-4 py-4">
             <Copy muted>NOW PLAYING</Copy>
+            {room.mode === 'host' && room.hostId === room.userId && (
+              <Copy>You are hosting</Copy>
+            )}
             <Text
               numberOfLines={1}
               className="font-heading text-base text-mobile-text dark:text-mobile-dark-text"

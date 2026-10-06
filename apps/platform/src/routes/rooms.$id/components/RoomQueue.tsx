@@ -6,6 +6,7 @@ import {
   useChatTimeline,
   usePlaybackStore,
   useQueueStore,
+  useRoomStore,
 } from '@vibes/shared';
 import {
   TerminalButton,
@@ -83,6 +84,13 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const voteFetcher = useFetcher<RoomActionData>();
     const removeFetcher = useFetcher<RoomActionData>();
     const playlistItems = useQueueStore((state) => state.playlistItems);
+    const isHost = useRoomStore((state) =>
+      Boolean(
+        state.room?.mode === 'host' &&
+          state.room.userId &&
+          state.room.hostId === state.room.userId,
+      ),
+    );
     const [votingPlaylistItemId, setVotingPlaylistItemId] = useState<
       string | null
     >(null);
@@ -180,6 +188,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             label="SERVER SIGNAL"
             status={isPlaying ? 'PLAYING' : 'PAUSED'}
           >
+            {isHost && <TerminalFeedback>YOU ARE HOSTING</TerminalFeedback>}
             {!currentPlaylistItemData && (
               <TerminalFeedback>
                 NO TRACK MOUNTED. QUEUE A SIGNAL TO BEGIN.
@@ -280,6 +289,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
           {currentPlaylistItemData && (
             <div className="mb-2 shrink-0">
               <NowPlayingPlaylistItem
+                isHost={isHost}
                 playlistItem={currentPlaylistItemData}
                 isPlaying={isPlaying}
               />
