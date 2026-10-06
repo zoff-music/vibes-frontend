@@ -53,7 +53,7 @@ export function ExperienceSwitch() {
             {item.label}
           </span>
           {item.type === 'WATCH' && (
-            <span className="pointer-events-none absolute -top-2 -right-1 rotate-12 rounded-md border border-primary/50 bg-theme-surface px-1.5 py-0.5 text-2xs text-pink-800 leading-none shadow-sm dark:text-primary">
+            <span className="experience-new pointer-events-none absolute -top-2 -right-1 z-10 rotate-12 rounded-md border border-primary/50 bg-theme-surface px-1.5 py-0.5 text-2xs text-pink-800 leading-none shadow-sm dark:text-primary">
               NEW
             </span>
           )}
