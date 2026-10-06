@@ -1,10 +1,14 @@
 import { classNames } from '@vibes/shared';
-import { Link, useViewTransitionState } from 'react-router';
+import { Link, useLocation, useViewTransitionState } from 'react-router';
 import { useExperience } from '../../hooks/useExperience';
 import { canUseViewTransition } from '../../utils/viewTransition';
 
 export function ExperienceSwitch() {
   const experience = useExperience();
+  const { pathname } = useLocation();
+  const path = pathname.replace(/\/+$/, '') || '/';
+  const isLandingPage =
+    path === '/' || path === '/features/music' || path === '/features/watch';
   const enteringWatch = useViewTransitionState('/features/watch');
   const enteringMusic = useViewTransitionState('/features/music');
 
@@ -26,7 +30,7 @@ export function ExperienceSwitch() {
           key={item.type}
           to={item.href}
           prefetch="intent"
-          viewTransition={canUseViewTransition()}
+          viewTransition={isLandingPage && canUseViewTransition()}
           aria-current={experience === item.type ? 'page' : false}
           className={classNames(
             'relative flex min-h-11 min-w-28 cursor-pointer items-center justify-center gap-2 rounded-full border px-5 font-pixel text-sm transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary',
