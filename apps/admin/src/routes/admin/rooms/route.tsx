@@ -209,7 +209,7 @@ export default function AdminRooms() {
           <h1 className="font-black text-3xl tracking-tight">Rooms</h1>
           <p className="text-sm text-theme-muted">
             {hasRooms
-              ? `${liveRoomResult.total} rooms, ${totalViewers} listeners on this page`
+              ? `${liveRoomResult.total} rooms, ${totalViewers} participants on this page`
               : roomSearch.q
                 ? 'No rooms match this search'
                 : 'No active rooms yet'}

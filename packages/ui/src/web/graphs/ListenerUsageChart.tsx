@@ -42,7 +42,11 @@ export function ListenerUsageChart({
             (point) =>
               new Date(point.timestamp).getTime() === timestamp.getTime(),
           )
-          .map((point) => ({ roomId: point.roomId, value: point.listeners })),
+          .map((point) => ({
+            roomId: point.roomId,
+            ...(point.roomType && { roomType: point.roomType }),
+            value: point.listeners,
+          })),
       };
     },
   );
@@ -51,7 +55,7 @@ export function ListenerUsageChart({
     <div className="panel-surface rounded-2xl border border-theme p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <SegmentedControl
-          label="Listener aggregation"
+          label="Audience aggregation"
           options={[
             { value: 'hour', label: 'Hour' },
             { value: 'day', label: 'Day' },
@@ -71,12 +75,12 @@ export function ListenerUsageChart({
         </p>
       </div>
       <p className="mt-4 text-theme-muted text-xs">
-        Each stack shows concurrent listeners at the overall peak minute in that
-        interval, not the sum of separate room peaks.
+        Each stack shows listeners and watchers at the overall peak minute in
+        that interval, not the sum of separate room peaks.
       </p>
       <RoomUsageChart
         buckets={buckets}
-        label="Listeners"
+        label="Participants"
         tickFormat={period === 'hour' || period === 'day' ? '%H:%M' : '%d %b'}
       />
     </div>

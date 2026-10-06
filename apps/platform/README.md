@@ -224,6 +224,9 @@ The orb stays centered in both modes. A slow circular eclipse reveals the moon
 and its colors over the sun, reversing when returning to Music, without moving
 or rotating the orb. The header labels remain above the pill, and the NEW sticker
 has its own higher transition layer outside it.
+Experience transitions do not capture the document root: the header stays live
+and clickable throughout. All decorative snapshot layers ignore pointer events.
+The eclipse starts at the visible top edge immediately, without an ease-in pause.
 The moon retains its original crescent, ring and dark palette; only its light
 palette changes to a pale center with stronger violet/cyan edges. Reduced
 motion disables the transition; browsers without view transitions keep normal

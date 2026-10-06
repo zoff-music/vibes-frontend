@@ -159,6 +159,10 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
 }
 
 /* Keep the orbit behind its own hero snapshot, not over the form or header. */
+:root:has([data-experience-transition="true"]) {
+  view-transition-name: none;
+}
+
 [data-experience-transition="true"] .experience-orbit {
   view-transition-name: experience-orbit;
 }
@@ -231,14 +235,14 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
 }
 
 ::view-transition-new(experience-orbit) {
-  animation: eclipse-cover 2400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: eclipse-cover 2400ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
   mix-blend-mode: normal;
   opacity: 1;
 }
 
 :root:has([data-experience="music"])::view-transition-old(experience-orbit) {
   z-index: 1;
-  animation: eclipse-cover 2400ms cubic-bezier(0.4, 0, 0.2, 1) reverse both;
+  animation: eclipse-uncover 2400ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
 }
 
 :root:has([data-experience="music"])::view-transition-new(experience-orbit) {
@@ -247,10 +251,19 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
 
 @keyframes eclipse-cover {
   from {
-    clip-path: circle(0% at 46% 45%);
+    clip-path: circle(0% at 50% 0%);
   }
   to {
-    clip-path: circle(150% at 46% 45%);
+    clip-path: circle(115% at 50% 0%);
+  }
+}
+
+@keyframes eclipse-uncover {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(100% 0 0 0);
   }
 }
 
@@ -259,7 +272,12 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   animation: none;
 }
 
-:root:has([data-experience-transition="true"])::view-transition {
+/* Snapshot children can override the overlay's hit testing. None are controls. */
+::view-transition,
+::view-transition-group(*),
+::view-transition-image-pair(*),
+::view-transition-old(*),
+::view-transition-new(*) {
   pointer-events: none;
 }
 
