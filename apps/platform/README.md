@@ -231,8 +231,10 @@ an ease-in pause or a rectangular wipe when returning to Music.
 Complementary circular masks remove the outgoing orb exactly where the incoming
 orb is revealed, so the moon's foreground and ring cannot linger beneath the sun.
 Only the orb artwork is captured, not its ambient glow. The snapshot is clipped
-to the visible area above the card. Hero copy uses only the page transition,
-without a second exit/entrance animation that could capture overlapping text.
+to the visible area above the card. The hero card, copy and form stay live
+instead of being captured, avoiding blank or overlapping text in Safari.
+The opaque hero surface disables backdrop blur so WebKit keeps its live content
+painted while the orb snapshot animates above the page.
 Only switches between landing pages use this eclipse. The same selector on
 policy, discovery and other pages navigates normally without capturing their
 content into hero transition layers.

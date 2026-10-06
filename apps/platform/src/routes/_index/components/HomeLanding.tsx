@@ -52,7 +52,7 @@ export function HomeLanding({
               <RetroSun watch={watch} paused={!pageVisible || !sunVisible} />
             </div>
           </div>
-          <div className="experience-hero relative z-10 [&_.site-hero]:bg-theme">
+          <div className="experience-hero relative z-10 [&_.site-hero]:bg-theme [&_.site-hero]:backdrop-filter-none">
             <SiteHero
               id="home-heading"
               layout="centered"
