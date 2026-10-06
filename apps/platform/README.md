@@ -221,7 +221,7 @@ The Music/Watch selector keeps intent prefetching and uses a shared sliding
 selection pill. Supporting browsers animate named view-transition layers for
 the pill and the hero's sun/moon, with the orbit behind the solid hero surface.
 The header labels remain above the pill, and the NEW sticker stays outside it.
-The moon uses a transparent SVG cutout so it works in both themes. Reduced
+The moon uses a theme-aware shaded SVG disc and subtle surface detail. Reduced
 motion disables the transition; browsers without view transitions keep normal
 navigation and the CSS pill slide. First loads render the selected position
 directly, without an entrance animation or layout-dependent JavaScript.
