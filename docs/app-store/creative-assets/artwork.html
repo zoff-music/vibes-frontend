@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Zoff App Store creative assets</title>
+  <style>
+    @font-face { font-family: Zoff; src: url('../../../packages/ui/src/shared/assets/fonts/MSW98UI-Regular.woff2'); }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1920px; height: 823px; overflow: hidden; background: #10091c; }
+    body { font-family: Zoff, sans-serif; color: #f0e8ff; }
+    .art { position: relative; isolation: isolate; width: 100%; height: 100%; overflow: hidden; background: radial-gradient(ellipse at 77% 41%, #342046 0, transparent 48%), linear-gradient(125deg, #221430, #10091c 60%); }
+    .glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 65% 85%, #ed238927, transparent 55%), radial-gradient(ellipse at 97% 70%, #00cbe820, transparent 45%); }
+    .grid { position: absolute; width: 2600px; height: 1400px; left: -340px; top: 480px; transform-origin: center top; transform: perspective(600px) rotateX(65deg); background-image: linear-gradient(#be4ab937 2px, transparent 2px), linear-gradient(90deg, #39bbd935 2px, transparent 2px); background-size: 140px 120px; mask-image: linear-gradient(transparent, black 24%, transparent 88%); }
+    .brand { position: absolute; left: 144px; top: 102px; display: flex; align-items: center; gap: 24px; }
+    .brand img { width: 94px; height: 94px; }
+    .brand span { font-size: 74px; letter-spacing: -3px; }
+    .copy { position: absolute; left: 144px; top: 240px; z-index: 4; }
+    h1 { margin: 0; font-size: 146px; line-height: .96; font-weight: normal; letter-spacing: -6px; }
+    h1 span { display: block; color: #ff299c; }
+    .sub { margin: 35px 0 0; color: #bba9d1; font-size: 34px; letter-spacing: .2px; }
+    .scene { position: absolute; top: 125px; left: 1020px; width: 780px; height: 590px; }
+    .sun { position: absolute; top: -18px; left: 45px; width: 392px; height: 392px; border-radius: 50%; background: linear-gradient(#ffe8a3 0%, #ffb574 24%, #ff6b9b 48%, #f336a4 70%, #ac42d5); mask-image: linear-gradient(black 0 47%, transparent 47% 49%, black 49% 55%, transparent 55% 58%, black 58% 64%, transparent 64% 68%, black 68% 73%, transparent 73% 79%, black 79% 84%, transparent 84% 91%, black 91% 95%, transparent 95%); }
+    .record { position: absolute; left: 0; top: 80px; width: 365px; height: 365px; border-radius: 50%; border: 2px solid #65506e; background: repeating-radial-gradient(circle, #15111d 0 9px, #302538 10px 11px, #15111d 12px 19px); box-shadow: 0 35px 80px #0008; z-index: 2; }
+    .record::before { content: ''; position: absolute; inset: 15px; border-radius: 50%; background: conic-gradient(from -35deg, transparent, #bcb0d026 12%, transparent 25%, transparent 60%, #bcb0d018 72%, transparent 82%); }
+    .record img { position: absolute; width: 143px; height: 143px; left: 109px; top: 109px; border-radius: 50%; border: 2px solid #bb90bc; }
+    .screen { position: absolute; left: 277px; top: 125px; width: 463px; height: 300px; border-radius: 28px; border: 2px solid #736284; background: #171024; box-shadow: 0 35px 70px #0008; transform: rotate(5deg); overflow: hidden; z-index: 3; }
+    .screen img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
+    .screen::after { content: ''; position: absolute; width: 68px; height: 68px; border: 1px solid #eee4ff77; border-radius: 50%; left: calc(50% - 34px); top: calc(50% - 34px); background: #10091ca0; }
+    .play { position: absolute; z-index: 2; left: calc(50% - 8px); top: calc(50% - 15px); border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-left: 23px solid #f2eaff; }
+    .shared { position: absolute; left: 85px; top: 441px; width: 530px; height: 92px; z-index: 4; display: flex; align-items: center; gap: 24px; padding: 0 29px; border-radius: 23px; background: #21152f; border: 1px solid #765680; box-shadow: 0 16px 50px #0005; }
+    .avatars { display: flex; padding-right: 4px; }
+    .avatar { width: 40px; height: 40px; border: 5px solid #21152f; border-radius: 50%; background: #ff299c; margin-right: -10px; }
+    .avatar:nth-child(2) { background: #00cce9; }
+    .avatar:nth-child(3) { background: #b39bdf; }
+    .shared span { font-size: 30px; white-space: nowrap; }
+    .dot { margin-left: auto; width: 9px; height: 9px; border-radius: 50%; background: #00cce9; box-shadow: 0 0 20px #00cce9aa; }
+    .scene-label { position: absolute; left: 121px; top: 564px; color: #bba9d1; font-size: 23px; letter-spacing: 5px; }
+    .scan { position: absolute; pointer-events: none; inset: 0; z-index: 6; background: repeating-linear-gradient(transparent 0 5px, #ffffff03 5px 6px); }
+    body.search { height: 1280px; }
+    .search .brand { top: 92px; left: 50%; transform: translateX(-50%); }
+    .search .brand img { width: 88px; height: 88px; }
+    .search .brand span { font-size: 70px; }
+    .search .copy { top: 226px; left: 0; width: 100%; text-align: center; }
+    .search h1 { font-size: 145px; }
+    .search h1 span { display: inline; margin-left: 28px; }
+    .search .sub { font-size: 37px; margin-top: 27px; }
+    .search .scene { top: 487px; left: 525px; transform: scale(1.13); transform-origin: top center; }
+    .search .grid { top: 862px; }
+    .search .scene-label { top: 578px; left: 145px; }
+  </style>
+</head>
+<body>
+  <main class="art">
+    <div class="glow"></div><div class="grid"></div>
+    <div class="brand"><img src="../../../apps/platform/public/logo.png" alt=""><span>zoff</span></div>
+    <div class="copy"><h1>Listen. Watch.<span>Together.</span></h1><p class="sub">Your people. One shared room.</p></div>
+    <div class="scene" aria-hidden="true">
+      <div class="sun"></div>
+      <div class="record"><img src="../../../apps/platform/public/logo.png" alt=""></div>
+      <div class="screen"><img src="../../../apps/platform/src/assets/product/watch-space.svg" alt=""><div class="play"></div></div>
+      <div class="shared"><div class="avatars"><i class="avatar"></i><i class="avatar"></i><i class="avatar"></i></div><span>Better with your people.</span><i class="dot"></i></div>
+      <div class="scene-label">SHARED MUSIC &amp; WATCH ROOMS</div>
+    </div>
+    <div class="scan"></div>
+  </main>
+</body>
+</html>
