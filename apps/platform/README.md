@@ -219,29 +219,29 @@ totals for older clients.
 
 The Music/Watch selector keeps intent prefetching and uses a shared sliding
 selection pill using a live CSS transform. Supporting browsers animate named
-view-transition layers for the hero's sun/moon, with the orbit behind the solid hero surface.
+local SVG layers for the hero's sun/moon, with the orbit behind the solid hero surface.
 The orb stays centered in both modes. A slow circular eclipse reveals the moon
 and its colors over the sun, reversing when returning to Music, without moving
 or rotating the orb. The header labels and NEW sticker stay in the live header,
-outside the snapshot layers, so Safari cannot hide them behind the pill.
-Experience transitions do not capture the document root: the header stays live
-and clickable throughout. All decorative snapshot layers ignore pointer events.
+outside the artwork, so the pill cannot cover them.
+Experience transitions do not capture page snapshots: the card and header stay
+live and clickable throughout. All decorative artwork ignores pointer events.
 Both directions use the same curved reveal from the visible top edge, without
 an ease-in pause or a rectangular wipe when returning to Music.
 Complementary circular masks remove the outgoing orb exactly where the incoming
 orb is revealed, so the moon's foreground and ring cannot linger beneath the sun.
-Only the orb artwork is captured, not its ambient glow. The snapshot is clipped
-to the visible area above the card. The hero card, copy and form stay live
-instead of being captured, avoiding blank or overlapping text in Safari.
-The opaque hero surface disables backdrop blur so WebKit keeps its live content
-painted while the orb snapshot animates above the page.
+Only the two orb artwork layers are masked, not their shared ambient glow.
+Normal page stacking keeps both layers behind the opaque card, avoiding Safari
+snapshot compositing failures and overlap. The opaque hero surface disables
+unnecessary backdrop blur.
 Only switches between landing pages use this eclipse. The same selector on
 policy, discovery and other pages navigates normally without capturing their
-content into hero transition layers.
+content into animation layers. Navigation state enables the eclipse only when
+switching directly between landing pages; initial visits show the final artwork.
 The moon retains its original crescent, ring and dark palette; only its light
 palette changes to a pale center with stronger violet/cyan edges. Reduced
-motion disables the transition; browsers without view transitions keep normal
-navigation and the CSS pill slide. First loads render the selected position
+motion disables the transition. Navigation and the CSS pill slide do not depend
+on browser view-transition support. First loads render the selected position
 directly, without an entrance animation or layout-dependent JavaScript.
 
 `/rooms/explore` lists twelve public rooms per page, with a live/all filter and
