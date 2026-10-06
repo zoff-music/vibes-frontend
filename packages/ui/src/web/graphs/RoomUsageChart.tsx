@@ -1,10 +1,12 @@
 import { classNames } from '@vibes/shared';
 import { area, line, scaleLinear, utcFormat } from 'd3';
 import { useId, useState } from 'react';
+import { SegmentedControl } from '../components/SegmentedControl';
 import { Tooltip } from '../components/Tooltip';
 
 export interface RoomUsageValue {
   roomId: string;
+  roomType?: 'MUSIC' | 'WATCH';
   value: number;
   cached?: number;
   live?: number;
@@ -40,11 +42,14 @@ export function RoomUsageChart({
 }: RoomUsageChartProps) {
   const id = useId();
   const [selectedRoom, setSelectedRoom] = useState('*');
+  const [selectedType, setSelectedType] = useState('all');
+  const roomTypes = new Map<string, RoomUsageValue['roomType']>();
   const roomTotals = new Map<string, number>();
 
   for (const bucket of buckets) {
     for (const room of bucket.rooms) {
       if (!room.roomId) continue;
+      roomTypes.set(room.roomId, room.roomType);
       roomTotals.set(
         room.roomId,
         (roomTotals.get(room.roomId) ?? 0) + room.value,
@@ -52,16 +57,33 @@ export function RoomUsageChart({
     }
   }
 
-  const rooms = [...roomTotals].sort(
+  const allRooms = [...roomTotals].sort(
     (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
   );
+  const rooms = allRooms.filter(
+    ([room]) => selectedType === 'all' || roomTypes.get(room) === selectedType,
+  );
+  const describeRoom = (room: string) => {
+    const type = roomTypes.get(room);
+    const typeLabel =
+      type === 'WATCH' ? 'Watch' : type === 'MUSIC' ? 'Music' : 'Unknown type';
+
+    return room === '*unknown'
+      ? roomLabel(room)
+      : `${typeLabel} · ${roomLabel(room)}`;
+  };
   const activeRoom =
-    selectedRoom === '*' || roomTotals.has(selectedRoom) ? selectedRoom : '*';
-  const paletteRooms = rooms.map(([room]) => room).sort();
+    selectedRoom === '*' || rooms.some(([room]) => room === selectedRoom)
+      ? selectedRoom
+      : '*';
+  const paletteRooms = allRooms.map(([room]) => room).sort();
   const color = (room: string) => roomColor(room, paletteRooms.indexOf(room));
   const roomSeries =
     activeRoom === '*'
-      ? [...rooms.map(([room]) => room), '*unknown']
+      ? [
+          ...rooms.map(([room]) => room),
+          ...(selectedType === 'all' ? ['*unknown'] : []),
+        ]
       : [activeRoom];
   const series = roomSeries.flatMap<RoomUsageSeries>((room) => {
     if (showCacheSplit) {
@@ -69,17 +91,17 @@ export function RoomUsageChart({
         {
           room,
           metric: 'live' as const,
-          label: `${roomLabel(room)} · Uncached`,
+          label: `${describeRoom(room)} · Uncached`,
         },
         {
           room,
           metric: 'cached' as const,
-          label: `${roomLabel(room)} · Cached`,
+          label: `${describeRoom(room)} · Cached`,
         },
       ];
     }
 
-    return [{ room, metric: 'value' as const, label: roomLabel(room) }];
+    return [{ room, metric: 'value' as const, label: describeRoom(room) }];
   });
   const chartBuckets = buckets.map((bucket) => {
     const counts = new Map(bucket.rooms.map((room) => [room.roomId, room]));
@@ -148,6 +170,19 @@ export function RoomUsageChart({
 
   return (
     <div className="mt-5 space-y-4">
+      <SegmentedControl
+        label={`${label} room type`}
+        options={[
+          { value: 'all', label: 'All rooms' },
+          { value: 'MUSIC', label: 'Music' },
+          { value: 'WATCH', label: 'Watch' },
+        ]}
+        value={selectedType}
+        onChange={(value) => {
+          setSelectedType(value);
+          setSelectedRoom('*');
+        }}
+      />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-semibold text-sm text-theme">{label} by room</p>
@@ -171,7 +206,7 @@ export function RoomUsageChart({
             <option value="*">All rooms</option>
             {rooms.map(([room]) => (
               <option key={room} value={room}>
-                {roomLabel(room)}
+                {describeRoom(room)}
               </option>
             ))}
           </select>
@@ -308,7 +343,9 @@ export function RoomUsageChart({
                                 className={color(room)}
                               />
                             </svg>
-                            <span className="truncate">{roomLabel(room)}</span>
+                            <span className="truncate">
+                              {describeRoom(room)}
+                            </span>
                           </span>
                           <span className="text-right tabular-nums">
                             {bucket.values[index].toLocaleString()}
@@ -355,13 +392,15 @@ export function RoomUsageChart({
                 className={color(room)}
               />
             </svg>
-            {roomLabel(room)}
+            {describeRoom(room)}
           </li>
         ))}
       </ul>
       <p className="text-theme-subtle text-xs">
         Older activity and clients without a room ID are shown as unattributed.
-        Select a room to inspect it individually.
+        Select a room to inspect it individually. Unknown room types remain in
+        All rooms only. Summary counts above the chart include both types; the
+        chart filter changes the breakdown.
       </p>
     </div>
   );

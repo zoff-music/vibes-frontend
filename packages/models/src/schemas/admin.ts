@@ -129,6 +129,7 @@ export const adminSearchUsageSchema = z.compile(
         z.object({
           ...adminSearchUsagePointSchema.omit({ unique: true }).shape,
           roomId: z.string(),
+          roomType: z.enum(['MUSIC', 'WATCH']).optional(),
         }),
       )
       .optional(),
@@ -154,6 +155,7 @@ export const adminListenerUsageSchema = z.compile(
         z.object({
           ...listenerUsagePointSchema.shape,
           roomId: z.string(),
+          roomType: z.enum(['MUSIC', 'WATCH']).optional(),
         }),
       )
       .optional(),
@@ -169,6 +171,7 @@ export const adminMessageUsageSchema = z.compile(
       .array(
         z.object({
           roomId: z.string(),
+          roomType: z.enum(['MUSIC', 'WATCH']).optional(),
           window: z.enum(['hour', 'day', 'month']),
           timestamp: z.string(),
           messages: z.number(),

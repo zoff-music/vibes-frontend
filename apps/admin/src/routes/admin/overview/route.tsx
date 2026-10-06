@@ -10,7 +10,7 @@ import { loader } from './loader';
 export { loader };
 
 export default function AdminOverview() {
-  const { listenerUsage, searchUsage, stats, messageUsage } =
+  const { listenerUsage, searchUsage, musicStats, watchStats, messageUsage } =
     useLoaderData<AdminOverviewLoaderData>();
 
   return (
@@ -18,34 +18,49 @@ export default function AdminOverview() {
       <header>
         <h1 className="font-black text-3xl tracking-tight">Overview</h1>
         <p className="text-sm text-theme-muted">
-          Chat, search and listener activity across Zoff.
+          Music and Watch rooms, with chat, search and audience activity.
         </p>
       </header>
 
       <section
         aria-label="Overall statistics"
-        className="grid gap-4 sm:grid-cols-3"
+        className="grid gap-4 lg:grid-cols-2"
       >
-        <article className="panel-surface rounded-2xl border border-theme p-5">
-          <p className="font-semibold text-sm text-theme-muted">
-            Active listeners
-          </p>
-          <p className="mt-2 font-black text-3xl text-theme">
-            {stats.totalListeners.toLocaleString()}
-          </p>
-        </article>
-        <article className="panel-surface rounded-2xl border border-theme p-5">
-          <p className="font-semibold text-sm text-theme-muted">Songs</p>
-          <p className="mt-2 font-black text-3xl text-theme">
-            {stats.totalSongs.toLocaleString()}
-          </p>
-        </article>
-        <article className="panel-surface rounded-2xl border border-theme p-5">
-          <p className="font-semibold text-sm text-theme-muted">Rooms</p>
-          <p className="mt-2 font-black text-3xl text-theme">
-            {stats.totalRooms.toLocaleString()}
-          </p>
-        </article>
+        {[
+          {
+            label: 'Music',
+            stats: musicStats,
+            audience: 'Listeners',
+            items: 'Songs',
+          },
+          {
+            label: 'Watch',
+            stats: watchStats,
+            audience: 'Watchers',
+            items: 'Videos',
+          },
+        ].map((type) => (
+          <article
+            key={type.label}
+            className="panel-surface rounded-2xl border border-theme p-5"
+          >
+            <h2 className="font-bold text-theme text-xl">{type.label} rooms</h2>
+            <dl className="mt-4 grid grid-cols-3 gap-3">
+              {[
+                { label: 'Rooms', value: type.stats.totalRooms },
+                { label: type.items, value: type.stats.totalPlaylistItems },
+                { label: type.audience, value: type.stats.totalListeners },
+              ].map((metric) => (
+                <div key={metric.label}>
+                  <dt className="text-sm text-theme-muted">{metric.label}</dt>
+                  <dd className="mt-2 font-black text-2xl text-theme">
+                    {metric.value.toLocaleString()}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </article>
+        ))}
       </section>
 
       <section aria-labelledby="chat-usage-title">
@@ -56,16 +71,18 @@ export default function AdminOverview() {
           Chat messages
         </h2>
         <p className="mt-1 text-sm text-theme-muted">
-          Sent messages only. Song and vote activity is excluded.
+          Sent messages only. Playlist and vote activity is excluded.
         </p>
         <MessageUsageChart usage={messageUsage} />
       </section>
 
       <section>
         <div className="mb-4">
-          <h2 className="font-black text-2xl tracking-tight">Listener Usage</h2>
+          <h2 className="font-black text-2xl tracking-tight">
+            Audience activity
+          </h2>
           <p className="text-sm text-theme-muted">
-            Concurrent active listeners sampled once per minute.
+            Concurrent listeners and watchers sampled once per minute.
           </p>
           {listenerUsage.generatedAt && (
             <p className="mt-1 text-theme-subtle text-xs">

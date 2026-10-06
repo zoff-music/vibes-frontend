@@ -40,7 +40,11 @@ export function MessageUsageChart({ usage }: MessageUsageChartProps) {
           (point) =>
             new Date(point.timestamp).getTime() === timestamp.getTime(),
         )
-        .map((point) => ({ roomId: point.roomId, value: point.messages })),
+        .map((point) => ({
+          roomId: point.roomId,
+          ...(point.roomType && { roomType: point.roomType }),
+          value: point.messages,
+        })),
     };
   });
 

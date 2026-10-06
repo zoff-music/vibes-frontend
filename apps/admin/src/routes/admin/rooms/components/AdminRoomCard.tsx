@@ -1,4 +1,5 @@
 import type { AdminRoomSummaryV2 } from '@vibes/models';
+import { classNames } from '@vibes/shared';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { Button, SoundCloudIcon, YouTubeIcon } from '@vibes/ui/web';
 import type { ChangeEvent, JSX, KeyboardEvent, MouseEvent } from 'react';
@@ -41,15 +42,22 @@ export function AdminRoomCard({
             <h2 className="max-w-full break-words font-bold text-theme text-xl">
               {room.name}
             </h2>
+            <span
+              className={classNames(
+                'shrink-0 rounded-full border px-3 py-1 font-semibold text-xs',
+                room.roomType === 'WATCH'
+                  ? 'border-secondary/50 bg-secondary/10 text-theme'
+                  : 'border-primary/50 bg-primary/10 text-theme',
+              )}
+            >
+              {room.roomType === 'WATCH' ? 'Watch room' : 'Music room'}
+            </span>
             <span className="max-w-full truncate rounded-full border border-theme bg-theme-surface px-3 py-1 font-mono text-theme-muted text-xs uppercase tracking-wider">
               {room.id}
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-sm text-theme-muted">
-            <span className="rounded-lg border border-secondary/30 bg-theme-surface px-2 py-1 font-semibold">
-              {room.roomType === 'WATCH' ? 'Watch' : 'Music'}
-            </span>
             <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
               {room.userCount}{' '}
               {room.userCount === 1 ? labels.participant : labels.participants}

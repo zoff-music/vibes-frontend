@@ -80,10 +80,10 @@ export function AdminRoomFilters({
 }
 
 const roomSortOptions = [
-  { label: 'Most listeners', value: 'listeners:desc' },
-  { label: 'Fewest listeners', value: 'listeners:asc' },
-  { label: 'Most songs', value: 'playlistItems:desc' },
-  { label: 'Fewest songs', value: 'playlistItems:asc' },
+  { label: 'Most participants', value: 'listeners:desc' },
+  { label: 'Fewest participants', value: 'listeners:asc' },
+  { label: 'Most playlist items', value: 'playlistItems:desc' },
+  { label: 'Fewest playlist items', value: 'playlistItems:asc' },
 ];
 
 const roomQueryMaximumLength = 100;
