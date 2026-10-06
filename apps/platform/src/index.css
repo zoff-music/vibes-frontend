@@ -163,7 +163,7 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   view-transition-name: none;
 }
 
-[data-experience-transition="true"] .experience-orbit {
+[data-experience-transition="true"] .retro-orbit-art {
   view-transition-name: experience-orbit;
 }
 
@@ -171,56 +171,16 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   view-transition-name: experience-hero;
 }
 
-.experience-selector[data-transitioning="true"] .experience-pill {
-  view-transition-name: experience-pill;
-  transition: none;
-}
-
-.experience-selector[data-transitioning="true"] .experience-music-label {
-  view-transition-name: experience-music-label;
-}
-
-.experience-selector[data-transitioning="true"] .experience-watch-label {
-  view-transition-name: experience-watch-label;
-}
-
-.experience-selector[data-transitioning="true"] .experience-new {
-  view-transition-name: experience-new;
-}
-
-::view-transition-group(experience-new) {
-  z-index: 5;
-  animation: none;
-}
-
-::view-transition-old(experience-new) {
-  display: none;
-}
-
-::view-transition-new(experience-new) {
-  animation: none;
-}
-
-::view-transition-group(experience-pill) {
-  z-index: 3;
-  animation-duration: 500ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-::view-transition-group(experience-music-label),
-::view-transition-group(experience-watch-label) {
-  z-index: 4;
-  animation-duration: 300ms;
-}
-
-::view-transition-old(experience-pill),
-::view-transition-new(experience-pill) {
-  animation: none;
-}
-
 ::view-transition-group(experience-orbit) {
   z-index: 1;
   animation: none;
+  clip-path: inset(0 0 calc(100% - 6rem) 0);
+}
+
+@media (min-width: 640px) {
+  ::view-transition-group(experience-orbit) {
+    clip-path: inset(0 0 calc(100% - 8rem) 0);
+  }
 }
 
 ::view-transition-group(experience-hero) {
@@ -304,15 +264,5 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
 
   ::view-transition-new(experience-orbit) {
     mask-image: none;
-  }
-
-  ::view-transition-group(experience-pill),
-  ::view-transition-group(experience-music-label),
-  ::view-transition-group(experience-watch-label),
-  ::view-transition-old(experience-music-label),
-  ::view-transition-new(experience-music-label),
-  ::view-transition-old(experience-watch-label),
-  ::view-transition-new(experience-watch-label) {
-    animation: none;
   }
 }

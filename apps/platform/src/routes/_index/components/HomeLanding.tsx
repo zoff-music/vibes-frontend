@@ -1,5 +1,4 @@
 import { usePageVisibility } from '@vibes/shared';
-import { ContentTransition } from '@vibes/ui/web';
 import { useInView } from 'framer-motion';
 import { type ReactNode, type RefObject, useRef } from 'react';
 import { useViewTransitionState } from 'react-router';
@@ -53,10 +52,7 @@ export function HomeLanding({
               <RetroSun watch={watch} paused={!pageVisible || !sunVisible} />
             </div>
           </div>
-          <ContentTransition
-            transitionKey={watch ? 'watch' : 'music'}
-            className="experience-hero relative z-10 [&_.site-hero]:bg-theme"
-          >
+          <div className="experience-hero relative z-10 [&_.site-hero]:bg-theme">
             <SiteHero
               id="home-heading"
               layout="centered"
@@ -93,7 +89,7 @@ export function HomeLanding({
                 </>
               }
             />
-          </ContentTransition>
+          </div>
         </div>
       </div>
       <PublicRoomDiscovery
