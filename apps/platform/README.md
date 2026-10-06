@@ -209,6 +209,14 @@ announcing animation frames. Unavailable optional data are omitted; the
 public-room browser link stays available even when no rooms are live. Keep copy
 short and avoid repeating the same explanation in adjacent sections.
 
+Community totals use `/api/v2/stats?roomType=MUSIC` or `roomType=WATCH`,
+matching the server-rendered experience. Both views show rooms, queued items,
+and active participants for that type only. Watch labels these as videos and
+watchers; Music retains songs and listeners. Counts include all rooms of the
+selected type, not just the public live-room preview. The backend keeps each
+type's short-lived cache separate; requests without a type retain combined
+totals for older clients.
+
 `/rooms/explore` lists twelve public rooms per page, with a live/all filter and
 room-name search. The first request uses the server loader, defaulting to live
 rooms. Hydration reuses that result without another request. Subsequent filter,

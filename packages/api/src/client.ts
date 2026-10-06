@@ -580,7 +580,7 @@ const v2Endpoints = {
     get: { $search: providerURLQuerySchema, response: providerPlaylistSchema },
   },
   '/stats': {
-    get: { response: statsV2Schema },
+    get: { $search: roomTypeQuerySchema, response: statsV2Schema },
   },
   '/remotes': {
     get: { response: remoteStatusV2Schema },

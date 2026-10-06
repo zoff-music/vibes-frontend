@@ -19,7 +19,7 @@ export async function loader({
   const options = { retry: 0, signal: request.signal };
   const roomType = params.experience === 'watch' ? 'WATCH' : 'MUSIC';
   const [statsResult, providersResult, publicRoomsResult] = await Promise.all([
-    serverApi.v2.get('/stats', null, options),
+    serverApi.v2.get('/stats', { $search: { roomType } }, options),
     serverApi.get('/providers', null, options),
     serverApiV3.get(
       '/rooms/public',
