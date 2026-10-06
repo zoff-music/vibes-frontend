@@ -32,7 +32,7 @@ export function ExperienceSwitch() {
           />
           {item.label}
           {item.type === 'WATCH' && (
-            <span className="rounded-full border border-primary/25 bg-primary/10 px-1.5 py-0.5 text-pink-800 text-xs leading-none dark:text-primary">
+            <span className="pointer-events-none absolute -top-2 -right-1 rotate-12 rounded-md border border-primary/50 bg-theme-surface px-1.5 py-0.5 text-2xs text-pink-800 leading-none shadow-sm dark:text-primary">
               NEW
             </span>
           )}

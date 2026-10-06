@@ -5,7 +5,7 @@ import { createRoomShareDescription, createRoomShareTitle } from './share';
 export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
   if (!loaderData) {
     return [
-      { title: 'Zoff - Shared Music Room' },
+      { title: 'Shared Room | Zoff' },
       { name: 'robots', content: 'noindex, follow' },
     ];
   }
@@ -24,7 +24,7 @@ export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
     new URL('/logo.png', loaderData.pageUrl).toString();
   const imageAlt = currentPlaylistItem
     ? `${currentPlaylistItem.title} artwork`
-    : 'Zoff shared music rooms';
+    : 'Zoff shared rooms';
 
   return [
     { title },
