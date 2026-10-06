@@ -443,6 +443,24 @@ export function AppProvider({ children }: PropsWithChildren) {
     () => ({
       onConnected: synchronizeServerClock,
       onGenerationUpdate: handleGenerationUpdate,
+      onHostUpdate: ({
+        userId,
+        message,
+      }: {
+        userId: string;
+        message: string;
+      }) => {
+        if (!room || room.hostId === userId) return;
+
+        setRoom((currentRoom) =>
+          currentRoom ? { ...currentRoom, hostId: userId } : null,
+        );
+        showToast(
+          userId && userId === room.userId
+            ? 'Host left, you are the new host.'
+            : message,
+        );
+      },
       onPlaybackUpdate: (nextPlayback: PlaybackStateV2) =>
         applyPlaybackUpdate(normalizeMobilePlayback(nextPlayback)),
       onRoomUpdate: applyRoomUpdate,
@@ -479,6 +497,8 @@ export function AppProvider({ children }: PropsWithChildren) {
       applyRoomUpdate,
       handleGenerationUpdate,
       handleUsersUpdate,
+      room,
+      showToast,
     ],
   );
 

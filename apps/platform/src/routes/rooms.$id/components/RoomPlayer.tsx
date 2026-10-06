@@ -163,6 +163,11 @@ export const RoomPlayer = React.memo(
       currentPlaylistItemFromStore ||
       initialPlayback?.currentPlaylistItem ||
       null;
+    const isHost = Boolean(
+      displayRoom?.mode === 'host' &&
+        displayRoom.userId &&
+        displayRoom.hostId === displayRoom.userId,
+    );
     const hasHostPlaybackAuthority =
       displayRoom?.mode === 'host' &&
       (isAdmin ||
@@ -656,7 +661,9 @@ export const RoomPlayer = React.memo(
             }
             canSkip={canSkipPlaylistItem && Boolean(currentPlaylistItem)}
             isSkipping={isSkipPending}
-            showReset={Boolean(currentPlaylistItem) && hasLocalPlaybackChanges}
+            showReset={
+              Boolean(currentPlaylistItem) && hasLocalPlaybackChanges && !isHost
+            }
             onPlay={play}
             onPause={pause}
             onSkip={skip}
@@ -700,7 +707,9 @@ export const RoomPlayer = React.memo(
               onToggleMuted={toggleMuted}
               onVolumeChange={setVolume}
               showReset={
-                Boolean(currentPlaylistItem) && hasLocalPlaybackChanges
+                Boolean(currentPlaylistItem) &&
+                hasLocalPlaybackChanges &&
+                !isHost
               }
               showCast={showCast}
               volume={volume}
