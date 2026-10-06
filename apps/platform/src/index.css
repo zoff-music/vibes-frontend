@@ -158,6 +158,103 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   animation: room-page-in 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+/* Keep the orbit behind its own hero snapshot, not over the form or header. */
+[data-experience-transition="true"] .experience-orbit {
+  view-transition-name: experience-orbit;
+}
+
+[data-experience-transition="true"] .experience-hero {
+  view-transition-name: experience-hero;
+}
+
+.experience-selector[data-transitioning="true"] .experience-pill {
+  view-transition-name: experience-pill;
+  transition: none;
+}
+
+.experience-selector[data-transitioning="true"] .experience-music-label {
+  view-transition-name: experience-music-label;
+}
+
+.experience-selector[data-transitioning="true"] .experience-watch-label {
+  view-transition-name: experience-watch-label;
+}
+
+::view-transition-group(experience-pill) {
+  z-index: 3;
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-group(experience-music-label),
+::view-transition-group(experience-watch-label) {
+  z-index: 4;
+  animation-duration: 300ms;
+}
+
+::view-transition-old(experience-pill),
+::view-transition-new(experience-pill) {
+  animation: none;
+}
+
+::view-transition-group(experience-orbit) {
+  z-index: 1;
+  animation-duration: 900ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-group(experience-hero) {
+  z-index: 2;
+  animation-duration: 300ms;
+}
+
+::view-transition-old(experience-orbit) {
+  animation: orbit-set 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+::view-transition-new(experience-orbit) {
+  animation: orbit-rise 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes orbit-set {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+  45% {
+    opacity: 0.45;
+    transform: translateY(-24px) rotate(-6deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0) rotate(-12deg);
+  }
+}
+
+@keyframes orbit-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(12deg);
+  }
+  45% {
+    opacity: 0.65;
+    transform: translateY(-24px) rotate(6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+:root:has([data-experience-transition="true"])::view-transition-old(root),
+:root:has([data-experience-transition="true"])::view-transition-new(root) {
+  animation: none;
+}
+
+:root:has([data-experience-transition="true"])::view-transition {
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-dice-roll,
   .animate-ai-sparkles path,
@@ -167,7 +264,23 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   }
 
   ::view-transition-old(root),
-  ::view-transition-new(root) {
+  ::view-transition-new(root),
+  ::view-transition-group(experience-orbit),
+  ::view-transition-group(experience-hero),
+  ::view-transition-old(experience-orbit),
+  ::view-transition-new(experience-orbit),
+  ::view-transition-old(experience-hero),
+  ::view-transition-new(experience-hero) {
+    animation: none;
+  }
+
+  ::view-transition-group(experience-pill),
+  ::view-transition-group(experience-music-label),
+  ::view-transition-group(experience-watch-label),
+  ::view-transition-old(experience-music-label),
+  ::view-transition-new(experience-music-label),
+  ::view-transition-old(experience-watch-label),
+  ::view-transition-new(experience-watch-label) {
     animation: none;
   }
 }

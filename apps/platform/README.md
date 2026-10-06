@@ -217,6 +217,15 @@ selected type, not just the public live-room preview. The backend keeps each
 type's short-lived cache separate; requests without a type retain combined
 totals for older clients.
 
+The Music/Watch selector keeps intent prefetching and uses a shared sliding
+selection pill. Supporting browsers animate named view-transition layers for
+the pill and the hero's sun/moon, with the orbit behind the solid hero surface.
+The header labels remain above the pill, and the NEW sticker stays outside it.
+The moon uses a theme-aware shaded SVG disc and subtle surface detail. Reduced
+motion disables the transition; browsers without view transitions keep normal
+navigation and the CSS pill slide. First loads render the selected position
+directly, without an entrance animation or layout-dependent JavaScript.
+
 `/rooms/explore` lists twelve public rooms per page, with a live/all filter and
 room-name search. The first request uses the server loader, defaulting to live
 rooms. Hydration reuses that result without another request. Subsequent filter,

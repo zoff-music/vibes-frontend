@@ -1,7 +1,8 @@
-import { usePageVisibility } from '@vibes/shared';
+import { classNames, usePageVisibility } from '@vibes/shared';
 import { ContentTransition } from '@vibes/ui/web';
 import { useInView } from 'framer-motion';
 import { type ReactNode, type RefObject, useRef } from 'react';
+import { useViewTransitionState } from 'react-router';
 import { RetroSun } from '../../../components/layout/RetroSun';
 import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';
@@ -31,11 +32,14 @@ export function HomeLanding({
   const sunVisible = useInView(sunRef);
   const pageVisible = usePageVisibility();
   const watch = useExperience() === 'WATCH';
+  const enteringWatch = useViewTransitionState('/features/watch');
+  const enteringMusic = useViewTransitionState('/features/music');
 
   return (
     <SitePage>
       <div
         ref={heroRef}
+        data-experience-transition={enteringWatch || enteringMusic}
         className="flex min-h-[calc(100svh-8rem)] flex-col justify-center gap-8 pt-24 pb-8 sm:gap-10 sm:pt-32 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-4xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl"
       >
         <div className="relative">
@@ -44,11 +48,21 @@ export function HomeLanding({
             aria-hidden="true"
             className="pointer-events-none absolute -top-24 left-1/2 w-screen -translate-x-1/2 overflow-x-clip sm:-top-32"
           >
-            <div className="mx-auto w-72 max-w-full sm:w-96">
+            <div
+              className={classNames(
+                'experience-orbit mx-auto w-72 max-w-full sm:w-96',
+                watch
+                  ? 'translate-x-8 -translate-y-2 sm:translate-x-24 sm:-translate-y-4'
+                  : '-translate-x-8 sm:-translate-x-24',
+              )}
+            >
               <RetroSun watch={watch} paused={!pageVisible || !sunVisible} />
             </div>
           </div>
-          <ContentTransition transitionKey={watch ? 'watch' : 'music'}>
+          <ContentTransition
+            transitionKey={watch ? 'watch' : 'music'}
+            className="experience-hero relative z-10 [&_.site-hero]:bg-theme"
+          >
             <SiteHero
               id="home-heading"
               layout="centered"
