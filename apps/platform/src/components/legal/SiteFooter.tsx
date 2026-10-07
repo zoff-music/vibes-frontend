@@ -1,4 +1,3 @@
-import { ExternalLinkIcon } from '@vibes/ui/web';
 import { NavLink } from 'react-router';
 
 export function SiteFooter() {
@@ -6,7 +5,7 @@ export function SiteFooter() {
     <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 sm:px-6 sm:pb-6">
       <nav
         aria-label="Site links"
-        className="panel-surface grid w-full grid-cols-3 gap-1 rounded-3xl border border-theme p-1.5 backdrop-blur sm:grid-cols-6"
+        className="flex w-full items-center justify-between gap-1 border-theme border-t pt-3 sm:justify-center sm:gap-6"
       >
         <a
           className={footerLinkClassName}
@@ -15,7 +14,6 @@ export function SiteFooter() {
           target="_blank"
         >
           GitHub
-          <ExternalLinkIcon className="h-3 w-3 shrink-0" />
         </a>
         <a
           className={footerLinkClassName}
@@ -23,8 +21,7 @@ export function SiteFooter() {
           rel="noreferrer"
           target="_blank"
         >
-          Twitter
-          <ExternalLinkIcon className="h-3 w-3 shrink-0" />
+          X
         </a>
         <a
           className={footerLinkClassName}
@@ -59,4 +56,4 @@ export function SiteFooter() {
 }
 
 const footerLinkClassName =
-  'flex min-h-14 w-full cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-2 py-4 font-pixel text-xs text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:bg-theme-surface aria-[current=page]:text-theme sm:text-sm';
+  'flex min-h-11 min-w-6 shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-1 font-pixel text-xs text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:text-theme sm:px-3 sm:text-sm';
