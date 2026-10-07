@@ -1,4 +1,3 @@
-import { classNames } from '@vibes/shared';
 import { ExternalLinkIcon } from '@vibes/ui/web';
 import { NavLink } from 'react-router';
 
@@ -7,7 +6,7 @@ export function SiteFooter() {
     <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 sm:px-6 sm:pb-6">
       <nav
         aria-label="Site links"
-        className="panel-surface grid w-full grid-cols-4 gap-1 rounded-3xl border border-theme p-1.5 backdrop-blur sm:grid-cols-5"
+        className="panel-surface grid w-full grid-cols-3 gap-1 rounded-3xl border border-theme p-1.5 backdrop-blur sm:grid-cols-6"
       >
         <a
           className={footerLinkClassName}
@@ -19,18 +18,39 @@ export function SiteFooter() {
           <ExternalLinkIcon className="h-3 w-3 shrink-0" />
         </a>
         <a
-          className={classNames(footerLinkClassName, 'hidden sm:flex')}
+          className={footerLinkClassName}
+          href="https://x.com/zoffmusic"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Twitter
+          <ExternalLinkIcon className="h-3 w-3 shrink-0" />
+        </a>
+        <a
+          className={footerLinkClassName}
           href="https://zoff.me/api/swagger/index.html"
         >
           API docs
         </a>
-        <NavLink className={footerLinkClassName} to="/security">
+        <NavLink
+          className={footerLinkClassName}
+          to="/security"
+          prefetch="intent"
+        >
           Security
         </NavLink>
-        <NavLink className={footerLinkClassName} to="/privacy-policy">
+        <NavLink
+          className={footerLinkClassName}
+          to="/privacy-policy"
+          prefetch="intent"
+        >
           Privacy
         </NavLink>
-        <NavLink className={footerLinkClassName} to="/terms-of-service">
+        <NavLink
+          className={footerLinkClassName}
+          to="/terms-of-service"
+          prefetch="intent"
+        >
           Terms
         </NavLink>
       </nav>
