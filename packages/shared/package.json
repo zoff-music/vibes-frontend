@@ -6,6 +6,8 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
+    "./themeStore": "./src/stores/themeStore.ts",
+    "./chatPreferenceStore": "./src/stores/chatPreferenceStore.ts",
     ".": "./src/index.ts",
     "./wrap": "./src/wrap.ts"
   },

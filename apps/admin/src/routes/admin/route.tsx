@@ -3,8 +3,6 @@ import { showRateLimitMessageToast } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import {
-  NavLink,
-  type NavLinkRenderProps,
   Outlet,
   type ShouldRevalidateFunctionArgs,
   useFetcher,
@@ -65,7 +63,7 @@ export default function AdminLayout() {
 
   if (!session.authorized || !session.user) {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-theme px-6 py-12 text-theme">
+      <main className="relative flex items-center justify-center overflow-hidden bg-theme px-6 py-12 text-theme">
         <div className="relative z-10 w-full max-w-md">
           <div className="panel-strong rounded-3xl border border-theme-strong p-8">
             <div className="mb-6 text-center">
@@ -143,9 +141,9 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-theme px-4 py-8 text-theme sm:px-6">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <header className="panel-strong rounded-2xl border border-theme-strong p-4">
+    <div className="relative mx-auto w-full max-w-6xl px-5 py-6 text-theme sm:px-6">
+      <div className="space-y-8">
+        <div className="border-theme border-b pb-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-theme-subtle text-xs uppercase tracking-widest">
@@ -163,35 +161,12 @@ export default function AdminLayout() {
               </Button>
             </fetcher.Form>
           </div>
-
-          <nav
-            aria-label="Admin navigation"
-            className="mt-4 flex flex-wrap gap-2 border-theme border-t pt-4"
-          >
-            <NavLink className={getNavigationClassName} end to="/admin">
-              Overview
-            </NavLink>
-            <NavLink className={getNavigationClassName} to="/admin/rooms">
-              Rooms
-            </NavLink>
-            <NavLink className={getNavigationClassName} to="/admin/users">
-              Admin Users
-            </NavLink>
-          </nav>
-        </header>
+        </div>
 
         <Outlet context={{ user: session.user }} />
       </div>
     </div>
   );
-}
-
-function getNavigationClassName({ isActive }: NavLinkRenderProps) {
-  if (isActive) {
-    return 'cursor-pointer rounded-xl bg-primary px-4 py-2 font-bold text-sm text-text-inverse';
-  }
-
-  return 'cursor-pointer rounded-xl border border-theme bg-theme-surface px-4 py-2 font-bold text-sm text-theme-muted transition-colors hover:border-theme-strong hover:text-theme';
 }
 
 export function ErrorBoundary() {

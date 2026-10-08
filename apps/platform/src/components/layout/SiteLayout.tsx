@@ -1,4 +1,4 @@
-import { SkipLink } from '@vibes/ui/web';
+import { SiteLayout as SharedSiteLayout } from '@vibes/ui/web';
 import { memo, type ReactNode } from 'react';
 import { useMatches } from 'react-router';
 import { useKonamiMode } from '../konami/KonamiModeContext';
@@ -39,18 +39,12 @@ const SiteLayoutContent = memo(function SiteLayoutContent({
   if (isRoomPage) return children;
 
   return (
-    <div className="site-layout relative flex min-h-dvh flex-col">
-      <SkipLink href="#page-content" />
-      {!hasTerminalHeader && <SiteHeader />}
-      <div
-        id="page-content"
-        tabIndex={-1}
-        className="min-w-0 flex-1 focus:outline-none"
-      >
-        {children}
-      </div>
-      <SiteFooter />
-    </div>
+    <SharedSiteLayout
+      header={!hasTerminalHeader && <SiteHeader />}
+      footer={<SiteFooter />}
+    >
+      {children}
+    </SharedSiteLayout>
   );
 });
 

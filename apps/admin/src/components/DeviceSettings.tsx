@@ -1,48 +1,36 @@
 import { showToast } from '@vibes/shared';
+import { useChatPreferenceStore } from '@vibes/shared/chatPreferenceStore';
+import { useThemeStore } from '@vibes/shared/themeStore';
 import { PersonalSettingsModal } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'react';
-import { useFetcher, useRouteLoaderData } from 'react-router';
-import type { RootLoaderData } from '../../root';
-import type { ProfileRouteData } from '../../routes/profile/clientLoader';
-import { useChatPreferenceStore } from '../../stores/chatPreferenceStore';
-import { useThemeStore } from '../../stores/themeStore';
+import { useFetcher } from 'react-router';
+import type { ProfileRouteData } from '../routes/profile/clientLoader';
 
-interface ProfileSettingsModalProps {
-  isOpen: boolean;
+interface DeviceSettingsProps {
   onClose: () => void;
 }
 
-export function ProfileSettingsModal({
-  isOpen,
-  onClose,
-}: ProfileSettingsModalProps) {
+export function DeviceSettings({ onClose }: DeviceSettingsProps) {
   const chatEnabled = useChatPreferenceStore((state) => state.enabled);
   const setChatEnabled = useChatPreferenceStore((state) => state.setEnabled);
   const fetcher = useFetcher<ProfileRouteData>();
-  const rootData = useRouteLoaderData<RootLoaderData>('root');
   const wasSavingRef = useRef(false);
-  const initialProfile = rootData?.sessionProfile;
-  const [name, setName] = useState(initialProfile?.name ?? '');
+  const [name, setName] = useState('');
   const themeId = useThemeStore((state) => state.themeId);
   const setTheme = useThemeStore((state) => state.setTheme);
 
   useEffect(() => {
-    if (
-      isOpen &&
-      fetcher.state === 'idle' &&
-      !fetcher.data &&
-      !initialProfile
-    ) {
-      void fetcher.load('/resources/profile');
+    if (fetcher.state === 'idle' && !fetcher.data) {
+      void fetcher.load('/admin/resources/profile');
     }
-  }, [fetcher, initialProfile, isOpen]);
+  }, [fetcher]);
 
   useEffect(() => {
-    const profile = fetcher.data?.profile ?? initialProfile;
-    if (isOpen && profile) {
+    const profile = fetcher.data?.profile;
+    if (profile) {
       setName(profile.name);
     }
-  }, [fetcher.data, initialProfile, isOpen]);
+  }, [fetcher.data]);
 
   useEffect(() => {
     if (fetcher.state === 'submitting') {
@@ -60,13 +48,12 @@ export function ProfileSettingsModal({
     }
   }, [fetcher.data, fetcher.state]);
 
-  const isLoading =
-    fetcher.state === 'loading' && !fetcher.data?.profile && !initialProfile;
+  const isLoading = fetcher.state === 'loading' && !fetcher.data?.profile;
   const isSaving = fetcher.state === 'submitting';
 
   return (
     <PersonalSettingsModal
-      isOpen={isOpen}
+      isOpen
       onClose={onClose}
       name={name}
       onNameChange={setName}
@@ -80,7 +67,7 @@ export function ProfileSettingsModal({
       onSubmit={(event) => {
         event.preventDefault();
         void fetcher.submit(event.currentTarget, {
-          action: '/resources/profile',
+          action: '/admin/resources/profile',
           method: 'post',
         });
       }}
