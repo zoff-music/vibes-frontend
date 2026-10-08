@@ -43,6 +43,7 @@ export const adminRoomSearchSchema = z.compile(
 export const adminRoomSummaryV2Schema = z.compile(
   adminRoomSummarySchema.omit({ songCount: true }).extend({
     roomType: roomTypeSchema.default('MUSIC'),
+    isPublic: z.boolean(),
     playlistItemCount: z.number(),
   }),
 );

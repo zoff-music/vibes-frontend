@@ -58,6 +58,16 @@ export function AdminRoomCard({
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-sm text-theme-muted">
+            <span
+              className={classNames(
+                'rounded-lg px-2 py-1 font-semibold',
+                room.isPublic
+                  ? 'bg-primary/10 text-primary'
+                  : 'bg-theme-surface text-theme-muted',
+              )}
+            >
+              {room.isPublic ? 'Public' : 'Private'}
+            </span>
             <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
               {room.userCount}{' '}
               {room.userCount === 1 ? labels.participant : labels.participants}
