@@ -5,7 +5,7 @@ interface SiteHeroProps {
   id: string;
   title: ReactNode;
   description: ReactNode;
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   children?: ReactNode;
   aside?: ReactNode;
   footer?: ReactNode;

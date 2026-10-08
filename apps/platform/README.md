@@ -360,7 +360,15 @@ for listening and remote devices. The settings preview places each switch above
 the listener's result. App screenshots overlap in a reserved stage; selection
 brings one forward with transforms without fading its content or moving the page.
 Keep headings, descriptions and navigation server-rendered. Reserve preview
-space while loading so scrolling remains stable. The hero typing effect also
+space while loading so scrolling remains stable. Music and Watch use the same
+compact homepage hero geometry, including the form and attribution spacing.
+Watch reserves the Music heading and description footprint with aria-hidden,
+invisible grid content during SSR, so shorter copy cannot resize the card when
+switching modes. Provider marks stay on one row; attribution and legal text
+stack together below the tablet breakpoint. Do not add Watch-only minimum heights.
+Only new mode navigation starts the eclipse, never a reload that retains history
+state. The initial server and client artwork must match.
+The hero typing effect also
 pauses when out of view. Keep the sun at its original position in the document,
 so it scrolls away with the hero. Its upper half and gradient stay still while
 the six lower bands gently narrow and settle in sequence. The shared Tailwind

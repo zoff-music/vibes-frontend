@@ -17,18 +17,18 @@ export function ProviderAttribution({ providers }: ProviderAttributionProps) {
   return (
     <nav
       aria-label="Music providers"
-      className="flex flex-wrap items-center gap-x-4 gap-y-2"
+      className="flex max-w-full items-center gap-4"
     >
       {activeProviders.map((provider) => (
         <a
           aria-label={`Open ${providerNames[provider]}`}
-          className="flex min-h-11 cursor-pointer items-center rounded-lg px-2 opacity-75 transition-colors hover:bg-theme-surface hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+          className="flex min-h-11 min-w-0 cursor-pointer items-center rounded-lg px-2 opacity-75 transition-colors hover:bg-theme-surface hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
           href={providerURLs[provider]}
           key={provider}
           rel="noreferrer"
           target="_blank"
         >
-          <ProviderMark className="h-5 max-w-24" provider={provider} />
+          <ProviderMark className="h-5 min-w-0 max-w-24" provider={provider} />
         </a>
       ))}
     </nav>
