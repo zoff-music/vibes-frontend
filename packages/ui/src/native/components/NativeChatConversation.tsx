@@ -1,7 +1,7 @@
 import { chatMessageMaxLength, type RoomMessage } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useMemo, useRef, useState } from 'react';
-import { FlatList, Text, TextInput, View } from 'react-native';
+import { FlatList, Text, TextInput, useColorScheme, View } from 'react-native';
 import {
   chatNameColorIndex,
   crownIcon,
@@ -25,6 +25,8 @@ const nameColors = [
   'text-pink-700 dark:text-pink-300',
 ];
 export function NativeChatConversation({ messages, onSend, error }: Props) {
+  const isDark = useColorScheme() === 'dark';
+  const moderatorColor = isDark ? '#fcd34d' : '#b45309';
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<FlatList<RoomMessage>>(null);
@@ -68,9 +70,18 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
             <Text className="font-heading text-native-muted text-xs leading-6 dark:text-native-dark-muted">
               {formatChatTime(message.createdAt)}{' '}
             </Text>
-            {message.isAdmin && (
-              <View accessibilityLabel="Room admin" className="pt-1">
-                <NativeIcon definition={crownIcon} color="#ff2994" size={14} />
+            {(message.isAdmin || message.isModerator) && (
+              <View
+                accessibilityLabel={
+                  message.isModerator ? 'Moderator' : 'Room admin'
+                }
+                className="pt-1"
+              >
+                <NativeIcon
+                  definition={crownIcon}
+                  color={message.isModerator ? moderatorColor : '#ff2994'}
+                  size={14}
+                />
               </View>
             )}
             {message.isHost && (
