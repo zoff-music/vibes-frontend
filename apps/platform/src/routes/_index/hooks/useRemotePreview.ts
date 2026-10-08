@@ -2,164 +2,119 @@ import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { queueDemoPlaylistItems } from '../../../components/seo/preview';
-import { previewPairingCode } from './remotePreviewData';
 
-type PairingPhase = 'entering' | 'connecting' | 'paired';
+const durations = [2800, 3000, 2200, 2800, 4000];
+const captions = [
+  'Scan the player’s code to pair your phone.',
+  'Connected. The sound stays on the player.',
+  'Pause on your phone. The player pauses too.',
+  'Press play and pick up where you left off.',
+  'Skip from the sofa. The player moves to the next song.',
+];
 
 export function useRemotePreview() {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { amount: 0.35 });
+  const playButtonRef = useRef<HTMLButtonElement>(null);
+  const pairRequested = useRef(false);
+  const inView = useInView(ref, { amount: 0.3 });
   const visible = usePageVisibility();
   const reducedMotion = useReducedMotion();
-  const [phase, setPhase] = useState<PairingPhase>('entering');
-  const [entered, setEntered] = useState(0);
+  const [phase, setPhase] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [manual, setManual] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  const [position, setPosition] = useState(45000);
+  const [track, setTrack] = useState(0);
   const [announcement, setAnnouncement] = useState('');
-  const playButtonRef = useRef<HTMLButtonElement>(null);
-  const manualPairing = useRef(false);
-  const pairedElapsed = useRef(0);
-  const [playing, setPlaying] = useState(true);
-  const [playback, setPlayback] = useState({ track: 0, position: 45000 });
+  const animate = inView && visible && !reducedMotion && !paused;
+  const paired = phase > 0 || manual;
+  const playing = !userPaused && (manual || phase !== 2);
   const playlistItem =
-    queueDemoPlaylistItems[playback.track % queueDemoPlaylistItems.length];
-  const durationMs = playlistItem.duration * 1000;
-  const animate = inView && visible && !reducedMotion;
+    queueDemoPlaylistItems[track % queueDemoPlaylistItems.length];
 
   useEffect(() => {
-    // A requested pairing finishes even if the user scrolls past the player.
-    if (
-      (!inView && !manualPairing.current) ||
-      !visible ||
-      reducedMotion ||
-      phase === 'paired'
-    ) {
-      return;
-    }
+    if (!paired || !pairRequested.current) return;
 
-    let delay = 180;
-    if (phase === 'connecting') {
-      delay = 1100;
-    } else if (entered === 0) {
-      delay = 1400;
-    } else if (entered === previewPairingCode.length) {
-      delay = 800;
-    }
+    pairRequested.current = false;
+    playButtonRef.current?.focus({ preventScroll: true });
+  }, [paired]);
+
+  useEffect(() => {
+    if (!animate || manual) return;
 
     const timer = window.setTimeout(() => {
-      if (phase === 'connecting') {
-        setPlayback({ track: 0, position: 45000 });
-        setPlaying(true);
-        pairedElapsed.current = 0;
-        setPhase('paired');
-        if (manualPairing.current) {
-          setAnnouncement(
-            'Remote paired. The phone now controls the electro player.',
-          );
-        }
-      } else if (entered === previewPairingCode.length) {
-        if (ref.current?.contains(document.activeElement)) {
-          ref.current.focus({ preventScroll: true });
-        }
-        setPhase('connecting');
-      } else {
-        setEntered((current) => current + 1);
+      const next = (phase + 1) % durations.length;
+      setPhase(next);
+      if (next === 4) {
+        setTrack((current) => current + 1);
+        setPosition(0);
       }
-    }, delay);
+      if (next === 0) {
+        setTrack(0);
+        setPosition(45000);
+      }
+    }, durations[phase]);
 
     return () => window.clearTimeout(timer);
-  }, [inView, visible, reducedMotion, phase, entered]);
+  }, [phase, animate, manual]);
 
   useEffect(() => {
-    if (phase !== 'paired' || !animate) {
-      return;
-    }
+    if (!animate || !playing) return;
 
-    let previous = performance.now();
     const timer = window.setInterval(() => {
-      const now = performance.now();
-      const elapsed = Math.min(now - previous, 500);
-      previous = now;
-      pairedElapsed.current += elapsed;
-
-      if (pairedElapsed.current >= 12000) {
-        if (ref.current?.contains(document.activeElement)) {
-          ref.current.focus({ preventScroll: true });
-        }
-
-        manualPairing.current = false;
-        setAnnouncement('');
-        setEntered(0);
-        setPhase('entering');
-        return;
-      }
-
-      if (!playing) return;
-
-      setPlayback((current) => {
-        if (current.position + elapsed >= durationMs) {
-          return { track: current.track + 1, position: 0 };
-        }
-
-        return { ...current, position: current.position + elapsed };
-      });
+      setPosition((current) =>
+        Math.min(current + 250, playlistItem.duration * 1000),
+      );
     }, 250);
 
     return () => window.clearInterval(timer);
-  }, [phase, playing, animate, durationMs]);
-
-  function pair() {
-    manualPairing.current = true;
-    setEntered(previewPairingCode.length);
-    ref.current?.focus({ preventScroll: true });
-    setAnnouncement(
-      reducedMotion
-        ? 'Remote paired. The phone now controls the electro player.'
-        : 'Pairing remote.',
-    );
-    setPhase(reducedMotion ? 'paired' : 'connecting');
-  }
+  }, [animate, playing, playlistItem.duration]);
 
   function togglePlayback() {
-    pairedElapsed.current = 0;
-    setPlaying((current) => !current);
-  }
-
-  function skip() {
-    pairedElapsed.current = 0;
-    setPlayback((current) => ({ track: current.track + 1, position: 0 }));
-  }
-
-  function seek(position: number) {
-    pairedElapsed.current = 0;
-    setPlayback((current) => ({ ...current, position }));
+    setManual(true);
+    setUserPaused(playing);
+    setAnnouncement(
+      playing
+        ? 'Paused from your phone. Both screens update.'
+        : 'Playing again on the paired player.',
+    );
   }
 
   return {
     ref,
     playButtonRef,
     state: {
+      paired,
       phase,
-      announcement,
+      paused,
       reducedMotion,
       animate,
-      code: reducedMotion
-        ? previewPairingCode
-        : previewPairingCode.slice(0, entered),
       playing,
       playlistItem,
-      durationMs,
-      position: playback.position,
+      durationMs: playlistItem.duration * 1000,
+      position,
+      caption: announcement || captions[phase],
+      announcement,
     },
     actions: {
-      pair,
-      focusControls: () => {
-        if (manualPairing.current && playButtonRef.current) {
-          playButtonRef.current.focus({ preventScroll: true });
-          manualPairing.current = false;
-        }
+      toggle: () => setPaused((current) => !current),
+      pair: () => {
+        pairRequested.current = true;
+        setManual(true);
+        setAnnouncement('Connected. Try the controls on the phone.');
       },
       togglePlayback,
-      skip,
-      seek,
+      skip: () => {
+        setManual(true);
+        setTrack((current) => current + 1);
+        setPosition(0);
+        setAnnouncement('Skipped from your phone. The player follows.');
+      },
+      seek: (next: number) => {
+        setManual(true);
+        setPosition(next);
+        setAnnouncement('Playback position updated on the player.');
+      },
     },
   };
 }

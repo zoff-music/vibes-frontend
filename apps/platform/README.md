@@ -195,8 +195,10 @@ its editable vector source is alongside it. Regenerate the PNG at 1200×630
 after changing the SVG. Verify page metadata in server-rendered HTML, including
 canonical URLs without tracking parameters, rather than relying on hydration.
 
-The homepage uses alternating product sections for voting, room controls,
-AI playlist generation and remote control. App screenshots stay on the apps
+The Music homepage introduces room creation and sharing, then shows the shared
+queue, room controls and phone remotes. A compact generation entry point follows
+these core features; the full generation preview belongs on the queue guide.
+App screenshots stay on the apps
 guide, and the embed configurator stays on the rooms guide. The homepage's
 server loader fetches community totals, public rooms and providers in parallel
 and awaits the backend responses before rendering. Initial requests and client
@@ -267,14 +269,14 @@ search, pagination and filter variants use `noindex, follow`. Deploy the v3
 backend endpoint before the frontend. Existing v1 and v2 clients remain supported.
 
 The room-settings section uses a solid themed panel within the shared content
-width and the same surfaces as the room cards. A brief accent sweep connects each
-setting change to its result without adding a competing headline or logo. Its
+width and the same surfaces as the room cards. A setting and its listener-facing
+result share one canvas, without adding a competing headline or logo. Its
 three examples have distinct layouts: a listener's search result entering the
 queue, the player's skip control obeying permissions, and a finished song either
 returning to the queue or leaving it. Each example has one relevant room toggle
 beside the action it changes. On phones, a compact selector and switch sit above
 one scene. A search result becomes a queue row in the same space, rather than
-leaving duplicate songs on screen. The room name and current rule sit above the
+leaving duplicate songs on screen. The room name sits above the
 scene, with a full-width result caption below it. The rooms guide link
 sits with the section introduction. Reserve matching space for the lazy-loading
 placeholder, every toggle description, scene, and result caption so automatic
@@ -285,12 +287,14 @@ preserves the normal room presentation elsewhere.
 
 Each automatic example shows both switch positions before moving to the next.
 Crossfade between examples and restart the scene after a setting changes.
-Selecting an example, changing a setting or trying an action restarts its time
-in the tour without stopping autoplay. Keep focus within the scene when a
-focused action disappears. Only run while the scene is in view, and pause in
+Selecting an example, changing a setting or trying an action pauses the guided
+tour so the visitor can inspect the result. Its motion control resumes the tour.
+Keep focus within the scene when a focused action disappears. Pause the tour
+when keyboard focus is inside a scene that is about to change. Only run while
+the scene is in view, and pause in
 hidden tabs. Reduced motion leaves the action manual. Automatic examples
-do not announce themselves to screen readers. Keep the AI showcase unframed too,
-rather than wrapping every demo in the same large card.
+do not announce themselves to screen readers. Preview titles remain subordinate
+to section headings; do not repeat the introduction inside the canvas.
 
 Discovery guides keep their first two explanations and practical notes visible
 in the server-rendered page. Accordions cover follow-up questions about each
@@ -301,7 +305,8 @@ repeating homepage sales copy; keep detailed text out of animation captions.
 The listening guide shows room chat using the same `ChatMessageLine` renderer
 as real conversations. Its local sequence includes messages, adds, votes, skip
 votes, skips, removals and name changes, then turns the shared Chat toggle off
-to show the queue. The panel folds into the spinning Zoff logo before restarting.
+to show the queue. The Music panel stays in place and its small Zoff mark spins
+at the restart. Watch retains its existing folding transition.
 The toggle is also usable manually, including with reduced motion. It changes
 only the preview, never the visitor's saved preference. Keep messages bounded,
 pause offscreen and in hidden tabs, and reserve the full preview height before
@@ -316,8 +321,8 @@ Do not apply input limits to returned room/song metadata or existing room URLs.
 
 Public pages provide a keyboard skip link before the header. Shared toggles
 expose their label and description separately from the decorative OFF/ON
-labels. Playback sliders announce elapsed time and duration. The queue demo
-retains focus when its songs transition into the logo. Switching between room names
+labels. Playback sliders announce elapsed time and duration. Voting pauses the
+queue tour so the focused item remains available. Switching between room names
 and AI prompts moves focus to the new input.
 
 Product demos use placeholder songs and artwork in a room named `electro`.
@@ -326,13 +331,22 @@ Reuse `QueueItem`, `NowPlayingPlaylistItem`, `PlaybackProgress`, `EmbedQueuePlay
 it never sends provider requests or changes a real room. Do not introduce
 alternate players, queue rows, equalizers or toggle implementations. Keep
 provider links disabled for placeholder songs. The queue and playlist demos
-use Framer Motion; playback follows local timers. Showcase animations loop while
-in view, without pause or replay buttons. Interacting with a demo must not leave
-its animation permanently paused. Keep the actual player controls that demonstrate
+use Framer Motion; playback follows local timers. Music showcases have a labelled
+canvas and a pause/resume control. Keep its header, content and caption dimensions
+stable, including the lazy placeholder. Queue and chat rows move with transforms
+inside reserved slots, not by reflowing the document. Reserve the longest prompt,
+status and playback-label sizes too. Check complete automatic cycles and lazy
+loading at phone, tablet and desktop widths for layout shifts, not just the first
+frame. Queue, chat and settings interactions pause
+the guided tour; resuming is explicit. Keep the actual player controls that demonstrate
 playback. Automatic motion pauses offscreen and in hidden tabs and respects
-reduced motion. Lower-page demos
-and app screenshots mount through `DeferredContent` near the viewport; keep
-their headings, descriptions and navigation server-rendered. Reserve preview
+reduced motion. Lower-page demos mount through `DeferredContent` near the
+viewport. Above-the-fold demos and app screenshots render with the guide.
+Use framed room interfaces for the queue, settings and chat, and an open stage
+for listening and remote devices. The settings preview places each switch above
+the listener's result. App screenshots overlap in a reserved stage; selection
+brings one forward with transforms without fading its content or moving the page.
+Keep headings, descriptions and navigation server-rendered. Reserve preview
 space while loading so scrolling remains stable. The hero typing effect also
 pauses when out of view. Keep the sun at its original position in the document,
 so it scrolls away with the hero. Its upper half and gradient stay still while
@@ -340,21 +354,22 @@ the six lower bands gently narrow and settle in sequence. The shared Tailwind
 animation runs on an eight-second loop with staggered phases; keep it still for
 reduced motion and pause it when the sun or browser tab is hidden.
 
-The generated playlist showcase types a prompt, shows the shared
-`GenerationSparkles` from the real room-generation screen, then adds three
-placeholder tracks to the queue. Completed playlists fade out before the next
-prompt begins. Selecting an idea transitions to the new prompt; song changes
+The Music generation showcase types a prompt and reveals three illustrative
+tracks in reserved queue rows. Watch retains the shared `GenerationSparkles`
+sequence. Completed examples reset before the next prompt begins.
+Selecting an idea transitions to the new prompt; song changes
 and playback-mode changes also use the shared `ContentTransition` component.
-reduced motion shows the completed example without typing or transitions.
+Reduced motion shows the completed example without typing or transitions.
 The homepage entry button opens and focuses the real generator without
 submitting a request. Keep the feature copy and guide links server-rendered.
 
-The homepage remote showcase puts the player's pairing details first, enters the
-matching code on the phone and transitions into connected controls. On phones,
+The Music remote showcase keeps the player visible while the phone pairs, then
+demonstrates pause, resume and skip on both screens. On phones,
 the compact player sits above the remote so both remain visible together. Use
 labelled, thumb-sized playback buttons and a larger seek target. Pairing runs
-automatically, holds the usable remote for twelve seconds, then crossfades back
-to pairing. Using a remote control extends that time before the loop restarts.
+automatically and the complete sequence repeats while visible. Using a remote
+control takes over the local example so an automatic command cannot immediately
+undo the visitor's action.
 Only announce pairing when the user requests it, rather than on every loop.
 Reduced motion leaves pairing manual. All IDs, codes and playback in this demo
 are local placeholders; never issue a real pairing request from the showcase.

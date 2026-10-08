@@ -1,13 +1,15 @@
 import { ArrowRightIcon } from '@vibes/ui/web';
 import { Link } from 'react-router';
-import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';
-import { GeneratedPlaylistDemo } from '../../../components/seo/GeneratedPlaylistDemo';
 import { ProductAccordion } from '../../../components/seo/ProductAccordion';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { ProductScreenshots } from '../../../components/seo/ProductScreenshots';
 import { appStoreUrl, playStoreUrl } from '../../../seo/metadata';
 import type { ProductPage } from '../../../seo/productPages';
+import { GeneratedPlaylistSection } from '../../_index/components/GeneratedPlaylistSection';
+import { RemotePreview } from '../../_index/components/RemotePreview';
+import { RoomControlPanel } from '../../_index/components/RoomControlPanel';
+import { VotingPreview } from '../../_index/components/VotingPreview';
 import { ChatGuide } from './ChatGuide';
 import { EmbedGuide } from './EmbedGuide';
 import { ListeningPreview } from './ListeningPreview';
@@ -24,141 +26,158 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
   return (
     <SitePage>
       <article>
-        <div className="flex min-h-[calc(100svh-8rem)] flex-col justify-center py-8 sm:py-12">
-          <SiteHero
-            id="guide-heading"
-            eyebrow={page.label.toUpperCase()}
-            title={page.heading}
-            description={page.introduction}
-            aside={
-              <>
-                {page.slug === 'listening' && <ListeningPreview />}
-                {page.slug === 'queue' && <GeneratedPlaylistDemo />}
-                {page.slug === 'rooms' && <RoomModePreview />}
-                {page.slug === 'apps' && <ProductScreenshots />}
-              </>
-            }
-          >
+        <header className="grid items-center gap-10 pt-12 pb-14 sm:pt-20 sm:pb-20 lg:grid-cols-5 lg:gap-14">
+          <div className="min-w-0 lg:col-span-2">
+            <p className="mb-5 font-pixel text-pink-800 text-xs tracking-label dark:text-primary">
+              {page.label.toUpperCase()}
+            </p>
+            <h1 className="font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              {page.heading}
+              <span className="mt-1 block text-pink-800 dark:text-primary">
+                {page.accent}
+              </span>
+            </h1>
+            <p className="mt-6 max-w-lg text-theme-muted leading-relaxed sm:text-lg">
+              {page.introduction}
+            </p>
             {page.slug !== 'apps' && (
               <Link
                 to="/rooms/create"
-                className="mt-7 flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-2xl bg-primary px-5 py-4 font-pixel text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                prefetch="intent"
+                className="mt-7 inline-flex min-h-13 items-center justify-between gap-8 rounded-2xl bg-primary px-5 py-3 text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
               >
                 {page.actionLabel}
-                <ArrowRightIcon className="h-4 w-4 shrink-0" />
-              </Link>
-            )}
-            {page.slug === 'apps' && (
-              <nav
-                aria-label="Download Zoff"
-                className="mt-6 grid gap-2 sm:grid-cols-2"
-              >
-                <a href={appStoreUrl} className={storeLinkClassName}>
-                  App Store <ArrowRightIcon className="h-4 w-4 shrink-0" />
-                </a>
-                <a href={playStoreUrl} className={storeLinkClassName}>
-                  Google Play <ArrowRightIcon className="h-4 w-4 shrink-0" />
-                </a>
-              </nav>
-            )}
-            {page.slug === 'apps' && (
-              <Link
-                to="/"
-                className="mt-3 flex min-h-12 items-center justify-between gap-3 rounded-xl border border-theme bg-theme-surface px-4 py-3 text-sm text-theme-muted transition-colors hover:bg-theme hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-              >
-                {page.actionLabel}
-                <ArrowRightIcon className="h-4 w-4 shrink-0" />
-              </Link>
-            )}
-            <p className="mt-3 text-theme-muted text-xs">
-              Free to use. No account needed.
-            </p>
-          </SiteHero>
-        </div>
-        {page.slug === 'queue' && (
-          <section
-            aria-labelledby="playlist-generation-heading"
-            className="panel-surface my-12 grid items-center gap-8 rounded-frame border border-theme p-6 sm:my-20 sm:p-10 lg:grid-cols-3 lg:gap-12 lg:p-12"
-          >
-            <div className="lg:col-span-2">
-              <p className="font-pixel text-2xs text-primary tracking-label">
-                AI PLAYLISTS
-              </p>
-              <h2
-                id="playlist-generation-heading"
-                className="mt-3 font-pixel text-2xl normal-case tracking-tight"
-              >
-                Give AI a starting point.
-              </h2>
-              <p className="mt-3 max-w-2xl text-theme-muted leading-relaxed">
-                Try “quiet jazz for a rainy evening” or “2000s indie for a road
-                trip”. A mood, a genre or a few artists give the generator more
-                to work with than “good music”. Check the songs it finds, then
-                keep, remove or add to them with your friends.
-              </p>
-            </div>
-            <div>
-              <Link
-                to="/?mode=ai"
-                className="flex min-h-14 w-full items-center justify-between gap-4 rounded-2xl bg-primary px-5 py-4 font-pixel text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-              >
-                Generate a playlist
                 <ArrowRightIcon
                   aria-hidden="true"
-                  className="h-4 w-4 shrink-0"
+                  className="size-4 shrink-0"
                 />
               </Link>
-            </div>
-          </section>
-        )}
-        <div className="grid gap-12 py-16 sm:grid-cols-2 sm:gap-16 sm:py-24">
+            )}
+            {page.slug === 'apps' && (
+              <>
+                <nav
+                  aria-label="Download Zoff"
+                  className="mt-7 grid max-w-sm grid-cols-2 gap-3"
+                >
+                  <a href={appStoreUrl} className={storeLinkClassName}>
+                    App Store
+                    <ArrowRightIcon
+                      aria-hidden="true"
+                      className="size-4 shrink-0"
+                    />
+                  </a>
+                  <a href={playStoreUrl} className={storeLinkClassName}>
+                    Google Play
+                    <ArrowRightIcon
+                      aria-hidden="true"
+                      className="size-4 shrink-0"
+                    />
+                  </a>
+                </nav>
+                <Link
+                  to="/"
+                  prefetch="intent"
+                  className="mt-4 inline-flex min-h-11 items-center gap-3 rounded-lg text-cyan-800 text-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:text-secondary"
+                >
+                  {page.actionLabel}
+                  <ArrowRightIcon aria-hidden="true" className="size-4" />
+                </Link>
+              </>
+            )}
+            <p className="mt-3 text-theme-muted text-xs">
+              Always free. No account needed.
+            </p>
+          </div>
+          <div className="min-w-0 lg:col-span-3">
+            {page.slug === 'listening' && <ListeningPreview />}
+            {page.slug === 'queue' && <VotingPreview />}
+            {page.slug === 'rooms' && <RoomControlPanel />}
+            {page.slug === 'apps' && <ProductScreenshots />}
+          </div>
+        </header>
+        <div className="grid gap-8 border-theme border-y py-10 sm:grid-cols-2 sm:gap-12 sm:py-12">
           {page.sections.slice(0, 2).map((section, index) => (
-            <section key={section.title} className="flex gap-4">
+            <section key={section.title}>
               <span
                 aria-hidden="true"
-                className="pt-1 font-pixel text-secondary text-sm"
+                className="font-pixel text-cyan-800 text-xs dark:text-secondary"
               >
                 0{index + 1}
               </span>
-              <div>
-                <h2 className="font-pixel text-2xl normal-case tracking-normal sm:text-3xl">
-                  {section.title}
-                </h2>
-                <p className="mt-5 max-w-lg text-theme-muted leading-relaxed sm:text-lg">
-                  {section.body}
-                </p>
-                {section.points && (
-                  <ul className="mt-5 max-w-lg list-disc space-y-3 pl-4 text-sm text-theme-muted leading-relaxed marker:text-secondary">
-                    {section.points.map((point) => (
-                      <li key={point}>{point}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+              <h2 className="mt-3 font-pixel text-2xl normal-case leading-tight sm:text-3xl">
+                {section.title}
+              </h2>
+              <p className="mt-4 max-w-lg text-theme-muted leading-relaxed">
+                {section.body}
+              </p>
             </section>
           ))}
         </div>
         {page.slug === 'listening' && <ChatGuide />}
-        {page.slug === 'rooms' && <EmbedGuide />}
+        {page.slug === 'queue' && <GeneratedPlaylistSection />}
+        {page.slug === 'rooms' && (
+          <>
+            <section
+              aria-labelledby="room-playback-heading"
+              className="grid items-center gap-10 py-16 sm:py-24 lg:grid-cols-5 lg:gap-14"
+            >
+              <div className="lg:col-span-2">
+                <p className="font-pixel text-cyan-800 text-xs tracking-label dark:text-secondary">
+                  WHO’S AT THE CONTROLS?
+                </p>
+                <h2
+                  id="room-playback-heading"
+                  className="mt-4 font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl"
+                >
+                  Let it play.
+                  <br />
+                  Or take the lead.
+                </h2>
+                <p className="mt-5 text-theme-muted leading-relaxed">
+                  Server Mode keeps the queue moving as people come and go. Host
+                  Mode follows one person’s player.
+                </p>
+              </div>
+              <div className="min-w-0 lg:col-span-3">
+                <RoomModePreview />
+              </div>
+            </section>
+            <EmbedGuide />
+          </>
+        )}
+        {page.slug === 'apps' && <RemotePreview showAppsLink={false} />}
         <section
-          aria-label="More about this setup"
-          className="product-accordion isolate my-8 overflow-hidden rounded-frame border border-theme bg-theme-surface shadow-sm sm:my-12"
+          aria-labelledby="guide-questions-heading"
+          className="grid gap-7 border-theme border-t py-14 sm:py-20 lg:grid-cols-5 lg:gap-14"
         >
-          {page.sections.slice(2).map((section) => (
-            <ProductAccordion key={section.title} {...section} />
-          ))}
+          <div className="lg:col-span-2">
+            <p className="font-pixel text-cyan-800 text-xs tracking-label dark:text-secondary">
+              THE LITTLE DETAILS
+            </p>
+            <h2
+              id="guide-questions-heading"
+              className="mt-4 font-pixel text-3xl normal-case tracking-tight"
+            >
+              Good to know.
+            </h2>
+          </div>
+          <div className="product-accordion min-w-0 overflow-hidden rounded-2xl border border-theme bg-theme-surface lg:col-span-3">
+            {page.sections.slice(2).map((section) => (
+              <ProductAccordion key={section.title} {...section} />
+            ))}
+          </div>
         </section>
       </article>
       <section
         id="explore-zoff"
         aria-labelledby="keep-exploring-heading"
-        className="relative isolate flex min-h-[60svh] scroll-mt-8 flex-col justify-center py-20 sm:py-28"
+        className="scroll-mt-8 border-theme border-t py-14 sm:py-20"
       >
         <h2
           id="keep-exploring-heading"
-          className="mb-8 font-pixel text-3xl normal-case tracking-tight sm:text-4xl"
+          className="mb-7 font-pixel text-3xl normal-case tracking-tight"
         >
-          Explore Zoff
+          Make yourself at home.
         </h2>
         <ProductLinks currentSlug={page.slug} />
       </section>
@@ -167,4 +186,4 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
 }
 
 const storeLinkClassName =
-  'flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-theme bg-theme-surface px-4 py-3 text-sm text-theme transition-colors hover:border-secondary/60 hover:bg-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';
+  'flex min-h-13 items-center justify-between gap-3 rounded-2xl border border-theme bg-theme-surface px-4 py-3 text-sm text-theme transition-colors hover:border-secondary hover:bg-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';

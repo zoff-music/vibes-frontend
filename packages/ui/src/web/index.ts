@@ -22,6 +22,7 @@ export * from './components/queue/QueueList';
 export * from './components/queue/SearchResult';
 export * from './components/SegmentedControl';
 export * from './components/SegmentedToggle';
+export * from './components/SiteBackground';
 export * from './components/SiteFooter';
 export * from './components/SiteHeader';
 export * from './components/SiteLayout';

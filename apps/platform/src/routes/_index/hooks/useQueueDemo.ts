@@ -3,33 +3,35 @@ import { useInView, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
-const durations = [1800, 550, 1800, 700, 2200, 650, 1200];
+const durations = [2200, 900, 2400, 1000, 2600, 3400, 1200];
+const captions = [
+  'Everyone brings a song. One queue keeps them together.',
+  'Alex adds One more night.',
+  'A new find. Everyone sees it arrive.',
+  'Mira votes for Streetlight swing.',
+  'That vote moves Streetlight swing to the top.',
+  'The next song starts for the whole room.',
+  'Your friends. Your next favourite song.',
+];
 
 export function useQueueDemo() {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { amount: 0.35 });
+  const inView = useInView(ref, { amount: 0.3 });
   const visible = usePageVisibility();
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState(0);
+  const [paused, setPaused] = useState(false);
   const [voted, setVoted] = useState<string[]>([]);
-  const [pending, setPending] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('');
-  const playing = inView && visible && !reduceMotion;
+  const playing = inView && visible && !reduceMotion && !paused;
 
   useEffect(() => {
-    if (!playing) {
-      return;
-    }
+    if (!playing) return;
 
     const timeout = window.setTimeout(() => {
-      if (phase === 4 && ref.current?.contains(document.activeElement)) {
-        ref.current.focus({ preventScroll: true });
-      }
-
-      if (phase === durations.length - 1) {
-        setVoted([]);
-        setPending(null);
-        setAnnouncement('');
+      if (ref.current?.querySelector('ol')?.contains(document.activeElement)) {
+        setPaused(true);
+        return;
       }
 
       setPhase((value) => (value + 1) % durations.length);
@@ -38,59 +40,60 @@ export function useQueueDemo() {
     return () => window.clearTimeout(timeout);
   }, [playing, phase]);
 
-  useEffect(() => {
-    if (!pending) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      setVoted((values) => [...values, pending]);
-      setPending(null);
-      setAnnouncement('Vote added. Queue updated.');
-    }, 500);
-
-    return () => window.clearTimeout(timeout);
-  }, [pending]);
-
+  const advanced = phase >= 5;
   const playlistItems = queueDemoPlaylistItems
-    .slice(0, phase >= 4 ? 4 : 3)
-    .map((playlistItem) => ({
-      ...playlistItem,
+    .slice(0, phase >= 2 ? 4 : 3)
+    .filter((item) => !advanced || item.id !== 'demo-2')
+    .map((item) => ({
+      ...item,
       voteCount:
-        Number(
-          (playlistItem.id === 'demo-2' && phase >= 2) ||
-            playlistItem.id === 'demo-4',
-        ) + Number(voted.includes(playlistItem.id)),
+        (item.id === 'demo-1' ? 2 : item.id === 'demo-3' ? 0 : 1) +
+        Number(item.id === 'demo-2' && phase >= 4) +
+        Number(voted.includes(item.id)),
     }))
     .sort(
       (a, b) =>
         b.voteCount - a.voteCount ||
-        Number(b.id === 'demo-4') - Number(a.id === 'demo-4'),
+        Date.parse(b.addedAt) - Date.parse(a.addedAt),
     );
 
   function vote(id: string) {
-    if (pending) {
-      return;
-    }
-
+    setPaused(true);
     if (voted.includes(id)) {
-      setAnnouncement('You have already voted for this song.');
+      setAnnouncement('Your vote is already counted.');
       return;
     }
 
-    setPending(id);
+    setVoted((values) => [...values, id]);
+    setAnnouncement('Your vote is in. The queue updates for everyone.');
   }
 
   return {
     ref,
     state: {
       playing,
+      paused,
       reduceMotion,
       phase,
       playlistItems,
+      currentItem: advanced
+        ? queueDemoPlaylistItems[1]
+        : {
+            ...queueDemoPlaylistItems[0],
+            id: 'demo-playing',
+            title: 'The warm-up',
+          },
       announcement,
-      votingPlaylistItemId: pending ?? (phase === 1 ? 'demo-2' : null),
+      caption: announcement || captions[phase],
+      votingPlaylistItemId: phase === 3 ? 'demo-2' : null,
+      step: phase <= 2 ? 0 : phase <= 4 ? 1 : 2,
     },
-    actions: { vote },
+    actions: {
+      vote,
+      toggle: () => {
+        setAnnouncement('');
+        setPaused((value) => !value);
+      },
+    },
   };
 }

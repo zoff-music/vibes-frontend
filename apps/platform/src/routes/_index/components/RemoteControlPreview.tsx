@@ -47,7 +47,7 @@ export function RemoteControlPreview({
         >
           {playing && <PauseIcon aria-hidden="true" className="h-5 w-5" />}
           {!playing && <PlayIcon aria-hidden="true" className="h-5 w-5" />}
-          <span>{playing ? 'Pause' : 'Play'}</span>
+          <span className="w-9 text-left">{playing ? 'Pause' : 'Play'}</span>
         </Button>
         <Button
           variant="tertiary"

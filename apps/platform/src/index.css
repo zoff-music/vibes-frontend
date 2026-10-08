@@ -201,6 +201,18 @@ html[data-konami-mode="terminal"] .product-content .bg-primary:hover {
   pointer-events: none;
 }
 
+.music-demo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 100% 0%,
+    color-mix(in srgb, var(--color-secondary) 7%, transparent),
+    transparent 60%
+  );
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-dice-roll,
   .animate-ai-sparkles path,

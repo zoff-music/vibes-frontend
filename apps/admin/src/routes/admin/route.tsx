@@ -63,7 +63,7 @@ export default function AdminLayout() {
 
   if (!session.authorized || !session.user) {
     return (
-      <main className="relative flex items-center justify-center overflow-hidden bg-theme px-6 py-12 text-theme">
+      <main className="relative flex items-center justify-center px-6 py-12 text-theme">
         <div className="relative z-10 w-full max-w-md">
           <div className="panel-strong rounded-3xl border border-theme-strong p-8">
             <div className="mb-6 text-center">

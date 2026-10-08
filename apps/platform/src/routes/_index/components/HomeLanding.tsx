@@ -1,4 +1,4 @@
-import { usePageVisibility } from '@vibes/shared';
+import { classNames, usePageVisibility } from '@vibes/shared';
 import { useInView } from 'framer-motion';
 import { type ReactNode, type RefObject, useRef } from 'react';
 import { useLocation } from 'react-router';
@@ -44,7 +44,10 @@ export function HomeLanding({
       <div
         ref={heroRef}
         data-experience={watch ? 'watch' : 'music'}
-        className="flex min-h-[calc(100svh-8rem)] flex-col gap-8 pt-24 pb-8 sm:gap-10 sm:pt-32 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-4xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl"
+        className={classNames(
+          'flex flex-col gap-8 pt-24 pb-8 sm:gap-10 sm:pt-32 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-4xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl',
+          watch && 'min-h-[calc(100svh-8rem)]',
+        )}
       >
         <div className="relative">
           <div
@@ -68,13 +71,22 @@ export function HomeLanding({
               title={
                 <>
                   {watch ? 'Watch' : 'Listen to music'}{' '}
-                  <span className="block text-primary">together.</span>
+                  <span
+                    className={classNames(
+                      'block',
+                      watch
+                        ? 'text-primary'
+                        : 'text-pink-800 dark:text-primary',
+                    )}
+                  >
+                    together.
+                  </span>
                 </>
               }
               description={
                 watch
                   ? 'A new kind of watch party. Bring your favourite videos and your favourite people.'
-                  : 'A free shared music queue for YouTube and SoundCloud. Add songs, vote and listen together.'
+                  : 'A free shared music queue. Bring your friends, add your favourites, and find something new together.'
               }
               eyebrow={
                 watch
@@ -82,7 +94,11 @@ export function HomeLanding({
                   : 'GOOD MUSIC. BETTER COMPANY.'
               }
               aside={
-                <div className="min-h-60 md:min-h-48">
+                <div
+                  className={classNames(
+                    watch ? 'min-h-60 md:min-h-48' : 'min-h-36 md:min-h-28',
+                  )}
+                >
                   {children}
                   <p className="mt-3 text-theme-muted text-xs md:text-center">
                     Always free. No account needed.

@@ -2,6 +2,7 @@ import { classNames } from '@vibes/shared';
 import { ChatMessageLine, QueueItem, SegmentedToggle } from '@vibes/ui/web';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import logo from '../../../assets/logo-header.webp';
+import { MusicDemo } from '../../../components/seo/MusicDemo';
 import {
   queueDemoPlaylistItems,
   watchDemoPlaylistItems,
@@ -15,6 +16,95 @@ interface ChatPreviewProps {
 export function ChatPreview({ watch = false }: ChatPreviewProps) {
   const { ref, state } = useChatPreview(watch);
   const playlistItems = watch ? watchDemoPlaylistItems : queueDemoPlaylistItems;
+
+  if (!watch) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <MusicDemo
+          elementRef={ref}
+          label="More than a playlist"
+          detail="electro · The conversation keeps the music company."
+          caption={
+            state.chatEnabled
+              ? 'Every pick has a person behind it.'
+              : 'Chat off on your device. The music carries on.'
+          }
+          paused={state.paused}
+          onToggle={state.toggle}
+          className="h-160"
+        >
+          <div className="flex h-28 items-center gap-4 border-theme border-b px-4 sm:px-6">
+            <img
+              src={logo}
+              width={40}
+              height={40}
+              alt=""
+              className={classNames(
+                'size-10 rounded-full',
+                state.branding && state.playing && 'motion-safe:animate-spin',
+              )}
+            />
+            <div className="min-w-0 flex-1">
+              <SegmentedToggle
+                label="Chat"
+                checked={state.chatEnabled}
+                onChange={state.setChatEnabled}
+                variant="plain-full"
+                size="comfortable"
+              />
+            </div>
+          </div>
+          <div
+            aria-hidden="true"
+            inert
+            className="relative h-96 overflow-hidden p-4 sm:p-6"
+          >
+            {state.chatEnabled && (
+              <div className="relative h-full">
+                <AnimatePresence initial={false}>
+                  {state.messages.map((message, index) => (
+                    <motion.div
+                      key={message.id}
+                      initial={{
+                        opacity: 0,
+                        y: -(state.messages.length - 1 - index) * 64 + 16,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: -(state.messages.length - 1 - index) * 64,
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: state.reducedMotion ? 0 : 0.5,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      className="absolute inset-x-0 bottom-0 flex h-16 items-end"
+                    >
+                      <ChatMessageLine message={message} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+            {!state.chatEnabled && (
+              <div className="space-y-3">
+                <p className="mb-5 text-theme-muted text-xs">UP NEXT</p>
+                {playlistItems.slice(0, 3).map((item, index) => (
+                  <QueueItem
+                    key={item.id}
+                    playlistItem={item}
+                    position={index + 1}
+                    providerLink={false}
+                    density="compact"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </MusicDemo>
+      </MotionConfig>
+    );
+  }
 
   return (
     <MotionConfig reducedMotion="user">

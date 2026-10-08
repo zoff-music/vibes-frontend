@@ -41,10 +41,10 @@ export function useRoomSetupScene({
     let previous = performance.now();
     const timer = window.setInterval(() => {
       const now = performance.now();
-      const delta = Math.min(now - previous, 100);
+      const delta = Math.min(now - previous, 250);
       previous = now;
       setElapsed((current) => Math.min(current + delta, SETTLE_TIME_MS));
-    }, 50);
+    }, 250);
 
     return () => window.clearInterval(timer);
   }, [running]);
@@ -59,7 +59,8 @@ export function useRoomSetupScene({
     caption = settings.skipAllowed
       ? 'Try skipping as a listener.'
       : 'Skipping is locked to admins.';
-    if (changedPlaylistItem) caption = 'Skipped to Song title 02.';
+    if (changedPlaylistItem)
+      caption = 'Streetlight swing is playing for everyone.';
   }
 
   if (setupId === 'repeating') {

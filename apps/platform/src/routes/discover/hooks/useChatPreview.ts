@@ -113,9 +113,14 @@ export function useChatPreview(watch = false) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { amount: 0.3 });
   const visible = usePageVisibility();
-  const reducedMotion = useReducedMotion();
-  const [phase, setPhase] = useState(0);
-  const playing = inView && visible && !reducedMotion;
+  const motionPreference = useReducedMotion();
+  const [hydrated, setHydrated] = useState(false);
+  const reducedMotion = hydrated && motionPreference === true;
+  const [phase, setPhase] = useState(watch ? 0 : 2);
+  const [paused, setPaused] = useState(false);
+  const playing = inView && visible && !reducedMotion && !paused;
+
+  useEffect(() => setHydrated(true), []);
 
   useEffect(() => {
     if (!playing) return;
@@ -132,15 +137,20 @@ export function useChatPreview(watch = false) {
     ref,
     state: {
       playing,
+      paused: paused || reducedMotion === true,
+      toggle: () => setPaused((current) => !current),
       reducedMotion,
       branding: !reducedMotion && phase > messages.length,
       chatEnabled: phase < messages.length,
-      setChatEnabled: (enabled: boolean) =>
-        setPhase(enabled ? 0 : messages.length),
+      setChatEnabled: (enabled: boolean) => {
+        if (!watch) setPaused(true);
+        setPhase(enabled ? 0 : messages.length);
+      },
       phase,
-      messages: reducedMotion
-        ? conversation.slice(-5)
-        : conversation.slice(Math.max(0, count - 5), count),
+      messages:
+        reducedMotion && watch
+          ? conversation.slice(-5)
+          : conversation.slice(Math.max(0, count - 5), count),
     },
   };
 }

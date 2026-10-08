@@ -1,3 +1,4 @@
+import { SiteBackground } from '@vibes/ui/web';
 import { type ReactNode, useState } from 'react';
 import type { LinksFunction, LoaderFunctionArgs } from 'react-router';
 import {
@@ -96,6 +97,9 @@ export default function Root() {
 export function ErrorBoundary() {
   useRouteError();
   return (
-    <AdminErrorView message="The admin dashboard could not be loaded. Reload the page or return to sign in." />
+    <>
+      <SiteBackground variant="landing" showGrid />
+      <AdminErrorView message="The admin dashboard could not be loaded. Reload the page or return to sign in." />
+    </>
   );
 }

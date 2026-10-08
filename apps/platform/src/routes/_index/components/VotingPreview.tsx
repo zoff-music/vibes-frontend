@@ -1,130 +1,100 @@
-import { QueueItem } from '@vibes/ui/web';
+import { classNames } from '@vibes/shared';
+import {
+  ContentTransition,
+  NowPlayingPlaylistItem,
+  QueueItem,
+} from '@vibes/ui/web';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
-import logo from '../../../assets/logo-header.webp';
+import { MusicDemo } from '../../../components/seo/MusicDemo';
 import { useQueueDemo } from '../hooks/useQueueDemo';
+
+// Keep the 72px rows and 8px gaps in reserved slots while the queue reorders.
+const rowStride = 80;
 
 export function VotingPreview() {
   const { ref, state, actions } = useQueueDemo();
-  const branding = state.phase >= 5;
-  let caption = 'Vote for a song to move it up the queue.';
-  if (state.phase === 1) caption = 'Mira votes for Streetlight swing…';
-  if (state.phase === 2) caption = 'Vote added. Queue updated.';
-  if (state.phase === 3) caption = 'Alex adds One more night…';
-  if (state.phase === 4) caption = 'A new find. Straight into the queue.';
-  if (branding) caption = '';
 
   return (
     <MotionConfig reducedMotion="user">
-      <figure
-        ref={ref}
-        tabIndex={-1}
-        aria-label="Interactive preview of the electro queue"
-        data-playing={state.playing}
-        data-phase={state.phase}
-        className="min-h-140 w-full min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:min-h-148"
+      <MusicDemo
+        elementRef={ref}
+        label="The shared queue"
+        detail="electro · 3 friends listening"
+        caption={state.caption}
+        paused={state.paused || state.reduceMotion === true}
+        onToggle={actions.toggle}
+        className="h-170"
       >
-        <div className="mb-5 flex items-center justify-between gap-3 px-1">
-          <span className="font-pixel text-theme-muted text-xs tracking-widest">
-            ELECTRO
-          </span>
-          <span className="text-theme-muted text-xs">
-            Every vote moves the night.
-          </span>
+        <div className="px-3 pt-5 sm:px-5">
+          <div className="h-28 border-theme border-b pb-5">
+            <ContentTransition transitionKey={state.currentItem.id}>
+              <NowPlayingPlaylistItem
+                playlistItem={state.currentItem}
+                isPlaying
+                providerLink={false}
+                animate={false}
+                density="compact"
+              />
+            </ContentTransition>
+          </div>
+          <div className="flex h-10 items-center justify-between text-theme-muted text-xs">
+            <span>UP NEXT</span>
+            <span>Try a vote ↓</span>
+          </div>
+          <ol aria-label="Preview queue" className="relative h-80">
+            <AnimatePresence initial={false}>
+              {state.playlistItems.map((item, index) => (
+                <motion.li
+                  key={item.id}
+                  initial={{
+                    opacity: 0,
+                    y: index * rowStride + (state.reduceMotion ? 0 : 18),
+                  }}
+                  animate={{ opacity: 1, y: index * rowStride }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: state.reduceMotion ? 0 : 0.65,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="absolute inset-x-0 top-0 h-18 [&_article]:h-18"
+                >
+                  <QueueItem
+                    playlistItem={item}
+                    providerLink={false}
+                    position={index + 1}
+                    onVote={actions.vote}
+                    density="compact"
+                    isVoting={state.votingPlaylistItemId === item.id}
+                  />
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </ol>
         </div>
-        <div className="relative grid h-108 place-items-center sm:h-116">
-          <motion.div
-            initial={false}
-            animate={{
-              scale: branding ? 0.6 : 1,
-              opacity: branding ? 0 : 1,
-              borderRadius: branding ? 88 : 24,
-            }}
-            transition={{
-              duration: state.reduceMotion ? 0 : 0.65,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            aria-hidden={branding}
-            inert={branding}
-            className="relative col-start-1 row-start-1 h-full w-full overflow-hidden border border-theme bg-theme-surface p-3 sm:p-6"
-          >
-            <motion.div
-              animate={{ opacity: branding ? 0 : 1 }}
-              transition={{ duration: 0.15, delay: branding ? 0 : 0.4 }}
-            >
-              <h3 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
-                Up Next ({state.playlistItems.length})
-              </h3>
-              <ol aria-label="Preview queue" className="space-y-2">
-                <AnimatePresence initial={false} mode="popLayout">
-                  {state.playlistItems.map((playlistItem, index) => (
-                    <motion.li
-                      key={playlistItem.id}
-                      layout="position"
-                      initial={{ opacity: 0, y: 20, scale: 0.96 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{
-                        type: 'spring',
-                        stiffness: 240,
-                        damping: 28,
-                        opacity: { duration: 0.25 },
-                      }}
-                      className="relative"
-                    >
-                      <QueueItem
-                        playlistItem={playlistItem}
-                        providerLink={false}
-                        position={index + 1}
-                        onVote={actions.vote}
-                        isVoting={
-                          state.votingPlaylistItemId === playlistItem.id
-                        }
-                      />
-                    </motion.li>
-                  ))}
-                </AnimatePresence>
-              </ol>
-            </motion.div>
-          </motion.div>
-          <motion.div
-            aria-hidden="true"
-            initial={false}
-            animate={{
-              opacity: branding ? 1 : 0,
-              scale: branding ? 1 : 0.5,
-              rotate: branding && !state.reduceMotion ? 360 : 0,
-            }}
-            transition={{
-              duration: state.reduceMotion ? 0 : 0.65,
-              delay: branding ? 0.2 : 0,
-            }}
-            className="pointer-events-none z-10 col-start-1 row-start-1 flex items-center justify-center"
-          >
-            <img
-              src={logo}
-              width={256}
-              height={256}
-              alt=""
-              className="h-36 w-36 rounded-full"
-            />
-          </motion.div>
+        <div
+          aria-hidden="true"
+          className="grid grid-cols-3 gap-2 px-5 pb-3 text-xs"
+        >
+          {['Add a song', 'Vote it up', 'Listen together'].map(
+            (step, index) => (
+              <span
+                key={step}
+                className={classNames(
+                  'h-10 border-t-2 pt-2 transition-colors duration-500',
+                  state.step === index
+                    ? 'border-secondary text-theme'
+                    : 'border-theme text-theme-muted',
+                )}
+              >
+                {step}
+              </span>
+            ),
+          )}
         </div>
-        <figcaption className="mt-4 min-h-12 text-center text-sm text-theme-muted">
-          <motion.span
-            key={state.announcement || caption}
-            aria-hidden="true"
-            initial={{ opacity: state.reduceMotion ? 1 : 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: state.reduceMotion ? 0 : 0.2 }}
-            className="block"
-          >
-            {state.announcement || caption}
-          </motion.span>
-        </figcaption>
-        <p role="status" className="sr-only">
-          {state.announcement}
-        </p>
-      </figure>
+      </MusicDemo>
+      <p role="status" className="sr-only">
+        {state.announcement}
+      </p>
     </MotionConfig>
   );
 }

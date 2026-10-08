@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import {
   ContentTransition,
   GenerationSparkles,
@@ -35,6 +36,70 @@ export function GeneratedPlaylistScene({
     : prompt.includes('films')
       ? ['The last light', 'A different ending', 'Five minutes from home']
       : ['Beyond the city lights', 'Midnight in motion', 'Nowhere to rush'];
+
+  if (!watch) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <div className="pt-5" data-phase={state.phase}>
+          <div className="flex min-h-20 items-center gap-3 rounded-2xl border border-theme bg-theme-surface px-4">
+            <SparklesIcon
+              aria-hidden="true"
+              className="size-5 shrink-0 text-primary"
+            />
+            <p className="h-12 min-w-0 flex-1 text-theme leading-6">
+              <span className="sr-only">{prompt}</span>
+              <span aria-hidden="true">
+                {state.prompt || 'A mood, a genre, an idea…'}
+              </span>
+            </p>
+          </div>
+          <div className="flex h-16 items-center justify-between gap-3 text-theme-muted text-xs">
+            <span>YOUR STARTING QUEUE</span>
+            <span className="w-26 shrink-0">
+              {typing
+                ? 'Describe the mood'
+                : searching
+                  ? 'Finding songs…'
+                  : 'Make it yours'}
+            </span>
+          </div>
+          <ol
+            aria-label="Illustrative generated playlist"
+            className="min-h-64 space-y-2"
+          >
+            {queueDemoPlaylistItems.slice(0, 3).map((item, index) => (
+              <motion.li
+                key={item.id}
+                initial={false}
+                animate={{
+                  opacity: showPlaylist && index < state.count ? 1 : 0.25,
+                  y: showPlaylist && index < state.count ? 0 : 6,
+                }}
+                transition={{
+                  duration: state.reducedMotion ? 0 : 0.5,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className={classNames(
+                  'pointer-events-none',
+                  !showPlaylist && 'select-none',
+                )}
+              >
+                <QueueItem
+                  playlistItem={{ ...item, title: titles[index] }}
+                  position={index + 1}
+                  providerLink={false}
+                  density="compact"
+                />
+              </motion.li>
+            ))}
+          </ol>
+          <p className="text-theme-muted text-xs">
+            Illustrative songs, not actual AI results.
+          </p>
+        </div>
+      </MotionConfig>
+    );
+  }
 
   return (
     <MotionConfig reducedMotion="user">
