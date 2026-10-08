@@ -21,7 +21,7 @@
     "@opentelemetry/sdk-trace-base": "2.11.0",
     "@prometheus-io/client": "0.16.1",
     "@vibes/shared": "workspace:*",
-    "compression": "1.8.1",
+    "compression": "1.8.2",
     "express": "5.2.1",
     "negotiator": "^1.0.0"
   },
