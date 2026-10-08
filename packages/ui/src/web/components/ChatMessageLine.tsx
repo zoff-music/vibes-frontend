@@ -6,6 +6,7 @@ import {
   formatChatTime,
 } from '../../shared/chat';
 import { CrownIcon, RemoteIcon } from '../icons';
+import { Tooltip } from './Tooltip';
 
 const nameColors = [
   'text-sky-300 [.theme-light_&]:text-sky-700',
@@ -22,6 +23,7 @@ interface ChatMessageLineProps {
 export function ChatMessageLine({ message }: ChatMessageLineProps) {
   const activity = message.kind !== 'chat' || message.activity === true;
   const separator = activity ? ' ' : ': ';
+  const crownLabel = message.isModerator ? 'Moderator' : 'Room admin';
 
   return (
     <p className="wrap-anywhere py-1 text-base text-theme leading-6">
@@ -31,14 +33,24 @@ export function ChatMessageLine({ message }: ChatMessageLineProps) {
       >
         {formatChatTime(message.createdAt)}
       </time>
-      {message.isAdmin && (
-        <span
-          title="Room admin"
-          className="mr-1 inline-block align-middle text-primary"
+      {(message.isAdmin || message.isModerator) && (
+        <Tooltip
+          content={crownLabel}
+          className={classNames(
+            'mr-1 inline-block align-middle',
+            message.isModerator
+              ? 'text-amber-300 [.theme-light_&]:text-amber-700'
+              : 'text-primary',
+          )}
         >
-          <span className="sr-only">Room admin </span>
-          <CrownIcon aria-hidden="true" className="h-4 w-4" />
-        </span>
+          <button
+            type="button"
+            aria-label={crownLabel}
+            className="block rounded-sm focus-visible:outline-2 focus-visible:outline-current"
+          >
+            <CrownIcon aria-hidden="true" className="h-4 w-4" />
+          </button>
+        </Tooltip>
       )}
       {message.isHost && (
         <span
