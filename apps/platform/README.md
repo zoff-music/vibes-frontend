@@ -160,6 +160,12 @@ canonical URLs,
 structured data and the sitemap use only the new paths. Unknown guide names
 return 404.
 
+Watch guides use `/discovery/watching`, `/discovery/cinema` and
+`/discovery/videos`. Their previous hyphenated URLs permanently redirect
+to these paths, preserving query parameters. Navigation, canonical URLs,
+structured data and the sitemap use the unhyphenated paths. Policy URLs are
+unchanged.
+
 Product copy lives in `src/seo/productPages.ts`; adding a page there also adds
 its sitemap entry. Keep the lightweight navigation list in
 `src/seo/productNavigation.ts` in sync. Keep descriptions factual and public.
@@ -342,6 +348,13 @@ the guided tour; resuming is explicit. Keep the actual player controls that demo
 playback. Automatic motion pauses offscreen and in hidden tabs and respects
 reduced motion. Lower-page demos mount through `DeferredContent` near the
 viewport. Above-the-fold demos and app screenshots render with the guide.
+Deferred previews keep a small Zoff mark in their reserved space while the
+module loads. The mark fades out as the ready card fades upward into place,
+using only opacity and transforms. Wait for any newly used font weight to settle
+before revealing the card, so a late font cannot move its text. Start loading
+shortly before the viewport, never delay ready content just to show the loading
+state, and reveal each card
+only once. Reduced motion shows it immediately without the entrance animation.
 Use framed room interfaces for the queue, settings and chat, and an open stage
 for listening and remote devices. The settings preview places each switch above
 the listener's result. App screenshots overlap in a reserved stage; selection

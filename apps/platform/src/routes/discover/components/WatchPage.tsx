@@ -25,9 +25,9 @@ export function WatchPage({ page }: WatchPageProps) {
             description={page.introduction}
             aside={
               <>
-                {page.slug === 'watch-together' && <WatchScene compact />}
-                {page.slug === 'watch-party' && <ChatPreview watch />}
-                {page.slug === 'watch-queue' && <GeneratedPlaylistDemo watch />}
+                {page.slug === 'watching' && <WatchScene compact />}
+                {page.slug === 'cinema' && <ChatPreview watch />}
+                {page.slug === 'videos' && <GeneratedPlaylistDemo watch />}
               </>
             }
           >
@@ -59,7 +59,7 @@ export function WatchPage({ page }: WatchPageProps) {
             </section>
           ))}
         </div>
-        {page.slug === 'watch-together' && (
+        {page.slug === 'watching' && (
           <div className="mx-auto max-w-xl py-8">
             <ChatPreview watch />
           </div>

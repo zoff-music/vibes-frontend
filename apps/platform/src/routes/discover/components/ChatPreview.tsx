@@ -170,24 +170,31 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
                     transition={{ duration: state.reducedMotion ? 0 : 0.2 }}
                     className="flex min-h-0 flex-1 flex-col justify-end overflow-hidden px-4 pt-3 pb-5 [mask-image:linear-gradient(to_bottom,transparent,black_1rem)] sm:px-5"
                   >
-                    <AnimatePresence initial={false} mode="popLayout">
-                      {state.messages.map((message) => (
-                        <motion.div
-                          key={message.id}
-                          layout="position"
-                          initial={{ opacity: 0, y: 18 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -12 }}
-                          transition={{
-                            duration: state.reducedMotion ? 0 : 0.35,
-                            ease: [0.22, 1, 0.36, 1],
-                          }}
-                          className="shrink-0"
-                        >
-                          <ChatMessageLine message={message} />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
+                    <div className="relative h-full">
+                      <AnimatePresence initial={false}>
+                        {state.messages.map((message, index) => (
+                          <motion.div
+                            key={message.id}
+                            initial={{
+                              opacity: 0,
+                              y: -(state.messages.length - 1 - index) * 80 + 16,
+                            }}
+                            animate={{
+                              opacity: 1,
+                              y: -(state.messages.length - 1 - index) * 80,
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: state.reducedMotion ? 0 : 0.35,
+                              ease: [0.22, 1, 0.36, 1],
+                            }}
+                            className="absolute inset-x-0 bottom-0 flex h-20 items-end"
+                          >
+                            <ChatMessageLine message={message} />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
                   </motion.div>
                 )}
                 {!state.chatEnabled && (

@@ -41,7 +41,7 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
         className="relative min-w-0"
         aria-label="Illustrated Watch preview, not a live room"
       >
-        <div className="mb-4 flex items-center justify-between gap-3 text-theme-muted text-xs">
+        <div className="mb-4 flex h-8 items-center justify-between gap-3 text-theme-muted text-xs">
           <span className="font-pixel tracking-widest">THE SAME MOMENT.</span>
           <span className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
@@ -175,7 +175,7 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
               />
             </motion.div>
           </div>
-          <div className="px-3 pt-3 pb-1 sm:px-4">
+          <div className="h-20 px-3 pt-3 pb-1 sm:px-4">
             <PlaybackProgress
               smooth={state.playing && !restarting}
               durationMs={12000}
@@ -221,7 +221,7 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
               />
             </svg>
             <fieldset
-              className="grid grid-cols-3 gap-2"
+              className="grid h-14 grid-cols-3 gap-2"
               aria-label="Preview viewers"
             >
               {['You', 'Mira', 'Alex'].map((name, index) => (
@@ -245,7 +245,7 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
           </>
         )}
         <fieldset
-          className="mt-5 flex flex-wrap gap-2"
+          className="mt-5 grid h-12 grid-cols-3 gap-2"
           aria-label="Choose an example film"
         >
           {scenes.map((item, index) => (
@@ -255,7 +255,7 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
               variant="tertiary"
               aria-pressed={index === scene}
               className={classNames(
-                'min-h-11 text-xs',
+                'h-12 min-w-0 px-2 py-1 text-xs',
                 scene === index && 'border-secondary',
               )}
               onClick={() => {

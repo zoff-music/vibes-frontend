@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router';
+import { watchNavigation } from '../seo/productNavigation';
 
 export function useExperience() {
   const { pathname, search } = useLocation();
@@ -10,7 +11,7 @@ export function useExperience() {
 
   const watch =
     path === '/features/watch' ||
-    path.startsWith('/discovery/watch') ||
+    watchNavigation.some((page) => path === `/discovery/${page.slug}`) ||
     new URLSearchParams(search).get('type') === 'watch';
 
   return watch ? 'WATCH' : 'MUSIC';
