@@ -1,7 +1,7 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
 import { useInView } from 'framer-motion';
 import { type ReactNode, type RefObject, useRef } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigationType } from 'react-router';
 import { RetroSun } from '../../../components/layout/RetroSun';
 import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';
@@ -32,8 +32,10 @@ export function HomeLanding({
   const pageVisible = usePageVisibility();
   const watch = useExperience() === 'WATCH';
   const location = useLocation();
+  const navigationType = useNavigationType();
   const navigationState: unknown = location.state;
   const animateExperience =
+    navigationType !== 'POP' &&
     typeof navigationState === 'object' &&
     navigationState !== null &&
     'experienceTransition' in navigationState &&
@@ -44,10 +46,7 @@ export function HomeLanding({
       <div
         ref={heroRef}
         data-experience={watch ? 'watch' : 'music'}
-        className={classNames(
-          'flex flex-col gap-8 pt-24 pb-8 sm:gap-10 sm:pt-32 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-4xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl',
-          watch && 'min-h-[calc(100svh-8rem)]',
-        )}
+        className="flex flex-col gap-8 pt-24 pb-8 sm:gap-10 sm:pt-32 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-4xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl"
       >
         <div className="relative">
           <div
@@ -70,7 +69,19 @@ export function HomeLanding({
               layout="centered"
               title={
                 <>
-                  {watch ? 'Watch' : 'Listen to music'}{' '}
+                  <span className="grid">
+                    {watch && (
+                      <span
+                        aria-hidden="true"
+                        className="invisible col-start-1 row-start-1"
+                      >
+                        Listen to music
+                      </span>
+                    )}
+                    <span className="col-start-1 row-start-1 self-end">
+                      {watch ? 'Watch' : 'Listen to music'}
+                    </span>
+                  </span>{' '}
                   <span
                     className={classNames(
                       'block',
@@ -84,21 +95,31 @@ export function HomeLanding({
                 </>
               }
               description={
-                watch
-                  ? 'A new kind of watch party. Bring your favourite videos and your favourite people.'
-                  : 'A free shared music queue. Bring your friends, add your favourites, and find something new together.'
+                <span className="grid">
+                  {watch && (
+                    <span
+                      aria-hidden="true"
+                      className="invisible col-start-1 row-start-1"
+                    >
+                      {musicDescription}
+                    </span>
+                  )}
+                  <span className="col-start-1 row-start-1">
+                    {watch
+                      ? 'A new kind of watch party. Bring your favourite videos and your favourite people.'
+                      : musicDescription}
+                  </span>
+                </span>
               }
               eyebrow={
-                watch
-                  ? 'GOOD VIDEOS. BETTER COMPANY.'
-                  : 'GOOD MUSIC. BETTER COMPANY.'
+                <span className="tracking-widest sm:tracking-label">
+                  {watch
+                    ? 'GOOD VIDEOS. BETTER COMPANY.'
+                    : 'GOOD MUSIC. BETTER COMPANY.'}
+                </span>
               }
               aside={
-                <div
-                  className={classNames(
-                    watch ? 'min-h-60 md:min-h-48' : 'min-h-36 md:min-h-28',
-                  )}
-                >
+                <div className="min-h-36 md:min-h-28">
                   {children}
                   <p className="mt-3 text-theme-muted text-xs md:text-center">
                     Always free. No account needed.
@@ -106,12 +127,12 @@ export function HomeLanding({
                 </div>
               }
               footer={
-                <>
+                <div className="flex w-full min-w-0 flex-col items-center gap-2 md:flex-row md:justify-center md:gap-6">
                   <ProviderAttribution
                     providers={watch ? ['youtube'] : (data.providers ?? [])}
                   />
                   <LegalAcknowledgement />
-                </>
+                </div>
               }
             />
           </div>
@@ -131,3 +152,6 @@ export function HomeLanding({
     </SitePage>
   );
 }
+
+const musicDescription =
+  'A free shared music queue. Bring your friends, add your favourites, and find something new together.';
