@@ -8,43 +8,49 @@ const LazyRemotePlayerDemo = lazy(() =>
   })),
 );
 
-export function RemotePreview() {
+interface RemotePreviewProps {
+  showAppsLink?: boolean;
+}
+
+export function RemotePreview({ showAppsLink = true }: RemotePreviewProps) {
   return (
     <section
       aria-labelledby="remote-heading"
-      className="grid items-center gap-8 py-16 sm:py-28 lg:grid-cols-5 lg:gap-16"
+      className="grid items-center gap-10 border-theme border-t py-16 sm:py-24 lg:grid-cols-5 lg:gap-14"
     >
-      <div className="lg:order-2 lg:col-span-2">
+      <div className="lg:col-span-2">
         <p className="font-pixel text-cyan-800 text-xs tracking-label dark:text-secondary">
-          REMOTE CONTROL
+          PICK YOUR PLAYER
         </p>
         <h2
           id="remote-heading"
           className="mt-4 font-pixel text-3xl normal-case leading-tight tracking-tight sm:text-5xl"
         >
-          Your phone is the remote.
+          Big sound.
+          <br />
+          Small remote.
         </h2>
         <p className="mt-5 text-theme-muted leading-relaxed">
-          Scan the player’s QR code, or enter its ID and pairing code. Control
-          playback from your phone while the music stays on the other device.
+          Let the TV or computer play. Pair your phone to pause, skip or seek
+          without leaving the sofa.
         </p>
         <p className="mt-4 text-sm text-theme-muted">
-          Watch it pair, then try pausing, skipping or seeking.
+          One audio source in the room. No second song on your phone.
         </p>
-        <Link
-          to="/discovery/apps"
-          className="mt-6 inline-flex min-h-11 items-center gap-3 rounded-xl border border-theme bg-theme-surface px-5 py-3 text-sm text-theme hover:border-secondary/60 hover:bg-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-        >
-          Apps and remotes <ArrowRightIcon className="h-4 w-4" />
-        </Link>
+        {showAppsLink && (
+          <Link
+            to="/discovery/apps"
+            prefetch="intent"
+            className="mt-6 inline-flex min-h-11 items-center gap-3 rounded-xl border border-theme bg-theme-surface px-5 py-3 text-sm text-theme hover:border-secondary/60 hover:bg-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+          >
+            Apps and remotes <ArrowRightIcon className="h-4 w-4" />
+          </Link>
+        )}
       </div>
-      <div className="min-w-0 lg:order-1 lg:col-span-3">
+      <div className="min-w-0 lg:col-span-3">
         <DeferredContent
           fallback={
-            <div
-              aria-hidden="true"
-              className="h-144 rounded-2xl border border-theme bg-theme-surface sm:h-92 lg:h-144 xl:h-92"
-            />
+            <div aria-hidden="true" className="h-186 rounded-3xl sm:h-170" />
           }
         >
           <LazyRemotePlayerDemo />

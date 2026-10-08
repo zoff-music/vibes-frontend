@@ -28,6 +28,7 @@ export function ProductLinks({
         <Link
           key={page.slug}
           to={`/discovery/${page.slug}`}
+          prefetch="intent"
           {...(currentSlug === page.slug && { 'aria-current': 'page' })}
           className={classNames(
             'group flex min-h-20 cursor-pointer items-center justify-between gap-4 rounded-2xl border bg-theme-surface p-4 text-theme transition-colors hover:border-secondary/60 hover:bg-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary',

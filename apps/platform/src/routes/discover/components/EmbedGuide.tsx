@@ -5,9 +5,9 @@ export function EmbedGuide() {
     <section
       id="embeds"
       aria-labelledby="embed-guide-heading"
-      className="my-12 scroll-mt-8 py-12 sm:my-20 sm:py-16"
+      className="scroll-mt-8 border-theme border-t py-16 sm:py-24"
     >
-      <p className="font-pixel text-secondary text-xs tracking-label">
+      <p className="font-pixel text-cyan-800 text-xs tracking-label dark:text-secondary">
         EMBED SETUP
       </p>
       <h2

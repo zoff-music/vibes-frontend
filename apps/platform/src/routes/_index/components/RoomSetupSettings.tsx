@@ -29,7 +29,6 @@ export function RoomSetupSettings({
       {setupId === 'skipping' && (
         <SegmentedToggle
           label="Admins Only Skip"
-          description="Vote-to-skip is off."
           variant="plain-full"
           size="comfortable"
           checked={!settings.skipAllowed}

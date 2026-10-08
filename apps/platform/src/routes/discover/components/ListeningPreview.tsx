@@ -1,13 +1,22 @@
-import { Showcase } from '../../../components/seo/Showcase';
+import { MusicDemo } from '../../../components/seo/MusicDemo';
+import { useShowcaseMotion } from '../../../components/seo/useShowcaseMotion';
 import { ListeningScene } from './showcase/ListeningScene';
 
 export function ListeningPreview() {
+  const { ref, state, actions } = useShowcaseMotion();
+
   return (
-    <Showcase
-      label="LISTENING TOGETHER"
-      description="Two devices follow the same song and playback position in the electro room."
+    <MusicDemo
+      elementRef={ref}
+      label="Different places. Same song."
+      detail="One room link brings you together."
+      caption="Join the room and pick up at the same point in the song."
+      paused={state.paused}
+      onToggle={actions.toggle}
+      presentation="stage"
+      className="h-152 sm:h-160"
     >
-      {(playing) => <ListeningScene playing={playing} />}
-    </Showcase>
+      <ListeningScene playing={state.playing} />
+    </MusicDemo>
   );
 }

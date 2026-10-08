@@ -8,7 +8,7 @@ import {
 } from './roomSetups';
 
 export function useRoomSetup() {
-  const ref = useRef<HTMLFieldSetElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { amount: 0.35 });
   const visible = usePageVisibility();
   const reducedMotion = useReducedMotion();
@@ -16,10 +16,11 @@ export function useRoomSetup() {
   const [setupId, setSetupId] = useState<RoomSetupId>('adding');
   const [revision, setRevision] = useState(0);
   const [announcement, setAnnouncement] = useState('');
+  const [paused, setPaused] = useState(false);
   const cycleElapsed = useRef(0);
   const showingAlternate = useRef(false);
   const active = inView && visible;
-  const cycling = active && !reducedMotion;
+  const cycling = active && !reducedMotion && !paused;
 
   const retainSceneFocus = useCallback(() => {
     if (ref.current?.contains(document.activeElement)) {
@@ -38,7 +39,15 @@ export function useRoomSetup() {
       if (cycleElapsed.current < 6000) return;
 
       cycleElapsed.current = 0;
-      retainSceneFocus();
+      if (
+        ref.current
+          ?.querySelector('[data-demo-content]')
+          ?.contains(document.activeElement)
+      ) {
+        setPaused(true);
+        return;
+      }
+
       if (!showingAlternate.current) {
         showingAlternate.current = true;
         setSettings((current) => ({
@@ -61,11 +70,13 @@ export function useRoomSetup() {
     }, 200);
 
     return () => window.clearInterval(timer);
-  }, [cycling, setupId, retainSceneFocus]);
+  }, [cycling, setupId]);
 
   function selectSetup(id: RoomSetupId) {
     const setup = roomSetups.find((item) => item.id === id);
     if (!setup) return;
+
+    setPaused(true);
 
     setSettings(setup.settings);
     setSetupId(id);
@@ -78,6 +89,7 @@ export function useRoomSetup() {
   }
 
   function updateSetting(key: keyof RoomSetupSettings, checked: boolean) {
+    setPaused(true);
     setSettings((current) => ({ ...current, [key]: checked }));
     cycleElapsed.current = 0;
     showingAlternate.current = key === 'skipAllowed' ? !checked : checked;
@@ -86,6 +98,7 @@ export function useRoomSetup() {
   }
 
   function completeAction() {
+    setPaused(true);
     cycleElapsed.current = 0;
     retainSceneFocus();
   }
@@ -98,12 +111,15 @@ export function useRoomSetup() {
       revision,
       announcement,
       active,
+      paused,
+      cycling,
       reducedMotion: reducedMotion === true,
     },
     actions: {
       selectSetup,
       updateSetting,
       completeAction,
+      toggle: () => setPaused((value) => !value),
     },
   };
 }

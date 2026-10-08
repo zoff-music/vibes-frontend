@@ -11,7 +11,7 @@ export function AdminErrorView({
   title = 'Admin unavailable',
 }: AdminErrorViewProps) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-theme px-6 py-12 text-theme">
+    <main className="relative flex min-h-screen items-center justify-center px-6 py-12 text-theme">
       <section className="panel-strong relative z-10 w-full max-w-md rounded-3xl border border-theme-strong p-8 text-center">
         <h1 className="font-black text-3xl tracking-tight">{title}</h1>
         <p className="mt-3 text-sm text-theme-muted">{message}</p>

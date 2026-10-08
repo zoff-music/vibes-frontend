@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
-const durationMs = 12000;
+const durationMs = 210000;
 
 export function usePlaybackPreview(hostMode: boolean, playing: boolean) {
   const [clock, setClock] = useState({
     track: 0,
-    position: hostMode ? 0 : 9000,
+    position: hostMode ? 45000 : 202000,
     tick: 0,
   });
   const [manualPause, setManualPause] = useState(false);

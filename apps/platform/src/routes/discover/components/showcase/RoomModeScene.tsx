@@ -27,7 +27,7 @@ export function RoomModeScene({ hostMode, playing }: RoomModeSceneProps) {
       <ContentTransition transitionKey={state.track}>
         <NowPlayingPlaylistItem
           playlistItem={playlistItem}
-          isPlaying={state.isPlaying && playing}
+          isPlaying={state.isPlaying}
           providerLink={false}
           animate={false}
         />
