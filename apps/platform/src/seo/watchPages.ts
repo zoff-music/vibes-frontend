@@ -2,7 +2,7 @@ import type { ProductPage } from './productPages';
 
 export const watchPages: ProductPage[] = [
   {
-    slug: 'watch-together',
+    slug: 'watching',
     label: 'Watch together',
     title: 'Watch Together Online | Shared Video Rooms | Zoff',
     description:
@@ -31,7 +31,7 @@ export const watchPages: ProductPage[] = [
     ],
   },
   {
-    slug: 'watch-party',
+    slug: 'cinema',
     label: 'Watch parties',
     title: 'Watch Parties | Watch Videos with Friends | Zoff',
     description:
@@ -60,7 +60,7 @@ export const watchPages: ProductPage[] = [
     ],
   },
   {
-    slug: 'watch-queue',
+    slug: 'videos',
     label: 'A shared video queue',
     title: 'Shared Video Queue | Collaborative Watch Playlists | Zoff',
     description:

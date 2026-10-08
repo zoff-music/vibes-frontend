@@ -51,16 +51,14 @@ export function WatchIntroduction() {
           <Link
             prefetch="intent"
             className={guideClass}
-            to="/discovery/watch-together"
+            to="/discovery/watching"
           >
             Explore watching together
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>
         <div className="min-w-0 lg:col-span-3">
-          <DeferredContent
-            fallback={<div className="h-132 rounded-3xl bg-theme-surface" />}
-          >
+          <DeferredContent fallback={<WatchScenePlaceholder />}>
             <LazyWatchScene />
           </DeferredContent>
         </div>
@@ -85,18 +83,16 @@ export function WatchIntroduction() {
             A shared queue for your finds. Chat for everything in between. And
             an off switch when the film deserves your full attention.
           </p>
-          <Link
-            prefetch="intent"
-            className={guideClass}
-            to="/discovery/watch-party"
-          >
+          <Link prefetch="intent" className={guideClass} to="/discovery/cinema">
             Plan a watch party
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>
         <div className="min-w-0 lg:order-1">
           <DeferredContent
-            fallback={<div className="h-140 rounded-3xl bg-theme-surface" />}
+            fallback={
+              <div className="h-144 rounded-3xl bg-theme-surface sm:h-156" />
+            }
           >
             <LazyChatPreview watch />
           </DeferredContent>
@@ -162,3 +158,19 @@ export function WatchIntroduction() {
 
 const guideClass =
   'mt-6 inline-flex min-h-12 items-center gap-3 rounded-xl border border-theme bg-theme-surface px-4 text-sm text-theme transition-colors hover:border-secondary focus-visible:ring-2 focus-visible:ring-secondary';
+
+function WatchScenePlaceholder() {
+  return (
+    <div aria-hidden="true">
+      <div className="h-12" />
+      <div className="rounded-3xl border border-theme bg-theme-surface p-2 sm:p-3">
+        <div className="aspect-video" />
+        <div className="h-20" />
+      </div>
+      <div className="h-7" />
+      <div className="h-14" />
+      <div className="mt-5 h-12" />
+      <div className="mt-4 h-12" />
+    </div>
+  );
+}

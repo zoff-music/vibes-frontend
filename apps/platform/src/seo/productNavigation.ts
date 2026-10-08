@@ -23,17 +23,17 @@ export const productNavigation = [
 
 export const watchNavigation = [
   {
-    slug: 'watch-together',
+    slug: 'watching',
     label: 'Watch together',
     caption: 'Different places. The same moment.',
   },
   {
-    slug: 'watch-party',
+    slug: 'cinema',
     label: 'Watch parties',
     caption: 'Bring your people and the running commentary.',
   },
   {
-    slug: 'watch-queue',
+    slug: 'videos',
     label: 'A shared video queue',
     caption: 'Turn a little curiosity into a whole evening.',
   },

@@ -5,6 +5,7 @@ import { ProductAccordion } from '../../../components/seo/ProductAccordion';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { ProductScreenshots } from '../../../components/seo/ProductScreenshots';
 import { appStoreUrl, playStoreUrl } from '../../../seo/metadata';
+import { watchNavigation } from '../../../seo/productNavigation';
 import type { ProductPage } from '../../../seo/productPages';
 import { GeneratedPlaylistSection } from '../../_index/components/GeneratedPlaylistSection';
 import { RemotePreview } from '../../_index/components/RemotePreview';
@@ -21,7 +22,9 @@ interface ProductPageContentProps {
 }
 
 export function ProductPageContent({ page }: ProductPageContentProps) {
-  if (page.slug.startsWith('watch')) return <WatchPage page={page} />;
+  if (watchNavigation.some((candidate) => candidate.slug === page.slug)) {
+    return <WatchPage page={page} />;
+  }
 
   return (
     <SitePage>
