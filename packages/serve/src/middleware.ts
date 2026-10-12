@@ -20,12 +20,23 @@ export interface BodySizeLimitOptions {
 
 export interface FrameProtectionOptions {
   allowedPath?: string;
+  /** Exact public resource allowed inside opaque file: frames. */
+  fileAllowedPath?: string;
 }
 
 export function createFrameProtectionMiddleware(
   options: FrameProtectionOptions,
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
+    const fileAllowedPath = options.fileAllowedPath?.replace(/\/$/, '');
+    if (
+      fileAllowedPath &&
+      (req.path === fileAllowedPath || req.path === `${fileAllowedPath}/`)
+    ) {
+      // The resource supplies its own CSP without a frame-ancestors directive.
+      // Do not broaden the normal website's frame policy to allow file: apps.
+      return next();
+    }
     const allowedPath = options.allowedPath?.replace(/\/$/, '');
     const framingAllowed =
       allowedPath &&

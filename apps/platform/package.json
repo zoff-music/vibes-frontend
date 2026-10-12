@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "react-router dev --host 0.0.0.0 --port 3001",
     "build": "react-router build",
+    "test:tv-player": "node --test --test-force-exit src/routes/tv-player/loader.test.mjs",
     "start": "node server/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",

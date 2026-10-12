@@ -59,6 +59,7 @@ export interface ServerConfig {
   staticContentTypes?: Record<string, string>;
   bodySizeLimitBytes?: number;
   frameAllowedPath?: string;
+  fileFrameAllowedPath?: string;
   operationName: (req: Request) => string;
   serviceName: string;
   mode: ServerMode;
@@ -210,6 +211,7 @@ export async function startServer(config: ServerConfig) {
   app.use(
     createFrameProtectionMiddleware({
       allowedPath: config.frameAllowedPath,
+      fileAllowedPath: config.fileFrameAllowedPath,
     }),
   );
   app.use(

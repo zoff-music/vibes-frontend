@@ -38,6 +38,7 @@ startServer({
     staticDir: path.join(staticDir, 'assets'),
   },
   metricsSkipPaths: ['/assets/'],
+  fileFrameAllowedPath: '/tv-player',
   staticContentTypes: {
     '/.well-known/apple-app-site-association': 'application/json',
   },

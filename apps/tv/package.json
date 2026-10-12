@@ -12,11 +12,12 @@
     "android:build:production": "pnpm dlx eas-cli build --platform android --profile production",
     "android:submit": "pnpm dlx eas-cli submit --platform android --profile production",
     "tizen:dev": "vite --config vite.tizen.config.ts",
-    "tizen:build": "vite build --config vite.tizen.config.ts",
+    "tizen:build": "vite build --config vite.tizen.config.ts && node scripts/finalize-tizen.mjs",
+    "tizen:test": "node --test scripts/*.test.mjs",
     "build": "pnpm tizen:build",
-    "lint": "biome check src app.json metro.config.js vite.tizen.config.ts",
+    "lint": "biome check src scripts app.json metro.config.js vite.tizen.config.ts",
     "typecheck": "tsc --noEmit",
-    "validate": "EXPO_TV=1 expo config --type public && tsc --noEmit && pnpm tizen:build"
+    "validate": "EXPO_TV=1 expo config --type public && tsc --noEmit && pnpm tizen:build && pnpm tizen:test"
   },
   "expo": {
     "install": {
@@ -41,6 +42,7 @@
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "@vitejs/plugin-react": "latest",
+    "core-js": "3.50.0",
     "expo": "~57.0.21",
     "expo-asset": "~57.0.16",
     "expo-font": "~57.0.3",
@@ -68,7 +70,9 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "~19.2.18",
     "@types/react-dom": "19.2.5",
+    "esbuild": "0.28.1",
     "postcss": "8.5.26",
+    "postcss-preset-env": "10.4.0",
     "typescript": "~7.0.2"
   }
 }

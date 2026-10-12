@@ -9,18 +9,17 @@ export function YouTubeIframePlayer({
   sourceId,
   title,
 }: YouTubeIframePlayerProps) {
-  const startSeconds = Math.max(
-    0,
-    Math.floor(positionMs / millisecondsPerSecond),
+  const startSeconds = Math.min(
+    86_400,
+    Math.max(0, Math.floor(positionMs / millisecondsPerSecond)),
   );
   const parameters = new URLSearchParams({
-    autoplay: '1',
-    controls: '1',
-    playsinline: '1',
-    rel: '0',
+    video: sourceId,
     start: String(startSeconds),
   });
-  const source = `https://www.youtube.com/embed/${encodeURIComponent(sourceId)}?${parameters.toString()}`;
+  const playerUrl =
+    import.meta.env.VITE_TV_PLAYER_URL ?? 'https://zoff.me/tv-player';
+  const source = `${playerUrl}?${parameters.toString()}`;
 
   return (
     <iframe

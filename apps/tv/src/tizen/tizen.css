@@ -38,6 +38,15 @@ body,
   overflow: hidden;
 }
 
+#zoff-startup {
+  margin: 0;
+  padding: 4rem;
+  min-height: 100%;
+  color: #e8dff5;
+  background: #120b1e;
+  font: 2rem sans-serif;
+}
+
 button:focus-visible,
 input:focus-visible {
   border-color: #00d9ff;

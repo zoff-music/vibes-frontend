@@ -7,6 +7,7 @@ export default defineConfig({
   base: './',
   publicDir: 'tizen',
   build: {
+    target: 'chrome76',
     emptyOutDir: true,
     outDir: 'dist/tizen',
     rollupOptions: {
