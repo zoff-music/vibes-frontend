@@ -119,11 +119,35 @@ export function RoomUsageChart({
       return counts.get(room)?.[metric] ?? 0;
     });
     const shownTotal = values.reduce((sum, value) => sum + value, 0);
+    const tooltipRooms = roomSeries
+      .map((room) => {
+        const index = series.findIndex((entry) => entry.room === room);
+        const value = values[index];
+        const cached = showCacheSplit ? values[index + 1] : 0;
+
+        return { room, value, cached, total: value + cached };
+      })
+      .filter((room) => room.total > 0)
+      .sort((a, b) => b.total - a.total || a.room.localeCompare(b.room));
+    const tooltipDescription = tooltipRooms
+      .map(({ room, value, cached, total }) => {
+        if (!showCacheSplit) return `${describeRoom(room)}: ${total}`;
+
+        const counts = [
+          ...(value > 0 ? [`Uncached: ${value}`] : []),
+          ...(cached > 0 ? [`Cached: ${cached}`] : []),
+        ];
+
+        return `${describeRoom(room)}: ${counts.join(', ')}`;
+      })
+      .join(', ');
 
     return {
       ...bucket,
       values,
       shownTotal,
+      tooltipRooms,
+      tooltipDescription,
     };
   });
   const maximum = Math.max(
@@ -314,57 +338,49 @@ export function RoomUsageChart({
                         <span className="text-right">Cached</span>
                       </span>
                     )}
-                    {visibleRooms.map((room) => {
-                      const index = series.findIndex(
-                        (entry) => entry.room === room,
-                      );
-
-                      return (
-                        <span
-                          key={room}
-                          className={classNames(
-                            'grid gap-2',
-                            showCacheSplit
-                              ? 'grid-cols-[1fr_4rem_4rem]'
-                              : 'grid-cols-[1fr_4rem]',
-                          )}
-                        >
-                          <span className="flex min-w-0 items-center gap-2">
-                            <svg
-                              viewBox="0 0 8 8"
-                              className="h-2 w-2 shrink-0"
-                              aria-hidden="true"
-                            >
-                              <rect
-                                width="8"
-                                height="8"
-                                rx="2"
-                                fill="currentColor"
-                                className={color(room)}
-                              />
-                            </svg>
-                            <span className="truncate">
-                              {describeRoom(room)}
-                            </span>
-                          </span>
-                          <span className="text-right tabular-nums">
-                            {bucket.values[index].toLocaleString()}
-                          </span>
-                          {showCacheSplit && (
-                            <span className="text-right tabular-nums">
-                              {bucket.values[index + 1].toLocaleString()}
-                            </span>
-                          )}
+                    {bucket.tooltipRooms.map(({ room, value, cached }) => (
+                      <span
+                        key={room}
+                        className={classNames(
+                          'grid gap-2',
+                          showCacheSplit
+                            ? 'grid-cols-[1fr_4rem_4rem]'
+                            : 'grid-cols-[1fr_4rem]',
+                        )}
+                      >
+                        <span className="flex min-w-0 items-center gap-2">
+                          <svg
+                            viewBox="0 0 8 8"
+                            className="h-2 w-2 shrink-0"
+                            aria-hidden="true"
+                          >
+                            <rect
+                              width="8"
+                              height="8"
+                              rx="2"
+                              fill="currentColor"
+                              className={color(room)}
+                            />
+                          </svg>
+                          <span className="truncate">{describeRoom(room)}</span>
                         </span>
-                      );
-                    })}
+                        <span className="text-right tabular-nums">
+                          {value > 0 && value.toLocaleString()}
+                        </span>
+                        {showCacheSplit && (
+                          <span className="text-right tabular-nums">
+                            {cached > 0 && cached.toLocaleString()}
+                          </span>
+                        )}
+                      </span>
+                    ))}
                   </span>
                 }
               >
                 <button
                   type="button"
                   className="h-full w-full cursor-crosshair rounded-sm hover:bg-secondary/10 focus-visible:bg-secondary/10 focus-visible:outline-2 focus-visible:outline-secondary"
-                  aria-label={`${timestampFormat(bucket.timestamp)}: ${bucket.shownTotal} ${label.toLowerCase()}. ${series.map((entry, index) => `${entry.label}: ${bucket.values[index]}`).join(', ')}`}
+                  aria-label={`${timestampFormat(bucket.timestamp)}: ${bucket.shownTotal} ${label.toLowerCase()}. ${bucket.tooltipDescription}`}
                 />
               </Tooltip>
             ))}
