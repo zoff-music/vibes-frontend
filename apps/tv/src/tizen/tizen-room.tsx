@@ -182,9 +182,8 @@ export function TizenRoom({
             )}
           </div>
 
-          <div className="mt-5 grid grid-cols-[auto_minmax(0,1fr)] items-center rounded-3xl border border-primary/30 bg-tv-surface p-4">
-            <QrCode value={joinUrl} />
-            <div className="min-w-0 pl-4">
+          <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-3xl border border-primary/30 bg-tv-surface p-4">
+            <div className="min-w-0 pr-4">
               <p className="text-accent text-xs uppercase tracking-[0.2em]">
                 Scan to join
               </p>
@@ -193,6 +192,7 @@ export function TizenRoom({
                 Add {labels.items} and vote from your phone
               </p>
             </div>
+            <QrCode value={joinUrl} />
           </div>
         </aside>
       </div>

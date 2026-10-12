@@ -137,6 +137,9 @@ selected room types and toggles retain cyan borders. These rules do not depend
 on flex gap, `:focus-visible`, or modern color functions. Music/Watch links are
 included in directional navigation. Skip follows the room's host/admin and skip
 settings, displays vote progress when needed, and updates playback through SSE.
+The landing screen initially focuses its first room, or Live rooms when empty,
+without opening the input keyboard. The smaller white-on-black QR sits in the
+bottom-right corner; its logo uses flex centering instead of CSS transforms.
 
 The installed app uses package ID `ZoffMusic0` (Tizen requires ten characters).
 YouTube playback loads `https://zoff.me/resources/tv/<id>?video=VIDEO_ID&start=SECONDS`

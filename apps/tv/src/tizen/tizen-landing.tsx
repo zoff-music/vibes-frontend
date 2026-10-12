@@ -4,7 +4,7 @@ import {
   roomNameMaxLength,
 } from '@vibes/models';
 import { chunkItems, getRoomLabels } from '@vibes/ui/shared';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useFetcher } from 'react-router';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
 import type { PublicRoomsData } from '@/tizen/routes/public-rooms/loader';
@@ -35,6 +35,13 @@ export function TizenLanding({
   const [value, setValue] = useState('');
   const [browsing, setBrowsing] = useState(false);
   const [query, setQuery] = useState('');
+  const channelListRef = useRef<HTMLDivElement>(null);
+  const liveRoomsRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const firstChannel =
+      channelListRef.current?.querySelector<HTMLButtonElement>('button');
+    (firstChannel ?? liveRoomsRef.current)?.focus();
+  }, []);
   const browser = useFetcher<PublicRoomsData>();
   const browseLoading = browser.state !== 'idle';
   const rooms = browsing ? (browser.data?.result?.rooms ?? []) : publicRooms;
@@ -134,7 +141,6 @@ export function TizenLanding({
               <div className="tv-space-x-5 flex">
                 <input
                   aria-label={isAIMode ? 'Playlist prompt' : 'Room name'}
-                  autoFocus
                   className="min-h-20 min-w-0 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-5 text-2xl"
                   onChange={(event) => setValue(event.target.value)}
                   placeholder={placeholder}
@@ -179,6 +185,7 @@ export function TizenLanding({
                 aria-pressed={!browsing}
                 className="min-h-16 flex-1 rounded-2xl border-2 border-tv-border bg-tv-card px-5 text-2xl aria-pressed:border-accent"
                 onClick={() => setBrowsing(false)}
+                ref={liveRoomsRef}
               >
                 Live rooms
               </button>
@@ -222,7 +229,7 @@ export function TizenLanding({
             {browsing && browser.data?.error && (
               <p className="mb-4 text-primary">{browser.data.error}</p>
             )}
-            <div className="tv-space-y-5 flex flex-col">
+            <div className="tv-space-y-5 flex flex-col" ref={channelListRef}>
               {!browseLoading && rooms.length === 0 && (
                 <p className="rounded-2xl border border-tv-border bg-tv-card p-6 text-tv-muted text-xl">
                   {browsing
