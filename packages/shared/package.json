@@ -9,7 +9,8 @@
     "./themeStore": "./src/stores/themeStore.ts",
     "./chatPreferenceStore": "./src/stores/chatPreferenceStore.ts",
     ".": "./src/index.ts",
-    "./wrap": "./src/wrap.ts"
+    "./wrap": "./src/wrap.ts",
+    "./tv-player": "./src/tv-player.ts"
   },
   "scripts": {
     "lint": "biome check src",

@@ -1,4 +1,5 @@
 import { index, route } from '@react-router/dev/routes';
+import { TV_PLAYER_PATH } from '@vibes/shared/tv-player';
 
 export default [
   index('./routes/_index/route.tsx'),
@@ -6,7 +7,7 @@ export default [
   route('robots.txt', './routes/robots/loader.ts'),
   route('llms.txt', './routes/llms/loader.ts'),
   route('sitemap.xml', './routes/sitemap/loader.ts'),
-  route('tv-player', './routes/tv-player/loader.ts'),
+  route(TV_PLAYER_PATH.slice(1), './routes/tv-player/loader.ts'),
   route('discovery/:topic', './routes/discover/route.tsx'),
   route('rooms/explore', './routes/explore.rooms/route.tsx'),
   route('explore/rooms', './routes/explore.rooms/redirect.ts'),

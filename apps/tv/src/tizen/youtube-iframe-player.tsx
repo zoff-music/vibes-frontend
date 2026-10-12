@@ -1,3 +1,5 @@
+import { TV_PLAYER_PATH } from '@vibes/shared/tv-player';
+
 interface YouTubeIframePlayerProps {
   positionMs: number;
   sourceId: string;
@@ -18,7 +20,7 @@ export function YouTubeIframePlayer({
     start: String(startSeconds),
   });
   const playerUrl =
-    import.meta.env.VITE_TV_PLAYER_URL ?? 'https://zoff.me/tv-player';
+    import.meta.env.VITE_TV_PLAYER_URL ?? `https://zoff.me${TV_PLAYER_PATH}`;
   const source = `${playerUrl}?${parameters.toString()}`;
 
   return (

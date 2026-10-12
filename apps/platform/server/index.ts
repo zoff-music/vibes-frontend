@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { type ServerRequest, startServer } from '@vibes/serve';
+import { TV_PLAYER_PATH } from '@vibes/shared/tv-player';
 
 const staticDir = path.resolve('dist/client');
 const dev = process.env.NODE_ENV !== 'production';
@@ -38,7 +39,7 @@ startServer({
     staticDir: path.join(staticDir, 'assets'),
   },
   metricsSkipPaths: ['/assets/'],
-  fileFrameAllowedPath: '/tv-player',
+  fileFrameAllowedPath: TV_PLAYER_PATH,
   staticContentTypes: {
     '/.well-known/apple-app-site-association': 'application/json',
   },

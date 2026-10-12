@@ -131,22 +131,28 @@ core-js runtime polyfills. Assets retain content hashes. Signing certificates
 remain external; the build does not create or publish a signed widget.
 
 The installed app uses package ID `ZoffMusic0` (Tizen requires ten characters).
-YouTube playback loads `https://zoff.me/tv-player?video=VIDEO_ID&start=SECONDS`
+YouTube playback loads `https://zoff.me/resources/tv/<id>?video=VIDEO_ID&start=SECONDS`
 inside the player area. That script-free page embeds the official YouTube
 player, giving it the same `https://zoff.me/` referrer as the web app. Direct
 `file:` embeds fail with error 153; a localhost wrapper fixes that error but
 still causes some videos to be rejected. The hosted page does not proxy media,
 and the TV app needs no local service or application-launch privilege.
 
-**Deploy the platform's `/tv-player` route before installing this TV build.**
+The unlisted path is defined once as `TV_PLAYER_PATH` in
+`packages/shared/src/tv-player.ts`. It reduces casual discovery; it is not
+authentication and is visible in the public source and distributed app.
+The existing `/resources/` robots rule excludes the entire prefix without
+listing the exact player URL. The old `/tv-player` endpoint is not retained.
+
+**Deploy the platform's unlisted player route before installing this TV build.**
 The resource uses a hashed stylesheet, permits framing from `file:` apps, and
 sets `Referrer-Policy: strict-origin-when-cross-origin`. Reverse proxies must
 preserve those route-specific headers. Other website routes retain their frame
-protection. A TV update is needed to replace previously installed localhost
-player builds; deploying the web route alone does not update a sideloaded app.
+protection. TV builds using localhost or the old `/tv-player` URL must be
+updated too; deploying the web route alone does not update a sideloaded app.
 
 For local web testing, run the platform server and set
-`VITE_TV_PLAYER_URL=http://localhost:3001/tv-player` for `tizen:dev`. This tests
+`VITE_TV_PLAYER_URL=http://localhost:3001/resources/tv/<id>` for `tizen:dev`. This tests
 only the wrapper, not YouTube's acceptance of the production domain.
 
 `pnpm --filter @vibes/tv validate` checks classic-script packaging and absence

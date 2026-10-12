@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
+import { TV_PLAYER_PATH } from '@vibes/shared/tv-player';
 
 const output = new URL('../dist/tizen/', import.meta.url);
 test('packaged entry uses classic scripts and the hosted player without a local service', async () => {
@@ -16,7 +17,8 @@ test('packaged entry uses classic scripts and the hosted player without a local 
     assert.doesNotThrow(() => new vm.Script(script));
     assert.doesNotMatch(script, /127\.0\.0\.1:34771|PlayerService/);
     if (match[1].includes('tizen-classic')) {
-      assert.match(script, /https:\/\/zoff\.me\/tv-player/);
+      assert(script.includes(TV_PLAYER_PATH));
+      assert.doesNotMatch(script, /https:\/\/zoff\.me\/tv-player/);
     }
   }
   for (const name of await readdir(new URL('assets/', output))) {
