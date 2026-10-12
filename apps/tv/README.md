@@ -124,6 +124,28 @@ Studio:
 The Tizen target uses `tizen.html` as its configured entry point and requires
 the Internet privilege for the Zoff API and provider players.
 
+The package requires Tizen 6.0 or newer. The build targets Chrome 76 and emits classic scripts because the
+TV's packaged-file loader supplies no JavaScript MIME type for module scripts.
+It also converts newer CSS features, including cascade layers, and bundles
+core-js runtime polyfills. Assets retain content hashes. Signing certificates
+remain external; the build does not create or publish a signed widget.
+
+The installed app uses package ID `ZoffMusic0` (Tizen requires ten characters)
+and includes `ZoffMusic0.PlayerService`. This service listens only on
+`127.0.0.1:34771`, serving a health response and a small HTML wrapper for the
+official YouTube iframe. The HTTP document supplies YouTube's required referrer;
+embedding directly from the app's `file:` page produces error 153. The service
+does not proxy media or expose files. Startup waits for it before rendering the
+app, and shows an error if it cannot start. No computer or external server needs
+to stay running. `tizen:dev` still uses the direct official iframe because its
+HTTP development origin already supplies a referrer.
+
+`pnpm --filter @vibes/tv validate` builds the package and checks service routing,
+startup readiness/failure, and classic-script packaging. Hardware validation on
+a Samsung Frame with Tizen 6.0 confirmed startup, room discovery, and YouTube
+playback. Individual videos can still be unavailable under YouTube's embedding
+or account rules.
+
 ## Visual review
 
 Store submission and review screenshots belong in [`docs`](./docs/README.md).
