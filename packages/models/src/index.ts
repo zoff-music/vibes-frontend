@@ -13,5 +13,6 @@ export * from './schemas/search';
 export * from './schemas/session';
 export * from './schemas/songs';
 export * from './schemas/stats';
+export * from './schemas/tv-player';
 export * from './schemas/youtube';
 export * from './types/casting';

@@ -13,6 +13,7 @@ export function loader() {
       'Disallow: /remote/',
       'Disallow: /cast/',
       'Disallow: /embed/',
+      'Disallow: /tv-player',
       `Sitemap: ${siteUrl}/sitemap.xml`,
       '',
     ].join('\n'),

@@ -4,15 +4,8 @@
   <content src="tizen.html" />
   <feature name="http://tizen.org/feature/screen.size.all" />
   <tizen:privilege name="http://tizen.org/privilege/internet" />
-  <tizen:privilege name="http://tizen.org/privilege/application.launch" />
-  <feature name="http://tizen.org/feature/web.service" />
   <access origin="*" subdomains="true" />
   <name>Zoff TV</name>
   <icon src="icon.png" />
   <tizen:profile name="tv-samsung" />
-  <tizen:service id="ZoffMusic0.PlayerService">
-    <tizen:content src="service/player.js" />
-    <tizen:name>Zoff local player</tizen:name>
-    <tizen:description>Local HTML wrapper for the official YouTube player</tizen:description>
-  </tizen:service>
 </widget>

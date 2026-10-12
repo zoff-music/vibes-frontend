@@ -1,0 +1,15 @@
+/* This script-free resource must also render in the TV's Chrome 76 engine. */
+html,
+body,
+iframe {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+iframe {
+  display: block;
+}

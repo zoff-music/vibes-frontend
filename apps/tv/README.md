@@ -130,21 +130,32 @@ It also converts newer CSS features, including cascade layers, and bundles
 core-js runtime polyfills. Assets retain content hashes. Signing certificates
 remain external; the build does not create or publish a signed widget.
 
-The installed app uses package ID `ZoffMusic0` (Tizen requires ten characters)
-and includes `ZoffMusic0.PlayerService`. This service listens only on
-`127.0.0.1:34771`, serving a health response and a small HTML wrapper for the
-official YouTube iframe. The HTTP document supplies YouTube's required referrer;
-embedding directly from the app's `file:` page produces error 153. The service
-does not proxy media or expose files. Startup waits for it before rendering the
-app, and shows an error if it cannot start. No computer or external server needs
-to stay running. `tizen:dev` still uses the direct official iframe because its
-HTTP development origin already supplies a referrer.
+The installed app uses package ID `ZoffMusic0` (Tizen requires ten characters).
+YouTube playback loads `https://zoff.me/tv-player?video=VIDEO_ID&start=SECONDS`
+inside the player area. That script-free page embeds the official YouTube
+player, giving it the same `https://zoff.me/` referrer as the web app. Direct
+`file:` embeds fail with error 153; a localhost wrapper fixes that error but
+still causes some videos to be rejected. The hosted page does not proxy media,
+and the TV app needs no local service or application-launch privilege.
 
-`pnpm --filter @vibes/tv validate` builds the package and checks service routing,
-startup readiness/failure, and classic-script packaging. Hardware validation on
-a Samsung Frame with Tizen 6.0 confirmed startup, room discovery, and YouTube
-playback. Individual videos can still be unavailable under YouTube's embedding
-or account rules.
+**Deploy the platform's `/tv-player` route before installing this TV build.**
+The resource uses a hashed stylesheet, permits framing from `file:` apps, and
+sets `Referrer-Policy: strict-origin-when-cross-origin`. Reverse proxies must
+preserve those route-specific headers. Other website routes retain their frame
+protection. A TV update is needed to replace previously installed localhost
+player builds; deploying the web route alone does not update a sideloaded app.
+
+For local web testing, run the platform server and set
+`VITE_TV_PLAYER_URL=http://localhost:3001/tv-player` for `tizen:dev`. This tests
+only the wrapper, not YouTube's acceptance of the production domain.
+
+`pnpm --filter @vibes/tv validate` checks classic-script packaging and absence
+of a local service. Run the platform build followed by
+`pnpm --filter @vibes/platform test:tv-player` and
+`pnpm --filter @vibes/serve test:frame-protection` for the hosted resource and
+its scoped frame policy. Classic-script startup was verified on Tizen 6;
+the hosted-player change still needs validation on the TV after deployment.
+Individual videos remain subject to YouTube's embedding and account rules.
 
 ## Visual review
 

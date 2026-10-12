@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { readFile, unlink, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { build, transform } from 'esbuild';
 import postcss from 'postcss';
@@ -68,15 +68,9 @@ await writeFile(
   await readFile(new URL('../node_modules/core-js/LICENSE', import.meta.url)),
 );
 
-const boot = await transform(
-  await readFile(new URL('boot.js', import.meta.url), 'utf8'),
-  { target: 'chrome76', minify: true },
-);
-const bootName = `boot-${hash(boot.code)}.js`;
-await writeFile(new URL(`assets/${bootName}`, output), boot.code);
 html = html.replace(
   entry[0],
-  `<script src="./assets/${polyfillName}"></script>\n<script defer src="./assets/${bootName}" data-app-script="./assets/${classicName}"></script>`,
+  `<script src="./assets/${polyfillName}"></script>\n<script defer src="./assets/${classicName}"></script>`,
 );
 html = html.replace(
   '<div id="root"></div>',
@@ -84,13 +78,4 @@ html = html.replace(
 );
 await writeFile(htmlPath, html);
 
-// The TV service runtime is older than its browser; compile it separately.
-const service = await transform(
-  await readFile(new URL('player-service.cjs', import.meta.url), 'utf8'),
-  { target: 'node4', format: 'cjs' },
-);
-await mkdir(new URL('service/', output), { recursive: true });
-await writeFile(new URL('service/player.js', output), service.code);
-console.log(
-  'Prepared classic scripts, legacy CSS and the TV-local player service.',
-);
+console.log('Prepared classic scripts and legacy CSS for the TV.');

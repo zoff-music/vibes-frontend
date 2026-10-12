@@ -4,19 +4,20 @@ import test from 'node:test';
 import vm from 'node:vm';
 
 const output = new URL('../dist/tizen/', import.meta.url);
-test('packaged entry uses classic scripts and includes its local service', async () => {
+test('packaged entry uses classic scripts and the hosted player without a local service', async () => {
   const html = await readFile(new URL('tizen.html', output), 'utf8');
   assert.doesNotMatch(html, /type="module"/);
   assert.match(html, /id="zoff-startup"/);
-  assert.match(
-    html,
-    /data-app-script="\.\/assets\/tizen-classic-[a-f0-9]+\.js"/,
-  );
+  assert.match(html, /defer src="\.\/assets\/tizen-classic-[a-f0-9]+\.js"/);
   for (const match of html.matchAll(
     /(?:src|data-app-script)="\.\/([^" ]+\.js)"/g,
   )) {
     const script = await readFile(new URL(match[1], output), 'utf8');
     assert.doesNotThrow(() => new vm.Script(script));
+    assert.doesNotMatch(script, /127\.0\.0\.1:34771|PlayerService/);
+    if (match[1].includes('tizen-classic')) {
+      assert.match(script, /https:\/\/zoff\.me\/tv-player/);
+    }
   }
   for (const name of await readdir(new URL('assets/', output))) {
     if (!name.endsWith('.css')) continue;
@@ -27,8 +28,6 @@ test('packaged entry uses classic scripts and includes its local service', async
   }
   const config = await readFile(new URL('config.xml', output), 'utf8');
   assert.match(config, /package="[a-zA-Z0-9]{10}"/);
-  assert.match(config, /id="ZoffMusic0.PlayerService"/);
-  const service = await readFile(new URL('service/player.js', output), 'utf8');
-  assert.match(service, /127\.0\.0\.1/);
-  assert.doesNotThrow(() => new vm.Script(service));
+  assert.doesNotMatch(config, /tizen:service|web\.service|application\.launch/);
+  assert(!(await readdir(output)).includes('service'));
 });
