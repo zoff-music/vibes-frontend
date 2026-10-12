@@ -132,7 +132,7 @@ core-js runtime polyfills. Assets retain content hashes. Signing certificates
 remain external; the build does not create or publish a signed widget.
 
 The Samsung renderer uses padding gutters and physical sibling margins instead
-of CSS `gap`. Plain `:focus` borders and outlines show remote focus in yellow;
+of CSS `gap`. Plain `:focus` borders and inset shadows show remote focus in yellow;
 selected room types and toggles retain cyan borders. These rules do not depend
 on flex gap, `:focus-visible`, or modern color functions. Music/Watch links are
 included in directional navigation. Skip follows the room's host/admin and skip
