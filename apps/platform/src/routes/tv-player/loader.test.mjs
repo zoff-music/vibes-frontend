@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { TV_PLAYER_PATH } from '@vibes/shared/tv-player';
 import { createRequestHandler } from 'react-router';
 import * as build from '../../../dist/server/index.js';
 
@@ -11,7 +12,7 @@ const origin = 'https://zoff.me';
 
 test('hosted TV player serves only a static official iframe and a hashed stylesheet', async () => {
   const response = await handle(
-    new Request(`${origin}/tv-player?video=M7lc1UVf-VE&start=42`),
+    new Request(`${origin}${TV_PLAYER_PATH}?video=M7lc1UVf-VE&start=42`),
   );
   assert.equal(response.status, 200);
   assert.equal(
@@ -52,7 +53,9 @@ test('player route rejects invalid or repeated input without reflecting it into 
     '?video=M7lc1UVf-VE&start=0&start=10',
   ];
   for (const query of queries) {
-    const response = await handle(new Request(`${origin}/tv-player${query}`));
+    const response = await handle(
+      new Request(`${origin}${TV_PLAYER_PATH}${query}`),
+    );
     assert.equal(response.status, 400, query);
     assert.equal(await response.text(), 'Invalid video ID or start time.');
   }
@@ -60,8 +63,28 @@ test('player route rejects invalid or repeated input without reflecting it into 
 
 test('player route defaults to the beginning of the video', async () => {
   const response = await handle(
-    new Request(`${origin}/tv-player?video=M7lc1UVf-VE`),
+    new Request(`${origin}${TV_PLAYER_PATH}?video=M7lc1UVf-VE`),
   );
   assert.equal(response.status, 200);
   assert.match(await response.text(), /&amp;start=0/);
+});
+
+test('robots excludes the resource prefix without advertising the player URL', async () => {
+  const response = await handle(new Request(`${origin}/robots.txt`));
+  assert.equal(response.status, 200);
+  const body = await response.text();
+  assert.match(body, /Disallow: \/resources\//);
+  assert(!body.includes(TV_PLAYER_PATH));
+  assert(!body.includes('/tv-player'));
+});
+
+test('only the unlisted path maps to the player resource', () => {
+  const playerRoutes = Object.values(build.routes).filter(
+    (route) => route.id === 'routes/tv-player/loader',
+  );
+  assert.equal(playerRoutes.length, 1);
+  assert.equal(playerRoutes[0].path, TV_PLAYER_PATH.slice(1));
+  assert(
+    !Object.values(build.routes).some((route) => route.path === 'tv-player'),
+  );
 });
