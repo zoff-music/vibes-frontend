@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { QrCode } from '@/tizen/qr-code';
 import { TizenPlaybackStatus } from '@/tizen/tizen-playback-status';
 import { TizenProviderSurface } from '@/tizen/tizen-provider-surface';
-import { TizenSkipButton } from '@/tizen/tizen-skip-button';
+import { TizenRoomControls } from '@/tizen/tizen-room-controls';
 
 interface TizenRoomProps {
   listenerCount: number;
@@ -64,7 +64,7 @@ export function TizenRoom({
   );
   return (
     <div className="relative flex h-full overflow-hidden p-6">
-      <section className="flex h-full w-[65%] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-primary/30 bg-tv-card">
+      <section className="flex h-full w-[68%] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-primary/30 bg-tv-card">
         <div className="min-h-0 flex-1 bg-black">
           <TizenProviderSurface
             isGenerating={isGenerating}
@@ -96,12 +96,6 @@ export function TizenRoom({
             durationSeconds={current?.duration ?? 0}
             playback={playback}
           />
-          <TizenSkipButton
-            key={current?.id ?? 'empty'}
-            hasCurrentItem={Boolean(current)}
-            room={room}
-            roomId={roomId}
-          />
         </div>
       </section>
 
@@ -121,13 +115,13 @@ export function TizenRoom({
                     : labels.participants}
                 </span>
               </div>
-              <button
-                className="rounded-xl border border-tv-border bg-tv-surface px-4 py-2 text-sm"
-                onClick={onLeave}
-                type="button"
-              >
-                Leave
-              </button>
+              <TizenRoomControls
+                key={current?.id ?? 'empty'}
+                hasCurrentItem={Boolean(current)}
+                room={room}
+                roomId={roomId}
+                onLeave={onLeave}
+              />
             </div>
           </header>
 
