@@ -47,10 +47,68 @@ body,
   font: 2rem sans-serif;
 }
 
-button:focus-visible,
-input:focus-visible {
+/* Plain selectors and colors keep remote focus visible on Chrome 76. */
+button,
+input,
+a[href] {
+  border-style: solid;
+  border-width: 2px;
+}
+
+button[aria-pressed="true"],
+button[aria-selected="true"],
+a[aria-current="page"] {
   border-color: #00d9ff;
-  box-shadow: 0 0 0 0.25rem rgba(0, 217, 255, 0.35);
-  outline: none;
-  transform: scale(1.025);
+  box-shadow: inset 0 0 0 2px #00d9ff;
+}
+
+button:focus,
+input:focus,
+a[href]:focus,
+[tabindex="0"]:focus {
+  border-color: #fff36a;
+  outline: 3px solid #fff36a;
+  outline-offset: 2px;
+  box-shadow: inset 0 0 0 2px #fff36a;
+}
+
+/* Flex gap is unsupported on Tizen 6. Sibling spacing also works on newer TVs. */
+.tv-space-x-1 > * + * {
+  margin-left: 0.25rem;
+}
+
+.tv-space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+.tv-space-x-3 > * + * {
+  margin-left: 0.75rem;
+}
+
+.tv-space-x-4 > * + * {
+  margin-left: 1rem;
+}
+
+.tv-space-x-5 > * + * {
+  margin-left: 1.25rem;
+}
+
+.tv-space-x-6 > * + * {
+  margin-left: 1.5rem;
+}
+
+.tv-space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.tv-space-y-5 > * + * {
+  margin-top: 1.25rem;
+}
+
+.tv-space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.tv-space-y-10 > * + * {
+  margin-top: 2.5rem;
 }

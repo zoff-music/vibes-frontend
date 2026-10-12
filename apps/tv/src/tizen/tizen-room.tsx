@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { QrCode } from '@/tizen/qr-code';
 import { TizenPlaybackStatus } from '@/tizen/tizen-playback-status';
 import { TizenProviderSurface } from '@/tizen/tizen-provider-surface';
+import { TizenSkipButton } from '@/tizen/tizen-skip-button';
 
 interface TizenRoomProps {
   listenerCount: number;
@@ -62,7 +63,7 @@ export function TizenRoom({
     visibleQueueLength,
   );
   return (
-    <div className="relative flex h-full gap-6 overflow-hidden p-6">
+    <div className="relative flex h-full overflow-hidden p-6">
       <section className="flex h-full w-[65%] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-primary/30 bg-tv-card">
         <div className="min-h-0 flex-1 bg-black">
           <TizenProviderSurface
@@ -71,7 +72,7 @@ export function TizenRoom({
           />
         </div>
         <div className="shrink-0 border-tv-border border-t bg-black px-8 py-5">
-          <div className="flex items-end gap-6">
+          <div className="tv-space-x-6 flex items-end">
             {current?.thumbnailUrl && (
               <img
                 alt=""
@@ -95,100 +96,112 @@ export function TizenRoom({
             durationSeconds={current?.duration ?? 0}
             playback={playback}
           />
+          <TizenSkipButton
+            key={current?.id ?? 'empty'}
+            hasCurrentItem={Boolean(current)}
+            room={room}
+            roomId={roomId}
+          />
         </div>
       </section>
 
-      <aside className="flex h-full min-w-0 flex-1 flex-col rounded-[2rem] border border-primary/30 bg-tv-card p-7">
-        <header className="mb-5 flex items-center justify-between gap-3 border-tv-border border-b pb-5">
-          <h2 className="text-sm text-tv-muted uppercase tracking-[0.2em]">
-            Up Next ({queued.length})
-          </h2>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 rounded-full border border-accent/30 px-4 py-2 text-sm text-tv-muted">
-              <span className="size-2 rounded-full bg-accent" />
-              {displayedListenerCount}{' '}
-              {displayedListenerCount === 1
-                ? labels.participant
-                : labels.participants}
-            </div>
-            <button
-              className="rounded-xl border border-tv-border bg-tv-surface px-4 py-2 text-sm"
-              onClick={onLeave}
-              type="button"
-            >
-              Leave
-            </button>
-          </div>
-        </header>
-
-        <div className="min-h-0 flex-1 overflow-hidden" ref={queueRef}>
-          {queued.length === 0 && (
-            <div className="flex h-full items-center justify-center rounded-2xl border border-tv-border text-center text-tv-muted">
-              The queue is empty
-            </div>
-          )}
-          {queued.length > 0 && (
-            <div className="flex h-full flex-col">
-              <div className="flex shrink-0 flex-col gap-3">
-                {queued
-                  .slice(0, visibleQueueLength)
-                  .map((playlistItem, index) => (
-                    <div
-                      className="flex h-24 items-center gap-4 rounded-2xl border border-tv-border bg-tv-surface px-4"
-                      key={playlistItem.id}
-                    >
-                      <span className="w-7 shrink-0 text-center text-tv-muted text-xs">
-                        {index + 1}
-                      </span>
-                      <img
-                        alt=""
-                        className="size-16 shrink-0 rounded-xl border border-tv-border object-cover"
-                        decoding="async"
-                        loading="lazy"
-                        src={playlistItem.thumbnailUrl}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs">{playlistItem.title}</p>
-                        <p className="mt-1 truncate text-tv-muted text-xs">
-                          {playlistItem.publisher ?? 'Unknown Artist'} ·{' '}
-                          {formatPlaybackSeconds(playlistItem.duration)}
-                        </p>
-                      </div>
-                      <span className="flex shrink-0 items-center gap-1 text-accent text-xs">
-                        <VoteIcon className="size-4" />
-                        {playlistItem.voteCount ?? 0}
-                      </span>
-                      <span className="shrink-0 text-tv-muted">
-                        <ProviderIcon
-                          className="size-[1.125rem]"
-                          provider={playlistItem.sourceType}
-                        />
-                      </span>
-                    </div>
-                  ))}
+      <div className="h-full min-w-0 flex-1 pl-6">
+        <aside className="flex h-full flex-col rounded-[2rem] border border-primary/30 bg-tv-card p-7">
+          <header className="tv-space-x-3 mb-5 flex items-center justify-between border-tv-border border-b pb-5">
+            <h2 className="text-sm text-tv-muted uppercase tracking-[0.2em]">
+              Up Next ({queued.length})
+            </h2>
+            <div className="tv-space-x-3 flex items-center">
+              <div className="tv-space-x-2 flex items-center rounded-full border border-accent/30 px-4 py-2 text-sm text-tv-muted">
+                <span className="size-2 rounded-full bg-accent" />
+                <span>
+                  {displayedListenerCount}{' '}
+                  {displayedListenerCount === 1
+                    ? labels.participant
+                    : labels.participants}
+                </span>
               </div>
-              {queueRemainderLabel && (
-                <div className="flex min-h-7 flex-1 items-center justify-center text-tv-muted text-xs">
-                  {queueRemainderLabel}
-                </div>
-              )}
+              <button
+                className="rounded-xl border border-tv-border bg-tv-surface px-4 py-2 text-sm"
+                onClick={onLeave}
+                type="button"
+              >
+                Leave
+              </button>
             </div>
-          )}
-        </div>
+          </header>
 
-        <div className="mt-5 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-3xl border border-primary/30 bg-tv-surface p-4">
-          <QrCode value={joinUrl} />
-          <div className="min-w-0">
-            <p className="text-accent text-xs uppercase tracking-[0.2em]">
-              Scan to join
-            </p>
-            <p className="mt-3 truncate text-2xl">{room.name}</p>
-            <p className="mt-2 text-sm text-tv-muted">
-              Add {labels.items} and vote from your phone
-            </p>
+          <div className="min-h-0 flex-1 overflow-hidden" ref={queueRef}>
+            {queued.length === 0 && (
+              <div className="flex h-full items-center justify-center rounded-2xl border border-tv-border text-center text-tv-muted">
+                The queue is empty
+              </div>
+            )}
+            {queued.length > 0 && (
+              <div className="flex h-full flex-col">
+                <div className="tv-space-y-3 flex shrink-0 flex-col">
+                  {queued
+                    .slice(0, visibleQueueLength)
+                    .map((playlistItem, index) => (
+                      <div
+                        className="tv-space-x-4 flex h-24 items-center rounded-2xl border border-tv-border bg-tv-surface px-4"
+                        key={playlistItem.id}
+                      >
+                        <span className="w-7 shrink-0 text-center text-tv-muted text-xs">
+                          {index + 1}
+                        </span>
+                        <img
+                          alt=""
+                          className="size-16 shrink-0 rounded-xl border border-tv-border object-cover"
+                          decoding="async"
+                          loading="lazy"
+                          src={playlistItem.thumbnailUrl}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs">
+                            {playlistItem.title}
+                          </p>
+                          <p className="mt-1 truncate text-tv-muted text-xs">
+                            {playlistItem.publisher ?? 'Unknown Artist'} ·{' '}
+                            {formatPlaybackSeconds(playlistItem.duration)}
+                          </p>
+                        </div>
+                        <span className="tv-space-x-1 flex shrink-0 items-center text-accent text-xs">
+                          <VoteIcon className="size-4" />
+                          <span>{playlistItem.voteCount ?? 0}</span>
+                        </span>
+                        <span className="shrink-0 text-tv-muted">
+                          <ProviderIcon
+                            className="size-[1.125rem]"
+                            provider={playlistItem.sourceType}
+                          />
+                        </span>
+                      </div>
+                    ))}
+                </div>
+                {queueRemainderLabel && (
+                  <div className="flex min-h-7 flex-1 items-center justify-center text-tv-muted text-xs">
+                    {queueRemainderLabel}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </div>
-      </aside>
+
+          <div className="mt-5 grid grid-cols-[auto_minmax(0,1fr)] items-center rounded-3xl border border-primary/30 bg-tv-surface p-4">
+            <QrCode value={joinUrl} />
+            <div className="min-w-0 pl-4">
+              <p className="text-accent text-xs uppercase tracking-[0.2em]">
+                Scan to join
+              </p>
+              <p className="mt-3 truncate text-2xl">{room.name}</p>
+              <p className="mt-2 text-sm text-tv-muted">
+                Add {labels.items} and vote from your phone
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

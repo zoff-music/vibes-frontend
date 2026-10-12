@@ -8,7 +8,11 @@ export function useSpatialNavigation() {
       const candidates = getFocusableElements();
       if (candidates.length === 0) return;
       const activeElement = document.activeElement;
-      if (!(activeElement instanceof HTMLElement)) {
+      if (
+        !(activeElement instanceof HTMLElement) ||
+        !candidates.includes(activeElement)
+      ) {
+        event.preventDefault();
         candidates[0]?.focus();
         return;
       }
@@ -34,7 +38,7 @@ function getDirection(key: string): Direction | null {
 
 function getFocusableElements() {
   const elements = document.querySelectorAll<HTMLElement>(
-    'button:not(:disabled), input:not(:disabled), [tabindex="0"]',
+    'button:not(:disabled), input:not(:disabled), a[href], [tabindex="0"]',
   );
   return [...elements].filter((element) => element.offsetParent !== null);
 }
