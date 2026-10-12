@@ -16,7 +16,7 @@ export function TizenProviderSurface({
 
   if (isGenerating && !playlistItem) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-6 bg-tv-surface">
+      <div className="tv-space-y-6 flex h-full flex-col items-center justify-center bg-tv-surface">
         <div className="size-14 animate-spin rounded-full border-4 border-tv-border border-t-accent" />
         <div className="animate-pulse text-3xl">{generationMessage}</div>
         <div className="text-tv-muted text-xl">

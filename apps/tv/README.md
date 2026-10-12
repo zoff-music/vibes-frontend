@@ -37,6 +37,7 @@ media streams is not a supported or policy-compliant replacement.
 - Cast-style current track, five-song queue, listener count, votes, and a QR
   code linking directly to the room.
 - Directional focus and visible focus feedback for television remotes.
+- Samsung TV Skip control, including skip votes, room permissions, and request feedback.
 
 Room type is fixed at creation. The backend applies the selected room's provider
 and content rules to search, pasted links, imports and generated queues.
@@ -129,6 +130,16 @@ TV's packaged-file loader supplies no JavaScript MIME type for module scripts.
 It also converts newer CSS features, including cascade layers, and bundles
 core-js runtime polyfills. Assets retain content hashes. Signing certificates
 remain external; the build does not create or publish a signed widget.
+
+The Samsung renderer uses padding gutters and physical sibling margins instead
+of CSS `gap`. Plain `:focus` borders and inset shadows show remote focus in yellow;
+selected room types and toggles retain cyan borders. These rules do not depend
+on flex gap, `:focus-visible`, or modern color functions. Music/Watch links are
+included in directional navigation. Skip follows the room's host/admin and skip
+settings, displays vote progress when needed, and updates playback through SSE.
+The landing screen initially focuses its first room, or Live rooms when empty,
+without opening the input keyboard. The smaller white-on-black QR sits in the
+bottom-right corner; its logo uses flex centering instead of CSS transforms.
 
 The installed app uses package ID `ZoffMusic0` (Tizen requires ten characters).
 YouTube playback loads `https://zoff.me/resources/tv/<id>?video=VIDEO_ID&start=SECONDS`

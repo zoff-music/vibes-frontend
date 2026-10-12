@@ -7,6 +7,7 @@ import {
   shouldRevalidate,
   TizenSessionRoute,
 } from '@/tizen/routes/session/route';
+import { action as skipAction } from '@/tizen/routes/skip/action';
 import {
   TizenErrorBoundary,
   TizenHydrateFallback,
@@ -25,6 +26,7 @@ if (!rootElement) {
 }
 if (rootElement) {
   const router = createHashRouter([
+    { path: '/rooms/:id/skip', action: skipAction },
     { path: '/rooms/public', loader: publicRoomsLoader },
     {
       action,
