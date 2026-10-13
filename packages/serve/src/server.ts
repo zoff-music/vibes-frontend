@@ -191,9 +191,17 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     const modulePreloads = [
       ...new Set([build.assets.entry.module, ...build.assets.entry.imports]),
     ].map((url) => `<${url}>; rel=modulepreload`);
-    const preloads = entry.documentPreloads
-      ? [...entry.documentPreloads, ...modulePreloads]
+    const assetPreconnects = build.assets.entry.module.startsWith('https://')
+      ? [
+          `<${new URL(build.assets.entry.module).origin}>; rel=preconnect; crossorigin`,
+        ]
       : [];
+    const preloads = [
+      ...assetPreconnects,
+      ...(entry.documentPreloads
+        ? [...entry.documentPreloads, ...modulePreloads]
+        : []),
+    ];
 
     if (preloads?.length) {
       app.use((req, res, next) => {

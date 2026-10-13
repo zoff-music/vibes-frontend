@@ -132,6 +132,11 @@ chunks use Vite's generated URLs. Keep Embed's build-time `EMBED_BASE_PATH`
 aligned with its runtime path and ingress. Native and packaged TV builds are
 unchanged. Cast retains its legacy JavaScript and CSS targets.
 
+SSR responses preconnect to the asset origin alongside their font and module
+preloads while loaders run. Cast provides the matching document hint. This
+lets the browser start the separate asset connection before discovering later
+chunks, without moving document or data requests away from the application.
+
 Set the web servers' runtime `ASSET_HOST` to the asset hostname. Requests on
 that host serve static files only, with anonymous cross-origin access for
 modules and fonts; missing files, HTML, API and data routes never fall through
