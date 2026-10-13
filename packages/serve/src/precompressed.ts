@@ -7,8 +7,9 @@ import Negotiator from 'negotiator';
 export async function precompressedAssets(
   root: string,
 ): Promise<RequestHandler> {
+  const assetRoot = path.resolve(root);
   const [error, files] = await safeWrapAsync(
-    readdir(root, { recursive: true }),
+    readdir(assetRoot, { recursive: true }),
   );
   if (error) throw error;
 
@@ -50,9 +51,11 @@ export async function precompressedAssets(
     const extension = encoding === 'br' ? 'br' : 'gz';
     res.type(path.extname(filename));
     res.set('Content-Encoding', encoding);
+    // Exact startup inventory above rejects traversal; Express confines reads to assetRoot.
     res.sendFile(
+      // nosemgrep: javascript.express.security.audit.express-res-sendfile.express-res-sendfile
       `${filename}.${extension}`,
-      { root, immutable: true, maxAge: '1y', acceptRanges: false },
+      { root: assetRoot, immutable: true, maxAge: '1y', acceptRanges: false },
       (sendError) => {
         if (sendError) next(sendError);
       },

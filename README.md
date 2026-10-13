@@ -4,6 +4,18 @@
 
 # Vibes Frontend
 
+Production images are published by the per-app `*-release.yaml` workflows on
+pushes to `main` in `zoff-music/vibes-frontend`, including PR merges and direct
+commits. Each workflow builds that exact pushed commit, retains its app-specific
+path filters and `ASSET_ORIGIN` setting, and
+uses a private temporary Docker configuration removed after success or failure.
+Forks, other branches, unmerged PR closures, and manual dispatches cannot publish.
+
+The reusable `security.yaml` workflow runs Semgrep and `pnpm audit` in parallel
+before every upstream `main` release build. PRs do not trigger workflows. Semgrep
+findings, scan errors, and dependency advisories rated moderate or higher block
+publishing. Neither scan has publishing permissions or deployment secrets.
+
 The TypeScript workspace for [Zoff](https://zoff.me): free shared music rooms
 for YouTube and SoundCloud, with no listener account required. Build a queue
 together, vote on songs, chat, and listen on the web, phones, tablets, and TVs.

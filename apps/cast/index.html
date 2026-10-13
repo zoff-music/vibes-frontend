@@ -13,11 +13,14 @@
     <meta name="color-scheme" content="dark" />
     <title>Cast Receiver | Zoff</title>
     <meta name="robots" content="noindex, nofollow" />
-    <!-- Google Cast Receiver SDK -->
+    <!-- Google requires its rolling SDK URL; a fixed SRI hash would break provider updates. https://developers.google.com/cast/docs/web_receiver/basic -->
+    <!-- nosemgrep: html.security.audit.missing-integrity.missing-integrity -->
     <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-    <!-- Cast Debug Logger -->
+    <!-- Google-managed Cast debug SDK, updated with the receiver SDK. No stable SRI release. -->
+    <!-- nosemgrep: html.security.audit.missing-integrity.missing-integrity -->
     <script src="//www.gstatic.com/cast/sdk/libs/devtools/debug_layer/caf_receiver_logger.js"></script>
-    <!-- YouTube IFrame API -->
+    <!-- Official rolling IFrame API loader; fixed SRI would block provider updates. https://developers.google.com/youtube/iframe_api_reference -->
+    <!-- nosemgrep: html.security.audit.missing-integrity.missing-integrity -->
     <script src="https://www.youtube.com/iframe_api"></script>
   </head>
   <body>

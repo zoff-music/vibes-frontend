@@ -11,7 +11,7 @@ const hash = (data) =>
 const htmlPath = new URL('tizen.html', output);
 let html = await readFile(htmlPath, 'utf8');
 const entry = html.match(
-  /<script type="module" crossorigin src="\.\/assets\/([^"]+)"><\/script>/,
+  /<script type="module" crossorigin src="\.\/assets\/([a-zA-Z0-9._-]+\.js)"><\/script>/,
 );
 if (!entry) throw new Error('Expected one Vite module entry in tizen.html');
 
@@ -69,8 +69,9 @@ await writeFile(
 );
 
 html = html.replace(
-  entry[0],
-  `<script src="./assets/${polyfillName}"></script>\n<script defer src="./assets/${classicName}"></script>`,
+  /<script type="module" crossorigin src="\.\/assets\/[a-zA-Z0-9._-]+\.js"><\/script>/,
+  () =>
+    `<script src="./assets/${polyfillName}"></script>\n<script defer src="./assets/${classicName}"></script>`,
 );
 html = html.replace(
   '<div id="root"></div>',
