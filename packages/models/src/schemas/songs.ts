@@ -1,31 +1,35 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 import { playbackRestrictionSchema, sourceTypeSchema } from './playlist';
 
 /** @deprecated Legacy v1 and Cast wire contract. Use playlistItemSchema internally. */
-export const songSchema = z.compile(
+
+/** @deprecated Legacy v1 and Cast wire contract. Use playlistItemSchema internally. */
+export const songSchema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
     sourceType: sourceTypeSchema,
     sourceId: z.string(),
-    providerUrl: z.string().optional(),
+    providerUrl: z.optional(z.string()),
     title: z.string(),
-    artist: z.string().optional(),
+    artist: z.optional(z.string()),
     thumbnailUrl: z.string(),
     duration: z.number(),
-    addedBy: z.string().optional(),
+    addedBy: z.optional(z.string()),
     addedAt: z.string(),
-    voteCount: z.number().optional(),
+    voteCount: z.optional(z.number()),
     playbackRestriction: playbackRestrictionSchema,
   }),
 );
 /** @deprecated Retained for legacy API and Cast messages. Use PlaylistItem internally. */
+
+/** @deprecated Retained for legacy API and Cast messages. Use PlaylistItem internally. */
 export type Song = z.infer<typeof songSchema>;
 
-export const addPlaylistResponseSchema = z.compile(
+export const addPlaylistResponseSchema = /* @__PURE__ */ z.compile(
   z.object({
     importId: z.string(),
-    queuedCount: z.int().min(1),
+    queuedCount: z.int().check(z.minimum(1)),
   }),
 );
 export type AddPlaylistResponse = z.infer<typeof addPlaylistResponseSchema>;

@@ -1,4 +1,5 @@
 import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
+import { MotionProvider } from '@vibes/ui/web';
 import type { ReactNode } from 'react';
 import type {
   LoaderFunctionArgs,
@@ -60,7 +61,9 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body>
-        <div id="root">{children}</div>
+        <div id="root">
+          <MotionProvider>{children}</MotionProvider>
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>

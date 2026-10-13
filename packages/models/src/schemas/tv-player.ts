@@ -1,9 +1,12 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
-export const tvPlayerQuerySchema = z.compile(
+export const tvPlayerQuerySchema = /* @__PURE__ */ z.compile(
   z.object({
-    video: z.string().regex(/^[a-zA-Z0-9_-]{11}$/),
-    start: z.coerce.number().int().min(0).max(86_400).default(0),
+    video: z.string().check(z.regex(/^[a-zA-Z0-9_-]{11}$/)),
+    start: z._default(
+      z.coerce.number().check(z.int(), z.minimum(0), z.maximum(86_400)),
+      0,
+    ),
   }),
 );
 export type TvPlayerQuery = z.infer<typeof tvPlayerQuerySchema>;

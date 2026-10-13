@@ -1,16 +1,16 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 export const chatMessageMaxLength = 500;
 
-export const roomMessageSchema = z.compile(
+export const roomMessageSchema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
     userId: z.string(),
     name: z.string(),
     isAdmin: z.boolean(),
-    isModerator: z.boolean().optional(),
-    isHost: z.boolean().optional(),
-    activity: z.boolean().optional(),
+    isModerator: z.optional(z.boolean()),
+    isHost: z.optional(z.boolean()),
+    activity: z.optional(z.boolean()),
     kind: z.enum([
       'chat',
       'added',
@@ -26,12 +26,17 @@ export const roomMessageSchema = z.compile(
   }),
 );
 export type RoomMessage = z.infer<typeof roomMessageSchema>;
-export const createMessageSchema = z.compile(
+export const createMessageSchema = /* @__PURE__ */ z.compile(
   z.object({
     text: z
       .string()
-      .trim()
-      .min(1, 'Enter a message.')
-      .max(chatMessageMaxLength, 'Messages can be at most 500 characters.'),
+      .check(
+        z.trim(),
+        z.minLength(1, 'Enter a message.'),
+        z.maxLength(
+          chatMessageMaxLength,
+          'Messages can be at most 500 characters.',
+        ),
+      ),
   }),
 );

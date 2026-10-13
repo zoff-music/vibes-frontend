@@ -11,7 +11,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { Button, PlusIcon } from '@vibes/ui/web';
-import { motion, type Transition, useReducedMotion } from 'framer-motion';
+import { m as motion, type Transition, useReducedMotion } from 'framer-motion';
 import {
   lazy,
   Suspense,

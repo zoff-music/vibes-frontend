@@ -1,41 +1,43 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
-export const remotePairingRequestSchema = z.compile(
+export const remotePairingRequestSchema = /* @__PURE__ */ z.compile(
   z.object({
-    pairingToken: z.string().optional(),
-    pairingCode: z.string().optional(),
+    pairingToken: z.optional(z.string()),
+    pairingCode: z.optional(z.string()),
   }),
 );
 export type RemotePairingRequest = z.infer<typeof remotePairingRequestSchema>;
 
-export const remoteStatusV2Schema = z.compile(
+export const remoteStatusV2Schema = /* @__PURE__ */ z.compile(
   z.object({
     enabled: z.boolean(),
-    id: z.string().default(''),
-    currentRoomId: z.string().default(''),
-    currentPlaylistItemId: z.string().default(''),
-    playbackPositionMs: z.number().default(0),
-    playbackIsPlaying: z.boolean().default(false),
-    playbackObservedAt: z.string().default(''),
+    id: z._default(z.string(), ''),
+    currentRoomId: z._default(z.string(), ''),
+    currentPlaylistItemId: z._default(z.string(), ''),
+    playbackPositionMs: z._default(z.number(), 0),
+    playbackIsPlaying: z._default(z.boolean(), false),
+    playbackObservedAt: z._default(z.string(), ''),
     online: z.boolean(),
-    paired: z.boolean().default(false),
+    paired: z._default(z.boolean(), false),
   }),
 );
 export type RemoteStatusV2 = z.infer<typeof remoteStatusV2Schema>;
 
-export const remoteSessionV2Schema = z.compile(
-  remoteStatusV2Schema.extend({ controllerToken: z.string() }),
+export const remoteSessionV2Schema = /* @__PURE__ */ z.compile(
+  z.extend(remoteStatusV2Schema, {
+    controllerToken: z.string(),
+  }),
 );
 export type RemoteSessionV2 = z.infer<typeof remoteSessionV2Schema>;
 
-export const remotePairingV2Schema = z.compile(
+export const remotePairingV2Schema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
-    currentRoomId: z.string().default(''),
-    currentPlaylistItemId: z.string().default(''),
-    playbackPositionMs: z.number().default(0),
-    playbackIsPlaying: z.boolean().default(false),
-    playbackObservedAt: z.string().default(''),
+    currentRoomId: z._default(z.string(), ''),
+    currentPlaylistItemId: z._default(z.string(), ''),
+    playbackPositionMs: z._default(z.number(), 0),
+    playbackIsPlaying: z._default(z.boolean(), false),
+    playbackObservedAt: z._default(z.string(), ''),
     pairingExpiresAt: z.string(),
     lastSeenAt: z.string(),
     pairingToken: z.string(),
@@ -44,27 +46,27 @@ export const remotePairingV2Schema = z.compile(
 );
 export type RemotePairingV2 = z.infer<typeof remotePairingV2Schema>;
 
-export const remoteUpdateRequestV2Schema = z.compile(
+export const remoteUpdateRequestV2Schema = /* @__PURE__ */ z.compile(
   z.object({
-    roomId: z.string().optional(),
-    currentPlaylistItemId: z.string().optional(),
-    playbackPositionMs: z.number().optional(),
-    playbackIsPlaying: z.boolean().optional(),
+    roomId: z.optional(z.string()),
+    currentPlaylistItemId: z.optional(z.string()),
+    playbackPositionMs: z.optional(z.number()),
+    playbackIsPlaying: z.optional(z.boolean()),
   }),
 );
 export type RemoteUpdateRequestV2 = z.infer<typeof remoteUpdateRequestV2Schema>;
 
-export const remoteEventV2Schema = z.compile(
+export const remoteEventV2Schema = /* @__PURE__ */ z.compile(
   z.object({
     type: z.enum(['remote_room_update', 'remote_state_update']),
-    roomId: z.string().default(''),
+    roomId: z._default(z.string(), ''),
     origin: z.enum(['machine', 'controller']),
-    online: z.boolean().default(true),
-    paired: z.boolean().default(false),
-    currentPlaylistItemId: z.string().default(''),
-    playbackPositionMs: z.number().default(0),
-    playbackIsPlaying: z.boolean().default(false),
-    playbackObservedAt: z.string().default(''),
+    online: z._default(z.boolean(), true),
+    paired: z._default(z.boolean(), false),
+    currentPlaylistItemId: z._default(z.string(), ''),
+    playbackPositionMs: z._default(z.number(), 0),
+    playbackIsPlaying: z._default(z.boolean(), false),
+    playbackObservedAt: z._default(z.string(), ''),
   }),
 );
 export type RemoteEventV2 = z.infer<typeof remoteEventV2Schema>;

@@ -1,5 +1,5 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { m as motion, useInView, useReducedMotion } from 'framer-motion';
 import { useRef } from 'react';
 import { SparklesIcon } from '../icons';
 

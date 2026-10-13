@@ -7,7 +7,7 @@ import {
   PlayIcon,
   RemoteIcon,
 } from '@vibes/ui/web';
-import { MotionConfig, motion } from 'framer-motion';
+import { MotionConfig, m as motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import { MusicDemo } from '../../../components/seo/MusicDemo';
 import { useRemotePreview } from '../hooks/useRemotePreview';

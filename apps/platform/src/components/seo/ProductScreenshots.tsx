@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { MotionConfig, motion } from 'framer-motion';
+import { MotionConfig, m as motion } from 'framer-motion';
 import { useState } from 'react';
 import mobileRemote from '../../assets/product/mobile-remote.webp?url';
 import mobileSearch from '../../assets/product/mobile-search.webp?url';

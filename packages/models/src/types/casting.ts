@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import type * as z from 'zod/mini';
 import {
   castDeviceSchema,
   castDeviceTypeSchema,
@@ -7,6 +7,8 @@ import {
   castSessionStateSchema,
   mediaInfoSchema,
 } from '../schemas/casting';
+import type { PlaybackStateV2 } from '../schemas/playback';
+import type { PlaylistItem } from '../schemas/playlist';
 
 // Inferred Types
 export type CastDeviceType = z.infer<typeof castDeviceTypeSchema>;
@@ -30,12 +32,12 @@ export interface CastManager {
 
   // Playback Control
   castMedia(mediaInfo: MediaInfo): Promise<void>;
-  updateQueue(queue: unknown[]): Promise<void>;
+  updateQueue(queue: PlaylistItem[]): Promise<void>;
   updateRoomInfo(roomInfo: {
     name: string;
     participantCount: number;
   }): Promise<void>;
-  syncPlaybackState(state: unknown): Promise<void>;
+  syncPlaybackState(state: PlaybackStateV2): Promise<void>;
   joinRoom(roomId: string, castToken: string): Promise<void>;
 
   // Event Handling

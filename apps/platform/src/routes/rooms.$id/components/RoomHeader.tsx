@@ -19,7 +19,7 @@ import {
   ShareIcon,
   Tooltip,
 } from '@vibes/ui/web';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m as motion } from 'framer-motion';
 import React, {
   lazy,
   type RefObject,

@@ -4,7 +4,7 @@ import {
   NowPlayingPlaylistItem,
   QueueItem,
 } from '@vibes/ui/web';
-import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
+import { AnimatePresence, MotionConfig, m as motion } from 'framer-motion';
 import { MusicDemo } from '../../../components/seo/MusicDemo';
 import { useQueueDemo } from '../hooks/useQueueDemo';
 

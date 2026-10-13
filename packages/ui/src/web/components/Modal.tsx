@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m as motion, useReducedMotion } from 'framer-motion';
 import type { ReactNode, RefObject } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';

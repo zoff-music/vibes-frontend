@@ -6,7 +6,7 @@ import {
   PlaybackProgress,
   PlayIcon,
 } from '@vibes/ui/web';
-import { MotionConfig, motion } from 'framer-motion';
+import { MotionConfig, m as motion } from 'framer-motion';
 import { useEffect, useId, useState } from 'react';
 import logo from '../../assets/logo-header.webp';
 import { useShowcaseMotion } from './useShowcaseMotion';

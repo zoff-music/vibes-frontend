@@ -1,5 +1,5 @@
 import { type PlaylistItem } from '@vibes/shared';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m as motion } from 'framer-motion';
 import React from 'react';
 import { useProgressiveList } from '../../hooks/useProgressiveList';
 import { QueueEmptyIcon } from '../../icons';

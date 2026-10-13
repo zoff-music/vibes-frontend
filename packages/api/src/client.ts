@@ -15,7 +15,6 @@ import {
   adminListenerUsageSchema,
   adminLoginRequestSchema,
   adminMessageUsageSchema,
-  adminMessageUsageSearchSchema,
   adminRoomResultV2Schema,
   adminRoomSearchV2Schema,
   adminRoomsV2Schema,
@@ -36,6 +35,8 @@ import {
   generatedPlaylistRequestSchema,
   generatedRoomRequestV2Schema,
   messageResponseSchema,
+  optionalAdminMessageUsageSearchSchema,
+  optionalSseQuerySchema,
   playbackFailureRequestV2Schema,
   playbackStateV2Schema,
   playlistItemIdUpdateSchema,
@@ -70,7 +71,6 @@ import {
   sessionResponseV2Schema,
   skipPlaylistItemResponseSchema,
   skipVoteUpdateV2Schema,
-  sseQuerySchema,
   statsV2Schema,
   updateSessionProfileRequestSchema,
   usersUpdateSchema,
@@ -197,7 +197,7 @@ const endpoints = {
   '/rooms/{id}/messages': {
     post: { request: createMessageSchema, response: roomMessageSchema },
     sse: {
-      $search: sseQuerySchema.optional(),
+      $search: optionalSseQuerySchema,
       events: {
         message: roomMessageSchema,
         settings_activity: roomMessageSchema,
@@ -269,7 +269,7 @@ const endpoints = {
   },
   '/admin/messages/usage': {
     get: {
-      $search: adminMessageUsageSearchSchema.optional(),
+      $search: optionalAdminMessageUsageSearchSchema,
       response: adminMessageUsageSchema,
     },
   },
@@ -416,7 +416,7 @@ const v3Endpoints = {
   },
   '/rooms/{id}/events': {
     sse: {
-      $search: sseQuerySchema.optional(),
+      $search: optionalSseQuerySchema,
       events: {
         connected: connectedSchema,
         event_cursor: eventCursorSchema,

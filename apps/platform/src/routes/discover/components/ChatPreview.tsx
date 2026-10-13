@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { ChatMessageLine, QueueItem, SegmentedToggle } from '@vibes/ui/web';
-import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
+import { AnimatePresence, MotionConfig, m as motion } from 'framer-motion';
 import logo from '../../../assets/logo-header.webp';
 import { MusicDemo } from '../../../components/seo/MusicDemo';
 import {

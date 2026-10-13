@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import { Button } from '../components/Button';
 import { Tooltip } from '../components/Tooltip';
 import { SkipIcon } from '../icons';

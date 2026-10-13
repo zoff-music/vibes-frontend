@@ -9,6 +9,7 @@ export * from './components/GenerationSparkles';
 export * from './components/Input';
 export * from './components/ListenerCount';
 export * from './components/Modal';
+export * from './components/MotionProvider';
 export * from './components/NotFoundView';
 export * from './components/NowPlaying';
 export * from './components/PersonalSettingsModal';
