@@ -1,8 +1,6 @@
 name: security
 
 on:
-  pull_request:
-    branches: ["main"]
   workflow_call:
 
 permissions:
@@ -10,7 +8,7 @@ permissions:
 
 jobs:
   audit:
-    if: github.repository == 'zoff-music/vibes-frontend' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -20,12 +18,13 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "26.8.1"
-      - uses: pnpm/action-setup@v4
+      - name: Install pnpm
+        run: npm install --global pnpm@12.3.4
       - name: Audit dependencies
         run: pnpm audit --audit-level=moderate
 
   semgrep:
-    if: github.repository == 'zoff-music/vibes-frontend' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

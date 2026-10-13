@@ -12,7 +12,7 @@ uses a private temporary Docker configuration removed after success or failure.
 Forks, other branches, unmerged PR closures, and manual dispatches cannot publish.
 
 The reusable `security.yaml` workflow runs Semgrep and `pnpm audit` in parallel
-before every release build and on same-repository PRs targeting `main`. Semgrep
+before every upstream `main` release build. PRs do not trigger workflows. Semgrep
 findings, scan errors, and dependency advisories rated moderate or higher block
 publishing. Neither scan has publishing permissions or deployment secrets.
 
