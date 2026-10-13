@@ -14,12 +14,18 @@ import { api } from '../client';
 import { createPublicRequestCache } from './cache';
 
 export function createProvidersRequest(client: ApiClient) {
-  const read = createPublicRequestCache<Providers>(60_000);
+  // Wiretyped owns the cache. This only isolates cancellation between readers.
+  const read = createPublicRequestCache<Providers>(0);
 
   return (options?: ApiRequestOptions): ApiResult<Providers> =>
     read(
       'providers',
-      (signal) => client.get('/providers', null, { retry: 0, signal }),
+      () =>
+        client.get('/providers', null, {
+          retry: 0,
+          cacheRequest: true,
+          cacheTimeToLive: 5 * 60_000,
+        }),
       options?.signal,
     );
 }

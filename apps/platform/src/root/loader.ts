@@ -28,17 +28,20 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     .split(';')
     .some((cookie) => /^session=.+/.test(cookie.trim()));
 
-  const [remoteResult, profileResult] = await Promise.all([
-    hasSession ? serverApi.v2.get('/remotes', null, options) : null,
-    hasSession ? serverApi.get('/sessions', null, options) : null,
-  ]);
+  const sessionProfile: Promise<SessionProfile | null> = hasSession
+    ? serverApi
+        .get('/sessions', null, options)
+        .then(([error, profile]) => (error ? null : profile))
+    : Promise.resolve(null);
+
+  // Remote status gates playback so paired devices never start a second player.
+  const remoteResult = hasSession
+    ? await serverApi.v2.get('/remotes', null, options)
+    : null;
   const [remoteError, remote] = remoteResult ?? [null, null];
-  const [profileError, profile] = profileResult ?? [null, null];
 
   const remoteStatus: RemoteStatusV2 =
     remoteError || !remote ? createEmptyRemoteStatus() : remote;
-  const sessionProfile: SessionProfile | null =
-    profileError || !profile ? null : profile;
 
   return {
     debug: process.env.VITE_DEBUG === 'true',

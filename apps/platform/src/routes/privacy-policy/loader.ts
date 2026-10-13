@@ -1,3 +1,4 @@
+import { createProvidersRequest } from '@vibes/api';
 import type { Providers } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getPublicContactEmails } from '../../config.server';
@@ -17,7 +18,8 @@ export async function privacyPolicyLoader({
   }
 
   const serverApi = getServerApi(request);
-  const [err, providers] = await serverApi.get('/providers', null);
+  const getProviders = createProvidersRequest(serverApi);
+  const [err, providers] = await getProviders({ signal: request.signal });
   if (err || !providers) {
     return {
       privacyEmail: emails.privacy,

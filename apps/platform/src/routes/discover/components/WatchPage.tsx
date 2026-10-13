@@ -1,19 +1,19 @@
 import { ArrowRightIcon } from '@vibes/ui/web';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';
-import { GeneratedPlaylistDemo } from '../../../components/seo/GeneratedPlaylistDemo';
 import { ProductAccordion } from '../../../components/seo/ProductAccordion';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
-import { WatchScene } from '../../../components/seo/WatchScene';
 import type { ProductPage } from '../../../seo/productPages';
-import { ChatPreview } from './ChatPreview';
 
 interface WatchPageProps {
   page: ProductPage;
+  preview: ReactNode;
+  children?: ReactNode;
 }
 
-export function WatchPage({ page }: WatchPageProps) {
+export function WatchPage({ page, preview, children }: WatchPageProps) {
   return (
     <SitePage>
       <article>
@@ -23,13 +23,7 @@ export function WatchPage({ page }: WatchPageProps) {
             eyebrow={page.label.toUpperCase()}
             title={page.heading}
             description={page.introduction}
-            aside={
-              <>
-                {page.slug === 'watching' && <WatchScene compact />}
-                {page.slug === 'cinema' && <ChatPreview watch />}
-                {page.slug === 'videos' && <GeneratedPlaylistDemo watch />}
-              </>
-            }
+            aside={preview}
           >
             <Link
               prefetch="intent"
@@ -59,11 +53,7 @@ export function WatchPage({ page }: WatchPageProps) {
             </section>
           ))}
         </div>
-        {page.slug === 'watching' && (
-          <div className="mx-auto max-w-xl py-8">
-            <ChatPreview watch />
-          </div>
-        )}
+        {children}
         <div className="overflow-hidden rounded-3xl border border-theme bg-theme-surface">
           {page.sections.slice(2).map((section) => (
             <ProductAccordion key={section.title} {...section} />

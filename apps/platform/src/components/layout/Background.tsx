@@ -14,7 +14,10 @@ export function Background() {
   const sunRef = useRef<HTMLDivElement>(null);
   const sunVisible = useInView(sunRef);
   const isHome = matches.some((match) => homeRouteIds.has(match.id));
-  const showGrid = matches.some((match) => gridRouteIds.has(match.id));
+  const showGrid = matches.some(
+    (match) =>
+      gridRouteIds.has(match.id) || match.id.startsWith('routes/discover/'),
+  );
 
   // The home hero positions its own sun behind the card.
   const showSun = location.pathname === '/rooms/create';

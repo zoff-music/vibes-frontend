@@ -1,3 +1,4 @@
+import { createProvidersRequest } from '@vibes/api';
 import type { Providers, PublicRoomV3, StatsV2 } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi, getServerApiV3 } from '../../http.server';
@@ -30,11 +31,8 @@ export async function loader({
     .then(([error, result]) =>
       error ? null : result.rooms.filter((room) => room.roomType === roomType),
     );
-  const [providersError, providers] = await serverApi.get(
-    '/providers',
-    null,
-    options,
-  );
+  const getProviders = createProvidersRequest(serverApi);
+  const [providersError, providers] = await getProviders(options);
 
   const data = {
     providers: providersError ? null : providers,
