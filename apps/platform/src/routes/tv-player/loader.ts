@@ -42,8 +42,7 @@ export function loader({ request }: LoaderFunctionArgs): Response {
       'X-Robots-Tag': 'noindex, nofollow',
       // This public player must allow file: ancestors with opaque origins.
       // frame-ancestors * does not allow those, so omit that directive here.
-      'Content-Security-Policy':
-        "default-src 'none'; style-src 'self'; frame-src https://www.youtube.com; base-uri 'none'; form-action 'none'",
+      'Content-Security-Policy': `default-src 'none'; style-src 'self' ${new URL(playerStyles, request.url).origin}; frame-src https://www.youtube.com; base-uri 'none'; form-action 'none'`,
     },
   });
 }

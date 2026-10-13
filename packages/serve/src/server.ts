@@ -98,6 +98,57 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     return;
   }
 
+  const staticBase = config.assets.path.replace(/\/assets\/?$/, '') || '/';
+  const assetRouter = express.Router();
+  assetRouter.use((_req, res, next) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.set('Timing-Allow-Origin', '*');
+    next();
+  });
+  assetRouter.use(
+    config.assets.path,
+    await precompressedAssets(config.assets.staticDir),
+    express.static(config.assets.staticDir, {
+      immutable: true,
+      maxAge: '1y',
+      index: false,
+      redirect: false,
+    }),
+  );
+  const publicFiles = express.static(config.staticDir, {
+    maxAge: '1h',
+    index: false,
+    redirect: false,
+  });
+  const publicImages = express.Router();
+  publicImages.use((req, res, next) => {
+    // Public images only: never expose documents, data or app routes here.
+    if (!/\.(?:png|webp|avif|jpe?g|gif|svg|ico|woff2?)$/i.test(req.path)) {
+      next();
+      return;
+    }
+
+    publicFiles(req, res, next);
+  });
+  assetRouter.use(staticBase, publicImages);
+  app.use((req, res, next) => {
+    if (!process.env.ASSET_HOST || req.hostname !== process.env.ASSET_HOST) {
+      next();
+      return;
+    }
+
+    // This hostname has no SSR/API fallback, including for missing chunks.
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      res.set('Cache-Control', 'no-store').sendStatus(405);
+      return;
+    }
+
+    assetRouter(req, res, () => {
+      res.set('Cache-Control', 'no-store').sendStatus(404);
+    });
+  });
+
   app.use(
     config.assets.path,
     await precompressedAssets(config.assets.staticDir),
@@ -111,6 +162,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
         maxAge: '1y',
       }),
     );
+    app.use(staticBase, publicImages);
     const staticOptions: Parameters<typeof express.static>[1] = {
       maxAge: '1h',
       index: false,

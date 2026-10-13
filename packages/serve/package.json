@@ -5,6 +5,7 @@
   "type": "module",
   "main": "src/index.ts",
   "exports": {
+    "./assets": "./src/assets.ts",
     ".": "./src/index.ts",
     "./precompress": "./src/precompress.ts",
     "./react-compiler": "./src/reactCompiler.ts"

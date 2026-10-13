@@ -7,10 +7,8 @@ import { robotsDirectives } from './robots';
 
 export const handleError: HandleErrorFunction = handleServerError;
 
-const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
-const fontFilename = regularFontUrl.slice(regularFontUrl.lastIndexOf('/') + 1);
 export const documentPreloads = [
-  `<${embedBasePath}/assets/${fontFilename}>; rel=preload; as=font; type="font/woff2"; crossorigin`,
+  `<${regularFontUrl}>; rel=preload; as=font; type="font/woff2"; crossorigin`,
 ];
 
 export default async function handleRequest(

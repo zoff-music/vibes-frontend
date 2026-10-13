@@ -1,3 +1,4 @@
+import { publicAssetUrl } from '@vibes/ui/web';
 import type { MetaFunction } from 'react-router';
 import type { loader } from './loader';
 import { createRoomShareDescription, createRoomShareTitle } from './share';
@@ -21,7 +22,7 @@ export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
   );
   const imageUrl =
     currentPlaylistItem?.thumbnailUrl ||
-    new URL('/logo.png', loaderData.pageUrl).toString();
+    new URL(publicAssetUrl('logo.png'), loaderData.pageUrl).toString();
   const imageAlt = currentPlaylistItem
     ? `${currentPlaylistItem.title} artwork`
     : 'Zoff shared rooms';

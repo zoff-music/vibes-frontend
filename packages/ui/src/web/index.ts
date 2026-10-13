@@ -1,3 +1,4 @@
+export { publicAssetUrl } from './assets';
 export * from './components/AnimatedNumber';
 export * from './components/Button';
 export { ChatConversation } from './components/ChatConversation';

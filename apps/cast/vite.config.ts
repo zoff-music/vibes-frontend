@@ -1,6 +1,7 @@
 import path from 'node:path';
 import postcssCascadeLayers from '@csstools/postcss-cascade-layers';
 import tailwindcss from '@tailwindcss/vite';
+import { assetBase } from '@vibes/serve/assets';
 import { precompressAssets } from '@vibes/serve/precompress';
 import { reactCompiler } from '@vibes/serve/react-compiler';
 import legacy from '@vitejs/plugin-legacy';
@@ -21,7 +22,7 @@ const plugins: PluginOption[] = [
 
 const hmrHost = process.env.CAST_HMR_HOST;
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:8080';
   const proxiesRemoteApi = apiProxyTarget.startsWith('https://');
@@ -35,7 +36,10 @@ export default defineConfig(({ mode }) => {
     },
     root: '.',
     publicDir: 'public',
-    base: '/casting/receiver/',
+    base:
+      command === 'build'
+        ? assetBase(env.ASSET_ORIGIN, '/casting/receiver/')
+        : '/casting/receiver/',
     server: {
       host: true,
       port: 3003,

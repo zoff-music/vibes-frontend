@@ -5,6 +5,7 @@ import {
   PauseIcon,
   PlaybackProgress,
   PlayIcon,
+  publicAssetUrl,
   SegmentedToggle,
   SkipIcon,
 } from '@vibes/ui/web';
@@ -96,7 +97,7 @@ export function EmbedWidget() {
                     </Button>
                   )}
                   <img
-                    src="/logo.png"
+                    src={publicAssetUrl('logo.png')}
                     alt="Zoff"
                     width={1024}
                     height={1024}
