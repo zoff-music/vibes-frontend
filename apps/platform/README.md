@@ -31,6 +31,16 @@ until those views are opened. Chat subscriptions and unread counts stay active
 outside the deferred panel. Keep the initial queue visible in server-rendered
 HTML, and avoid a persistent full-page blur filter around the player and queue.
 
+Room documents serialize only the first 13 playlist items, enough for the 12-row
+initial queue and the current item, alongside the full upcoming-item count.
+Playback metadata remains complete and both providers still prepare immediately.
+The first item for each provider is retained separately to warm inactive players
+even when that item falls outside the queue preview.
+After the SSR data initializes the stores, the existing live connection supplies
+the full ordered queue snapshot. Keep the initial count until that snapshot
+arrives. Client navigation and reconnect revalidation still load the full queue;
+an empty live snapshot must not fall back to stale SSR rows.
+
 ### Return to a room
 
 Opening a room remembers its ID locally. Leaving through in-app navigation or

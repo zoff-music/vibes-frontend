@@ -46,6 +46,7 @@ interface RoomPlayerProps {
   onAddPlaylistItem: () => void;
   onOpenCast: () => void;
   initialPlayback?: PlaybackStateV2;
+  initialPreloadPlaylistItems?: PlaylistItem[];
   providers: Providers;
   terminalMode?: boolean;
 }
@@ -123,6 +124,7 @@ export const RoomPlayer = React.memo(
     onAddPlaylistItem,
     onOpenCast,
     initialPlayback,
+    initialPreloadPlaylistItems = [],
     providers,
     terminalMode = false,
   }: RoomPlayerProps) => {
@@ -192,11 +194,19 @@ export const RoomPlayer = React.memo(
     const preloadSoundCloudPlaylistItem =
       playlistItems.find(
         (playlistItem) => playlistItem.sourceType === 'soundcloud',
-      ) ?? null;
+      ) ??
+      initialPreloadPlaylistItems.find(
+        (playlistItem) => playlistItem.sourceType === 'soundcloud',
+      ) ??
+      null;
     const preloadVideoPlaylistItem =
       playlistItems.find(
         (playlistItem) => playlistItem.sourceType === 'youtube',
-      ) ?? null;
+      ) ??
+      initialPreloadPlaylistItems.find(
+        (playlistItem) => playlistItem.sourceType === 'youtube',
+      ) ??
+      null;
 
     const [SoundCloudPlayerComponent, setSoundCloudPlayerComponent] =
       useState<PlayerComponent | null>(null);
