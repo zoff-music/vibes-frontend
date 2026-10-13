@@ -136,11 +136,17 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     const entry = build.entry.module as ServerBuild['entry']['module'] & {
       documentPreloads?: string[];
     };
-    const preloads = entry.documentPreloads;
+    const modulePreloads = [
+      ...new Set([build.assets.entry.module, ...build.assets.entry.imports]),
+    ].map((url) => `<${url}>; rel=modulepreload`);
+    const preloads = entry.documentPreloads
+      ? [...entry.documentPreloads, ...modulePreloads]
+      : [];
 
     if (preloads?.length) {
       app.use((req, res, next) => {
-        // Only document navigation needs fonts, not data requests or assets.
+        // Start shared hydration dependencies while document loaders run.
+        // Data requests and assets must not preload an application shell.
         if (
           req.method === 'GET' &&
           req.get('Accept')?.includes('text/html') &&

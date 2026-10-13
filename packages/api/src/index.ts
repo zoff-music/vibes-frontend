@@ -1,3 +1,4 @@
+export * from './admin';
 export * from './adminEvents';
 export * from './client';
 export * from './hooks/useAdminEvents';

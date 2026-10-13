@@ -26,6 +26,59 @@ export default defineConfig(({ command, mode }) => {
     ],
     root: '.',
     publicDir: 'public',
+    environments: {
+      client: {
+        build: {
+          rolldownOptions: {
+            output: {
+              chunkFileNames(chunk) {
+                const name = chunk.name.startsWith('router-react')
+                  ? 'router-react'
+                  : chunk.name;
+
+                return `assets/${name}-[hash].js`;
+              },
+              codeSplitting: {
+                groups: [
+                  {
+                    name: 'react-runtime',
+                    test: /node_modules[\\/]react[\\/]/,
+                    priority: 40,
+                  },
+                  {
+                    name: 'react-dom',
+                    test: /node_modules[\\/](?:react-dom|scheduler)[\\/]/,
+                    priority: 30,
+                  },
+                  {
+                    name: 'validation-core',
+                    test: /zod[\\/]v4[\\/]core[\\/](?!compile\.js$|index\.js$)[^\\/]+\.js$/,
+                    priority: 27,
+                  },
+                  {
+                    name: 'validation-compiler',
+                    test: /zod[\\/]v4[\\/]core[\\/]compile\.js$/,
+                    priority: 26,
+                  },
+                  {
+                    name: 'router-core',
+                    test: /react-router[\\/]dist[\\/]production[\\/]lib[\\/]router[\\/]/,
+                    priority: 20,
+                    maxSize: 90_000,
+                  },
+                  {
+                    name: 'router-react',
+                    test: /react-router[\\/]dist[\\/]production[\\/]/,
+                    priority: 10,
+                    entriesAware: true,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
     server: {
       port: 3001,
       host: '0.0.0.0',

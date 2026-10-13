@@ -1,5 +1,5 @@
 import { type PlaylistItem } from '@vibes/shared';
-import { AnimatePresence, m as motion } from 'framer-motion';
+import { AnimatePresence, m as motion, useReducedMotion } from 'framer-motion';
 import React from 'react';
 import { useProgressiveList } from '../../hooks/useProgressiveList';
 import { QueueEmptyIcon } from '../../icons';
@@ -38,6 +38,8 @@ const QueueListComponent: React.FC<Props> = ({
   votingPlaylistItemId,
 }) => {
   const [visibleCount, sentinelRef] = useProgressiveList(playlistItems.length);
+  const reducedMotion = useReducedMotion();
+
   if (playlistItems.length === 0) {
     if (onEmptyClick) {
       return (
@@ -62,19 +64,29 @@ const QueueListComponent: React.FC<Props> = ({
   const visiblePlaylistItems = playlistItems.slice(0, visibleCount);
 
   return (
-    <div className="space-y-2">
+    <div className="relative space-y-2">
       <AnimatePresence initial={false} mode="popLayout">
         {visiblePlaylistItems.map((playlistItem, index) => (
           <motion.div
             key={playlistItem.id}
-            initial={{ opacity: 0, scale: 0.96, y: 14 }}
+            layout={reducedMotion ? false : 'position'}
+            initial={{
+              opacity: 0,
+              scale: reducedMotion ? 1 : 0.96,
+              y: reducedMotion ? 0 : 14,
+            }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, x: 24 }}
+            exit={{
+              opacity: 0,
+              scale: reducedMotion ? 1 : 0.96,
+              y: reducedMotion ? 0 : -14,
+            }}
             transition={{
               type: 'spring',
               stiffness: 420,
               damping: 34,
-              opacity: { duration: 0.16 },
+              opacity: { duration: reducedMotion ? 0 : 0.16 },
+              layout: { duration: reducedMotion ? 0 : 0.3, ease: 'easeOut' },
             }}
           >
             <QueueItem
