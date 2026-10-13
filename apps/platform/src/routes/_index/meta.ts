@@ -1,3 +1,4 @@
+import { publicAssetUrl } from '@vibes/ui/web';
 import type { MetaFunction } from 'react-router';
 import {
   appStoreUrl,
@@ -40,7 +41,7 @@ export const meta: MetaFunction = ({ params }) => {
         url: siteUrl,
         mainEntityOfPage: { '@id': `${siteUrl}/#webpage` },
         isAccessibleForFree: true,
-        image: `${siteUrl}/logo.png`,
+        image: new URL(publicAssetUrl('logo.png'), siteUrl).href,
         sameAs: [appStoreUrl, playStoreUrl, 'https://github.com/zoff-music'],
         offers: {
           '@type': 'Offer',

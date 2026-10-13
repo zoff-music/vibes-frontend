@@ -25,6 +25,9 @@ RUN pnpm install --frozen-lockfile
 
 FROM deps AS builder
 
+ARG ASSET_ORIGIN=""
+ENV ASSET_ORIGIN=${ASSET_ORIGIN}
+
 COPY apps/remote ./apps/remote
 
 RUN pnpm --filter @vibes/remote build

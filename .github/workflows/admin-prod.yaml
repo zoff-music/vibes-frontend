@@ -30,12 +30,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Build
+        env:
+          ASSET_ORIGIN: ${{ vars.ASSET_ORIGIN }}
         run: |
           IMAGE_REPOSITORY="ghcr.io/${GITHUB_REPOSITORY,,}/admin"
           IMAGE_VERSION="main-$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA}"
           IMAGE="${IMAGE_REPOSITORY}:${GITHUB_SHA}"
           VERSIONED_IMAGE="${IMAGE_REPOSITORY}:${IMAGE_VERSION}"
-          docker build --no-cache -f apps/admin/Dockerfile -t "$IMAGE" -t "$VERSIONED_IMAGE" .
+          docker build --no-cache --build-arg ASSET_ORIGIN="$ASSET_ORIGIN" -f apps/admin/Dockerfile -t "$IMAGE" -t "$VERSIONED_IMAGE" .
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
           echo "VERSIONED_IMAGE=$VERSIONED_IMAGE" >> "$GITHUB_ENV"
       - name: Push

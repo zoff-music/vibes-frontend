@@ -1,16 +1,18 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { assetBase } from '@vibes/serve/assets';
 import { precompressAssets } from '@vibes/serve/precompress';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 
-export default defineConfig(({ command }) => {
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
   const isBuild = command === 'build';
   const nodeEnv =
     process.env.NODE_ENV || (isBuild ? 'production' : 'development');
 
   return {
-    base: isBuild ? '/admin/' : '/',
+    base: isBuild ? assetBase(env.ASSET_ORIGIN, '/admin/') : '/',
     plugins: [tailwindcss(), reactRouter(), precompressAssets()],
     root: '.',
     publicDir: 'public',

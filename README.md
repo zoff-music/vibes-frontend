@@ -108,3 +108,39 @@ Read [AGENTS.md](AGENTS.md) and the
 The backend [architecture](https://github.com/zoff-music/vibes-backend/blob/main/docs/ARCHITECTURE.md)
 and [flows](https://github.com/zoff-music/vibes-backend/blob/main/docs/FLOWS.md)
 describe the cross-repository contracts.
+
+## Static asset origin
+
+Web builds accept `ASSET_ORIGIN`, for example `https://assets.example.com`.
+Leave it empty to use same-origin files. The production workflows pass the
+`ASSET_ORIGIN` GitHub Actions variable to each Docker build; changing it requires
+rebuilding and deploying the affected apps. This does not change API URLs,
+SSE subscriptions, router paths, manifests used for route discovery, or cookies.
+
+All five web apps share one origin with these independent asset prefixes:
+
+| App | Built assets |
+| --- | --- |
+| Platform | `/assets/` |
+| Admin | `/admin/assets/` |
+| Embed | `/embed/assets/` |
+| Remote | `/remotes/assets/` |
+| Cast | `/casting/receiver/assets/` |
+
+Public images use each app's base path. Imported images, CSS, fonts and dynamic
+chunks use Vite's generated URLs. Keep Embed's build-time `EMBED_BASE_PATH`
+aligned with its runtime path and ingress. Native and packaged TV builds are
+unchanged. Cast retains its legacy JavaScript and CSS targets.
+
+Set the web servers' runtime `ASSET_HOST` to the asset hostname. Requests on
+that host serve static files only, with anonymous cross-origin access for
+modules and fonts; missing files, HTML, API and data routes never fall through
+to SSR. Hashed files retain immutable one-year caching and prebuilt compression;
+unhashed public images have a one-hour cache lifetime. Do not route APIs or SSE
+through the asset host or proxy the application's main hostname to enable this.
+
+Roll out server support first with an empty `ASSET_ORIGIN`, then verify the
+asset host's DNS, TLS, CORS, compression and app prefixes. Only then enable the
+build variable. To roll back asset URLs, clear that variable and rebuild. Keep
+the asset host available for already-open pages. CDN caching is not permanent
+storage: it does not by itself guarantee retention of previous build files.

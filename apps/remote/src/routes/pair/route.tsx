@@ -1,6 +1,6 @@
 import { plausibleClient } from '@vibes/api';
 import { safeWrap, safeWrapAsync } from '@vibes/shared';
-import { Button, Input } from '@vibes/ui/web';
+import { Button, Input, publicAssetUrl } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useSearchParams } from 'react-router';
 import { clientAction, type PairActionData } from './action';
@@ -107,7 +107,7 @@ export default function PairRemote() {
       <section className="panel-strong w-full max-w-lg rounded-4xl p-6 shadow-primary-panel sm:p-9">
         <div className="text-center">
           <img
-            src="/logo.png"
+            src={publicAssetUrl('logo.png')}
             alt="Zoff"
             className="mx-auto h-24 w-24 object-contain"
           />

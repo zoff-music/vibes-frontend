@@ -17,17 +17,11 @@ import { EmbedRoomErrorBoundary } from './routes/embed.$roomId/components/error-
 
 export function loader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url);
-  const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
-  const stylesheetFilename = stylesUrl.slice(stylesUrl.lastIndexOf('/') + 1);
-  const logoFilename = logoUrl.slice(logoUrl.lastIndexOf('/') + 1);
-  const fontFilename = regularFontUrl.slice(
-    regularFontUrl.lastIndexOf('/') + 1,
-  );
   return {
     debug: process.env.VITE_DEBUG === 'true',
-    logoUrl: `${embedBasePath}/assets/${logoFilename}`,
-    fontUrl: `${embedBasePath}/assets/${fontFilename}`,
-    stylesheetUrl: `${embedBasePath}/assets/${stylesheetFilename}`,
+    logoUrl,
+    fontUrl: regularFontUrl,
+    stylesheetUrl: stylesUrl,
     colorScheme: parseColorScheme(requestUrl.searchParams.get('theme')),
   };
 }

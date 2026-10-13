@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
 import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
-import { MotionProvider, NotFoundView } from '@vibes/ui/web';
+import { MotionProvider, NotFoundView, publicAssetUrl } from '@vibes/ui/web';
 import { lazy, type ReactNode, Suspense, useState } from 'react';
 import type { MetaFunction, ShouldRevalidateFunctionArgs } from 'react-router';
 import {
@@ -96,15 +96,19 @@ export function Layout({ children }: Props) {
         <link
           rel="icon"
           type="image/png"
-          href="/favicon-96x96.png"
+          href={publicAssetUrl('favicon-96x96.png')}
           sizes="96x96"
         />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="shortcut icon" href="/favicon.ico" />
+        <link
+          rel="icon"
+          type="image/svg+xml"
+          href={publicAssetUrl('favicon.svg')}
+        />
+        <link rel="shortcut icon" href={publicAssetUrl('favicon.ico')} />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="/apple-touch-icon.png"
+          href={publicAssetUrl('apple-touch-icon.png')}
         />
         <link rel="manifest" href="/site.webmanifest" />
         <script defer src={analyticsUrl} />

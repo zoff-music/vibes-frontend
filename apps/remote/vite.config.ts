@@ -1,18 +1,20 @@
 import path from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { assetBase } from '@vibes/serve/assets';
 import { precompressAssets } from '@vibes/serve/precompress';
 import { reactCompiler } from '@vibes/serve/react-compiler';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
   const apiProxyTarget =
     loadEnv(mode, process.cwd(), '').VITE_API_PROXY_TARGET ||
     'http://localhost:8080';
   const proxiesRemoteApi = apiProxyTarget.startsWith('https://');
 
   return {
-    base: command === 'build' ? '/remotes/' : '/',
+    base: command === 'build' ? assetBase(env.ASSET_ORIGIN, '/remotes/') : '/',
     plugins: [
       tailwindcss(),
       reactRouter(),
