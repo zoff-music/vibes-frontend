@@ -61,7 +61,7 @@ packages/
 ## Packages
 
 - `@vibes/api`: API client (`import { api } from '@vibes/api'`)
-- `@vibes/models`: Shared types and schemas (`import { Room, Song, PlaybackState } from '@vibes/models'`)
+- `@vibes/models`: Shared types and schemas (`import { RoomV2, PlaylistItem, PlaybackStateV2 } from '@vibes/models'`)
 - `@vibes/shared`: Shared utilities (`import { safeWrap, usePlaybackStore, SourceType } from '@vibes/shared'`)
 - `@vibes/ui/web`: DOM UI and player components (`import { VideoPlayer, Toast } from '@vibes/ui/web'`)
 - `@vibes/ui/native`: React Native controls and official native provider-player wrappers
@@ -102,20 +102,20 @@ Always use `@vibes/api`:
 import { api } from '@vibes/api';
 
 // GET request
-const [error, room] = await api.get('/rooms/{id}', { id: roomId });
+const [error, room] = await api.v2.get('/rooms/{id}', { id: roomId });
 
 // POST request
-const [error, song] = await api.post('/rooms/{id}/songs', { id: roomId }, {
+const [error, item] = await api.v2.post('/rooms/{id}/playlist-items', { id: roomId }, {
   sourceType: 'youtube',
   sourceId: 'dQw4w9WgXcQ',
   title: 'Never Gonna Give You Up',
-  artist: 'Rick Astley',
+  publisher: 'Rick Astley',
   thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
   duration: 213
 });
 
 // PUT request
-const [error, playbackState] = await api.put('/rooms/{id}/states', { id: roomId }, {
+const [error, playbackState] = await api.v2.put('/rooms/{id}/states', { id: roomId }, {
   action: 'play',
   positionMs: 45000
 });
@@ -253,9 +253,10 @@ SSE events are handled automatically by `useSSE` hook:
 ```typescript
 // Event types received:
 // - playback_update: Playback state changed
-// - song_added: Song added to queue
-// - song_removed: Song removed from queue
-// - songs_update: Queue reordered
+// - playlist_item_added: Item added to queue
+// - playlist_item_removed: Item removed from queue
+// - playlist_item_updated: Item updated or reordered
+// - playlist_items_snapshot: Initial queue snapshot
 // - users_update: User count updated
 // - settings_update: Room settings changed
 ```
@@ -272,8 +273,11 @@ type SourceType = 'youtube' | 'soundcloud';
 const { getToken, isAuthenticated } = useProviderToken('soundcloud');
 
 // Search across providers
-const [error, results] = await api.get('/youtube/search', {}, { q: 'never gonna give you up' });
-const [error, results] = await api.get('/soundcloud/search', {}, { q: 'never gonna give you up' });
+const [error, results] = await api.v2.get('/rooms/{id}/search/{provider}', {
+  id: roomId,
+  provider: 'youtube', // Use 'soundcloud' only in MUSIC rooms.
+  $search: { q: 'never gonna give you up' },
+});
 ```
 
 ## Styling

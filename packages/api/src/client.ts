@@ -9,21 +9,15 @@ declare const process:
 import {
   addPlaylistItemRequestSchema,
   addPlaylistItemResponseSchema,
-  addPlaylistRequestSchema,
   addPlaylistRequestV2Schema,
   addPlaylistResponseSchema,
-  addSongRequestSchema,
-  addSongResponseSchema,
   adminCreateUserRequestSchema,
   adminListenerUsageSchema,
   adminLoginRequestSchema,
   adminMessageUsageSchema,
   adminMessageUsageSearchSchema,
-  adminRoomResultSchema,
   adminRoomResultV2Schema,
-  adminRoomSearchSchema,
   adminRoomSearchV2Schema,
-  adminRoomsSchema,
   adminRoomsV2Schema,
   adminSearchUsageSchema,
   adminSessionResponseSchema,
@@ -35,19 +29,14 @@ import {
   connectedSchema,
   createCastingTokenRequestSchema,
   createMessageSchema,
-  createRoomRequestSchema,
   createRoomRequestV2Schema,
-  createRoomResponseSchema,
   createSessionRequestSchema,
   emptyObjectSchema,
   eventCursorSchema,
   generatedPlaylistRequestSchema,
   generatedRoomRequestV2Schema,
   messageResponseSchema,
-  musicPlaylistSchema,
-  playbackFailureRequestSchema,
   playbackFailureRequestV2Schema,
-  playbackStateSchema,
   playbackStateV2Schema,
   playlistItemIdUpdateSchema,
   playlistItemPositionUpdateSchema,
@@ -59,20 +48,13 @@ import {
   providersSchema,
   providerTokenSchema,
   providerURLQuerySchema,
-  publicRoomResultSchema,
   publicRoomResultV3Schema,
   publicRoomSearchSchema,
-  publicRoomsSchema,
-  remoteEventSchema,
   remoteEventV2Schema,
   remotePairingRequestSchema,
-  remotePairingSchema,
   remotePairingV2Schema,
-  remoteSessionSchema,
   remoteSessionV2Schema,
-  remoteStatusSchema,
   remoteStatusV2Schema,
-  remoteUpdateRequestSchema,
   remoteUpdateRequestV2Schema,
   roomActionRequestSchema,
   roomGenerationUpdateSchema,
@@ -80,33 +62,18 @@ import {
   roomMessageSchema,
   roomNameReservationRequestSchema,
   roomNameReservationSchema,
-  roomSchema,
   roomTypeQuerySchema,
-  roomUpdateSchema,
   roomUpdateV2Schema,
   roomV2Schema,
   searchQuerySchema,
-  searchResponseSchema,
-  searchResultSchema,
   sessionProfileSchema,
-  sessionResponseSchema,
   sessionResponseV2Schema,
-  skipActionResponseSchema,
   skipPlaylistItemResponseSchema,
-  skipVoteUpdateSchema,
   skipVoteUpdateV2Schema,
-  songIdUpdateSchema,
-  songPositionUpdateSchema,
-  songSchema,
-  songsListSchema,
   sseQuerySchema,
-  statsSchema,
   statsV2Schema,
   updateSessionProfileRequestSchema,
   usersUpdateSchema,
-  youTubeSearchQuerySchema,
-  youTubeSearchResponseSchema,
-  youTubeVideoSchema,
 } from '@vibes/models';
 
 import {
@@ -208,20 +175,9 @@ const endpoints = {
       response: sessionProfileSchema,
     },
   },
-  '/rooms': {
-    post: {
-      request: createRoomRequestSchema,
-      response: createRoomResponseSchema,
-    },
-  },
   '/rooms/suggestions': {
     get: {
       response: roomNameReservationSchema,
-    },
-  },
-  '/rooms/public': {
-    get: {
-      response: publicRoomsSchema,
     },
   },
   '/rooms/reservations': {
@@ -230,80 +186,7 @@ const endpoints = {
       response: roomNameReservationSchema,
     },
   },
-  '/rooms/{id}': {
-    get: {
-      response: roomSchema,
-    },
-    post: {
-      request: roomActionRequestSchema,
-      response: playbackStateSchema,
-    },
-  },
-  '/rooms/{id}/settings': {
-    patch: {
-      request: roomUpdateSchema,
-      response: roomSchema,
-    },
-  },
-  '/rooms/{id}/skips': {
-    post: {
-      response: skipActionResponseSchema,
-    },
-  },
 
-  '/rooms/{id}/states': {
-    get: {
-      response: playbackStateSchema,
-    },
-    put: {
-      request: roomActionRequestSchema,
-      response: playbackStateSchema,
-    },
-  },
-  '/rooms/{id}/playbackfailures': {
-    post: {
-      request: playbackFailureRequestSchema,
-      response: playbackStateSchema,
-    },
-  },
-  '/rooms/{id}/sessions': {
-    post: {
-      request: createSessionRequestSchema,
-      response: sessionResponseSchema,
-    },
-    delete: {
-      response: sessionResponseSchema,
-    },
-  },
-  '/rooms/{id}/songs': {
-    get: {
-      response: songsListSchema,
-    },
-    post: {
-      request: addSongRequestSchema,
-      response: addSongResponseSchema,
-    },
-  },
-  '/rooms/{id}/songs/{songId}': {
-    delete: {
-      response: emptyObjectSchema,
-    },
-    post: {
-      response: emptyObjectSchema,
-    },
-  },
-  '/rooms/{id}/playlists': {
-    post: {
-      request: addPlaylistRequestSchema,
-      response: addPlaylistResponseSchema,
-    },
-  },
-  '/rooms/generation': {
-    post: {
-      request: generatedPlaylistRequestSchema,
-      response: roomSchema,
-    },
-  },
   '/rooms/{id}/generations': {
     post: {
       request: generatedPlaylistRequestSchema,
@@ -311,28 +194,6 @@ const endpoints = {
     },
   },
 
-  '/youtube/search': {
-    get: {
-      $search: youTubeSearchQuerySchema,
-      response: youTubeSearchResponseSchema,
-    },
-  },
-  '/youtube/videos/{id}': {
-    get: {
-      response: youTubeVideoSchema,
-    },
-  },
-  '/youtube/playlists/{id}': {
-    get: {
-      response: musicPlaylistSchema,
-    },
-  },
-  '/soundcloud/playlists': {
-    get: {
-      $search: providerURLQuerySchema,
-      response: musicPlaylistSchema,
-    },
-  },
   '/rooms/{id}/messages': {
     post: { request: createMessageSchema, response: roomMessageSchema },
     sse: {
@@ -341,23 +202,6 @@ const endpoints = {
         message: roomMessageSchema,
         settings_activity: roomMessageSchema,
         event_cursor: eventCursorSchema,
-      },
-    },
-  },
-  '/rooms/{id}/events': {
-    sse: {
-      $search: sseQuerySchema.optional(),
-      events: {
-        connected: connectedSchema,
-        event_cursor: eventCursorSchema,
-        playback_update: playbackStateSchema,
-        songs_update: songsListSchema,
-        song_added: songSchema,
-        skip_vote: skipVoteUpdateSchema,
-        settings_update: roomSchema,
-        users_update: usersUpdateSchema,
-        generation_update: roomGenerationUpdateSchema,
-        new_host: roomHostUpdateSchema,
       },
     },
   },
@@ -382,50 +226,15 @@ const endpoints = {
       response: providersSchema,
     },
   },
-  '/stats': {
-    get: {
-      response: statsSchema,
-    },
-  },
   '/tokens/casting': {
     post: {
       request: createCastingTokenRequestSchema,
       response: castingTokenResponseSchema,
     },
   },
-  '/remotes': {
-    get: {
-      response: remoteStatusSchema,
-    },
-    post: {
-      request: remoteUpdateRequestSchema,
-      response: remotePairingSchema,
-    },
-  },
   '/remotes/{id}': {
-    get: {
-      response: remoteStatusSchema,
-    },
-    patch: {
-      request: remoteUpdateRequestSchema,
-      response: emptyObjectSchema,
-    },
     delete: {
       response: emptyObjectSchema,
-    },
-  },
-  '/remotes/{id}/sessions': {
-    post: {
-      request: remotePairingRequestSchema,
-      response: remoteSessionSchema,
-    },
-  },
-  '/remotes/{id}/events': {
-    sse: {
-      events: {
-        remote_room_update: remoteEventSchema,
-        remote_state_update: remoteEventSchema,
-      },
     },
   },
   '/admin/sessions': {
@@ -458,12 +267,6 @@ const endpoints = {
       response: emptyObjectSchema,
     },
   },
-  '/admin/rooms': {
-    get: {
-      $search: adminRoomSearchSchema,
-      response: adminRoomResultSchema,
-    },
-  },
   '/admin/messages/usage': {
     get: {
       $search: adminMessageUsageSearchSchema.optional(),
@@ -478,35 +281,6 @@ const endpoints = {
   '/admin/listeners/usage': {
     get: {
       response: adminListenerUsageSchema,
-    },
-  },
-  '/admin/rooms/{id}': {
-    patch: {
-      request: adminUpdateRoomRequestSchema,
-      response: adminRoomsSchema,
-    },
-    delete: {
-      response: adminRoomsSchema,
-    },
-  },
-  '/admin/events': {
-    sse: {
-      events: {
-        connected: connectedSchema,
-        admin_rooms_update: adminRoomsSchema,
-      },
-    },
-  },
-  '/soundcloud/search': {
-    get: {
-      $search: searchQuerySchema,
-      response: searchResponseSchema,
-    },
-  },
-  '/soundcloud/tracks': {
-    get: {
-      $search: providerURLQuerySchema,
-      response: searchResultSchema,
     },
   },
 } as const satisfies RequestDefinitions;
@@ -628,31 +402,6 @@ const v2Endpoints = {
       events: {
         connected: connectedSchema,
         admin_rooms_update: adminRoomsV2Schema,
-      },
-    },
-  },
-  '/rooms/public': {
-    get: {
-      $search: publicRoomSearchSchema,
-      response: publicRoomResultSchema,
-    },
-  },
-  '/rooms/{id}/events': {
-    sse: {
-      $search: sseQuerySchema.optional(),
-      events: {
-        connected: connectedSchema,
-        event_cursor: eventCursorSchema,
-        playback_update: playbackStateSchema,
-        songs_snapshot: songsListSchema,
-        song_added: songSchema,
-        song_updated: songPositionUpdateSchema,
-        song_removed: songIdUpdateSchema,
-        skip_vote: skipVoteUpdateSchema,
-        settings_update: roomSchema,
-        users_update: usersUpdateSchema,
-        generation_update: roomGenerationUpdateSchema,
-        new_host: roomHostUpdateSchema,
       },
     },
   },

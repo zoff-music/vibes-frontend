@@ -1,7 +1,6 @@
 import type {
   CastingTokenResponse,
   CreateRoomRequestV2,
-  CreateRoomResponse,
   EmptyObject,
   GeneratedPlaylistRequest,
   GeneratedRoomRequestV2,
@@ -70,11 +69,11 @@ export interface RoomLifecycleRequests {
   createGeneratedRoom: (
     request: GeneratedRoomRequestV2,
     options?: ApiRequestOptions,
-  ) => ApiResult<CreateRoomResponse>;
+  ) => ApiResult<RoomV2>;
   createRoom: (
     request: CreateRoomRequestV2,
     options?: ApiRequestOptions,
-  ) => ApiResult<CreateRoomResponse>;
+  ) => ApiResult<RoomV2>;
   joinRoom: (
     roomId: string,
     password?: string,

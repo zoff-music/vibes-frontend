@@ -112,8 +112,6 @@ for (const file of listSourceFiles('apps/mobile/src/routes')) {
 const allowedApiHooks = new Set([
   'useAdminEvents',
   'useRemoteEvents',
-  'useRoomEvents',
-  'useRoomEventsV2',
   'useRoomEventsV3',
   'useRoomMessages',
 ]);
