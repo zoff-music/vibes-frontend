@@ -939,6 +939,9 @@ importers:
       framer-motion:
         specifier: 14.1.0
         version: 14.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react-router:
+        specifier: 8.4.0
+        version: 8.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react-youtube:
         specifier: 10.1.0
         version: 10.1.0(react@19.2.8)(supports-color@8.1.1)

@@ -30,8 +30,16 @@ export function createRoomReadRequests(client: ApiClient): RoomReadRequests {
   return {
     fetchRoom: (roomId: string, options?: ApiRequestOptions) =>
       client.v2.get('/rooms/{id}', { id: roomId }, options),
-    fetchPlaylistItems: (roomId: string, options?: ApiRequestOptions) =>
-      client.v2.get('/rooms/{id}/playlist-items', { id: roomId }, options),
+    fetchPlaylistItems: async (roomId: string, options?: ApiRequestOptions) => {
+      const [error, result] = await client.v3.get(
+        '/rooms/{id}/items',
+        { id: roomId, $search: {} },
+        options,
+      );
+      if (error) return [error, null];
+
+      return [null, result.data];
+    },
   };
 }
 
@@ -194,9 +202,9 @@ export function createRoomQueueRequests(client: ApiClient): RoomQueueRequests {
       playlistItemId: string,
       options?: ApiRequestOptions,
     ) =>
-      client.v2.delete(
-        '/rooms/{id}/playlist-items/{playlistItemId}',
-        { id: roomId, playlistItemId },
+      client.v3.delete(
+        '/rooms/{id}/items/{itemId}',
+        { id: roomId, itemId: playlistItemId },
         options,
       ),
     vote: (
@@ -204,9 +212,9 @@ export function createRoomQueueRequests(client: ApiClient): RoomQueueRequests {
       playlistItemId: string,
       options?: ApiRequestOptions,
     ) =>
-      client.v2.post(
-        '/rooms/{id}/playlist-items/{playlistItemId}',
-        { id: roomId, playlistItemId },
+      client.v3.post(
+        '/rooms/{id}/items/{itemId}',
+        { id: roomId, itemId: playlistItemId },
         {},
         options,
       ),

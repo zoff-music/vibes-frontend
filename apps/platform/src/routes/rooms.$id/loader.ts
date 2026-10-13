@@ -32,29 +32,38 @@ export async function loader({
   const serverApi = getServerApi(request);
   const cookieHeader = request.headers.get('cookie') ?? undefined;
   const requestHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
+  const options = { headers: requestHeaders, signal: request.signal };
 
-  const [roomRes, playlistItemsRes, playbackRes, providersRes] =
-    await Promise.all([
-      serverApi.v2.get(
-        '/rooms/{id}',
-        { id: roomId },
-        { headers: requestHeaders },
-      ),
-      serverApi.v2.get(
-        '/rooms/{id}/playlist-items',
-        { id: roomId },
-        { headers: requestHeaders },
-      ),
-      serverApi.v2.get(
-        '/rooms/{id}/states',
-        { id: roomId },
-        { headers: requestHeaders },
-      ),
-      serverApi.get('/providers', null, { headers: requestHeaders }),
-    ]);
+  const [
+    roomRes,
+    playlistItemsRes,
+    playbackRes,
+    providersRes,
+    youtubeRes,
+    soundcloudRes,
+  ] = await Promise.all([
+    serverApi.v2.get('/rooms/{id}', { id: roomId }, options),
+    serverApi.v3.get(
+      '/rooms/{id}/items',
+      { id: roomId, $search: { from: 1, to: 12, excludeCurrent: true } },
+      options,
+    ),
+    serverApi.v2.get('/rooms/{id}/states', { id: roomId }, options),
+    serverApi.get('/providers', null, options),
+    serverApi.v3.get(
+      '/rooms/{id}/items',
+      { id: roomId, $search: { from: 1, to: 1, sourceType: 'youtube' } },
+      options,
+    ),
+    serverApi.v3.get(
+      '/rooms/{id}/items',
+      { id: roomId, $search: { from: 1, to: 1, sourceType: 'soundcloud' } },
+      options,
+    ),
+  ]);
 
   const [roomErr, room] = roomRes;
-  const [playlistItemsErr, playlistItems] = playlistItemsRes;
+  const [playlistItemsErr, playlistPage] = playlistItemsRes;
   const [playbackErr, playback] = playbackRes;
   const [providersErr, providers] = providersRes;
   if (roomErr || !room) {
@@ -72,33 +81,30 @@ export async function loader({
     }
     return redirect(createUrl.toString());
   }
-  if (playlistItemsErr || playbackErr || providersErr) {
+  if (
+    playlistItemsErr ||
+    !playlistPage ||
+    playbackErr ||
+    providersErr ||
+    youtubeRes[0] ||
+    soundcloudRes[0]
+  ) {
     throw new Response('Room temporarily unavailable', {
       status: 503,
       statusText: 'Room temporarily unavailable',
     });
   }
 
-  // Match the first progressive batch, plus room for the currently playing item.
-  // The live connection supplies the full snapshot after hydration.
-  const initialPlaylistItems = (playlistItems ?? []).slice(0, 13);
-  const queuedPlaylistItemCount = (playlistItems ?? []).reduce(
-    (count, item) =>
-      count + Number(item.id !== playback?.currentPlaylistItem?.id),
-    0,
-  );
-  const preloadPlaylistItems = (providers ?? []).flatMap((provider) => {
-    const item = playlistItems?.find((item) => item.sourceType === provider);
-    return item ? [item] : [];
-  });
-
   return {
     pageUrl: createRoomPageUrl(request.url, roomId),
     room,
-    playlistItems: initialPlaylistItems,
-    preloadPlaylistItems,
-    ...((playlistItems?.length ?? 0) > initialPlaylistItems.length && {
-      queuedPlaylistItemCount,
+    playlistItems: playlistPage.data,
+    preloadPlaylistItems: [
+      ...(youtubeRes[1]?.data ?? []),
+      ...(soundcloudRes[1]?.data ?? []),
+    ],
+    ...(playlistPage.total > playlistPage.count && {
+      queuedPlaylistItemCount: playlistPage.total,
     }),
     playback: (playback || undefined) as PlaybackStateV2 | undefined,
     providers: (providers ?? []).filter(

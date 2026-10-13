@@ -19,7 +19,7 @@ export async function embedRoomClientLoader({
   const [roomResult, playlistItemsResult, playbackResult, providersResult] =
     await Promise.all([
       api.v2.get('/rooms/{id}', { id: roomId }),
-      api.v2.get('/rooms/{id}/playlist-items', { id: roomId }),
+      api.v3.get('/rooms/{id}/items', { id: roomId, $search: {} }),
       api.v2.get('/rooms/{id}/states', { id: roomId }),
       api.get('/providers', null),
     ]);
@@ -59,6 +59,6 @@ export async function embedRoomClientLoader({
     providers: providers ?? [],
     room,
     roomId,
-    playlistItems: playlistItems ?? [],
+    playlistItems: playlistItems?.data ?? [],
   };
 }

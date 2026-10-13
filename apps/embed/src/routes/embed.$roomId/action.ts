@@ -63,9 +63,9 @@ export async function clientAction({
   if (!body.playlistItemId) {
     return { error: 'Playlist item ID is required', intent: body.intent };
   }
-  const [error] = await api.v2.post(
-    '/rooms/{id}/playlist-items/{playlistItemId}',
-    { id: roomId, playlistItemId: body.playlistItemId },
+  const [error] = await api.v3.post(
+    '/rooms/{id}/items/{itemId}',
+    { id: roomId, itemId: body.playlistItemId },
     {},
   );
   if (error) {

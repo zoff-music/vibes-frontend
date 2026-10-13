@@ -41,7 +41,8 @@
     "@vibes/shared": "workspace:*",
     "d3": "^7.9.0",
     "framer-motion": "14.1.0",
-    "react-youtube": "10.1.0"
+    "react-youtube": "10.1.0",
+    "react-router": "8.4.0"
   },
   "devDependencies": {
     "@react-native/metro-config": "0.86.3",

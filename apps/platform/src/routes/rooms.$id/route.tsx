@@ -150,7 +150,10 @@ const LazyDeviceSelector = lazy(async () => {
 });
 
 const LazyAddToQueueModal = lazy(async () => {
-  const module = await import('../../components/queue/AddToQueueModal');
+  const [module] = await Promise.all([
+    import('../../components/queue/AddToQueueModal'),
+    import('./playlist/action'),
+  ]);
   return {
     default: module.AddToQueueModal,
   };

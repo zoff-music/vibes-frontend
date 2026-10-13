@@ -42,9 +42,9 @@ export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
         { id: roomId },
         { headers: requestHeaders },
       ),
-      serverApi.v2.get(
-        '/rooms/{id}/playlist-items',
-        { id: roomId },
+      serverApi.v3.get(
+        '/rooms/{id}/items',
+        { id: roomId, $search: {} },
         { headers: requestHeaders },
       ),
       serverApi.v2.get(
@@ -81,7 +81,7 @@ export async function embedRoomLoader({ request }: LoaderFunctionArgs) {
   return {
     room,
     roomId,
-    playlistItems: playlistItems ?? [],
+    playlistItems: playlistItems?.data ?? [],
     playback: playback ?? undefined,
     providers: providers ?? [],
     options: {

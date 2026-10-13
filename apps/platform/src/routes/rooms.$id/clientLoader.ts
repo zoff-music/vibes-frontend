@@ -14,12 +14,14 @@ export async function clientLoader({
     return redirect('/rooms/create');
   }
 
+  const options = { signal: request.signal };
+
   const [roomRes, playlistItemsRes, playbackRes, providersRes] =
     await Promise.all([
-      api.v2.get('/rooms/{id}', { id: roomId }),
-      api.v2.get('/rooms/{id}/playlist-items', { id: roomId }),
-      api.v2.get('/rooms/{id}/states', { id: roomId }),
-      api.get('/providers', null),
+      api.v2.get('/rooms/{id}', { id: roomId }, options),
+      api.v3.get('/rooms/{id}/items', { id: roomId, $search: {} }, options),
+      api.v2.get('/rooms/{id}/states', { id: roomId }, options),
+      api.get('/providers', null, options),
     ]);
   const [roomErr, room] = roomRes;
   const [playlistItemsErr, playlistItems] = playlistItemsRes;
@@ -54,6 +56,6 @@ export async function clientLoader({
       (provider) => room.roomType === 'MUSIC' || provider === 'youtube',
     ),
     room,
-    playlistItems: playlistItems || [],
+    playlistItems: playlistItems?.data ?? [],
   };
 }
