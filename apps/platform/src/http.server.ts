@@ -9,6 +9,15 @@ const FALLBACK_API_BASE_URL = 'http://localhost:8080';
 const serviceName =
   process?.env?.OTEL_SERVICE_NAME ?? 'vibes-frontend-platform';
 
+// Reuse only the deployment-configured origin, never arbitrary request hosts.
+// Cookies and signals remain request options, not shared client configuration.
+const internalApiUrl = process.env.VITE_API_URL_INTERNAL;
+const internalApi = internalApiUrl
+  ? createApiClientWithBaseUrl(internalApiUrl, {
+      fetchLifecycle: createTracedApiFetchLifecycle(serviceName),
+    })
+  : null;
+
 function resolveServerApiBaseUrl(request?: Request) {
   const internalApiUrl =
     typeof process !== 'undefined'
@@ -42,6 +51,8 @@ function resolveServerApiBaseUrl(request?: Request) {
 }
 
 export function getServerApi(request?: Request) {
+  if (internalApi) return internalApi;
+
   const baseUrl = resolveServerApiBaseUrl(request);
   return createApiClientWithBaseUrl(baseUrl, {
     fetchLifecycle: createTracedApiFetchLifecycle(serviceName),

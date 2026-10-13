@@ -1,11 +1,12 @@
-import { useLoaderData } from 'react-router';
-import { ProductPageContent } from './components/ProductPageContent';
-import { loader } from './loader';
+export { loader } from './loader';
 
-export { meta } from './meta';
-export { loader };
+export function meta() {
+  return [
+    { title: 'Page Not Found | Zoff' },
+    { name: 'robots', content: 'noindex' },
+  ];
+}
 
 export default function Discover() {
-  const { page } = useLoaderData<typeof loader>();
-  return <ProductPageContent page={page} />;
+  return null;
 }

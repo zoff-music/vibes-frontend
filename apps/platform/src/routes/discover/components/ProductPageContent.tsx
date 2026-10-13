@@ -1,31 +1,23 @@
 import { ArrowRightIcon } from '@vibes/ui/web';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { SitePage } from '../../../components/layout/SitePage';
 import { ProductAccordion } from '../../../components/seo/ProductAccordion';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
-import { ProductScreenshots } from '../../../components/seo/ProductScreenshots';
 import { appStoreUrl, playStoreUrl } from '../../../seo/metadata';
-import { watchNavigation } from '../../../seo/productNavigation';
 import type { ProductPage } from '../../../seo/productPages';
-import { GeneratedPlaylistSection } from '../../_index/components/GeneratedPlaylistSection';
-import { RemotePreview } from '../../_index/components/RemotePreview';
-import { RoomControlPanel } from '../../_index/components/RoomControlPanel';
-import { VotingPreview } from '../../_index/components/VotingPreview';
-import { ChatGuide } from './ChatGuide';
-import { EmbedGuide } from './EmbedGuide';
-import { ListeningPreview } from './ListeningPreview';
-import { RoomModePreview } from './RoomModePreview';
-import { WatchPage } from './WatchPage';
 
 interface ProductPageContentProps {
   page: ProductPage;
+  preview: ReactNode;
+  children: ReactNode;
 }
 
-export function ProductPageContent({ page }: ProductPageContentProps) {
-  if (watchNavigation.some((candidate) => candidate.slug === page.slug)) {
-    return <WatchPage page={page} />;
-  }
-
+export function ProductPageContent({
+  page,
+  preview,
+  children,
+}: ProductPageContentProps) {
   return (
     <SitePage>
       <article>
@@ -91,12 +83,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
               Always free. No account needed.
             </p>
           </div>
-          <div className="min-w-0 lg:col-span-3">
-            {page.slug === 'listening' && <ListeningPreview />}
-            {page.slug === 'queue' && <VotingPreview />}
-            {page.slug === 'rooms' && <RoomControlPanel />}
-            {page.slug === 'apps' && <ProductScreenshots />}
-          </div>
+          <div className="min-w-0 lg:col-span-3">{preview}</div>
         </header>
         <div className="grid gap-8 border-theme border-y py-10 sm:grid-cols-2 sm:gap-12 sm:py-12">
           {page.sections.slice(0, 2).map((section, index) => (
@@ -116,39 +103,7 @@ export function ProductPageContent({ page }: ProductPageContentProps) {
             </section>
           ))}
         </div>
-        {page.slug === 'listening' && <ChatGuide />}
-        {page.slug === 'queue' && <GeneratedPlaylistSection />}
-        {page.slug === 'rooms' && (
-          <>
-            <section
-              aria-labelledby="room-playback-heading"
-              className="grid items-center gap-10 py-16 sm:py-24 lg:grid-cols-5 lg:gap-14"
-            >
-              <div className="lg:col-span-2">
-                <p className="font-pixel text-cyan-800 text-xs tracking-label dark:text-secondary">
-                  WHO’S AT THE CONTROLS?
-                </p>
-                <h2
-                  id="room-playback-heading"
-                  className="mt-4 font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl"
-                >
-                  Let it play.
-                  <br />
-                  Or take the lead.
-                </h2>
-                <p className="mt-5 text-theme-muted leading-relaxed">
-                  Server Mode keeps the queue moving as people come and go. Host
-                  Mode follows one person’s player.
-                </p>
-              </div>
-              <div className="min-w-0 lg:col-span-3">
-                <RoomModePreview />
-              </div>
-            </section>
-            <EmbedGuide />
-          </>
-        )}
-        {page.slug === 'apps' && <RemotePreview showAppsLink={false} />}
+        {children}
         <section
           aria-labelledby="guide-questions-heading"
           className="grid gap-7 border-theme border-t py-14 sm:py-20 lg:grid-cols-5 lg:gap-14"

@@ -1,4 +1,4 @@
-import { getHttpError } from '@vibes/api';
+import { createProvidersRequest, getHttpError } from '@vibes/api';
 import type {
   PlaylistItem,
   Providers,
@@ -33,6 +33,7 @@ export async function loader({
   const cookieHeader = request.headers.get('cookie') ?? undefined;
   const requestHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
   const options = { headers: requestHeaders, signal: request.signal };
+  const getProviders = createProvidersRequest(serverApi);
 
   const [
     roomRes,
@@ -49,7 +50,7 @@ export async function loader({
       options,
     ),
     serverApi.v2.get('/rooms/{id}/states', { id: roomId }, options),
-    serverApi.get('/providers', null, options),
+    getProviders({ signal: request.signal }),
     serverApi.v3.get(
       '/rooms/{id}/items',
       { id: roomId, $search: { from: 1, to: 1, sourceType: 'youtube' } },

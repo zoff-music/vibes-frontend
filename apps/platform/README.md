@@ -182,8 +182,13 @@ to these paths, preserving query parameters. Navigation, canonical URLs,
 structured data and the sitemap use the unhyphenated paths. Policy URLs are
 unchanged.
 
-Product copy lives in `src/seo/productPages.ts`; adding a page there also adds
-its sitemap entry. Keep the lightweight navigation list in
+Product copy lives in topic modules under `src/seo/pages/`; `productPages.ts`
+and `watchPages.ts` collect those modules for the sitemap. Each discovery topic
+has its own route module, importing only its copy and previews. Shared page
+layouts accept preview slots rather than importing every showcase. Direct visits
+still render complete content and metadata on the server; client navigation
+loads the matched route without a static-copy loader request. Intent prefetching
+loads that route and its static dependencies together. Keep the lightweight navigation list in
 `src/seo/productNavigation.ts` in sync. Keep descriptions factual and public.
 `/sitemap.xml` contains only stable product and policy URLs, never live rooms
 or session data. `/robots.txt` points to this sitemap. The homepage identifies
@@ -223,7 +228,7 @@ these core features; the full generation preview belongs on the queue guide.
 App screenshots stay on the apps
 guide, and the embed configurator stays on the rooms guide. The homepage's
 server loader fetches community totals, public rooms and providers in parallel
-and awaits the backend responses before rendering. Initial requests and client
+and awaits only providers before rendering the hero. Initial requests and client
 navigation both use this server loader; there is no homepage `clientLoader`
 or browser retry. The API client's normal timeout and request cancellation
 still apply. Real totals are visible in the server-rendered HTML, including
@@ -425,18 +430,30 @@ scrolling. The hero, guides and product sections use the common site layout;
 room routes keep their player layout. The old `how-it-works` anchor remains
 compatible without a separate jump link.
 
-Optional session and remote reads do not retry during SSR. Homepage reads also
-run on the server without retries.
+Optional session and remote reads do not retry during SSR. The profile streams
+after the initial document; personal settings wait for it before enabling name
+editing, and a saved profile takes precedence over older loader data. Remote
+status still resolves before rendering because it gates paired-device playback.
+Homepage reads also run on the server without retries.
 Homepage statistics and live rooms stream independently after the hero. Their
 fallbacks reserve the same space as the resolved content, including three room
 slots on phones and one row on larger screens. Empty and failed responses retain
 that space. Music and Watch requests remain isolated by room type.
 
 Room creation navigation requests providers directly, without a second server
-loader round trip. Browser provider configuration is cached for 60 seconds and
-concurrent reads share one request. Cancellation releases each caller separately;
-the underlying request aborts when no callers remain. Errors are never cached.
+loader round trip. Public provider configuration uses Wiretyped's
+`cacheRequest: true` and `cacheTimeToLive: 300_000` in both the browser and SSR.
+SSR reuses the client for the configured internal API origin; arbitrary request
+origins do not create shared caches. Concurrent reads share one request.
+Cancellation releases each caller separately; the small public request may finish
+under its normal timeout to populate the cache without cancelling other readers.
+Errors are never cached, and SSR provider reads do not forward session cookies.
 Playback, permissions, chat and live counts do not use this configuration cache.
+
+Search and provider metadata lookups receive the router request's abort signal,
+including playlist-to-item fallbacks. Superseded reads stop waiting and cannot
+replace newer search results. Queue additions, imports and generation submissions
+keep their mutation behavior. Cancelling a read does not refund provider quota.
 
 Room-browser pagination prefetches only the approached Previous or Next page
 through its client loader. A successful prefetched page expires after five

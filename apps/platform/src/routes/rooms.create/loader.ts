@@ -1,4 +1,8 @@
-import { getRateLimitMessage, getRequestErrorMessage } from '@vibes/api';
+import {
+  createProvidersRequest,
+  getRateLimitMessage,
+  getRequestErrorMessage,
+} from '@vibes/api';
 import { type Providers, roomNameInputSchema } from '@vibes/models';
 import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
@@ -27,8 +31,8 @@ export async function loader({
   }
 
   const serverApi = getServerApi(request);
-  const [err, providers] = await serverApi.get('/providers', null, {
-    retry: 0,
+  const getProviders = createProvidersRequest(serverApi);
+  const [err, providers] = await getProviders({
     signal: request.signal,
   });
   if (err || !providers) {

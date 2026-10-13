@@ -1,3 +1,4 @@
+import type { SessionProfile } from '@vibes/models';
 import { showToast } from '@vibes/shared';
 import { PersonalSettingsModal } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'react';
@@ -21,21 +22,45 @@ export function ProfileSettingsModal({
   const fetcher = useFetcher<ProfileRouteData>();
   const rootData = useRouteLoaderData<RootLoaderData>('root');
   const wasSavingRef = useRef(false);
-  const initialProfile = rootData?.sessionProfile;
-  const [name, setName] = useState(initialProfile?.name ?? '');
+  const [initialProfile, setInitialProfile] = useState<SessionProfile | null>(
+    null,
+  );
+  const [profilePending, setProfilePending] = useState(
+    Boolean(rootData?.sessionProfile),
+  );
+  const [name, setName] = useState('');
   const themeId = useThemeStore((state) => state.themeId);
   const setTheme = useThemeStore((state) => state.setTheme);
+
+  useEffect(() => {
+    let active = true;
+    const profile = rootData?.sessionProfile;
+
+    setProfilePending(Boolean(profile));
+
+    void profile?.then((result) => {
+      if (!active) return;
+
+      setInitialProfile(result);
+      setProfilePending(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [rootData?.sessionProfile]);
 
   useEffect(() => {
     if (
       isOpen &&
       fetcher.state === 'idle' &&
       !fetcher.data &&
-      !initialProfile
+      !initialProfile &&
+      !profilePending
     ) {
       void fetcher.load('/resources/profile');
     }
-  }, [fetcher, initialProfile, isOpen]);
+  }, [fetcher, initialProfile, isOpen, profilePending]);
 
   useEffect(() => {
     const profile = fetcher.data?.profile ?? initialProfile;
@@ -61,7 +86,9 @@ export function ProfileSettingsModal({
   }, [fetcher.data, fetcher.state]);
 
   const isLoading =
-    fetcher.state === 'loading' && !fetcher.data?.profile && !initialProfile;
+    (profilePending || fetcher.state === 'loading') &&
+    !fetcher.data?.profile &&
+    !initialProfile;
   const isSaving = fetcher.state === 'submitting';
 
   return (

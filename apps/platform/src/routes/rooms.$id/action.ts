@@ -95,7 +95,7 @@ export async function clientAction({
     body.intent === 'search'
   ) {
     const { playlistAction } = await preloadPlaylistAction();
-    return playlistAction(roomId, body);
+    return playlistAction(roomId, body, request.signal);
   }
 
   if (body.intent === 'sendMessage') {

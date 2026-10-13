@@ -5,6 +5,7 @@ import { createErrorData } from '../error';
 export async function playlistAction(
   roomId: string,
   body: RoomActionRequest,
+  signal: AbortSignal,
 ): Promise<RoomActionData> {
   if (body.intent === 'generatePlaylist') {
     const prompt = body.prompt?.trim();
@@ -53,9 +54,11 @@ export async function playlistAction(
         return { error: 'Video ID is required', intent: body.intent };
       }
 
-      const [error, video] = await api.v2.get('/youtube/videos/{id}', {
-        id: body.sourceId,
-      });
+      const [error, video] = await api.v2.get(
+        '/youtube/videos/{id}',
+        { id: body.sourceId },
+        { signal },
+      );
 
       if (error || !video) {
         return createErrorData(body.intent, error);
@@ -74,9 +77,11 @@ export async function playlistAction(
       return { error: 'SoundCloud URL is required', intent: body.intent };
     }
 
-    const [error, item] = await api.v2.get('/soundcloud/items', {
-      $search: { url: body.providerUrl },
-    });
+    const [error, item] = await api.v2.get(
+      '/soundcloud/items',
+      { $search: { url: body.providerUrl } },
+      { signal },
+    );
 
     if (error || !item) {
       return createErrorData(body.intent, error);
@@ -90,7 +95,11 @@ export async function playlistAction(
       return { error: 'Provider is required', intent: body.intent };
     }
 
-    const [roomError, room] = await api.v2.get('/rooms/{id}', { id: roomId });
+    const [roomError, room] = await api.v2.get(
+      '/rooms/{id}',
+      { id: roomId },
+      { signal },
+    );
 
     if (roomError || !room) return createErrorData(body.intent, roomError);
     if (room.roomType === 'WATCH' && body.provider !== 'youtube') {
@@ -105,10 +114,11 @@ export async function playlistAction(
         return { error: 'Playlist ID is required', intent: body.intent };
       }
 
-      const [error, playlist] = await api.v2.get('/youtube/playlists/{id}', {
-        id: body.sourceId,
-        $search: { roomType: room.roomType },
-      });
+      const [error, playlist] = await api.v2.get(
+        '/youtube/playlists/{id}',
+        { id: body.sourceId, $search: { roomType: room.roomType } },
+        { signal },
+      );
 
       if (error || !playlist) {
         return createErrorData(body.intent, error);
@@ -121,16 +131,22 @@ export async function playlistAction(
       return { error: 'SoundCloud URL is required', intent: body.intent };
     }
 
-    const [error, playlist] = await api.v2.get('/soundcloud/playlists', {
-      $search: { url: body.providerUrl },
-    });
+    const [error, playlist] = await api.v2.get(
+      '/soundcloud/playlists',
+      { $search: { url: body.providerUrl } },
+      { signal },
+    );
     if (!error && playlist) {
       return { intent: body.intent, playlist };
     }
 
-    const [itemError, item] = await api.v2.get('/soundcloud/items', {
-      $search: { url: body.providerUrl },
-    });
+    if (signal.aborted) return createErrorData(body.intent, error);
+
+    const [itemError, item] = await api.v2.get(
+      '/soundcloud/items',
+      { $search: { url: body.providerUrl } },
+      { signal },
+    );
 
     if (itemError || !item) {
       return createErrorData(body.intent, itemError ?? error);
@@ -151,6 +167,7 @@ export async function playlistAction(
     const [error, searchResults] = await api.v2.get(
       '/rooms/{id}/search/{provider}',
       { id: roomId, provider: body.provider, $search: { q: prompt } },
+      { signal },
     );
 
     if (error || !searchResults) {
