@@ -7,7 +7,6 @@ import QRCode from 'react-native-qrcode-svg';
 import type { ZoffIconName } from '../../shared';
 import { zoffIconDefinitions } from '../../shared';
 import { NativeIcon } from '../icons/NativeIcon';
-import { useNativePresentation } from './NativePresentationContext';
 
 export type NativeControlSize = 'default' | 'large';
 
@@ -23,19 +22,14 @@ export function NativeCard({
   className,
   size = 'default',
 }: NativeCardProps) {
-  const presentation = useNativePresentation();
-  const terminal = presentation === 'terminal';
   return (
     <View
       className={classNames(
-        !terminal &&
-          'border-native-border bg-native-card/95 dark:border-native-dark-border dark:bg-native-dark-card/95',
-        terminal &&
-          'border-[#55ffad] bg-[#010c08]/95 shadow-[#31ff9a]/15 shadow-lg',
+        'border-native-border bg-native-card/95 dark:border-native-dark-border dark:bg-native-dark-card/95',
         size === 'default' && 'gap-4 border p-4',
-        size === 'default' && !terminal && 'rounded-2xl',
+        size === 'default' && 'rounded-2xl',
         size === 'large' && 'gap-8 border-2 p-10',
-        size === 'large' && !terminal && 'rounded-3xl',
+        size === 'large' && 'rounded-3xl',
         className,
       )}
     >
@@ -54,17 +48,14 @@ export function NativeCopy({
   muted = false,
   size = 'default',
 }: NativeCopyProps) {
-  const terminal = useNativePresentation() === 'terminal';
   return (
     <Text
       className={classNames(
         'font-heading',
         size === 'default' && 'text-sm leading-5',
         size === 'large' && 'text-xl leading-7',
-        !terminal && muted && 'text-native-muted dark:text-native-dark-muted',
-        !terminal && !muted && 'text-native-text dark:text-native-dark-text',
-        terminal && muted && 'text-[#a6ffd0]/65',
-        terminal && !muted && 'text-[#dffff0]',
+        muted && 'text-native-muted dark:text-native-dark-muted',
+        !muted && 'text-native-text dark:text-native-dark-text',
       )}
     >
       {children}
@@ -80,13 +71,11 @@ export function NativeHeading({
   children,
   size = 'default',
 }: NativeHeadingProps) {
-  const terminal = useNativePresentation() === 'terminal';
   return (
     <Text
       className={classNames(
         'font-heading',
-        !terminal && 'text-native-text dark:text-native-dark-text',
-        terminal && 'text-[#dffff0] uppercase tracking-widest',
+        'text-native-text dark:text-native-dark-text',
         size === 'default' && 'text-3xl',
         size === 'large' && 'text-5xl',
       )}
@@ -126,13 +115,11 @@ export function NativeButton({
   size = 'default',
   tone = 'primary',
 }: NativeButtonProps) {
-  const terminal = useNativePresentation() === 'terminal';
   const [focused, setFocused] = useState(false);
   const resolvedAccessibilityLabel = accessibilityLabel ?? label;
   let resolvedIconColor = iconColor ?? '#e8dff5';
   if (tone === 'primary') resolvedIconColor = '#ffffff';
   if (tone === 'danger') resolvedIconColor = '#d91465';
-  if (terminal && tone === 'primary') resolvedIconColor = '#03150d';
 
   return (
     <Pressable
@@ -140,28 +127,26 @@ export function NativeButton({
         accessibilityLabel: resolvedAccessibilityLabel,
       })}
       accessibilityRole="button"
-      accessibilityState={{ selected, disabled }}
+      accessibilityState={{
+        selected,
+        disabled,
+      }}
       className={classNames(
         'flex-row items-center justify-center border active:opacity-70',
         pressFeedback && 'active:scale-95',
         size === 'default' && 'min-h-13 gap-2 px-4',
-        size === 'default' && !terminal && 'rounded-xl',
+        size === 'default' && 'rounded-xl',
         size === 'large' && 'min-h-24 gap-5 border-2 px-10 py-5',
-        size === 'large' && !terminal && 'rounded-2xl',
-        !terminal && tone === 'primary' && 'border-primary bg-primary',
-        !terminal &&
-          tone === 'danger' &&
+        size === 'large' && 'rounded-2xl',
+        tone === 'primary' && 'border-primary bg-primary',
+        tone === 'danger' &&
           'border-error bg-native-surface dark:bg-native-dark-surface',
-        !terminal &&
-          tone === 'secondary' &&
+        tone === 'secondary' &&
           !selected &&
           'border-native-border bg-native-surface dark:border-native-dark-border dark:bg-native-dark-surface',
-        !terminal &&
-          tone === 'secondary' &&
+        tone === 'secondary' &&
           selected &&
           'border-accent bg-native-surface dark:bg-native-dark-surface',
-        terminal && 'border-[#55ffad] bg-[#010c08]',
-        terminal && tone === 'primary' && 'bg-[#71f5ad]',
         focused && 'border-accent bg-accent',
         disabled && 'opacity-40',
         className,
@@ -171,7 +156,9 @@ export function NativeButton({
       onBlur={() => setFocused(false)}
       onFocus={() => setFocused(true)}
       onPress={onPress}
-      {...(focused && { style: focusedControlStyle })}
+      {...(focused && {
+        style: focusedControlStyle,
+      })}
     >
       {icon && (
         <NativeIcon
@@ -187,13 +174,10 @@ export function NativeButton({
             'font-heading',
             size === 'default' && 'text-base',
             size === 'large' && 'text-2xl',
-            !terminal && tone === 'primary' && 'text-white',
-            !terminal && tone === 'danger' && 'text-error',
-            !terminal &&
-              tone === 'secondary' &&
+            tone === 'primary' && 'text-white',
+            tone === 'danger' && 'text-error',
+            tone === 'secondary' &&
               'text-native-text dark:text-native-dark-text',
-            terminal && tone !== 'primary' && 'text-[#dffff0]',
-            terminal && tone === 'primary' && 'text-[#03150d]',
             focused && 'text-native-dark-text',
           )}
         >
@@ -244,7 +228,6 @@ export function NativeIconButton({
   pressFeedback = false,
   size = 'default',
 }: NativeIconButtonProps) {
-  const terminal = useNativePresentation() === 'terminal';
   const [focused, setFocused] = useState(false);
   return (
     <Pressable
@@ -252,14 +235,12 @@ export function NativeIconButton({
       accessibilityRole="button"
       className={classNames(
         'items-center justify-center border active:opacity-70',
-        !terminal &&
-          'border-native-border bg-native-surface dark:border-native-dark-border dark:bg-native-dark-surface',
-        terminal && 'rounded-none border-[#55ffad] bg-[#010c08]',
+        'border-native-border bg-native-surface dark:border-native-dark-border dark:bg-native-dark-surface',
         pressFeedback && 'active:scale-90',
         size === 'default' && 'size-13',
-        size === 'default' && !terminal && 'rounded-xl',
+        size === 'default' && 'rounded-xl',
         size === 'large' && 'size-24 border-2',
-        size === 'large' && !terminal && 'rounded-2xl',
+        size === 'large' && 'rounded-2xl',
         focused && 'border-accent bg-accent',
         disabled && 'opacity-40',
       )}
@@ -267,7 +248,9 @@ export function NativeIconButton({
       onBlur={() => setFocused(false)}
       onFocus={() => setFocused(true)}
       onPress={onPress}
-      {...(focused && { style: focusedControlStyle })}
+      {...(focused && {
+        style: focusedControlStyle,
+      })}
     >
       <NativeIcon
         color={iconColor}
@@ -289,7 +272,6 @@ export const NativeField = forwardRef<TextInput, NativeFieldProps>(
     },
     ref,
   ) {
-    const terminal = useNativePresentation() === 'terminal';
     return (
       <View className={classNames('relative', wrapperClassName)}>
         <TextInput
@@ -298,19 +280,18 @@ export const NativeField = forwardRef<TextInput, NativeFieldProps>(
           autoCorrect={false}
           className={classNames(
             'font-heading',
-            !terminal &&
-              'border-native-border bg-native-surface text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text',
-            terminal && 'border-[#55ffad] bg-[#010c08] text-[#dffff0]',
+            'border-native-border bg-native-surface text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text',
             size === 'default' && 'min-h-13 px-4 text-base',
-            size === 'default' && !terminal && 'rounded-xl',
+            size === 'default' && 'rounded-xl',
             size === 'large' && 'min-h-24 border-2 px-8 text-3xl',
-            size === 'large' && !terminal && 'rounded-2xl',
+            size === 'large' && 'rounded-2xl',
             Boolean(trailingAction) && (size === 'large' ? 'pr-24' : 'pr-16'),
             inputClassName,
           )}
-          placeholderTextColor={terminal ? '#a6ffd0' : '#826b9a'}
+          placeholderTextColor="#826b9a"
           returnKeyType="go"
         />
+
         {trailingAction && (
           <View className="absolute top-0 right-1 bottom-0 justify-center">
             {trailingAction}
@@ -334,7 +315,9 @@ export function NativeQrCode({ logo, size, value }: NativeQrCodeProps) {
         backgroundColor="#ffffff"
         color="#000000"
         ecl="H"
-        {...(logo && { logo })}
+        {...(logo && {
+          logo,
+        })}
         logoBackgroundColor="#120b1e"
         logoBorderRadius={8}
         logoMargin={3}
@@ -351,5 +334,10 @@ const defaultIconSize = 18;
 const largeIconSize = 28;
 
 const qrLogoRatio = 0.3;
-
-const focusedControlStyle = { transform: [{ scale: 1.04 }] };
+const focusedControlStyle = {
+  transform: [
+    {
+      scale: 1.04,
+    },
+  ],
+};

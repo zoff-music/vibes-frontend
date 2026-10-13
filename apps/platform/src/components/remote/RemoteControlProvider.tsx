@@ -11,7 +11,6 @@ import {
   usePlaybackStore,
   useRoomStore,
 } from '@vibes/shared';
-import { TerminalButton } from '@vibes/ui/konami';
 import { Button, RemoteIcon, Tooltip } from '@vibes/ui/web';
 import {
   createContext,
@@ -28,7 +27,6 @@ import { useFetcher, useNavigate } from 'react-router';
 import type { RemoteControlActionData } from '../../routes/remote-control/action';
 import { createEmptyRemoteStatus } from '../../utils/remoteStatus';
 import { canUseViewTransition } from '../../utils/viewTransition';
-import { useKonamiMode } from '../konami/KonamiModeContext';
 
 const loadRemoteControlDialog = () => import('./RemoteControlDialog');
 
@@ -38,7 +36,9 @@ function preloadRemoteControlDialog() {
 
 const LazyRemoteControlDialog = lazy(async () => {
   const module = await loadRemoteControlDialog();
-  return { default: module.RemoteControlDialog };
+  return {
+    default: module.RemoteControlDialog,
+  };
 });
 
 interface RemoteControlContextValue {
@@ -57,7 +57,6 @@ interface Props {
 
 export function RemoteControlProvider({ children, initialRemote }: Props) {
   const navigate = useNavigate();
-  const terminalMode = useKonamiMode();
   const controlFetcher = useFetcher<RemoteControlActionData>();
   const [isOpen, setIsOpen] = useState(false);
   const [machineRoomId, setMachineRoomId] = useState('');
@@ -201,7 +200,6 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
             remote={remote}
             pairing={pairing}
             machineRoomId={machineRoomId}
-            terminalMode={terminalMode}
             isOpen={isOpen}
             closeRemoteControl={closeRemoteControl}
           />
@@ -224,31 +222,16 @@ export function useRemoteControl() {
 interface RemoteControlButtonProps {
   className?: string;
   showLabel?: boolean;
-  terminalMode?: boolean;
 }
 
 export function RemoteControlButton({
   className,
   showLabel = false,
-  terminalMode = false,
 }: RemoteControlButtonProps) {
   const { openRemoteControl } = useRemoteControl();
   const tooltipClassName = classNames(
     showLabel ? 'flex w-full' : 'inline-flex',
   );
-
-  if (terminalMode) {
-    return (
-      <TerminalButton
-        className={className}
-        onClick={openRemoteControl}
-        onFocus={preloadRemoteControlDialog}
-        onPointerEnter={preloadRemoteControlDialog}
-      >
-        [REMOTE]
-      </TerminalButton>
-    );
-  }
 
   return (
     <Tooltip

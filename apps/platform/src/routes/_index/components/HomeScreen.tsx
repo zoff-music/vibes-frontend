@@ -2,7 +2,6 @@ import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { lazy, memo, Suspense, useEffect, useRef, useState } from 'react';
 import type { NavigateFunction, NavigationType } from 'react-router';
-import { useKonamiMode } from '../../../components/konami/KonamiModeContext';
 import { useExperience } from '../../../hooks/useExperience';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import { canUseViewTransition } from '../../../utils/viewTransition';
@@ -11,25 +10,14 @@ import type { HomeLoaderData } from '../loader';
 import { HomeLanding } from './HomeLanding';
 import { HomePlaceholder, HomeRoomControls } from './HomeRoomControls';
 import { PlaylistGenerationControls } from './PlaylistGenerationControls';
-import { ProductIntroduction } from './ProductIntroduction';
 import { ReturnToRoom } from './ReturnToRoom';
 import { ReturnToRoomPreview } from './ReturnToRoomPreview';
 
-const LazyTerminalHome = lazy(async () => {
-  const module = await import('./TerminalHome');
-  return { default: module.TerminalHome };
-});
-
-const LazyProfileSettingsModal = lazy(async () => {
-  const module = await import(
-    '../../../components/profile/ProfileSettingsModal'
-  );
-  return { default: module.ProfileSettingsModal };
-});
-
 const LazyJoiningRoomState = lazy(async () => {
   const module = await import('./JoiningRoomState');
-  return { default: module.JoiningRoomState };
+  return {
+    default: module.JoiningRoomState,
+  };
 });
 
 interface HomeScreenProps extends HomeLoaderData {
@@ -50,7 +38,6 @@ export const HomeScreen = memo(function HomeScreen({
   const previewReturn =
     import.meta.env.DEV && searchParams.get('preview') === 'return-to-room';
   const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
-  const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const playlistPromptRef = useRef<HTMLInputElement>(null);
@@ -68,7 +55,9 @@ export const HomeScreen = memo(function HomeScreen({
     if (generationEntry === 0) return;
 
     const input = isAIMode ? playlistPromptRef.current : roomNameRef.current;
-    input?.focus({ preventScroll: true });
+    input?.focus({
+      preventScroll: true,
+    });
     const target = input ?? heroRef.current;
     target?.scrollIntoView({
       behavior: reducedMotion ? 'instant' : 'smooth',
@@ -83,10 +72,10 @@ export const HomeScreen = memo(function HomeScreen({
     setIsAIMode(true);
     setGenerationEntry((current) => current + 1);
   };
-
-  const heroVisible = useInView(heroRef, { amount: 0.1 });
+  const heroVisible = useInView(heroRef, {
+    amount: 0.1,
+  });
   const previousPath = getPreviousPath();
-  const konamiEnabled = useKonamiMode();
   const previousRoomId = previousPath?.match(/^\/([^/]+)$/)?.[1];
   const shouldFadeIn =
     navigationType === 'POP' &&
@@ -116,50 +105,6 @@ export const HomeScreen = memo(function HomeScreen({
   const handleRoomCodeChange = (value: string) => {
     setRoomCode(value);
   };
-
-  if (konamiEnabled) {
-    return (
-      <>
-        <div ref={heroRef}>
-          <Suspense fallback={null}>
-            <HomePlaceholder
-              isAIMode={isAIMode}
-              enabled={heroVisible && roomCode.length === 0}
-              watch={watch}
-            >
-              {(placeholder) => (
-                <LazyTerminalHome
-                  isAIMode={isAIMode}
-                  onJoinRoom={handleJoinRoom}
-                  onOpenProfileSettings={() => setShowProfileSettings(true)}
-                  onRoomCodeChange={handleRoomCodeChange}
-                  onStartSession={handleStartSession}
-                  onToggleAIMode={handleToggleAIMode}
-                  pendingRoomSlug={pendingRoomSlug}
-                  placeholder={placeholder}
-                  providers={data.providers ?? []}
-                  publicRooms={data.publicRooms ?? []}
-                  roomCode={roomCode}
-                  totalListeners={data.stats?.totalListeners ?? 0}
-                />
-              )}
-            </HomePlaceholder>
-          </Suspense>
-        </div>
-        <div className="product-content relative z-10 px-5 sm:px-6">
-          <ProductIntroduction onGeneratePlaylist={handleGeneratePlaylist} />
-        </div>
-        {showProfileSettings && (
-          <Suspense fallback={null}>
-            <LazyProfileSettingsModal
-              isOpen
-              onClose={() => setShowProfileSettings(false)}
-            />
-          </Suspense>
-        )}
-      </>
-    );
-  }
 
   return (
     <div

@@ -8,7 +8,6 @@ import { useAppTheme } from '@/hooks/use-app-theme';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
-import { useKonamiMode } from '@/providers/konami-mode-provider';
 
 interface NavigationItem {
   href: '/' | '/remote' | '/settings';
@@ -24,21 +23,31 @@ export function AndroidFloatingNavigation() {
   const { isTablet } = useTabletLandscapeLayout();
   const keyboardVisible = useKeyboardVisible();
   const { addLabel, canAddPlaylistItems, hasRoom } = useRoomNavigation();
-  const { enabled: konamiEnabled } = useKonamiMode();
-
-  if (Platform.OS !== 'android' || isTablet || konamiEnabled || keyboardVisible)
-    return null;
-
+  if (Platform.OS !== 'android' || isTablet || keyboardVisible) return null;
   const items: NavigationItem[] = [
-    { href: '/', icon: 'home', label: hasRoom ? 'Room' : 'Rooms' },
-    { href: '/remote', icon: 'remote', label: 'Remote' },
-    { href: '/settings', icon: 'settings', label: 'Settings' },
+    {
+      href: '/',
+      icon: 'home',
+      label: hasRoom ? 'Room' : 'Rooms',
+    },
+    {
+      href: '/remote',
+      icon: 'remote',
+      label: 'Remote',
+    },
+    {
+      href: '/settings',
+      icon: 'settings',
+      label: 'Settings',
+    },
   ];
   return (
     <View
       className="absolute inset-x-4 z-50 flex-row items-center gap-3"
       pointerEvents="box-none"
-      style={{ bottom: insets.bottom + navigationBottomOffset }}
+      style={{
+        bottom: insets.bottom + navigationBottomOffset,
+      }}
     >
       <View className="min-w-0 flex-1 flex-row rounded-full border border-mobile-border/70 bg-mobile-card/95 p-1 shadow-black/20 shadow-lg dark:border-mobile-dark-border/70 dark:bg-mobile-dark-card/95">
         {items.map((item) => {
@@ -46,7 +55,9 @@ export function AndroidFloatingNavigation() {
           return (
             <Pressable
               accessibilityRole="tab"
-              accessibilityState={{ selected }}
+              accessibilityState={{
+                selected,
+              }}
               className={classNames(
                 'min-w-0 flex-1 items-center gap-0.5 overflow-hidden rounded-full py-2 active:opacity-70',
                 selected && 'bg-primary/15',
@@ -59,6 +70,7 @@ export function AndroidFloatingNavigation() {
                 name={item.icon}
                 size={20}
               />
+
               <Text
                 className={classNames(
                   'font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted',

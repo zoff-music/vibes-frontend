@@ -436,8 +436,8 @@ The social-card SVG uses the circular logo and bundled MSW98UI font.
 `SiteLayout` owns the shared header, navigation, personal settings and footer.
 `SitePage` owns the content grid; `SiteHero` supplies the common heading scale,
 spacing and framed surface. The homepage keeps a centered room-entry form;
-guides split their content and preview when space allows. Terminal mode keeps
-its own chrome and theme. Policy wording and revision dates must not change as
+guides split their content and preview when space allows.
+Policy wording and revision dates must not change as
 part of presentation work.
 
 Desktop rooms use the available viewport space below the header, rather than

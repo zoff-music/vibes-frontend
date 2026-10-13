@@ -21,15 +21,8 @@ import {
   SoundCloudIcon,
   YouTubeIcon,
 } from '@vibes/ui/web';
-import React, { lazy, Suspense, useEffect, useState } from 'react';
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useNavigate,
-  useSearchParams,
-} from 'react-router';
-import { useKonamiMode } from '../../components/konami/KonamiModeContext';
+import React, { useEffect, useState } from 'react';
+import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
 import { SiteHero } from '../../components/layout/SiteHero';
 import { SitePage } from '../../components/layout/SitePage';
 import { useExperience } from '../../hooks/useExperience';
@@ -43,12 +36,6 @@ import type { RoomsCreateLoaderData } from './loader';
 export { loader } from './loader';
 export { meta } from './meta';
 export { clientAction, clientLoader };
-
-const LazyTerminalCreateRoom = lazy(() =>
-  import('@vibes/ui/konami').then((module) => ({
-    default: module.TerminalCreateRoom,
-  })),
-);
 
 type RoomNameAvailabilityState =
   | 'idle'
@@ -64,8 +51,6 @@ const CreateRoom: React.FC = () => {
   const availabilityFetcher = useFetcher<RoomsCreateActionData>();
   const [searchParams] = useSearchParams();
   const roomType = useExperience();
-  const navigate = useNavigate();
-  const terminalMode = useKonamiMode();
   const setIsWarping = useThemeStore((state) => state.setIsWarping);
 
   // Initialize name - prioritize SSR data, then URL params
@@ -353,7 +338,10 @@ const CreateRoom: React.FC = () => {
     key: K,
     value: (typeof settings)[K],
   ) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    setSettings((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const toggleSource = (source: SourceType) => {
@@ -406,69 +394,6 @@ const CreateRoom: React.FC = () => {
     ? 'Let anyone find this room in Browse'
     : 'Add an admin password to make this room public';
 
-  if (terminalMode) {
-    return (
-      <Suspense fallback={null}>
-        <LazyTerminalCreateRoom
-          availability={nameAvailability}
-          availabilityError={nameAvailabilityError}
-          error={error}
-          isCreating={isCreating}
-          isGeneratingName={isGeneratingName}
-          mode={mode}
-          name={name}
-          onBack={() => navigate('/')}
-          onBooleanSettingChange={updateSetting}
-          onGenerateName={handleGenerateName}
-          onModeChange={setMode}
-          onNameChange={setName}
-          onPasswordChange={updatePassword}
-          onSourceToggle={toggleSource}
-          password={password}
-          providers={loaderData.providers ?? []}
-          renderForm={(content) => (
-            <createFetcher.Form
-              ref={createFormRef}
-              action="/rooms/create"
-              className="contents"
-              method="post"
-              onSubmit={handleCreate}
-            >
-              <input name="intent" type="hidden" value="createRoom" />
-              <input name="roomType" type="hidden" value={roomType} />
-              <input
-                name="reservationToken"
-                type="hidden"
-                value={reservation?.token ?? ''}
-              />
-              <input name="mode" type="hidden" value={mode} />
-              <input
-                name="skipAllowed"
-                type="hidden"
-                value={String(settings.skipAllowed)}
-              />
-              <input
-                name="playlistImport"
-                type="hidden"
-                value={String(settings.playlistImport)}
-              />
-              {settings.enabledSources.map((source) => (
-                <input
-                  key={source}
-                  name="enabledSources"
-                  type="hidden"
-                  value={source}
-                />
-              ))}
-              {content}
-            </createFetcher.Form>
-          )}
-          settings={settings}
-        />
-      </Suspense>
-    );
-  }
-
   return (
     <SitePage>
       <createFetcher.Form
@@ -485,12 +410,14 @@ const CreateRoom: React.FC = () => {
           name="reservationToken"
           value={reservation?.token ?? ''}
         />
+
         <input type="hidden" name="mode" value={mode} />
         <input
           name="skipAllowed"
           type="hidden"
           value={String(settings.skipAllowed)}
         />
+
         {settings.enabledSources.map((source) => (
           <input
             key={source}
@@ -545,6 +472,7 @@ const CreateRoom: React.FC = () => {
                     className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-24 pl-4 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
                     autoFocus
                   />
+
                   {nameAvailability === 'checking' && (
                     <span className="absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2 animate-spin rounded-full border-2 border-theme-muted border-t-transparent" />
                   )}
@@ -631,6 +559,7 @@ const CreateRoom: React.FC = () => {
                       : 'border-theme focus:border-primary focus:ring-primary/30',
                   )}
                 />
+
                 <p
                   className={classNames(
                     'mt-3 text-xs transition-colors',
@@ -872,12 +801,22 @@ function slugifyRoomName(name: string) {
 export default CreateRoom;
 
 interface ProviderOption {
-  Icon: React.ComponentType<{ className?: string }>;
+  Icon: React.ComponentType<{
+    className?: string;
+  }>;
   id: SourceType;
   variant: 'green' | 'orange' | 'red';
 }
 
 const providerOptions: ProviderOption[] = [
-  { id: 'youtube', Icon: YouTubeIcon, variant: 'red' },
-  { id: 'soundcloud', Icon: SoundCloudIcon, variant: 'orange' },
+  {
+    id: 'youtube',
+    Icon: YouTubeIcon,
+    variant: 'red',
+  },
+  {
+    id: 'soundcloud',
+    Icon: SoundCloudIcon,
+    variant: 'orange',
+  },
 ];

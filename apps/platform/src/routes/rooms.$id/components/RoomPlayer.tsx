@@ -17,8 +17,6 @@ import {
 import { markPlaybackGestureUnlocked, PlayerControls } from '@vibes/ui/web';
 import React, {
   type ComponentType,
-  lazy,
-  Suspense,
   useCallback,
   useEffect,
   useRef,
@@ -35,11 +33,6 @@ const importSoundCloudPlayer = () =>
   import('@vibes/ui/web/player/SoundCloudPlayer');
 const importVideoPlayer = () => import('@vibes/ui/web/player/VideoPlayer');
 
-const LazyTerminalPlayerControls = lazy(async () => {
-  const module = await import('./TerminalPlayerControls');
-  return { default: module.TerminalPlayerControls };
-});
-
 interface RoomPlayerProps {
   roomId: string;
   displayRoom: RoomV2 | null;
@@ -48,7 +41,6 @@ interface RoomPlayerProps {
   initialPlayback?: PlaybackStateV2;
   initialPreloadPlaylistItems?: PlaylistItem[];
   providers: Providers;
-  terminalMode?: boolean;
 }
 
 interface PlayerProps {
@@ -126,7 +118,6 @@ export const RoomPlayer = React.memo(
     initialPlayback,
     initialPreloadPlaylistItems = [],
     providers,
-    terminalMode = false,
   }: RoomPlayerProps) => {
     /* 1. Hooks */
     const playbackFetcher = useFetcher<RoomActionData>();
@@ -228,8 +219,14 @@ export const RoomPlayer = React.memo(
         setLocalPlayingState(action === 'play', roomMode);
         if (roomMode === 'server') return;
         playbackFetcher.submit(
-          { action, intent: 'playback' },
-          { encType: 'application/json', method: 'post' },
+          {
+            action,
+            intent: 'playback',
+          },
+          {
+            encType: 'application/json',
+            method: 'post',
+          },
         );
       },
       [roomMode, playbackFetcher, setLocalPlayingState],
@@ -315,8 +312,15 @@ export const RoomPlayer = React.memo(
     const seek = useCallback(
       (positionMs: number) => {
         playbackFetcher.submit(
-          { action: 'seek', intent: 'playback', positionMs },
-          { encType: 'application/json', method: 'post' },
+          {
+            action: 'seek',
+            intent: 'playback',
+            positionMs,
+          },
+          {
+            encType: 'application/json',
+            method: 'post',
+          },
         );
       },
       [playbackFetcher],
@@ -339,8 +343,13 @@ export const RoomPlayer = React.memo(
           setIsSkipPending(true);
         }
         playbackFetcher.submit(
-          { intent: 'skip' },
-          { encType: 'application/json', method: 'post' },
+          {
+            intent: 'skip',
+          },
+          {
+            encType: 'application/json',
+            method: 'post',
+          },
         );
       },
       [playbackFetcher],
@@ -352,8 +361,13 @@ export const RoomPlayer = React.memo(
 
     const reset = useCallback(() => {
       playbackFetcher.submit(
-        { intent: 'resetPlayback' },
-        { encType: 'application/json', method: 'post' },
+        {
+          intent: 'resetPlayback',
+        },
+        {
+          encType: 'application/json',
+          method: 'post',
+        },
       );
     }, [playbackFetcher]);
 
@@ -496,9 +510,13 @@ export const RoomPlayer = React.memo(
     useEffect(() => {
       if (debugMountRef.current) return;
       debugMountRef.current = true;
-      browserDebugLog('[RoomPlayer] mount', { roomId });
+      browserDebugLog('[RoomPlayer] mount', {
+        roomId,
+      });
       return () => {
-        browserDebugLog('[RoomPlayer] unmount', { roomId });
+        browserDebugLog('[RoomPlayer] unmount', {
+          roomId,
+        });
       };
     }, [roomId]);
 
@@ -516,28 +534,18 @@ export const RoomPlayer = React.memo(
         : null;
 
     return (
-      <div
-        className={classNames(
-          'min-w-0 space-y-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-6 lg:space-y-0',
-          terminalMode &&
-            '!h-fit !space-y-4 lg:!col-span-2 lg:!block lg:!h-fit',
-        )}
-      >
+      <div className="min-w-0 space-y-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-6 lg:space-y-0">
         <AutoSkipHandler
           currentPlaylistItem={currentPlaylistItem}
           isPlaying={isPlaying}
           skip={skip}
-          {...(hasHostPlaybackAuthority && { mode: 'host' })}
+          {...(hasHostPlaybackAuthority && {
+            mode: 'host',
+          })}
         />
+
         {/* Player - Reserve height to prevent CLS */}
-        <div
-          aria-hidden={terminalMode}
-          className={classNames(
-            'crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
-            terminalMode &&
-              '!fixed !top-0 !-left-[200vw] !h-[360px] !min-h-0 !w-[640px] !flex-none !opacity-0 pointer-events-none',
-          )}
-        >
+        <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0">
           {VideoPlayerComponent && !isConnected && (
             <div
               className={classNames(
@@ -661,71 +669,39 @@ export const RoomPlayer = React.memo(
         </div>
 
         {/* Controls (always below video) */}
-        {!terminalMode && (
-          <PlayerControls
-            roomType={displayRoom?.roomType ?? 'MUSIC'}
-            isPlaying={isPlaying && !isPlaybackBlocked}
-            canPlay={
-              canControlRoomPlayback &&
-              Boolean(currentPlaylistItem || playlistItems.length > 0)
-            }
-            canSkip={canSkipPlaylistItem && Boolean(currentPlaylistItem)}
-            isSkipping={isSkipPending}
-            showReset={
-              Boolean(currentPlaylistItem) && hasLocalPlaybackChanges && !isHost
-            }
-            onPlay={play}
-            onPause={pause}
-            onSkip={skip}
-            onReset={reset}
-            onAddPlaylistItem={onAddPlaylistItem}
-            onOpenCast={onOpenCast}
-            showCast={showCast}
-            isCasting={isConnected}
-            castDeviceName={castDeviceName}
-            mobileTrailingContent={
-              <UserCount
-                initialCount={displayRoom?.userCount ?? 0}
-                roomType={displayRoom?.roomType ?? 'MUSIC'}
-                roomId={roomId}
-              />
-            }
-            volume={volume}
-            onVolumeChange={setVolume}
-            onToggleMuted={toggleMuted}
-          />
-        )}
-        {terminalMode && (
-          <Suspense fallback={null}>
-            <LazyTerminalPlayerControls
-              canPlay={
-                canControlRoomPlayback &&
-                Boolean(currentPlaylistItem || playlistItems.length > 0)
-              }
-              canSkip={canSkipPlaylistItem && Boolean(currentPlaylistItem)}
-              castDeviceName={castDeviceName}
-              currentPlaylistItem={currentPlaylistItem}
-              isCasting={isConnected}
-              isPlaying={isPlaying && !isPlaybackBlocked}
-              isSkipping={isSkipPending}
-              onAddPlaylistItem={onAddPlaylistItem}
-              onOpenCast={onOpenCast}
-              onPause={pause}
-              onPlay={play}
-              onReset={reset}
-              onSkip={skip}
-              onToggleMuted={toggleMuted}
-              onVolumeChange={setVolume}
-              showReset={
-                Boolean(currentPlaylistItem) &&
-                hasLocalPlaybackChanges &&
-                !isHost
-              }
-              showCast={showCast}
-              volume={volume}
+
+        <PlayerControls
+          roomType={displayRoom?.roomType ?? 'MUSIC'}
+          isPlaying={isPlaying && !isPlaybackBlocked}
+          canPlay={
+            canControlRoomPlayback &&
+            Boolean(currentPlaylistItem || playlistItems.length > 0)
+          }
+          canSkip={canSkipPlaylistItem && Boolean(currentPlaylistItem)}
+          isSkipping={isSkipPending}
+          showReset={
+            Boolean(currentPlaylistItem) && hasLocalPlaybackChanges && !isHost
+          }
+          onPlay={play}
+          onPause={pause}
+          onSkip={skip}
+          onReset={reset}
+          onAddPlaylistItem={onAddPlaylistItem}
+          onOpenCast={onOpenCast}
+          showCast={showCast}
+          isCasting={isConnected}
+          castDeviceName={castDeviceName}
+          mobileTrailingContent={
+            <UserCount
+              initialCount={displayRoom?.userCount ?? 0}
+              roomType={displayRoom?.roomType ?? 'MUSIC'}
+              roomId={roomId}
             />
-          </Suspense>
-        )}
+          }
+          volume={volume}
+          onVolumeChange={setVolume}
+          onToggleMuted={toggleMuted}
+        />
       </div>
     );
   },

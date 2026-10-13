@@ -1,5 +1,4 @@
 import { classNames } from '@vibes/shared';
-import { useNativePresentation } from '@vibes/ui/native';
 import { CameraView } from 'expo-camera';
 import { Modal, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,7 +29,6 @@ export function RemotePairingV2({
   controllerActions,
 }: RemotePairingProps) {
   const theme = useAppTheme();
-  const terminal = useNativePresentation() === 'terminal';
 
   return (
     <Screen>
@@ -45,8 +43,7 @@ export function RemotePairingV2({
                 <View
                   className={classNames(
                     'mb-2 size-16 items-center justify-center border',
-                    !terminal && 'rounded-3xl border-accent/40 bg-accent/10',
-                    terminal && 'border-[#55ffad] bg-[#03150d]',
+                    'rounded-3xl border-accent/40 bg-accent/10',
                   )}
                 >
                   <ZoffIcon color={theme.accent} name="remote" size={30} />
@@ -64,22 +61,11 @@ export function RemotePairingV2({
                   tone="secondary"
                   onPress={() => void controllerActions.openScanner()}
                 />
+
                 <View className="flex-row items-center gap-3">
-                  <View
-                    className={classNames(
-                      'h-px flex-1',
-                      !terminal && 'bg-accent',
-                      terminal && 'bg-[#55ffad]',
-                    )}
-                  />
+                  <View className={classNames('h-px flex-1', 'bg-accent')} />
                   <Copy muted>OR ENTER A CODE</Copy>
-                  <View
-                    className={classNames(
-                      'h-px flex-1',
-                      !terminal && 'bg-accent',
-                      terminal && 'bg-[#55ffad]',
-                    )}
-                  />
+                  <View className={classNames('h-px flex-1', 'bg-accent')} />
                 </View>
                 <Field
                   accessibilityLabel="Remote ID"
@@ -89,6 +75,7 @@ export function RemotePairingV2({
                   placeholder="Remote ID"
                   testID="remote-id"
                 />
+
                 <Field
                   accessibilityLabel="Pairing code"
                   autoCapitalize="none"
@@ -98,10 +85,12 @@ export function RemotePairingV2({
                   placeholder="Pairing code"
                   testID="remote-pairing-code"
                 />
+
                 <Button
                   label="Pair remote"
                   onPress={() => void controllerActions.pair()}
                 />
+
                 <Toast message={controller.error} />
               </Card>
             </View>
@@ -115,11 +104,14 @@ export function RemotePairingV2({
           <View className="flex-1 bg-[#08050f]">
             <CameraView
               active={controller.scannerVisible}
-              barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+              barcodeScannerSettings={{
+                barcodeTypes: ['qr'],
+              }}
               facing="back"
               className="absolute inset-0"
               onBarcodeScanned={controllerActions.handleScan}
             />
+
             <SafeAreaView className="justify-between" style={safeAreaStyle}>
               <View className="items-center gap-3 px-6 pt-8">
                 <Heading>Scan remote QR code</Heading>
@@ -141,5 +133,6 @@ export function RemotePairingV2({
     </Screen>
   );
 }
-
-const safeAreaStyle = { flex: 1 };
+const safeAreaStyle = {
+  flex: 1,
+};

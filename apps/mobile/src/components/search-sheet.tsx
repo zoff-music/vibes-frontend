@@ -1,7 +1,6 @@
 import type { Providers, RoomType } from '@vibes/models';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { useNativePresentation } from '@vibes/ui/native';
 import { getProviderDisplayName, getRoomLabels } from '@vibes/ui/shared';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,7 +46,6 @@ export function SearchSheet({
 }: SearchSheetProps) {
   const theme = useAppTheme();
   const labels = getRoomLabels(roomType);
-  const terminal = useNativePresentation() === 'terminal';
   const [
     {
       enabledProviders,
@@ -67,10 +65,26 @@ export function SearchSheet({
     onClose,
     onGenerated,
     playlistImportAllowed,
-    ...(onAdded ? { onAdded } : {}),
-    ...(providersOverride ? { providersOverride } : {}),
-    ...(remoteCredentials ? { remoteCredentials } : {}),
-    ...(roomIdOverride ? { roomIdOverride } : {}),
+    ...(onAdded
+      ? {
+          onAdded,
+        }
+      : {}),
+    ...(providersOverride
+      ? {
+          providersOverride,
+        }
+      : {}),
+    ...(remoteCredentials
+      ? {
+          remoteCredentials,
+        }
+      : {}),
+    ...(roomIdOverride
+      ? {
+          roomIdOverride,
+        }
+      : {}),
   });
 
   if (!visible) return null;
@@ -87,8 +101,7 @@ export function SearchSheet({
               <Text
                 className={classNames(
                   'font-heading text-2xl',
-                  !terminal && 'text-mobile-text dark:text-mobile-dark-text',
-                  terminal && 'text-[#dffff0]',
+                  'text-mobile-text dark:text-mobile-dark-text',
                 )}
               >
                 {isAIMode ? 'Fill playlist' : labels.add}
@@ -113,23 +126,20 @@ export function SearchSheet({
             <View
               className={classNames(
                 'mb-4 flex-row border p-1',
-                !terminal &&
-                  'rounded-2xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-                terminal && 'border-[#55ffad] bg-[#010c08]',
+                'rounded-2xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
               )}
             >
               {enabledProviders.map((source) => (
                 <Pressable
                   accessibilityRole="tab"
-                  accessibilityState={{ selected: provider === source }}
+                  accessibilityState={{
+                    selected: provider === source,
+                  }}
                   key={source}
                   className={classNames(
                     'min-h-11 flex-1 items-center justify-center px-3',
-                    !terminal && 'rounded-xl',
-                    !terminal && provider === source && 'bg-accent',
-                    terminal &&
-                      provider === source &&
-                      'border border-[#55ffad] bg-[#71f5ad]',
+                    'rounded-xl',
+                    provider === source && 'bg-accent',
                     provider !== source && 'bg-transparent',
                   )}
                   onPress={() => setProvider(source)}
@@ -137,10 +147,7 @@ export function SearchSheet({
                   <Text
                     className={classNames(
                       'font-heading text-sm',
-                      !terminal &&
-                        'text-mobile-text dark:text-mobile-dark-text',
-                      terminal && provider !== source && 'text-[#dffff0]',
-                      terminal && provider === source && 'text-[#03150d]',
+                      'text-mobile-text dark:text-mobile-dark-text',
                     )}
                   >
                     {getProviderDisplayName(source)}
@@ -179,21 +186,17 @@ export function SearchSheet({
                 }}
                 className={classNames(
                   'size-13 items-center justify-center border active:opacity-70',
-                  !terminal && 'rounded-xl',
-                  !terminal && isAIMode && 'border-accent bg-accent',
-                  terminal && isAIMode && 'border-[#55ffad] bg-[#71f5ad]',
+                  'rounded-xl',
+                  isAIMode && 'border-accent bg-accent',
                   !isAIMode &&
-                    !terminal &&
                     'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-                  !isAIMode && terminal && 'border-[#55ffad] bg-[#010c08]',
+                  !isAIMode && false && 'border-[#55ffad] bg-[#010c08]',
                   !canGenerate && 'opacity-45',
                 )}
                 onPress={toggleAIMode}
               >
                 <ZoffIcon
-                  color={
-                    isAIMode ? (terminal ? '#03150d' : '#ffffff') : theme.text
-                  }
+                  color={isAIMode ? '#ffffff' : theme.text}
                   name="sparkles"
                   size={22}
                 />
@@ -265,5 +268,6 @@ export function SearchSheet({
     </Screen>
   );
 }
-
-const safeAreaStyle = { flex: 1 };
+const safeAreaStyle = {
+  flex: 1,
+};

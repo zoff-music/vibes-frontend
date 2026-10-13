@@ -1,13 +1,4 @@
 import type { RemotePairingV2, RemoteStatusV2 } from '@vibes/models';
-import {
-  TerminalButton,
-  TerminalFeedback,
-  TerminalModal,
-  TerminalSection,
-  TerminalStatus,
-  TerminalStatusGrid,
-  terminalButtonClassName,
-} from '@vibes/ui/konami';
 import { Button, CloseIcon, Modal, RemoteIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import { Suspense } from 'react';
@@ -19,7 +10,6 @@ interface RemoteControlDialogProps {
   remote: RemoteStatusV2;
   pairing: RemotePairingV2 | null;
   machineRoomId: string;
-  terminalMode: boolean;
   isOpen: boolean;
   closeRemoteControl: () => void;
 }
@@ -29,7 +19,6 @@ export function RemoteControlDialog({
   remote,
   pairing,
   machineRoomId,
-  terminalMode,
   isOpen,
   closeRemoteControl,
 }: RemoteControlDialogProps) {
@@ -45,99 +34,7 @@ export function RemoteControlDialog({
         </p>
       }
     >
-      {terminalMode && isOpen && (
-        <TerminalModal
-          ariaLabelledBy="remote-control-title"
-          className="!max-w-xl"
-          isOpen={isOpen}
-          onClose={closeRemoteControl}
-          size="sm"
-          title="REMOTE LINK DAEMON"
-        >
-          <TerminalStatusGrid className="mb-4">
-            <TerminalStatus
-              label="DAEMON STATUS"
-              value={remote.enabled ? 'ONLINE' : 'OFFLINE'}
-            />
-            <TerminalStatus
-              label="PAIR STATUS"
-              value={remote.paired ? 'LINKED' : 'WAITING'}
-            />
-            <TerminalStatus
-              label="ROOM CHANNEL"
-              value={machineRoomId || 'NONE'}
-            />
-          </TerminalStatusGrid>
-
-          {pairing && (
-            <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
-              <div className="bg-white p-2">
-                <QRCodeSVG
-                  bgColor="#ffffff"
-                  fgColor="#03150d"
-                  level="H"
-                  marginSize={2}
-                  size={180}
-                  title="Pair Zoff remote"
-                  value={pairingUrl}
-                />
-              </div>
-              <TerminalSection label="MANUAL PAIRING CODE" status="ARMED">
-                <p className="mt-3 text-3xl text-[#e0ffef] tracking-[0.18em]">
-                  {pairing.pairingCode}
-                </p>
-                <p className="mt-3 break-all text-[#a6ffd0]/45 text-[0.58rem]">
-                  ID {pairing.id}
-                </p>
-                <p className="mt-4 text-[#71f5ad] text-xs">
-                  ONE-TIME KEY ARMED. AWAITING CONTROLLER.
-                  <span className="terminal-cursor">_</span>
-                </p>
-              </TerminalSection>
-            </div>
-          )}
-
-          {!pairing && remote.enabled && (
-            <TerminalFeedback>
-              REMOTE CONTROL IS ACTIVE. GENERATE A NEW PAIRING KEY TO LINK
-              ANOTHER DEVICE.
-            </TerminalFeedback>
-          )}
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <controlFetcher.Form action="/remote-control" method="post">
-              <input type="hidden" name="intent" value="enable" />
-              <input type="hidden" name="roomId" value={machineRoomId} />
-              <TerminalButton
-                disabled={controlFetcher.state !== 'idle'}
-                type="submit"
-              >
-                {remote.enabled ? '[ NEW PAIRING ]' : '[ ENABLE REMOTE ]'}
-              </TerminalButton>
-            </controlFetcher.Form>
-            {remote.enabled && (
-              <controlFetcher.Form action="/remote-control" method="post">
-                <input type="hidden" name="intent" value="delete" />
-                <input type="hidden" name="remoteId" value={remote.id} />
-                <TerminalButton
-                  disabled={controlFetcher.state !== 'idle'}
-                  type="submit"
-                >
-                  [ DISABLE ]
-                </TerminalButton>
-              </controlFetcher.Form>
-            )}
-            <Link
-              className={terminalButtonClassName()}
-              reloadDocument
-              to="/remotes/join"
-            >
-              [ CONNECT AS REMOTE ]
-            </Link>
-          </div>
-        </TerminalModal>
-      )}
-      {!terminalMode && isOpen && (
+      {isOpen && (
         <Modal
           ariaLabelledBy="remote-control-title"
           isOpen={isOpen}

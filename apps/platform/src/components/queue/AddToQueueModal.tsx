@@ -15,16 +15,6 @@ import {
   type SourceType,
   useQueueStore,
 } from '@vibes/shared';
-import {
-  TerminalButton,
-  TerminalFeedback,
-  TerminalField,
-  TerminalInput,
-  TerminalInputGroup,
-  TerminalListButton,
-  TerminalModal,
-  TerminalSection,
-} from '@vibes/ui/konami';
 import { getRoomLabels } from '@vibes/ui/shared';
 import {
   AlertCircleIcon,
@@ -57,7 +47,6 @@ interface Props {
   hasGenerationPermission: boolean;
   isGenerating: boolean;
   onGenerationStarted: () => void;
-  terminalMode?: boolean;
 }
 
 interface ProviderItem {
@@ -96,7 +85,6 @@ export const AddToQueueModal: React.FC<Props> = ({
   hasGenerationPermission,
   isGenerating,
   onGenerationStarted,
-  terminalMode = false,
 }) => {
   const labels = getRoomLabels(room.roomType);
   const searchFetcher = useFetcher<RoomActionData>();
@@ -373,13 +361,20 @@ export const AddToQueueModal: React.FC<Props> = ({
           intent: 'providerPlaylist',
           provider: providerPlaylistLink.provider,
           ...(providerPlaylistLink.sourceId
-            ? { sourceId: providerPlaylistLink.sourceId }
+            ? {
+                sourceId: providerPlaylistLink.sourceId,
+              }
             : {}),
           ...(providerPlaylistLink.providerUrl
-            ? { providerUrl: providerPlaylistLink.providerUrl }
+            ? {
+                providerUrl: providerPlaylistLink.providerUrl,
+              }
             : {}),
         },
-        { encType: 'application/json', method: 'post' },
+        {
+          encType: 'application/json',
+          method: 'post',
+        },
       );
       return;
     }
@@ -400,13 +395,20 @@ export const AddToQueueModal: React.FC<Props> = ({
           intent: 'providerItem',
           provider: providerTrackLink.provider,
           ...(providerTrackLink.sourceId
-            ? { sourceId: providerTrackLink.sourceId }
+            ? {
+                sourceId: providerTrackLink.sourceId,
+              }
             : {}),
           ...(providerTrackLink.providerUrl
-            ? { providerUrl: providerTrackLink.providerUrl }
+            ? {
+                providerUrl: providerTrackLink.providerUrl,
+              }
             : {}),
         },
-        { encType: 'application/json', method: 'post' },
+        {
+          encType: 'application/json',
+          method: 'post',
+        },
       );
       return;
     }
@@ -425,7 +427,10 @@ export const AddToQueueModal: React.FC<Props> = ({
         prompt: trimmedQuery,
         provider: selectedProvider,
       },
-      { encType: 'application/json', method: 'post' },
+      {
+        encType: 'application/json',
+        method: 'post',
+      },
     );
   };
 
@@ -459,11 +464,16 @@ export const AddToQueueModal: React.FC<Props> = ({
           thumbnailUrl: playlistItem.thumbnailUrl,
           title: playlistItem.title,
           ...(playlistItem.providerUrl
-            ? { providerUrl: playlistItem.providerUrl }
+            ? {
+                providerUrl: playlistItem.providerUrl,
+              }
             : {}),
         },
       },
-      { encType: 'application/json', method: 'post' },
+      {
+        encType: 'application/json',
+        method: 'post',
+      },
     );
   };
 
@@ -505,8 +515,14 @@ export const AddToQueueModal: React.FC<Props> = ({
 
     setError(null);
     generationFetcher.submit(
-      { intent: 'generatePlaylist', prompt },
-      { encType: 'application/json', method: 'post' },
+      {
+        intent: 'generatePlaylist',
+        prompt,
+      },
+      {
+        encType: 'application/json',
+        method: 'post',
+      },
     );
   };
 
@@ -535,11 +551,18 @@ export const AddToQueueModal: React.FC<Props> = ({
             sourceType: item.source,
             thumbnailUrl: item.thumbnailUrl,
             title: item.title,
-            ...(item.providerUrl ? { providerUrl: item.providerUrl } : {}),
+            ...(item.providerUrl
+              ? {
+                  providerUrl: item.providerUrl,
+                }
+              : {}),
           })),
         },
       },
-      { encType: 'application/json', method: 'post' },
+      {
+        encType: 'application/json',
+        method: 'post',
+      },
     );
   };
 
@@ -588,210 +611,6 @@ export const AddToQueueModal: React.FC<Props> = ({
   }
 
   if (!isVisible) return null;
-
-  if (terminalMode) {
-    return (
-      <TerminalModal
-        ariaLabelledBy="terminal-add-song-title"
-        initialFocusRef={searchInputRef}
-        isOpen={isVisible}
-        onClose={onClose}
-        size="lg"
-        title={`ZOFF QUEUE.EXE / ${isAIMode ? 'GENERATE' : 'SEARCH'}`}
-      >
-        {!isAIMode && (
-          <div className="mb-4 flex flex-wrap gap-2">
-            {providerList.map((provider) => (
-              <TerminalButton
-                key={provider}
-                onClick={() => {
-                  setSelectedProvider(provider);
-                  setSearchResults([]);
-                  setSearchQuery('');
-                  setPreviewItem(null);
-                  setPreviewPlaylist(null);
-                }}
-              >
-                [{selectedProvider === provider ? 'X' : ' '}] {provider}
-              </TerminalButton>
-            ))}
-          </div>
-        )}
-
-        <TerminalSection
-          label={
-            isAIMode
-              ? 'PLAYLIST GENERATION COMMAND'
-              : `${selectedProvider.toUpperCase()} QUERY OR URL`
-          }
-          status={isPrimaryActionBusy ? 'WORKING' : 'READY'}
-        >
-          <TerminalField htmlFor="terminal-song-search" label="COMMAND INPUT">
-            <TerminalInputGroup className="flex-col sm:flex-row">
-              <TerminalInput
-                id="terminal-song-search"
-                onChange={handleSearchInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder={
-                  isAIMode
-                    ? 'DESCRIBE REQUESTED PLAYLIST'
-                    : `SEARCH ${selectedProvider.toUpperCase()}`
-                }
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                {...(isAIMode && {
-                  maxLength: generatedPlaylistPromptMaxLength,
-                })}
-              />
-              <TerminalButton
-                disabled={!canSubmitPrimaryAction || isPrimaryActionBusy}
-                onClick={handlePrimaryAction}
-              >
-                {isPrimaryActionBusy ? '[ WORKING ]' : '[ EXECUTE ]'}
-              </TerminalButton>
-              <TerminalButton onClick={handleToggleAIMode}>
-                {isAIMode ? '[ SEARCH MODE ]' : '[ AI MODE ]'}
-              </TerminalButton>
-            </TerminalInputGroup>
-          </TerminalField>
-          {error && (
-            <TerminalFeedback className="mt-3" tone="error">
-              ERROR: {error}
-              {playlistItemFetcher.data?.error === error &&
-                playlistItemFetcher.data.errorAction === 'adminLogin' && (
-                  <button
-                    type="button"
-                    className="ml-1 underline underline-offset-4 focus-visible:outline-2"
-                    onClick={onOpenAdminLogin}
-                  >
-                    Log in as room admin
-                  </button>
-                )}
-            </TerminalFeedback>
-          )}
-          {!canGenerate && (
-            <TerminalFeedback className="mt-3">
-              {generationUnavailableReason}
-            </TerminalFeedback>
-          )}
-        </TerminalSection>
-
-        {!isAIMode &&
-          showResults &&
-          searchResults.length > 0 &&
-          !isLoading &&
-          !justAdded && (
-            <TerminalSection
-              className="mt-4"
-              contentClassName="max-h-80 overflow-y-auto !p-2"
-              label="SEARCH RESULTS"
-              status={`${searchResults.length} FOUND`}
-            >
-              {searchResults.map((result, index) => (
-                <TerminalListButton
-                  action="ADD"
-                  index={(index + 1).toString().padStart(2, '0')}
-                  key={result.id}
-                  metadata={`${result.publisher} / ${result.source}`}
-                  onClick={() => handleSelectResult(result)}
-                  title={result.title}
-                />
-              ))}
-            </TerminalSection>
-          )}
-
-        {previewItem && !justAdded && (
-          <TerminalSection className="mt-4" label="TRACK PREVIEW">
-            <p className="text-[#71f5ad]/55 text-[0.6rem] uppercase">
-              TRACK PREVIEW
-            </p>
-            <p className="mt-2 text-[#e0ffef] text-sm uppercase">
-              {previewItem.title}
-            </p>
-            <p className="mt-1 text-[#a6ffd0]/55 text-xs uppercase">
-              {previewItem.publisher} / {previewItem.source} /{' '}
-              {formatDuration(parseISODuration(previewItem.duration))}
-            </p>
-            <div className="mt-4 flex gap-2">
-              <TerminalButton disabled={isLoading} onClick={handleAdd}>
-                {isLoading ? '[ ADDING ]' : '[ ADD TO QUEUE ]'}
-              </TerminalButton>
-              <TerminalButton onClick={onClose}>[ CANCEL ]</TerminalButton>
-            </div>
-          </TerminalSection>
-        )}
-
-        {previewPlaylist && !justAdded && (
-          <TerminalSection
-            className="mt-4"
-            label="PLAYLIST PREVIEW"
-            status={`${previewPlaylist.items.length} TRACKS`}
-          >
-            <p className="text-[#71f5ad]/55 text-[0.6rem] uppercase">
-              IMPORT MANIFEST
-            </p>
-            <p className="mt-2 text-[#e0ffef] text-sm uppercase">
-              {previewPlaylist.title ?? 'UNNAMED PLAYLIST'}
-            </p>
-            {previewPlaylist.skippedEmbeddingCount > 0 && (
-              <p role="status" className="mt-2 text-theme-muted text-xs">
-                Skipped {previewPlaylist.skippedEmbeddingCount} {labels.items}{' '}
-                because YouTube does not allow them to play in embedded players.
-              </p>
-            )}
-            {previewPlaylist.skippedMadeForKidsCount > 0 && (
-              <p role="status" className="mt-2 text-theme-muted text-xs">
-                Skipped {previewPlaylist.skippedMadeForKidsCount} videos marked
-                as made for kids on YouTube. Zoff does not support these videos.
-              </p>
-            )}
-            {previewPlaylist.skippedRoomTypeCount > 0 && (
-              <p role="status" className="mt-2 text-theme-muted text-xs">
-                Skipped {previewPlaylist.skippedRoomTypeCount} non-music videos.
-                Use a Watch room to import videos from other categories.
-              </p>
-            )}
-            <ol className="mt-3 max-h-52 overflow-y-auto border-[#71f5ad]/20 border-t">
-              {previewPlaylist.items.map((item, index) => (
-                <li
-                  className="flex gap-3 border-[#71f5ad]/15 border-b px-2 py-2 text-xs"
-                  key={item.key}
-                >
-                  <span className="text-[#71f5ad]/45">
-                    {(index + 1).toString().padStart(2, '0')}
-                  </span>
-                  <span className="min-w-0 truncate text-[#dffff0]">
-                    {item.title}
-                  </span>
-                </li>
-              ))}
-            </ol>
-            <div className="mt-4 flex gap-2">
-              <TerminalButton
-                disabled={isLoading || previewPlaylist.items.length === 0}
-                onClick={handleAddPlaylist}
-              >
-                {isLoading ? '[ ADDING ]' : '[ IMPORT PLAYLIST ]'}
-              </TerminalButton>
-              <TerminalButton onClick={onClose}>[ CANCEL ]</TerminalButton>
-            </div>
-          </TerminalSection>
-        )}
-
-        {justAdded && (
-          <TerminalFeedback className="mt-4 p-6 text-center" tone="success">
-            <strong className="block text-[#e0ffef] text-sm">
-              {successTitle}
-            </strong>
-            <span className="mt-2 block text-[#a6ffd0]/60">
-              {successDescription}
-            </span>
-          </TerminalFeedback>
-        )}
-      </TerminalModal>
-    );
-  }
 
   return (
     <Modal
@@ -903,6 +722,7 @@ export const AddToQueueModal: React.FC<Props> = ({
               })}
               className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
             />
+
             {searchQuery && (
               <Button
                 onClick={() => handleSearchChange('')}
@@ -1042,6 +862,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                 alt={previewItem.title}
                 className="h-24 w-32 rounded-xl border border-theme bg-theme-surface object-cover"
               />
+
               <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
                 {formatDuration(parseISODuration(previewItem.duration))}
               </div>
@@ -1108,6 +929,7 @@ export const AddToQueueModal: React.FC<Props> = ({
                   alt=""
                   className="h-12 w-12 shrink-0 rounded-lg border border-theme object-cover"
                 />
+
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-theme text-xs">{item.title}</p>
                   <p className="mt-1 truncate text-theme-muted text-xs">

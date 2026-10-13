@@ -32,12 +32,9 @@ import {
   useRouteError,
   useSearchParams,
 } from 'react-router';
-import { useKonamiMode } from '../../components/konami/KonamiModeContext';
 import { useRemoteControl } from '../../components/remote/RemoteControlProvider';
 import { useRememberRoom } from '../../hooks/useRememberRoom';
-import { useThemeDisplay } from '../../hooks/useThemeDisplay';
 import { useCastStore } from '../../stores/castStore';
-import { useThemeStore } from '../../stores/themeStore';
 import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
@@ -68,7 +65,9 @@ const GENERATION_REFRESH_DELAY_MS = 5 * 60 * 1000;
 
 const LazyRoomGenerationProgress = lazy(async () => {
   const module = await import('./components/RoomGenerationProgress');
-  return { default: module.RoomGenerationProgress };
+  return {
+    default: module.RoomGenerationProgress,
+  };
 });
 
 function RoomGenerationProgress(props: RoomGenerationProgressProps) {
@@ -92,7 +91,9 @@ function RoomGenerationProgress(props: RoomGenerationProgressProps) {
 
 const LazyPartyScreenJoinCard = lazy(async () => {
   const module = await import('./components/PartyScreenJoinCard');
-  return { default: module.PartyScreenJoinCard };
+  return {
+    default: module.PartyScreenJoinCard,
+  };
 });
 
 interface PublicRoomError {
@@ -123,7 +124,9 @@ function normalizeRouteError(routeError: unknown): PublicRoomError {
 
 export function ErrorBoundary() {
   const routeError = useRouteError();
-  const { id = '' } = useParams<{ id: string }>();
+  const { id = '' } = useParams<{
+    id: string;
+  }>();
   const revalidator = useRevalidator();
   const publicError = normalizeRouteError(routeError);
 
@@ -141,41 +144,22 @@ export function ErrorBoundary() {
 
 const LazyDeviceSelector = lazy(async () => {
   const module = await import('../../components/cast/DeviceSelector');
-  return { default: module.DeviceSelector };
+  return {
+    default: module.DeviceSelector,
+  };
 });
 
 const LazyAddToQueueModal = lazy(async () => {
   const module = await import('../../components/queue/AddToQueueModal');
-  return { default: module.AddToQueueModal };
-});
-
-const LazyTerminalShell = lazy(async () => {
-  const module = await import('@vibes/ui/konami');
-  return { default: module.TerminalShell };
-});
-
-const LazyTerminalLoading = lazy(async () => {
-  const module = await import('@vibes/ui/konami');
-  return { default: module.TerminalLoading };
+  return {
+    default: module.AddToQueueModal,
+  };
 });
 
 interface DeferredModalLoadingProps {
   label: string;
-  terminalMode?: boolean;
 }
-
-function DeferredModalLoading({
-  label,
-  terminalMode = false,
-}: DeferredModalLoadingProps) {
-  if (terminalMode) {
-    return (
-      <Suspense fallback={null}>
-        <LazyTerminalLoading label={label} overlay />
-      </Suspense>
-    );
-  }
-
+function DeferredModalLoading({ label }: DeferredModalLoadingProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
       <div
@@ -192,14 +176,15 @@ function DeferredModalLoading({
 export default function RoomV2() {
   const loaderData = useLoaderData() as RoomLoaderData;
   useRememberRoom(loaderData.room.id);
-  const { id = '' } = useParams<{ id: string }>();
+  const { id = '' } = useParams<{
+    id: string;
+  }>();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const [searchParams, setSearchParams] = useSearchParams();
   const revalidate = useRevalidator().revalidate;
   const adminFetcher = useFetcher<RoomActionData>();
   const { setMachineRoomId } = useRemoteControl();
-  const terminalMode = useKonamiMode();
 
   const headerRef = useRef<HTMLDivElement | null>(null);
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -207,7 +192,6 @@ export default function RoomV2() {
   const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
   const settingsMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
   const room = useRoomStore((state) => state.room);
   const isAdmin = useRoomStore((state) => state.isAdmin);
   const setRoom = useRoomStore((state) => state.setRoom);
@@ -241,14 +225,17 @@ export default function RoomV2() {
   const queuePreviewProps =
     (isSSR || queueSnapshotRoomId !== id) &&
     loaderData.queuedPlaylistItemCount !== undefined
-      ? { initialQueuedPlaylistItemCount: loaderData.queuedPlaylistItemCount }
+      ? {
+          initialQueuedPlaylistItemCount: loaderData.queuedPlaylistItemCount,
+        }
       : {};
   const playerPreloadProps =
     (isSSR || queueSnapshotRoomId !== id) && loaderData.preloadPlaylistItems
-      ? { initialPreloadPlaylistItems: loaderData.preloadPlaylistItems }
+      ? {
+          initialPreloadPlaylistItems: loaderData.preloadPlaylistItems,
+        }
       : {};
   const shouldReduceMotion = useReducedMotion();
-  const { currentTheme } = useThemeDisplay();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -398,10 +385,6 @@ export default function RoomV2() {
   );
   useRoomEventsV3(isSSR ? undefined : id, sseCallbacks);
 
-  const handleToggleDarkMode = useCallback(() => {
-    toggleDarkMode();
-  }, [toggleDarkMode]);
-
   const [chatOpen, setChatOpen] = useState(false);
 
   const handleAddPlaylistItem = useCallback(() => {
@@ -427,14 +410,18 @@ export default function RoomV2() {
   const handleOpenPartyScreen = useCallback(() => {
     const nextSearchParams = new URLSearchParams(searchParams);
     nextSearchParams.set('view', 'party');
-    setSearchParams(nextSearchParams, { replace: true });
+    setSearchParams(nextSearchParams, {
+      replace: true,
+    });
     setShowShare(false);
   }, [searchParams, setSearchParams]);
 
   const handleExitPartyScreen = useCallback(() => {
     const nextSearchParams = new URLSearchParams(searchParams);
     nextSearchParams.delete('view');
-    setSearchParams(nextSearchParams, { replace: true });
+    setSearchParams(nextSearchParams, {
+      replace: true,
+    });
   }, [searchParams, setSearchParams]);
 
   const handleToggleSettings = useCallback(() => {
@@ -501,14 +488,22 @@ export default function RoomV2() {
   const handleJoinAdmin = useCallback(() => {
     if (!adminPassword) return;
     adminFetcher.submit(
-      { intent: 'joinRoom', password: adminPassword },
-      { encType: 'application/json', method: 'post' },
+      {
+        intent: 'joinRoom',
+        password: adminPassword,
+      },
+      {
+        encType: 'application/json',
+        method: 'post',
+      },
     );
   }, [adminFetcher, adminPassword]);
 
   const handleLeave = useCallback(() => {
     navigate('/', {
-      state: { fromRoom: true },
+      state: {
+        fromRoom: true,
+      },
       viewTransition: canUseViewTransition(),
     });
   }, [navigate]);
@@ -625,140 +620,6 @@ export default function RoomV2() {
       ? roomEntryInitialState
       : false;
 
-  if (terminalMode) {
-    return (
-      <Suspense fallback={null}>
-        <LazyTerminalShell
-          channel="ROOM CONTROL"
-          title={displayRoom.name}
-          footer={
-            <>
-              <span>ROOM {id.toUpperCase()} / SSE ONLINE</span>
-              <span>{usersCount.toString().padStart(3, '0')} USERS LINKED</span>
-            </>
-          }
-        >
-          <RoomHeader
-            adminError={adminError}
-            key="terminal-room-header"
-            headerRef={headerRef}
-            displayRoom={displayRoom}
-            roomId={id}
-            showShare={showShare}
-            onToggleShare={handleToggleShare}
-            shareButtonRef={shareButtonRef}
-            sharePanelRef={sharePanelRef}
-            shareUrl={shareUrl}
-            onShareRoom={handleShareRoom}
-            onOpenPartyScreen={handleOpenPartyScreen}
-            onOpenCast={handleOpenCast}
-            showCast={isCastInitialized}
-            isCasting={isCasting}
-            castDeviceName={castDeviceName}
-            currentTheme={currentTheme}
-            onToggleDarkMode={handleToggleDarkMode}
-            showSettings={showSettings}
-            focusAdminLogin={focusAdminLogin}
-            onToggleSettings={handleToggleSettings}
-            onCloseSettings={handleCloseSettings}
-            settingsButtonRef={settingsButtonRef}
-            settingsMenuRef={settingsMenuRef}
-            adminPassword={adminPassword}
-            onAdminPasswordChange={setAdminPassword}
-            onJoinAdmin={handleJoinAdmin}
-            isAuthenticating={isAuthenticating}
-            onLeave={handleLeave}
-            providers={loaderData.providers}
-            terminalMode
-          />
-
-          {showGenerationProgress && (
-            <RoomGenerationProgress isFailed={false} terminalMode />
-          )}
-          {!showGenerationProgress && (
-            <div className="grid min-h-0 flex-1 content-start items-start gap-4 lg:grid-cols-5">
-              <RoomPlayer
-                roomId={id}
-                displayRoom={displayRoom}
-                onAddPlaylistItem={handleAddPlaylistItem}
-                onOpenCast={handleOpenCast}
-                initialPlayback={loaderData.playback}
-                providers={loaderData.providers}
-                {...playerPreloadProps}
-                terminalMode
-              />
-              <RoomQueue
-                onChatVisibilityChange={setChatOpen}
-                roomId={id}
-                isSSR={isSSR}
-                onAddPlaylistItem={handleAddPlaylistItem}
-                isAdmin={isAdmin}
-                initialPlayback={loaderData.playback}
-                initialPlaylistItems={loaderData.playlistItems}
-                {...queuePreviewProps}
-                terminalMode
-              />
-            </div>
-          )}
-
-          {generationError && (
-            <RoomGenerationProgress
-              error={generationError}
-              isFailed
-              terminalMode
-            />
-          )}
-
-          {showDeviceSelector && (
-            <Suspense
-              fallback={
-                <DeferredModalLoading
-                  label="Loading cast devices..."
-                  terminalMode
-                />
-              }
-            >
-              <LazyDeviceSelector
-                isOpen={showDeviceSelector}
-                onClose={handleCloseCast}
-                terminalMode
-              />
-            </Suspense>
-          )}
-          {isAddModalVisible && (
-            <Suspense
-              fallback={
-                <DeferredModalLoading
-                  label="Loading song search..."
-                  terminalMode
-                />
-              }
-            >
-              <LazyAddToQueueModal
-                room={displayRoom}
-                providers={loaderData.providers}
-                isVisible={isAddModalVisible}
-                onClose={handleCloseAddPlaylistItem}
-                onOpenAdminLogin={handleOpenAdminLogin}
-                generationCount={displayRoom.generationCount}
-                roomGenerationMaxDailyCount={
-                  displayRoom.roomGenerationMaxDailyCount
-                }
-                roomGenerationMaxExistingPlaylistItems={
-                  displayRoom.roomGenerationMaxExistingPlaylistItems
-                }
-                hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
-                isGenerating={isGenerating}
-                onGenerationStarted={handleGenerationStarted}
-                terminalMode
-              />
-            </Suspense>
-          )}
-        </LazyTerminalShell>
-      </Suspense>
-    );
-  }
-
   return (
     <>
       <motion.div
@@ -789,8 +650,6 @@ export default function RoomV2() {
               showCast={isCastInitialized}
               isCasting={isCasting}
               castDeviceName={castDeviceName}
-              currentTheme={currentTheme}
-              onToggleDarkMode={handleToggleDarkMode}
               showSettings={showSettings}
               focusAdminLogin={focusAdminLogin}
               onToggleSettings={handleToggleSettings}
@@ -834,6 +693,7 @@ export default function RoomV2() {
                     providers={loaderData.providers}
                     {...playerPreloadProps}
                   />
+
                   {!isPartyScreen && (
                     <RoomQueue
                       onChatVisibilityChange={setChatOpen}

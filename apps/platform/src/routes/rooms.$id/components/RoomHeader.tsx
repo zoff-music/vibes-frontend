@@ -6,12 +6,6 @@ import type {
 } from '@vibes/models';
 import { classNames, useRoomStore } from '@vibes/shared';
 import {
-  TerminalButton,
-  TerminalLoading,
-  TerminalToolbar,
-  useTerminalShortcuts,
-} from '@vibes/ui/konami';
-import {
   ArrowLeftIcon,
   Button,
   CastIcon,
@@ -28,27 +22,22 @@ import React, {
   useEffect,
 } from 'react';
 import { useFetcher } from 'react-router';
-import {
-  RemoteControlButton,
-  useRemoteControl,
-} from '../../../components/remote/RemoteControlProvider';
-import type { Theme } from '../../../stores/themeStore';
+import { RemoteControlButton } from '../../../components/remote/RemoteControlProvider';
 import type { RoomActionData } from '../action';
 import { UserCount } from './UserCount';
 
 const LazyRoomSettingsMenu = lazy(async () => {
   const module = await import('./RoomSettingsMenu');
-  return { default: module.RoomSettingsMenu };
+  return {
+    default: module.RoomSettingsMenu,
+  };
 });
 
 const LazyRoomSharePanel = lazy(async () => {
   const module = await import('./RoomSharePanel');
-  return { default: module.RoomSharePanel };
-});
-
-const LazyTerminalRoomSettings = lazy(async () => {
-  const module = await import('./TerminalRoomSettings');
-  return { default: module.TerminalRoomSettings };
+  return {
+    default: module.RoomSharePanel,
+  };
 });
 
 interface DeferredHeaderLoadingProps {
@@ -92,8 +81,6 @@ interface RoomHeaderProps {
   showCast: boolean;
   isCasting: boolean;
   castDeviceName?: string | null;
-  currentTheme: Theme;
-  onToggleDarkMode: () => void;
   showSettings: boolean;
   onToggleSettings: () => void;
   onCloseSettings: () => void;
@@ -107,7 +94,6 @@ interface RoomHeaderProps {
   isAuthenticating: boolean;
   onLeave: () => void;
   providers: Providers;
-  terminalMode?: boolean;
 }
 
 export const RoomHeader = React.memo(
@@ -126,8 +112,6 @@ export const RoomHeader = React.memo(
     showCast,
     isCasting,
     castDeviceName,
-    currentTheme,
-    onToggleDarkMode,
     showSettings,
     onToggleSettings,
     onCloseSettings,
@@ -141,12 +125,10 @@ export const RoomHeader = React.memo(
     isAuthenticating,
     onLeave,
     providers,
-    terminalMode = false,
   }: RoomHeaderProps) => {
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = useRoomStore((state) => state.isAdmin);
     const setRoom = useRoomStore((state) => state.setRoom);
-    const { openRemoteControl } = useRemoteControl();
 
     useEffect(() => {
       const header = headerRef.current;
@@ -174,8 +156,14 @@ export const RoomHeader = React.memo(
     const updateRoom = useCallback(
       (room: RoomUpdateV2) => {
         settingsFetcher.submit(
-          { intent: 'updateRoom', room },
-          { encType: 'application/json', method: 'post' },
+          {
+            intent: 'updateRoom',
+            room,
+          },
+          {
+            encType: 'application/json',
+            method: 'post',
+          },
         );
       },
       [settingsFetcher],
@@ -183,7 +171,9 @@ export const RoomHeader = React.memo(
 
     const updateRoomSettings = useCallback(
       (settings: RoomSettingsV2) => {
-        updateRoom({ settings });
+        updateRoom({
+          settings,
+        });
       },
       [updateRoom],
     );
@@ -197,68 +187,6 @@ export const RoomHeader = React.memo(
         setRoom(settingsFetcher.data.room);
       }
     }, [setRoom, settingsFetcher.data, settingsFetcher.state]);
-
-    useTerminalShortcuts(
-      [
-        { key: 'Escape', onTrigger: onLeave },
-        { key: 'F10', onTrigger: onToggleSettings },
-      ],
-      { enabled: terminalMode },
-    );
-
-    if (terminalMode) {
-      return (
-        <div ref={headerRef} className="relative z-30 mb-4">
-          <TerminalToolbar
-            actions={
-              <>
-                <TerminalButton onClick={onShareRoom}>[SHARE]</TerminalButton>
-                <RemoteControlButton terminalMode showLabel />
-                <TerminalButton
-                  aria-keyshortcuts="F10"
-                  onClick={onToggleSettings}
-                >
-                  [F10] {showSettings ? 'CLOSE' : 'CONFIG'}
-                </TerminalButton>
-              </>
-            }
-            description={`MODE ${displayRoom?.mode || 'UNKNOWN'} / CHANNEL ${roomId}`}
-            leading={
-              <TerminalButton aria-keyshortcuts="Escape" onClick={onLeave}>
-                [ESC] LEAVE
-              </TerminalButton>
-            }
-            title={`ROOM / ${displayRoom?.name || 'LOADING'}`}
-          />
-          {showSettings && (
-            <Suspense
-              fallback={<TerminalLoading label="Loading config.sys" overlay />}
-            >
-              <LazyTerminalRoomSettings
-                adminError={adminError}
-                adminPassword={adminPassword}
-                focusAdminLogin={focusAdminLogin}
-                currentTheme={currentTheme}
-                displayRoom={displayRoom}
-                isAdmin={isAdmin}
-                isAuthenticating={isAuthenticating}
-                onAdminPasswordChange={onAdminPasswordChange}
-                onClose={onCloseSettings}
-                onJoinAdmin={onJoinAdmin}
-                onOpenRemoteControl={openRemoteControl}
-                onShareRoom={onShareRoom}
-                onToggleDarkMode={onToggleDarkMode}
-                providers={providers}
-                room={displayRoom}
-                settingsMenuRef={settingsMenuRef}
-                updateRoom={updateRoom}
-                updateRoomSettings={updateRoomSettings}
-              />
-            </Suspense>
-          )}
-        </div>
-      );
-    }
 
     return (
       <div
@@ -312,9 +240,21 @@ export const RoomHeader = React.memo(
                     <motion.div
                       key="share-panel"
                       ref={sharePanelRef}
-                      initial={{ opacity: 0, scale: 0.92, y: -8 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.96, y: -6 }}
+                      initial={{
+                        opacity: 0,
+                        scale: 0.92,
+                        y: -8,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        scale: 1,
+                        y: 0,
+                      }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.96,
+                        y: -6,
+                      }}
                       transition={{
                         type: 'spring',
                         stiffness: 450,

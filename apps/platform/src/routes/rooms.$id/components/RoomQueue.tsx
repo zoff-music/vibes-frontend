@@ -19,12 +19,9 @@ import { PlaybackProgress } from './PlaybackProgress';
 
 const LazyChatConversation = lazy(async () => {
   const module = await import('@vibes/ui/web/components/ChatConversation');
-  return { default: module.ChatConversation };
-});
-
-const LazyTerminalQueue = lazy(async () => {
-  const module = await import('./TerminalQueue');
-  return { default: module.TerminalQueue };
+  return {
+    default: module.ChatConversation,
+  };
 });
 
 interface RoomQueueProps {
@@ -36,7 +33,6 @@ interface RoomQueueProps {
   initialPlayback?: PlaybackStateV2;
   initialPlaylistItems?: PlaylistItem[];
   initialQueuedPlaylistItemCount?: number;
-  terminalMode?: boolean;
 }
 
 export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
@@ -49,7 +45,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialPlayback,
     initialPlaylistItems,
     initialQueuedPlaylistItemCount,
-    terminalMode = false,
   }: RoomQueueProps) => {
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
     const chatEnabled = !isSSR && chatPreference;
@@ -75,8 +70,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       new Promise<boolean>((resolve) => {
         pendingSend.current = resolve;
         void chatFetcher.submit(
-          { intent: 'sendMessage', text },
-          { encType: 'application/json', method: 'post' },
+          {
+            intent: 'sendMessage',
+            text,
+          },
+          {
+            encType: 'application/json',
+            method: 'post',
+          },
         );
       });
     /* 1. Hooks */
@@ -127,8 +128,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
         }
         setVotingPlaylistItemId(playlistItemId);
         voteFetcher.submit(
-          { intent: 'votePlaylistItem', playlistItemId },
-          { encType: 'application/json', method: 'post' },
+          {
+            intent: 'votePlaylistItem',
+            playlistItemId,
+          },
+          {
+            encType: 'application/json',
+            method: 'post',
+          },
         );
       },
       [voteFetcher, votingPlaylistItemId],
@@ -137,8 +144,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const handleRemove = React.useCallback(
       (playlistItemId: string) => {
         removeFetcher.submit(
-          { intent: 'removePlaylistItem', playlistItemId },
-          { encType: 'application/json', method: 'post' },
+          {
+            intent: 'removePlaylistItem',
+            playlistItemId,
+          },
+          {
+            encType: 'application/json',
+            method: 'post',
+          },
         );
       },
       [removeFetcher],
@@ -162,30 +175,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       showToast('Vote added. Queue updated.', 'success');
       setVotingPlaylistItemId(null);
     }, [voteFetcher.data, voteFetcher.state, votingPlaylistItemId]);
-
-    if (terminalMode) {
-      return (
-        <Suspense
-          fallback={
-            <div className="min-h-96" role="status">
-              Loading queue…
-            </div>
-          }
-        >
-          <LazyTerminalQueue
-            playlistItems={displayPlaylistItems}
-            currentPlaylistItem={currentPlaylistItemData ?? null}
-            isPlaying={isPlaying}
-            isHost={isHost}
-            isSSR={isSSR}
-            isAdmin={isAdmin ?? false}
-            votingPlaylistItemId={votingPlaylistItemId}
-            onVote={handleVote}
-            onRemove={handleRemove}
-          />
-        </Suspense>
-      );
-    }
 
     return (
       <LazyMotion features={domMax}>
@@ -291,6 +280,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                       isAdmin={isAdmin}
                       votingPlaylistItemId={votingPlaylistItemId}
                     />
+
                     {queuedPlaylistItemCount >
                       visibleQueuedPlaylistItemCount && (
                       <p

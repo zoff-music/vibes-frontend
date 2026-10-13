@@ -5,9 +5,7 @@ import {
   NativeField,
   NativeHeading,
   NativeIconButton,
-  useNativePresentation,
 } from '@vibes/ui/native';
-import { vars } from 'nativewind';
 import type { PropsWithChildren, ReactNode } from 'react';
 import {
   ActivityIndicator,
@@ -17,7 +15,6 @@ import {
 } from 'react-native';
 import { NativeRetroGrid } from '@/components/native-retro-grid';
 import type { ZoffIconName } from '@/components/zoff-icon';
-import { terminalThemeVariables } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import {
   tabletNavigationHeight,
@@ -30,43 +27,19 @@ interface ScreenProps extends PropsWithChildren {
 }
 
 export function Screen({ children, gridPaused = false }: ScreenProps) {
-  const terminal = useNativePresentation() === 'terminal';
-  const terminalVariables = vars(terminalThemeVariables);
   const tabletLayout = useTabletLandscapeLayout();
   const reservesTabletNavigation =
     Platform.OS === 'android' && tabletLayout.isTablet;
   return (
-    <View
-      className={
-        terminal
-          ? 'flex-1 overflow-hidden bg-[#010705]'
-          : 'flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background'
-      }
-      {...(terminal
-        ? {
-            style: [terminalVariables, terminalScreenBackgroundStyle],
-          }
-        : {})}
-    >
+    <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
       <NativeRetroGrid paused={gridPaused} />
-      {terminal && (
-        <View
-          className="pointer-events-none absolute inset-0 z-10 opacity-20"
-          pointerEvents="none"
-        >
-          {terminalScanLines.map((top) => (
-            <View
-              className="absolute inset-x-0 h-px bg-[#8cffc5]/20"
-              key={top}
-              style={{ top }}
-            />
-          ))}
-        </View>
-      )}
+
       <View
         className="z-20 flex-1"
         {...(reservesTabletNavigation && {
-          style: { paddingTop: tabletNavigationHeight },
+          style: {
+            paddingTop: tabletNavigationHeight,
+          },
         })}
       >
         {children}
@@ -188,12 +161,8 @@ export function Empty({ children, loading }: EmptyProps) {
   );
 }
 
-const terminalScreenBackgroundStyle = { backgroundColor: '#010705' };
-
 const tabletWidth = 768;
 const tabletContentColumnStyle = {
   alignSelf: 'center' as const,
   maxWidth: 760,
 };
-
-const terminalScanLines = Array.from({ length: 260 }, (_, index) => index * 4);

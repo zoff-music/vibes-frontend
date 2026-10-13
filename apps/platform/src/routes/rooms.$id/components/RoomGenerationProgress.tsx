@@ -4,25 +4,18 @@ import {
   playlistGenerationMessages,
 } from '@vibes/ui/shared';
 import { AlertCircleIcon, GenerationSparkles } from '@vibes/ui/web';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const TAKING_LONGER_DELAY_MS = 2.5 * 60 * 1000;
 
 export interface RoomGenerationProgressProps {
   error?: string;
   isFailed: boolean;
-  terminalMode?: boolean;
 }
-
-const LazyTerminalGenerationProgress = lazy(async () => {
-  const module = await import('@vibes/ui/konami');
-  return { default: module.TerminalGenerationProgress };
-});
 
 export function RoomGenerationProgress({
   error,
   isFailed,
-  terminalMode = false,
 }: RoomGenerationProgressProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   const [isTakingLonger, setIsTakingLonger] = useState(false);
@@ -52,19 +45,6 @@ export function RoomGenerationProgress({
 
     return () => window.clearTimeout(timeout);
   }, [isFailed]);
-
-  if (terminalMode) {
-    return (
-      <Suspense fallback={null}>
-        <LazyTerminalGenerationProgress
-          {...(error && { error })}
-          isFailed={isFailed}
-          isTakingLonger={isTakingLonger}
-          message={playlistGenerationMessages[messageIndex]}
-        />
-      </Suspense>
-    );
-  }
 
   return (
     <div className="mx-auto flex h-full max-w-3xl items-center justify-center px-4 py-12">

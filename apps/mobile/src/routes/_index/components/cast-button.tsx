@@ -1,7 +1,6 @@
 import type { CastingTokenResponse } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { classNames, safeWrapAsync } from '@vibes/shared';
-import { useNativePresentation } from '@vibes/ui/native';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import {
@@ -18,11 +17,12 @@ const castNamespace = 'urn:x-cast:com.vibez.cast';
 
 export function CastButton() {
   const theme = useAppTheme();
-  const terminal = useNativePresentation() === 'terminal';
   const [{ resolvedScheme }] = useThemePreference();
   const { roomId } = useRoomSession();
   const [, { submit }] = useFetcher<CastingTokenResponse>({
-    params: { roomId },
+    params: {
+      roomId,
+    },
     routeId: 'cast.$roomId',
   });
   const channel = useCastChannel(castNamespace);
@@ -30,7 +30,9 @@ export function CastButton() {
   useEffect(() => {
     if (!channel || !roomId) return;
     const joinRoom = async () => {
-      const result = await submit({ intent: 'createToken' });
+      const result = await submit({
+        intent: 'createToken',
+      });
       if (!result.data) return;
       await safeWrapAsync(
         channel.sendMessage({
@@ -49,28 +51,22 @@ export function CastButton() {
     <View
       className={classNames(
         'size-13 items-center justify-center border active:opacity-65',
-        !terminal &&
-          'rounded-xl border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
-        terminal && 'border-[#55ffad] bg-[#010c08]',
+        'rounded-xl border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
       )}
     >
       <NativeCastButton
         accessibilityLabel="Cast room"
         style={StyleSheet.absoluteFill}
       />
+
       <View
         className={classNames(
           'absolute inset-0 items-center justify-center',
-          !terminal && 'rounded-xl bg-mobile-card dark:bg-mobile-dark-card',
-          terminal && 'bg-[#010c08]',
+          'rounded-xl bg-mobile-card dark:bg-mobile-dark-card',
         )}
         pointerEvents="none"
       >
-        <ZoffIcon
-          color={terminal ? '#71f5ad' : theme.text}
-          name="cast"
-          size={castIconSize}
-        />
+        <ZoffIcon color={theme.text} name="cast" size={castIconSize} />
       </View>
     </View>
   );
