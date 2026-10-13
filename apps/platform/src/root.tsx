@@ -1,5 +1,4 @@
 import { classNames } from '@vibes/shared';
-import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
 import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
 import { MotionProvider, NotFoundView, publicAssetUrl } from '@vibes/ui/web';
 import { lazy, type ReactNode, Suspense, useState } from 'react';
@@ -33,12 +32,19 @@ const LazyBeatGame = lazy(() =>
 export const meta: MetaFunction = ({ error }) => {
   if (isRouteErrorResponse(error) && error.status === 404) {
     return [
-      { title: 'Page Not Found | Zoff' },
-      { name: 'robots', content: 'noindex' },
+      {
+        title: 'Page Not Found | Zoff',
+      },
+      {
+        name: 'robots',
+        content: 'noindex',
+      },
     ];
   }
   return [
-    { title: 'Zoff | Shared Music Queue & Listening Rooms' },
+    {
+      title: 'Zoff | Shared Music Queue & Listening Rooms',
+    },
     {
       name: 'description',
       content: 'Shared rooms, made for listening together.',
@@ -69,14 +75,12 @@ export function Layout({ children }: Props) {
   const themeClass =
     themeId === 'dark' ? 'dark' : themeId === 'light' ? 'theme-light' : '';
   const initialDataJson = JSON.stringify(loaderData ?? {});
-  const konamiEnabled = loaderData?.konamiEnabled ?? false;
 
   return (
     <html
       lang="en"
       data-debug={loaderData?.debug === true}
       className={classNames(themeClass, 'motion-safe:scroll-smooth')}
-      {...(konamiEnabled && { 'data-konami-mode': 'terminal' })}
     >
       <head>
         <meta charSet="UTF-8" />
@@ -89,27 +93,31 @@ export function Layout({ children }: Props) {
           type="font/woff2"
           crossOrigin="anonymous"
         />
+
         <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
         <link rel="stylesheet" href={stylesUrl} />
         <link rel="describedby" href="/llms.txt" type="text/plain" />
-        {konamiEnabled && <link rel="stylesheet" href={retroStylesUrl} />}
+
         <link
           rel="icon"
           type="image/png"
           href={publicAssetUrl('favicon-96x96.png')}
           sizes="96x96"
         />
+
         <link
           rel="icon"
           type="image/svg+xml"
           href={publicAssetUrl('favicon.svg')}
         />
+
         <link rel="shortcut icon" href={publicAssetUrl('favicon.ico')} />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
           href={publicAssetUrl('apple-touch-icon.png')}
         />
+
         <link rel="manifest" href="/site.webmanifest" />
         <script defer src={analyticsUrl} />
         <Meta />

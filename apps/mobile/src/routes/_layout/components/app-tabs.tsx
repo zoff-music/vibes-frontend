@@ -10,7 +10,6 @@ import {
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
-import { useKonamiMode } from '@/providers/konami-mode-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 export default function AppTabs() {
@@ -19,7 +18,6 @@ export default function AppTabs() {
   const theme = useAppTheme();
   const tabletLayout = useTabletLandscapeLayout();
   const { addLabel, canAddPlaylistItems, hasRoom } = useRoomNavigation();
-  const { enabled: konamiEnabled } = useKonamiMode();
   const showsFloatingAddButton = tabletLayout.isTablet;
   const hidesAddTab = Platform.OS === 'ios' && showsFloatingAddButton;
   const hidesNativeTabs = Platform.OS === 'android';
@@ -36,7 +34,10 @@ export default function AppTabs() {
     return (
       <Tabs
         tabBar={() => null}
-        screenOptions={{ headerShown: false, animation: 'none' }}
+        screenOptions={{
+          headerShown: false,
+          animation: 'none',
+        }}
       >
         <Tabs.Screen name="index" />
         <Tabs.Screen name="remote" />
@@ -48,13 +49,16 @@ export default function AppTabs() {
 
   return (
     <NativeTabs
-      hidden={hidesNativeTabs || konamiEnabled}
+      hidden={hidesNativeTabs}
       blurEffect={
         resolvedScheme === 'light'
           ? 'systemMaterialLight'
           : 'systemMaterialDark'
       }
-      iconColor={{ default: theme.muted, selected: theme.pink }}
+      iconColor={{
+        default: theme.muted,
+        selected: theme.pink,
+      }}
       minimizeBehavior="onScrollDown"
       tintColor={theme.pink}
       labelStyle={{
@@ -97,7 +101,11 @@ export default function AppTabs() {
       <NativeTabs.Trigger
         hidden={!canAddPlaylistItems || hidesAddTab}
         name="add"
-        {...(Platform.OS === 'ios' ? { role: 'search' as const } : {})}
+        {...(Platform.OS === 'ios'
+          ? {
+              role: 'search' as const,
+            }
+          : {})}
       >
         <NativeTabs.Trigger.Label>{addLabel}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

@@ -6,20 +6,13 @@ import { IconButton } from '@/components/native';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
-import { useKonamiMode } from '@/providers/konami-mode-provider';
 
 export function TabletAddPlaylistItemButton() {
   const tabletLayout = useTabletLandscapeLayout();
   const keyboardVisible = useKeyboardVisible();
   const { addLabel, canAddPlaylistItems } = useRoomNavigation();
-  const { enabled: konamiEnabled } = useKonamiMode();
   const [addPlaylistItemVisible, setAddPlaylistItemVisible] = useState(false);
-  if (
-    !tabletLayout.isTablet ||
-    !canAddPlaylistItems ||
-    konamiEnabled ||
-    keyboardVisible
-  )
+  if (!tabletLayout.isTablet || !canAddPlaylistItems || keyboardVisible)
     return null;
 
   return (

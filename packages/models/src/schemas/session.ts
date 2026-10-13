@@ -1,7 +1,6 @@
 import * as z from 'zod/mini';
+import { displayNameMaxLength } from '../limits';
 import { roomV2Schema } from './room';
-
-export const displayNameMaxLength = 30;
 
 export const roomUserSchema = /* @__PURE__ */ z.compile(
   z.object({

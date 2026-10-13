@@ -1,4 +1,5 @@
-import { chatMessageMaxLength, type RoomMessage } from '@vibes/models';
+import type { RoomMessage } from '@vibes/models';
+import { chatMessageMaxLength } from '@vibes/models/limits';
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { ArrowRightIcon } from '../icons';
 import { Button } from './Button';

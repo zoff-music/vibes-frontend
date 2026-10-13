@@ -1,4 +1,4 @@
-import { generatedPlaylistPromptMaxLength } from '@vibes/models';
+import { generatedPlaylistPromptMaxLength } from '@vibes/models/limits';
 import { classNames, showToast } from '@vibes/shared';
 import { Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
 import {

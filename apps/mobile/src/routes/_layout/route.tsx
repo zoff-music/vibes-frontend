@@ -7,7 +7,6 @@ import { useEffect } from 'react';
 import '@/global.css';
 import { AppRouterProvider } from '@/data-router/provider';
 import { ChatPreferenceProvider } from '@/providers/chat-preference-provider';
-import { KonamiModeProvider } from '@/providers/konami-mode-provider';
 import { AppThemeProvider } from '@/providers/theme-provider';
 import { HydrateFallback as AppHydrateFallback } from '@/routes/_index/components/route-boundaries';
 import { RootContent } from './components/root-content';
@@ -37,18 +36,14 @@ export default function RootLayout() {
 
   return (
     <AppRouterProvider>
-      <Route routeId="preferences.konami">
-        <KonamiModeProvider>
-          <Route routeId="preferences.theme">
-            <AppThemeProvider>
-              <Route routeId="sessions.profile">
-                <ChatPreferenceProvider>
-                  <RootContent />
-                </ChatPreferenceProvider>
-              </Route>
-            </AppThemeProvider>
+      <Route routeId="preferences.theme">
+        <AppThemeProvider>
+          <Route routeId="sessions.profile">
+            <ChatPreferenceProvider>
+              <RootContent />
+            </ChatPreferenceProvider>
           </Route>
-        </KonamiModeProvider>
+        </AppThemeProvider>
       </Route>
     </AppRouterProvider>
   );

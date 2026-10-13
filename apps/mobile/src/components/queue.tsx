@@ -1,6 +1,5 @@
 import type { PlaylistItem } from '@vibes/models';
 import { classNames, getProviderItemUrl, safeWrapAsync } from '@vibes/shared';
-import { useNativePresentation } from '@vibes/ui/native';
 import { Image } from 'expo-image';
 import { memo, type ReactElement, useCallback } from 'react';
 import type { ListRenderItemInfo } from 'react-native';
@@ -40,7 +39,6 @@ const QueueItem = memo(function QueueItem({
   playlistItem,
 }: QueueItemProps) {
   const theme = useAppTheme();
-  const terminal = useNativePresentation() === 'terminal';
   const providerUrl = getProviderItemUrl(
     playlistItem.sourceType,
     playlistItem.sourceId,
@@ -55,10 +53,7 @@ const QueueItem = memo(function QueueItem({
       accessibilityLabel={`Vote for ${playlistItem.title}`}
       className={classNames(
         'h-18 flex-row items-center gap-3 border p-3',
-        !terminal &&
-          'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
-        terminal &&
-          'border-[#55ffad]/45 bg-[#010c08] active:border-[#71f5ad] active:bg-[#03150d]',
+        'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
       )}
       onPress={() => {
         void triggerSelectionFeedback();
@@ -68,8 +63,7 @@ const QueueItem = memo(function QueueItem({
       <Text
         className={classNames(
           'w-5 text-center font-heading text-xs',
-          !terminal && 'text-mobile-muted dark:text-mobile-dark-muted',
-          terminal && 'text-[#a6ffd0]/65',
+          'text-mobile-muted dark:text-mobile-dark-muted',
         )}
       >
         {index + 1}
@@ -88,8 +82,7 @@ const QueueItem = memo(function QueueItem({
           numberOfLines={1}
           className={classNames(
             'font-bold font-heading text-sm',
-            !terminal && 'text-mobile-text dark:text-mobile-dark-text',
-            terminal && 'text-[#dffff0]',
+            'text-mobile-text dark:text-mobile-dark-text',
           )}
         >
           {playlistItem.title}
@@ -98,8 +91,7 @@ const QueueItem = memo(function QueueItem({
           numberOfLines={1}
           className={classNames(
             'font-heading text-xs',
-            !terminal && 'text-mobile-muted dark:text-mobile-dark-muted',
-            terminal && 'text-[#a6ffd0]/65',
+            'text-mobile-muted dark:text-mobile-dark-muted',
           )}
         >
           {playlistItem.publisher ?? playlistItem.sourceType}
@@ -108,18 +100,11 @@ const QueueItem = memo(function QueueItem({
       <View
         className={classNames(
           'flex-row items-center gap-1.5 px-2.5 py-2',
-          !terminal && 'rounded-xl bg-accent/10',
-          terminal && 'border border-[#55ffad]/45 bg-[#03150d]',
+          'rounded-xl bg-accent/10',
         )}
       >
         <ZoffIcon color={theme.accent} name="vote" size={16} />
-        <Text
-          className={classNames(
-            'font-heading text-xs',
-            !terminal && 'text-accent',
-            terminal && 'text-[#71f5ad]',
-          )}
-        >
+        <Text className={classNames('font-heading text-xs', 'text-accent')}>
           {playlistItem.voteCount ?? 0}
         </Text>
       </View>
@@ -140,16 +125,13 @@ const QueueItem = memo(function QueueItem({
             <View
               className={classNames(
                 'h-full w-28 items-center justify-center gap-0.5 overflow-hidden border-2 px-2',
-                !terminal &&
-                  'rounded-2xl border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
-                terminal && 'border-[#55ffad] bg-[#03150d]',
+                'rounded-2xl border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
               )}
             >
               <Text
                 className={classNames(
                   'w-full text-center font-heading text-xs leading-4',
-                  !terminal && 'text-mobile-muted dark:text-mobile-dark-muted',
-                  terminal && 'text-[#a6ffd0]/65',
+                  'text-mobile-muted dark:text-mobile-dark-muted',
                 )}
               >
                 Added by
@@ -157,8 +139,7 @@ const QueueItem = memo(function QueueItem({
               <Text
                 className={classNames(
                   'w-full text-center font-heading text-sm leading-4',
-                  !terminal && 'text-mobile-text dark:text-mobile-dark-text',
-                  terminal && 'text-[#dffff0]',
+                  'text-mobile-text dark:text-mobile-dark-text',
                 )}
                 ellipsizeMode="tail"
                 numberOfLines={1}
@@ -188,24 +169,18 @@ const QueueItem = memo(function QueueItem({
               accessibilityLabel={`Open ${playlistItem.title} externally`}
               className={classNames(
                 'w-20 items-center justify-center border-2 active:opacity-70',
-                !terminal && 'rounded-2xl border-accent bg-accent',
-                terminal && 'border-[#55ffad] bg-[#010c08]',
+                'rounded-2xl border-accent bg-accent',
               )}
               onPress={() => {
                 swipeable.close();
                 void openExternally();
               }}
             >
-              <ZoffIcon
-                color={terminal ? '#71f5ad' : '#ffffff'}
-                name="external"
-                size={20}
-              />
+              <ZoffIcon color="#ffffff" name="external" size={20} />
               <Text
                 className={classNames(
                   'mt-1 font-heading text-xs',
-                  !terminal && 'text-white',
-                  terminal && 'text-[#dffff0]',
+                  'text-white',
                 )}
               >
                 Open
@@ -240,7 +215,11 @@ export function Queue({
           index={index}
           onVote={onVote}
           playlistItem={item}
-          {...(onDelete ? { onDelete } : {})}
+          {...(onDelete
+            ? {
+                onDelete,
+              }
+            : {})}
         />
       </Animated.View>
     ),
@@ -267,7 +246,9 @@ export function Queue({
       automaticallyAdjustsScrollIndicatorInsets={false}
       contentInsetAdjustmentBehavior="never"
       className="flex-1"
-      {...(!contained && { contentContainerStyle: queueStyle })}
+      {...(!contained && {
+        contentContainerStyle: queueStyle,
+      })}
       data={playlistItems}
       initialNumToRender={8}
       keyExtractor={(playlistItem) => playlistItem.id}
@@ -303,6 +284,10 @@ export function Queue({
 function QueueSeparator() {
   return <View className="h-3" />;
 }
-
-const queueStyle = { paddingBottom: 112 };
-const thumbnailImageStyle = { height: '100%' as const, width: '100%' as const };
+const queueStyle = {
+  paddingBottom: 112,
+};
+const thumbnailImageStyle = {
+  height: '100%' as const,
+  width: '100%' as const,
+};

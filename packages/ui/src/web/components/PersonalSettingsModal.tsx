@@ -1,4 +1,4 @@
-import { displayNameMaxLength } from '@vibes/models';
+import { displayNameMaxLength } from '@vibes/models/limits';
 import { classNames } from '@vibes/shared';
 import type { ThemeId } from '@vibes/shared/themeStore';
 import { type FormEventHandler, type ReactNode, useRef } from 'react';

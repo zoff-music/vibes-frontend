@@ -8,7 +8,7 @@ import { useExperience } from '../../hooks/useExperience';
 import { HomeScreen } from './components/HomeScreen';
 import { loader } from './loader';
 
-export { clientAction } from './action';
+export { clientAction } from './clientAction';
 export { meta } from './meta';
 export { loader };
 

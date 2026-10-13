@@ -52,24 +52,25 @@ import { mobileRoomPageSize } from '@/constants/public-rooms';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useLandingPlaceholder } from '@/hooks/use-landing-placeholder';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
-import { useKonamiMode } from '@/providers/konami-mode-provider';
 import type { DiscoveryData } from '@/routes/_index/loader';
 import type { CreateRoomActionData } from '@/routes/rooms.create/action';
 import { CreateRoomSheet } from './create-room-sheet';
 import { RoomScreen } from './room-screen';
-import { TerminalRoomsHome } from './terminal-rooms-home';
 
 export function RoomsScreen() {
-  const searchParams = useLocalSearchParams<{ roomId?: string | string[] }>();
+  const searchParams = useLocalSearchParams<{
+    roomId?: string | string[];
+  }>();
   const router = useRouter();
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
-  const { enabled: konamiEnabled } = useKonamiMode();
   const { controllerRemote, loading, providers, room, roomId } =
     useRoomSession();
   const { setError, setRoomId, startGeneratedRoom } = useRoomActions();
   const discovery = useRouteLoaderData<DiscoveryData>('_index');
-  const [, discoveryFetcher] = useFetcher<DiscoveryData>({ routeId: '_index' });
+  const [, discoveryFetcher] = useFetcher<DiscoveryData>({
+    routeId: '_index',
+  });
   const [, createRoomFetcher] = useFetcher<CreateRoomActionData>({
     routeId: 'rooms.create',
   });
@@ -102,7 +103,10 @@ export function RoomsScreen() {
     Keyboard.dismiss();
     const requestId = ++browseRequest.current;
     setBrowseMode(mode);
-    landingScroll.current?.scrollTo({ y: 0, animated: false });
+    landingScroll.current?.scrollTo({
+      y: 0,
+      animated: false,
+    });
     setBrowseQuery(q);
     if (mode === 'live') {
       setBrowsing(false);
@@ -120,7 +124,10 @@ export function RoomsScreen() {
     });
     if (requestId !== browseRequest.current) return;
     setBrowseResult(result.data);
-    landingScroll.current?.scrollTo({ y: 0, animated: false });
+    landingScroll.current?.scrollTo({
+      y: 0,
+      animated: false,
+    });
     setBrowseError(result.error);
     setBrowsing(false);
   };
@@ -129,12 +136,7 @@ export function RoomsScreen() {
   const [inputFocused, setInputFocused] = useState(false);
   const placeholder = useLandingPlaceholder(
     isAIMode,
-    !inputFocused &&
-      !value &&
-      !room &&
-      !loading &&
-      !konamiEnabled &&
-      browseMode === 'live',
+    !inputFocused && !value && !room && !loading && browseMode === 'live',
     watch,
   );
   const [generationLoading, setGenerationLoading] = useState(false);
@@ -154,7 +156,11 @@ export function RoomsScreen() {
     const requestId = ++browseRequest.current;
     setRefreshing(true);
     const [result] = await Promise.all([
-      discoveryFetcher.load({ params: { roomType } }),
+      discoveryFetcher.load({
+        params: {
+          roomType,
+        },
+      }),
       waitForMinimumRefreshSpin(),
     ]);
     if (requestId !== browseRequest.current) return;
@@ -182,7 +188,9 @@ export function RoomsScreen() {
     setDiscoveryData(null);
     setBrowsing(true);
     const result = await discoveryFetcher.load({
-      params: { roomType: nextType },
+      params: {
+        roomType: nextType,
+      },
     });
 
     if (requestId !== browseRequest.current) return;
@@ -201,8 +209,12 @@ export function RoomsScreen() {
 
   useEffect(() => {
     if (refreshing) {
-      refreshLogoOpacity.value = withTiming(1, { duration: 120 });
-      refreshLogoTranslateY.value = withTiming(0, { duration: 140 });
+      refreshLogoOpacity.value = withTiming(1, {
+        duration: 120,
+      });
+      refreshLogoTranslateY.value = withTiming(0, {
+        duration: 140,
+      });
       refreshLogoRotation.value = withRepeat(
         withTiming(refreshLogoRotation.value + 360, {
           duration: refreshLogoRotationDurationMs,
@@ -214,8 +226,12 @@ export function RoomsScreen() {
     }
 
     cancelAnimation(refreshLogoRotation);
-    refreshLogoOpacity.value = withTiming(0, { duration: 180 });
-    refreshLogoTranslateY.value = withTiming(-56, { duration: 220 });
+    refreshLogoOpacity.value = withTiming(0, {
+      duration: 180,
+    });
+    refreshLogoTranslateY.value = withTiming(-56, {
+      duration: 220,
+    });
   }, [
     refreshLogoOpacity,
     refreshLogoRotation,
@@ -226,15 +242,21 @@ export function RoomsScreen() {
   const refreshLogoStyle = useAnimatedStyle(() => ({
     opacity: refreshLogoOpacity.value,
     transform: [
-      { translateY: refreshLogoTranslateY.value },
-      { rotate: `${refreshLogoRotation.value}deg` },
+      {
+        translateY: refreshLogoTranslateY.value,
+      },
+      {
+        rotate: `${refreshLogoRotation.value}deg`,
+      },
     ],
   }));
 
   const refreshLogo = (
     <View
       className="pointer-events-none absolute right-0 left-0 z-40 items-center"
-      style={{ top: insets.top + refreshLogoTopSpacing }}
+      style={{
+        top: insets.top + refreshLogoTopSpacing,
+      }}
     >
       <Animated.Image
         className="size-12 rounded-full"
@@ -266,9 +288,9 @@ export function RoomsScreen() {
     refreshLogoTranslateY.value =
       -refreshLogoHiddenOffset + pullProgress * refreshLogoHiddenOffset;
   };
-
-  const scrollEdgeFades = useScrollEdgeFades({ onScroll: handleScroll });
-
+  const scrollEdgeFades = useScrollEdgeFades({
+    onScroll: handleScroll,
+  });
   const joinRoom = useCallback(
     async (roomName: string) => {
       if (!roomName.trim()) {
@@ -411,34 +433,6 @@ export function RoomsScreen() {
     submitLabel = 'Checking room…';
   }
 
-  if (konamiEnabled) {
-    return (
-      <TerminalRoomsHome
-        generationLoading={generationLoading}
-        isAIMode={isAIMode}
-        loading={loading}
-        providers={availableProviders}
-        roomType={roomType}
-        publicRooms={publicRooms}
-        refreshControl={refreshControl}
-        refreshLogo={refreshLogo}
-        submitLabel={submitLabel}
-        value={value}
-        onChangeValue={(nextValue) => {
-          setValue(nextValue);
-          setError('');
-        }}
-        onJoinRoom={(roomName) => {
-          setValue(roomName);
-          void joinRoom(roomName);
-        }}
-        onScroll={handleScroll}
-        onSubmit={submitRoom}
-        onToggleAIMode={toggleAIMode}
-      />
-    );
-  }
-
   return (
     <Screen>
       <SafeAreaView edges={['top']} style={safeAreaStyle}>
@@ -465,6 +459,7 @@ export function RoomsScreen() {
                     accessibilityLabel="Zoff"
                     className="size-20"
                   />
+
                   <View className="gap-1">
                     <Text className="font-heading text-4xl text-mobile-text dark:text-mobile-dark-text">
                       Zoff
@@ -484,7 +479,9 @@ export function RoomsScreen() {
                     <Pressable
                       key={type}
                       accessibilityRole="tab"
-                      accessibilityState={{ selected: roomType === type }}
+                      accessibilityState={{
+                        selected: roomType === type,
+                      }}
                       disabled={generationLoading}
                       onPress={() => void changeRoomType(type)}
                       className={classNames(
@@ -550,7 +547,9 @@ export function RoomsScreen() {
                                   : 'Generate with AI'
                               }
                               accessibilityRole="switch"
-                              accessibilityState={{ checked: isAIMode }}
+                              accessibilityState={{
+                                checked: isAIMode,
+                              }}
                               className={classNames(
                                 'size-11 items-center justify-center rounded-xl border active:opacity-70',
                                 isAIMode && 'border-accent bg-accent',
@@ -584,7 +583,9 @@ export function RoomsScreen() {
                         <Pressable
                           key={mode}
                           accessibilityRole="tab"
-                          accessibilityState={{ selected: browseMode === mode }}
+                          accessibilityState={{
+                            selected: browseMode === mode,
+                          }}
                           onPress={() => void loadRooms(mode, 0, '')}
                           className={classNames(
                             'min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-xl border bg-mobile-card dark:bg-mobile-dark-card',
@@ -611,6 +612,7 @@ export function RoomsScreen() {
                           accessibilityLabel="Search rooms by name"
                           onSubmitEditing={() => void loadRooms(browseMode)}
                         />
+
                         <Button
                           label="Search rooms"
                           tone="secondary"
@@ -651,6 +653,7 @@ export function RoomsScreen() {
                               )
                             }
                           />
+
                           <Copy muted>
                             {Math.floor(
                               browseResult.from / mobileRoomPageSize,
@@ -711,4 +714,6 @@ const refreshLogoHiddenOffset = 56;
 const refreshLogoTopSpacing = 12;
 const refreshPullDistance = 80;
 const refreshPullRotation = 160;
-const safeAreaStyle = { flex: 1 };
+const safeAreaStyle = {
+  flex: 1,
+};

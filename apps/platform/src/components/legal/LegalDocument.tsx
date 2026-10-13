@@ -1,26 +1,8 @@
 import { classNames } from '@vibes/shared';
-import {
-  terminalButtonClassName,
-  useTerminalShortcuts,
-} from '@vibes/ui/konami';
-import {
-  Children,
-  cloneElement,
-  isValidElement,
-  lazy,
-  type ReactNode,
-  Suspense,
-} from 'react';
-import { Link, NavLink, useNavigate } from 'react-router';
-import { useKonamiMode } from '../konami/KonamiModeContext';
+import { Children, cloneElement, isValidElement, type ReactNode } from 'react';
+import { NavLink, useNavigate } from 'react-router';
 import { SiteHero } from '../layout/SiteHero';
 import { SitePage } from '../layout/SitePage';
-
-const LazyTerminalShell = lazy(() =>
-  import('@vibes/ui/konami').then((module) => ({
-    default: module.TerminalShell,
-  })),
-);
 
 interface LegalDocumentProps {
   children: ReactNode;
@@ -52,12 +34,7 @@ export function LegalDocument({
   title,
   updatedAt,
 }: LegalDocumentProps) {
-  const terminalMode = useKonamiMode();
   const navigate = useNavigate();
-
-  useTerminalShortcuts([{ key: 'Escape', onTrigger: () => navigate('/') }], {
-    enabled: terminalMode,
-  });
 
   const sections = Children.toArray(children).flatMap((child) => {
     if (
@@ -69,45 +46,10 @@ export function LegalDocument({
     return [child];
   });
   const content = sections.map((section, index) =>
-    cloneElement(section, { number: index + 1 }),
+    cloneElement(section, {
+      number: index + 1,
+    }),
   );
-
-  if (terminalMode) {
-    return (
-      <Suspense fallback={null}>
-        <LazyTerminalShell channel="SYSTEM MANUAL" title={title.toUpperCase()}>
-          <div className="flex flex-1 flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 border border-[#71f5ad]/30 bg-[#071b12] p-3">
-              <Link
-                aria-keyshortcuts="Escape"
-                className={terminalButtonClassName()}
-                to="/"
-              >
-                [ESC] DIRECTORY
-              </Link>
-              <span className="text-[#71f5ad]/55 text-[0.62rem] uppercase tracking-[0.14em]">
-                REVISION {updatedAt}
-              </span>
-            </div>
-            <article className="border border-[#71f5ad]/30 bg-[#020e09]/80 p-4 sm:p-6">
-              <header className="border-[#71f5ad]/30 border-b pb-5">
-                <p className="text-[#71f5ad]/60 text-[0.62rem] uppercase tracking-[0.18em]">
-                  ZOFF SYSTEM DOCUMENT
-                </p>
-                <h1 className="mt-3 font-bold font-mono text-2xl text-[#e0ffef] uppercase sm:text-3xl">
-                  {title}
-                </h1>
-                <p className="mt-3 max-w-3xl text-[#b9ffda]/75 text-sm leading-6">
-                  {description}
-                </p>
-              </header>
-              <div className="mt-6 space-y-8">{content}</div>
-            </article>
-          </div>
-        </LazyTerminalShell>
-      </Suspense>
-    );
-  }
 
   return (
     <SitePage>
@@ -145,6 +87,7 @@ export function LegalDocument({
           </>
         }
       />
+
       <div className="grid items-start gap-6 pt-10 sm:pt-16 lg:grid-cols-4 lg:gap-10">
         <aside className="hidden lg:sticky lg:top-6 lg:block">
           <nav aria-label="On this page" className="mt-8 hidden lg:block">
@@ -174,14 +117,20 @@ export function LegalDocument({
 
                       event.preventDefault();
                       navigate(
-                        { hash: `#${id}` },
-                        { preventScrollReset: true },
+                        {
+                          hash: `#${id}`,
+                        },
+                        {
+                          preventScrollReset: true,
+                        },
                       );
                       target.scrollIntoView({
                         behavior: 'instant',
                         block: 'start',
                       });
-                      target.focus({ preventScroll: true });
+                      target.focus({
+                        preventScroll: true,
+                      });
                     }}
                     className="block rounded-xl px-3 py-3 text-sm text-theme-muted leading-relaxed transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                   >
@@ -209,21 +158,7 @@ export function LegalSection({
   number,
   id,
 }: LegalSectionProps) {
-  const terminalMode = useKonamiMode();
   const heading = number ? `${number}. ${title}` : title;
-
-  if (terminalMode) {
-    return (
-      <section className="border border-[#71f5ad]/20">
-        <h2 className="border-[#71f5ad]/20 border-b bg-[#071b12] px-3 py-2 font-bold font-mono text-[#a6ffd0] text-sm uppercase tracking-[0.1em]">
-          &gt; {heading}
-        </h2>
-        <div className="space-y-4 p-3 text-[#b9ffda]/75 text-sm leading-6 sm:p-4">
-          {children}
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section
@@ -240,19 +175,6 @@ export function LegalSection({
 }
 
 export function LegalSubsection({ children, title }: LegalSubsectionProps) {
-  const terminalMode = useKonamiMode();
-
-  if (terminalMode) {
-    return (
-      <section className="space-y-3 border-[#71f5ad]/15 border-l-2 pl-3">
-        <h3 className="font-bold font-mono text-[#a6ffd0] text-xs uppercase tracking-[0.1em]">
-          :: {title}
-        </h3>
-        <div className="space-y-4">{children}</div>
-      </section>
-    );
-  }
-
   return (
     <section className="space-y-3 pt-2">
       <h3 className="font-pixel text-lg text-theme normal-case tracking-normal">
@@ -264,9 +186,18 @@ export function LegalSubsection({ children, title }: LegalSubsectionProps) {
 }
 
 const policyLinks = [
-  { path: '/security', label: 'Security' },
-  { path: '/privacy-policy', label: 'Privacy' },
-  { path: '/terms-of-service', label: 'Terms' },
+  {
+    path: '/security',
+    label: 'Security',
+  },
+  {
+    path: '/privacy-policy',
+    label: 'Privacy',
+  },
+  {
+    path: '/terms-of-service',
+    label: 'Terms',
+  },
 ];
 
 function sectionId(title: string) {
@@ -274,15 +205,9 @@ function sectionId(title: string) {
 }
 
 export function LegalLink({ children, href }: LegalLinkProps) {
-  const terminalMode = useKonamiMode();
-
   return (
     <a
-      className={
-        terminalMode
-          ? 'text-[#a6ffd0] underline decoration-[#71f5ad]/40 underline-offset-4 hover:text-white'
-          : 'text-secondary underline decoration-secondary/40 underline-offset-4 transition-colors hover:text-theme'
-      }
+      className="text-secondary underline decoration-secondary/40 underline-offset-4 transition-colors hover:text-theme"
       href={href}
       rel="noreferrer"
       target="_blank"

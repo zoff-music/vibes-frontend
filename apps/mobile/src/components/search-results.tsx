@@ -1,6 +1,5 @@
 import type { ProviderItem, SourceType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { useNativePresentation } from '@vibes/ui/native';
 import { getProviderDisplayName } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
 import { Pressable, Text, View } from 'react-native';
@@ -22,8 +21,6 @@ export function SearchResults({
   provider,
   results,
 }: SearchResultsProps) {
-  const terminal = useNativePresentation() === 'terminal';
-
   return (
     <View>
       {results.map((result, index) => (
@@ -38,10 +35,7 @@ export function SearchResults({
               accessibilityLabel={`Add ${result.title}`}
               className={classNames(
                 'min-h-19 flex-row items-center gap-4 border p-4',
-                !terminal &&
-                  'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
-                terminal &&
-                  'border-[#55ffad]/45 bg-[#010c08] active:border-[#71f5ad] active:bg-[#03150d]',
+                'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
               )}
               onPress={() => void onAdd(result)}
             >
@@ -57,8 +51,7 @@ export function SearchResults({
                   numberOfLines={2}
                   className={classNames(
                     'font-bold font-heading text-sm',
-                    !terminal && 'text-mobile-text dark:text-mobile-dark-text',
-                    terminal && 'text-[#dffff0]',
+                    'text-mobile-text dark:text-mobile-dark-text',
                   )}
                 >
                   {result.title}
@@ -67,9 +60,7 @@ export function SearchResults({
                   numberOfLines={1}
                   className={classNames(
                     'font-heading text-xs',
-                    !terminal &&
-                      'text-mobile-muted dark:text-mobile-dark-muted',
-                    terminal && 'text-[#a6ffd0]/65',
+                    'text-mobile-muted dark:text-mobile-dark-muted',
                   )}
                 >
                   {result.publisher ?? getProviderDisplayName(result.source)}
@@ -78,15 +69,10 @@ export function SearchResults({
               <View
                 className={classNames(
                   'size-10 items-center justify-center',
-                  !terminal && 'rounded-xl bg-primary',
-                  terminal && 'border border-[#55ffad] bg-[#71f5ad]',
+                  'rounded-xl bg-primary',
                 )}
               >
-                <ZoffIcon
-                  color={terminal ? '#03150d' : '#ffffff'}
-                  name="add"
-                  size={16}
-                />
+                <ZoffIcon color="#ffffff" name="add" size={16} />
               </View>
             </Pressable>
           </Animated.View>
@@ -105,5 +91,7 @@ export function SearchResults({
     </View>
   );
 }
-
-const thumbnailImageStyle = { height: '100%' as const, width: '100%' as const };
+const thumbnailImageStyle = {
+  height: '100%' as const,
+  width: '100%' as const,
+};

@@ -5,13 +5,6 @@ import {
   usePlaybackStore,
 } from '@vibes/shared';
 import {
-  TerminalButton,
-  TerminalFeedback,
-  TerminalListButton,
-  TerminalModal,
-  TerminalSection,
-} from '@vibes/ui/konami';
-import {
   Button,
   CastIcon,
   CheckCircleIcon,
@@ -30,13 +23,11 @@ import { useCastStore } from '../../stores/castStore';
 interface DeviceSelectorProps {
   isOpen: boolean;
   onClose: () => void;
-  terminalMode?: boolean;
 }
 
 export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
   isOpen,
   onClose,
-  terminalMode = false,
 }) => {
   const isInitialized = useCastStore((state) => state.isInitialized);
   const availableDevices = useCastStore((state) => state.availableDevices);
@@ -160,73 +151,6 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     }
     setIsConnecting(null);
   };
-
-  if (terminalMode) {
-    return (
-      <TerminalModal
-        ariaLabelledBy="terminal-cast-title"
-        className="!max-w-xl"
-        isOpen={isOpen}
-        onClose={onClose}
-        title="CAST ADAPTER / DEVICE BUS"
-      >
-        {isConnected && currentSession && (
-          <TerminalSection
-            className="mb-4"
-            label="ACTIVE OUTPUT"
-            status="LINKED"
-          >
-            <p className="mt-2 text-[#e0ffef] text-sm uppercase">
-              {currentSession.deviceName}
-            </p>
-            <TerminalButton className="mt-3" onClick={handleDisconnect}>
-              [ DISCONNECT ]
-            </TerminalButton>
-          </TerminalSection>
-        )}
-        {!isConnected && (
-          <TerminalSection
-            contentClassName="!p-2"
-            label="AVAILABLE DEVICES"
-            status={`${availableDevices.length.toString().padStart(2, '0')} FOUND`}
-          >
-            <TerminalButton
-              className="mb-2"
-              onClick={handleRefresh}
-              variant="ghost"
-            >
-              [REFRESH BUS]
-            </TerminalButton>
-            {availableDevices.length === 0 && (
-              <TerminalFeedback className="p-5 text-center">
-                NO CAST TARGETS DETECTED.
-                <TerminalButton
-                  className="mx-auto mt-4 block"
-                  disabled={isConnecting === CAST_DEVICE_PICKER_ID}
-                  onClick={handleOpenDevicePicker}
-                >
-                  {isConnecting === CAST_DEVICE_PICKER_ID
-                    ? '[ SCANNING ]'
-                    : '[ OPEN DEVICE PICKER ]'}
-                </TerminalButton>
-              </TerminalFeedback>
-            )}
-            {availableDevices.map((device, index) => (
-              <TerminalListButton
-                action={isConnecting === device.id ? '[LINKING]' : '[LINK]'}
-                disabled={isConnecting === device.id}
-                index={(index + 1).toString().padStart(2, '0')}
-                key={device.id}
-                metadata={device.type}
-                onClick={() => handleDeviceSelect(device)}
-                title={device.name}
-              />
-            ))}
-          </TerminalSection>
-        )}
-      </TerminalModal>
-    );
-  }
 
   return (
     <Modal

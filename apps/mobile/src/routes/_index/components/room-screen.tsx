@@ -1,10 +1,7 @@
 import type { PlaylistItem } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
 import { classNames, safeWrapAsync } from '@vibes/shared';
-import {
-  NativeKeyboardAvoidingView,
-  useNativePresentation,
-} from '@vibes/ui/native';
+import { NativeKeyboardAvoidingView } from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -48,7 +45,6 @@ export function RoomScreen() {
     playerEnabled,
     playerPreferenceLoaded,
   } = usePlaybackSession();
-  const terminal = useNativePresentation() === 'terminal';
   const { room, roomId, playlistItems } = useRoomSession();
   const { resetLocalPlayback, setLocalPlaying } = usePlaybackActions();
   const { leaveRoom, setError } = useRoomActions();
@@ -60,11 +56,15 @@ export function RoomScreen() {
   const [notice, setNotice] = useState('');
   const playerSpaceRef = useRef<RoomPlayerSpaceHandle>(null);
   const [, { submit: submitPlayback }] = useFetcher<RoomPlaybackActionData>({
-    params: { id: roomId },
+    params: {
+      id: roomId,
+    },
     routeId: 'rooms.$id.playback',
   });
   const [, { submit: submitQueue }] = useFetcher<RoomQueueActionData>({
-    params: { id: roomId },
+    params: {
+      id: roomId,
+    },
     routeId: 'rooms.$id.queue',
   });
 
@@ -114,12 +114,17 @@ export function RoomScreen() {
       return;
     }
     if (!hasHostPlaybackAuthority) return;
-    const result = await submitPlayback({ intent: 'update', action });
+    const result = await submitPlayback({
+      intent: 'update',
+      action,
+    });
     if (result.error) setError(result.error);
   };
 
   const skip = async () => {
-    const result = await submitPlayback({ intent: 'skip' });
+    const result = await submitPlayback({
+      intent: 'skip',
+    });
     if (result.data?.intent !== 'skip') {
       setError(result.error || 'Failed to skip. Please try again.');
       return;
@@ -207,9 +212,7 @@ export function RoomScreen() {
       <View
         className={classNames(
           'h-56 overflow-hidden border',
-          !terminal &&
-            'rounded-2xl border-accent/60 bg-mobile-card dark:bg-mobile-dark-card',
-          terminal && 'border-[#55ffad] bg-[#010c08]',
+          'rounded-2xl border-accent/60 bg-mobile-card dark:bg-mobile-dark-card',
         )}
       >
         <RoomGenerationProgress />
@@ -229,8 +232,7 @@ export function RoomScreen() {
               numberOfLines={1}
               className={classNames(
                 'font-heading text-xl',
-                !terminal && 'text-mobile-text dark:text-mobile-dark-text',
-                terminal && 'text-[#dffff0]',
+                'text-mobile-text dark:text-mobile-dark-text',
               )}
             >
               {current?.title ?? 'Nothing playing'}
@@ -286,6 +288,7 @@ export function RoomScreen() {
             (room.hostId === room.userId || room.isAdmin)
           }
         />
+
         <Toast
           message={room.generationError || notice}
           tone={!room.generationError ? 'info' : 'error'}
@@ -338,14 +341,18 @@ export function RoomScreen() {
       <View className="min-h-0 flex-1 flex-row gap-4 px-4 pb-4">
         <View
           className="min-h-0 gap-4"
-          style={{ width: tabletLayout.playerPaneWidth }}
+          style={{
+            width: tabletLayout.playerPaneWidth,
+          }}
         >
           {playerSpacer}
           {roomDetails}
         </View>
         <View
           className="min-h-0 overflow-hidden"
-          style={{ width: tabletLayout.playlistPaneWidth }}
+          style={{
+            width: tabletLayout.playlistPaneWidth,
+          }}
         >
           <RoomChatPanel
             roomId={roomId}
@@ -375,7 +382,9 @@ export function RoomScreen() {
     content = (
       <View
         className="min-h-0 flex-1 self-center"
-        style={{ width: tabletLayout.portraitContentWidth }}
+        style={{
+          width: tabletLayout.portraitContentWidth,
+        }}
       >
         {content}
       </View>
@@ -394,8 +403,7 @@ export function RoomScreen() {
         <Text
           className={classNames(
             'min-w-0 font-heading text-3xl',
-            !terminal && 'text-mobile-text dark:text-mobile-dark-text',
-            terminal && 'text-[#dffff0]',
+            'text-mobile-text dark:text-mobile-dark-text',
           )}
           ellipsizeMode="tail"
           numberOfLines={1}
@@ -408,18 +416,10 @@ export function RoomScreen() {
         <View
           className={classNames(
             'h-13 flex-row items-center gap-2 border px-4',
-            !terminal &&
-              'rounded-xl border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
-            terminal && 'border-[#55ffad] bg-[#010c08]',
+            'rounded-xl border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
           )}
         >
-          <View
-            className={classNames(
-              'size-2',
-              !terminal && 'rounded-full bg-accent',
-              terminal && 'bg-[#71f5ad]',
-            )}
-          />
+          <View className={classNames('size-2', 'rounded-full bg-accent')} />
           <Copy>{room.userCount ?? 0}</Copy>
         </View>
         <IconButton
@@ -427,6 +427,7 @@ export function RoomScreen() {
           icon="share"
           onPress={() => void share()}
         />
+
         <CastButton />
       </View>
     </View>
@@ -437,20 +438,13 @@ export function RoomScreen() {
         <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">
           <View className="shrink-0 flex-row items-center gap-2">
             <Copy muted>NOW IN</Copy>
-            <View
-              className={classNames(
-                'size-2',
-                !terminal && 'rounded-full bg-accent',
-                terminal && 'bg-[#71f5ad]',
-              )}
-            />
+            <View className={classNames('size-2', 'rounded-full bg-accent')} />
             <Copy muted>{room.userCount ?? 0}</Copy>
           </View>
           <Text
             className={classNames(
               'min-w-0 font-heading text-xl',
-              !terminal && 'text-mobile-text dark:text-mobile-dark-text',
-              terminal && 'text-[#dffff0]',
+              'text-mobile-text dark:text-mobile-dark-text',
             )}
             ellipsizeMode="tail"
             numberOfLines={1}
@@ -465,6 +459,7 @@ export function RoomScreen() {
             icon="share"
             onPress={() => void share()}
           />
+
           <CastButton />
         </View>
       </View>
@@ -479,7 +474,11 @@ export function RoomScreen() {
           !tabletLayout.isTabletPortrait && 'w-full',
         )}
         {...(tabletLayout.isTabletPortrait
-          ? { style: { width: tabletLayout.portraitContentWidth } }
+          ? {
+              style: {
+                width: tabletLayout.portraitContentWidth,
+              },
+            }
           : {})}
       >
         <SafeAreaView edges={['top']}>{roomHeader}</SafeAreaView>

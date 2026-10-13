@@ -1,4 +1,4 @@
-import { roomNameMaxLength } from '@vibes/models';
+import { roomNameMaxLength } from '@vibes/models/limits';
 import { ArrowRightIcon, Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
 import type { ChangeEvent, KeyboardEvent, RefObject } from 'react';
 

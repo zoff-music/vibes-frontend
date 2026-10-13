@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
-import { useKonamiMode } from '@/providers/konami-mode-provider';
 
 export function TabletTopNavigation() {
   const insets = useSafeAreaInsets();
@@ -13,23 +12,32 @@ export function TabletTopNavigation() {
   const router = useRouter();
   const tabletLayout = useTabletLandscapeLayout();
   const { hasRoom } = useRoomNavigation();
-  const { enabled: konamiEnabled } = useKonamiMode();
-
-  if (Platform.OS !== 'android' || !tabletLayout.isTablet || konamiEnabled) {
+  if (Platform.OS !== 'android' || !tabletLayout.isTablet) {
     return null;
   }
 
   const items = [
-    { href: '/', label: hasRoom ? 'Room' : 'Rooms' },
-    { href: '/remote', label: 'Remote' },
-    { href: '/settings', label: 'Settings' },
+    {
+      href: '/',
+      label: hasRoom ? 'Room' : 'Rooms',
+    },
+    {
+      href: '/remote',
+      label: 'Remote',
+    },
+    {
+      href: '/settings',
+      label: 'Settings',
+    },
   ] as const;
 
   return (
     <View
       className="absolute inset-x-0 z-40 items-center"
       pointerEvents="box-none"
-      style={{ top: insets.top + topNavigationOffset }}
+      style={{
+        top: insets.top + topNavigationOffset,
+      }}
     >
       <View className="flex-row rounded-full bg-mobile-card/95 p-1 shadow-black/15 shadow-lg dark:bg-mobile-dark-card/95">
         {items.map((item) => {
@@ -37,7 +45,9 @@ export function TabletTopNavigation() {
           return (
             <Pressable
               accessibilityRole="tab"
-              accessibilityState={{ selected }}
+              accessibilityState={{
+                selected,
+              }}
               className={classNames(
                 'overflow-hidden rounded-full px-5 py-2 active:opacity-70',
                 selected && 'bg-primary/15',
