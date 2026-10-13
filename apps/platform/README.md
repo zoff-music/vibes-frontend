@@ -555,12 +555,7 @@ routes do not pull extra code into the initial page. This improves independent
 caching, not the intrinsic size of React's renderer. Keep server chunking and
 legacy player targets unchanged, and compare total transfer size as well as
 individual chunks when adjusting these groups.
-Small shared modules use entry-aware grouping with a conservative 2 kB source
-merge threshold. Router core stays together because its pieces are needed at
-the same time. Do not split it solely to meet a per-file transfer budget.
-Check both homepage and room dependency graphs: all initial static imports must
-remain in the modulepreload set, and merging must not pull large optional
-features into room entry. The remote pairing dialog and QR renderer load on
+The remote pairing dialog and QR renderer load on
 demand, with intent preloading on pointer entry or keyboard focus. Remote event
 subscriptions and playback controls remain active outside the deferred dialog.
 Zod's compiler and core also have separate cached chunks; schemas still use
