@@ -13,6 +13,8 @@ import { createRoomPageUrl } from './share';
 export interface RoomLoaderData {
   room: RoomModel;
   playlistItems: PlaylistItem[];
+  queuedPlaylistItemCount?: number;
+  preloadPlaylistItems?: PlaylistItem[];
   playback?: PlaybackStateV2;
   providers: Providers;
   pageUrl: string;
@@ -77,10 +79,27 @@ export async function loader({
     });
   }
 
+  // Match the first progressive batch, plus room for the currently playing item.
+  // The live connection supplies the full snapshot after hydration.
+  const initialPlaylistItems = (playlistItems ?? []).slice(0, 13);
+  const queuedPlaylistItemCount = (playlistItems ?? []).reduce(
+    (count, item) =>
+      count + Number(item.id !== playback?.currentPlaylistItem?.id),
+    0,
+  );
+  const preloadPlaylistItems = (providers ?? []).flatMap((provider) => {
+    const item = playlistItems?.find((item) => item.sourceType === provider);
+    return item ? [item] : [];
+  });
+
   return {
     pageUrl: createRoomPageUrl(request.url, roomId),
     room,
-    playlistItems: playlistItems || [],
+    playlistItems: initialPlaylistItems,
+    preloadPlaylistItems,
+    ...((playlistItems?.length ?? 0) > initialPlaylistItems.length && {
+      queuedPlaylistItemCount,
+    }),
     playback: (playback || undefined) as PlaybackStateV2 | undefined,
     providers: (providers ?? []).filter(
       (provider) => room.roomType === 'MUSIC' || provider === 'youtube',

@@ -38,6 +38,7 @@ interface RoomQueueProps {
   isAdmin?: boolean;
   initialPlayback?: PlaybackStateV2;
   initialPlaylistItems?: PlaylistItem[];
+  initialQueuedPlaylistItemCount?: number;
   terminalMode?: boolean;
 }
 
@@ -50,6 +51,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     isAdmin,
     initialPlayback,
     initialPlaylistItems,
+    initialQueuedPlaylistItemCount,
     terminalMode = false,
   }: RoomQueueProps) => {
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
@@ -102,22 +104,23 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const isPlaying = isSSR
       ? (initialPlayback?.isPlaying ?? false)
       : isPlayingFromStore;
-    const displayPlaylistItems =
-      isSSR && initialPlaylistItems
-        ? initialPlaylistItems
-        : playlistItems.length > 0
-          ? playlistItems
-          : initialPlaylistItems || [];
+    const displayPlaylistItems = isSSR
+      ? (initialPlaylistItems ?? [])
+      : playlistItems;
 
-    // Actually we need the full current song for the card
-    const currentPlaylistItemData =
-      usePlaybackStore((state) => state.currentPlaylistItem) ||
-      initialPlayback?.currentPlaylistItem;
-    const queuedPlaylistItemCount = displayPlaylistItems.reduce(
+    const currentPlaylistItemFromStore = usePlaybackStore(
+      (state) => state.currentPlaylistItem,
+    );
+    const currentPlaylistItemData = isSSR
+      ? initialPlayback?.currentPlaylistItem
+      : currentPlaylistItemFromStore;
+    const visibleQueuedPlaylistItemCount = displayPlaylistItems.reduce(
       (count, playlistItem) =>
         count + Number(playlistItem.id !== currentPlaylistItemData?.id),
       0,
     );
+    const queuedPlaylistItemCount =
+      initialQueuedPlaylistItemCount ?? visibleQueuedPlaylistItemCount;
     const [terminalVisibleCount, terminalSentinelRef] = useProgressiveList(
       queuedPlaylistItemCount,
     );
@@ -382,6 +385,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     isAdmin={isAdmin}
                     votingPlaylistItemId={votingPlaylistItemId}
                   />
+                  {queuedPlaylistItemCount > visibleQueuedPlaylistItemCount && (
+                    <p
+                      className="py-4 text-center text-sm text-theme-muted"
+                      role="status"
+                    >
+                      Connecting to load the rest of the queue…
+                    </p>
+                  )}
                 </div>
               )}
             </div>

@@ -211,6 +211,18 @@ export default function RoomV2() {
   );
 
   const [isSSR, setIsSSR] = useState(true);
+  const [queueSnapshotRoomId, setQueueSnapshotRoomId] = useState<string | null>(
+    null,
+  );
+  const queuePreviewProps =
+    (isSSR || queueSnapshotRoomId !== id) &&
+    loaderData.queuedPlaylistItemCount !== undefined
+      ? { initialQueuedPlaylistItemCount: loaderData.queuedPlaylistItemCount }
+      : {};
+  const playerPreloadProps =
+    (isSSR || queueSnapshotRoomId !== id) && loaderData.preloadPlaylistItems
+      ? { initialPreloadPlaylistItems: loaderData.preloadPlaylistItems }
+      : {};
   const shouldReduceMotion = useReducedMotion();
   const { currentTheme } = useThemeDisplay();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -340,12 +352,16 @@ export default function RoomV2() {
           showToast(`"${playlistItem.title}" added to queue`, 'success');
         }
       },
-      onPlaylistItemsUpdate: setPlaylistItems,
+      onPlaylistItemsUpdate: (items: PlaylistItem[]) => {
+        setPlaylistItems(items);
+        setQueueSnapshotRoomId(id);
+      },
       onUsersUpdate: setUsersCount,
     }),
     [
       addPlaylistItem,
       handleGenerationUpdate,
+      id,
       positionPlaylistItem,
       revalidate,
       removePlaylistItem,
@@ -356,7 +372,7 @@ export default function RoomV2() {
       setUsersCount,
     ],
   );
-  useRoomEventsV3(id, sseCallbacks);
+  useRoomEventsV3(isSSR ? undefined : id, sseCallbacks);
 
   const handleToggleDarkMode = useCallback(() => {
     toggleDarkMode();
@@ -644,6 +660,7 @@ export default function RoomV2() {
                 onOpenCast={handleOpenCast}
                 initialPlayback={loaderData.playback}
                 providers={loaderData.providers}
+                {...playerPreloadProps}
                 terminalMode
               />
               <RoomQueue
@@ -654,6 +671,7 @@ export default function RoomV2() {
                 isAdmin={isAdmin}
                 initialPlayback={loaderData.playback}
                 initialPlaylistItems={loaderData.playlistItems}
+                {...queuePreviewProps}
                 terminalMode
               />
             </div>
@@ -790,6 +808,7 @@ export default function RoomV2() {
                     onOpenCast={handleOpenCast}
                     initialPlayback={loaderData.playback}
                     providers={loaderData.providers}
+                    {...playerPreloadProps}
                   />
                   {!isPartyScreen && (
                     <RoomQueue
@@ -800,6 +819,7 @@ export default function RoomV2() {
                       isAdmin={isAdmin}
                       initialPlayback={loaderData.playback}
                       initialPlaylistItems={loaderData.playlistItems}
+                      {...queuePreviewProps}
                     />
                   )}
                   {isPartyScreen && (
@@ -813,6 +833,7 @@ export default function RoomV2() {
                           isAdmin={isAdmin}
                           initialPlayback={loaderData.playback}
                           initialPlaylistItems={loaderData.playlistItems}
+                          {...queuePreviewProps}
                         />
                       </div>
                       <Suspense
