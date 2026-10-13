@@ -1,7 +1,6 @@
 import * as z from 'zod/mini';
+import { roomNameMaxLength } from '../limits';
 import { sourceTypeSchema } from './playlist';
-
-export const roomNameMaxLength = 100;
 
 const roomNameField = z
   .string()

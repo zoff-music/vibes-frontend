@@ -1,6 +1,5 @@
 import * as z from 'zod/mini';
-
-export const chatMessageMaxLength = 500;
+import { chatMessageMaxLength } from '../limits';
 
 export const roomMessageSchema = /* @__PURE__ */ z.compile(
   z.object({

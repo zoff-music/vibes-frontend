@@ -1,6 +1,6 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useReducedMotion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const ANIMATED_WORDS = [
   'electro',
@@ -127,12 +127,12 @@ export function useAnimatedPlaceholder(
     return () => window.clearInterval(interval);
   }, [isPaused, active]);
 
-  function reset() {
+  const reset = useCallback(() => {
     setPlaceholderText('');
     setWordIndex(0);
     setCharIndex(0);
     setIsPaused(false);
-  }
+  }, []);
 
   return { placeholder, reset };
 }

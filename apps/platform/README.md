@@ -558,8 +558,23 @@ individual chunks when adjusting these groups.
 The remote pairing dialog and QR renderer load on
 demand, with intent preloading on pointer entry or keyboard focus. Remote event
 subscriptions and playback controls remain active outside the deferred dialog.
+The remote event transport loads only when a remote ID is present; unpaired
+visitors do not download its API client just to render the header. Subscription
+cleanup covers both module loading and connection setup.
 Zod's compiler and core also have separate cached chunks; schemas still use
 the same compiled validation and fallback parser.
+
+Platform builds enforce React Router's route-module splitting. Keep shared
+loader functions outside route modules, including canonical-room redirects.
+Matched client actions are still imported by the initial SSR document, so the
+homepage exports a small action adapter and loads its implementation when the
+generator opens. Submission awaits that same module if it is not ready yet.
+Room loaders, live subscriptions and both provider players remain eager.
+Static input limits come from `@vibes/models/limits`; request schemas use those
+same constants without requiring validation code to render a form. The hero's
+typing state lives below the landing-page component, so each character updates
+the controls rather than the whole page. Its timing, initial SSR placeholder,
+visibility pause and reduced-motion behavior stay unchanged.
 
 The shared server negotiates compression and serves hashed assets with an
 immutable one-year cache lifetime. A compressed HTML body below 14 kB is a

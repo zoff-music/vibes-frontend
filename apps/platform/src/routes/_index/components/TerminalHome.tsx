@@ -1,9 +1,8 @@
+import type { Providers, PublicRoomV3 } from '@vibes/models';
 import {
   generatedPlaylistPromptMaxLength,
-  type Providers,
-  type PublicRoomV3,
   roomNameMaxLength,
-} from '@vibes/models';
+} from '@vibes/models/limits';
 import { usePageVisibility } from '@vibes/shared';
 import {
   TerminalButton,

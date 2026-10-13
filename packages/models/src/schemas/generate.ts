@@ -1,7 +1,6 @@
 import * as z from 'zod/mini';
+import { generatedPlaylistPromptMaxLength } from '../limits';
 import { roomTypeSchema } from './room';
-
-export const generatedPlaylistPromptMaxLength = 300;
 
 export const generatedTrackSchema = /* @__PURE__ */ z.compile(
   z.object({

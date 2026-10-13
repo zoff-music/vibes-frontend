@@ -1,4 +1,4 @@
-import { classNames } from '@vibes/shared';
+import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { lazy, memo, Suspense, useEffect, useRef, useState } from 'react';
 import type { NavigateFunction, NavigationType } from 'react-router';
@@ -6,10 +6,10 @@ import { useKonamiMode } from '../../../components/konami/KonamiModeContext';
 import { useExperience } from '../../../hooks/useExperience';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import { canUseViewTransition } from '../../../utils/viewTransition';
-import { useAnimatedPlaceholder } from '../hooks/useAnimatedPlaceholder';
+import { preloadHomeAction } from '../clientAction';
 import type { HomeLoaderData } from '../loader';
 import { HomeLanding } from './HomeLanding';
-import { HomeRoomControls } from './HomeRoomControls';
+import { HomePlaceholder, HomeRoomControls } from './HomeRoomControls';
 import { PlaylistGenerationControls } from './PlaylistGenerationControls';
 import { ProductIntroduction } from './ProductIntroduction';
 import { ReturnToRoom } from './ReturnToRoom';
@@ -59,6 +59,12 @@ export const HomeScreen = memo(function HomeScreen({
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (!isAIMode) return;
+
+    void safeWrapAsync(preloadHomeAction());
+  }, [isAIMode]);
+
+  useEffect(() => {
     if (generationEntry === 0) return;
 
     const input = isAIMode ? playlistPromptRef.current : roomNameRef.current;
@@ -79,11 +85,6 @@ export const HomeScreen = memo(function HomeScreen({
   };
 
   const heroVisible = useInView(heroRef, { amount: 0.1 });
-  const { placeholder, reset } = useAnimatedPlaceholder(
-    isAIMode,
-    heroVisible && roomCode.length === 0,
-    watch,
-  );
   const previousPath = getPreviousPath();
   const konamiEnabled = useKonamiMode();
   const previousRoomId = previousPath?.match(/^\/([^/]+)$/)?.[1];
@@ -110,7 +111,6 @@ export const HomeScreen = memo(function HomeScreen({
     setIsAIMode((current) => !current);
     setGenerationEntry((current) => current + 1);
     setRoomCode('');
-    reset();
   };
 
   const handleRoomCodeChange = (value: string) => {
@@ -122,20 +122,28 @@ export const HomeScreen = memo(function HomeScreen({
       <>
         <div ref={heroRef}>
           <Suspense fallback={null}>
-            <LazyTerminalHome
+            <HomePlaceholder
               isAIMode={isAIMode}
-              onJoinRoom={handleJoinRoom}
-              onOpenProfileSettings={() => setShowProfileSettings(true)}
-              onRoomCodeChange={handleRoomCodeChange}
-              onStartSession={handleStartSession}
-              onToggleAIMode={handleToggleAIMode}
-              pendingRoomSlug={pendingRoomSlug}
-              placeholder={placeholder}
-              providers={data.providers ?? []}
-              publicRooms={data.publicRooms ?? []}
-              roomCode={roomCode}
-              totalListeners={data.stats?.totalListeners ?? 0}
-            />
+              enabled={heroVisible && roomCode.length === 0}
+              watch={watch}
+            >
+              {(placeholder) => (
+                <LazyTerminalHome
+                  isAIMode={isAIMode}
+                  onJoinRoom={handleJoinRoom}
+                  onOpenProfileSettings={() => setShowProfileSettings(true)}
+                  onRoomCodeChange={handleRoomCodeChange}
+                  onStartSession={handleStartSession}
+                  onToggleAIMode={handleToggleAIMode}
+                  pendingRoomSlug={pendingRoomSlug}
+                  placeholder={placeholder}
+                  providers={data.providers ?? []}
+                  publicRooms={data.publicRooms ?? []}
+                  roomCode={roomCode}
+                  totalListeners={data.stats?.totalListeners ?? 0}
+                />
+              )}
+            </HomePlaceholder>
           </Suspense>
         </div>
         <div className="product-content relative z-10 px-5 sm:px-6">
@@ -167,26 +175,36 @@ export const HomeScreen = memo(function HomeScreen({
         onJoinRoom={handleJoinRoom}
         data={data}
       >
-        {!isAIMode && (
-          <HomeRoomControls
-            inputRef={roomNameRef}
-            onJoinRoom={handleJoinRoom}
-            onRoomCodeChange={handleRoomCodeChange}
-            onStartSession={handleStartSession}
-            onToggleAIMode={handleToggleAIMode}
-            placeholder={placeholder}
-            roomCode={roomCode}
-          />
-        )}
-        {isAIMode && (
-          <PlaylistGenerationControls
-            inputRef={playlistPromptRef}
-            onPromptChange={handleRoomCodeChange}
-            onToggleAIMode={handleToggleAIMode}
-            placeholder={placeholder}
-            prompt={roomCode}
-          />
-        )}
+        <HomePlaceholder
+          isAIMode={isAIMode}
+          enabled={heroVisible && roomCode.length === 0}
+          watch={watch}
+        >
+          {(placeholder) => (
+            <>
+              {!isAIMode && (
+                <HomeRoomControls
+                  inputRef={roomNameRef}
+                  onJoinRoom={handleJoinRoom}
+                  onRoomCodeChange={handleRoomCodeChange}
+                  onStartSession={handleStartSession}
+                  onToggleAIMode={handleToggleAIMode}
+                  placeholder={placeholder}
+                  roomCode={roomCode}
+                />
+              )}
+              {isAIMode && (
+                <PlaylistGenerationControls
+                  inputRef={playlistPromptRef}
+                  onPromptChange={handleRoomCodeChange}
+                  onToggleAIMode={handleToggleAIMode}
+                  placeholder={placeholder}
+                  prompt={roomCode}
+                />
+              )}
+            </>
+          )}
+        </HomePlaceholder>
       </HomeLanding>
       {!watch && previewReturn && !pendingRoomSlug && (
         <ReturnToRoomPreview

@@ -1,9 +1,5 @@
-import {
-  type Providers,
-  type RoomSettingsV2,
-  roomNameMaxLength,
-  type SourceType,
-} from '@vibes/models';
+import type { Providers, RoomSettingsV2, SourceType } from '@vibes/models';
+import { roomNameMaxLength } from '@vibes/models/limits';
 import type { ReactNode } from 'react';
 import { TerminalButton } from './TerminalButton';
 import { TerminalField, TerminalInputGroup } from './TerminalField';
