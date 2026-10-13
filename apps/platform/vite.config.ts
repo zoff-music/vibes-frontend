@@ -64,22 +64,13 @@ export default defineConfig(({ command, mode }) => {
                     name: 'router-core',
                     test: /react-router[\\/]dist[\\/]production[\\/]lib[\\/]router[\\/]/,
                     priority: 20,
+                    maxSize: 90_000,
                   },
                   {
                     name: 'router-react',
                     test: /react-router[\\/]dist[\\/]production[\\/]/,
                     priority: 10,
                     entriesAware: true,
-                    entriesAwareMergeThreshold: 2_000,
-                  },
-                  {
-                    name: 'shared',
-                    test: /\.[cm]?[jt]sx?(?:\?|$)/,
-                    priority: 0,
-                    minShareCount: 2,
-                    // Keep route boundaries, but coalesce tiny shared modules.
-                    entriesAware: true,
-                    entriesAwareMergeThreshold: 2_000,
                   },
                 ],
               },
