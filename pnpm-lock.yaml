@@ -115,6 +115,9 @@ catalogs:
       version: 4.3.3
 
 overrides:
+  '@expo/cli@57.0.23>node-forge': '-'
+  '@expo/cli@57.0.23>@expo/code-signing-certificates': '-'
+  braces: npm:@dieub/braces-depth-guard@3.0.3-pn.3
   morgan: 1.12.1
   brace-expansion@>=4.0.0: 5.0.12
   '@grpc/grpc-js': 1.14.5
@@ -125,7 +128,7 @@ overrides:
   shell-quote@1: 1.11.0
   body-parser: 1.20.6
   esbuild: 0.28.1
-  js-yaml: 3.15.2
+  js-yaml: 4.3.2
   decode-uri-component: 0.5.0
   qs: 6.16.0
   lightningcss: 1.30.1
@@ -135,12 +138,12 @@ overrides:
   valibot: 1.4.2
   vite: 8.2.2
 
+packageExtensionsChecksum: sha256-+rU0JAHUYnuieL5IXKp/3IGoCcdxN/vzc3liQ84tfk4=
+
 patchedDependencies:
-  braces@3.0.3: 5aa496affd788b0a802be02edbf7cd4f55965b98f801887033a356b4c4019c58
-  node-forge@1.4.0: fe645d091b328e2608493c3c144c1e1291e630f039a03476baee58ffad00673e
+  '@expo/cli@57.0.23': d8d6e72ce51d7ecf94ea41d4dd146f9c71b2c50f1a9b16984f86fd22099704b0
   react-native-screens@4.26.2: 911657e515f5bbba29cba55c1257df16ccd7a1d5bc17f5c159dcd5b3910ec48c
   react-native-webview@14.0.1: 4d8feb0be219a14012adbaab4fd6a848ed6f3af5ce663a1dbcac009e64e88207
-  sprintf-js@1.0.3: debf410791b79b3b70f6c7375c42fe2d2f7376f86a8955a84339bee6d7b5f13c
 
 importers:
 
@@ -1958,6 +1961,10 @@ packages:
     peerDependencies:
       postcss: 8.5.26
 
+  '@dieub/braces-depth-guard@3.0.3-pn.3':
+    resolution: {integrity: sha512-QY+Uq4s42STyIMPoRkBuUZfYyvz0uZuwuUburLwMx5N+lWqnHHaBxcKPtgKVKjTyFnS1q4ivKu9Wxi4VG7FE9Q==}
+    engines: {node: '>=8'}
+
   '@esbuild/aix-ppc64@0.28.1':
     resolution: {integrity: sha512-Svl7tq8k/08+p6CXPpRjQ1fKX+1odH/BQbb48fV6fj3CWHhsoIOoY87w1oHXm0qEpkIK3ZfVgp0hed3XBXzXMQ==}
     engines: {node: '>=18'}
@@ -2129,9 +2136,6 @@ packages:
         optional: true
       react-native:
         optional: true
-
-  '@expo/code-signing-certificates@0.0.6':
-    resolution: {integrity: sha512-iNe0puxwBNEcuua9gmTGzq+SuMDa0iATai1FlFTMHJ/vUmKvN/V//drXoLJkVb5i5H3iE/n/qIJxyoBnXouD0w==}
 
   '@expo/config-plugins@57.0.9':
     resolution: {integrity: sha512-hHgfL1avkCdEvDSw7IwlKwRYYNgcxzbNNMIk6W6lTkJpY0MajinAfeJUS0J+wPCsjUfGbVqOJM+XhPaO5ulUxg==}
@@ -2525,6 +2529,61 @@ packages:
 
   '@oxc-project/types@0.147.0':
     resolution: {integrity: sha512-IJ3s6ltHLp45S0bh7phkX+gJO7A1Wuz2EaqpAhb8WjqDwbzMiWKHhyyT42tskaWjEYXtHtVCPpnBJVT9+dcRLg==}
+
+  '@peculiar/asn1-asym-key@2.11.0':
+    resolution: {integrity: sha512-r2957WdSZle/Zt4t9og7OMQYXNJ9/3ANXVtFwLCDJuHORlBZ4AFmDt1Qee0CzyTbHQg4ZZApBGEz5/6cFsyCRg==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-cms@2.11.0':
+    resolution: {integrity: sha512-SlAiDoT/Cd8qaNmbTt78gqyaEvu2fQd6ML6KWJkdjXGrgDKnHHrusVkfQUelkfinL2p665IIADb0JBixtT8W1g==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-csr@2.11.0':
+    resolution: {integrity: sha512-M/ED0yJ05qMK+UADPKnIa8vhAeewOJALSxTAZB7RQ/batRHhIJZkwznCcWAbFO5saHJ1yEQ+m4lncEcG9RnQSg==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-ecc@2.11.0':
+    resolution: {integrity: sha512-jj1alGEKev7/un+cI+exyVK9m31lmP7cCBMCZuCb0wkFQH2zmKmJzNiG4wqXFNzlcP8timHLnzf3lV3OxBpb/Q==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-pfx@2.11.0':
+    resolution: {integrity: sha512-ykSAWRu8KkmzU8LRpk9ZQC3zuLmBEtoSMjIv9XHVamD5W7amqreV5wttKqnvtjWOzzSJQxA/HVT8/tHwpEEGSQ==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-pkcs8@2.11.0':
+    resolution: {integrity: sha512-lragjkjQGnQ5luxC+sxoAfAO/jBiQ7hOEGlDKJUk7MC5zY3AzjB2DU0GyPUH1Sswdv10t7DurY0zylOYMLb88w==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-pkcs9@2.11.0':
+    resolution: {integrity: sha512-gDdFjpqV0weJjgNUvueUVf4D8uVbpq+VbG0TsxLAY2QGljAkJyL9qwQ7avol9j0jaYSJ7Ey7v7RZp0M3GTcQSA==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-rsa@2.11.0':
+    resolution: {integrity: sha512-S2sBJmbfI09Kzdt9cEhE6pDNjHpVTkURs+811+PxS8AvsTLxC4woMNRhxHYaIbClkkNfAVt0tZxJdINVfUmzuA==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-schema@2.11.0':
+    resolution: {integrity: sha512-8xh4avo53/vXO6UEv9yaoJ83hY581geaLTygf61NPIXP5AeIZCPjJhpTaYU23IZkG+NpLN/C9FYzWp7hphIT9A==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-x509-attr@2.11.0':
+    resolution: {integrity: sha512-Fgvnd9REmLxEj/4cbDP54dNUNUXkzUksXLqEHqs1mHBuSRjSTCUSPM/WQIZYSvrdG7ND9CX1AQtPoIBekhgQSA==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-x509-post-quantum@2.11.0':
+    resolution: {integrity: sha512-K6EnquTX3xJ2G+uLPFH0jVkh7W8y6eTzoCxvSoXAj0sWS5uvVB2PEvpBPdzY4+ytaedUM3x9ZVgX0AZKb316ew==}
+    engines: {node: '>=14'}
+
+  '@peculiar/asn1-x509@2.11.0':
+    resolution: {integrity: sha512-J1sHAwGNlk+8J+FeR1eLVc6Gq0T9f9ITc3HWyPYgJraoW6U8AJuQiWVJ3SCEpltfTdpOY7fHdHT5oKAsbK/jww==}
+    engines: {node: '>=14'}
+
+  '@peculiar/utils@2.0.3':
+    resolution: {integrity: sha512-+oL3HPFRIZ1St2K50lWCXiioIgSoxzz7R1J3uF6neO2yl1sgmpgY6XXJH4BdpoDkMWznQTeYF6oWNDZLCdQ4eQ==}
+
+  '@peculiar/x509@2.1.0':
+    resolution: {integrity: sha512-IYbg1R03CSQGWwl24kGyqrdVtixNSbRaDvBg1r5wyYjTP+VwPQkka1BzTgU5+vxiuwqg04OxdvdJ1xYYFIdUSA==}
+    engines: {node: '>=20.0.0'}
 
   '@prometheus-io/client@0.16.1':
     resolution: {integrity: sha512-XkFPsGFGoSs/UMg/vh0QLDpanl/tsrOV5PLHdpGe8Ho+ir/Llhytr15j6y8ZwLrpIGzK9gTVVpIalA6C4UjUZw==}
@@ -3550,8 +3609,8 @@ packages:
   arg@5.0.2:
     resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
 
-  argparse@1.0.10:
-    resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
+  argparse@2.0.1:
+    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
   aria-hidden@1.2.6:
     resolution: {integrity: sha512-ik3ZgC9dY/lYVVM++OISsaYDeg1tb0VtP5uL3ouh1koGOaUMDPpbFIei4JkFimWUFPn90sbMNMXQAIVOlnYKJA==}
@@ -3562,6 +3621,10 @@ packages:
 
   asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
+
+  asn1js@3.0.10:
+    resolution: {integrity: sha512-S2s3aOytiKdFRdulw2qPE51MzjzVOisppcVv7jVFR+Kw0kxwvFrDcYA0h7Ndqbmj0HkMIXYWaoj7fli8kgx1eg==}
+    engines: {node: '>=12.0.0'}
 
   autoprefixer@10.6.1:
     resolution: {integrity: sha512-cL1Qz6ADZhcEbny/8HPfe99J6HhNoYtpX2LFLIbhgGE7Q1hlQVkYFdetDN7Id3KiQxhDrHwzlHr/YQCnZ8+xSA==}
@@ -3678,10 +3741,6 @@ packages:
   brace-expansion@5.0.12:
     resolution: {integrity: sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ==}
     engines: {node: 20 || >=22}
-
-  braces@3.0.3:
-    resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
-    engines: {node: '>=8'}
 
   browserslist-to-esbuild@2.1.1:
     resolution: {integrity: sha512-KN+mty6C3e9AN8Z5dI1xeN15ExcRNeISoC3g7V0Kax/MMF9MSoYA2G7lkTTcVUFntiEjkpI0HNgqJC1NjdyNUw==}
@@ -4781,8 +4840,8 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@3.15.2:
-    resolution: {integrity: sha512-6EuL879VkRA+1Cz578mKMiKvjPNEuk6+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P+w==}
+  js-yaml@4.3.2:
+    resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
     hasBin: true
 
   jsc-safe-url@0.2.4:
@@ -5120,10 +5179,6 @@ packages:
       encoding:
         optional: true
 
-  node-forge@1.4.0:
-    resolution: {integrity: sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ==}
-    engines: {node: '>= 6.13.0'}
-
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
 
@@ -5455,6 +5510,13 @@ packages:
     resolution: {integrity: sha512-5nnx0yGyVUcY6t9RnWcARWtwT9F1D8O9rt08htPvnd49W1IgZtmLkhu9WfMzQj1cFxjHIO6connUNVW5k7AVyQ==}
     engines: {node: '>= 0.10'}
 
+  pvtsutils@1.3.6:
+    resolution: {integrity: sha512-PLgQXQ6H2FWCaeRak8vvk1GW462lMxB5s3Jm673N82zI4vqtVUPuZdffdZbPDFRoU8kAhItWFtPCWiPpp4/EDg==}
+
+  pvutils@1.2.0:
+    resolution: {integrity: sha512-BbubeCEyTuQjVMakvJQ/Sxbc93F2pwmbsxONT/ZRrwU7Ua38d8unYTwXpTVLAKJ4BDuH9IGztCjQcd/N/39Dvg==}
+    engines: {node: '>=16.0.0'}
+
   qrcode.react@4.2.0:
     resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
     peerDependencies:
@@ -5682,6 +5744,9 @@ packages:
     resolution: {integrity: sha512-Kko+Y5XQ6fM+Ce3dq3m9YGxnacYZYl9cA1wZjaF3Vbry2L3i1qVg8+CAgNPsXRArPMUMCaOR7oa9Nqntc43JKA==}
     engines: {node: '>= 20.19.0'}
 
+  reflect-metadata@0.2.2:
+    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
+
   regenerate-unicode-properties@10.2.2:
     resolution: {integrity: sha512-m03P+zhBeQd1RGnYxrGyDAPpWX/epKirLrp8e3qevZdVkKtnCrjjWczIbYc8+xd6vcTStVlqfycTx1KR4LOr0g==}
     engines: {node: '>=4'}
@@ -5887,9 +5952,6 @@ packages:
     resolution: {integrity: sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==}
     engines: {node: '>=6'}
 
-  sprintf-js@1.0.3:
-    resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
-
   stackframe@1.3.4:
     resolution: {integrity: sha512-oeVtt7eWQS+Na6F//S4kJ2K2VbRlS9D43mAlMyVpVWovy9o+jfgH8O9agzANzaiLjclA0oYzUXEM4PurhSUChw==}
 
@@ -6014,8 +6076,15 @@ packages:
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
+  tslib@1.14.1:
+    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
+
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  tsyringe@4.10.0:
+    resolution: {integrity: sha512-axr3IdNuVIxnaK5XGEUFTu3YmAQ6lllgrvqfEoR16g/HGnYY/6We4oWENtAnzK6/LpJ2ur9PAb80RBt7/U4ugw==}
+    engines: {node: '>= 6.0.0'}
 
   type-fest@0.21.3:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
@@ -7475,6 +7544,10 @@ snapshots:
     dependencies:
       postcss: 8.5.26
 
+  '@dieub/braces-depth-guard@3.0.3-pn.3':
+    dependencies:
+      fill-range: 7.1.1
+
   '@esbuild/aix-ppc64@0.28.1':
     optional: true
 
@@ -7555,9 +7628,8 @@ snapshots:
 
   '@expo-google-fonts/material-symbols@0.4.45': {}
 
-  '@expo/cli@57.0.23(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo-router@57.0.20)(expo@57.0.19)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)':
+  '@expo/cli@57.0.23(patch_hash=d8d6e72ce51d7ecf94ea41d4dd146f9c71b2c50f1a9b16984f86fd22099704b0)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo-router@57.0.20)(expo@57.0.19)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)':
     dependencies:
-      '@expo/code-signing-certificates': 0.0.6
       '@expo/config': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config-plugins': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/devcert': 1.2.1(supports-color@8.1.1)
@@ -7579,6 +7651,7 @@ snapshots:
       '@expo/spawn-async': 1.8.0
       '@expo/ws-tunnel': 2.0.0(ws@8.21.3)
       '@expo/xcpretty': 4.4.4
+      '@peculiar/x509': 2.1.0
       '@react-native/dev-middleware': 0.86.3(supports-color@8.1.1)
       accepts: 1.3.8
       agent-cli-detector: 0.1.7
@@ -7598,13 +7671,13 @@ snapshots:
       glob: 13.0.6
       lan-network: 0.2.1
       multitars: 1.0.2
-      node-forge: 1.4.0(patch_hash=fe645d091b328e2608493c3c144c1e1291e630f039a03476baee58ffad00673e)
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 4.0.7
       pretty-format: 29.7.0
       progress: 2.0.3
       prompts: 2.4.2
+      reflect-metadata: 0.2.2
       resolve-from: 5.0.0
       sandbox-cli-detector: 0.2.0
       semver: 7.8.5
@@ -7634,9 +7707,8 @@ snapshots:
       - utf-8-validate
     optional: true
 
-  '@expo/cli@57.0.23(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo-router@57.0.20)(expo@57.0.21)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)':
+  '@expo/cli@57.0.23(patch_hash=d8d6e72ce51d7ecf94ea41d4dd146f9c71b2c50f1a9b16984f86fd22099704b0)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo-router@57.0.20)(expo@57.0.21)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)':
     dependencies:
-      '@expo/code-signing-certificates': 0.0.6
       '@expo/config': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config-plugins': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/devcert': 1.2.1(supports-color@8.1.1)
@@ -7658,6 +7730,7 @@ snapshots:
       '@expo/spawn-async': 1.8.0
       '@expo/ws-tunnel': 2.0.0(ws@8.21.3)
       '@expo/xcpretty': 4.4.4
+      '@peculiar/x509': 2.1.0
       '@react-native/dev-middleware': 0.86.3(supports-color@8.1.1)
       accepts: 1.3.8
       agent-cli-detector: 0.1.7
@@ -7677,13 +7750,13 @@ snapshots:
       glob: 13.0.6
       lan-network: 0.2.1
       multitars: 1.0.2
-      node-forge: 1.4.0(patch_hash=fe645d091b328e2608493c3c144c1e1291e630f039a03476baee58ffad00673e)
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 4.0.7
       pretty-format: 29.7.0
       progress: 2.0.3
       prompts: 2.4.2
+      reflect-metadata: 0.2.2
       resolve-from: 5.0.0
       sandbox-cli-detector: 0.2.0
       semver: 7.8.5
@@ -7712,9 +7785,8 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@expo/cli@57.0.23(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo@57.0.21)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)':
+  '@expo/cli@57.0.23(patch_hash=d8d6e72ce51d7ecf94ea41d4dd146f9c71b2c50f1a9b16984f86fd22099704b0)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo@57.0.21)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)':
     dependencies:
-      '@expo/code-signing-certificates': 0.0.6
       '@expo/config': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config-plugins': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/devcert': 1.2.1(supports-color@8.1.1)
@@ -7736,6 +7808,7 @@ snapshots:
       '@expo/spawn-async': 1.8.0
       '@expo/ws-tunnel': 2.0.0(ws@8.21.3)
       '@expo/xcpretty': 4.4.4
+      '@peculiar/x509': 2.1.0
       '@react-native/dev-middleware': 0.86.3(supports-color@8.1.1)
       accepts: 1.3.8
       agent-cli-detector: 0.1.7
@@ -7755,13 +7828,13 @@ snapshots:
       glob: 13.0.6
       lan-network: 0.2.1
       multitars: 1.0.2
-      node-forge: 1.4.0(patch_hash=fe645d091b328e2608493c3c144c1e1291e630f039a03476baee58ffad00673e)
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 4.0.7
       pretty-format: 29.7.0
       progress: 2.0.3
       prompts: 2.4.2
+      reflect-metadata: 0.2.2
       resolve-from: 5.0.0
       sandbox-cli-detector: 0.2.0
       semver: 7.8.5
@@ -7788,10 +7861,6 @@ snapshots:
       - supports-color
       - typescript
       - utf-8-validate
-
-  '@expo/code-signing-certificates@0.0.6':
-    dependencies:
-      node-forge: 1.4.0(patch_hash=fe645d091b328e2608493c3c144c1e1291e630f039a03476baee58ffad00673e)
 
   '@expo/config-plugins@57.0.9(supports-color@8.1.1)(typescript@7.0.2)':
     dependencies:
@@ -8199,7 +8268,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.29.7
       chalk: 4.1.2
-      js-yaml: 3.15.2
+      js-yaml: 4.3.2
 
   '@grpc/grpc-js@1.14.5':
     dependencies:
@@ -8481,6 +8550,116 @@ snapshots:
   '@opentelemetry/semantic-conventions@1.43.0': {}
 
   '@oxc-project/types@0.147.0': {}
+
+  '@peculiar/asn1-asym-key@2.11.0':
+    dependencies:
+      '@peculiar/asn1-pkcs8': 2.11.0
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-cms@2.11.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      '@peculiar/asn1-x509-attr': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-csr@2.11.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-ecc@2.11.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-pfx@2.11.0':
+    dependencies:
+      '@peculiar/asn1-cms': 2.11.0
+      '@peculiar/asn1-pkcs8': 2.11.0
+      '@peculiar/asn1-rsa': 2.11.0
+      '@peculiar/asn1-schema': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-pkcs8@2.11.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-pkcs9@2.11.0':
+    dependencies:
+      '@peculiar/asn1-cms': 2.11.0
+      '@peculiar/asn1-pfx': 2.11.0
+      '@peculiar/asn1-pkcs8': 2.11.0
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      '@peculiar/asn1-x509-attr': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-rsa@2.11.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-schema@2.11.0':
+    dependencies:
+      '@peculiar/utils': 2.0.3
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-x509-attr@2.11.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-x509-post-quantum@2.11.0':
+    dependencies:
+      '@peculiar/asn1-asym-key': 2.11.0
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/asn1-x509@2.11.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/utils': 2.0.3
+      asn1js: 3.0.10
+      tslib: 2.8.1
+
+  '@peculiar/utils@2.0.3':
+    dependencies:
+      tslib: 2.8.1
+
+  '@peculiar/x509@2.1.0':
+    dependencies:
+      '@peculiar/asn1-cms': 2.11.0
+      '@peculiar/asn1-csr': 2.11.0
+      '@peculiar/asn1-ecc': 2.11.0
+      '@peculiar/asn1-pkcs9': 2.11.0
+      '@peculiar/asn1-rsa': 2.11.0
+      '@peculiar/asn1-schema': 2.11.0
+      '@peculiar/asn1-x509': 2.11.0
+      '@peculiar/asn1-x509-post-quantum': 2.11.0
+      pvtsutils: 1.3.6
+      tslib: 2.8.1
+      tsyringe: 4.10.0
 
   '@prometheus-io/client@0.16.1':
     dependencies:
@@ -9449,9 +9628,7 @@ snapshots:
 
   arg@5.0.2: {}
 
-  argparse@1.0.10:
-    dependencies:
-      sprintf-js: 1.0.3(patch_hash=debf410791b79b3b70f6c7375c42fe2d2f7376f86a8955a84339bee6d7b5f13c)
+  argparse@2.0.1: {}
 
   aria-hidden@1.2.6:
     dependencies:
@@ -9460,6 +9637,12 @@ snapshots:
   array-timsort@1.0.3: {}
 
   asap@2.0.6: {}
+
+  asn1js@3.0.10:
+    dependencies:
+      pvtsutils: 1.3.6
+      pvutils: 1.2.0
+      tslib: 2.8.1
 
   autoprefixer@10.6.1(postcss@8.5.26):
     dependencies:
@@ -9696,10 +9879,6 @@ snapshots:
   brace-expansion@5.0.12:
     dependencies:
       balanced-match: 4.0.4
-
-  braces@3.0.3(patch_hash=5aa496affd788b0a802be02edbf7cd4f55965b98f801887033a356b4c4019c58):
-    dependencies:
-      fill-range: 7.1.1
 
   browserslist-to-esbuild@2.1.1(browserslist@4.28.8):
     dependencies:
@@ -10615,7 +10794,7 @@ snapshots:
   expo@57.0.19(95eda5dbcfb37134cfbbac2817b141eb):
     dependencies:
       '@babel/runtime': 7.29.7
-      '@expo/cli': 57.0.23(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo-router@57.0.20)(expo@57.0.19)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)
+      '@expo/cli': 57.0.23(patch_hash=d8d6e72ce51d7ecf94ea41d4dd146f9c71b2c50f1a9b16984f86fd22099704b0)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo-router@57.0.20)(expo@57.0.19)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config-plugins': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/devtools': 57.0.1(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)
@@ -10659,7 +10838,7 @@ snapshots:
   expo@57.0.21(95eda5dbcfb37134cfbbac2817b141eb):
     dependencies:
       '@babel/runtime': 7.29.7
-      '@expo/cli': 57.0.23(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo-router@57.0.20)(expo@57.0.21)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)
+      '@expo/cli': 57.0.23(patch_hash=d8d6e72ce51d7ecf94ea41d4dd146f9c71b2c50f1a9b16984f86fd22099704b0)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo-router@57.0.20)(expo@57.0.21)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config-plugins': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/devtools': 57.0.1(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)
@@ -10702,7 +10881,7 @@ snapshots:
   expo@57.0.21(acf89a0eccc2c31144134d70815eeed8):
     dependencies:
       '@babel/runtime': 7.29.7
-      '@expo/cli': 57.0.23(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo@57.0.21)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)
+      '@expo/cli': 57.0.23(patch_hash=d8d6e72ce51d7ecf94ea41d4dd146f9c71b2c50f1a9b16984f86fd22099704b0)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.15)(expo-constants@57.0.17)(expo-font@57.0.3)(expo@57.0.21)(react-dom@19.2.8(react@19.2.8))(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/config-plugins': 57.0.9(supports-color@8.1.1)(typescript@7.0.2)
       '@expo/devtools': 57.0.1(react-native-tvos@0.86.2-0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react-native-tvos@0.86.2-0)(react@19.2.8)(supports-color@8.1.1))(react@19.2.8)
@@ -11063,10 +11242,9 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@3.15.2:
+  js-yaml@4.3.2:
     dependencies:
-      argparse: 1.0.10
-      esprima: 4.0.1
+      argparse: 2.0.1
 
   jsc-safe-url@0.2.4: {}
 
@@ -11370,7 +11548,7 @@ snapshots:
 
   micromatch@4.0.8:
     dependencies:
-      braces: 3.0.3(patch_hash=5aa496affd788b0a802be02edbf7cd4f55965b98f801887033a356b4c4019c58)
+      braces: '@dieub/braces-depth-guard@3.0.3-pn.3'
       picomatch: 2.3.2
 
   mime-db@1.52.0: {}
@@ -11445,8 +11623,6 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
     optional: true
-
-  node-forge@1.4.0(patch_hash=fe645d091b328e2608493c3c144c1e1291e630f039a03476baee58ffad00673e): {}
 
   node-int64@0.4.0: {}
 
@@ -11842,6 +12018,12 @@ snapshots:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
 
+  pvtsutils@1.3.6:
+    dependencies:
+      tslib: 2.8.1
+
+  pvutils@1.2.0: {}
+
   qrcode.react@4.2.0(react@19.2.8):
     dependencies:
       react: 19.2.8
@@ -12139,6 +12321,8 @@ snapshots:
 
   readdirp@5.1.1: {}
 
+  reflect-metadata@0.2.2: {}
+
   regenerate-unicode-properties@10.2.2:
     dependencies:
       regenerate: 1.4.2
@@ -12378,8 +12562,6 @@ snapshots:
 
   split-on-first@1.1.0: {}
 
-  sprintf-js@1.0.3(patch_hash=debf410791b79b3b70f6c7375c42fe2d2f7376f86a8955a84339bee6d7b5f13c): {}
-
   stackframe@1.3.4: {}
 
   stacktrace-parser@0.1.11:
@@ -12484,7 +12666,13 @@ snapshots:
   tr46@0.0.3:
     optional: true
 
+  tslib@1.14.1: {}
+
   tslib@2.8.1: {}
+
+  tsyringe@4.10.0:
+    dependencies:
+      tslib: 1.14.1
 
   type-fest@0.21.3: {}
 

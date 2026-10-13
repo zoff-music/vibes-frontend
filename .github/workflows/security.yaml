@@ -23,13 +23,7 @@ jobs:
       - name: Verify locked security patches
         run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Audit dependencies
-        # These exact advisories are fixed by committed pnpm patches; see patches/README.md.
-        # Remove each exception with its patch when a fixed upstream version is available.
-        run: >-
-          pnpm audit --audit-level=moderate
-          --ignore GHSA-86w9-cpqp-85rv
-          --ignore GHSA-vfj7-8cjw-p6xm
-          --ignore GHSA-hp3w-g68c-fv3c
+        run: pnpm audit --audit-level=moderate
 
   semgrep:
     if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
