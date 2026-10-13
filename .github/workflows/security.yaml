@@ -20,8 +20,16 @@ jobs:
           node-version: "26.8.1"
       - name: Install pnpm
         run: npm install --global pnpm@12.3.4
+      - name: Verify locked security patches
+        run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Audit dependencies
-        run: pnpm audit --audit-level=moderate
+        # These exact advisories are fixed by committed pnpm patches; see patches/README.md.
+        # Remove each exception with its patch when a fixed upstream version is available.
+        run: >-
+          pnpm audit --audit-level=moderate
+          --ignore GHSA-86w9-cpqp-85rv
+          --ignore GHSA-vfj7-8cjw-p6xm
+          --ignore GHSA-hp3w-g68c-fv3c
 
   semgrep:
     if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'

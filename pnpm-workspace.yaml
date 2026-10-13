@@ -5,6 +5,14 @@ catalog:
   '@tailwindcss/vite': 4.3.3
   tailwindcss: 4.3.3
 overrides:
+  morgan: 1.12.1
+  'brace-expansion@>=4.0.0': 5.0.12
+  '@grpc/grpc-js': 1.14.5
+  source-map-js: 1.2.2
+  proxy-addr: 2.0.8
+  compression: 1.8.2
+  'postcss-selector-parser@7': 7.1.6
+  'shell-quote@1': 1.11.0
   body-parser: 1.20.6
   esbuild: 0.28.1
   js-yaml: 3.15.2
@@ -90,5 +98,13 @@ minimumReleaseAgeExclude:
   - expo-modules-core@57.0.17
   - expo-modules-jsi@57.1.0
 patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
+  node-forge@1.4.0: patches/node-forge@1.4.0.patch
   react-native-screens@4.26.2: patches/react-native-screens@4.26.2.patch
   react-native-webview@14.0.1: patches/react-native-webview@14.0.1.patch
+  sprintf-js@1.0.3: patches/sprintf-js@1.0.3.patch
+auditConfig:
+  ignoreGhsas:
+    - GHSA-86w9-cpqp-85rv
+    - GHSA-vfj7-8cjw-p6xm
+    - GHSA-hp3w-g68c-fv3c

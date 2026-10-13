@@ -10,10 +10,8 @@ const reactRouterSourceDirectories = [
   'apps/tv/src/tizen',
 ];
 const nativeSourceDirectories = ['apps/mobile/src', 'apps/tv/src'];
-const requestMethodPattern = '(?:delete|get|patch|post|put|roomExists)';
-const literalRequestCallPattern = new RegExp(
-  `\\.[ \\t]*${requestMethodPattern}[ \\t]*\\([ \\t\\r\\n]*['"]\\/`,
-);
+const literalRequestCallPattern =
+  /\.[ \t]*(?:delete|get|patch|post|put|roomExists)[ \t]*\([ \t\r\n]*['"]\//;
 const requestCapabilityPattern =
   /\buse[A-Z][A-Za-z0-9]*(?:Request|Requests)\s*\(/;
 const requestFactoryPattern =
@@ -27,10 +25,6 @@ function listSourceFiles(directory) {
     if (entry.isDirectory()) return listSourceFiles(path);
     return ['.ts', '.tsx'].includes(extname(entry.name)) ? [path] : [];
   });
-}
-
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function hasClientRequestCall(source) {
@@ -61,11 +55,11 @@ function hasClientRequestCall(source) {
     }
   }
 
-  return [...clientNames].some((clientName) =>
-    new RegExp(
-      `\\b${escapeRegExp(clientName)}\\.${requestMethodPattern}\\s*\\(`,
-    ).test(source),
-  );
+  return [
+    ...source.matchAll(
+      /\b([A-Za-z_$][\w$]*)\.(?:delete|get|patch|post|put|roomExists)\s*\(/g,
+    ),
+  ].some((match) => clientNames.has(match[1]));
 }
 
 const violations = [];
