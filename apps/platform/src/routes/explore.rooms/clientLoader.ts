@@ -1,4 +1,4 @@
-import { apiV3 } from '@vibes/api';
+import { apiV3, createPublicRoomPageRequest } from '@vibes/api';
 import { type ClientLoaderFunctionArgs, data, redirect } from 'react-router';
 import {
   publicRoomPageSize,
@@ -7,20 +7,20 @@ import {
   roomBrowserRedirect,
 } from './search';
 
+const getPublicRooms = createPublicRoomPageRequest(apiV3);
+
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const search = readRoomBrowserSearch(request);
-  const [error, result] = await apiV3.get(
-    '/rooms/public',
+  const [error, result] = await getPublicRooms(
     {
-      $search: {
-        q: search.q,
-        roomType: search.roomType,
-        live: search.live,
-        from: search.from,
-        to: search.from + publicRoomPageSize - 1,
-      },
+      q: search.q,
+      roomType: search.roomType,
+      live: search.live,
+      from: search.from,
+      to: search.from + publicRoomPageSize - 1,
     },
-    { retry: 0, signal: request.signal },
+    { signal: request.signal },
+    new URL(request.url).searchParams.get('intent') === 'prefetch',
   );
 
   if (error || !result) {

@@ -1,14 +1,25 @@
+import type { StatsV2 } from '@vibes/models';
 import { AnimatedNumber } from '@vibes/ui/web';
-import { useLoaderData } from 'react-router';
+import { Suspense } from 'react';
+import { Await, useLoaderData } from 'react-router';
 import { useExperience } from '../../../hooks/useExperience';
 import type { HomeLoaderData } from '../loader';
 
 export function CommunityStats() {
   const { data } = useLoaderData<HomeLoaderData>();
   const { stats } = data;
-  const isWatch = useExperience() === 'WATCH';
 
-  if (!stats) return null;
+  return (
+    <Suspense fallback={<StatsSummary stats={null} />}>
+      <Await resolve={stats} errorElement={<StatsSummary stats={null} />}>
+        {(result: StatsV2 | null) => <StatsSummary stats={result} />}
+      </Await>
+    </Suspense>
+  );
+}
+
+function StatsSummary({ stats }: { stats: StatsV2 | null }) {
+  const isWatch = useExperience() === 'WATCH';
 
   return (
     <section
@@ -21,7 +32,8 @@ export function CommunityStats() {
             Rooms
           </dt>
           <dd className="mt-1 font-pixel text-2xl text-theme tabular-nums sm:text-5xl">
-            <AnimatedNumber value={stats.totalRooms} />
+            {stats && <AnimatedNumber value={stats.totalRooms} />}
+            {!stats && <UnavailableCount />}
           </dd>
         </div>
         <div className="border-theme border-l px-3 sm:px-6">
@@ -29,7 +41,8 @@ export function CommunityStats() {
             {isWatch ? 'Videos in queues' : 'Songs in queues'}
           </dt>
           <dd className="mt-1 font-pixel text-2xl text-theme tabular-nums sm:text-5xl">
-            <AnimatedNumber value={stats.totalPlaylistItems} />
+            {stats && <AnimatedNumber value={stats.totalPlaylistItems} />}
+            {!stats && <UnavailableCount />}
           </dd>
         </div>
         <div className="border-theme border-l pl-3 sm:pl-6">
@@ -41,10 +54,20 @@ export function CommunityStats() {
             {isWatch ? 'Watchers' : 'Listeners'}
           </dt>
           <dd className="mt-1 font-pixel text-2xl text-theme tabular-nums sm:text-5xl">
-            <AnimatedNumber value={stats.totalListeners} />
+            {stats && <AnimatedNumber value={stats.totalListeners} />}
+            {!stats && <UnavailableCount />}
           </dd>
         </div>
       </dl>
     </section>
+  );
+}
+
+function UnavailableCount() {
+  return (
+    <>
+      <span aria-hidden="true">—</span>
+      <span className="sr-only">Not available yet</span>
+    </>
   );
 }

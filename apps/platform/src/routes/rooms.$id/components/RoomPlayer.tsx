@@ -37,6 +37,7 @@ interface RoomPlayerProps {
   roomId: string;
   displayRoom: RoomV2 | null;
   onAddPlaylistItem: () => void;
+  onAddPlaylistItemIntent: () => void;
   onOpenCast: () => void;
   initialPlayback?: PlaybackStateV2;
   initialPreloadPlaylistItems?: PlaylistItem[];
@@ -114,6 +115,7 @@ export const RoomPlayer = React.memo(
     roomId,
     displayRoom,
     onAddPlaylistItem,
+    onAddPlaylistItemIntent,
     onOpenCast,
     initialPlayback,
     initialPreloadPlaylistItems = [],
@@ -687,6 +689,7 @@ export const RoomPlayer = React.memo(
           onSkip={skip}
           onReset={reset}
           onAddPlaylistItem={onAddPlaylistItem}
+          onAddPlaylistItemIntent={onAddPlaylistItemIntent}
           onOpenCast={onOpenCast}
           showCast={showCast}
           isCasting={isConnected}

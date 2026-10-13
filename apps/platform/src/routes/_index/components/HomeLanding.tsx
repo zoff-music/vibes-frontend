@@ -138,10 +138,7 @@ export function HomeLanding({
           </div>
         </div>
       </div>
-      <PublicRoomDiscovery
-        onJoinRoom={onJoinRoom}
-        rooms={data.publicRooms ?? []}
-      />
+      <PublicRoomDiscovery onJoinRoom={onJoinRoom} rooms={data.publicRooms} />
       {!watch && (
         <ProductIntroduction onGeneratePlaylist={onGeneratePlaylist} />
       )}
