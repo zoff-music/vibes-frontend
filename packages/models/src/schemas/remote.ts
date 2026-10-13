@@ -1,44 +1,5 @@
 import { z } from 'zod';
 
-const remoteStatusShape = {
-  enabled: z.boolean(),
-  id: z.string().default(''),
-  currentRoomId: z.string().default(''),
-  currentSongId: z.string().default(''),
-  playbackPositionMs: z.number().default(0),
-  playbackIsPlaying: z.boolean().default(false),
-  playbackObservedAt: z.string().default(''),
-  online: z.boolean(),
-  paired: z.boolean().default(false),
-};
-
-/** @deprecated V1 remote status. Use remoteStatusV2Schema for current clients. */
-export const remoteStatusSchema = z.compile(z.object(remoteStatusShape));
-export type RemoteStatus = z.infer<typeof remoteStatusSchema>;
-
-/** @deprecated V1 pairing response. Use remoteSessionV2Schema for current clients. */
-export const remoteSessionSchema = z.compile(
-  z.object({ ...remoteStatusShape, controllerToken: z.string() }),
-);
-export type RemoteSession = z.infer<typeof remoteSessionSchema>;
-
-/** @deprecated V1 pairing state. Use remotePairingV2Schema for current clients. */
-export const remotePairingSchema = z.compile(
-  z.object({
-    id: z.string(),
-    currentRoomId: z.string().default(''),
-    currentSongId: z.string().default(''),
-    playbackPositionMs: z.number().default(0),
-    playbackIsPlaying: z.boolean().default(false),
-    playbackObservedAt: z.string().default(''),
-    pairingExpiresAt: z.string(),
-    lastSeenAt: z.string(),
-    pairingToken: z.string(),
-    pairingCode: z.string(),
-  }),
-);
-export type RemotePairing = z.infer<typeof remotePairingSchema>;
-
 export const remotePairingRequestSchema = z.compile(
   z.object({
     pairingToken: z.string().optional(),
@@ -47,36 +8,17 @@ export const remotePairingRequestSchema = z.compile(
 );
 export type RemotePairingRequest = z.infer<typeof remotePairingRequestSchema>;
 
-/** @deprecated V1 remote update. Use remoteUpdateRequestV2Schema for current clients. */
-export const remoteUpdateRequestSchema = z.compile(
+export const remoteStatusV2Schema = z.compile(
   z.object({
-    roomId: z.string().optional(),
-    currentSongId: z.string().optional(),
-    playbackPositionMs: z.number().optional(),
-    playbackIsPlaying: z.boolean().optional(),
-  }),
-);
-export type RemoteUpdateRequest = z.infer<typeof remoteUpdateRequestSchema>;
-
-/** @deprecated V1 remote SSE event. Use remoteEventV2Schema for current clients. */
-export const remoteEventSchema = z.compile(
-  z.object({
-    type: z.enum(['remote_room_update', 'remote_state_update']),
-    roomId: z.string().default(''),
-    origin: z.enum(['machine', 'controller']),
-    online: z.boolean().default(true),
-    paired: z.boolean().default(false),
-    currentSongId: z.string().default(''),
+    enabled: z.boolean(),
+    id: z.string().default(''),
+    currentRoomId: z.string().default(''),
+    currentPlaylistItemId: z.string().default(''),
     playbackPositionMs: z.number().default(0),
     playbackIsPlaying: z.boolean().default(false),
     playbackObservedAt: z.string().default(''),
-  }),
-);
-export type RemoteEvent = z.infer<typeof remoteEventSchema>;
-
-export const remoteStatusV2Schema = z.compile(
-  remoteStatusSchema.omit({ currentSongId: true }).extend({
-    currentPlaylistItemId: z.string().default(''),
+    online: z.boolean(),
+    paired: z.boolean().default(false),
   }),
 );
 export type RemoteStatusV2 = z.infer<typeof remoteStatusV2Schema>;
@@ -87,22 +29,42 @@ export const remoteSessionV2Schema = z.compile(
 export type RemoteSessionV2 = z.infer<typeof remoteSessionV2Schema>;
 
 export const remotePairingV2Schema = z.compile(
-  remotePairingSchema.omit({ currentSongId: true }).extend({
+  z.object({
+    id: z.string(),
+    currentRoomId: z.string().default(''),
     currentPlaylistItemId: z.string().default(''),
+    playbackPositionMs: z.number().default(0),
+    playbackIsPlaying: z.boolean().default(false),
+    playbackObservedAt: z.string().default(''),
+    pairingExpiresAt: z.string(),
+    lastSeenAt: z.string(),
+    pairingToken: z.string(),
+    pairingCode: z.string(),
   }),
 );
 export type RemotePairingV2 = z.infer<typeof remotePairingV2Schema>;
 
 export const remoteUpdateRequestV2Schema = z.compile(
-  remoteUpdateRequestSchema.omit({ currentSongId: true }).extend({
+  z.object({
+    roomId: z.string().optional(),
     currentPlaylistItemId: z.string().optional(),
+    playbackPositionMs: z.number().optional(),
+    playbackIsPlaying: z.boolean().optional(),
   }),
 );
 export type RemoteUpdateRequestV2 = z.infer<typeof remoteUpdateRequestV2Schema>;
 
 export const remoteEventV2Schema = z.compile(
-  remoteEventSchema.omit({ currentSongId: true }).extend({
+  z.object({
+    type: z.enum(['remote_room_update', 'remote_state_update']),
+    roomId: z.string().default(''),
+    origin: z.enum(['machine', 'controller']),
+    online: z.boolean().default(true),
+    paired: z.boolean().default(false),
     currentPlaylistItemId: z.string().default(''),
+    playbackPositionMs: z.number().default(0),
+    playbackIsPlaying: z.boolean().default(false),
+    playbackObservedAt: z.string().default(''),
   }),
 );
 export type RemoteEventV2 = z.infer<typeof remoteEventV2Schema>;

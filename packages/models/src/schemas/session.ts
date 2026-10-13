@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { roomSchema, roomV2Schema } from './room';
+import { roomV2Schema } from './room';
 
 export const displayNameMaxLength = 30;
 
@@ -14,20 +14,14 @@ export const roomUserSchema = z.compile(
 );
 export type RoomUser = z.infer<typeof roomUserSchema>;
 
-/** @deprecated V1 session response. Use sessionResponseV2Schema for current clients. */
-export const sessionResponseSchema = z.compile(
+export const sessionResponseV2Schema = z.compile(
   z.object({
     userId: z.string(),
     sessionId: z.string(),
     nickname: z.string().nullable().optional(),
     isAdmin: z.boolean(),
-    room: roomSchema,
+    room: roomV2Schema,
   }),
-);
-export type SessionResponse = z.infer<typeof sessionResponseSchema>;
-
-export const sessionResponseV2Schema = z.compile(
-  sessionResponseSchema.extend({ room: roomV2Schema }),
 );
 export type SessionResponseV2 = z.infer<typeof sessionResponseV2Schema>;
 

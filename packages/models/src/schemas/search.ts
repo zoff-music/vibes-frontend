@@ -39,40 +39,6 @@ export type ProviderSearchResponse = z.infer<
   typeof providerSearchResponseSchema
 >;
 
-/** @deprecated Legacy provider response. Use providerItemSchema for v2. */
-export const searchResultSchema = z.compile(
-  z.object({
-    id: z.string(),
-    source: sourceTypeSchema,
-    providerUrl: z.string().optional(),
-    title: z.string(),
-    channelTitle: z.string().optional(),
-    thumbnailUrl: z.string().optional(),
-    duration: z.string().optional(),
-    playbackRestriction: playbackRestrictionSchema,
-  }),
-);
-/** @deprecated Legacy provider response. Use ProviderItem for v2. */
-export type SearchResult = z.infer<typeof searchResultSchema>;
-
-/** @deprecated Legacy provider playlist response. Use providerPlaylistSchema for v2. */
-export const musicPlaylistSchema = z.compile(
-  z.object({
-    id: z.string(),
-    source: sourceTypeSchema,
-    title: z.string().optional(),
-    tracks: z.array(searchResultSchema),
-    truncated: z.boolean(),
-    skippedEmbeddingCount: z.int().min(0).optional(),
-    skippedMadeForKidsCount: z.int().min(0).optional(),
-  }),
-);
-/** @deprecated Legacy provider playlist response. Use ProviderPlaylist for v2. */
-export type MusicPlaylist = z.infer<typeof musicPlaylistSchema>;
-
-export const searchResponseSchema = z.compile(z.array(searchResultSchema));
-export type SearchResponse = z.infer<typeof searchResponseSchema>;
-
 export const searchQuerySchema = z.compile(
   z.object({
     q: z.string().trim().min(3),
