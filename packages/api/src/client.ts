@@ -21,6 +21,8 @@ import {
   eventCursorSchema,
   generatedPlaylistRequestSchema,
   generatedRoomRequestV2Schema,
+  itemsQueryV3Schema,
+  itemsResultV3Schema,
   messageResponseSchema,
   optionalSseQuerySchema,
   playbackFailureRequestV2Schema,
@@ -256,14 +258,18 @@ const v2Endpoints = {
     },
   },
   '/rooms/{id}/playlist-items': {
+    /** @deprecated Use v3 GET /rooms/{id}/items and its data envelope. */
     get: { response: playlistItemsListSchema },
+    /** @deprecated Use v3 POST /rooms/{id}/items. */
     post: {
       request: addPlaylistItemRequestSchema,
       response: addPlaylistItemResponseSchema,
     },
   },
   '/rooms/{id}/playlist-items/{playlistItemId}': {
+    /** @deprecated Use v3 POST /rooms/{id}/items/{itemId}. */
     post: { response: emptyObjectSchema },
+    /** @deprecated Use v3 DELETE /rooms/{id}/items/{itemId}. */
     delete: { response: emptyObjectSchema },
   },
   '/rooms/{id}/playlists': {
@@ -327,6 +333,17 @@ const v2Endpoints = {
 } as const satisfies RequestDefinitions;
 
 const v3Endpoints = {
+  '/rooms/{id}/items': {
+    get: { $search: itemsQueryV3Schema, response: itemsResultV3Schema },
+    post: {
+      request: addPlaylistItemRequestSchema,
+      response: addPlaylistItemResponseSchema,
+    },
+  },
+  '/rooms/{id}/items/{itemId}': {
+    post: { response: emptyObjectSchema },
+    delete: { response: emptyObjectSchema },
+  },
   '/rooms/public': {
     get: {
       $search: publicRoomSearchSchema,

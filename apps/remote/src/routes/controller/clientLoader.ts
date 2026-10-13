@@ -28,7 +28,7 @@ export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
   const roomId = remote.currentRoomId;
   const results = await Promise.all([
     client.v2.get('/rooms/{id}', { id: roomId }),
-    client.v2.get('/rooms/{id}/playlist-items', { id: roomId }),
+    client.v3.get('/rooms/{id}/items', { id: roomId, $search: {} }),
     client.v2.get('/rooms/{id}/states', { id: roomId }),
     client.get('/providers', null),
   ]);
@@ -38,6 +38,6 @@ export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
     remote,
     room: results[0][1],
     roomError: results[0][0],
-    playlistItems: results[1][1],
+    playlistItems: results[1][1]?.data ?? null,
   });
 }

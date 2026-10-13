@@ -32,6 +32,30 @@ export const playlistItemSchema = /* @__PURE__ */ z.compile(
 );
 export type PlaylistItem = z.infer<typeof playlistItemSchema>;
 
+export const itemsQueryV3Schema = /* @__PURE__ */ z.compile(
+  z.object({
+    from: z.optional(z.int().check(z.minimum(1))),
+    to: z.optional(z.int().check(z.minimum(1))),
+    sourceType: z.optional(sourceTypeSchema),
+    excludeCurrent: z.optional(z.boolean()),
+  }),
+);
+
+export const itemsResultV3Schema = /* @__PURE__ */ z.compile(
+  z.object({
+    data: z.array(playlistItemSchema),
+    from: z.int(),
+    to: z.int(),
+    reqFrom: z.int(),
+    reqTo: z.int(),
+    count: z.int().check(z.minimum(0)),
+    total: z.int().check(z.minimum(0)),
+  }),
+);
+
+export type ItemsQueryV3 = z.infer<typeof itemsQueryV3Schema>;
+export type ItemsResultV3 = z.infer<typeof itemsResultV3Schema>;
+
 export const addPlaylistItemRequestSchema = /* @__PURE__ */ z.compile(
   z.object({
     sourceType: sourceTypeSchema,

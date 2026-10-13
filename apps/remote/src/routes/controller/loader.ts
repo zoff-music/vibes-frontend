@@ -35,7 +35,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const roomId = remote.currentRoomId;
   const results = await Promise.all([
     client.v2.get('/rooms/{id}', { id: roomId }, { headers }),
-    client.v2.get('/rooms/{id}/playlist-items', { id: roomId }, { headers }),
+    client.v3.get(
+      '/rooms/{id}/items',
+      { id: roomId, $search: {} },
+      { headers },
+    ),
     client.v2.get('/rooms/{id}/states', { id: roomId }, { headers }),
     client.get('/providers', null, { headers }),
   ]);
@@ -45,6 +49,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     remote,
     room: results[0][1],
     roomError: results[0][0],
-    playlistItems: results[1][1],
+    playlistItems: results[1][1]?.data ?? null,
   });
 }

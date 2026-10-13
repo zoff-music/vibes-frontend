@@ -63,18 +63,15 @@ export async function clientAction({
     const playlistItemId = String(formData.get('playlistItemId') ?? '');
     const [error] =
       intent === 'vote'
-        ? await client.v2.post(
-            '/rooms/{id}/playlist-items/{playlistItemId}',
-            { id: roomId, playlistItemId },
+        ? await client.v3.post(
+            '/rooms/{id}/items/{itemId}',
+            { id: roomId, itemId: playlistItemId },
             {},
           )
-        : await client.v2.delete(
-            '/rooms/{id}/playlist-items/{playlistItemId}',
-            {
-              id: roomId,
-              playlistItemId,
-            },
-          );
+        : await client.v3.delete('/rooms/{id}/items/{itemId}', {
+            id: roomId,
+            itemId: playlistItemId,
+          });
     return errorResult(intent, error);
   }
 
@@ -118,8 +115,8 @@ export async function clientAction({
     if (!isSourceType(sourceType)) {
       return { error: 'That music provider is not supported.', intent };
     }
-    const [error] = await client.v2.post(
-      '/rooms/{id}/playlist-items',
+    const [error] = await client.v3.post(
+      '/rooms/{id}/items',
       { id: roomId },
       {
         publisher: String(formData.get('publisher') ?? ''),

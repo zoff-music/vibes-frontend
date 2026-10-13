@@ -14,7 +14,9 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const embedBasePath = `/${(process.env.EMBED_BASE_PATH ?? '/embed').replace(/^\/+|\/+$/g, '')}`;
   const cspNonce = (context as RootContext | undefined)?.cspNonce;
   const headers: Record<string, string> = {};
+
   if (cookieHeader) headers.Cookie = cookieHeader;
+
   const serverApi = getServerApi(request);
   // Optional session UI must not hold every document through retry backoff.
   const options = {
@@ -22,16 +24,22 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     retry: 0,
     signal: request.signal,
   };
+  const hasSession = (cookieHeader ?? '')
+    .split(';')
+    .some((cookie) => /^session=.+/.test(cookie.trim()));
+
   const [remoteResult, profileResult] = await Promise.all([
-    serverApi.v2.get('/remotes', null, options),
-    serverApi.get('/sessions', null, options),
+    hasSession ? serverApi.v2.get('/remotes', null, options) : null,
+    hasSession ? serverApi.get('/sessions', null, options) : null,
   ]);
-  const [remoteError, remote] = remoteResult;
-  const [profileError, profile] = profileResult;
+  const [remoteError, remote] = remoteResult ?? [null, null];
+  const [profileError, profile] = profileResult ?? [null, null];
+
   const remoteStatus: RemoteStatusV2 =
     remoteError || !remote ? createEmptyRemoteStatus() : remote;
   const sessionProfile: SessionProfile | null =
     profileError || !profile ? null : profile;
+
   return {
     debug: process.env.VITE_DEBUG === 'true',
     theme,

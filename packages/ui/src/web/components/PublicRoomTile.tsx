@@ -1,5 +1,6 @@
 import type { PublicRoomV3 } from '@vibes/models';
 import type { MouseEvent } from 'react';
+import { Link } from 'react-router';
 import { getRoomLabels } from '../../shared/room';
 
 interface PublicRoomTileProps {
@@ -26,8 +27,9 @@ export function PublicRoomTile({ room, onJoin }: PublicRoomTileProps) {
   };
 
   return (
-    <a
-      href={`/${encodeURIComponent(room.id)}`}
+    <Link
+      to={`/${encodeURIComponent(room.id)}`}
+      prefetch="intent"
       onClick={handleClick}
       aria-label={`Join ${room.name}, ${room.listenerCount} ${room.listenerCount === 1 ? labels.participant : labels.participants}, ${room.playlistItemCount} ${room.playlistItemCount === 1 ? labels.item : labels.items}`}
       className="flex min-h-16 w-full items-center gap-3 rounded-2xl border border-theme bg-theme-surface px-4 py-3 text-left shadow-sm transition-colors hover:border-theme-strong hover:bg-theme-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
@@ -47,6 +49,6 @@ export function PublicRoomTile({ room, onJoin }: PublicRoomTileProps) {
       >
         Join →
       </span>
-    </a>
+    </Link>
   );
 }

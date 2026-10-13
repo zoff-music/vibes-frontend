@@ -45,7 +45,7 @@ async function loadSnapshot(
   const [roomResult, playlistItemsResult, playbackResult, providersResult] =
     await Promise.all([
       client.v2.get('/rooms/{id}', { id: roomId }),
-      client.v2.get('/rooms/{id}/playlist-items', { id: roomId }),
+      client.v3.get('/rooms/{id}/items', { id: roomId, $search: {} }),
       client.v2.get('/rooms/{id}/states', { id: roomId }),
       client.get('/providers', null),
     ]);
@@ -69,7 +69,7 @@ async function loadSnapshot(
       playback,
       providers: enabledProviders,
       room,
-      playlistItems,
+      playlistItems: playlistItems.data,
     },
   ];
 }

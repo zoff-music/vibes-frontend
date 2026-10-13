@@ -97,8 +97,8 @@ export function createQueueAddRequests(client: ApiClient): QueueAddRequests {
       playlistItem: AddPlaylistItemRequest,
       options?: ApiRequestOptions,
     ) =>
-      client.v2.post(
-        '/rooms/{id}/playlist-items',
+      client.v3.post(
+        '/rooms/{id}/items',
         { id: roomId },
         playlistItem,
         options,

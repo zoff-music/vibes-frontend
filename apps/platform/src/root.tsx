@@ -74,7 +74,7 @@ export function Layout({ children }: Props) {
   const [cspNonce] = useState(() => loaderData?.cspNonce);
   const themeClass =
     themeId === 'dark' ? 'dark' : themeId === 'light' ? 'theme-light' : '';
-  const initialDataJson = JSON.stringify(loaderData ?? {});
+  const initialDataJson = JSON.stringify({ theme: themeId });
 
   return (
     <html

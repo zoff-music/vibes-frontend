@@ -10,6 +10,7 @@ import { loader } from './loader';
 
 export { clientAction } from './clientAction';
 export { meta } from './meta';
+export { shouldRevalidate } from './shouldRevalidate';
 export { loader };
 
 export default function Home() {

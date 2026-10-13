@@ -54,13 +54,13 @@ export async function loader({
 
   const snapshotResults = await Promise.all([
     tizenApi.v2.get('/rooms/{id}', { id: roomId }),
-    tizenApi.v2.get('/rooms/{id}/playlist-items', { id: roomId }),
+    tizenApi.v3.get('/rooms/{id}/items', { id: roomId, $search: {} }),
     tizenApi.v2.get('/rooms/{id}/states', { id: roomId }),
   ]);
   const requestError =
     snapshotResults[0][0] ?? snapshotResults[1][0] ?? snapshotResults[2][0];
   const room = snapshotResults[0][1];
-  const playlistItems = snapshotResults[1][1];
+  const playlistItems = snapshotResults[1][1]?.data;
   const playback = snapshotResults[2][1];
   if (requestError || !room || !playlistItems || !playback) {
     return {
