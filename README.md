@@ -4,6 +4,12 @@
 
 # Vibes Frontend
 
+Production images are published by the per-app `*-release.yaml` workflows only
+after a pull request merges into `main`. Each workflow builds that exact merged
+commit, retains its app-specific path filters and `ASSET_ORIGIN` setting, and
+uses a private temporary Docker configuration removed after success or failure.
+Direct pushes, unmerged PR closures, and manual dispatches do not publish images.
+
 The TypeScript workspace for [Zoff](https://zoff.me): free shared music rooms
 for YouTube and SoundCloud, with no listener account required. Build a queue
 together, vote on songs, chat, and listen on the web, phones, tablets, and TVs.
