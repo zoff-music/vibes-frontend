@@ -1,12 +1,12 @@
 import type { PublicRoomV3 } from '@vibes/models';
-import { classNames } from '@vibes/shared';
 import { PublicRoomTile } from '@vibes/ui/web';
-import { Link } from 'react-router';
+import { Suspense } from 'react';
+import { Await, Link } from 'react-router';
 import { useExperience } from '../../../hooks/useExperience';
 
 interface PublicRoomDiscoveryProps {
   onJoinRoom: (roomId: string) => void;
-  rooms: PublicRoomV3[];
+  rooms: Promise<PublicRoomV3[] | null>;
 }
 
 export function PublicRoomDiscovery({
@@ -15,7 +15,6 @@ export function PublicRoomDiscovery({
 }: PublicRoomDiscoveryProps) {
   const roomType = useExperience();
   const watch = roomType === 'WATCH';
-  const visibleRooms = rooms.filter((room) => room.roomType === roomType);
 
   return (
     <section aria-labelledby="live-rooms-heading" className="mt-6">
@@ -42,23 +41,61 @@ export function PublicRoomDiscovery({
           Browse all public <span aria-hidden="true">→</span>
         </Link>
       </div>
-      {visibleRooms.length === 0 && (
-        <p className="text-sm text-theme-muted">
-          No rooms are live right now. Browse public rooms or start your own.
-        </p>
-      )}
-
-      <div
-        className={classNames(
-          'grid gap-2',
-          visibleRooms.length === 2 && 'sm:grid-cols-2',
-          visibleRooms.length >= 3 && 'sm:grid-cols-3',
-        )}
-      >
-        {visibleRooms.map((room) => (
-          <PublicRoomTile key={room.id} room={room} onJoin={onJoinRoom} />
-        ))}
+      <div className="h-56 sm:h-20">
+        <Suspense fallback={<PublicRoomsPlaceholder />}>
+          <Await
+            resolve={rooms}
+            errorElement={
+              <p className="text-sm text-theme-muted">
+                Live rooms are temporarily unavailable.
+              </p>
+            }
+          >
+            {(result: PublicRoomV3[] | null) => (
+              <div className="grid h-full grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-1">
+                {result
+                  ?.filter((room) => room.roomType === roomType)
+                  .map((room) => (
+                    <PublicRoomTile
+                      key={room.id}
+                      room={room}
+                      onJoin={onJoinRoom}
+                    />
+                  ))}
+                {result?.length === 0 && (
+                  <p className="text-sm text-theme-muted sm:col-span-3">
+                    No rooms are live right now. Browse public rooms or start
+                    your own.
+                  </p>
+                )}
+                {result === null && (
+                  <p className="text-sm text-theme-muted sm:col-span-3">
+                    Live rooms are temporarily unavailable.
+                  </p>
+                )}
+              </div>
+            )}
+          </Await>
+        </Suspense>
       </div>
     </section>
+  );
+}
+
+function PublicRoomsPlaceholder() {
+  return (
+    <div
+      role="status"
+      className="grid h-full grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-1"
+    >
+      <span className="sr-only">Loading live rooms</span>
+      {[0, 1, 2].map((slot) => (
+        <div
+          key={slot}
+          aria-hidden="true"
+          className="rounded-2xl border border-theme bg-theme-surface motion-safe:animate-pulse"
+        />
+      ))}
+    </div>
   );
 }

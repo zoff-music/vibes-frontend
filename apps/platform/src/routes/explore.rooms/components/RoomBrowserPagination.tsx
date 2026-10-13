@@ -1,5 +1,5 @@
 import type { PublicRoomResultV3 } from '@vibes/models';
-import { Link } from 'react-router';
+import { Link, useFetcher } from 'react-router';
 import {
   publicRoomPageSize,
   type RoomBrowserSearch,
@@ -20,6 +20,18 @@ export function RoomBrowserPagination({
   search,
   pending,
 }: RoomBrowserPaginationProps) {
+  const prefetcher = useFetcher();
+  const prefetch = (from: number) => {
+    if (pending || prefetcher.state !== 'idle') return;
+
+    const url = new URL(
+      roomBrowserUrl({ ...search, from }),
+      window.location.origin,
+    );
+    url.searchParams.set('intent', 'prefetch');
+    void prefetcher.load(`${url.pathname}${url.search}`);
+  };
+
   const hasPrevious = search.from > 0;
   const hasNext = result.to + 1 < result.total;
   const pages = Math.ceil(result.total / publicRoomPageSize);
@@ -39,6 +51,15 @@ export function RoomBrowserPagination({
           className={pageLinkClassName}
           preventScrollReset
           rel="prev"
+          onPointerEnter={() =>
+            prefetch(Math.max(0, search.from - publicRoomPageSize))
+          }
+          onFocus={() =>
+            prefetch(Math.max(0, search.from - publicRoomPageSize))
+          }
+          onTouchStart={() =>
+            prefetch(Math.max(0, search.from - publicRoomPageSize))
+          }
           aria-disabled={pending}
           onClick={(event) => {
             if (pending) event.preventDefault();
@@ -78,6 +99,9 @@ export function RoomBrowserPagination({
           className={pageLinkClassName}
           preventScrollReset
           rel="next"
+          onPointerEnter={() => prefetch(search.from + publicRoomPageSize)}
+          onFocus={() => prefetch(search.from + publicRoomPageSize)}
+          onTouchStart={() => prefetch(search.from + publicRoomPageSize)}
           aria-disabled={pending}
           onClick={(event) => {
             if (pending) event.preventDefault();

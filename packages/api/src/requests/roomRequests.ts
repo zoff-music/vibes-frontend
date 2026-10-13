@@ -7,6 +7,8 @@ import type {
   PlaybackStateV2,
   PlaylistItem,
   Providers,
+  PublicRoomResultV3,
+  PublicRoomSearch,
   PublicRoomV3,
   RoomGenerationUpdate,
   RoomNameReservation,
@@ -16,7 +18,36 @@ import type {
   SessionResponseV2,
   SkipPlaylistItemResponse,
 } from '@vibes/models';
-import type { ApiClient, ApiRequestOptions, ApiResult } from '../client';
+import type {
+  ApiClient,
+  ApiRequestOptions,
+  ApiResult,
+  ApiV3Client,
+} from '../client';
+import { createPublicRequestCache } from './cache';
+
+export function createPublicRoomPageRequest(client: ApiV3Client) {
+  const read = createPublicRequestCache<PublicRoomResultV3>(5_000);
+
+  return (
+    search: PublicRoomSearch,
+    options?: ApiRequestOptions,
+    prefetch = false,
+  ) =>
+    read(
+      JSON.stringify([
+        search.roomType,
+        search.q,
+        search.live,
+        search.from,
+        search.to,
+      ]),
+      (signal) =>
+        client.get('/rooms/public', { $search: search }, { retry: 0, signal }),
+      options?.signal,
+      !prefetch,
+    );
+}
 
 export interface RoomReadRequests {
   fetchRoom: (roomId: string, options?: ApiRequestOptions) => ApiResult<RoomV2>;

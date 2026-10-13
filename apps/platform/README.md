@@ -33,15 +33,19 @@ HTML, and avoid a persistent full-page blur filter around the player and queue.
 Terminal queue rendering and generation progress load only when those views
 are needed. Both provider players still prepare immediately.
 
-Room documents serialize only the first 13 playlist items, enough for the 12-row
-initial queue and the current item, alongside the full upcoming-item count.
+Room documents and client navigation request the first 12 upcoming playlist
+items, excluding the current item, alongside the full upcoming-item count.
 Playback metadata remains complete and both providers still prepare immediately.
 The first item for each provider is retained separately to warm inactive players
 even when that item falls outside the queue preview.
 After the SSR data initializes the stores, the existing live connection supplies
 the full ordered queue snapshot. Keep the initial count until that snapshot
-arrives. Client navigation and reconnect revalidation still load the full queue;
-an empty live snapshot must not fall back to stale SSR rows.
+arrives. Reconnect revalidation still loads the full queue to recover missed
+events; an empty live snapshot must not fall back to stale preview rows.
+
+The add-to-queue dialog and its action module preload together on pointer,
+keyboard or touch intent. Opening the dialog uses those same module imports.
+Chat subscriptions and unread counts remain outside both deferred dialogs.
 
 ### Return to a room
 
@@ -423,6 +427,22 @@ compatible without a separate jump link.
 
 Optional session and remote reads do not retry during SSR. Homepage reads also
 run on the server without retries.
+Homepage statistics and live rooms stream independently after the hero. Their
+fallbacks reserve the same space as the resolved content, including three room
+slots on phones and one row on larger screens. Empty and failed responses retain
+that space. Music and Watch requests remain isolated by room type.
+
+Room creation navigation requests providers directly, without a second server
+loader round trip. Browser provider configuration is cached for 60 seconds and
+concurrent reads share one request. Cancellation releases each caller separately;
+the underlying request aborts when no callers remain. Errors are never cached.
+Playback, permissions, chat and live counts do not use this configuration cache.
+
+Room-browser pagination prefetches only the approached Previous or Next page
+through its client loader. A successful prefetched page expires after five
+seconds and is consumed once by navigation; it is not a general live-room cache.
+The request key includes search, room type, live filter and both page bounds.
+Navigation can join an in-flight prefetch without downloading the page twice.
 Preserve request cancellation and timeouts. The local pixel font is preloaded, and the
 shared server compresses production responses. Do not introduce external font
 stylesheets or request backoff delays on public page loads.

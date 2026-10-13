@@ -27,9 +27,9 @@ export async function loader({
   }
 
   const serverApi = getServerApi(request);
-  const requestHeaders = getRequestHeaders(request);
   const [err, providers] = await serverApi.get('/providers', null, {
-    headers: requestHeaders,
+    retry: 0,
+    signal: request.signal,
   });
   if (err || !providers) {
     return {

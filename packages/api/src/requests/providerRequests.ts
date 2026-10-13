@@ -5,10 +5,26 @@ import type {
   AddPlaylistResponse,
   ProviderItem,
   ProviderPlaylist,
+  Providers,
   RoomType,
   SourceType,
 } from '@vibes/models';
 import type { ApiClient, ApiRequestOptions, ApiResult } from '../client';
+import { api } from '../client';
+import { createPublicRequestCache } from './cache';
+
+export function createProvidersRequest(client: ApiClient) {
+  const read = createPublicRequestCache<Providers>(60_000);
+
+  return (options?: ApiRequestOptions): ApiResult<Providers> =>
+    read(
+      'providers',
+      (signal) => client.get('/providers', null, { retry: 0, signal }),
+      options?.signal,
+    );
+}
+
+export const getProviders = /* @__PURE__ */ createProvidersRequest(api);
 
 export function createProviderSearchRequest(client: ApiClient) {
   return async (

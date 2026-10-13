@@ -149,7 +149,7 @@ const LazyDeviceSelector = lazy(async () => {
   };
 });
 
-const LazyAddToQueueModal = lazy(async () => {
+async function loadAddToQueueModal() {
   const [module] = await Promise.all([
     import('../../components/queue/AddToQueueModal'),
     import('./playlist/action'),
@@ -157,7 +157,13 @@ const LazyAddToQueueModal = lazy(async () => {
   return {
     default: module.AddToQueueModal,
   };
-});
+}
+
+const LazyAddToQueueModal = lazy(loadAddToQueueModal);
+
+function preloadAddToQueueModal() {
+  void safeWrapAsync(loadAddToQueueModal());
+}
 
 interface DeferredModalLoadingProps {
   label: string;
@@ -691,6 +697,7 @@ export default function RoomV2() {
                     roomId={id}
                     displayRoom={displayRoom}
                     onAddPlaylistItem={handleAddPlaylistItem}
+                    onAddPlaylistItemIntent={preloadAddToQueueModal}
                     onOpenCast={handleOpenCast}
                     initialPlayback={loaderData.playback}
                     providers={loaderData.providers}
@@ -787,6 +794,9 @@ export default function RoomV2() {
             }
             className="fixed right-5 bottom-5 z-40 h-14 w-14 rounded-full p-0 shadow-primary-popover"
             onClick={handleAddPlaylistItem}
+            onPointerEnter={preloadAddToQueueModal}
+            onFocus={preloadAddToQueueModal}
+            onTouchStart={preloadAddToQueueModal}
             size="none"
             title={displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'}
             variant="primary"
