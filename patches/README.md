@@ -5,7 +5,7 @@ patches are pinned in `pnpm-workspace.yaml` and the lockfile.
 
 ## Expo signing
 
-The `@expo/cli@57.0.23` patch removes its use of `node-forge` and
+The `@expo/cli@57.0.29` patch removes its use of `node-forge` and
 `@expo/code-signing-certificates`. Matching version-scoped overrides remove those
 dependencies only from the patched CLI version.
 

@@ -16,7 +16,7 @@
     "@vibes/ui": "workspace:*"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.11",
+    "@biomejs/biome": "2.5.15",
     "typescript": "7.0.2"
   }
 }

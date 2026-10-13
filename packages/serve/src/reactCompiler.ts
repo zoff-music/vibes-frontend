@@ -1,10 +1,11 @@
 import { createRequire } from 'node:module';
 import type { Logger } from 'babel-plugin-react-compiler';
+import type { Plugin } from 'vite';
 import babel from 'vite-plugin-babel';
 
 const require = createRequire(import.meta.url);
 
-export function reactCompiler() {
+export function reactCompiler(): Plugin {
   const diagnostics = new Set<string>();
   const logger: Logger = {
     logEvent(filename, event) {
