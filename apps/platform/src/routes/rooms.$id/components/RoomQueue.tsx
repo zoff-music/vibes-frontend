@@ -8,16 +8,8 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import {
-  TerminalButton,
-  TerminalFeedback,
-  TerminalSection,
-} from '@vibes/ui/konami';
-import {
-  NowPlayingPlaylistItem,
-  QueueList,
-  useProgressiveList,
-} from '@vibes/ui/web';
+import { NowPlayingPlaylistItem, QueueList } from '@vibes/ui/web';
+import { domMax, LazyMotion, m as motion } from 'framer-motion';
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
 import { useChatPreferenceStore } from '../../../stores/chatPreferenceStore';
@@ -28,6 +20,11 @@ import { PlaybackProgress } from './PlaybackProgress';
 const LazyChatConversation = lazy(async () => {
   const module = await import('@vibes/ui/web/components/ChatConversation');
   return { default: module.ChatConversation };
+});
+
+const LazyTerminalQueue = lazy(async () => {
+  const module = await import('./TerminalQueue');
+  return { default: module.TerminalQueue };
 });
 
 interface RoomQueueProps {
@@ -121,9 +118,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     );
     const queuedPlaylistItemCount =
       initialQueuedPlaylistItemCount ?? visibleQueuedPlaylistItemCount;
-    const [terminalVisibleCount, terminalSentinelRef] = useProgressiveList(
-      queuedPlaylistItemCount,
-    );
 
     /* 3. Handlers */
     const handleVote = React.useCallback(
@@ -169,236 +163,150 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       setVotingPlaylistItemId(null);
     }, [voteFetcher.data, voteFetcher.state, votingPlaylistItemId]);
 
-    const formatTime = (ms: number) => {
-      const seconds = Math.floor(ms / 1000);
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      return `${m}:${s.toString().padStart(2, '0')}`;
-    };
-
     if (terminalMode) {
-      const queuedPlaylistItems = displayPlaylistItems.filter(
-        (playlistItem) => playlistItem.id !== currentPlaylistItemData?.id,
-      );
-      const visibleQueuedPlaylistItems = queuedPlaylistItems.slice(
-        0,
-        terminalVisibleCount,
-      );
-
       return (
-        <div className="space-y-4 lg:col-span-3 lg:min-h-0 lg:overflow-y-auto">
-          <TerminalSection
-            label="SERVER SIGNAL"
-            status={isPlaying ? 'PLAYING' : 'PAUSED'}
-          >
-            {isHost && <TerminalFeedback>YOU ARE HOSTING</TerminalFeedback>}
-            {!currentPlaylistItemData && (
-              <TerminalFeedback>
-                NO TRACK MOUNTED. QUEUE A SIGNAL TO BEGIN.
-              </TerminalFeedback>
-            )}
-            {currentPlaylistItemData && (
-              <>
-                <div className="grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-1 text-xs uppercase">
-                  <span className="text-[#71f5ad]/55">TRACK</span>
-                  <strong className="min-w-0 truncate text-[#e0ffef]">
-                    {currentPlaylistItemData.title}
-                  </strong>
-                  <span className="text-[#71f5ad]">
-                    {currentPlaylistItemData.sourceType.toUpperCase()}
-                  </span>
-                  <span className="text-[#71f5ad]/55">ARTIST</span>
-                  <span className="min-w-0 truncate text-[#a6ffd0]/70">
-                    {currentPlaylistItemData.publisher || 'UNKNOWN'}
-                  </span>
-                  <span className="text-[#a6ffd0]/55 tabular-nums">
-                    {formatTime(currentPlaylistItemData.duration * 1000)}
-                  </span>
-                </div>
-                <PlaybackProgress
-                  durationMs={currentPlaylistItemData.duration * 1000}
-                  isSSR={isSSR}
-                  terminalMode
-                />
-              </>
-            )}
-          </TerminalSection>
-
-          <TerminalSection
-            label="QUEUE DIRECTORY"
-            status={`${queuedPlaylistItems.length.toString().padStart(2, '0')} WAITING`}
-          >
-            <div className="space-y-1.5">
-              {queuedPlaylistItems.length === 0 && (
-                <TerminalFeedback>END OF QUEUE.</TerminalFeedback>
-              )}
-              {visibleQueuedPlaylistItems.map((playlistItem, index) => (
-                <article
-                  className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 border border-[#71f5ad]/20 bg-black/15 px-2.5 py-2.5 text-xs"
-                  key={playlistItem.id}
-                >
-                  <span className="text-[#71f5ad]/45 tabular-nums">
-                    {(index + 1).toString().padStart(2, '0')}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-[#dffff0] uppercase">
-                      {playlistItem.title}
-                    </p>
-                    <p className="mt-1 truncate text-[#a6ffd0]/50 text-[0.6rem] uppercase">
-                      {playlistItem.publisher || 'UNKNOWN'} /{' '}
-                      {playlistItem.sourceType} /{' '}
-                      {formatTime(playlistItem.duration * 1000)}
-                    </p>
-                  </div>
-                  <div className="flex gap-1">
-                    <TerminalButton
-                      aria-label={`Vote for ${playlistItem.title}`}
-                      className="px-2 py-1"
-                      disabled={Boolean(votingPlaylistItemId)}
-                      onClick={() => handleVote(playlistItem.id)}
-                    >
-                      +{playlistItem.voteCount ?? 0}
-                    </TerminalButton>
-                    {isAdmin && (
-                      <TerminalButton
-                        aria-label={`Remove ${playlistItem.title}`}
-                        className="px-2 py-1"
-                        onClick={() => handleRemove(playlistItem.id)}
-                        variant="danger"
-                      >
-                        DEL
-                      </TerminalButton>
-                    )}
-                  </div>
-                </article>
-              ))}
-              {terminalVisibleCount < queuedPlaylistItems.length && (
-                <div
-                  aria-hidden="true"
-                  className="h-10"
-                  ref={terminalSentinelRef}
-                />
-              )}
+        <Suspense
+          fallback={
+            <div className="min-h-96" role="status">
+              Loading queue…
             </div>
-          </TerminalSection>
-        </div>
+          }
+        >
+          <LazyTerminalQueue
+            playlistItems={displayPlaylistItems}
+            currentPlaylistItem={currentPlaylistItemData ?? null}
+            isPlaying={isPlaying}
+            isHost={isHost}
+            isSSR={isSSR}
+            isAdmin={isAdmin ?? false}
+            votingPlaylistItemId={votingPlaylistItemId}
+            onVote={handleVote}
+            onRemove={handleRemove}
+          />
+        </Suspense>
       );
     }
 
     return (
-      <div className="mt-6 flex min-h-0 min-w-0 flex-col lg:col-span-2 lg:mt-0 lg:h-full">
-        <div className="relative flex min-h-0 flex-1 flex-col">
-          {/* Now Playing (Integrated into list style) */}
-          {currentPlaylistItemData && (
-            <div className="mb-2 shrink-0">
-              <NowPlayingPlaylistItem
-                isHost={isHost}
-                playlistItem={currentPlaylistItemData}
-                isPlaying={isPlaying}
-              />
+      <LazyMotion features={domMax}>
+        <div className="mt-6 flex min-h-0 min-w-0 flex-col lg:col-span-2 lg:mt-0 lg:h-full">
+          <div className="relative flex min-h-0 flex-1 flex-col">
+            {/* Now Playing (Integrated into list style) */}
+            {currentPlaylistItemData && (
+              <div className="mb-2 shrink-0">
+                <NowPlayingPlaylistItem
+                  isHost={isHost}
+                  playlistItem={currentPlaylistItemData}
+                  isPlaying={isPlaying}
+                />
 
-              <PlaybackProgress
-                durationMs={currentPlaylistItemData.duration * 1000}
-                isSSR={isSSR}
-              />
-            </div>
-          )}
+                <PlaybackProgress
+                  durationMs={currentPlaylistItemData.duration * 1000}
+                  isSSR={isSSR}
+                />
+              </div>
+            )}
 
-          {/* Up Next List */}
-          <div className="flex min-h-0 flex-1 flex-col">
-            <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
-              {!chatEnabled && (
-                <h2 className="py-4 font-display text-2xs text-theme-muted tracking-label">
-                  Up next ({queuedPlaylistItemCount})
-                </h2>
-              )}
-              {chatEnabled && <h2 className="sr-only">Queue and chat</h2>}
-              {chatEnabled && (
-                <button
-                  type="button"
-                  aria-pressed={!chat.open}
-                  onClick={() => chat.selectChat(false)}
-                  className={classNames(
-                    'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                    !chat.open
-                      ? 'border-secondary text-theme'
-                      : 'border-transparent text-theme-muted',
-                  )}
-                >
-                  Up next ({queuedPlaylistItemCount})
-                </button>
-              )}
-              {chatEnabled && (
-                <button
-                  type="button"
-                  aria-pressed={chat.open}
-                  onClick={() => chat.selectChat(true)}
-                  className={classNames(
-                    'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                    chat.open
-                      ? 'border-secondary text-theme'
-                      : 'border-transparent text-theme-muted',
-                  )}
-                >
-                  {chat.unread > 0 ? `Chat (${chat.unread})` : 'Chat'}
-                </button>
-              )}
-            </div>
-            <div
-              className={classNames(
-                'min-h-0 lg:flex lg:flex-1 lg:flex-col',
-                chat.open && 'flex h-96 flex-col lg:h-auto lg:flex-1',
-              )}
-            >
-              {chat.open && (
-                <div className="flex min-h-0 flex-1 flex-col">
-                  <Suspense
-                    fallback={
-                      <div
-                        className="panel-surface flex flex-1 items-center justify-center rounded-2xl p-4 text-theme-muted"
+            {/* Up Next List */}
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
+                {!chatEnabled && (
+                  <h2 className="py-4 font-display text-2xs text-theme-muted tracking-label">
+                    Up next ({queuedPlaylistItemCount})
+                  </h2>
+                )}
+                {chatEnabled && <h2 className="sr-only">Queue and chat</h2>}
+                {chatEnabled && (
+                  <button
+                    type="button"
+                    aria-pressed={!chat.open}
+                    onClick={() => chat.selectChat(false)}
+                    className={classNames(
+                      'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                      !chat.open
+                        ? 'border-secondary text-theme'
+                        : 'border-transparent text-theme-muted',
+                    )}
+                  >
+                    Up next ({queuedPlaylistItemCount})
+                  </button>
+                )}
+                {chatEnabled && (
+                  <button
+                    type="button"
+                    aria-pressed={chat.open}
+                    onClick={() => chat.selectChat(true)}
+                    className={classNames(
+                      'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                      chat.open
+                        ? 'border-secondary text-theme'
+                        : 'border-transparent text-theme-muted',
+                    )}
+                  >
+                    {chat.unread > 0 ? `Chat (${chat.unread})` : 'Chat'}
+                  </button>
+                )}
+              </div>
+              <div
+                className={classNames(
+                  'min-h-0 lg:flex lg:flex-1 lg:flex-col',
+                  chat.open && 'flex h-96 flex-col lg:h-auto lg:flex-1',
+                )}
+              >
+                {chat.open && (
+                  <div className="flex min-h-0 flex-1 flex-col">
+                    <Suspense
+                      fallback={
+                        <div
+                          className="panel-surface flex flex-1 items-center justify-center rounded-2xl p-4 text-theme-muted"
+                          role="status"
+                        >
+                          Loading chat...
+                        </div>
+                      }
+                    >
+                      <LazyChatConversation
+                        messages={chat.messages}
+                        active={chat.open}
+                        onSend={sendMessage}
+                        sending={chatFetcher.state !== 'idle'}
+                        error={chatFetcher.data?.error || chatError}
+                      />
+                    </Suspense>
+                  </div>
+                )}
+                {!chat.open && (
+                  <motion.div
+                    layoutScroll
+                    className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[scrollbar-gutter:stable]"
+                  >
+                    <QueueList
+                      playlistItems={displayPlaylistItems.filter(
+                        (s) => s.id !== currentPlaylistItemData?.id,
+                      )}
+                      roomId={roomId}
+                      onVote={handleVote}
+                      onRemove={handleRemove}
+                      onEmptyClick={onAddPlaylistItem}
+                      isAdmin={isAdmin}
+                      votingPlaylistItemId={votingPlaylistItemId}
+                    />
+                    {queuedPlaylistItemCount >
+                      visibleQueuedPlaylistItemCount && (
+                      <p
+                        className="py-4 text-center text-sm text-theme-muted"
                         role="status"
                       >
-                        Loading chat...
-                      </div>
-                    }
-                  >
-                    <LazyChatConversation
-                      messages={chat.messages}
-                      active={chat.open}
-                      onSend={sendMessage}
-                      sending={chatFetcher.state !== 'idle'}
-                      error={chatFetcher.data?.error || chatError}
-                    />
-                  </Suspense>
-                </div>
-              )}
-              {!chat.open && (
-                <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
-                  <QueueList
-                    playlistItems={displayPlaylistItems.filter(
-                      (s) => s.id !== currentPlaylistItemData?.id,
+                        Connecting to load the rest of the queue…
+                      </p>
                     )}
-                    roomId={roomId}
-                    onVote={handleVote}
-                    onRemove={handleRemove}
-                    onEmptyClick={onAddPlaylistItem}
-                    isAdmin={isAdmin}
-                    votingPlaylistItemId={votingPlaylistItemId}
-                  />
-                  {queuedPlaylistItemCount > visibleQueuedPlaylistItemCount && (
-                    <p
-                      className="py-4 text-center text-sm text-theme-muted"
-                      role="status"
-                    >
-                      Connecting to load the rest of the queue…
-                    </p>
-                  )}
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </LazyMotion>
     );
   },
 );

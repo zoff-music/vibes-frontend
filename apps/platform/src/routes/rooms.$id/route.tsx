@@ -42,7 +42,7 @@ import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
 import { RoomErrorView } from './components/RoomErrorView';
-import { RoomGenerationProgress } from './components/RoomGenerationProgress';
+import type { RoomGenerationProgressProps } from './components/RoomGenerationProgress';
 import { RoomHeader } from './components/RoomHeader';
 import { RoomPlayer } from './components/RoomPlayer';
 import { RoomQueue } from './components/RoomQueue';
@@ -65,6 +65,30 @@ export {
 };
 
 const GENERATION_REFRESH_DELAY_MS = 5 * 60 * 1000;
+
+const LazyRoomGenerationProgress = lazy(async () => {
+  const module = await import('./components/RoomGenerationProgress');
+  return { default: module.RoomGenerationProgress };
+});
+
+function RoomGenerationProgress(props: RoomGenerationProgressProps) {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="mx-auto flex h-full min-h-64 items-center justify-center p-8 text-theme-muted"
+          role="status"
+        >
+          {props.isFailed
+            ? 'Playlist generation stopped'
+            : 'Preparing your playlist…'}
+        </div>
+      }
+    >
+      <LazyRoomGenerationProgress {...props} />
+    </Suspense>
+  );
+}
 
 const LazyPartyScreenJoinCard = lazy(async () => {
   const module = await import('./components/PartyScreenJoinCard');

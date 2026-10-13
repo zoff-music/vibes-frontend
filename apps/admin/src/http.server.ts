@@ -1,4 +1,7 @@
-import { type ApiFetchLifecycle, createApiClientWithBaseUrl } from '@vibes/api';
+import {
+  type ApiFetchLifecycle,
+  createAdminApiClientWithBaseUrl,
+} from '@vibes/api';
 import { createTracedApiFetchLifecycle } from '@vibes/serve';
 import { safeWrap } from '@vibes/shared';
 
@@ -74,7 +77,7 @@ export function getServerApi(
     createTracedApiFetchLifecycle(serviceName),
     options.fetchLifecycle,
   );
-  return createApiClientWithBaseUrl(baseUrl, {
+  return createAdminApiClientWithBaseUrl(baseUrl, {
     customHeaders: {
       // Preserve the ingress-appended client chain for internal login limiting.
       ...(request?.headers.get('x-forwarded-for') && {

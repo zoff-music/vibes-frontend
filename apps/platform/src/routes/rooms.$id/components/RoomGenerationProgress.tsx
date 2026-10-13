@@ -8,7 +8,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 
 const TAKING_LONGER_DELAY_MS = 2.5 * 60 * 1000;
 
-interface RoomGenerationProgressProps {
+export interface RoomGenerationProgressProps {
   error?: string;
   isFailed: boolean;
   terminalMode?: boolean;

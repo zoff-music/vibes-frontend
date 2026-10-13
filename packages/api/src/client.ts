@@ -11,19 +11,6 @@ import {
   addPlaylistItemResponseSchema,
   addPlaylistRequestV2Schema,
   addPlaylistResponseSchema,
-  adminCreateUserRequestSchema,
-  adminListenerUsageSchema,
-  adminLoginRequestSchema,
-  adminMessageUsageSchema,
-  adminRoomResultV2Schema,
-  adminRoomSearchV2Schema,
-  adminRoomsV2Schema,
-  adminSearchUsageSchema,
-  adminSessionResponseSchema,
-  adminUpdateRoomRequestSchema,
-  adminUpdateUserRequestSchema,
-  adminUserSchema,
-  adminUsersSchema,
   castingTokenResponseSchema,
   connectedSchema,
   createCastingTokenRequestSchema,
@@ -35,7 +22,6 @@ import {
   generatedPlaylistRequestSchema,
   generatedRoomRequestV2Schema,
   messageResponseSchema,
-  optionalAdminMessageUsageSearchSchema,
   optionalSseQuerySchema,
   playbackFailureRequestV2Schema,
   playbackStateV2Schema,
@@ -237,52 +223,6 @@ const endpoints = {
       response: emptyObjectSchema,
     },
   },
-  '/admin/sessions': {
-    get: {
-      response: adminSessionResponseSchema,
-    },
-    post: {
-      request: adminLoginRequestSchema,
-      response: adminSessionResponseSchema,
-    },
-    delete: {
-      response: adminSessionResponseSchema,
-    },
-  },
-  '/admin/users': {
-    get: {
-      response: adminUsersSchema,
-    },
-    post: {
-      request: adminCreateUserRequestSchema,
-      response: adminUserSchema,
-    },
-  },
-  '/admin/users/{id}': {
-    patch: {
-      request: adminUpdateUserRequestSchema,
-      response: emptyObjectSchema,
-    },
-    delete: {
-      response: emptyObjectSchema,
-    },
-  },
-  '/admin/messages/usage': {
-    get: {
-      $search: optionalAdminMessageUsageSearchSchema,
-      response: adminMessageUsageSchema,
-    },
-  },
-  '/admin/searches/usage': {
-    get: {
-      response: adminSearchUsageSchema,
-    },
-  },
-  '/admin/listeners/usage': {
-    get: {
-      response: adminListenerUsageSchema,
-    },
-  },
 } as const satisfies RequestDefinitions;
 
 const v2Endpoints = {
@@ -384,27 +324,6 @@ const v2Endpoints = {
       },
     },
   },
-  '/admin/rooms': {
-    get: {
-      $search: adminRoomSearchV2Schema,
-      response: adminRoomResultV2Schema,
-    },
-  },
-  '/admin/rooms/{id}': {
-    patch: {
-      request: adminUpdateRoomRequestSchema,
-      response: adminRoomsV2Schema,
-    },
-    delete: { response: adminRoomsV2Schema },
-  },
-  '/admin/events': {
-    sse: {
-      events: {
-        connected: connectedSchema,
-        admin_rooms_update: adminRoomsV2Schema,
-      },
-    },
-  },
 } as const satisfies RequestDefinitions;
 
 const v3Endpoints = {
@@ -463,6 +382,32 @@ export type ApiClient = RequestClient<typeof endpoints> & {
 export type ApiV2Client = RequestClient<typeof v2Endpoints>;
 export type ApiV3Client = RequestClient<typeof v3Endpoints>;
 
+export function createRequestClient<const Endpoints extends RequestDefinitions>(
+  baseUrl: string,
+  basePath: string,
+  endpoints: Endpoints,
+  options: ApiClientOptions = {},
+): RequestClient<Endpoints> {
+  const { customHeaders = {}, fetcher, fetchLifecycle } = options;
+  const normalizedBaseUrl = baseUrl.endsWith(basePath)
+    ? baseUrl
+    : baseUrl + basePath;
+  const resolvedBaseUrl = normalizedBaseUrl.replace(/([^:]\/)\/+/g, '$1');
+
+  return new RequestClient({
+    fetchProvider: createApiFetchProvider(fetchLifecycle, fetcher),
+    hostname: resolvedBaseUrl,
+    baseUrl: resolvedBaseUrl,
+    endpoints,
+    validation: true,
+    fetchOpts: {
+      timeout: getRestTimeoutMs(),
+      credentials: 'include',
+      headers: { ...customHeaders },
+    },
+  });
+}
+
 function resolveApiBaseUrl(baseUrl: string) {
   const normalized = baseUrl.endsWith(API_BASE_PATH)
     ? baseUrl
@@ -476,18 +421,12 @@ export function createApiClientWithBaseUrl(
 ): ApiClient {
   const { customHeaders = {}, fetcher, fetchLifecycle } = options;
   const resolvedBaseUrl = resolveApiBaseUrl(baseUrl);
-  const requestClient = new RequestClient({
-    fetchProvider: createApiFetchProvider(fetchLifecycle, fetcher),
-    hostname: resolvedBaseUrl,
-    baseUrl: resolvedBaseUrl,
+  const requestClient = createRequestClient(
+    baseUrl,
+    API_BASE_PATH,
     endpoints,
-    validation: true,
-    fetchOpts: {
-      timeout: getRestTimeoutMs(),
-      credentials: 'include',
-      headers: { ...customHeaders },
-    },
-  });
+    options,
+  );
 
   return Object.assign(requestClient, {
     v2: createApiV2ClientWithBaseUrl(
@@ -520,30 +459,13 @@ export function createApiClient(customHeaders: Record<string, string> = {}) {
   return createApiClientWithBaseUrl(API_URL, { customHeaders });
 }
 
-export const api = createApiClient();
+export const api = /* @__PURE__ */ createApiClient();
 
 export function createApiV2ClientWithBaseUrl(
   baseUrl: string,
   options: ApiClientOptions = {},
 ): ApiV2Client {
-  const { customHeaders = {}, fetcher, fetchLifecycle } = options;
-  const normalizedBaseUrl = baseUrl.endsWith(API_V2_BASE_PATH)
-    ? baseUrl
-    : `${baseUrl}${API_V2_BASE_PATH}`;
-  const resolvedBaseUrl = normalizedBaseUrl.replace(/([^:]\/)\/+/g, '$1');
-
-  return new RequestClient({
-    fetchProvider: createApiFetchProvider(fetchLifecycle, fetcher),
-    hostname: resolvedBaseUrl,
-    baseUrl: resolvedBaseUrl,
-    endpoints: v2Endpoints,
-    validation: true,
-    fetchOpts: {
-      timeout: getRestTimeoutMs(),
-      credentials: 'include',
-      headers: { ...customHeaders },
-    },
-  });
+  return createRequestClient(baseUrl, API_V2_BASE_PATH, v2Endpoints, options);
 }
 
 export function createApiV2Client(
@@ -552,30 +474,13 @@ export function createApiV2Client(
   return createApiV2ClientWithBaseUrl(API_URL, { customHeaders });
 }
 
-export const apiV2 = createApiV2Client();
+export const apiV2 = /* @__PURE__ */ createApiV2Client();
 
 export function createApiV3ClientWithBaseUrl(
   baseUrl: string,
   options: ApiClientOptions = {},
 ): ApiV3Client {
-  const { customHeaders = {}, fetcher, fetchLifecycle } = options;
-  const normalizedBaseUrl = baseUrl.endsWith(API_V3_BASE_PATH)
-    ? baseUrl
-    : `${baseUrl}${API_V3_BASE_PATH}`;
-  const resolvedBaseUrl = normalizedBaseUrl.replace(/([^:]\/)\/+/g, '$1');
-
-  return new RequestClient({
-    fetchProvider: createApiFetchProvider(fetchLifecycle, fetcher),
-    hostname: resolvedBaseUrl,
-    baseUrl: resolvedBaseUrl,
-    endpoints: v3Endpoints,
-    validation: true,
-    fetchOpts: {
-      timeout: getRestTimeoutMs(),
-      credentials: 'include',
-      headers: { ...customHeaders },
-    },
-  });
+  return createRequestClient(baseUrl, API_V3_BASE_PATH, v3Endpoints, options);
 }
 
 export function createApiV3Client(
@@ -584,4 +489,4 @@ export function createApiV3Client(
   return createApiV3ClientWithBaseUrl(API_URL, { customHeaders });
 }
 
-export const apiV3 = createApiV3Client();
+export const apiV3 = /* @__PURE__ */ createApiV3Client();

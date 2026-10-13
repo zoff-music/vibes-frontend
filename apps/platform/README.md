@@ -30,6 +30,8 @@ Normal room entry does not download the party-screen QR renderer or chat panel
 until those views are opened. Chat subscriptions and unread counts stay active
 outside the deferred panel. Keep the initial queue visible in server-rendered
 HTML, and avoid a persistent full-page blur filter around the player and queue.
+Terminal queue rendering and generation progress load only when those views
+are needed. Both provider players still prepare immediately.
 
 Room documents serialize only the first 13 playlist items, enough for the 12-row
 initial queue and the current item, alongside the full upcoming-item count.
@@ -494,6 +496,10 @@ send before loaders finish using `103 Early Hints`. The final response also
 includes a `Link` header, and the document retains its font and stylesheet preloads for browsers
 or proxies that do not support informational responses. This uses preload, not
 the retired HTTP/2 server-push mechanism. Only HTML GET requests receive hints.
+The shared server also hints the hydration entry and its static imports from
+the build manifest. Framework requests can start in parallel with the server's
+data loading; React Router's HTML modulepreloads remain the fallback. Do not
+hint all lazy routes, feature panels or provider SDKs on every page.
 
 The regular Latin font and main stylesheet are preloaded before loaders finish.
 The DOM stylesheet excludes native-only components from Tailwind's source scan.
@@ -528,12 +534,29 @@ validation, defaults and input limits. Keep the explicit English locale so
 validation failures retain readable messages. Pure annotations on schema
 compilation let unused models leave the client bundle; do not replace runtime
 validation with type assertions.
+Schema modules are side-effect-free, while the models entry retains its locale
+setup. Admin endpoint definitions live in their own typed client so public
+apps do not retain admin schemas. All clients share the same transport options,
+timeouts, credentials and validation behavior.
 
 DOM app roots provide `MotionProvider` from `@vibes/ui/web`. Shared controls and
 platform animations use Motion's lightweight `m` components with synchronous
 `domAnimation` features, so entrances and interactions do not wait for another
-download. The embed playlist and deferred embed showcase retain the full
-layout-animation features. Keep the provider around route error views as well.
+download. Room queues opt into layout features locally so rows move upward
+when playback advances and animate reordering after votes. The scroll container
+participates in layout measurement; reduced motion disables row movement.
+The embed playlist and deferred embed showcase also retain layout features.
+Keep the provider around route error views as well.
+
+Platform client builds separate the React runtime, DOM renderer and Router's
+core/React modules from the hydration entry. Chunk boundaries follow framework
+modules and their dependencies, with entry-aware Router chunks so deferred
+routes do not pull extra code into the initial page. This improves independent
+caching, not the intrinsic size of React's renderer. Keep server chunking and
+legacy player targets unchanged, and compare total transfer size as well as
+individual chunks when adjusting these groups.
+Zod's compiler and core also have separate cached chunks; schemas still use
+the same compiled validation and fallback parser.
 
 The shared server negotiates compression and serves hashed assets with an
 immutable one-year cache lifetime. A compressed HTML body below 14 kB is a
