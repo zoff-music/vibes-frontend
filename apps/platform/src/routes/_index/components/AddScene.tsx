@@ -4,7 +4,7 @@ import {
   ProviderIcon,
   QueueItem,
 } from '@vibes/ui/web';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m as motion } from 'framer-motion';
 import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
 interface AddPlaylistItemSetupSceneProps {

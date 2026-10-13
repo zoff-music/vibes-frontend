@@ -523,6 +523,18 @@ cwebp -q 85 -resize 256 256 apps/platform/public/logo.png -o apps/platform/src/a
 ```
 
 Measure production builds with both Brotli and gzip, not Vite's dev server.
+Shared API models use Zod Mini with `z.compile()` for the same compiled
+validation, defaults and input limits. Keep the explicit English locale so
+validation failures retain readable messages. Pure annotations on schema
+compilation let unused models leave the client bundle; do not replace runtime
+validation with type assertions.
+
+DOM app roots provide `MotionProvider` from `@vibes/ui/web`. Shared controls and
+platform animations use Motion's lightweight `m` components with synchronous
+`domAnimation` features, so entrances and interactions do not wait for another
+download. The embed playlist and deferred embed showcase retain the full
+layout-animation features. Keep the provider around route error views as well.
+
 The shared server negotiates compression and serves hashed assets with an
 immutable one-year cache lifetime. A compressed HTML body below 14 kB is a
 useful budget, not a guarantee of a single network round trip or a reason to

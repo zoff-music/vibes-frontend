@@ -7,7 +7,7 @@ import {
   QueueItem,
   ResetIcon,
 } from '@vibes/ui/web';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
 interface RepeatPlaylistItemSetupSceneProps {

@@ -1,5 +1,6 @@
 import { classNames, parseColorScheme } from '@vibes/shared';
 import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
+import { MotionProvider } from '@vibes/ui/web';
 import type { ReactNode } from 'react';
 import {
   Links,
@@ -72,7 +73,7 @@ export function Layout({ children }: Props) {
       </head>
       <body className="h-full overflow-hidden overscroll-none">
         <div id="root" className="h-full overflow-hidden overscroll-none">
-          {children}
+          <MotionProvider>{children}</MotionProvider>
         </div>
         <Scripts />
       </body>

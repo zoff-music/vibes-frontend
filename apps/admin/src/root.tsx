@@ -1,4 +1,4 @@
-import { SiteBackground } from '@vibes/ui/web';
+import { MotionProvider, SiteBackground } from '@vibes/ui/web';
 import { type ReactNode, useState } from 'react';
 import type { LinksFunction, LoaderFunctionArgs } from 'react-router';
 import {
@@ -79,7 +79,9 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body>
-        <div id="root">{children}</div>
+        <div id="root">
+          <MotionProvider>{children}</MotionProvider>
+        </div>
         <script id="ssr-data" type="application/json">
           {initialDataJson}
         </script>

@@ -1,7 +1,7 @@
 import { usePageVisibility } from '@vibes/shared';
 import {
   animate,
-  motion,
+  m as motion,
   useInView,
   useMotionValue,
   useReducedMotion,

@@ -1,24 +1,26 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { roomTypeSchema } from './room';
 
-export const adminRoomSummaryV2Schema = z.compile(
+export const adminRoomSummaryV2Schema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
     name: z.string(),
     userCount: z.number(),
     activeSources: z.array(z.string()),
     hasAdminPassword: z.boolean(),
-    roomType: roomTypeSchema.default('MUSIC'),
+    roomType: z._default(roomTypeSchema, 'MUSIC'),
     isPublic: z.boolean(),
     playlistItemCount: z.number(),
   }),
 );
 export type AdminRoomSummaryV2 = z.infer<typeof adminRoomSummaryV2Schema>;
 
-export const adminRoomsV2Schema = z.compile(z.array(adminRoomSummaryV2Schema));
+export const adminRoomsV2Schema = /* @__PURE__ */ z.compile(
+  z.array(adminRoomSummaryV2Schema),
+);
 export type AdminRoomsV2 = z.infer<typeof adminRoomsV2Schema>;
 
-export const adminRoomResultV2Schema = z.compile(
+export const adminRoomResultV2Schema = /* @__PURE__ */ z.compile(
   z.object({
     rooms: adminRoomsV2Schema,
     from: z.number(),
@@ -29,22 +31,25 @@ export const adminRoomResultV2Schema = z.compile(
 );
 export type AdminRoomResultV2 = z.infer<typeof adminRoomResultV2Schema>;
 
-export const adminRoomSearchV2Schema = z.compile(
+export const adminRoomSearchV2Schema = /* @__PURE__ */ z.compile(
   z.object({
-    q: z.string().optional(),
-    sortBy: z.enum(['listeners', 'playlistItems']).optional(),
-    order: z.enum(['asc', 'desc']).optional(),
-    from: z.int().min(0).optional(),
-    to: z.int().min(0).optional(),
+    q: z.optional(z.string()),
+    sortBy: z.optional(z.enum(['listeners', 'playlistItems'])),
+    order: z.optional(z.enum(['asc', 'desc'])),
+    from: z.optional(z.int().check(z.minimum(0))),
+    to: z.optional(z.int().check(z.minimum(0))),
   }),
 );
 
-export const adminLoginRequestSchema = z.compile(
-  z.object({ username: z.string(), password: z.string() }),
+export const adminLoginRequestSchema = /* @__PURE__ */ z.compile(
+  z.object({
+    username: z.string(),
+    password: z.string(),
+  }),
 );
 export type AdminLoginRequest = z.infer<typeof adminLoginRequestSchema>;
 
-export const adminUserSchema = z.compile(
+export const adminUserSchema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
     username: z.string(),
@@ -54,39 +59,49 @@ export const adminUserSchema = z.compile(
 );
 export type AdminUser = z.infer<typeof adminUserSchema>;
 
-export const adminUsersSchema = z.compile(z.array(adminUserSchema));
+export const adminUsersSchema = /* @__PURE__ */ z.compile(
+  z.array(adminUserSchema),
+);
 export type AdminUsers = z.infer<typeof adminUsersSchema>;
 
-export const adminCreateUserRequestSchema = z.compile(
-  z.object({ username: z.string(), password: z.string() }),
+export const adminCreateUserRequestSchema = /* @__PURE__ */ z.compile(
+  z.object({
+    username: z.string(),
+    password: z.string(),
+  }),
 );
 export type AdminCreateUserRequest = z.infer<
   typeof adminCreateUserRequestSchema
 >;
 
-export const adminUpdateUserRequestSchema = z.compile(
-  z.object({ password: z.string() }),
+export const adminUpdateUserRequestSchema = /* @__PURE__ */ z.compile(
+  z.object({
+    password: z.string(),
+  }),
 );
 export type AdminUpdateUserRequest = z.infer<
   typeof adminUpdateUserRequestSchema
 >;
 
-export const adminUpdateRoomRequestSchema = z.compile(
+export const adminUpdateRoomRequestSchema = /* @__PURE__ */ z.compile(
   z.object({
-    name: z.string().optional(),
-    clearAdminPassword: z.boolean().optional(),
+    name: z.optional(z.string()),
+    clearAdminPassword: z.optional(z.boolean()),
   }),
 );
 export type AdminUpdateRoomRequest = z.infer<
   typeof adminUpdateRoomRequestSchema
 >;
 
-export const adminSessionResponseSchema = z.compile(
-  z.object({ authorized: z.boolean(), user: adminUserSchema.optional() }),
+export const adminSessionResponseSchema = /* @__PURE__ */ z.compile(
+  z.object({
+    authorized: z.boolean(),
+    user: z.optional(adminUserSchema),
+  }),
 );
 export type AdminSessionResponse = z.infer<typeof adminSessionResponseSchema>;
 
-export const adminSearchUsagePointSchema = z.compile(
+export const adminSearchUsagePointSchema = /* @__PURE__ */ z.compile(
   z.object({
     window: z.enum(['hour', 'day']),
     timestamp: z.string(),
@@ -99,24 +114,26 @@ export const adminSearchUsagePointSchema = z.compile(
 );
 export type AdminSearchUsagePoint = z.infer<typeof adminSearchUsagePointSchema>;
 
-export const adminSearchUsageSchema = z.compile(
+export const adminSearchUsageSchema = /* @__PURE__ */ z.compile(
   z.object({
-    roomPoints: z
-      .array(
+    roomPoints: z.optional(
+      z.array(
         z.object({
-          ...adminSearchUsagePointSchema.omit({ unique: true }).shape,
+          ...z.omit(adminSearchUsagePointSchema, {
+            unique: true,
+          }).shape,
           roomId: z.string(),
-          roomType: z.enum(['MUSIC', 'WATCH']).optional(),
+          roomType: z.optional(z.enum(['MUSIC', 'WATCH'])),
         }),
-      )
-      .optional(),
+      ),
+    ),
     points: z.array(adminSearchUsagePointSchema),
     generatedAt: z.string(),
   }),
 );
 export type AdminSearchUsage = z.infer<typeof adminSearchUsageSchema>;
 
-export const listenerUsagePointSchema = z.compile(
+export const listenerUsagePointSchema = /* @__PURE__ */ z.compile(
   z.object({
     window: z.enum(['hour', 'day', 'week', 'month']),
     timestamp: z.string(),
@@ -125,36 +142,36 @@ export const listenerUsagePointSchema = z.compile(
 );
 export type ListenerUsagePoint = z.infer<typeof listenerUsagePointSchema>;
 
-export const adminListenerUsageSchema = z.compile(
+export const adminListenerUsageSchema = /* @__PURE__ */ z.compile(
   z.object({
-    roomPoints: z
-      .array(
+    roomPoints: z.optional(
+      z.array(
         z.object({
           ...listenerUsagePointSchema.shape,
           roomId: z.string(),
-          roomType: z.enum(['MUSIC', 'WATCH']).optional(),
+          roomType: z.optional(z.enum(['MUSIC', 'WATCH'])),
         }),
-      )
-      .optional(),
+      ),
+    ),
     points: z.array(listenerUsagePointSchema),
     generatedAt: z.string(),
   }),
 );
 export type AdminListenerUsage = z.infer<typeof adminListenerUsageSchema>;
 
-export const adminMessageUsageSchema = z.compile(
+export const adminMessageUsageSchema = /* @__PURE__ */ z.compile(
   z.object({
-    roomPoints: z
-      .array(
+    roomPoints: z.optional(
+      z.array(
         z.object({
           roomId: z.string(),
-          roomType: z.enum(['MUSIC', 'WATCH']).optional(),
+          roomType: z.optional(z.enum(['MUSIC', 'WATCH'])),
           window: z.enum(['hour', 'day', 'month']),
           timestamp: z.string(),
           messages: z.number(),
         }),
-      )
-      .optional(),
+      ),
+    ),
     roomId: z.string(),
     total: z.number(),
     generatedAt: z.string(),
@@ -169,6 +186,12 @@ export const adminMessageUsageSchema = z.compile(
 );
 export type AdminMessageUsage = z.infer<typeof adminMessageUsageSchema>;
 
-export const adminMessageUsageSearchSchema = z.compile(
-  z.object({ roomId: z.string().max(200).optional() }),
+export const adminMessageUsageSearchSchema = /* @__PURE__ */ z.compile(
+  z.object({
+    roomId: z.optional(z.string().check(z.maxLength(200))),
+  }),
+);
+
+export const optionalAdminMessageUsageSearchSchema = /* @__PURE__ */ z.compile(
+  z.optional(adminMessageUsageSearchSchema),
 );

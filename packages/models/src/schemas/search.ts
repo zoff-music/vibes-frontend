@@ -1,51 +1,55 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { playbackRestrictionSchema, sourceTypeSchema } from './playlist';
 
-export const providerItemSchema = z.compile(
+export const providerItemSchema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
     source: sourceTypeSchema,
-    providerUrl: z.string().optional(),
+    providerUrl: z.optional(z.string()),
     title: z.string(),
-    publisher: z.string().optional(),
+    publisher: z.optional(z.string()),
     thumbnailUrl: z.string(),
-    duration: z.string().optional(),
-    durationSeconds: z.number().optional(),
-    viewCount: z.number().optional(),
-    likeCount: z.number().optional(),
+    duration: z.optional(z.string()),
+    durationSeconds: z.optional(z.number()),
+    viewCount: z.optional(z.number()),
+    likeCount: z.optional(z.number()),
     playbackRestriction: playbackRestrictionSchema,
   }),
 );
 export type ProviderItem = z.infer<typeof providerItemSchema>;
 
-export const providerPlaylistSchema = z.compile(
+export const providerPlaylistSchema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
     source: sourceTypeSchema,
-    title: z.string().optional(),
+    title: z.optional(z.string()),
     items: z.array(providerItemSchema),
     truncated: z.boolean(),
-    skippedEmbeddingCount: z.int().min(0).optional(),
-    skippedMadeForKidsCount: z.int().min(0).optional(),
-    skippedRoomTypeCount: z.int().min(0).optional(),
+    skippedEmbeddingCount: z.optional(z.int().check(z.minimum(0))),
+    skippedMadeForKidsCount: z.optional(z.int().check(z.minimum(0))),
+    skippedRoomTypeCount: z.optional(z.int().check(z.minimum(0))),
   }),
 );
 export type ProviderPlaylist = z.infer<typeof providerPlaylistSchema>;
 
-export const providerSearchResponseSchema = z.compile(
+export const providerSearchResponseSchema = /* @__PURE__ */ z.compile(
   z.array(providerItemSchema),
 );
 export type ProviderSearchResponse = z.infer<
   typeof providerSearchResponseSchema
 >;
 
-export const searchQuerySchema = z.compile(
+export const searchQuerySchema = /* @__PURE__ */ z.compile(
   z.object({
-    q: z.string().trim().min(3),
-    roomId: z.string().max(200).optional(),
+    q: z.string().check(z.trim(), z.minLength(3)),
+    roomId: z.optional(z.string().check(z.maxLength(200))),
   }),
 );
 export type SearchQuery = z.infer<typeof searchQuerySchema>;
 
-export const providerURLQuerySchema = z.compile(z.object({ url: z.url() }));
+export const providerURLQuerySchema = /* @__PURE__ */ z.compile(
+  z.object({
+    url: z.url(),
+  }),
+);
 export type ProviderURLQuery = z.infer<typeof providerURLQuerySchema>;

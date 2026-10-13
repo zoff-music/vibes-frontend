@@ -5,7 +5,7 @@ import {
   QueueItem,
   SparklesIcon,
 } from '@vibes/ui/web';
-import { MotionConfig, motion } from 'framer-motion';
+import { MotionConfig, m as motion } from 'framer-motion';
 import { queueDemoPlaylistItems, watchDemoPlaylistItems } from './preview';
 import { useGeneratedPlaylistPreview } from './useGeneratedPlaylistPreview';
 

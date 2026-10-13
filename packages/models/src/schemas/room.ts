@@ -1,53 +1,66 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { sourceTypeSchema } from './playlist';
 
 export const roomNameMaxLength = 100;
 
 const roomNameField = z
   .string()
-  .trim()
-  .min(1, 'Enter a room name.')
-  .max(roomNameMaxLength, 'Room names can be at most 100 characters.');
-export const roomNameInputSchema = z.compile(roomNameField);
+  .check(
+    z.trim(),
+    z.minLength(1, 'Enter a room name.'),
+    z.maxLength(roomNameMaxLength, 'Room names can be at most 100 characters.'),
+  );
+export const roomNameInputSchema = /* @__PURE__ */ z.compile(roomNameField);
 
-const roomModeSchema = z.preprocess(
-  (value) => value || 'server',
-  z.enum(['server', 'host']).default('server'),
+const roomModeSchema = z.pipe(
+  z.transform((value: string | null | undefined) => value || 'server'),
+  z.enum(['server', 'host']),
 );
 
-export const roomHostUpdateSchema = z.compile(
-  z.object({ userId: z.string(), message: z.string() }),
+export const roomHostUpdateSchema = /* @__PURE__ */ z.compile(
+  z.object({
+    userId: z.string(),
+    message: z.string(),
+  }),
 );
 export type RoomHostUpdate = z.infer<typeof roomHostUpdateSchema>;
 
-export const roomNameReservationSchema = z.compile(
-  z.object({ name: z.string(), token: z.string(), expiresAt: z.string() }),
+export const roomNameReservationSchema = /* @__PURE__ */ z.compile(
+  z.object({
+    name: z.string(),
+    token: z.string(),
+    expiresAt: z.string(),
+  }),
 );
 export type RoomNameReservation = z.infer<typeof roomNameReservationSchema>;
 
-export const roomNameReservationRequestSchema = z.compile(
-  z.object({ name: roomNameField.optional() }),
+export const roomNameReservationRequestSchema = /* @__PURE__ */ z.compile(
+  z.object({
+    name: z.optional(roomNameField),
+  }),
 );
 export type RoomNameReservationRequest = z.infer<
   typeof roomNameReservationRequestSchema
 >;
 
-export const usersUpdateSchema = z.compile(z.number());
+export const usersUpdateSchema = /* @__PURE__ */ z.compile(z.number());
 
 export const roomTypeSchema = z.enum(['MUSIC', 'WATCH']);
 export type RoomType = z.infer<typeof roomTypeSchema>;
 
-export const roomTypeQuerySchema = z.compile(
-  z.object({ roomType: roomTypeSchema.optional() }),
+export const roomTypeQuerySchema = /* @__PURE__ */ z.compile(
+  z.object({
+    roomType: z.optional(roomTypeSchema),
+  }),
 );
 
-export const publicRoomSearchSchema = z.compile(
+export const publicRoomSearchSchema = /* @__PURE__ */ z.compile(
   z.object({
-    q: z.string().max(100).optional(),
-    roomType: roomTypeSchema.optional(),
-    live: z.boolean().optional(),
-    from: z.int().min(0).max(2_147_483_647).optional(),
-    to: z.int().min(0).max(2_147_483_647).optional(),
+    q: z.optional(z.string().check(z.maxLength(100))),
+    roomType: z.optional(roomTypeSchema),
+    live: z.optional(z.boolean()),
+    from: z.optional(z.int().check(z.minimum(0), z.maximum(2_147_483_647))),
+    to: z.optional(z.int().check(z.minimum(0), z.maximum(2_147_483_647))),
   }),
 );
 export type PublicRoomSearch = z.infer<typeof publicRoomSearchSchema>;
@@ -60,80 +73,84 @@ const roomSettingsV2Shape = {
   removeOnPlay: z.boolean(),
   allowDuplicates: z.boolean(),
   enabledSources: z.array(sourceTypeSchema),
-  onlyAdminAddPlaylistItems: z.boolean().optional(),
+  onlyAdminAddPlaylistItems: z.optional(z.boolean()),
   public: z.boolean(),
   playlistImport: z.boolean(),
 };
 
-export const roomSettingsV2Schema = z.compile(z.object(roomSettingsV2Shape));
+export const roomSettingsV2Schema = /* @__PURE__ */ z.compile(
+  z.object(roomSettingsV2Shape),
+);
 export type RoomSettingsV2 = z.infer<typeof roomSettingsV2Schema>;
 
-export const roomV2Schema = z.compile(
+export const roomV2Schema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
     name: z.string(),
     mode: roomModeSchema,
-    roomType: roomTypeSchema.default('MUSIC'),
-    hostId: z.string().nullable().optional(),
+    roomType: z._default(roomTypeSchema, 'MUSIC'),
+    hostId: z.optional(z.nullable(z.string())),
     createdAt: z.string(),
     hasPassword: z.boolean(),
     settings: roomSettingsV2Schema,
-    userCount: z.number().optional(),
-    userId: z.string().optional(),
-    isAdmin: z.boolean().optional(),
-    activeSources: z.array(sourceTypeSchema).optional(),
-    isGenerating: z.boolean().default(false),
-    generationCount: z.int().min(0).default(0),
-    roomGenerationMaxDailyCount: z.int().min(1),
-    roomGenerationMaxExistingPlaylistItems: z.int().min(0),
-    generationError: z.string().optional(),
+    userCount: z.optional(z.number()),
+    userId: z.optional(z.string()),
+    isAdmin: z.optional(z.boolean()),
+    activeSources: z.optional(z.array(sourceTypeSchema)),
+    isGenerating: z._default(z.boolean(), false),
+    generationCount: z._default(z.int().check(z.minimum(0)), 0),
+    roomGenerationMaxDailyCount: z.int().check(z.minimum(1)),
+    roomGenerationMaxExistingPlaylistItems: z.int().check(z.minimum(0)),
+    generationError: z.optional(z.string()),
   }),
 );
 export type RoomV2 = z.infer<typeof roomV2Schema>;
 
-const partialRoomSettingsV2Schema = z.object(roomSettingsV2Shape).partial();
+const partialRoomSettingsV2Schema = z.partial(z.object(roomSettingsV2Shape));
 
-export const createRoomRequestV2Schema = z.compile(
+export const createRoomRequestV2Schema = /* @__PURE__ */ z.compile(
   z.object({
     name: roomNameField,
-    roomType: roomTypeSchema.optional(),
-    mode: z.enum(['server', 'host']).optional(),
-    password: z.string().optional(),
-    reservationToken: z.string().optional(),
-    settings: partialRoomSettingsV2Schema.optional(),
+    roomType: z.optional(roomTypeSchema),
+    mode: z.optional(z.enum(['server', 'host'])),
+    password: z.optional(z.string()),
+    reservationToken: z.optional(z.string()),
+    settings: z.optional(partialRoomSettingsV2Schema),
   }),
 );
 export type CreateRoomRequestV2 = z.infer<typeof createRoomRequestV2Schema>;
 
-export const roomUpdateV2Schema = z.compile(
+export const roomUpdateV2Schema = /* @__PURE__ */ z.compile(
   z.object({
-    name: roomNameField.optional(),
-    mode: z.enum(['server', 'host']).optional(),
-    settings: partialRoomSettingsV2Schema.optional(),
+    name: z.optional(roomNameField),
+    mode: z.optional(z.enum(['server', 'host'])),
+    settings: z.optional(partialRoomSettingsV2Schema),
   }),
 );
 export type RoomUpdateV2 = z.infer<typeof roomUpdateV2Schema>;
 
-export const publicRoomV3Schema = z.compile(
+export const publicRoomV3Schema = /* @__PURE__ */ z.compile(
   z.object({
     id: z.string(),
     name: z.string(),
-    roomType: roomTypeSchema.default('MUSIC'),
-    listenerCount: z.int().min(0),
-    playlistItemCount: z.int().min(0),
+    roomType: z._default(roomTypeSchema, 'MUSIC'),
+    listenerCount: z.int().check(z.minimum(0)),
+    playlistItemCount: z.int().check(z.minimum(0)),
   }),
 );
 export type PublicRoomV3 = z.infer<typeof publicRoomV3Schema>;
 
-export const publicRoomsV3Schema = z.compile(z.array(publicRoomV3Schema));
+export const publicRoomsV3Schema = /* @__PURE__ */ z.compile(
+  z.array(publicRoomV3Schema),
+);
 
-export const publicRoomResultV3Schema = z.compile(
+export const publicRoomResultV3Schema = /* @__PURE__ */ z.compile(
   z.object({
     rooms: publicRoomsV3Schema,
-    from: z.int().min(0),
-    to: z.int().min(0),
-    total: z.int().min(0),
-    count: z.int().min(0),
+    from: z.int().check(z.minimum(0)),
+    to: z.int().check(z.minimum(0)),
+    total: z.int().check(z.minimum(0)),
+    count: z.int().check(z.minimum(0)),
   }),
 );
 export type PublicRoomResultV3 = z.infer<typeof publicRoomResultV3Schema>;

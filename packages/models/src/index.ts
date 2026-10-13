@@ -1,3 +1,9 @@
+import { config } from 'zod/mini';
+import en from 'zod/v4/locales/en.js';
+
+// Mini omits the default locale; retain readable validation messages.
+config(en());
+
 export * from './schemas/admin';
 export * from './schemas/authorization';
 export * from './schemas/casting';

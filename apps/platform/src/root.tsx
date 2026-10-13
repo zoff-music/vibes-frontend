@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import retroStylesUrl from '@vibes/ui/konami/styles.css?url';
 import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
-import { NotFoundView } from '@vibes/ui/web';
+import { MotionProvider, NotFoundView } from '@vibes/ui/web';
 import { lazy, type ReactNode, Suspense, useState } from 'react';
 import type { MetaFunction, ShouldRevalidateFunctionArgs } from 'react-router';
 import {
@@ -112,7 +112,9 @@ export function Layout({ children }: Props) {
         <Links />
       </head>
       <body>
-        <div id="root">{children}</div>
+        <div id="root">
+          <MotionProvider>{children}</MotionProvider>
+        </div>
         <script id="ssr-data" type="application/json">
           {initialDataJson}
         </script>
