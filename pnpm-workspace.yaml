@@ -5,6 +5,10 @@ catalog:
   '@tailwindcss/vite': 4.3.3
   tailwindcss: 4.3.3
 overrides:
+  # The matching CLI patch uses Node crypto and @peculiar/x509 instead.
+  '@expo/cli@57.0.23>node-forge': '-'
+  '@expo/cli@57.0.23>@expo/code-signing-certificates': '-'
+  braces: npm:@dieub/braces-depth-guard@3.0.3-pn.3
   morgan: 1.12.1
   'brace-expansion@>=4.0.0': 5.0.12
   '@grpc/grpc-js': 1.14.5
@@ -15,7 +19,7 @@ overrides:
   'shell-quote@1': 1.11.0
   body-parser: 1.20.6
   esbuild: 0.28.1
-  js-yaml: 3.15.2
+  js-yaml: 4.3.2
   decode-uri-component: 0.5.0
   qs: 6.16.0
   lightningcss: 1.30.1
@@ -24,6 +28,11 @@ overrides:
   uuid: 11.1.1
   valibot: 1.4.2
   vite: 8.2.2
+packageExtensions:
+  '@expo/cli@57.0.23':
+    dependencies:
+      '@peculiar/x509': 2.1.0
+      reflect-metadata: 0.2.2
 peerDependencyRules:
   allowedVersions:
     react-native: 0.86.2-0
@@ -98,13 +107,6 @@ minimumReleaseAgeExclude:
   - expo-modules-core@57.0.17
   - expo-modules-jsi@57.1.0
 patchedDependencies:
-  braces@3.0.3: patches/braces@3.0.3.patch
-  node-forge@1.4.0: patches/node-forge@1.4.0.patch
+  '@expo/cli@57.0.23': patches/@expo__cli@57.0.23.patch
   react-native-screens@4.26.2: patches/react-native-screens@4.26.2.patch
   react-native-webview@14.0.1: patches/react-native-webview@14.0.1.patch
-  sprintf-js@1.0.3: patches/sprintf-js@1.0.3.patch
-auditConfig:
-  ignoreGhsas:
-    - GHSA-86w9-cpqp-85rv
-    - GHSA-vfj7-8cjw-p6xm
-    - GHSA-hp3w-g68c-fv3c

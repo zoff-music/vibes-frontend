@@ -1,0 +1,193 @@
+diff --git a/build/src/run/ios/codeSigning/Security.js b/build/src/run/ios/codeSigning/Security.js
+index b6a0247275857b0cc1f5234040558709a8570294..69cfb70eb8e63525d032222a7f7f407d6755ffc1 100644
+--- a/build/src/run/ios/codeSigning/Security.js
++++ b/build/src/run/ios/codeSigning/Security.js
+@@ -38,13 +38,8 @@ function _spawnasync() {
+     };
+     return data;
+ }
+-function _nodeforge() {
+-    const data = /*#__PURE__*/ _interop_require_default(require("node-forge"));
+-    _nodeforge = function() {
+-        return data;
+-    };
+-    return data;
+-}
++require("reflect-metadata");
++const x509 = require("@peculiar/x509");
+ const _SecurityBinPrerequisite = require("../../../start/doctor/SecurityBinPrerequisite");
+ const _errors = require("../../../utils/errors");
+ function _interop_require_default(obj) {
+@@ -67,7 +62,7 @@ async function getSecurityPemAsync(id) {
+ }
+ async function getCertificateForSigningIdAsync(id) {
+     const pem = await getSecurityPemAsync(id);
+-    return _nodeforge().default.pki.certificateFromPem(pem);
++    return new x509.X509Certificate(pem);
+ }
+ async function findIdentitiesAsync() {
+     var _stdout_trim, _stdout;
+@@ -99,13 +94,12 @@ async function resolveIdentitiesAsync(identities) {
+     return Promise.all(values.map(resolveCertificateSigningInfoAsync));
+ }
+ async function resolveCertificateSigningInfoAsync(signingCertificateId) {
+-    var _certificate_subject_getField, _certificate_subject_getField1, _certificate_subject_getField2;
+     const certificate = await getCertificateForSigningIdAsync(signingCertificateId);
+     return {
+         signingCertificateId,
+-        codeSigningInfo: (_certificate_subject_getField = certificate.subject.getField('CN')) == null ? void 0 : _certificate_subject_getField.value,
+-        appleTeamName: (_certificate_subject_getField1 = certificate.subject.getField('O')) == null ? void 0 : _certificate_subject_getField1.value,
+-        appleTeamId: (_certificate_subject_getField2 = certificate.subject.getField('OU')) == null ? void 0 : _certificate_subject_getField2.value
++        codeSigningInfo: certificate.subjectName.getField('CN')[0],
++        appleTeamName: certificate.subjectName.getField('O')[0],
++        appleTeamId: certificate.subjectName.getField('OU')[0]
+     };
+ }
+ function extractSigningId(codeSigningInfo) {
+diff --git a/build/src/utils/codesigning.js b/build/src/utils/codesigning.js
+index 38730e4bcc94209fef296afe3166b8b391888e0d..58ffe6aabc73e2b3c3db72765f45b401d9aaf09e 100644
+--- a/build/src/utils/codesigning.js
++++ b/build/src/utils/codesigning.js
+@@ -22,13 +22,9 @@ _export(exports, {
+         return signManifestString;
+     }
+ });
+-function _codesigningcertificates() {
+-    const data = require("@expo/code-signing-certificates");
+-    _codesigningcertificates = function() {
+-        return data;
+-    };
+-    return data;
+-}
++const crypto = require("node:crypto");
++require("reflect-metadata");
++const x509 = require("@peculiar/x509");
+ function _jsonfile() {
+     const data = /*#__PURE__*/ _interop_require_default(require("@expo/json-file"));
+     _jsonfile = function() {
+@@ -303,12 +299,32 @@ async function getProjectPrivateKeyAndCertificateFromFilePathsAsync({ codeSignin
+         readFileWithErrorAsync(codeSigningCertificatePath, `Code signing certificate cannot be read from path: ${codeSigningCertificatePath}`),
+         readFileWithErrorAsync(privateKeyPath, `Code signing private key cannot be read from path: ${privateKeyPath}`)
+     ]);
+-    const privateKey = (0, _codesigningcertificates().convertPrivateKeyPEMToPrivateKey)(privateKeyPEM);
+-    const certificate = (0, _codesigningcertificates().convertCertificatePEMToCertificate)(codeSigningCertificatePEM);
+-    (0, _codesigningcertificates().validateSelfSignedCertificate)(certificate, {
+-        publicKey: certificate.publicKey,
+-        privateKey
+-    });
++    const privateKey = crypto.createPrivateKey(privateKeyPEM);
++    const certificate = new crypto.X509Certificate(codeSigningCertificatePEM);
++    const extensions = new x509.X509Certificate(codeSigningCertificatePEM);
++    const keyUsage = extensions.getExtension(x509.KeyUsagesExtension);
++    const extendedKeyUsage = extensions.getExtension(x509.ExtendedKeyUsageExtension);
++    const now = new Date();
++
++    if (certificate.subject !== certificate.issuer || !certificate.verify(certificate.publicKey)) {
++        throw new _errors.CommandError('Certificate must have a valid self-signature');
++    }
++
++    if (certificate.validFromDate > now || certificate.validToDate < now) {
++        throw new _errors.CommandError('Certificate validity expired');
++    }
++
++    if (!keyUsage || !(keyUsage.usages & x509.KeyUsageFlags.digitalSignature)) {
++        throw new _errors.CommandError('X509v3 Key Usage: Digital Signature not present');
++    }
++
++    if (!extendedKeyUsage || !extendedKeyUsage.usages.includes('1.3.6.1.5.5.7.3.3')) {
++        throw new _errors.CommandError('X509v3 Extended Key Usage: Code Signing not present');
++    }
++
++    if (privateKey.asymmetricKeyType !== 'rsa' || !certificate.checkPrivateKey(privateKey)) {
++        throw new _errors.CommandError('Certificate public key does not match RSA private key');
++    }
+     return {
+         privateKeyPEM,
+         certificatePEM: codeSigningCertificatePEM
+@@ -325,12 +341,11 @@ async function getProjectPrivateKeyAndCertificateFromFilePathsAsync({ codeSignin
+     if (!privateKeyPEM || !(certificatePEMs == null ? void 0 : certificatePEMs.length)) {
+         return null;
+     }
+-    const certificateChain = certificatePEMs.map((certificatePEM)=>(0, _codesigningcertificates().convertCertificatePEMToCertificate)(certificatePEM));
+-    // TODO(wschurman): maybe move to @expo/code-signing-certificates
++    const certificateChain = certificatePEMs.map((certificatePEM)=>new crypto.X509Certificate(certificatePEM));
+     // ensure all intermediate certificates are valid
+     for (const certificate of certificateChain){
+         const now = new Date();
+-        if (certificate.validity.notBefore > now || certificate.validity.notAfter < now) {
++        if (certificate.validFromDate > now || certificate.validToDate < now) {
+             return null;
+         }
+     }
+@@ -367,10 +382,20 @@ async function fetchAndCacheNewDevelopmentCodeSigningInfoAsync(easProjectId) {
+     if (!actorCanGetProjectDevelopmentCertificate(actor, app)) {
+         return null;
+     }
+-    const keyPair = (0, _codesigningcertificates().generateKeyPair)();
+-    const keyPairPEM = (0, _codesigningcertificates().convertKeyPairToPEM)(keyPair);
+-    const csr = (0, _codesigningcertificates().generateCSR)(keyPair, `Development Certificate for ${easProjectId}`);
+-    const csrPEM = (0, _codesigningcertificates().convertCSRToCSRPEM)(csr);
++    const algorithm = {
++        name: 'RSASSA-PKCS1-v1_5',
++        hash: 'SHA-256',
++        modulusLength: 2048,
++        publicExponent: new Uint8Array([1, 0, 1])
++    };
++    const keys = await crypto.webcrypto.subtle.generateKey(algorithm, true, ['sign', 'verify']);
++    const privateKeyPEM = crypto.KeyObject.from(keys.privateKey).export({ type: 'pkcs1', format: 'pem' });
++    const csr = await x509.Pkcs10CertificateRequestGenerator.create({
++        name: [{ CN: [`Development Certificate for ${easProjectId}`] }],
++        keys,
++        signingAlgorithm: algorithm
++    }, crypto.webcrypto);
++    const csrPEM = csr.toString('pem');
+     const [developmentSigningCertificate, expoGoIntermediateCertificate] = await Promise.all([
+         (0, _getProjectDevelopmentCertificate.getProjectDevelopmentCertificateAsync)(easProjectId, csrPEM),
+         (0, _getExpoGoIntermediateCertificate.getExpoGoIntermediateCertificateAsync)(easProjectId)
+@@ -378,7 +403,7 @@ async function fetchAndCacheNewDevelopmentCodeSigningInfoAsync(easProjectId) {
+     await DevelopmentCodeSigningInfoFile.setAsync(easProjectId, {
+         easProjectId,
+         scopeKey: app.scopeKey,
+-        privateKey: keyPairPEM.privateKeyPEM,
++        privateKey: privateKeyPEM,
+         certificateChain: [
+             developmentSigningCertificate,
+             expoGoIntermediateCertificate
+@@ -391,14 +416,33 @@ async function fetchAndCacheNewDevelopmentCodeSigningInfoAsync(easProjectId) {
+             expoGoIntermediateCertificate
+         ],
+         certificateForPrivateKey: developmentSigningCertificate,
+-        privateKey: keyPairPEM.privateKeyPEM,
++        privateKey: privateKeyPEM,
+         scopeKey: app.scopeKey
+     };
+ }
+ function signManifestString(stringifiedManifest, codeSigningInfo) {
+-    const privateKey = (0, _codesigningcertificates().convertPrivateKeyPEMToPrivateKey)(codeSigningInfo.privateKey);
+-    const certificate = (0, _codesigningcertificates().convertCertificatePEMToCertificate)(codeSigningInfo.certificateForPrivateKey);
+-    return (0, _codesigningcertificates().signBufferRSASHA256AndVerify)(privateKey, certificate, Buffer.from(stringifiedManifest, 'utf8'));
++    const privateKey = crypto.createPrivateKey(codeSigningInfo.privateKey);
++    const certificate = new crypto.X509Certificate(codeSigningInfo.certificateForPrivateKey);
++
++    if (privateKey.asymmetricKeyType !== 'rsa' || !certificate.checkPrivateKey(privateKey)) {
++        throw new _errors.CommandError('Certificate public key does not match RSA private key');
++    }
++
++    const manifest = Buffer.from(stringifiedManifest, 'utf8');
++    const signature = crypto.sign('sha256', manifest, {
++        key: privateKey,
++        padding: crypto.constants.RSA_PKCS1_PADDING
++    });
++    const valid = crypto.verify('sha256', manifest, {
++        key: certificate.publicKey,
++        padding: crypto.constants.RSA_PKCS1_PADDING
++    }, signature);
++
++    if (!valid) {
++        throw new _errors.CommandError('Signature generated with private key not valid for certificate');
++    }
++
++    return signature.toString('base64');
+ }
+ 
+ //# sourceMappingURL=codesigning.js.map
