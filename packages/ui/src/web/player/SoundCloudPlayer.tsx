@@ -549,6 +549,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       data-provider-muted={isWidgetMuted ? 'true' : 'false'}
       data-provider-playing={isWidgetPlaying ? 'true' : 'false'}
       data-provider="soundcloud"
+      aria-hidden={!isActive}
+      inert={!isActive}
       className={classNames(
         containerClass,
         'bg-black',
@@ -562,11 +564,17 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         </div>
       )}
       {!isReady && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/80">
+        <div
+          role="status"
+          className="absolute inset-0 z-10 flex items-center justify-center bg-black/80"
+        >
           <div className="text-center">
-            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-orange-500/50 border-t-orange-500" />
+            <div
+              aria-hidden="true"
+              className="mx-auto mb-3 h-8 w-8 rounded-full border-2 border-orange-500/50 border-t-orange-500 motion-safe:animate-spin"
+            />
             <p className="glow-text font-mono text-orange-400 text-sm">
-              LOADING SYSTEM...
+              Loading player...
             </p>
           </div>
         </div>

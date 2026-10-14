@@ -1,5 +1,6 @@
 import { classNames } from '@vibes/shared';
 import type { ReactNode } from 'react';
+import { publicAssetUrl } from '../assets';
 import headerLogo from '../assets/logo-header.webp';
 import headerLogo48 from '../assets/logo-header-48.webp?no-inline';
 import headerLogo96 from '../assets/logo-header-96.webp?no-inline';
@@ -47,15 +48,20 @@ export function SiteHeader({
 export function SiteBrand() {
   return (
     <>
-      <img
-        src={headerLogo48}
-        srcSet={`${headerLogo48} 48w, ${headerLogo96} 96w, ${headerLogo128} 128w, ${headerLogo} 256w`}
-        sizes="(min-width: 640px) 64px, 48px"
-        alt=""
-        width={256}
-        height={256}
-        className="h-12 w-12 rounded-full transition-transform duration-500 motion-safe:group-hover:rotate-12 sm:h-16 sm:w-16"
-      />
+      <picture className="block shrink-0">
+        <source
+          type="image/webp"
+          sizes="(min-width: 640px) 64px, 48px"
+          srcSet={`${headerLogo48} 48w, ${headerLogo96} 96w, ${headerLogo128} 128w, ${headerLogo} 256w`}
+        />
+        <img
+          src={publicAssetUrl('logo.png')}
+          alt=""
+          width={256}
+          height={256}
+          className="h-12 w-12 rounded-full transition-transform duration-500 motion-safe:group-hover:rotate-12 sm:h-16 sm:w-16"
+        />
+      </picture>
       <span className="hidden sm:block">
         <span
           aria-hidden="true"

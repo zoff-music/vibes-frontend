@@ -38,6 +38,7 @@ import { useCastStore } from '../../stores/castStore';
 import { canUseViewTransition } from '../../utils/viewTransition';
 import { clientAction, type RoomActionData } from './action';
 import { clientLoader } from './clientLoader';
+import { RoomConnections } from './components/RoomConnections';
 import { RoomErrorView } from './components/RoomErrorView';
 import type { RoomGenerationProgressProps } from './components/RoomGenerationProgress';
 import { RoomHeader } from './components/RoomHeader';
@@ -631,6 +632,7 @@ export default function RoomV2() {
 
   return (
     <>
+      <RoomConnections providers={loaderData.providers} />
       <motion.div
         animate={roomEntryVisibleState}
         className={classNames(

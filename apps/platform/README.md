@@ -26,6 +26,13 @@ Prepare both enabled provider players when entering a room, including the
 inactive provider. This preparation is required for autoplay across provider
 changes and must not be removed as a loading optimization.
 
+Room documents preconnect only to their enabled YouTube and SoundCloud player
+origins. These hints render in the document head before the player scripts are
+discovered; product pages do not open provider connections. Loading text stays
+centered over the reserved player area without adding a bottom row. Hidden
+prewarmed players remain mounted but are inert and hidden from assistive
+technology. Loading indicators respect reduced motion and expose status text.
+
 Normal room entry does not download the party-screen QR renderer or chat panel
 until those views are opened. Chat subscriptions and unread counts stay active
 outside the deferred panel. Keep the initial queue visible in server-rendered
@@ -285,6 +292,12 @@ pending. Existing room tiles are memoized so pending-state changes do not render
 the list again. Page changes only reposition results when their heading is above
 the viewport, using an immediate scroll rather than the site's smooth scrolling.
 
+The Music/Watch switch stays on the room explorer, retaining the search and
+Live/All public filter and resetting pagination when the room type changes.
+Unrelated URL parameters and profile saves do not reload the room results.
+Real filter changes and explicit refreshes still revalidate. Policy pages also
+skip action-driven and query-only revalidation while keeping explicit refresh.
+
 Both loaders use `/api/v3/rooms/public`, ordered by listeners, playlist items and ID,
 all descending. The homepage requests only the first three live rooms through
 its server loader. The homepage and browser share `PublicRoomTile` from
@@ -465,6 +478,14 @@ shared server compresses production responses. Do not introduce external font
 stylesheets or request backoff delays on public page loads.
 
 The mobile search and remote pairing captures live in `src/assets/product/`.
+Their picture elements offer small and full-size WebP sources with PNG fallbacks.
+Supported browsers select one WebP image, not both formats; the image dimensions
+and preview stage remain reserved. The shared header and embed preview also
+offer WebP with PNG fallback. Keep descriptive screenshot alt text, and empty
+alt text for decorative images or logos already named by their parent link.
+SoundCloud's provider marks use lossless WebP with their original PNG fallbacks;
+YouTube keeps its small SVG marks. Provider names remain available to screen
+readers in both themes, independent of the decorative light/dark image choice.
 Documentation screenshots live in `docs/screenshots/`; refresh them from the
 actual browser UI and keep the organization profile in `zoff-music/.github`
 in sync. Retain explicit image dimensions and lazy loading where appropriate.
@@ -612,6 +633,15 @@ same constants without requiring validation code to render a form. The hero's
 typing state lives below the landing-page component, so each character updates
 the controls rather than the whole page. Its timing, initial SSR placeholder,
 visibility pause and reduced-motion behavior stay unchanged.
+
+Stale route-data and manifest-version errors show an explicit latest-version
+recovery action instead of the generic failure message. Other errors can retry
+the route loaders without reloading the document. Do not add background update
+polling or automatic reload loops that interrupt playback or editing. React
+Router retains its own missing-module and manifest-mismatch recovery behavior.
+Keep eager discovery on footer policy links: removing it saved only about 180
+Brotli bytes in the measured discovery response and introduced a click-time
+manifest dependency. Common navigation keeps intent prefetching.
 
 The shared server negotiates compression and serves hashed assets with an
 immutable one-year cache lifetime. A compressed HTML body below 14 kB is a

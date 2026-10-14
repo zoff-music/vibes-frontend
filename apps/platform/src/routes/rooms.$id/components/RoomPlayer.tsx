@@ -595,9 +595,12 @@ export const RoomPlayer = React.memo(
                   <div className="vhs-scanlines h-full w-full opacity-20 mix-blend-overlay" />
                   <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
                 </div>
-                <div className="relative z-10 text-center">
+                <div role="status" className="relative z-10 text-center">
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-theme border-t-primary" />
+                    <div
+                      aria-hidden="true"
+                      className="h-6 w-6 rounded-full border-2 border-theme border-t-primary motion-safe:animate-spin"
+                    />
                   </div>
                   <p className="text-sm text-theme-muted">
                     {currentPlayerError ?? 'Loading player...'}

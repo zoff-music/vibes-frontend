@@ -73,7 +73,11 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
             <p role="status" aria-live="polite" aria-atomic="true">
               {summary}
             </p>
-            <p>Most listeners first</p>
+            <p>
+              {search.roomType === 'WATCH'
+                ? 'Most watchers first'
+                : 'Most listeners first'}
+            </p>
           </div>
           <div aria-busy={pending}>
             {result && result.count > 0 && (

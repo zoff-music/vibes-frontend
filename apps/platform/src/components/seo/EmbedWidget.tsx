@@ -10,6 +10,7 @@ import {
   SkipIcon,
 } from '@vibes/ui/web';
 import { MotionConfig, motion } from 'framer-motion';
+import logo from '../../assets/logo-header.webp?url';
 import { useEmbedPreview } from './hooks/useEmbedPreview';
 
 export function EmbedWidget() {
@@ -96,13 +97,17 @@ export function EmbedWidget() {
                       <SkipIcon className="h-5 w-5" />
                     </Button>
                   )}
-                  <img
-                    src={publicAssetUrl('logo.png')}
-                    alt="Zoff"
-                    width={1024}
-                    height={1024}
-                    className="h-8 w-8 rounded-full"
-                  />
+                  <picture>
+                    <source type="image/webp" srcSet={logo} />
+                    <img
+                      src={publicAssetUrl('logo.png')}
+                      alt="Zoff"
+                      width={32}
+                      height={32}
+                      decoding="async"
+                      className="h-8 w-8 rounded-full"
+                    />
+                  </picture>
                 </div>
               </div>
               <div
