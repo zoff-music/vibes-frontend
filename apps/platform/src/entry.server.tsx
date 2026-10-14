@@ -5,6 +5,8 @@ import type { EntryContext, HandleErrorFunction } from 'react-router';
 import { ServerRouter } from 'react-router';
 import stylesUrl from './index.css?url';
 
+export { handleDataRequest } from './http.server';
+
 export const handleError: HandleErrorFunction = handleServerError;
 
 export const documentPreloads = [
