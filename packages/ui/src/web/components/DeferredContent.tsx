@@ -47,6 +47,8 @@ export function DeferredContent({ children, fallback }: DeferredContentProps) {
               alt=""
               width={48}
               height={48}
+              loading="lazy"
+              decoding="async"
               className="size-12 rounded-full"
             />
           </div>

@@ -38,6 +38,8 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
               src={logo}
               width={40}
               height={40}
+              loading="lazy"
+              decoding="async"
               alt=""
               className={classNames(
                 'size-10 rounded-full',
@@ -240,6 +242,8 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
               alt=""
               width={1024}
               height={1024}
+              loading="lazy"
+              decoding="async"
               className={classNames(
                 'size-36 rounded-full',
                 state.branding &&

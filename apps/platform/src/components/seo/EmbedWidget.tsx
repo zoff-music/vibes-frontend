@@ -104,6 +104,7 @@ export function EmbedWidget() {
                       alt="Zoff"
                       width={32}
                       height={32}
+                      loading="lazy"
                       decoding="async"
                       className="h-8 w-8 rounded-full"
                     />
@@ -131,6 +132,8 @@ export function EmbedWidget() {
                           width={48}
                           height={48}
                           alt=""
+                          loading="lazy"
+                          decoding="async"
                           className="h-12 w-12 rounded-lg object-cover"
                         />
                       </div>

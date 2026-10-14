@@ -34,6 +34,10 @@ export function PlaylistItemSearchResult({
           <img
             src={resolvePlaylistItemThumbnail(thumbnailUrl)}
             alt=""
+            loading="lazy"
+            decoding="async"
+            width={112}
+            height={80}
             className="h-16 w-20 rounded-xl border border-theme bg-theme-surface object-cover sm:h-20 sm:w-28"
           />
           {durationSeconds !== undefined && (

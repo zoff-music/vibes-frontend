@@ -171,6 +171,8 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
                 width={256}
                 height={256}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className="h-24 w-24 rounded-full sm:h-32 sm:w-32"
               />
             </motion.div>
