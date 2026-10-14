@@ -15,6 +15,7 @@ import {
 import { App } from './App';
 import analyticsUrl from './assets/analytics.js?no-inline&url';
 import { PlatformErrorView } from './components/errors/PlatformErrorView';
+import { isStaleRouteError } from './components/errors/recovery';
 import { Background } from './components/layout/Background';
 import { SiteLayout } from './components/layout/SiteLayout';
 import stylesUrl from './index.css?url';
@@ -143,6 +144,8 @@ export default function Root() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
+  const requiresReload = error instanceof Error && isStaleRouteError(error);
+
   if (isRouteErrorResponse(error) && error.status === 404) {
     return (
       <>
@@ -167,8 +170,17 @@ export function ErrorBoundary() {
   return (
     <SiteLayout>
       <PlatformErrorView
-        message="Something went wrong. Reload the page or return home."
-        title="Zoff is temporarily unavailable"
+        message={
+          requiresReload
+            ? 'This page changed while Zoff was open. Load the latest version to continue.'
+            : 'Something went wrong. Try again or return home.'
+        }
+        requiresReload={requiresReload}
+        title={
+          requiresReload
+            ? 'A newer page is available'
+            : 'Zoff is temporarily unavailable'
+        }
       />
     </SiteLayout>
   );

@@ -4,6 +4,8 @@ import { SecurityContent } from './components/SecurityContent';
 import { type SecurityData, securityLoader } from './loader';
 import { securityMeta } from './meta';
 
+export { shouldRevalidate } from '../../components/legal/shouldRevalidate';
+
 export const HydrateFallback = SecurityHydrateFallback;
 
 export const loader = securityLoader;

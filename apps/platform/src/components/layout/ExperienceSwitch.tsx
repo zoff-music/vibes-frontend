@@ -1,13 +1,31 @@
+import type { RoomType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { Link, useLocation } from 'react-router';
 import { useExperience } from '../../hooks/useExperience';
 
 export function ExperienceSwitch() {
   const experience = useExperience();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const path = pathname.replace(/\/+$/, '') || '/';
   const isLandingPage =
     path === '/' || path === '/features/music' || path === '/features/watch';
+  const isRoomExplorer = path === '/rooms/explore';
+
+  const experienceHref = (type: RoomType, fallback: string) => {
+    if (!isRoomExplorer) return fallback;
+
+    const params = new URLSearchParams(search);
+    if (type !== experience) params.delete('from');
+
+    if (type === 'WATCH') {
+      params.set('type', 'watch');
+    } else {
+      params.delete('type');
+    }
+
+    const query = params.toString();
+    return query ? `${path}?${query}` : path;
+  };
 
   return (
     <nav
@@ -24,8 +42,9 @@ export function ExperienceSwitch() {
       {experiences.map((item) => (
         <Link
           key={item.type}
-          to={item.href}
+          to={experienceHref(item.type, item.href)}
           prefetch="intent"
+          preventScrollReset={isRoomExplorer}
           state={{ experienceTransition: isLandingPage }}
           aria-current={experience === item.type ? 'page' : false}
           className={classNames(
@@ -66,4 +85,4 @@ export function ExperienceSwitch() {
 const experiences = [
   { type: 'MUSIC', label: 'Music', href: '/features/music' },
   { type: 'WATCH', label: 'Watch', href: '/features/watch' },
-];
+] as const;

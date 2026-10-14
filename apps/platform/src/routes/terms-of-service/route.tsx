@@ -4,6 +4,8 @@ import { TermsOfServiceContent } from './components/TermsOfServiceContent';
 import { type TermsOfServiceLoaderData, termsOfServiceLoader } from './loader';
 import { termsOfServiceMeta } from './meta';
 
+export { shouldRevalidate } from '../../components/legal/shouldRevalidate';
+
 export const HydrateFallback = TermsOfServiceHydrateFallback;
 
 export const loader = termsOfServiceLoader;

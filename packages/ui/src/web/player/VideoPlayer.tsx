@@ -1147,6 +1147,8 @@ const VideoPlayerComponent = ({
         playerState === YOUTUBE_STATE_PLAYING ? 'true' : 'false'
       }
       data-provider="youtube"
+      aria-hidden={!isVisible}
+      inert={!isVisible}
       className={classNames(
         containerClass,
         !isVisible && 'pointer-events-none opacity-0',
@@ -1185,8 +1187,14 @@ const VideoPlayerComponent = ({
       )}
 
       {!isReady && !error && !showClickToPlay && (
-        <div className="flex shrink-0 items-center justify-center gap-3 border-white/15 border-t bg-black px-4 py-3">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500/30 border-t-red-500" />
+        <div
+          className="pointer-events-none absolute inset-0 flex items-center justify-center gap-3 px-4 py-3"
+          role="status"
+        >
+          <div
+            aria-hidden="true"
+            className="h-4 w-4 rounded-full border-2 border-red-500/30 border-t-red-500 motion-safe:animate-spin"
+          />
           <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
             Loading player...
           </p>

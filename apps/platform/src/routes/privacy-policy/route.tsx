@@ -4,6 +4,8 @@ import { PrivacyPolicyContent } from './components/PrivacyPolicyContent';
 import { type PrivacyPolicyLoaderData, privacyPolicyLoader } from './loader';
 import { privacyPolicyMeta } from './meta';
 
+export { shouldRevalidate } from '../../components/legal/shouldRevalidate';
+
 export const HydrateFallback = PrivacyPolicyHydrateFallback;
 
 export const loader = privacyPolicyLoader;

@@ -1,13 +1,19 @@
 import { classNames } from '@vibes/shared';
 import { MotionConfig, m as motion } from 'framer-motion';
 import { useState } from 'react';
+import mobileRemotePng from '../../assets/product/mobile-remote.png?url';
 import mobileRemote from '../../assets/product/mobile-remote.webp?url';
+import mobileRemoteSmall from '../../assets/product/mobile-remote-small.webp?url';
+import mobileSearchPng from '../../assets/product/mobile-search.png?url';
 import mobileSearch from '../../assets/product/mobile-search.webp?url';
+import mobileSearchSmall from '../../assets/product/mobile-search-small.webp?url';
 
 const screens = [
   {
     label: 'Find a song',
     source: mobileSearch,
+    smallSource: mobileSearchSmall,
+    fallback: mobileSearchPng,
     alt: 'Zoff app showing YouTube and SoundCloud search results with add buttons',
     caption: 'Find it on your phone. Hear it with everyone.',
     selectedX: '-62%',
@@ -17,6 +23,8 @@ const screens = [
   {
     label: 'Take the controls',
     source: mobileRemote,
+    smallSource: mobileRemoteSmall,
+    fallback: mobileRemotePng,
     alt: 'Zoff app pairing a phone with another player using a QR code or pairing code',
     caption: 'Pair with the player. Your phone becomes the remote.',
     selectedX: '-38%',
@@ -64,14 +72,21 @@ export function ProductScreenshots() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="absolute top-3 left-1/2 w-3/5 max-w-60 overflow-hidden rounded-3xl border-4 border-[#302139] bg-[#120b1e] shadow-2xl"
             >
-              <img
-                src={screen.source}
-                width={520}
-                height={1130}
-                decoding="async"
-                alt={screen.alt}
-                className="block h-auto w-full"
-              />
+              <picture>
+                <source
+                  type="image/webp"
+                  sizes="(min-width: 640px) 240px, min(60vw, 240px)"
+                  srcSet={`${screen.smallSource} 260w, ${screen.source} 520w`}
+                />
+                <img
+                  src={screen.fallback}
+                  width={520}
+                  height={1130}
+                  decoding="async"
+                  alt={screen.alt}
+                  className="block h-auto w-full"
+                />
+              </picture>
             </motion.div>
           ))}
         </div>
