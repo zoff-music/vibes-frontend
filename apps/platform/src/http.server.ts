@@ -4,6 +4,33 @@ import {
 } from '@vibes/api';
 import { createTracedApiFetchLifecycle } from '@vibes/serve';
 import { safeWrap } from '@vibes/shared';
+import type { HandleDataRequestFunction } from 'react-router';
+
+export const handleDataRequest: HandleDataRequestFunction = (
+  response,
+  { request },
+) => {
+  const url = new URL(request.url);
+  const policy = url.pathname.match(
+    /^\/(security|privacy-policy|terms-of-service)\.data$/,
+  )?.[1];
+  const routes = url.searchParams.getAll('_routes');
+  const policyOnly =
+    policy && routes.length === 1 && routes[0] === `routes/${policy}/route`;
+
+  response.headers.set('Cache-Control', 'private, no-store');
+
+  if (
+    request.method === 'GET' &&
+    response.status === 200 &&
+    policyOnly &&
+    !response.headers.has('Set-Cookie')
+  ) {
+    response.headers.set('Cache-Control', 'private, max-age=300');
+  }
+
+  return response;
+};
 
 const FALLBACK_API_BASE_URL = 'http://localhost:8080';
 const serviceName =

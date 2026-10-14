@@ -32,6 +32,8 @@ export function ProviderMark({
             className,
           )}
           src={marks.light}
+          loading="lazy"
+          decoding="async"
           width={marks.width}
           height={marks.height}
         />
@@ -42,6 +44,8 @@ export function ProviderMark({
           alt=""
           className={classNames('provider-mark-dark object-contain', className)}
           src={marks.dark}
+          loading="lazy"
+          decoding="async"
           width={marks.width}
           height={marks.height}
         />
