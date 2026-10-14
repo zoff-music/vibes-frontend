@@ -89,6 +89,12 @@ pnpm --filter @vibes/mobile exec expo run:android
 Native-project changes belong in an Expo config plugin under `plugins/`; do not
 commit generated `ios` or `android` directories or a root-level `app.json`.
 
+SDK 57 opts into the iOS scene lifecycle through `expo-build-properties`
+(`ios.enableSceneSupport`). This is required for Xcode 27 builds to launch on
+iOS 27. Prebuild configures Expo's scene delegate to create the window and start
+React Native, while preserving lifecycle and link delivery. Keep this enabled
+until upgrading to an Expo SDK that adopts scenes by default.
+
 After the first native build, start Metro with:
 
 ```sh
