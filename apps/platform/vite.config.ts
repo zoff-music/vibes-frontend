@@ -34,9 +34,7 @@ export default defineConfig(({ command, mode }) => {
           rolldownOptions: {
             output: {
               chunkFileNames(chunk) {
-                const name = chunk.name.startsWith('router-react')
-                  ? 'router-react'
-                  : chunk.name;
+                const name = chunk.name.split('~')[0];
 
                 return `assets/${name}-[hash].js`;
               },
@@ -66,13 +64,27 @@ export default defineConfig(({ command, mode }) => {
                     name: 'router-core',
                     test: /react-router[\\/]dist[\\/]production[\\/]lib[\\/]router[\\/]/,
                     priority: 20,
-                    maxSize: 90_000,
                   },
                   {
                     name: 'router-react',
                     test: /react-router[\\/]dist[\\/]production[\\/]/,
                     priority: 10,
                     entriesAware: true,
+                    entriesAwareMergeThreshold: 8_000,
+                  },
+                  {
+                    name: 'controls',
+                    test: /packages[\\/]ui[\\/]src[\\/]web[\\/]components[\\/](?:Button|Tooltip|SiteHeader|SiteFooter|NotFoundView|DeferredContent|PublicRoomTile|SiteHero|SitePage)\.tsx$/,
+                    priority: 4,
+                    entriesAware: true,
+                    entriesAwareMergeThreshold: 4_000,
+                  },
+                  {
+                    name: 'utilities',
+                    test: /packages[\\/]shared[\\/]src[\\/]utils[\\/](?:classNames|wrap|debug)\.ts$/,
+                    priority: 3,
+                    entriesAware: true,
+                    entriesAwareMergeThreshold: 8_000,
                   },
                 ],
               },
