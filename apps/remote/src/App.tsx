@@ -25,7 +25,7 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-theme text-theme">
+    <div className="relative min-h-screen overflow-x-clip bg-theme text-theme">
       <SiteBackground variant="landing" showGrid />
       <ToastViewport />
       <SiteLayout
