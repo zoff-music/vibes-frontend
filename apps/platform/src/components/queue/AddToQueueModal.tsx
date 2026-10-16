@@ -913,13 +913,13 @@ export const AddToQueueModal: React.FC<Props> = ({
             )}
             {previewPlaylist.truncated && (
               <p className="mt-2 text-orange-400 text-xs">
-                This playlist is very large. The available items shown below
-                will be added.
+                Only the first 5,000 playlist entries are checked. Eligible
+                items from those entries will be imported.
               </p>
             )}
           </div>
           <div className="max-h-72 overflow-y-auto">
-            {previewPlaylist.items.map((item, index) => (
+            {previewPlaylist.items.slice(0, 100).map((item, index) => (
               <div
                 key={item.key}
                 className="flex items-center gap-3 border-theme border-t px-4 py-3 first:border-t-0"
@@ -948,6 +948,11 @@ export const AddToQueueModal: React.FC<Props> = ({
               </div>
             ))}
           </div>
+          {previewPlaylist.items.length > 100 && (
+            <p className="border-theme border-t p-4 text-center text-theme-muted text-xs">
+              and {(previewPlaylist.items.length - 100).toLocaleString()} more
+            </p>
+          )}
         </div>
       )}
 

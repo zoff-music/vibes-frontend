@@ -117,7 +117,7 @@ export async function playlistAction(
       const [error, playlist] = await api.v2.get(
         '/youtube/playlists/{id}',
         { id: body.sourceId, $search: { roomType: room.roomType } },
-        { signal },
+        { signal, timeout: 120_000 },
       );
 
       if (error || !playlist) {
@@ -134,7 +134,7 @@ export async function playlistAction(
     const [error, playlist] = await api.v2.get(
       '/soundcloud/playlists',
       { $search: { url: body.providerUrl } },
-      { signal },
+      { signal, timeout: 120_000 },
     );
     if (!error && playlist) {
       return { intent: body.intent, playlist };
