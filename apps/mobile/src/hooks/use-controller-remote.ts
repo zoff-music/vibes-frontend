@@ -34,6 +34,7 @@ export interface ControllerRemoteActions {
   disconnect: () => Promise<void>;
   handleScan: (result: BarcodeScanningResult) => void;
   openScanner: () => Promise<void>;
+  resetScan: () => void;
   pair: () => Promise<void>;
   pairWithToken: (remoteId: string, pairingToken: string) => Promise<void>;
   refresh: () => Promise<void>;
@@ -53,6 +54,8 @@ export interface ControllerRemoteState {
   livePosition: number;
   nextRoomId: string;
   pairingCode: string;
+  pairing: boolean;
+  scanDetected: boolean;
   playback: PlaybackStateV2 | null;
   queuedPlaylistItems: PlaylistItem[];
   remote: RemoteStatusV2 | null;
@@ -87,11 +90,19 @@ export function useControllerRemote(): readonly [
     [activateControllerRemote],
   );
   const [
-    { controllerToken, pairingCode, remoteId, scannerVisible },
+    {
+      controllerToken,
+      pairingCode,
+      pairing,
+      scanDetected,
+      remoteId,
+      scannerVisible,
+    },
     {
       clearCredentials,
       handleScan,
       openScanner,
+      resetScan,
       pair,
       pairWithToken,
       setPairingCode,
@@ -293,6 +304,8 @@ export function useControllerRemote(): readonly [
       livePosition,
       nextRoomId,
       pairingCode,
+      pairing,
+      scanDetected,
       playback,
       queuedPlaylistItems,
       remote,
@@ -307,6 +320,7 @@ export function useControllerRemote(): readonly [
       disconnect,
       handleScan,
       openScanner,
+      resetScan,
       pair,
       pairWithToken,
       refresh,

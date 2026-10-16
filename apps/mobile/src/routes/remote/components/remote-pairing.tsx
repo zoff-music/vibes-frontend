@@ -1,6 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { CameraView } from 'expo-camera';
-import { Modal, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
@@ -11,13 +10,14 @@ import {
   Heading,
   Screen,
 } from '@/components/native';
-import { Toast, ToastViewport } from '@/components/toast';
+import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import type {
   ControllerRemoteActions,
   ControllerRemoteState,
 } from '@/hooks/use-controller-remote';
+import { RemoteScanner } from './remote-scanner';
 
 interface RemotePairingProps {
   controller: ControllerRemoteState;
@@ -58,6 +58,7 @@ export function RemotePairingV2({
                 <Button
                   icon="scan"
                   label="Scan remote QR code"
+                  disabled={controller.pairing}
                   tone="secondary"
                   onPress={() => void controllerActions.openScanner()}
                 />
@@ -87,7 +88,8 @@ export function RemotePairingV2({
                 />
 
                 <Button
-                  label="Pair remote"
+                  label={controller.pairing ? 'Pairing…' : 'Pair remote'}
+                  disabled={controller.pairing}
                   onPress={() => void controllerActions.pair()}
                 />
 
@@ -96,39 +98,12 @@ export function RemotePairingV2({
             </View>
           </ContentColumn>
         </ScrollView>
-        <Modal
-          visible={controller.scannerVisible}
-          animationType="slide"
-          presentationStyle="fullScreen"
-        >
-          <View className="flex-1 bg-[#08050f]">
-            <CameraView
-              active={controller.scannerVisible}
-              barcodeScannerSettings={{
-                barcodeTypes: ['qr'],
-              }}
-              facing="back"
-              className="absolute inset-0"
-              onBarcodeScanned={controllerActions.handleScan}
-            />
-
-            <SafeAreaView className="justify-between" style={safeAreaStyle}>
-              <View className="items-center gap-3 px-6 pt-8">
-                <Heading>Scan remote QR code</Heading>
-                <Copy muted>Point the camera at the pairing code.</Copy>
-              </View>
-              <View className="size-64 self-center rounded-3xl border-4 border-accent bg-transparent" />
-              <View className="px-4 pb-4">
-                <Button
-                  label="Close scanner"
-                  tone="secondary"
-                  onPress={() => controllerActions.setScannerVisible(false)}
-                />
-              </View>
-            </SafeAreaView>
-            <ToastViewport />
-          </View>
-        </Modal>
+        {controller.scannerVisible && (
+          <RemoteScanner
+            controller={controller}
+            controllerActions={controllerActions}
+          />
+        )}
       </SafeAreaView>
     </Screen>
   );
