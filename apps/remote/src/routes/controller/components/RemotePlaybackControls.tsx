@@ -1,5 +1,5 @@
 import type { PlaylistItem, RemoteStatusV2, RoomV2 } from '@vibes/models';
-import { usePlaybackStore } from '@vibes/shared';
+import { usePlaybackDrift, usePlaybackStore } from '@vibes/shared';
 import { getRoomLabels } from '@vibes/ui/shared';
 import {
   Button,
@@ -54,14 +54,19 @@ export function RemotePlaybackControls({
   const [positionMs, setPositionMs] = useState(serverPositionMs);
   const [seekPositionMs, setSeekPositionMs] = useState(serverPositionMs);
   const isSeekingRef = useRef(false);
-  const canResetPosition = Boolean(
-    remoteStatus?.online &&
+  const outOfSync = Boolean(
+    fetcher.state === 'idle' &&
+      remoteStatus?.online &&
       remoteStatus.playbackObservedAt &&
       currentPlaylistItem &&
       !(room.mode === 'host' && room.hostId === room.userId) &&
       (!isMachinePlaylistItemCurrent ||
         remoteStatus.playbackIsPlaying !== serverIsPlaying ||
         Math.abs(positionMs - serverPositionMs) > 5_000),
+  );
+  const canResetPosition = usePlaybackDrift(
+    outOfSync,
+    `${room.id}:${currentPlaylistItem?.id ?? ''}:${serverIsPlaying}`,
   );
 
   useEffect(() => {

@@ -207,6 +207,8 @@ export async function clientAction({
 }
 
 async function errorResult(intent: string, error: Error | null) {
+  if (!error) return { intent } satisfies ControllerActionData;
+
   return {
     error: await getRequestErrorMessage(error, getActionErrorFallback(intent)),
     intent,

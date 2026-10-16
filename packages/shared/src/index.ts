@@ -3,6 +3,7 @@ export { PUBLIC_ROOM_PAGE_SIZE } from './constants';
 export * from './hooks/useChatTimeline';
 export * from './hooks/useMediaSession';
 export * from './hooks/usePageVisibility';
+export * from './hooks/usePlaybackDrift';
 export * from './stores/playbackStore';
 export * from './stores/queueStore';
 export * from './stores/roomStore';
