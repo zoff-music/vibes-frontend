@@ -176,12 +176,22 @@ export function useControllerRemote(): readonly [
 
   const credentialsKey = `${remoteId}:${controllerToken}:${pairing}`;
   const credentialsRef = useRef(credentialsKey);
+  const refreshRequestRef = useRef(0);
   credentialsRef.current = credentialsKey;
 
   const refresh = useCallback(async () => {
     if (!remoteId || !controllerToken || pairing) return;
+
+    const requestId = ++refreshRequestRef.current;
     const result = await remoteLoader.load();
-    if (credentialsRef.current !== credentialsKey) return;
+    if (
+      credentialsRef.current !== credentialsKey ||
+      refreshRequestRef.current !== requestId
+    )
+      return;
+
+    // Cancelled native-router loads have neither data nor an error.
+    if (!result.data && !result.error) return;
 
     if (!result.data) {
       if (result.error === invalidRemoteError) {
@@ -208,6 +218,13 @@ export function useControllerRemote(): readonly [
         nextRemote.currentRoomId,
       );
     }
+
+    if (
+      credentialsRef.current !== credentialsKey ||
+      refreshRequestRef.current !== requestId
+    )
+      return;
+
     if (!nextRemote.currentRoomId) {
       setRoom(null);
       setPlaylistItems([]);
