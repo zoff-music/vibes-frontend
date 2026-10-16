@@ -1,6 +1,7 @@
 import type { PlaylistItem, Providers } from '@vibes/models';
 import { roomNameMaxLength } from '@vibes/models';
 import { getRoomLabels } from '@vibes/ui/shared';
+import { Image } from 'expo-image';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -34,6 +35,7 @@ export function RemoteControl({
   providers,
 }: RemoteControlProps) {
   const { playback, remote, room } = controller;
+  const currentPlaylistItem = playback?.currentPlaylistItem;
   if (!remote) return null;
   const displayedIsPlaying =
     room?.mode === 'host'
@@ -69,17 +71,20 @@ export function RemoteControl({
                       {room.userCount ?? 0}{' '}
                       {getRoomLabels(room.roomType).participants}
                     </Copy>
-                    <Button
-                      icon="settings"
-                      label="Room settings"
-                      tone="secondary"
-                      onPress={() => controllerActions.setSettingsVisible(true)}
-                    />
-                    <Button
-                      label="Disconnect remote"
-                      tone="danger"
-                      onPress={() => void controllerActions.disconnect()}
-                    />
+                    <View className="flex-row gap-2">
+                      <IconButton
+                        accessibilityLabel="Room settings"
+                        icon="settings"
+                        onPress={() =>
+                          controllerActions.setSettingsVisible(true)
+                        }
+                      />
+                      <IconButton
+                        accessibilityLabel="Disconnect remote"
+                        icon="close"
+                        onPress={() => void controllerActions.disconnect()}
+                      />
+                    </View>
                   </Card>
                   <Card>
                     <Copy muted>CHANGE ROOM</Copy>
@@ -105,16 +110,32 @@ export function RemoteControl({
                   </Card>
                   <Card>
                     <Copy muted>NOW PLAYING</Copy>
-                    <Text
-                      numberOfLines={1}
-                      className="font-heading text-base text-mobile-text dark:text-mobile-dark-text"
-                    >
-                      {playback?.currentPlaylistItem?.title ??
-                        'Nothing playing'}
-                    </Text>
-                    <Copy muted>
-                      {playback?.currentPlaylistItem?.publisher ?? ''}
-                    </Copy>
+                    <View className="flex-row items-center gap-3">
+                      {currentPlaylistItem?.thumbnailUrl && (
+                        <View className="size-20 overflow-hidden rounded-xl bg-black">
+                          <Image
+                            accessibilityLabel={`Thumbnail for ${currentPlaylistItem.title}`}
+                            cachePolicy="memory-disk"
+                            contentFit="cover"
+                            recyclingKey={currentPlaylistItem.id}
+                            source={currentPlaylistItem.thumbnailUrl}
+                            style={thumbnailImageStyle}
+                          />
+                        </View>
+                      )}
+                      <View className="min-w-0 flex-1 gap-2">
+                        <Text
+                          numberOfLines={2}
+                          className="font-heading text-base text-mobile-text dark:text-mobile-dark-text"
+                        >
+                          {playback?.currentPlaylistItem?.title ??
+                            'Nothing playing'}
+                        </Text>
+                        <Copy muted>
+                          {playback?.currentPlaylistItem?.publisher ?? ''}
+                        </Copy>
+                      </View>
+                    </View>
                     <View className="flex-row gap-2">
                       <View className="flex-1">
                         <Button
@@ -179,3 +200,7 @@ export function RemoteControl({
 }
 
 const safeAreaStyle = { flex: 1 };
+const thumbnailImageStyle = {
+  height: '100%' as const,
+  width: '100%' as const,
+};

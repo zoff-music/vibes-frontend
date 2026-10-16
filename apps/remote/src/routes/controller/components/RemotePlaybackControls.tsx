@@ -1,5 +1,9 @@
 import type { PlaylistItem, RemoteStatusV2, RoomV2 } from '@vibes/models';
-import { usePlaybackDrift, usePlaybackStore } from '@vibes/shared';
+import {
+  resolvePlaylistItemThumbnail,
+  usePlaybackDrift,
+  usePlaybackStore,
+} from '@vibes/shared';
 import { getRoomLabels } from '@vibes/ui/shared';
 import {
   Button,
@@ -127,12 +131,27 @@ export function RemotePlaybackControls({
       <p className="font-pixel text-2xs text-theme-muted tracking-label">
         Now playing
       </p>
-      <h2 className="mt-4 line-clamp-2 font-display text-lg text-theme">
-        {currentPlaylistItem?.title ?? 'Nothing playing'}
-      </h2>
-      <p className="mt-2 truncate text-sm text-theme-muted">
-        {currentPlaylistItem?.publisher ?? `Add a ${labels.item} to begin`}
-      </p>
+      <div className="mt-4 flex items-center gap-4">
+        {currentPlaylistItem?.thumbnailUrl && (
+          <img
+            key={currentPlaylistItem.id}
+            src={resolvePlaylistItemThumbnail(currentPlaylistItem.thumbnailUrl)}
+            alt=""
+            width={96}
+            height={96}
+            decoding="async"
+            className="h-20 w-20 shrink-0 rounded-xl border border-theme bg-theme-surface object-cover sm:h-24 sm:w-24"
+          />
+        )}
+        <div className="min-w-0 flex-1">
+          <h2 className="line-clamp-2 font-display text-lg text-theme">
+            {currentPlaylistItem?.title ?? 'Nothing playing'}
+          </h2>
+          <p className="mt-2 truncate text-sm text-theme-muted">
+            {currentPlaylistItem?.publisher ?? `Add a ${labels.item} to begin`}
+          </p>
+        </div>
+      </div>
 
       <div className="mt-6 flex items-center gap-3">
         <fetcher.Form method="post">

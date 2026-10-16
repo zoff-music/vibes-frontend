@@ -22,11 +22,13 @@ import {
 } from '@vibes/shared';
 import {
   Button,
+  CloseIcon,
   Input,
   ListenerCount,
   QueueList,
   RemoteIcon,
   SettingsIcon,
+  Tooltip,
 } from '@vibes/ui/web';
 import {
   type ChangeEvent,
@@ -308,7 +310,7 @@ export default function RemoteController() {
             {room?.name ?? 'No room selected'}
           </h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <ListenerCount
             count={usersCount}
             roomType={room?.roomType ?? 'MUSIC'}
@@ -324,20 +326,20 @@ export default function RemoteController() {
               <SettingsIcon className="h-5 w-5" />
             </Button>
           )}
-          <RemoteIcon className="h-7 w-7 text-secondary" />
+          <Form method="post" action="/remotes/disconnect" reloadDocument>
+            <Tooltip className="inline-flex" content="Disconnect remote">
+              <Button
+                aria-label="Disconnect remote"
+                size="icon"
+                type="submit"
+                variant="tertiary"
+              >
+                <CloseIcon className="h-5 w-5" />
+              </Button>
+            </Tooltip>
+          </Form>
         </div>
       </header>
-
-      <Form
-        method="post"
-        action="/remotes/disconnect"
-        reloadDocument
-        className="mt-3 flex justify-end"
-      >
-        <Button type="submit" variant="tertiary">
-          Disconnect remote
-        </Button>
-      </Form>
 
       <roomFetcher.Form
         method="post"
