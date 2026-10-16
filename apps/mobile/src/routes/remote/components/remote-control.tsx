@@ -45,6 +45,61 @@ export function RemoteControl({
   return (
     <Screen>
       <SafeAreaView edges={['top']} style={safeAreaStyle}>
+        <View className="gap-3 p-4">
+          <Card>
+            <View className="flex-row items-center justify-between gap-3">
+              <View className="min-w-0 flex-1 gap-2">
+                <Copy muted>CONTROLLING MACHINE</Copy>
+                <Heading>
+                  {room?.name || remote.currentRoomId || 'No room'}
+                </Heading>
+                <Copy muted>{remote.online ? 'Online' : 'Offline'}</Copy>
+                {room && (
+                  <Copy muted>
+                    {room.userCount ?? 0}{' '}
+                    {getRoomLabels(room.roomType).participants}
+                  </Copy>
+                )}
+              </View>
+              <View className="flex-row gap-2">
+                {room && (
+                  <IconButton
+                    accessibilityLabel="Room settings"
+                    icon="settings"
+                    onPress={() => controllerActions.setSettingsVisible(true)}
+                  />
+                )}
+                <IconButton
+                  accessibilityLabel="Disconnect remote"
+                  icon="close"
+                  onPress={() => void controllerActions.disconnect()}
+                />
+              </View>
+            </View>
+          </Card>
+          {!room && (
+            <Card>
+              <Copy muted>CHOOSE ROOM</Copy>
+              <View className="flex-row items-stretch gap-2">
+                <View className="flex-1">
+                  <Field
+                    autoCapitalize="none"
+                    value={controller.nextRoomId}
+                    onChangeText={controllerActions.setNextRoomId}
+                    onSubmitEditing={() => void controllerActions.changeRoom()}
+                    placeholder="Room name"
+                    maxLength={roomNameMaxLength}
+                  />
+                </View>
+                <Button
+                  disabled={!controller.nextRoomId.trim()}
+                  label="Go"
+                  onPress={() => void controllerActions.changeRoom()}
+                />
+              </View>
+            </Card>
+          )}
+        </View>
         {room && (
           <>
             <Queue
@@ -61,31 +116,6 @@ export function RemoteControl({
                 : {})}
               header={
                 <View className="gap-3 p-4">
-                  <Card>
-                    <Copy muted>CONTROLLING MACHINE</Copy>
-                    <Heading>
-                      {room.name || remote.currentRoomId || 'No room'}
-                    </Heading>
-                    <Copy muted>
-                      {remote.online ? 'Online' : 'Offline'} ·{' '}
-                      {room.userCount ?? 0}{' '}
-                      {getRoomLabels(room.roomType).participants}
-                    </Copy>
-                    <View className="flex-row gap-2">
-                      <IconButton
-                        accessibilityLabel="Room settings"
-                        icon="settings"
-                        onPress={() =>
-                          controllerActions.setSettingsVisible(true)
-                        }
-                      />
-                      <IconButton
-                        accessibilityLabel="Disconnect remote"
-                        icon="close"
-                        onPress={() => void controllerActions.disconnect()}
-                      />
-                    </View>
-                  </Card>
                   <Card>
                     <Copy muted>CHANGE ROOM</Copy>
                     <View className="flex-row items-stretch gap-2">
