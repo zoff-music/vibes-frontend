@@ -46,11 +46,21 @@ export function RemotePlaybackControls({
   const labels = getRoomLabels(room.roomType);
   const serverPositionMs =
     usePlaybackStore((state) => state.actualPositionMs) ?? initialPositionMs;
+  const serverIsPlaying = usePlaybackStore((state) => state.isPlaying);
   const durationMs =
     (currentPlaylistItem?.duration ?? 0) * millisecondsPerSecond;
   const [positionMs, setPositionMs] = useState(serverPositionMs);
   const [seekPositionMs, setSeekPositionMs] = useState(serverPositionMs);
   const isSeekingRef = useRef(false);
+  const canResetPosition = Boolean(
+    remoteStatus?.online &&
+      remoteStatus.playbackObservedAt &&
+      currentPlaylistItem &&
+      !(room.mode === 'host' && room.hostId === room.userId) &&
+      (!isMachinePlaylistItemCurrent ||
+        remoteStatus.playbackIsPlaying !== serverIsPlaying ||
+        Math.abs(positionMs - serverPositionMs) > 5_000),
+  );
 
   useEffect(() => {
     if (!isMachinePlaylistItemCurrent || !remoteStatus) {
@@ -173,6 +183,19 @@ export function RemotePlaybackControls({
           </p>
         )}
       </fetcher.Form>
+      {canResetPosition && (
+        <fetcher.Form className="mt-4" method="post">
+          <input name="intent" type="hidden" value="resetPosition" />
+          <input name="roomId" type="hidden" value={room.id} />
+          <Button
+            type="submit"
+            variant="tertiary"
+            disabled={fetcher.state !== 'idle'}
+          >
+            Reset position
+          </Button>
+        </fetcher.Form>
+      )}
     </section>
   );
 }

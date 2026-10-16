@@ -58,6 +58,7 @@ interface Props {
 export function RemoteControlProvider({ children, initialRemote }: Props) {
   const navigate = useNavigate();
   const controlFetcher = useFetcher<RemoteControlActionData>();
+  const reportFetcher = useFetcher<RemoteControlActionData>();
   const [isOpen, setIsOpen] = useState(false);
   const [machineRoomId, setMachineRoomId] = useState('');
   const currentPlaylistItemId = usePlaybackStore(
@@ -74,6 +75,35 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     initialRemote ?? createEmptyRemoteStatus,
   );
   const [pairing, setPairing] = useState<RemotePairingV2 | null>(null);
+
+  useEffect(() => {
+    if (!remote.enabled || !remote.id) return;
+
+    const report = () => {
+      void reportFetcher.submit(
+        { intent: 'update', remoteId: remote.id, roomId: machineRoomId },
+        { method: 'post', action: '/remote-control' },
+      );
+    };
+
+    report();
+    const interval = window.setInterval(report, 10_000);
+    const unsubscribe = usePlaybackStore.subscribe((state, previous) => {
+      if (
+        state.isPlaying !== previous.isPlaying ||
+        state.currentPlaylistItem?.id !== previous.currentPlaylistItem?.id ||
+        state.positionMs !== previous.positionMs ||
+        state.resetVersion !== previous.resetVersion
+      ) {
+        report();
+      }
+    });
+
+    return () => {
+      window.clearInterval(interval);
+      unsubscribe();
+    };
+  }, [remote.enabled, remote.id, machineRoomId, reportFetcher.submit]);
 
   useEffect(() => {
     if (controlFetcher.state !== 'idle' || !controlFetcher.data) return;

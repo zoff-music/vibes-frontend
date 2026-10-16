@@ -19,6 +19,7 @@
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
+    "jsqr": "1.4.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-router": "8.4.0"

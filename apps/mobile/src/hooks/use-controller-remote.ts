@@ -10,7 +10,7 @@ import type {
 import { useFetcher } from '@vibes/native-router';
 import { synchronizeServerClock } from '@vibes/shared';
 import type { BarcodeScanningResult } from 'expo-camera';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useControllerCommands } from '@/hooks/use-controller-commands';
 import { useControllerPairing } from '@/hooks/use-controller-pairing';
 import { useLivePosition } from '@/hooks/use-live-position';
@@ -35,6 +35,7 @@ export interface ControllerRemoteActions {
   handleScan: (result: BarcodeScanningResult) => void;
   openScanner: () => Promise<void>;
   resetScan: () => void;
+  resetPosition: () => Promise<void>;
   pair: () => Promise<void>;
   pairWithToken: (remoteId: string, pairingToken: string) => Promise<void>;
   refresh: () => Promise<void>;
@@ -52,6 +53,7 @@ export interface ControllerRemoteState {
   controllerToken: string;
   error: string;
   livePosition: number;
+  canResetPosition: boolean;
   nextRoomId: string;
   pairingCode: string;
   pairing: boolean;
@@ -130,10 +132,28 @@ export function useControllerRemote(): readonly [
     remote?.playbackPositionMs ?? 0,
     remote?.playbackIsPlaying ?? false,
     playback?.currentPlaylistItem?.duration ?? 0,
+    remote?.playbackObservedAt
+      ? Date.parse(remote.playbackObservedAt)
+      : undefined,
+  );
+  const roomPosition = useLivePosition(
+    playback?.positionMs ?? 0,
+    playback?.isPlaying ?? false,
+    playback?.currentPlaylistItem?.duration ?? 0,
+    playback?.serverTimeMs,
+  );
+  const canResetPosition = Boolean(
+    remote?.online &&
+      playback?.currentPlaylistItem &&
+      remote.playbackObservedAt &&
+      !(room?.mode === 'host' && room.hostId === room.userId) &&
+      (remote.currentPlaylistItemId !== playback.currentPlaylistItem.id ||
+        remote.playbackIsPlaying !== playback.isPlaying ||
+        Math.abs(livePosition - roomPosition) > 5_000),
   );
   const [
     nextRoomId,
-    { action, changeRoom, remove, seek, setNextRoomId, vote },
+    { action, changeRoom, remove, resetPosition, seek, setNextRoomId, vote },
   ] = useControllerCommands({
     controllerToken,
     livePosition,
@@ -150,9 +170,15 @@ export function useControllerRemote(): readonly [
       )
     : playlistItems;
 
+  const credentialsKey = `${remoteId}:${controllerToken}:${pairing}`;
+  const credentialsRef = useRef(credentialsKey);
+  credentialsRef.current = credentialsKey;
+
   const refresh = useCallback(async () => {
-    if (!remoteId || !controllerToken) return;
+    if (!remoteId || !controllerToken || pairing) return;
     const result = await remoteLoader.load();
+    if (credentialsRef.current !== credentialsKey) return;
+
     if (!result.data) {
       if (result.error === invalidRemoteError) {
         clearCredentials();
@@ -197,6 +223,8 @@ export function useControllerRemote(): readonly [
     clearCredentials,
     controllerRemote?.roomId,
     controllerToken,
+    credentialsKey,
+    pairing,
     remoteId,
     remoteLoader.load,
   ]);
@@ -234,7 +262,7 @@ export function useControllerRemote(): readonly [
     controller: true,
     onRoomUpdate: handleRemoteRoomUpdate,
     onStateUpdate: handleRemoteStateUpdate,
-    ...(remoteId ? { remoteId } : {}),
+    ...(remoteId && controllerToken && !pairing ? { remoteId } : {}),
   });
 
   const roomEventCallbacks = useMemo(
@@ -283,7 +311,9 @@ export function useControllerRemote(): readonly [
     [refresh],
   );
   useRoomEventsV3(
-    remote?.currentRoomId || undefined,
+    controllerToken && !pairing
+      ? remote?.currentRoomId || undefined
+      : undefined,
     roomEventCallbacks,
     roomEventsClient,
   );
@@ -302,6 +332,7 @@ export function useControllerRemote(): readonly [
       controllerToken,
       error,
       livePosition,
+      canResetPosition,
       nextRoomId,
       pairingCode,
       pairing,
@@ -321,6 +352,7 @@ export function useControllerRemote(): readonly [
       handleScan,
       openScanner,
       resetScan,
+      resetPosition,
       pair,
       pairWithToken,
       refresh,

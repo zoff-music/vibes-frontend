@@ -62,6 +62,9 @@ export function SiteHeader() {
             >
               Apps
             </NavLink>
+            <a href="/remotes/join" className={siteNavigationClassName}>
+              Remote
+            </a>
             <Tooltip
               align="end"
               className="inline-flex"

@@ -1,7 +1,7 @@
 import { createRoomPlaybackRequests } from '@vibes/api';
 import type { PlaybackStateV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
-import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
+import { createRemoteApi, getRemoteRequestErrorMessage } from '@/lib/api';
 
 type ControllerPlaybackActionInput =
   | {
@@ -52,7 +52,10 @@ async function failure(
   error: Error | null,
   fallback: string,
 ): Promise<DataResult<ControllerPlaybackActionData>> {
-  return { data: null, error: await getRequestErrorMessage(error, fallback) };
+  return {
+    data: null,
+    error: await getRemoteRequestErrorMessage(error, fallback),
+  };
 }
 
 function isControllerPlaybackActionInput(

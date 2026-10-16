@@ -135,6 +135,7 @@ export function useControllerPairing({
       pairingRef.current = true;
       setPairing(true);
       setError('');
+      setControllerToken('');
       setRemoteId(nextRemoteId);
 
       const result = await pairingFetcher.submit(
