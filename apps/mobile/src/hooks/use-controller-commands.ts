@@ -23,6 +23,7 @@ interface ControllerCommandsOptions {
 }
 
 export interface ControllerCommandActions {
+  setPartyMode: (enabled: boolean) => Promise<void>;
   action: (kind: 'play' | 'pause' | 'skip') => Promise<void>;
   changeRoom: () => Promise<void>;
   remove: (playlistItem: PlaylistItem) => Promise<void>;
@@ -167,8 +168,33 @@ export function useControllerCommands({
     setNextRoomId('');
   };
 
+  const setPartyMode = async (enabled: boolean) => {
+    if (!room || remote?.currentRoomId !== room.id) return;
+
+    const result = await remoteAction.submit({
+      intent: 'partyMode',
+      roomId: room.id,
+      enabled,
+    });
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    setError('');
+  };
+
   return [
     nextRoomId,
-    { action, changeRoom, remove, resetPosition, seek, setNextRoomId, vote },
+    {
+      action,
+      changeRoom,
+      remove,
+      resetPosition,
+      seek,
+      setNextRoomId,
+      setPartyMode,
+      vote,
+    },
   ];
 }

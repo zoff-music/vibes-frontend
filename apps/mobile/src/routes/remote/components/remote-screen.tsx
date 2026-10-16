@@ -4,6 +4,7 @@ import { useControllerRemote } from '@/hooks/use-controller-remote';
 import { useRoomSession } from '@/providers/app-provider';
 import { RemoteControl } from './remote-control';
 import { RemotePairingV2 } from './remote-pairing';
+import { RemoteScanner } from './remote-scanner';
 
 export function RemoteScreen() {
   const searchParams = useLocalSearchParams<{
@@ -39,20 +40,26 @@ export function RemoteScreen() {
     setRemoteId,
   ]);
 
-  if (!controller.remote) {
-    return (
-      <RemotePairingV2
+  return (
+    <>
+      {!controller.remote && (
+        <RemotePairingV2
+          controller={controller}
+          controllerActions={controllerActions}
+        />
+      )}
+      {controller.remote && (
+        <RemoteControl
+          controller={controller}
+          controllerActions={controllerActions}
+          providers={providers}
+        />
+      )}
+      <RemoteScanner
         controller={controller}
         controllerActions={controllerActions}
       />
-    );
-  }
-  return (
-    <RemoteControl
-      controller={controller}
-      controllerActions={controllerActions}
-      providers={providers}
-    />
+    </>
   );
 }
 

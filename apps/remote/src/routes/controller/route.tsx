@@ -20,8 +20,10 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
+import { getRoomLabels } from '@vibes/ui/shared';
 import {
   Button,
+  CastIcon,
   CloseIcon,
   Input,
   ListenerCount,
@@ -199,6 +201,7 @@ export default function RemoteController() {
         paired: event.paired,
         playbackIsPlaying: event.playbackIsPlaying,
         playbackObservedAt: event.playbackObservedAt,
+        partyMode: event.partyMode,
         playbackPositionMs: event.playbackPositionMs,
       }));
     },
@@ -311,6 +314,34 @@ export default function RemoteController() {
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {room && remoteStatus?.currentRoomId === room.id && (
+            <actionFetcher.Form method="post">
+              <input type="hidden" name="intent" value="partyMode" />
+              <input type="hidden" name="roomId" value={room.id} />
+              <input
+                type="hidden"
+                name="partyMode"
+                value={String(!remoteStatus.partyMode)}
+              />
+              <Tooltip
+                className="inline-flex"
+                content={`${remoteStatus.partyMode ? 'Hide' : 'Show'} ${getRoomLabels(room.roomType).presentation}`}
+              >
+                <Button
+                  type="submit"
+                  size="icon"
+                  variant="tertiary"
+                  aria-label={`${remoteStatus.partyMode ? 'Hide' : 'Show'} ${getRoomLabels(room.roomType).presentation}`}
+                  aria-pressed={remoteStatus.partyMode}
+                  disabled={
+                    !remoteStatus.online || actionFetcher.state !== 'idle'
+                  }
+                >
+                  <CastIcon className="h-5 w-5" />
+                </Button>
+              </Tooltip>
+            </actionFetcher.Form>
+          )}
           <ListenerCount
             count={usersCount}
             roomType={room?.roomType ?? 'MUSIC'}

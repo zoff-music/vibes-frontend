@@ -7,6 +7,7 @@ export interface RemoteEventSubscriptionOptions {
   controller?: boolean;
   onRoomUpdate: (event: RemoteEventV2) => void;
   onStateUpdate?: (event: RemoteEventV2) => void;
+  onPresentationUpdate?: (event: RemoteEventV2) => void;
 }
 
 export function subscribeRemoteEvents({
@@ -15,6 +16,7 @@ export function subscribeRemoteEvents({
   controller = false,
   onRoomUpdate,
   onStateUpdate,
+  onPresentationUpdate,
 }: RemoteEventSubscriptionOptions): Promise<
   [Error | null, (() => void) | null]
 > {
@@ -28,6 +30,11 @@ export function subscribeRemoteEvents({
     { id: remoteId },
     ([eventError, message]) => {
       if (eventError || !message) return;
+      if (message.type === 'remote_presentation_update') {
+        onPresentationUpdate?.(message.data);
+        return;
+      }
+
       if (message.type === 'remote_state_update') {
         onStateUpdate?.(message.data);
         return;

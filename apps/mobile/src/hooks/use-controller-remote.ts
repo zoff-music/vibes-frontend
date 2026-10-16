@@ -29,6 +29,7 @@ import {
 import type { ControllerRemoteData } from '@/routes/remotes.controller.$id/loader';
 
 export interface ControllerRemoteActions {
+  setPartyMode: (enabled: boolean) => Promise<void>;
   action: (kind: 'play' | 'pause' | 'skip') => Promise<void>;
   changeRoom: () => Promise<void>;
   disconnect: () => Promise<void>;
@@ -157,7 +158,16 @@ export function useControllerRemote(): readonly [
   );
   const [
     nextRoomId,
-    { action, changeRoom, remove, resetPosition, seek, setNextRoomId, vote },
+    {
+      action,
+      changeRoom,
+      remove,
+      resetPosition,
+      seek,
+      setNextRoomId,
+      setPartyMode,
+      vote,
+    },
   ] = useControllerCommands({
     controllerToken,
     livePosition,
@@ -278,6 +288,7 @@ export function useControllerRemote(): readonly [
           paired: event.paired,
           playbackIsPlaying: event.playbackIsPlaying,
           playbackObservedAt: event.playbackObservedAt,
+          partyMode: event.partyMode,
           playbackPositionMs: event.playbackPositionMs,
         };
       });
@@ -375,6 +386,7 @@ export function useControllerRemote(): readonly [
     },
     {
       action,
+      setPartyMode,
       changeRoom,
       disconnect,
       handleScan,

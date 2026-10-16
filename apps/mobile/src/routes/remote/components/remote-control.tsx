@@ -62,6 +62,16 @@ export function RemoteControl({
                 )}
               </View>
               <View className="flex-row gap-2">
+                {room && remote.currentRoomId === room.id && (
+                  <IconButton
+                    accessibilityLabel={`${remote.partyMode ? 'Hide' : 'Show'} ${getRoomLabels(room.roomType).presentation}`}
+                    disabled={!remote.online}
+                    icon="cast"
+                    onPress={() =>
+                      void controllerActions.setPartyMode(!remote.partyMode)
+                    }
+                  />
+                )}
                 {room && (
                   <IconButton
                     accessibilityLabel="Room settings"

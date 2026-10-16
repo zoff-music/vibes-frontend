@@ -1,5 +1,5 @@
 import { safeWrap, safeWrapAsync } from '@vibes/shared';
-import { useEffect, useRef, useState } from 'react';
+import { type TouchEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 export function useScanner() {
@@ -7,6 +7,45 @@ export function useScanner() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState('');
+  const [zoom, setZoom] = useState(1);
+  const zoomRef = useRef(1);
+  const pinchRef = useRef({ distance: 0, zoom: 1 });
+
+  const changeZoom = (value: number) => {
+    const nextZoom = Math.max(1, Math.min(4, value));
+    zoomRef.current = nextZoom;
+    setZoom(nextZoom);
+  };
+
+  const startPinch = (event: TouchEvent<HTMLDivElement>) => {
+    const first = event.touches[0];
+    const second = event.touches[1];
+    if (!first || !second) return;
+
+    pinchRef.current = {
+      distance: Math.hypot(
+        first.clientX - second.clientX,
+        first.clientY - second.clientY,
+      ),
+      zoom: zoomRef.current,
+    };
+  };
+
+  const movePinch = (event: TouchEvent<HTMLDivElement>) => {
+    const first = event.touches[0];
+    const second = event.touches[1];
+    if (!first || !second || !pinchRef.current.distance) return;
+
+    const distance = Math.hypot(
+      first.clientX - second.clientX,
+      first.clientY - second.clientY,
+    );
+    changeZoom((pinchRef.current.zoom * distance) / pinchRef.current.distance);
+  };
+
+  const endPinch = () => {
+    pinchRef.current.distance = 0;
+  };
 
   useEffect(() => {
     if (!scanning) return;
@@ -15,6 +54,8 @@ export function useScanner() {
     let stream: MediaStream | null = null;
     let timer = 0;
     setScanError('');
+    zoomRef.current = 1;
+    setZoom(1);
 
     const scan = async () => {
       const { default: decode } = await import('jsqr');
@@ -47,11 +88,21 @@ export function useScanner() {
           video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
           video.videoWidth
         ) {
-          canvas.width = Math.min(video.videoWidth, 640);
-          canvas.height = Math.round(
-            (video.videoHeight * canvas.width) / video.videoWidth,
+          const cropSize =
+            Math.min(video.videoWidth, video.videoHeight) / zoomRef.current;
+          canvas.width = Math.min(Math.round(cropSize), 640);
+          canvas.height = canvas.width;
+          context.drawImage(
+            video,
+            (video.videoWidth - cropSize) / 2,
+            (video.videoHeight - cropSize) / 2,
+            cropSize,
+            cropSize,
+            0,
+            0,
+            canvas.width,
+            canvas.height,
           );
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
           const pixels = context.getImageData(
             0,
             0,
@@ -71,6 +122,11 @@ export function useScanner() {
               url.searchParams.get('remoteId') &&
               url.searchParams.get('pair')
             ) {
+              active = false;
+              stream?.getTracks().forEach((track) => {
+                track.stop();
+              });
+              video.srcObject = null;
               setScanning(false);
               navigate(`/remotes/join${url.search}`);
               return;
@@ -106,5 +162,15 @@ export function useScanner() {
     };
   }, [navigate, scanning]);
 
-  return { videoRef, scanning, scanError, setScanning };
+  return {
+    videoRef,
+    scanning,
+    scanError,
+    setScanning,
+    zoom,
+    changeZoom,
+    startPinch,
+    movePinch,
+    endPinch,
+  };
 }

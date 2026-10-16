@@ -33,6 +33,18 @@ export async function clientAction({
   const roomId = String(formData.get('roomId') ?? '');
   const client = createApiClient({ 'X-Zoff-Remote-ID': remoteId });
 
+  if (intent === 'partyMode') {
+    if (!roomId) return { intent, error: 'Choose a room first.' };
+
+    const [error] = await client.v2.patch(
+      '/remotes/{id}',
+      { id: remoteId },
+      { roomId, partyMode: formData.get('partyMode') === 'true' },
+    );
+
+    return errorResult(intent, error);
+  }
+
   if (intent === 'resetPosition') {
     const [error, playback] = await client.v2.get('/rooms/{id}/states', {
       id: roomId,

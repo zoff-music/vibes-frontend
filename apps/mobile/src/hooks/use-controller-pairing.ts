@@ -67,11 +67,11 @@ export function useControllerPairing({
   const applyPairing = useCallback(
     async (nextRemoteId: string, result: ControllerRemoteActionData | null) => {
       if (result?.intent !== 'paired') return false;
+      setScannerVisible(false);
+      setError('');
       setRemoteId(nextRemoteId);
       setControllerToken(result.session.controllerToken);
       await onPaired(nextRemoteId, result.session);
-      setScannerVisible(false);
-      setError('');
       return true;
     },
     [onPaired, setError],

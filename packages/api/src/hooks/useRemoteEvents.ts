@@ -26,6 +26,8 @@ export function useRemoteEvents(options: RemoteEventSubscriptionOptions) {
         remoteId,
         onRoomUpdate: (event) => callbacksRef.current.onRoomUpdate(event),
         onStateUpdate: (event) => callbacksRef.current.onStateUpdate?.(event),
+        onPresentationUpdate: (event) =>
+          callbacksRef.current.onPresentationUpdate?.(event),
       });
       if (!active) {
         stop?.();
