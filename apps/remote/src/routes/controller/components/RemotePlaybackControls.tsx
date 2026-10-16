@@ -127,7 +127,7 @@ export function RemotePlaybackControls({
   };
 
   return (
-    <section className="panel-strong min-w-0 rounded-3xl p-5">
+    <section className="panel-strong min-w-0 rounded-3xl p-5 lg:sticky lg:top-6">
       <p className="font-pixel text-2xs text-theme-muted tracking-label">
         Now playing
       </p>

@@ -417,7 +417,7 @@ export default function RemoteController() {
       )}
 
       {room && (
-        <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[0.85fr_1.15fr]">
           <RemotePlaybackControls
             canSeek={canSeek}
             currentPlaylistItem={currentPlaylistItem ?? null}
