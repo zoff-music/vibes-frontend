@@ -1,4 +1,5 @@
 ARG NODE_VERSION=26.8.1
+ARG NODE_RUNTIME_IMAGE=platformatic/node-caged:26-slim
 ARG PNPM_VERSION=12.3.4
 
 FROM node:${NODE_VERSION}-bookworm-slim AS deps
@@ -31,7 +32,7 @@ COPY apps/admin ./apps/admin
 
 RUN pnpm --filter @vibes/admin build
 
-FROM node:${NODE_VERSION}-bookworm-slim AS prod
+FROM ${NODE_RUNTIME_IMAGE} AS prod
 
 WORKDIR /app
 
