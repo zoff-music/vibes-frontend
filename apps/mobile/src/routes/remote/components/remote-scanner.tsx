@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,6 +28,8 @@ export function RemoteScanner({
 }: RemoteScannerProps) {
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState('');
+  const { width, height } = useWindowDimensions();
+  const previewSize = Math.min(width - 48, height * 0.45, 384);
   const error = cameraError || controller.error;
   const close = () => {
     if (!controller.pairing) controllerActions.setScannerVisible(false);
@@ -66,9 +69,10 @@ export function RemoteScanner({
 
                 <View
                   className={classNames(
-                    'aspect-square w-full max-w-96 overflow-hidden rounded-3xl border-4 bg-black',
+                    'self-center overflow-hidden rounded-3xl border-4 bg-black',
                     error ? 'border-error' : 'border-accent',
                   )}
+                  style={{ width: previewSize, height: previewSize }}
                 >
                   <CameraView
                     style={StyleSheet.absoluteFill}
