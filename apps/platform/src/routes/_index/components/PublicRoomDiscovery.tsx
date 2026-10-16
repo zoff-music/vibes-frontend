@@ -42,7 +42,14 @@ export function PublicRoomDiscovery({
         </Link>
       </div>
       <div className="h-56 sm:h-20">
-        <Suspense fallback={<PublicRoomsPlaceholder />}>
+        <Suspense
+          key={roomType}
+          fallback={
+            <p role="status" className="text-sm text-theme-muted">
+              Loading live rooms…
+            </p>
+          }
+        >
           <Await
             resolve={rooms}
             errorElement={
@@ -51,51 +58,38 @@ export function PublicRoomDiscovery({
               </p>
             }
           >
-            {(result: PublicRoomV3[] | null) => (
-              <div className="grid h-full grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-1">
-                {result
-                  ?.filter((room) => room.roomType === roomType)
-                  .map((room) => (
+            {(result: PublicRoomV3[] | null) => {
+              const visibleRooms = result?.filter(
+                (room) =>
+                  room.roomType === roomType && room.playlistItemCount > 0,
+              );
+
+              return (
+                <div className="grid h-full grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-1">
+                  {visibleRooms?.map((room) => (
                     <PublicRoomTile
                       key={room.id}
                       room={room}
                       onJoin={onJoinRoom}
                     />
                   ))}
-                {result?.length === 0 && (
-                  <p className="text-sm text-theme-muted sm:col-span-3">
-                    No rooms are live right now. Browse public rooms or start
-                    your own.
-                  </p>
-                )}
-                {result === null && (
-                  <p className="text-sm text-theme-muted sm:col-span-3">
-                    Live rooms are temporarily unavailable.
-                  </p>
-                )}
-              </div>
-            )}
+                  {visibleRooms?.length === 0 && (
+                    <p className="text-sm text-theme-muted sm:col-span-3">
+                      No rooms are live right now. Browse public rooms or start
+                      your own.
+                    </p>
+                  )}
+                  {result === null && (
+                    <p className="text-sm text-theme-muted sm:col-span-3">
+                      Live rooms are temporarily unavailable.
+                    </p>
+                  )}
+                </div>
+              );
+            }}
           </Await>
         </Suspense>
       </div>
     </section>
-  );
-}
-
-function PublicRoomsPlaceholder() {
-  return (
-    <div
-      role="status"
-      className="grid h-full grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-1"
-    >
-      <span className="sr-only">Loading live rooms</span>
-      {[0, 1, 2].map((slot) => (
-        <div
-          key={slot}
-          aria-hidden="true"
-          className="rounded-2xl border border-theme bg-theme-surface motion-safe:animate-pulse"
-        />
-      ))}
-    </div>
   );
 }
