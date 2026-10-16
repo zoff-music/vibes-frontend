@@ -7,7 +7,9 @@ import {
   PlaybackProgress,
   PlayIcon,
   PlusIcon,
+  ResetIcon,
   SkipIcon,
+  Tooltip,
 } from '@vibes/ui/web';
 import {
   type ChangeEvent,
@@ -158,6 +160,23 @@ export function RemotePlaybackControls({
             <SkipIcon className="h-5 w-5" />
           </Button>
         </fetcher.Form>
+        {canResetPosition && (
+          <fetcher.Form method="post">
+            <input name="intent" type="hidden" value="resetPosition" />
+            <input name="roomId" type="hidden" value={room.id} />
+            <Tooltip className="inline-flex" content="Reset playback">
+              <Button
+                aria-label="Reset playback"
+                size="icon"
+                type="submit"
+                variant="tertiary"
+                disabled={fetcher.state !== 'idle'}
+              >
+                <ResetIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
+              </Button>
+            </Tooltip>
+          </fetcher.Form>
+        )}
         <Button onClick={onAddPlaylistItem} type="button" variant="primary">
           <PlusIcon className="h-5 w-5" />
           {labels.add}
@@ -183,19 +202,6 @@ export function RemotePlaybackControls({
           </p>
         )}
       </fetcher.Form>
-      {canResetPosition && (
-        <fetcher.Form className="mt-4" method="post">
-          <input name="intent" type="hidden" value="resetPosition" />
-          <input name="roomId" type="hidden" value={room.id} />
-          <Button
-            type="submit"
-            variant="tertiary"
-            disabled={fetcher.state !== 'idle'}
-          >
-            Reset position
-          </Button>
-        </fetcher.Form>
-      )}
     </section>
   );
 }
