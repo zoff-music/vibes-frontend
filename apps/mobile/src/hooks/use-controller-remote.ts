@@ -245,21 +245,28 @@ export function useControllerRemote(): readonly [
     [refresh, remote?.currentRoomId],
   );
 
-  const handleRemoteStateUpdate = useCallback((event: RemoteEventV2) => {
-    setRemote((current) => {
-      if (!current) return current;
-      return {
-        ...current,
-        currentRoomId: event.roomId,
-        currentPlaylistItemId: event.currentPlaylistItemId,
-        online: event.online,
-        paired: event.paired,
-        playbackIsPlaying: event.playbackIsPlaying,
-        playbackObservedAt: event.playbackObservedAt,
-        playbackPositionMs: event.playbackPositionMs,
-      };
-    });
-  }, []);
+  const handleRemoteStateUpdate = useCallback(
+    (event: RemoteEventV2) => {
+      if (event.origin !== 'machine') return;
+
+      if (event.roomId !== room?.id) void refresh();
+
+      setRemote((current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          currentRoomId: event.roomId,
+          currentPlaylistItemId: event.currentPlaylistItemId,
+          online: event.online,
+          paired: event.paired,
+          playbackIsPlaying: event.playbackIsPlaying,
+          playbackObservedAt: event.playbackObservedAt,
+          playbackPositionMs: event.playbackPositionMs,
+        };
+      });
+    },
+    [refresh, room?.id],
+  );
 
   useRemoteEvents({
     client,
