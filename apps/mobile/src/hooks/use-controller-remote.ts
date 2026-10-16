@@ -8,7 +8,7 @@ import type {
   RoomV2,
 } from '@vibes/models';
 import { useFetcher } from '@vibes/native-router';
-import { synchronizeServerClock } from '@vibes/shared';
+import { synchronizeServerClock, usePlaybackDrift } from '@vibes/shared';
 import type { BarcodeScanningResult } from 'expo-camera';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useControllerCommands } from '@/hooks/use-controller-commands';
@@ -142,7 +142,7 @@ export function useControllerRemote(): readonly [
     playback?.currentPlaylistItem?.duration ?? 0,
     playback?.serverTimeMs,
   );
-  const canResetPosition = Boolean(
+  const outOfSync = Boolean(
     remote?.online &&
       playback?.currentPlaylistItem &&
       remote.playbackObservedAt &&
@@ -150,6 +150,10 @@ export function useControllerRemote(): readonly [
       (remote.currentPlaylistItemId !== playback.currentPlaylistItem.id ||
         remote.playbackIsPlaying !== playback.isPlaying ||
         Math.abs(livePosition - roomPosition) > 5_000),
+  );
+  const canResetPosition = usePlaybackDrift(
+    outOfSync,
+    `${remoteId}:${room?.id ?? ''}:${playback?.currentPlaylistItem?.id ?? ''}:${playback?.isPlaying ?? false}`,
   );
   const [
     nextRoomId,
