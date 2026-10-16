@@ -70,7 +70,7 @@ export async function loader({
       data: {
         playlist,
         provider: playlistLink.provider,
-        results: playlist.items,
+        results: playlist.items.slice(0, 100),
       },
       error: '',
     };

@@ -247,6 +247,12 @@ export function SearchSheet({
                   a Watch room to import videos from other categories.
                 </Copy>
               )}
+              {playlist.truncated && (
+                <Copy muted>
+                  Only the first 5,000 playlist entries are checked. Eligible
+                  items from those entries will be imported.
+                </Copy>
+              )}
               <Button
                 disabled={loading || playlist.items.length === 0}
                 label={`Add all ${playlist.items.length} ${labels.items}`}
@@ -262,6 +268,11 @@ export function SearchSheet({
               provider={provider}
               results={results}
             />
+          )}
+          {!isAIMode && playlist && playlist.items.length > 100 && (
+            <Copy muted>
+              and {(playlist.items.length - 100).toLocaleString()} more
+            </Copy>
           )}
         </ScrollView>
       </SafeAreaView>

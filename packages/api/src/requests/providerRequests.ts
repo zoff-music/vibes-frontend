@@ -75,7 +75,7 @@ export function createProviderPlaylistRequest(client: ApiClient) {
       return client.v2.get(
         '/youtube/playlists/{id}',
         { id: source, $search: { roomType } },
-        options,
+        { timeout: 120_000, ...options },
       );
     }
     return client.v2.get(
@@ -83,7 +83,7 @@ export function createProviderPlaylistRequest(client: ApiClient) {
       {
         $search: { url: source },
       },
-      options,
+      { timeout: 120_000, ...options },
     );
   };
 }

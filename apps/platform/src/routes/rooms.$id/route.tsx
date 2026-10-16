@@ -510,13 +510,16 @@ export default function RoomV2() {
   }, [adminFetcher, adminPassword]);
 
   const handleLeave = useCallback(() => {
-    navigate('/', {
-      state: {
-        fromRoom: true,
+    navigate(
+      displayRoom.roomType === 'WATCH' ? '/features/watch' : '/features/music',
+      {
+        state: {
+          fromRoom: true,
+        },
+        viewTransition: canUseViewTransition(),
       },
-      viewTransition: canUseViewTransition(),
-    });
-  }, [navigate]);
+    );
+  }, [navigate, displayRoom.roomType]);
 
   useEffect(() => {
     setIsSSR(false);
