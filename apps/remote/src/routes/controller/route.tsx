@@ -89,10 +89,12 @@ export default function RemoteController() {
   );
   const storedRoom = useRoomStore((state) => state.room);
   const candidateRoom = storedRoom ?? loaderData.room;
-  const room =
-    candidateRoom?.id === remoteStatus?.currentRoomId
-      ? candidateRoom
-      : undefined;
+  const isCurrentRoom = Boolean(
+    candidateRoom &&
+      remoteStatus &&
+      candidateRoom.id === remoteStatus.currentRoomId,
+  );
+  const room = isCurrentRoom ? candidateRoom : undefined;
   const playlistItems = useQueueStore((state) => state.playlistItems);
   const currentPlaylistItemFromStore = usePlaybackStore(
     (state) => state.currentPlaylistItem,
