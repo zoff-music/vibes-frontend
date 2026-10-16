@@ -87,13 +87,19 @@ export default function RemoteController() {
   const [remoteStatus, setRemoteStatus] = useState<RemoteStatusV2 | undefined>(
     loaderData.remote,
   );
-  const room = useRoomStore((state) => state.room) ?? loaderData.room;
+  const storedRoom = useRoomStore((state) => state.room);
+  const candidateRoom = storedRoom ?? loaderData.room;
+  const room =
+    candidateRoom?.id === remoteStatus?.currentRoomId
+      ? candidateRoom
+      : undefined;
   const playlistItems = useQueueStore((state) => state.playlistItems);
   const currentPlaylistItemFromStore = usePlaybackStore(
     (state) => state.currentPlaylistItem,
   );
   const playbackIsPlaying = usePlaybackStore((state) => state.isPlaying);
   const setRoom = useRoomStore((state) => state.setRoom);
+  const resetRoom = useRoomStore((state) => state.reset);
   const setHost = useRoomStore((state) => state.setHost);
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
   const setPlaylistItems = useQueueStore((state) => state.setPlaylistItems);
@@ -123,12 +129,14 @@ export default function RemoteController() {
 
   useEffect(() => {
     if (loaderData.room) setRoom(loaderData.room);
+    else resetRoom();
+
     setRemoteStatus(loaderData.remote);
     setPlaylistItems(loaderData.playlistItems);
     if (loaderData.playback && loaderData.room) {
       setPlaybackState(loaderData.playback, loaderData.room.mode);
     }
-  }, [loaderData, setPlaybackState, setRoom, setPlaylistItems]);
+  }, [loaderData, setPlaybackState, setRoom, setPlaylistItems, resetRoom]);
 
   useEffect(() => {
     const responses = [
@@ -188,7 +196,7 @@ export default function RemoteController() {
     (event: RemoteEventV2) => {
       if (event.origin !== 'machine') return;
 
-      if (event.roomId !== useRoomStore.getState().room?.id) {
+      if (event.roomId !== (useRoomStore.getState().room?.id ?? '')) {
         void revalidator.revalidate();
       }
 
