@@ -33,9 +33,11 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
+  Form,
   Link,
   useFetcher,
   useLoaderData,
@@ -73,6 +75,8 @@ export default function RemoteController() {
   const revalidator = useRevalidator();
   const actionFetcher = useFetcher<ControllerActionData>();
   const roomFetcher = useFetcher<ControllerActionData>();
+  const handledAction = useRef<ControllerActionData | undefined>(undefined);
+  const handledRoomAction = useRef<ControllerActionData | undefined>(undefined);
   const [roomInput, setRoomInput] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -123,25 +127,45 @@ export default function RemoteController() {
   }, [loaderData, setPlaybackState, setRoom, setPlaylistItems]);
 
   useEffect(() => {
-    const data = actionFetcher.data ?? roomFetcher.data;
-    if (!data) return;
-    if (data.error) {
-      if (data.intent !== 'joinAdmin') {
-        showToast(data.error, 'error');
+    const responses = [
+      { data: actionFetcher.data, handled: handledAction },
+      { data: roomFetcher.data, handled: handledRoomAction },
+    ];
+
+    for (const { data, handled } of responses) {
+      if (!data || handled.current === data) continue;
+
+      handled.current = data;
+
+      if (data.error) {
+        if (data.intent !== 'joinAdmin') showToast(data.error, 'error');
+        continue;
       }
-      return;
-    }
-    if (data.session) {
-      setSession(data.session.userId, data.session.isAdmin);
-    }
-    if (data.room) setRoom(data.room);
-    if (data.playback && room) setPlaybackState(data.playback, room.mode);
-    if (data.intent === 'changeRoom') {
-      setRoomInput('');
+
+      const currentRoom = useRoomStore.getState().room;
+      if (data.roomId && data.roomId !== currentRoom?.id) continue;
+
+      if (data.session) setSession(data.session.userId, data.session.isAdmin);
+      if (data.room) setRoom(data.room);
+      if (data.playback && currentRoom) {
+        const currentPlayback =
+          usePlaybackStore.getState().authoritativePlayback;
+
+        if (
+          Date.parse(data.playback.updatedAt) >=
+          Date.parse(currentPlayback.updatedAt)
+        ) {
+          setPlaybackState(data.playback, currentRoom.mode);
+        }
+      }
+      if (data.intent === 'changeRoom') {
+        setRoomInput('');
+        void revalidator.revalidate();
+      }
     }
   }, [
     actionFetcher.data,
-    room,
+    revalidator,
     roomFetcher.data,
     setPlaybackState,
     setRoom,
@@ -158,6 +182,12 @@ export default function RemoteController() {
   );
   const handleRemoteStateUpdate = useCallback(
     (event: RemoteEventV2) => {
+      if (event.origin !== 'machine') return;
+
+      if (event.roomId !== useRoomStore.getState().room?.id) {
+        void revalidator.revalidate();
+      }
+
       setRemoteStatus((current) => ({
         currentRoomId: event.roomId,
         currentPlaylistItemId: event.currentPlaylistItemId,
@@ -170,7 +200,7 @@ export default function RemoteController() {
         playbackPositionMs: event.playbackPositionMs,
       }));
     },
-    [remoteId],
+    [remoteId, revalidator],
   );
   useRemoteEvents({
     controller: true,
@@ -297,6 +327,17 @@ export default function RemoteController() {
           <RemoteIcon className="h-7 w-7 text-secondary" />
         </div>
       </header>
+
+      <Form
+        method="post"
+        action="/remotes/disconnect"
+        reloadDocument
+        className="mt-3 flex justify-end"
+      >
+        <Button type="submit" variant="tertiary">
+          Disconnect remote
+        </Button>
+      </Form>
 
       <roomFetcher.Form
         method="post"

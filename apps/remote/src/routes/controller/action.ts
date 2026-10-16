@@ -14,6 +14,7 @@ export interface ControllerActionData {
   intent: string;
   playback?: PlaybackStateV2;
   room?: RoomV2;
+  roomId?: string;
   searchResults?: ProviderSearchResponse;
   session?: SessionResponseV2;
 }
@@ -72,7 +73,7 @@ export async function clientAction({
       { action: intent, positionMs },
     );
     if (error || !playback) return errorResult(intent, error);
-    return { intent, playback };
+    return { intent, playback, roomId };
   }
 
   if (intent === 'skip') {
@@ -82,7 +83,7 @@ export async function clientAction({
       {},
     );
     if (error || !result) return errorResult(intent, error);
-    return { intent, playback: result.playback };
+    return { intent, playback: result.playback, roomId };
   }
 
   if (intent === 'vote' || intent === 'remove') {
