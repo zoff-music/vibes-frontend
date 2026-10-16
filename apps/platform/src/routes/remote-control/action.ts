@@ -20,6 +20,7 @@ export async function clientAction({
   const playback = usePlaybackStore.getState();
   const playbackUpdate = {
     roomId,
+    partyMode: Boolean(roomId) && formData.get('partyMode') === 'true',
     currentPlaylistItemId: roomId
       ? (playback.currentPlaylistItem?.id ?? '')
       : '',

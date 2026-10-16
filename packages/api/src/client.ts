@@ -327,6 +327,7 @@ const v2Endpoints = {
       events: {
         remote_room_update: remoteEventV2Schema,
         remote_state_update: remoteEventV2Schema,
+        remote_presentation_update: remoteEventV2Schema,
       },
     },
   },

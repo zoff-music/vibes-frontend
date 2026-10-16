@@ -8,6 +8,7 @@ export function createEmptyRemoteStatus(): RemoteStatusV2 {
     id: '',
     online: false,
     paired: false,
+    partyMode: false,
     playbackIsPlaying: false,
     playbackObservedAt: '',
     playbackPositionMs: 0,

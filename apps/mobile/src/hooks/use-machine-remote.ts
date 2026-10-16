@@ -102,6 +102,7 @@ export function useMachineRemote({
       id: pairing.id,
       online: true,
       paired: false,
+      partyMode: pairing.partyMode,
       playbackIsPlaying: pairing.playbackIsPlaying,
       playbackObservedAt: pairing.playbackObservedAt,
       playbackPositionMs: pairing.playbackPositionMs,

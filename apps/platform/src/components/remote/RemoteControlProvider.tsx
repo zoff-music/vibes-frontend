@@ -23,7 +23,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useFetcher, useNavigate } from 'react-router';
+import { useFetcher, useLocation, useNavigate } from 'react-router';
 import type { RemoteControlActionData } from '../../routes/remote-control/action';
 import { createEmptyRemoteStatus } from '../../utils/remoteStatus';
 import { canUseViewTransition } from '../../utils/viewTransition';
@@ -57,10 +57,14 @@ interface Props {
 
 export function RemoteControlProvider({ children, initialRemote }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
   const controlFetcher = useFetcher<RemoteControlActionData>();
   const reportFetcher = useFetcher<RemoteControlActionData>();
   const [isOpen, setIsOpen] = useState(false);
   const [machineRoomId, setMachineRoomId] = useState('');
+  const partyMode =
+    Boolean(machineRoomId) &&
+    new URLSearchParams(location.search).get('view') === 'party';
   const currentPlaylistItemId = usePlaybackStore(
     (state) => state.currentPlaylistItem?.id ?? '',
   );
@@ -78,7 +82,12 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
 
     const report = () => {
       void reportFetcher.submit(
-        { intent: 'update', remoteId: remote.id, roomId: machineRoomId },
+        {
+          intent: 'update',
+          remoteId: remote.id,
+          roomId: machineRoomId,
+          partyMode: String(partyMode),
+        },
         { method: 'post', action: '/remote-control' },
       );
     };
@@ -100,7 +109,13 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
       window.clearInterval(interval);
       unsubscribe();
     };
-  }, [remote.enabled, remote.id, machineRoomId, reportFetcher.submit]);
+  }, [
+    remote.enabled,
+    remote.id,
+    machineRoomId,
+    partyMode,
+    reportFetcher.submit,
+  ]);
 
   useEffect(() => {
     if (controlFetcher.state !== 'idle' || !controlFetcher.data) return;
@@ -121,6 +136,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
         id: nextPairing.id,
         online: true,
         paired: false,
+        partyMode: nextPairing.partyMode,
         playbackIsPlaying: nextPairing.playbackIsPlaying,
         playbackObservedAt: nextPairing.playbackObservedAt,
         playbackPositionMs: nextPairing.playbackPositionMs,
@@ -154,6 +170,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
         paired: event.paired,
         playbackIsPlaying: event.playbackIsPlaying,
         playbackObservedAt: event.playbackObservedAt,
+        partyMode: event.partyMode,
         playbackPositionMs: event.playbackPositionMs,
       }));
       if (event.paired) {
@@ -189,6 +206,27 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     remoteId: remote.enabled ? remote.id : undefined,
     onRoomUpdate: handleRemoteRoomUpdate,
     onStateUpdate: handleRemoteStateUpdate,
+    onPresentationUpdate: (event) => {
+      if (
+        event.origin !== 'controller' ||
+        !machineRoomId ||
+        event.roomId !== machineRoomId
+      )
+        return;
+
+      const search = new URLSearchParams(location.search);
+      if (event.partyMode) search.set('view', 'party');
+      else search.delete('view');
+
+      void navigate(
+        {
+          pathname: location.pathname,
+          search: search.toString(),
+          hash: location.hash,
+        },
+        { replace: true, preventScrollReset: true },
+      );
+    },
   });
 
   const openRemoteControl = useCallback(() => {

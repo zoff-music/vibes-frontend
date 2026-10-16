@@ -17,7 +17,6 @@ import type {
   ControllerRemoteActions,
   ControllerRemoteState,
 } from '@/hooks/use-controller-remote';
-import { RemoteScanner } from './remote-scanner';
 
 interface RemotePairingProps {
   controller: ControllerRemoteState;
@@ -98,12 +97,6 @@ export function RemotePairingV2({
             </View>
           </ContentColumn>
         </ScrollView>
-        {controller.scannerVisible && (
-          <RemoteScanner
-            controller={controller}
-            controllerActions={controllerActions}
-          />
-        )}
       </SafeAreaView>
     </Screen>
   );

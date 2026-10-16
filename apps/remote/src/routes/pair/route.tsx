@@ -12,12 +12,26 @@ export default function PairRemote() {
   const [searchParams] = useSearchParams();
   const autoPairFormRef = useRef<HTMLFormElement>(null);
   const submittedPairing = useRef('');
-  const { videoRef, scanning, scanError, setScanning } = useScanner();
+  const {
+    videoRef,
+    scanning,
+    scanError,
+    setScanning,
+    zoom,
+    changeZoom,
+    startPinch,
+    movePinch,
+    endPinch,
+  } = useScanner();
   const [remoteId, setRemoteId] = useState('');
   const [pairingCode, setPairingCode] = useState('');
 
   const pairingToken = searchParams.get('pair') ?? '';
   const scannedRemoteId = searchParams.get('remoteId') ?? '';
+
+  useEffect(() => {
+    if (pairingToken) setScanning(false);
+  }, [pairingToken, setScanning]);
 
   useEffect(() => {
     void plausibleClient.trackPageview({
@@ -102,12 +116,46 @@ export default function PairRemote() {
             </Button>
 
             {scanning && (
-              <video
-                ref={videoRef}
-                className="mt-4 aspect-square w-full rounded-2xl bg-black object-cover"
-                muted
-                playsInline
-              />
+              <div className="mt-4 space-y-3">
+                <div
+                  className="aspect-square w-full touch-none overflow-hidden rounded-2xl bg-black"
+                  onTouchStart={startPinch}
+                  onTouchMove={movePinch}
+                  onTouchEnd={endPinch}
+                  onTouchCancel={endPinch}
+                >
+                  <video
+                    ref={videoRef}
+                    className="h-full w-full object-cover"
+                    style={{ transform: `scale(${zoom})` }}
+                    muted
+                    playsInline
+                  />
+                </div>
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    type="button"
+                    variant="tertiary"
+                    aria-label="Zoom out"
+                    disabled={zoom <= 1}
+                    onClick={() => changeZoom(zoom - 0.5)}
+                  >
+                    −
+                  </Button>
+                  <span className="text-sm text-theme-muted">
+                    {zoom.toFixed(1)}× · Pinch to zoom
+                  </span>
+                  <Button
+                    type="button"
+                    variant="tertiary"
+                    aria-label="Zoom in"
+                    disabled={zoom >= 4}
+                    onClick={() => changeZoom(zoom + 0.5)}
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
             )}
 
             <fetcher.Form method="post" className="mt-6 space-y-4">
