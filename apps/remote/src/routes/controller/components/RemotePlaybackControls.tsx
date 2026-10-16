@@ -161,6 +161,11 @@ export function RemotePlaybackControls({
             value={isPlaying ? 'pause' : 'play'}
           />
           <input name="roomId" type="hidden" value={room.id} />
+          <input
+            name="itemId"
+            type="hidden"
+            value={currentPlaylistItem?.id ?? ''}
+          />
           <input name="positionMs" type="hidden" value={positionMs} />
           <Button
             aria-label={isPlaying ? 'Pause' : 'Play'}

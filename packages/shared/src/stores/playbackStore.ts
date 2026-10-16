@@ -27,6 +27,11 @@ interface PlaybackStoreState extends PlaybackStateV2 {
   setIsPlaying: (isPlaying: boolean) => void;
   setLocalPlayingState: (isPlaying: boolean, roomMode: string) => void;
   setLocalPlaybackPosition: (positionMs: number) => void;
+  applyRemotePlayback: (
+    isPlaying: boolean,
+    positionMs: number,
+    roomMode: string,
+  ) => void;
   updateActualPosition: () => void;
 }
 
@@ -208,6 +213,29 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     } else {
       get().stopAutoUpdate();
     }
+  },
+
+  applyRemotePlayback: (isPlaying, positionMs, roomMode) => {
+    const current = get();
+
+    // A remote command must seek the provider, not merely update its clock.
+    // Keep the room timeline intact so local pause/seek remains detectable.
+    set({
+      actualPositionMs: positionMs,
+      clientReferenceTime: Date.now(),
+      hasLocalPlaybackChanges: true,
+      isPlaying,
+      localIsPlaying: roomMode === 'server' ? isPlaying : null,
+      positionMs,
+      resetVersion: current.resetVersion + 1,
+      roomMode,
+    });
+
+    if (isPlaying) {
+      get().startAutoUpdate();
+      return;
+    }
+    get().stopAutoUpdate();
   },
 
   setLocalPlaybackPosition: (positionMs) => {

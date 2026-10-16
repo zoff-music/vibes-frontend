@@ -65,11 +65,8 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     (state) => state.currentPlaylistItem?.id ?? '',
   );
   const roomMode = useRoomStore((state) => state.room?.mode);
-  const setLocalPlaybackPosition = usePlaybackStore(
-    (state) => state.setLocalPlaybackPosition,
-  );
-  const setLocalPlayingState = usePlaybackStore(
-    (state) => state.setLocalPlayingState,
+  const applyRemotePlayback = usePlaybackStore(
+    (state) => state.applyRemotePlayback,
   );
   const [remote, setRemote] = useState<RemoteStatusV2>(
     initialRemote ?? createEmptyRemoteStatus,
@@ -178,17 +175,14 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
         !event.currentPlaylistItemId ||
         event.currentPlaylistItemId === currentPlaylistItemId
       ) {
-        setLocalPlaybackPosition(event.playbackPositionMs);
+        applyRemotePlayback(
+          event.playbackIsPlaying,
+          event.playbackPositionMs,
+          roomMode,
+        );
       }
-      setLocalPlayingState(event.playbackIsPlaying, roomMode);
     },
-    [
-      currentPlaylistItemId,
-      machineRoomId,
-      roomMode,
-      setLocalPlaybackPosition,
-      setLocalPlayingState,
-    ],
+    [currentPlaylistItemId, machineRoomId, roomMode, applyRemotePlayback],
   );
 
   useRemoteEvents({

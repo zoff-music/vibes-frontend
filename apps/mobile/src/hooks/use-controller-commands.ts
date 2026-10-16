@@ -7,7 +7,6 @@ import type {
 import { useFetcher } from '@vibes/native-router';
 import type { Dispatch, SetStateAction } from 'react';
 import { useState } from 'react';
-import { getObservedPosition } from '@/hooks/use-machine-remote';
 import type { ControllerRemoteActionData } from '@/routes/remotes.controller.$id/action';
 import type { ControllerPlaybackActionData } from '@/routes/remotes.controller.$id.playback/action';
 import type { ControllerQueueActionData } from '@/routes/remotes.controller.$id.queue/action';
@@ -96,6 +95,7 @@ export function useControllerCommands({
         ? {
             ...current,
             playbackIsPlaying: isPlaying,
+            playbackObservedAt: new Date().toISOString(),
             playbackPositionMs: livePosition,
           }
         : current,
@@ -138,14 +138,9 @@ export function useControllerCommands({
     if (!remote?.currentRoomId || !playback?.currentPlaylistItem) return;
     if (room?.mode === 'host' && room.hostId === room.userId) return;
 
-    const request = {
-      currentPlaylistItemId: playback.currentPlaylistItem.id,
-      playbackIsPlaying: playback.isPlaying,
-      playbackPositionMs: getObservedPosition(playback),
-    };
     const result = await remoteAction.submit({
-      intent: 'remoteState',
-      request,
+      intent: 'resetPosition',
+      roomId: remote.currentRoomId,
     });
     if (result.error) {
       setError(result.error);

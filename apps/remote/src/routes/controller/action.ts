@@ -6,7 +6,11 @@ import type {
   SessionResponseV2,
 } from '@vibes/models';
 import { isSourceType } from '@vibes/models';
-import { getEstimatedServerTimeMs, parseISODuration } from '@vibes/shared';
+import {
+  getEstimatedServerTimeMs,
+  parseISODuration,
+  useRoomStore,
+} from '@vibes/shared';
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface ControllerActionData {
@@ -67,6 +71,26 @@ export async function clientAction({
 
   if (intent === 'play' || intent === 'pause' || intent === 'seek') {
     const positionMs = Number(formData.get('positionMs') ?? 0);
+    const room = useRoomStore.getState().room;
+    const hasHostAuthority =
+      room?.id === roomId &&
+      room.mode === 'host' &&
+      (room.isAdmin || room.hostId === room.userId);
+
+    if (intent !== 'seek' && !hasHostAuthority) {
+      const [error] = await client.v2.patch(
+        '/remotes/{id}',
+        { id: remoteId },
+        {
+          currentPlaylistItemId: String(formData.get('itemId') ?? ''),
+          playbackIsPlaying: intent === 'play',
+          playbackPositionMs: positionMs,
+        },
+      );
+
+      return errorResult(intent, error);
+    }
+
     const [error, playback] = await client.v2.put(
       '/rooms/{id}/states',
       { id: roomId },
