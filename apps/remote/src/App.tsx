@@ -1,6 +1,6 @@
-import { useThemeStore } from '@vibes/shared/themeStore';
 import {
   Button,
+  SettingsIcon,
   SiteBackground,
   SiteBrand,
   SiteFooter,
@@ -9,13 +9,20 @@ import {
   siteBrandLinkClassName,
   siteNavigationClassName,
   ToastViewport,
+  Tooltip,
 } from '@vibes/ui/web';
+import { lazy, Suspense, useState } from 'react';
 import { Outlet } from 'react-router';
 import { useThemeSync } from './theme';
 
+const LazyDeviceSettings = lazy(async () => {
+  const module = await import('./components/DeviceSettings');
+  return { default: module.DeviceSettings };
+});
+
 export function App() {
   useThemeSync();
-  const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
+  const [showSettings, setShowSettings] = useState(false);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-theme text-theme">
@@ -54,13 +61,21 @@ export function App() {
                 >
                   Remote
                 </a>
-                <Button
-                  variant="tertiary"
-                  onClick={toggleDarkMode}
-                  aria-label="Switch light or dark theme"
+                <Tooltip
+                  align="end"
+                  className="inline-flex"
+                  content="Settings"
+                  side="bottom"
                 >
-                  Theme
-                </Button>
+                  <Button
+                    aria-label="Open settings"
+                    onClick={() => setShowSettings(true)}
+                    size="icon"
+                    variant="tertiary"
+                  >
+                    <SettingsIcon className="h-5 w-5" />
+                  </Button>
+                </Tooltip>
               </>
             }
           />
@@ -69,6 +84,17 @@ export function App() {
       >
         <Outlet />
       </SiteLayout>
+      {showSettings && (
+        <Suspense
+          fallback={
+            <p role="status" className="sr-only">
+              Loading settings...
+            </p>
+          }
+        >
+          <LazyDeviceSettings onClose={() => setShowSettings(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

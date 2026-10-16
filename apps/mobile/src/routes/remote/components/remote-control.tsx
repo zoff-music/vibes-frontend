@@ -11,6 +11,7 @@ import {
   Empty,
   Field,
   Heading,
+  IconButton,
   Screen,
 } from '@/components/native';
 import { PlaybackProgress } from '@/components/playback-progress';
@@ -136,6 +137,14 @@ export function RemoteControl({
                           onPress={() => void controllerActions.action('skip')}
                         />
                       </View>
+                      {controller.canResetPosition && (
+                        <IconButton
+                          accessibilityLabel="Reset playback"
+                          feedback
+                          icon="reset"
+                          onPress={() => void controllerActions.resetPosition()}
+                        />
+                      )}
                     </View>
                     <PlaybackProgress
                       duration={playback?.currentPlaylistItem?.duration ?? 0}
@@ -148,13 +157,6 @@ export function RemoteControl({
                         (room.hostId === room.userId || room.isAdmin)
                       }
                     />
-                    {controller.canResetPosition && (
-                      <Button
-                        label="Reset position"
-                        tone="secondary"
-                        onPress={() => void controllerActions.resetPosition()}
-                      />
-                    )}
                   </Card>
                 </View>
               }
