@@ -67,11 +67,15 @@ export function usePlaybackRuntime({
       const nextPlayback = {
         ...currentPlayback,
         isPlaying,
-        positionMs: positionMs ?? currentPlayback.positionMs,
+        positionMs: positionMs ?? getObservedPosition(currentPlayback),
         serverTimeMs: getEstimatedServerTimeMs(),
       };
       playbackRef.current = nextPlayback;
       setPlayback(nextPlayback);
+
+      if (positionMs !== undefined) {
+        setPlaybackResetVersion((version) => version + 1);
+      }
     },
     [],
   );

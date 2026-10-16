@@ -1,6 +1,7 @@
 import { createRemoteRequests, getHttpError } from '@vibes/api';
 import type { RemoteSessionV2, RemoteUpdateRequestV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import { getEstimatedServerTimeMs } from '@vibes/shared';
 import {
   createRemoteApi,
   getRemoteRequestErrorMessage,
@@ -9,6 +10,7 @@ import {
 
 type ControllerRemoteActionInput =
   | { intent: 'changeRoom'; roomId: string }
+  | { intent: 'resetPosition'; roomId: string }
   | {
       intent: 'pair';
       pairingCode?: string;
@@ -60,6 +62,34 @@ export async function action({
   }
   const client = createRemoteApi(remoteId, controllerToken);
   const remoteRequests = createRemoteRequests(client);
+  if (input.intent === 'resetPosition') {
+    const [error, playback] = await client.v2.get('/rooms/{id}/states', {
+      id: input.roomId,
+    });
+    if (error || !playback)
+      return failure(error, 'Could not get the room playback position.');
+
+    const elapsed = playback.isPlaying
+      ? Math.max(0, getEstimatedServerTimeMs() - playback.serverTimeMs)
+      : 0;
+    const duration = (playback.currentPlaylistItem?.duration ?? 0) * 1_000;
+    const [updateError] = await remoteRequests.updateRemote(
+      remoteId,
+      {
+        currentPlaylistItemId: playback.currentPlaylistItem?.id ?? '',
+        playbackIsPlaying: playback.isPlaying,
+        playbackPositionMs: Math.min(
+          playback.positionMs + elapsed,
+          duration || Number.MAX_VALUE,
+        ),
+      },
+      { signal },
+    );
+    if (updateError)
+      return failure(updateError, 'Could not reset playback position.');
+
+    return { data: { intent: 'success' }, error: '' };
+  }
   if (input.intent === 'changeRoom') {
     const [error] = await remoteRequests.updateRemote(
       remoteId,
@@ -95,5 +125,7 @@ function isControllerRemoteActionInput(
   input: unknown,
 ): input is ControllerRemoteActionInput {
   if (!input || typeof input !== 'object' || !('intent' in input)) return false;
-  return ['changeRoom', 'pair', 'remoteState'].includes(String(input.intent));
+  return ['changeRoom', 'pair', 'remoteState', 'resetPosition'].includes(
+    String(input.intent),
+  );
 }
