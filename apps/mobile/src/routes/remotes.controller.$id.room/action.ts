@@ -1,7 +1,7 @@
 import { createRoomLifecycleRequests } from '@vibes/api';
 import type { RoomUpdateV2, RoomV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
-import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
+import { createRemoteApi, getRemoteRequestErrorMessage } from '@/lib/api';
 
 type ControllerRoomActionInput =
   | { intent: 'authenticate'; password: string; roomId: string }
@@ -52,7 +52,10 @@ async function failure(
   error: Error | null,
   fallback: string,
 ): Promise<DataResult<ControllerRoomActionData>> {
-  return { data: null, error: await getRequestErrorMessage(error, fallback) };
+  return {
+    data: null,
+    error: await getRemoteRequestErrorMessage(error, fallback),
+  };
 }
 
 function isControllerRoomActionInput(

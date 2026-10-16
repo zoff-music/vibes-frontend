@@ -6,7 +6,7 @@ import type {
   SessionResponseV2,
 } from '@vibes/models';
 import { isSourceType } from '@vibes/models';
-import { parseISODuration } from '@vibes/shared';
+import { getEstimatedServerTimeMs, parseISODuration } from '@vibes/shared';
 import type { ClientActionFunctionArgs } from 'react-router';
 
 export interface ControllerActionData {
@@ -27,6 +27,32 @@ export async function clientAction({
   const intent = String(formData.get('intent') ?? '');
   const roomId = String(formData.get('roomId') ?? '');
   const client = createApiClient({ 'X-Zoff-Remote-ID': remoteId });
+
+  if (intent === 'resetPosition') {
+    const [error, playback] = await client.v2.get('/rooms/{id}/states', {
+      id: roomId,
+    });
+    if (error || !playback) return errorResult(intent, error);
+
+    const elapsed = playback.isPlaying
+      ? Math.max(0, getEstimatedServerTimeMs() - playback.serverTimeMs)
+      : 0;
+    const duration = (playback.currentPlaylistItem?.duration ?? 0) * 1_000;
+    const [updateError] = await client.v2.patch(
+      '/remotes/{id}',
+      { id: remoteId },
+      {
+        currentPlaylistItemId: playback.currentPlaylistItem?.id ?? '',
+        playbackIsPlaying: playback.isPlaying,
+        playbackPositionMs: Math.min(
+          playback.positionMs + elapsed,
+          duration || Number.MAX_VALUE,
+        ),
+      },
+    );
+
+    return errorResult(intent, updateError);
+  }
 
   if (intent === 'changeRoom') {
     const nextRoomId = String(formData.get('nextRoomId') ?? '').trim();

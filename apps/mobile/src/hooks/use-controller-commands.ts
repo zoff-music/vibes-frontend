@@ -7,6 +7,7 @@ import type {
 import { useFetcher } from '@vibes/native-router';
 import type { Dispatch, SetStateAction } from 'react';
 import { useState } from 'react';
+import { getObservedPosition } from '@/hooks/use-machine-remote';
 import type { ControllerRemoteActionData } from '@/routes/remotes.controller.$id/action';
 import type { ControllerPlaybackActionData } from '@/routes/remotes.controller.$id.playback/action';
 import type { ControllerQueueActionData } from '@/routes/remotes.controller.$id.queue/action';
@@ -27,6 +28,7 @@ export interface ControllerCommandActions {
   changeRoom: () => Promise<void>;
   remove: (playlistItem: PlaylistItem) => Promise<void>;
   seek: (positionMs: number) => Promise<void>;
+  resetPosition: () => Promise<void>;
   setNextRoomId: (roomId: string) => void;
   vote: (playlistItem: PlaylistItem) => Promise<void>;
 }
@@ -132,6 +134,27 @@ export function useControllerCommands({
     if (result.error) setError(result.error);
   };
 
+  const resetPosition = async () => {
+    if (!remote?.currentRoomId || !playback?.currentPlaylistItem) return;
+    if (room?.mode === 'host' && room.hostId === room.userId) return;
+
+    const request = {
+      currentPlaylistItemId: playback.currentPlaylistItem.id,
+      playbackIsPlaying: playback.isPlaying,
+      playbackPositionMs: getObservedPosition(playback),
+    };
+    const result = await remoteAction.submit({
+      intent: 'remoteState',
+      request,
+    });
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    setError('');
+  };
+
   const changeRoom = async () => {
     const normalizedRoomId = nextRoomId.trim().toLowerCase();
     if (!normalizedRoomId) {
@@ -151,6 +174,6 @@ export function useControllerCommands({
 
   return [
     nextRoomId,
-    { action, changeRoom, remove, seek, setNextRoomId, vote },
+    { action, changeRoom, remove, resetPosition, seek, setNextRoomId, vote },
   ];
 }

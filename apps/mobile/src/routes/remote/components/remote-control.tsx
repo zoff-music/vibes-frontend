@@ -148,6 +148,13 @@ export function RemoteControl({
                         (room.hostId === room.userId || room.isAdmin)
                       }
                     />
+                    {controller.canResetPosition && (
+                      <Button
+                        label="Reset position"
+                        tone="secondary"
+                        onPress={() => void controllerActions.resetPosition()}
+                      />
+                    )}
                   </Card>
                 </View>
               }

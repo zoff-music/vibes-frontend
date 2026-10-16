@@ -1,23 +1,20 @@
 import { plausibleClient } from '@vibes/api';
-import { safeWrap, safeWrapAsync } from '@vibes/shared';
-import { Button, Input, publicAssetUrl } from '@vibes/ui/web';
+import { Button, Input } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
-import { useFetcher, useNavigate, useSearchParams } from 'react-router';
+import { Link, useFetcher, useSearchParams } from 'react-router';
 import { clientAction, type PairActionData } from './action';
+import { useScanner } from './useScanner';
 
 export { clientAction };
 
 export default function PairRemote() {
   const fetcher = useFetcher<PairActionData>();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const autoPairFormRef = useRef<HTMLFormElement>(null);
-  const hasSubmittedPairing = useRef(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const submittedPairing = useRef('');
+  const { videoRef, scanning, scanError, setScanning } = useScanner();
   const [remoteId, setRemoteId] = useState('');
   const [pairingCode, setPairingCode] = useState('');
-  const [scanning, setScanning] = useState(false);
-  const [scanError, setScanError] = useState('');
 
   const pairingToken = searchParams.get('pair') ?? '';
   const scannedRemoteId = searchParams.get('remoteId') ?? '';
@@ -30,70 +27,19 @@ export default function PairRemote() {
   }, []);
 
   useEffect(() => {
+    const pairingKey = `${scannedRemoteId}:${pairingToken}`;
+
     if (
-      hasSubmittedPairing.current ||
+      submittedPairing.current === pairingKey ||
       !pairingToken ||
       !scannedRemoteId ||
       !autoPairFormRef.current
     ) {
       return;
     }
-    hasSubmittedPairing.current = true;
+    submittedPairing.current = pairingKey;
     fetcher.submit(autoPairFormRef.current);
   }, [fetcher.submit, pairingToken, scannedRemoteId]);
-
-  useEffect(() => {
-    if (!scanning || !videoRef.current) return;
-    let stream: MediaStream | null = null;
-    let frame = 0;
-    let active = true;
-
-    const scan = async () => {
-      if (!('BarcodeDetector' in window)) {
-        setScanError(
-          'QR scanning is not supported here. Enter the code instead.',
-        );
-        setScanning(false);
-        return;
-      }
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
-      if (!active || !videoRef.current) return;
-      videoRef.current.srcObject = stream;
-      await videoRef.current.play();
-      const detector = new BarcodeDetector({ formats: ['qr_code'] });
-      const inspectFrame = async () => {
-        if (!active || !videoRef.current) return;
-        const results = await detector.detect(videoRef.current);
-        const value = results[0]?.rawValue;
-        if (value) {
-          const [error, url] = safeWrap(() => new URL(value));
-          if (!error && url?.origin === window.location.origin) {
-            navigate(`${url.pathname}${url.search}`);
-            return;
-          }
-        }
-        frame = window.requestAnimationFrame(() => void inspectFrame());
-      };
-      await inspectFrame();
-    };
-
-    void (async () => {
-      const [error] = await safeWrapAsync(scan());
-      if (!error || !active) return;
-      setScanError('Could not open the camera. Enter the code instead.');
-      setScanning(false);
-    })();
-
-    return () => {
-      active = false;
-      window.cancelAnimationFrame(frame);
-      stream?.getTracks().forEach((track) => {
-        track.stop();
-      });
-    };
-  }, [navigate, scanning]);
 
   const handleRemoteIdChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRemoteId(event.target.value);
@@ -103,18 +49,18 @@ export default function PairRemote() {
   };
 
   return (
-    <main className="relative z-10 flex min-h-screen items-center justify-center p-4 sm:p-8">
-      <section className="panel-strong w-full max-w-lg rounded-4xl p-6 shadow-primary-panel sm:p-9">
+    <main className="relative z-10 mx-auto w-full max-w-2xl px-5 py-10 sm:px-6 sm:py-16">
+      <section className="panel-strong w-full rounded-4xl border border-theme p-6 shadow-primary-panel sm:p-10">
         <div className="text-center">
-          <img
-            src={publicAssetUrl('logo.png')}
-            alt="Zoff"
-            className="mx-auto h-24 w-24 object-contain"
-          />
-          <h1 className="sr-only">Zoff Remote</h1>
+          <p className="font-pixel text-theme-muted text-xs tracking-label">
+            YOUR PHONE. YOUR CONTROLS.
+          </p>
+          <h1 className="mt-4 font-display text-3xl text-theme sm:text-4xl">
+            Pair a remote.
+          </h1>
           <p className="mt-3 text-sm text-theme-muted">
-            Scan the QR code shown by the browser you want to control, or enter
-            its pairing details.
+            Open Remote control on the player, then scan its QR code or enter
+            the pairing details below.
           </p>
         </div>
 
@@ -123,8 +69,23 @@ export default function PairRemote() {
             <input type="hidden" name="remoteId" value={scannedRemoteId} />
             <input type="hidden" name="pairingToken" value={pairingToken} />
             <div className="rounded-2xl border border-theme bg-theme-surface p-5 text-center">
-              <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-theme border-t-secondary" />
-              <p className="mt-3 text-sm text-theme">Pairing remote…</p>
+              {!fetcher.data?.error && (
+                <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-theme border-t-secondary" />
+              )}
+              <p role="status" className="mt-3 text-sm text-theme">
+                {fetcher.data?.error
+                  ? 'Pairing unsuccessful'
+                  : 'QR code found. Pairing remote…'}
+              </p>
+              {fetcher.data?.error && (
+                <Link
+                  to="/remotes/join"
+                  replace
+                  className="mt-4 inline-flex min-h-11 items-center rounded-xl px-4 text-theme underline focus-visible:ring-2 focus-visible:ring-secondary"
+                >
+                  Scan a new code
+                </Link>
+              )}
             </div>
           </fetcher.Form>
         )}
@@ -170,7 +131,7 @@ export default function PairRemote() {
                 disabled={fetcher.state !== 'idle'}
                 variant="primary"
               >
-                Pair Remote
+                {fetcher.state !== 'idle' ? 'Pairing…' : 'Pair remote'}
               </Button>
             </fetcher.Form>
           </>
@@ -188,13 +149,4 @@ export default function PairRemote() {
       </section>
     </main>
   );
-}
-
-interface BarcodeDetectorResult {
-  rawValue: string;
-}
-
-declare class BarcodeDetector {
-  constructor(options: { formats: string[] });
-  detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]>;
 }

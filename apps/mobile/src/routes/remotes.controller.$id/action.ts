@@ -1,7 +1,11 @@
-import { createRemoteRequests } from '@vibes/api';
+import { createRemoteRequests, getHttpError } from '@vibes/api';
 import type { RemoteSessionV2, RemoteUpdateRequestV2 } from '@vibes/models';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
-import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
+import {
+  createRemoteApi,
+  getRemoteRequestErrorMessage,
+  mobileApi,
+} from '@/lib/api';
 
 type ControllerRemoteActionInput =
   | { intent: 'changeRoom'; roomId: string }
@@ -34,6 +38,15 @@ export async function action({
       { signal },
     );
     if (error || !session) {
+      const status = error ? getHttpError(error)?.response.status : null;
+      if (status === 401 || status === 403 || status === 410) {
+        return {
+          data: null,
+          error:
+            'This pairing code has expired or was already used. Open remote control on the player and generate a new code.',
+        };
+      }
+
       return failure(
         error,
         'Could not pair this remote. Check the pairing details.',
@@ -72,7 +85,10 @@ async function failure(
   error: Error | null,
   fallback: string,
 ): Promise<DataResult<ControllerRemoteActionData>> {
-  return { data: null, error: await getRequestErrorMessage(error, fallback) };
+  return {
+    data: null,
+    error: await getRemoteRequestErrorMessage(error, fallback),
+  };
 }
 
 function isControllerRemoteActionInput(

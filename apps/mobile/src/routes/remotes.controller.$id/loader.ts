@@ -7,7 +7,7 @@ import {
 import type { RemoteStatusV2 } from '@vibes/models';
 import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
 import type { RoomSnapshot } from '@/data-router/room-snapshot';
-import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
+import { createRemoteApi, getRemoteRequestErrorMessage } from '@/lib/api';
 import { normalizeMobileSnapshot } from '@/lib/mobile-content';
 
 export interface ControllerRemoteData {
@@ -37,7 +37,10 @@ export async function loader({
       data: null,
       error: invalidRemoteStatuses.includes(status ?? 0)
         ? 'REMOTE_CREDENTIALS_INVALID'
-        : await getRequestErrorMessage(remoteError, 'Remote is unavailable.'),
+        : await getRemoteRequestErrorMessage(
+            remoteError,
+            'Remote is unavailable.',
+          ),
     };
   }
   if (!remote.currentRoomId) {
@@ -63,7 +66,7 @@ export async function loader({
   ) {
     return {
       data: null,
-      error: await getRequestErrorMessage(
+      error: await getRemoteRequestErrorMessage(
         roomError,
         'Controlled room is unavailable.',
       ),

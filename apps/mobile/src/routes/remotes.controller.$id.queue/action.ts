@@ -1,6 +1,6 @@
 import { createRoomQueueRequests } from '@vibes/api';
 import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
-import { createRemoteApi, getRequestErrorMessage } from '@/lib/api';
+import { createRemoteApi, getRemoteRequestErrorMessage } from '@/lib/api';
 
 type ControllerQueueActionInput =
   | { intent: 'remove'; roomId: string; playlistItemId: string }
@@ -32,7 +32,7 @@ export async function action({
   if (error) {
     return {
       data: null,
-      error: await getRequestErrorMessage(
+      error: await getRemoteRequestErrorMessage(
         error,
         input.intent === 'vote'
           ? 'Could not register vote.'

@@ -1,10 +1,12 @@
+import { safeWrap } from '@vibes/shared';
+
 interface SystemPathEvent {
   initial: boolean;
   path: string;
 }
 
 export function redirectSystemPath({ path }: SystemPathEvent) {
-  try {
+  const [error, route] = safeWrap(() => {
     const url = new URL(path, nativeBaseUrl);
     const isZoffWebUrl =
       (url.protocol === 'https:' || url.protocol === 'http:') &&
@@ -20,21 +22,31 @@ export function redirectSystemPath({ path }: SystemPathEvent) {
 
     if (url.protocol !== zoffProtocol) return path;
 
+    if (url.hostname === 'remote' || url.hostname === remotePathSegment) {
+      url.pathname = `/${url.hostname}${url.pathname}`;
+    }
+
+    const remoteRoute = getRemoteRoute(url);
+    if (remoteRoute) return remoteRoute;
+
     const roomId = getCustomSchemeRoomId(url);
     if (roomId) return getRoomRoute(roomId);
     return '/';
-  } catch {
-    return '/';
-  }
+  });
+
+  return error ? '/' : route;
 }
 
 function getRemoteRoute(url: URL) {
   const pathSegments = url.pathname.split('/').filter(Boolean);
-  if (pathSegments[0] !== remotePathSegment) return '';
+  if (pathSegments[0] !== remotePathSegment && pathSegments[0] !== 'remote')
+    return '';
   if (pathSegments.length > remotePathSegmentCount) return '';
 
   const remoteId =
-    url.searchParams.get(remoteIdSearchParam) ?? pathSegments[1] ?? '';
+    url.searchParams.get(remoteIdSearchParam) ??
+    (pathSegments[1] === 'join' ? '' : pathSegments[1]) ??
+    '';
   const pairingToken = url.searchParams.get(pairingTokenSearchParam) ?? '';
   const searchParams = new URLSearchParams();
   if (remoteId) searchParams.set(remoteIdSearchParam, remoteId);

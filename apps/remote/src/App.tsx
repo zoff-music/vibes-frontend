@@ -1,17 +1,74 @@
-import { ToastViewport } from '@vibes/ui/web';
+import { useThemeStore } from '@vibes/shared/themeStore';
+import {
+  Button,
+  SiteBackground,
+  SiteBrand,
+  SiteFooter,
+  SiteHeader,
+  SiteLayout,
+  siteBrandLinkClassName,
+  siteNavigationClassName,
+  ToastViewport,
+} from '@vibes/ui/web';
 import { Outlet } from 'react-router';
 import { useThemeSync } from './theme';
 
 export function App() {
   useThemeSync();
+  const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-theme text-theme">
-      <div className="theme-page-gradient pointer-events-none fixed inset-0 bg-[length:180%_180%]" />
-      <div className="theme-page-glow pointer-events-none fixed inset-0 opacity-65" />
-      <div className="remote-grid pointer-events-none fixed inset-0" />
+      <SiteBackground variant="landing" showGrid />
       <ToastViewport />
-      <Outlet />
+      <SiteLayout
+        header={
+          <SiteHeader
+            brand={
+              <a
+                href="/"
+                aria-label="Zoff home"
+                className={siteBrandLinkClassName}
+              >
+                <SiteBrand />
+              </a>
+            }
+            navigation={
+              <>
+                <a href="/rooms/explore" className={siteNavigationClassName}>
+                  Rooms
+                </a>
+                <a
+                  href="/features/music#explore-zoff"
+                  className={siteNavigationClassName}
+                >
+                  Explore
+                </a>
+                <a href="/discovery/apps" className={siteNavigationClassName}>
+                  Apps
+                </a>
+                <a
+                  href="/remotes/join"
+                  aria-current="page"
+                  className={siteNavigationClassName}
+                >
+                  Remote
+                </a>
+                <Button
+                  variant="tertiary"
+                  onClick={toggleDarkMode}
+                  aria-label="Switch light or dark theme"
+                >
+                  Theme
+                </Button>
+              </>
+            }
+          />
+        }
+        footer={<SiteFooter />}
+      >
+        <Outlet />
+      </SiteLayout>
     </div>
   );
 }

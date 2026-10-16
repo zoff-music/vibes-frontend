@@ -71,6 +71,17 @@ export async function getRequestErrorMessage(
   return fallback;
 }
 
+export async function getRemoteRequestErrorMessage(
+  error: Error | null,
+  fallback: string,
+) {
+  if (error && getHttpError(error)?.response.status === unauthorizedStatus) {
+    return 'This remote session is no longer available. Generate a new pairing code on the player and pair again.';
+  }
+
+  return getRequestErrorMessage(error, fallback);
+}
+
 function isTechnicalRequestMessage(message: string) {
   return technicalRequestMessagePatterns.some((pattern) =>
     pattern.test(message),
