@@ -4,6 +4,7 @@ import {
   updateSessionProfileRequestSchema,
 } from '@vibes/models';
 import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
+import { safeParse } from 'valibot';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface SessionProfileActionInput {
@@ -20,16 +21,16 @@ export async function updateProfile({
     return { data: null, error: 'Enter a name.' };
   }
 
-  const parsed = updateSessionProfileRequestSchema.safeParse(input);
+  const parsed = safeParse(updateSessionProfileRequestSchema, input);
 
   if (!parsed.success) {
     return {
       data: null,
-      error: parsed.error.issues[0]?.message ?? 'Enter a valid name.',
+      error: parsed.issues[0]?.message ?? 'Enter a valid name.',
     };
   }
 
-  const [error, profile] = await requests.updateSessionProfile(parsed.data, {
+  const [error, profile] = await requests.updateSessionProfile(parsed.output, {
     signal,
   });
 

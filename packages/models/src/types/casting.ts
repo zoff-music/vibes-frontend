@@ -1,4 +1,4 @@
-import type * as z from 'zod/mini';
+import type * as v from 'valibot';
 import {
   castDeviceSchema,
   castDeviceTypeSchema,
@@ -11,17 +11,20 @@ import type { PlaybackStateV2 } from '../schemas/playback';
 import type { PlaylistItem } from '../schemas/playlist';
 
 // Inferred Types
-export type CastDeviceType = z.infer<typeof castDeviceTypeSchema>;
+export type CastDeviceType = v.InferOutput<typeof castDeviceTypeSchema>;
 
-export type CastSessionState = z.infer<typeof castSessionStateSchema>;
+export type CastSessionState = v.InferOutput<typeof castSessionStateSchema>;
 
-export type CastDevice = z.infer<typeof castDeviceSchema>;
+export type CastDevice = v.InferOutput<typeof castDeviceSchema>;
 
-export type CastSession = z.infer<typeof castSessionSchema>;
+export type CastSession = v.InferOutput<typeof castSessionSchema>;
 
-export type MediaInfo = z.infer<typeof mediaInfoSchema>;
+export type MediaInfo = v.InferOutput<typeof mediaInfoSchema>;
 
-export type CastError = Omit<z.infer<typeof castErrorSchema>, 'details'> & {
+export type CastError = Omit<
+  v.InferOutput<typeof castErrorSchema>,
+  'details'
+> & {
   details?: unknown;
 };
 

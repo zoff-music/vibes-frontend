@@ -1,16 +1,12 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
 
-export const authorizationsListSchema = /* @__PURE__ */ z.compile(
-  z.array(z.string()),
-);
+export const authorizationsListSchema = /* @__PURE__ */ v.array(v.string());
 
-export type AuthorizationsList = z.infer<typeof authorizationsListSchema>;
+export type AuthorizationsList = v.InferOutput<typeof authorizationsListSchema>;
 
-export const providerTokenSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    accessToken: z.string(),
-    expiresAt: z.string(),
-  }),
-);
+export const providerTokenSchema = /* @__PURE__ */ v.object({
+  accessToken: v.string(),
+  expiresAt: v.string(),
+});
 
-export type ProviderToken = z.infer<typeof providerTokenSchema>;
+export type ProviderToken = v.InferOutput<typeof providerTokenSchema>;

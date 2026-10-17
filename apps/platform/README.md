@@ -599,13 +599,11 @@ animated layers out of initial SSR paint work. Hydration and controls are not
 delayed. Reduced-motion and page-visibility behavior still apply.
 
 Measure production builds with both Brotli and gzip, not Vite's dev server.
-Shared API models use Zod Mini with `z.compile()` for the same compiled
-validation, defaults and input limits. Keep the explicit English locale so
-validation failures retain readable messages. Pure annotations on schema
-compilation let unused models leave the client bundle; do not replace runtime
-validation with type assertions.
-Schema modules are side-effect-free, while the models entry retains its locale
-setup. Admin endpoint definitions live in their own typed client so public
+Shared API models use tree-shakeable Valibot schemas for runtime validation,
+defaults and input limits. Preserve the explicit user-facing validation messages;
+do not replace validation with type assertions.
+Schema modules and the models entry are side-effect-free.
+Admin endpoint definitions live in their own typed client so public
 apps do not retain admin schemas. All clients share the same transport options,
 timeouts, credentials and validation behavior.
 
@@ -631,8 +629,8 @@ subscriptions and playback controls remain active outside the deferred dialog.
 The remote event transport loads only when a remote ID is present; unpaired
 visitors do not download its API client just to render the header. Subscription
 cleanup covers both module loading and connection setup.
-Zod's compiler and core also have separate cached chunks; schemas still use
-the same compiled validation and fallback parser.
+Validation uses the API client's Standard Schema integration without a separate
+schema compiler or fallback parser.
 
 Platform builds split Smolter flat-route modules into lazy browser chunks. Keep shared
 loader functions outside route modules, including canonical-room redirects.

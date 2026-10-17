@@ -5,6 +5,7 @@ import {
   getRequestErrorMessage,
 } from '@vibes/api';
 import { updateSessionProfileRequestSchema } from '@vibes/models';
+import { safeParse } from 'valibot';
 import type { ProfileRouteData } from './clientLoader';
 
 const requests = createSessionProfileRequests(api);
@@ -14,13 +15,13 @@ export async function clientAction({
 }: ClientActionFunctionArgs): Promise<ProfileRouteData> {
   const formData = await request.formData();
   const name = formData.get('name');
-  const parsed = updateSessionProfileRequestSchema.safeParse({ name });
+  const parsed = safeParse(updateSessionProfileRequestSchema, { name });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Enter a valid name.' };
+    return { error: parsed.issues[0]?.message ?? 'Enter a valid name.' };
   }
 
-  const [error, profile] = await requests.updateSessionProfile(parsed.data, {
+  const [error, profile] = await requests.updateSessionProfile(parsed.output, {
     signal: request.signal,
   });
 

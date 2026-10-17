@@ -1,61 +1,51 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
 import { playlistItemSchema } from './playlist';
 
-export const roomActionRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    action: z.enum(['play', 'pause', 'seek', 'skip', 'vote']),
-    positionMs: z.optional(z.number()),
-  }),
-);
+export const roomActionRequestSchema = /* @__PURE__ */ v.object({
+  action: v.picklist(['play', 'pause', 'seek', 'skip', 'vote']),
+  positionMs: v.optional(v.pipe(v.number(), v.finite())),
+});
 
-export type RoomActionRequest = z.infer<typeof roomActionRequestSchema>;
+export type RoomActionRequest = v.InferOutput<typeof roomActionRequestSchema>;
 
-export const playbackStateV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    currentPlaylistItem: z.nullable(playlistItemSchema),
-    isPlaying: z.boolean(),
-    positionMs: z.number(),
-    updatedAt: z.string(),
-    serverTimeMs: z.number(),
-  }),
-);
+export const playbackStateV2Schema = /* @__PURE__ */ v.object({
+  currentPlaylistItem: v.nullable(playlistItemSchema),
+  isPlaying: v.boolean(),
+  positionMs: v.pipe(v.number(), v.finite()),
+  updatedAt: v.string(),
+  serverTimeMs: v.pipe(v.number(), v.finite()),
+});
 
-export type PlaybackStateV2 = z.infer<typeof playbackStateV2Schema>;
+export type PlaybackStateV2 = v.InferOutput<typeof playbackStateV2Schema>;
 
-export const playbackFailureRequestV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    playlistItemId: z.string(),
-  }),
-);
+export const playbackFailureRequestV2Schema = /* @__PURE__ */ v.object({
+  playlistItemId: v.string(),
+});
 
-export type PlaybackFailureRequestV2 = z.infer<
+export type PlaybackFailureRequestV2 = v.InferOutput<
   typeof playbackFailureRequestV2Schema
 >;
 
-export const skipPlaylistItemResponseSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    action: z.literal('skip'),
-    skipped: z.boolean(),
-    voted: z.boolean(),
-    alreadyVoted: z.boolean(),
-    currentVotes: z.number(),
-    requiredVotes: z.number(),
-    nextPlaylistItem: z.nullable(playlistItemSchema),
-    playback: playbackStateV2Schema,
-  }),
-);
+export const skipPlaylistItemResponseSchema = /* @__PURE__ */ v.object({
+  action: v.literal('skip'),
+  skipped: v.boolean(),
+  voted: v.boolean(),
+  alreadyVoted: v.boolean(),
+  currentVotes: v.pipe(v.number(), v.finite()),
+  requiredVotes: v.pipe(v.number(), v.finite()),
+  nextPlaylistItem: v.nullable(playlistItemSchema),
+  playback: playbackStateV2Schema,
+});
 
-export type SkipPlaylistItemResponse = z.infer<
+export type SkipPlaylistItemResponse = v.InferOutput<
   typeof skipPlaylistItemResponseSchema
 >;
 
-export const skipVoteUpdateV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    userId: z.string(),
-    playlistItemId: z.string(),
-    currentVotes: z.number(),
-    requiredVotes: z.number(),
-  }),
-);
+export const skipVoteUpdateV2Schema = /* @__PURE__ */ v.object({
+  userId: v.string(),
+  playlistItemId: v.string(),
+  currentVotes: v.pipe(v.number(), v.finite()),
+  requiredVotes: v.pipe(v.number(), v.finite()),
+});
 
-export type SkipVoteUpdateV2 = z.infer<typeof skipVoteUpdateV2Schema>;
+export type SkipVoteUpdateV2 = v.InferOutput<typeof skipVoteUpdateV2Schema>;

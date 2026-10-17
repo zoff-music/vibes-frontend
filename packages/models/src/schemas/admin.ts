@@ -1,212 +1,192 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
+import { objectInputSchema } from './object-input';
 import { roomTypeSchema } from './room';
 
-export const adminRoomSummaryV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    id: z.string(),
-    name: z.string(),
-    userCount: z.number(),
-    activeSources: z.array(z.string()),
-    hasAdminPassword: z.boolean(),
-    roomType: z._default(roomTypeSchema, 'MUSIC'),
-    isPublic: z.boolean(),
-    playlistItemCount: z.number(),
+export const adminRoomSummaryV2Schema = /* @__PURE__ */ v.object({
+  id: v.string(),
+  name: v.string(),
+  userCount: v.pipe(v.number(), v.finite()),
+  activeSources: v.array(v.string()),
+  hasAdminPassword: v.boolean(),
+  roomType: v.optional(roomTypeSchema, 'MUSIC'),
+  isPublic: v.boolean(),
+  playlistItemCount: v.pipe(v.number(), v.finite()),
+});
+
+export type AdminRoomSummaryV2 = v.InferOutput<typeof adminRoomSummaryV2Schema>;
+
+export const adminRoomsV2Schema = /* @__PURE__ */ v.array(
+  adminRoomSummaryV2Schema,
+);
+
+export type AdminRoomsV2 = v.InferOutput<typeof adminRoomsV2Schema>;
+
+export const adminRoomResultV2Schema = /* @__PURE__ */ v.object({
+  rooms: adminRoomsV2Schema,
+  from: v.pipe(v.number(), v.finite()),
+  to: v.pipe(v.number(), v.finite()),
+  total: v.pipe(v.number(), v.finite()),
+  count: v.pipe(v.number(), v.finite()),
+});
+
+export type AdminRoomResultV2 = v.InferOutput<typeof adminRoomResultV2Schema>;
+
+export const adminRoomSearchV2Schema = /* @__PURE__ */ v.pipe(
+  objectInputSchema,
+  v.object({
+    q: v.optional(v.string()),
+    sortBy: v.optional(v.picklist(['listeners', 'playlistItems'])),
+    order: v.optional(v.picklist(['asc', 'desc'])),
+    from: v.optional(v.pipe(v.number(), v.safeInteger(), v.minValue(0))),
+    to: v.optional(v.pipe(v.number(), v.safeInteger(), v.minValue(0))),
   }),
 );
 
-export type AdminRoomSummaryV2 = z.infer<typeof adminRoomSummaryV2Schema>;
+export const adminLoginRequestSchema = /* @__PURE__ */ v.object({
+  username: v.string(),
+  password: v.string(),
+});
 
-export const adminRoomsV2Schema = /* @__PURE__ */ z.compile(
-  z.array(adminRoomSummaryV2Schema),
-);
+export type AdminLoginRequest = v.InferOutput<typeof adminLoginRequestSchema>;
 
-export type AdminRoomsV2 = z.infer<typeof adminRoomsV2Schema>;
+export const adminUserSchema = /* @__PURE__ */ v.object({
+  id: v.string(),
+  username: v.string(),
+  createdAt: v.string(),
+  updatedAt: v.string(),
+});
 
-export const adminRoomResultV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    rooms: adminRoomsV2Schema,
-    from: z.number(),
-    to: z.number(),
-    total: z.number(),
-    count: z.number(),
-  }),
-);
+export type AdminUser = v.InferOutput<typeof adminUserSchema>;
 
-export type AdminRoomResultV2 = z.infer<typeof adminRoomResultV2Schema>;
+export const adminUsersSchema = /* @__PURE__ */ v.array(adminUserSchema);
 
-export const adminRoomSearchV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    q: z.optional(z.string()),
-    sortBy: z.optional(z.enum(['listeners', 'playlistItems'])),
-    order: z.optional(z.enum(['asc', 'desc'])),
-    from: z.optional(z.int().check(z.minimum(0))),
-    to: z.optional(z.int().check(z.minimum(0))),
-  }),
-);
+export type AdminUsers = v.InferOutput<typeof adminUsersSchema>;
 
-export const adminLoginRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    username: z.string(),
-    password: z.string(),
-  }),
-);
+export const adminCreateUserRequestSchema = /* @__PURE__ */ v.object({
+  username: v.string(),
+  password: v.string(),
+});
 
-export type AdminLoginRequest = z.infer<typeof adminLoginRequestSchema>;
-
-export const adminUserSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    id: z.string(),
-    username: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  }),
-);
-
-export type AdminUser = z.infer<typeof adminUserSchema>;
-
-export const adminUsersSchema = /* @__PURE__ */ z.compile(
-  z.array(adminUserSchema),
-);
-
-export type AdminUsers = z.infer<typeof adminUsersSchema>;
-
-export const adminCreateUserRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    username: z.string(),
-    password: z.string(),
-  }),
-);
-
-export type AdminCreateUserRequest = z.infer<
+export type AdminCreateUserRequest = v.InferOutput<
   typeof adminCreateUserRequestSchema
 >;
 
-export const adminUpdateUserRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    password: z.string(),
-  }),
-);
+export const adminUpdateUserRequestSchema = /* @__PURE__ */ v.object({
+  password: v.string(),
+});
 
-export type AdminUpdateUserRequest = z.infer<
+export type AdminUpdateUserRequest = v.InferOutput<
   typeof adminUpdateUserRequestSchema
 >;
 
-export const adminUpdateRoomRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    name: z.optional(z.string()),
-    clearAdminPassword: z.optional(z.boolean()),
+export const adminUpdateRoomRequestSchema = /* @__PURE__ */ v.pipe(
+  objectInputSchema,
+  v.object({
+    name: v.optional(v.string()),
+    clearAdminPassword: v.optional(v.boolean()),
   }),
 );
 
-export type AdminUpdateRoomRequest = z.infer<
+export type AdminUpdateRoomRequest = v.InferOutput<
   typeof adminUpdateRoomRequestSchema
 >;
 
-export const adminSessionResponseSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    authorized: z.boolean(),
-    user: z.optional(adminUserSchema),
-  }),
-);
+export const adminSessionResponseSchema = /* @__PURE__ */ v.object({
+  authorized: v.boolean(),
+  user: v.optional(adminUserSchema),
+});
 
-export type AdminSessionResponse = z.infer<typeof adminSessionResponseSchema>;
+export type AdminSessionResponse = v.InferOutput<
+  typeof adminSessionResponseSchema
+>;
 
-export const adminSearchUsagePointSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    window: z.enum(['hour', 'day']),
-    timestamp: z.string(),
-    provider: z.string(),
-    total: z.number(),
-    unique: z.number(),
-    cached: z.number(),
-    live: z.number(),
-  }),
-);
+export const adminSearchUsagePointSchema = /* @__PURE__ */ v.object({
+  window: v.picklist(['hour', 'day']),
+  timestamp: v.string(),
+  provider: v.string(),
+  total: v.pipe(v.number(), v.finite()),
+  unique: v.pipe(v.number(), v.finite()),
+  cached: v.pipe(v.number(), v.finite()),
+  live: v.pipe(v.number(), v.finite()),
+});
 
-export type AdminSearchUsagePoint = z.infer<typeof adminSearchUsagePointSchema>;
+export type AdminSearchUsagePoint = v.InferOutput<
+  typeof adminSearchUsagePointSchema
+>;
 
-export const adminSearchUsageSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    roomPoints: z.optional(
-      z.array(
-        z.object({
-          ...z.omit(adminSearchUsagePointSchema, {
-            unique: true,
-          }).shape,
-          roomId: z.string(),
-          roomType: z.optional(z.enum(['MUSIC', 'WATCH'])),
-        }),
-      ),
-    ),
-    points: z.array(adminSearchUsagePointSchema),
-    generatedAt: z.string(),
-  }),
-);
-
-export type AdminSearchUsage = z.infer<typeof adminSearchUsageSchema>;
-
-export const listenerUsagePointSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    window: z.enum(['hour', 'day', 'week', 'month']),
-    timestamp: z.string(),
-    listeners: z.number(),
-  }),
-);
-
-export type ListenerUsagePoint = z.infer<typeof listenerUsagePointSchema>;
-
-export const adminListenerUsageSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    roomPoints: z.optional(
-      z.array(
-        z.object({
-          ...listenerUsagePointSchema.shape,
-          roomId: z.string(),
-          roomType: z.optional(z.enum(['MUSIC', 'WATCH'])),
-        }),
-      ),
-    ),
-    points: z.array(listenerUsagePointSchema),
-    generatedAt: z.string(),
-  }),
-);
-
-export type AdminListenerUsage = z.infer<typeof adminListenerUsageSchema>;
-
-export const adminMessageUsageSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    roomPoints: z.optional(
-      z.array(
-        z.object({
-          roomId: z.string(),
-          roomType: z.optional(z.enum(['MUSIC', 'WATCH'])),
-          window: z.enum(['hour', 'day', 'month']),
-          timestamp: z.string(),
-          messages: z.number(),
-        }),
-      ),
-    ),
-    roomId: z.string(),
-    total: z.number(),
-    generatedAt: z.string(),
-    points: z.array(
-      z.object({
-        window: z.enum(['hour', 'day', 'month']),
-        timestamp: z.string(),
-        messages: z.number(),
+export const adminSearchUsageSchema = /* @__PURE__ */ v.object({
+  roomPoints: v.optional(
+    v.array(
+      v.object({
+        ...v.omit(adminSearchUsagePointSchema, ['unique']).entries,
+        roomId: v.string(),
+        roomType: v.optional(v.picklist(['MUSIC', 'WATCH'])),
       }),
     ),
+  ),
+  points: v.array(adminSearchUsagePointSchema),
+  generatedAt: v.string(),
+});
+
+export type AdminSearchUsage = v.InferOutput<typeof adminSearchUsageSchema>;
+
+export const listenerUsagePointSchema = /* @__PURE__ */ v.object({
+  window: v.picklist(['hour', 'day', 'week', 'month']),
+  timestamp: v.string(),
+  listeners: v.pipe(v.number(), v.finite()),
+});
+
+export type ListenerUsagePoint = v.InferOutput<typeof listenerUsagePointSchema>;
+
+export const adminListenerUsageSchema = /* @__PURE__ */ v.object({
+  roomPoints: v.optional(
+    v.array(
+      v.object({
+        ...listenerUsagePointSchema.entries,
+        roomId: v.string(),
+        roomType: v.optional(v.picklist(['MUSIC', 'WATCH'])),
+      }),
+    ),
+  ),
+  points: v.array(listenerUsagePointSchema),
+  generatedAt: v.string(),
+});
+
+export type AdminListenerUsage = v.InferOutput<typeof adminListenerUsageSchema>;
+
+export const adminMessageUsageSchema = /* @__PURE__ */ v.object({
+  roomPoints: v.optional(
+    v.array(
+      v.object({
+        roomId: v.string(),
+        roomType: v.optional(v.picklist(['MUSIC', 'WATCH'])),
+        window: v.picklist(['hour', 'day', 'month']),
+        timestamp: v.string(),
+        messages: v.pipe(v.number(), v.finite()),
+      }),
+    ),
+  ),
+  roomId: v.string(),
+  total: v.pipe(v.number(), v.finite()),
+  generatedAt: v.string(),
+  points: v.array(
+    v.object({
+      window: v.picklist(['hour', 'day', 'month']),
+      timestamp: v.string(),
+      messages: v.pipe(v.number(), v.finite()),
+    }),
+  ),
+});
+
+export type AdminMessageUsage = v.InferOutput<typeof adminMessageUsageSchema>;
+
+export const adminMessageUsageSearchSchema = /* @__PURE__ */ v.pipe(
+  objectInputSchema,
+  v.object({
+    roomId: v.optional(v.pipe(v.string(), v.maxLength(200))),
   }),
 );
 
-export type AdminMessageUsage = z.infer<typeof adminMessageUsageSchema>;
-
-export const adminMessageUsageSearchSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    roomId: z.optional(z.string().check(z.maxLength(200))),
-  }),
-);
-
-export const optionalAdminMessageUsageSearchSchema = /* @__PURE__ */ z.compile(
-  z.optional(adminMessageUsageSearchSchema),
+export const optionalAdminMessageUsageSearchSchema = /* @__PURE__ */ v.optional(
+  adminMessageUsageSearchSchema,
 );

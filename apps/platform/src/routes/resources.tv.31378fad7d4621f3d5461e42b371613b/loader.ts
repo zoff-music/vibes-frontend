@@ -1,11 +1,12 @@
 import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import { tvPlayerQuerySchema } from '@vibes/models';
+import { safeParse } from 'valibot';
 
 import playerStyles from './player.css?url';
 
 export function loader({ request }: LoaderFunctionArgs): Response {
   const query = new URL(request.url).searchParams;
-  const result = tvPlayerQuerySchema.safeParse({
+  const result = safeParse(tvPlayerQuerySchema, {
     video: query.get('video'),
     start: query.get('start') ?? 0,
   });
@@ -21,7 +22,7 @@ export function loader({ request }: LoaderFunctionArgs): Response {
     });
   }
 
-  const { video, start } = result.data;
+  const { video, start } = result.output;
   // No hydration or player proxy: YouTube is embedded by this HTTPS document.
   const html = `<!doctype html>
 <html lang="en">

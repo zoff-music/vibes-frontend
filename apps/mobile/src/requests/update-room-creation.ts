@@ -7,6 +7,7 @@ import {
   roomNameReservationRequestSchema,
 } from '@vibes/models';
 import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
+import { safeParse } from 'valibot';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 type CreateRoomActionInput =
@@ -30,20 +31,23 @@ export async function updateRoomCreation({
   }
 
   if (input.intent === 'reserve') {
-    const parsed = roomNameReservationRequestSchema.safeParse({
+    const parsed = safeParse(roomNameReservationRequestSchema, {
       name: input.name,
     });
 
     if (!parsed.success) {
       return {
         data: null,
-        error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+        error: parsed.issues[0]?.message ?? 'Enter a valid room name.',
       };
     }
 
-    const [error, reservation] = await requests.reserveRoom(parsed.data.name, {
-      signal,
-    });
+    const [error, reservation] = await requests.reserveRoom(
+      parsed.output.name,
+      {
+        signal,
+      },
+    );
 
     if (error || !reservation) {
       return {
@@ -79,16 +83,16 @@ export async function updateRoomCreation({
     return { data: { intent: 'generated', roomId: room.id }, error: '' };
   }
 
-  const parsed = createRoomRequestV2Schema.safeParse(input.request);
+  const parsed = safeParse(createRoomRequestV2Schema, input.request);
 
   if (!parsed.success) {
     return {
       data: null,
-      error: parsed.error.issues[0]?.message ?? 'Check the room settings.',
+      error: parsed.issues[0]?.message ?? 'Check the room settings.',
     };
   }
 
-  const [error, room] = await requests.createRoom(parsed.data, { signal });
+  const [error, room] = await requests.createRoom(parsed.output, { signal });
 
   if (error || !room) {
     return {
