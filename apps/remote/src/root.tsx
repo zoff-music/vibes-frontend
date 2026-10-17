@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from '@kasperrt/smolter/preact/document';
+import { classNames } from '@vibes/shared';
 import { FontPreloads, MotionProvider, ThemeScript } from '@vibes/ui/web';
 import type { ReactNode } from 'preact/compat';
 import { App } from './App';
@@ -26,7 +27,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <Document
       lang="en"
-      className={loaderData?.themeClass}
+      className={classNames(loaderData?.themeClass, 'page-transitions')}
       data-debug={loaderData?.debug === true}
     >
       <head>

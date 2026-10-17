@@ -19,7 +19,11 @@ const LazyProfileSettingsModal = lazy(async () => {
   return { default: module.ProfileSettingsModal };
 });
 
-export function SiteHeader() {
+interface SiteHeaderProps {
+  showExperienceSwitch: boolean;
+}
+
+export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
   const [showSettings, setShowSettings] = useState(false);
   const watch = useExperience() === 'WATCH';
 
@@ -36,7 +40,7 @@ export function SiteHeader() {
             <SiteBrand />
           </Link>
         }
-        center={<ExperienceSwitch />}
+        {...(showExperienceSwitch && { center: <ExperienceSwitch /> })}
         navigation={
           <>
             <NavLink

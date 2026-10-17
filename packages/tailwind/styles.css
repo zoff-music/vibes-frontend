@@ -222,40 +222,54 @@
   }
 }
 
-/* Keep page geometry fixed: zoom and blur amplify every route change. */
-::view-transition-group(root) {
-  animation: none;
-}
+@utility page-transitions {
+  &::view-transition,
+  &::view-transition-group(*),
+  &::view-transition-image-pair(*),
+  &::view-transition-old(*),
+  &::view-transition-new(*) {
+    pointer-events: none;
+  }
 
-::view-transition-old(root) {
-  animation: none;
-  opacity: 0;
-}
+  &::view-transition-group(*) {
+    animation-duration: 220ms;
+    animation-timing-function: ease-out;
+  }
 
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
+  &::view-transition-group(root),
+  &::view-transition-group(site-header),
+  &::view-transition-group(site-footer) {
+    animation: none;
+  }
 
-.site-header {
-  view-transition-name: site-header;
-}
+  &::view-transition-old(*) {
+    animation: none;
+    opacity: 0;
+  }
 
-.site-footer {
-  view-transition-name: site-footer;
-}
+  &::view-transition-new(*) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
 
-::view-transition-group(site-footer),
-::view-transition-new(site-footer),
-::view-transition-group(site-header),
-::view-transition-new(site-header) {
-  animation: none;
-}
+  &::view-transition-old(root),
+  &::view-transition-old(*):only-child {
+    opacity: 1;
+    animation: page-fade-out 140ms ease-out both;
+  }
 
-::view-transition-old(site-footer),
-::view-transition-old(site-header) {
-  animation: none;
-  opacity: 0;
+  &::view-transition-new(root),
+  &::view-transition-new(*):only-child {
+    animation: page-fade-in 180ms ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::view-transition-group(*),
+    &::view-transition-old(*),
+    &::view-transition-new(*) {
+      animation: none;
+    }
+  }
 }
 
 @keyframes app-fade-in {
@@ -269,27 +283,7 @@ html[data-page-enter] main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-page-enter] main,
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-  }
-}
-
-::view-transition-old(site-header):only-child,
-::view-transition-old(site-footer):only-child {
-  opacity: 1;
-  animation: page-fade-out 140ms ease-out both;
-}
-
-::view-transition-new(site-header):only-child,
-::view-transition-new(site-footer):only-child {
-  animation: page-fade-in 180ms ease-out both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
+  html[data-page-enter] main {
     animation: none;
   }
 }

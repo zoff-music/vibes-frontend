@@ -22,7 +22,7 @@ export function SiteHeader({
   return (
     <header
       className={classNames(
-        'site-header product-content relative z-10 mx-auto grid w-full max-w-6xl grid-cols-[auto_minmax(0,1fr)] items-center gap-2 px-5 py-5 sm:gap-4 sm:px-6 sm:py-7',
+        'site-header product-content relative z-10 mx-auto grid w-full max-w-6xl grid-cols-[auto_minmax(0,1fr)] items-center gap-2 px-5 py-5 [view-transition-name:site-header] sm:gap-4 sm:px-6 sm:py-7',
         Boolean(center) && 'lg:grid-cols-[1fr_auto_1fr]',
       )}
     >

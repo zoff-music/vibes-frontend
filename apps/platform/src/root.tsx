@@ -42,7 +42,10 @@ export function Layout({ children }: Props) {
     <Document
       lang="en"
       data-debug={loaderData?.debug === true}
-      className={classNames(themeClass, 'motion-safe:scroll-smooth')}
+      className={classNames(
+        themeClass,
+        'page-transitions motion-safe:scroll-smooth',
+      )}
     >
       <head>
         <meta charSet="UTF-8" />

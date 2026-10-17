@@ -271,9 +271,15 @@ Normal page stacking keeps both layers behind the opaque card, avoiding Safari
 snapshot compositing failures and overlap. The opaque hero surface disables
 unnecessary backdrop blur.
 Only switches between landing pages use this eclipse. The same selector on
-policy, discovery and other pages navigates normally without capturing their
-content into animation layers. Navigation state enables the eclipse only when
+discovery and other pages navigates normally without capturing their
+content into animation layers. Policy pages omit the Music/Watch selector.
+Navigation state enables the eclipse only when
 switching directly between landing pages; initial visits show the final artwork.
+Page transitions preserve the shared site header. Only policy heroes share a
+snapshot name with other policy heroes; the interactive landing hero must not
+morph into a legal document. Unrelated content crossfades while matching surfaces
+stay stable, using the shared Tailwind `page-transitions` utility and component
+transition-name utilities. Reduced motion disables these animations.
 The moon retains its original crescent, ring and dark palette; only its light
 palette changes to a pale center with stronger violet/cyan edges. Reduced
 motion disables the transition. Navigation and the CSS pill slide do not depend

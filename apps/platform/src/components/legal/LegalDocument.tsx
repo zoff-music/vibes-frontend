@@ -57,6 +57,7 @@ export function LegalDocument({
   return (
     <SitePage>
       <SiteHero
+        className="[view-transition-name:policy-hero]"
         id="policy-heading"
         eyebrow="POLICIES"
         title={title}
@@ -65,7 +66,7 @@ export function LegalDocument({
           <>
             <nav
               aria-label="Zoff policies"
-              className="policy-navigation grid w-full grid-cols-3 gap-2 sm:w-auto"
+              className="grid w-full grid-cols-3 gap-2 [view-transition-name:policy-navigation] sm:w-auto"
             >
               {policyLinks.map((policy) => (
                 <NavLink
@@ -92,7 +93,7 @@ export function LegalDocument({
       />
 
       <div className="grid items-start gap-6 pt-10 sm:pt-16 lg:grid-cols-4 lg:gap-10">
-        <aside className="policy-contents hidden lg:sticky lg:top-6 lg:block">
+        <aside className="hidden [view-transition-name:policy-contents] lg:sticky lg:top-6 lg:block">
           <nav aria-label="On this page" className="mt-8 hidden lg:block">
             <p className="mb-3 px-3 font-pixel text-theme-subtle text-xs">
               On this page
@@ -147,7 +148,7 @@ export function LegalDocument({
         </aside>
         <article
           aria-label={title}
-          className="policy-document panel-surface min-w-0 space-y-8 rounded-frame border border-theme p-6 sm:p-8 lg:col-span-3 lg:p-10"
+          className="panel-surface min-w-0 space-y-8 rounded-frame border border-theme p-6 [view-transition-name:policy-document] sm:p-8 lg:col-span-3 lg:p-10"
         >
           {content}
         </article>

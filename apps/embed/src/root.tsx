@@ -22,7 +22,7 @@ export function Layout({ children }: Props) {
   const colorScheme = parseColorScheme(location.searchParams.get('theme'));
   const debug = import.meta.env.VITE_DEBUG === 'true';
   const className = classNames(
-    'h-full overflow-hidden overscroll-none',
+    'page-transitions h-full overflow-hidden overscroll-none',
     colorSchemeClasses[colorScheme],
   );
   const colorSchemeContent =
