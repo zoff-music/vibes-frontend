@@ -1,4 +1,4 @@
-import { EmbedConfigurator } from '../../../components/seo/EmbedConfigurator';
+import { EmbedConfigurator } from '../seo/EmbedConfigurator';
 
 export function EmbedGuide() {
   return (

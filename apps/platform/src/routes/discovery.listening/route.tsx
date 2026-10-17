@@ -1,7 +1,7 @@
+import { ChatGuide } from '../../components/discovery/ChatGuide';
+import { ListeningPreview } from '../../components/discovery/ListeningPreview';
+import { ProductPageContent } from '../../components/discovery/ProductPageContent';
 import { page } from '../../seo/pages/listening';
-import { ChatGuide } from '../discovery.$topic/components/ChatGuide';
-import { ListeningPreview } from '../discovery.$topic/components/ListeningPreview';
-import { ProductPageContent } from '../discovery.$topic/components/ProductPageContent';
 export const id = 'routes/discovery.listening/route';
 
 export { meta } from './meta';

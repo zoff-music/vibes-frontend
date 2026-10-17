@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { Button, PlusIcon } from '@vibes/ui/web';
-import { m as motion } from 'framer-motion';
+import { AnimatePresence, m as motion } from 'framer-motion';
 import { lazy, Suspense } from 'preact/compat';
 import { DeferredModalLoading } from '../components/DeferredModalLoading';
 import { DeferredRoomGenerationProgress as RoomGenerationProgress } from '../components/DeferredRoomGenerationProgress';
@@ -204,41 +204,47 @@ export function RoomView() {
             )}
           </div>
 
-          {showDeviceSelector && (
-            <Suspense
-              fallback={
-                <DeferredModalLoading label="Loading cast devices..." />
-              }
-            >
-              <LazyDeviceSelector
-                isOpen={showDeviceSelector}
-                onClose={handleCloseCast}
-              />
-            </Suspense>
-          )}
-          {isAddModalVisible && (
-            <Suspense
-              fallback={<DeferredModalLoading label="Loading song search..." />}
-            >
-              <LazyAddToQueueModal
-                room={displayRoom}
-                providers={loaderData.providers}
-                isVisible={isAddModalVisible}
-                onClose={handleCloseAddPlaylistItem}
-                onOpenAdminLogin={handleOpenAdminLogin}
-                generationCount={displayRoom.generationCount}
-                roomGenerationMaxDailyCount={
-                  displayRoom.roomGenerationMaxDailyCount
+          <AnimatePresence>
+            {showDeviceSelector && (
+              <Suspense
+                key="cast-modal"
+                fallback={
+                  <DeferredModalLoading label="Loading cast devices..." />
                 }
-                roomGenerationMaxExistingPlaylistItems={
-                  displayRoom.roomGenerationMaxExistingPlaylistItems
+              >
+                <LazyDeviceSelector
+                  isOpen={showDeviceSelector}
+                  onClose={handleCloseCast}
+                />
+              </Suspense>
+            )}
+            {isAddModalVisible && (
+              <Suspense
+                key="add-modal"
+                fallback={
+                  <DeferredModalLoading label="Loading song search..." />
                 }
-                hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
-                isGenerating={isGenerating}
-                onGenerationStarted={handleGenerationStarted}
-              />
-            </Suspense>
-          )}
+              >
+                <LazyAddToQueueModal
+                  room={displayRoom}
+                  providers={loaderData.providers}
+                  isVisible={isAddModalVisible}
+                  onClose={handleCloseAddPlaylistItem}
+                  onOpenAdminLogin={handleOpenAdminLogin}
+                  generationCount={displayRoom.generationCount}
+                  roomGenerationMaxDailyCount={
+                    displayRoom.roomGenerationMaxDailyCount
+                  }
+                  roomGenerationMaxExistingPlaylistItems={
+                    displayRoom.roomGenerationMaxExistingPlaylistItems
+                  }
+                  hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
+                  isGenerating={isGenerating}
+                  onGenerationStarted={handleGenerationStarted}
+                />
+              </Suspense>
+            )}
+          </AnimatePresence>
         </main>
       </motion.div>
       {!isAddModalVisible && !chatOpen && (

@@ -8,7 +8,6 @@ import {
   type MediaInfo,
   type PlaybackStateV2,
   type PlaylistItem,
-  type Song,
 } from '@vibes/models';
 import {
   browserDebugLog,
@@ -759,7 +758,10 @@ class GoogleCastManager implements ICastManager {
   // Public API - Media Control
   // ============================================================
 
-  async castMedia(mediaInfo: MediaInfo): Promise<void> {
+  async castMedia(
+    mediaInfo: MediaInfo,
+    playlistItem: PlaylistItem,
+  ): Promise<void> {
     if (!this.currentSession) throw new Error('No active cast session');
 
     if (this.currentSession.state !== 'connected') {
@@ -767,7 +769,7 @@ class GoogleCastManager implements ICastManager {
     }
 
     if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
-      this.sendLocalPlaybackState(mediaInfo);
+      this.sendLocalPlaybackState(playlistItem);
 
       return;
     }
@@ -809,7 +811,7 @@ class GoogleCastManager implements ICastManager {
         browserDebugLog('[Cast] Custom context ready', { receiverUrl });
 
         setTimeout(() => {
-          this.sendMediaToReceiver(mediaInfo, session);
+          this.sendMediaToReceiver(playlistItem, session);
         }, 1000);
 
         if (this.currentSession) {
@@ -826,25 +828,13 @@ class GoogleCastManager implements ICastManager {
   }
 
   private sendMediaToReceiver(
-    mediaInfo: MediaInfo,
+    playlistItem: PlaylistItem,
     session: chrome.cast.Session,
   ): void {
     const [err] = safeWrap(() => {
       const message = {
         action: 'updatePlayback',
-        currentSong: {
-          id: mediaInfo.metadata.title || 'unknown',
-          title: mediaInfo.metadata.title || 'Unknown Title',
-          artist: mediaInfo.metadata.artist || 'Unknown Artist',
-          sourceType: this.isYouTubeUrl(mediaInfo.contentId)
-            ? 'youtube'
-            : 'other',
-          sourceId: this.isYouTubeUrl(mediaInfo.contentId)
-            ? this.extractYouTubeVideoId(mediaInfo.contentId)
-            : mediaInfo.contentId,
-          duration: mediaInfo.duration || 0,
-          thumbnailUrl: mediaInfo.metadata.images?.[0]?.url || '',
-        },
+        currentSong: playlistItem,
         isPlaying: true,
         positionMs: 0,
         queue: [],
@@ -873,24 +863,11 @@ class GoogleCastManager implements ICastManager {
     if (err) console.error('Error sending media to receiver:', err);
   }
 
-  private sendLocalPlaybackState(mediaInfo: MediaInfo): void {
+  private sendLocalPlaybackState(playlistItem: PlaylistItem): void {
     const [err] = safeWrap(() => {
       const message: LocalCastMessage = {
         action: 'updatePlayback',
-        currentSong: {
-          id: mediaInfo.metadata.title || 'unknown',
-          title: mediaInfo.metadata.title || 'Unknown Title',
-          artist: mediaInfo.metadata.artist || 'Unknown Artist',
-          sourceType: this.isYouTubeUrl(mediaInfo.contentId)
-            ? 'youtube'
-            : 'other',
-          sourceId: this.isYouTubeUrl(mediaInfo.contentId)
-            ? this.extractYouTubeVideoId(mediaInfo.contentId) ||
-              mediaInfo.contentId
-            : mediaInfo.contentId,
-          duration: mediaInfo.duration || 0,
-          thumbnailUrl: mediaInfo.metadata.images?.[0]?.url || '',
-        },
+        currentSong: playlistItem,
         isPlaying: true,
         positionMs: 0,
         queue: [],
@@ -1002,15 +979,7 @@ class GoogleCastManager implements ICastManager {
 
     const queueMessage = {
       action: 'updateQueue',
-      queue: queue.map((playlistItem) => ({
-        id: playlistItem.id,
-        title: playlistItem.title,
-        artist: playlistItem.publisher,
-        sourceType: playlistItem.sourceType,
-        sourceId: playlistItem.sourceId,
-        thumbnailUrl: playlistItem.thumbnailUrl,
-        duration: playlistItem.duration,
-      })),
+      queue,
       timestamp: Date.now(),
     };
 
@@ -1095,19 +1064,11 @@ class GoogleCastManager implements ICastManager {
       return;
     }
 
-    // Keep the sender wire contract readable by receivers already running.
-    let currentSong: Song | null = null;
-
-    if (state.currentPlaylistItem) {
-      const { publisher, ...item } = state.currentPlaylistItem;
-      currentSong = { ...item, artist: publisher };
-    }
-
     const message = {
       action: 'syncPlayback',
       isPlaying: state.isPlaying,
       positionMs: state.positionMs,
-      currentSong,
+      currentSong: state.currentPlaylistItem,
       updatedAt: state.updatedAt,
       serverTimeMs: state.serverTimeMs,
       timestamp: Date.now(),
@@ -1272,14 +1233,6 @@ class GoogleCastManager implements ICastManager {
 
   getConnectionState(): CastSessionState | null {
     return this.currentSession?.state || null;
-  }
-
-  private extractYouTubeVideoId(url: string): string | null {
-    const regex =
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
-    const match = url.match(regex);
-
-    return match ? match[1] : null;
   }
 
   private isYouTubeUrl(url: string): boolean {

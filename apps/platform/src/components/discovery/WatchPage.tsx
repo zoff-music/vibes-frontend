@@ -1,11 +1,11 @@
 import { Link } from '@kasperrt/smolter/preact';
 import { ArrowRightIcon } from '@vibes/ui/web';
 import type { ReactNode } from 'preact/compat';
-import { SiteHero } from '../../../components/layout/SiteHero';
-import { SitePage } from '../../../components/layout/SitePage';
-import { ProductAccordion } from '../../../components/seo/ProductAccordion';
-import { ProductLinks } from '../../../components/seo/ProductLinks';
-import type { ProductPage } from '../../../seo/productPages';
+import type { ProductPage } from '../../seo/productPages';
+import { SiteHero } from '../layout/SiteHero';
+import { SitePage } from '../layout/SitePage';
+import { ProductAccordion } from '../seo/ProductAccordion';
+import { ProductLinks } from '../seo/ProductLinks';
 
 interface WatchPageProps {
   page: ProductPage;

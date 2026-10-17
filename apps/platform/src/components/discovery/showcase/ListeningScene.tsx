@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import { ContentTransition, PlaybackProgress } from '@vibes/ui/web';
-import { queueDemoPlaylistItems } from '../../../../components/seo/preview';
-import { usePlaybackPreview } from '../../hooks/usePlaybackPreview';
+import { usePlaybackPreview } from '../../../hooks/discovery/usePlaybackPreview';
+import { queueDemoPlaylistItems } from '../../seo/preview';
 
 interface ListeningSceneProps {
   playing: boolean;

@@ -32,7 +32,7 @@ test('suppresses browser Back and same-site document navigation', () => {
     false,
   );
 
-  for (const path of ['/electro', '/discovery/listening', '/explore/rooms']) {
+  for (const path of ['/electro', '/discovery/listening', '/rooms/explore']) {
     assert.equal(
       canOfferRoomReminder({
         origin,

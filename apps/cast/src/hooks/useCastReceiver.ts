@@ -1,5 +1,3 @@
-import type { Song } from '@vibes/models';
-
 import {
   getEstimatedServerTimeMs,
   isBrowserDebugEnabled,
@@ -11,7 +9,7 @@ import {
 import type { framework } from 'chromecast-caf-receiver';
 import { useEffect, useRef } from 'preact/compat';
 import type { LocalCastMessage } from '../types';
-import { toPlaylistItem } from '../utils/item';
+import { normalizePlaylistItem } from '../utils/item';
 
 let isCastReceiverInitialized = false;
 
@@ -19,7 +17,7 @@ interface CustomLoadData {
   roomId?: string;
   castToken?: string;
   debug?: boolean;
-  currentSong?: Song;
+  currentSong?: PlaylistItem;
   positionMs?: number;
   theme?: ResolvedColorScheme;
 }
@@ -119,7 +117,9 @@ export const useCastReceiver = ({
             }
 
             if (data.currentSong) {
-              const normalizedPlaylistItem = toPlaylistItem(data.currentSong);
+              const normalizedPlaylistItem = normalizePlaylistItem(
+                data.currentSong,
+              );
               setPlaybackState({
                 currentPlaylistItem: normalizedPlaylistItem,
                 isPlaying: true,

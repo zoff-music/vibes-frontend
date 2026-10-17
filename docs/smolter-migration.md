@@ -515,3 +515,41 @@ meaningful performance improvement; generated identities can affect compression.
 
 All-JS totals include lazy chunks and legacy variants, not initial-route transfer.
 Static entry closures omit dynamic matched routes, CSS, fonts and other assets.
+
+## Legacy cleanup and shared-element transitions
+
+Removed the unused `/explore/rooms`, `/discover/:topic`, and old
+`/discovery/:topic` redirect routes. Existing bookmarks to those retired aliases
+no longer redirect; current links use `/rooms/explore` and the explicit
+`/discovery/*` pages. Shared discovery components and hooks now live outside
+route directories. Removed unused v2 `playlist-items` API declarations; v3
+`items` remains the application contract.
+
+Cast sender, receiver and emulator payloads now use `PlaylistItem`, including
+`publisher`, directly. The sender passes the original item rather than
+reconstructing it from SDK metadata, preserving queue identity and metadata.
+Removed the old `Song` schema and artist/publisher conversion. Google Cast SDK
+metadata still uses its required artist field. Old already-running receivers
+must restart when deploying this wire-contract change. Chrome 80 build support
+remains intentional and is unrelated to the retired payload shape.
+
+Policy pages match hero, policy navigation, contents and document regions by
+view-transition name. Shared regions animate geometry instead of fading the
+whole page; reduced motion disables their animation. Browser checks on a local
+production build covered Privacy → Terms → Security, computed transition names,
+disabled root fade, and absence of console errors. Physical Cast hardware and
+frame-by-frame visual timing have not been signed off by these checks.
+
+Shared dialogs now retain their portal during exit; lazy parent boundaries
+propagate removal to the modal's presence boundary. Room settings also has an
+exit animation and a parent presence boundary. No new animation dependency was
+added. Room-name suggestions remain an active `/rooms/create` loader intent;
+there is no `resources.room-suggest` route in this checkout.
+
+Local production browser checks confirmed close-time DOM retention followed by
+removal for Personal Settings, room settings, sharing and Cast to Device.
+Personal Settings and Cast restored trigger focus and cleared the body scroll
+lock after exit. Policy browser Back and section hash navigation also worked.
+Workspace lint/typechecking, all six web production builds, five Cast/reminder
+unit tests and five TV player resource tests passed. These tests do not establish
+physical device playback parity.

@@ -1,5 +1,5 @@
-import { MusicDemo } from '../../../components/seo/MusicDemo';
-import { useShowcaseMotion } from '../../../components/seo/useShowcaseMotion';
+import { MusicDemo } from '../seo/MusicDemo';
+import { useShowcaseMotion } from '../seo/useShowcaseMotion';
 import { ListeningScene } from './showcase/ListeningScene';
 
 export function ListeningPreview() {

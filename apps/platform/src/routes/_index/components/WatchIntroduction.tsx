@@ -10,7 +10,7 @@ const LazyWatchScene = lazy(() =>
   })),
 );
 const LazyChatPreview = lazy(() =>
-  import('../../discovery.$topic/components/ChatPreview').then((module) => ({
+  import('../../../components/discovery/ChatPreview').then((module) => ({
     default: module.ChatPreview,
   })),
 );

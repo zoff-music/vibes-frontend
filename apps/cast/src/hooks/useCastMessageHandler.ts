@@ -8,7 +8,7 @@ import {
 } from '@vibes/shared';
 import { type Dispatch, type SetStateAction, useCallback } from 'preact/compat';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
-import { toPlaylistItem } from '../utils/item';
+import { normalizePlaylistItem } from '../utils/item';
 
 interface UseCastMessageHandlerProps {
   joinRoom: (connection: CastRoomConnection) => void;
@@ -64,7 +64,9 @@ export const useCastMessageHandler = ({
         case 'updatePlayback':
         case 'syncPlayback': {
           if (message.currentSong) {
-            const normalizedPlaylistItem = toPlaylistItem(message.currentSong);
+            const normalizedPlaylistItem = normalizePlaylistItem(
+              message.currentSong,
+            );
             const isSamePlaylistItem =
               currentPlaylistItemId === normalizedPlaylistItem.id;
 
@@ -114,7 +116,7 @@ export const useCastMessageHandler = ({
 
         case 'updateQueue':
           if (message.queue) {
-            setQueue(message.queue.map((item) => toPlaylistItem(item)));
+            setQueue(message.queue.map((item) => normalizePlaylistItem(item)));
           }
           break;
 

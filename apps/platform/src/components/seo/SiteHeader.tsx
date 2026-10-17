@@ -8,6 +8,7 @@ import {
   siteNavigationClassName,
   Tooltip,
 } from '@vibes/ui/web';
+import { AnimatePresence } from 'framer-motion';
 import { lazy, Suspense, useState } from 'preact/compat';
 import { useExperience } from '../../hooks/useExperience';
 import { ExperienceSwitch } from '../layout/ExperienceSwitch';
@@ -84,20 +85,22 @@ export function SiteHeader() {
           </>
         }
       />
-      {showSettings && (
-        <Suspense
-          fallback={
-            <p role="status" className="sr-only">
-              Loading settings...
-            </p>
-          }
-        >
-          <LazyProfileSettingsModal
-            isOpen
-            onClose={() => setShowSettings(false)}
-          />
-        </Suspense>
-      )}
+      <AnimatePresence>
+        {showSettings && (
+          <Suspense
+            fallback={
+              <p role="status" className="sr-only">
+                Loading settings...
+              </p>
+            }
+          >
+            <LazyProfileSettingsModal
+              isOpen
+              onClose={() => setShowSettings(false)}
+            />
+          </Suspense>
+        )}
+      </AnimatePresence>
     </>
   );
 }

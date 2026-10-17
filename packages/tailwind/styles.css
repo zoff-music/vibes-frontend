@@ -228,11 +228,13 @@
 }
 
 ::view-transition-old(root) {
-  animation: page-fade-out 140ms ease-out both;
+  animation: none;
+  opacity: 0;
 }
 
 ::view-transition-new(root) {
-  animation: page-fade-in 180ms ease-out both;
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 .site-header {

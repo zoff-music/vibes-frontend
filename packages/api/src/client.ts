@@ -247,21 +247,6 @@ const v2Endpoints = {
       response: playbackStateV2Schema,
     },
   },
-  '/rooms/{id}/playlist-items': {
-    /** @deprecated Use v3 GET /rooms/{id}/items and its data envelope. */
-    get: { response: playlistItemsListSchema },
-    /** @deprecated Use v3 POST /rooms/{id}/items. */
-    post: {
-      request: addPlaylistItemRequestSchema,
-      response: addPlaylistItemResponseSchema,
-    },
-  },
-  '/rooms/{id}/playlist-items/{playlistItemId}': {
-    /** @deprecated Use v3 POST /rooms/{id}/items/{itemId}. */
-    post: { response: emptyObjectSchema },
-    /** @deprecated Use v3 DELETE /rooms/{id}/items/{itemId}. */
-    delete: { response: emptyObjectSchema },
-  },
   '/rooms/{id}/playlists': {
     post: {
       request: addPlaylistRequestV2Schema,

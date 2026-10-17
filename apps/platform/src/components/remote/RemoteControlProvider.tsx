@@ -17,6 +17,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { Button, RemoteIcon, Tooltip } from '@vibes/ui/web';
+import { AnimatePresence } from 'framer-motion';
 import {
   createContext,
   lazy,
@@ -270,24 +271,26 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     <RemoteControlContext.Provider value={value}>
       {children}
 
-      {isOpen && (
-        <Suspense
-          fallback={
-            <p role="status" className="sr-only">
-              Loading remote controls...
-            </p>
-          }
-        >
-          <LazyRemoteControlDialog
-            controlFetcher={controlFetcher}
-            remote={remote}
-            pairing={pairing}
-            machineRoomId={machineRoomId}
-            isOpen={isOpen}
-            closeRemoteControl={closeRemoteControl}
-          />
-        </Suspense>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <Suspense
+            fallback={
+              <p role="status" className="sr-only">
+                Loading remote controls...
+              </p>
+            }
+          >
+            <LazyRemoteControlDialog
+              controlFetcher={controlFetcher}
+              remote={remote}
+              pairing={pairing}
+              machineRoomId={machineRoomId}
+              isOpen={isOpen}
+              closeRemoteControl={closeRemoteControl}
+            />
+          </Suspense>
+        )}
+      </AnimatePresence>
     </RemoteControlContext.Provider>
   );
 }

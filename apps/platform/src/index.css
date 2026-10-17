@@ -126,6 +126,46 @@
 }
 
 /* Snapshot children can override the overlay's hit testing. None are controls. */
+.site-hero {
+  view-transition-name: site-hero;
+}
+
+.policy-navigation {
+  view-transition-name: policy-navigation;
+}
+
+.policy-contents {
+  view-transition-name: policy-contents;
+}
+
+.policy-document {
+  view-transition-name: policy-document;
+}
+
+::view-transition-group(site-hero),
+::view-transition-group(policy-navigation),
+::view-transition-group(policy-contents),
+::view-transition-group(policy-document) {
+  animation-duration: 220ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-old(site-hero),
+::view-transition-old(policy-navigation),
+::view-transition-old(policy-contents),
+::view-transition-old(policy-document) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(site-hero),
+::view-transition-new(policy-navigation),
+::view-transition-new(policy-contents),
+::view-transition-new(policy-document) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 ::view-transition,
 ::view-transition-group(*),
 ::view-transition-image-pair(*),
@@ -147,6 +187,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*) {
+    animation: none;
+  }
+
   .animate-dice-roll,
   .animate-ai-sparkles path,
   .animate-ai-button-shimmer,

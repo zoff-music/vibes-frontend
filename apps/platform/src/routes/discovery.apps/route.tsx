@@ -1,7 +1,7 @@
+import { ProductPageContent } from '../../components/discovery/ProductPageContent';
 import { ProductScreenshots } from '../../components/seo/ProductScreenshots';
 import { page } from '../../seo/pages/apps';
 import { RemotePreview } from '../_index/components/RemotePreview';
-import { ProductPageContent } from '../discovery.$topic/components/ProductPageContent';
 export const id = 'routes/discovery.apps/route';
 
 export { meta } from './meta';

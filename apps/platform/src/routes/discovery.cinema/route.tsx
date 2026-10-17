@@ -1,6 +1,6 @@
+import { ChatPreview } from '../../components/discovery/ChatPreview';
+import { WatchPage } from '../../components/discovery/WatchPage';
 import { page } from '../../seo/pages/cinema';
-import { ChatPreview } from '../discovery.$topic/components/ChatPreview';
-import { WatchPage } from '../discovery.$topic/components/WatchPage';
 export const id = 'routes/discovery.cinema/route';
 
 export { meta } from './meta';

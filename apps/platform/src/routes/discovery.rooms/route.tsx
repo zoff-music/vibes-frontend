@@ -1,8 +1,8 @@
+import { EmbedGuide } from '../../components/discovery/EmbedGuide';
+import { ProductPageContent } from '../../components/discovery/ProductPageContent';
+import { RoomModePreview } from '../../components/discovery/RoomModePreview';
 import { page } from '../../seo/pages/rooms';
 import { RoomControlPanel } from '../_index/components/RoomControlPanel';
-import { EmbedGuide } from '../discovery.$topic/components/EmbedGuide';
-import { ProductPageContent } from '../discovery.$topic/components/ProductPageContent';
-import { RoomModePreview } from '../discovery.$topic/components/RoomModePreview';
 export const id = 'routes/discovery.rooms/route';
 
 export { meta } from './meta';

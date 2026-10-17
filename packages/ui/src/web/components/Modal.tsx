@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { m as motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m as motion, useReducedMotion } from 'framer-motion';
 
 import {
   type ReactNode,
@@ -113,58 +113,69 @@ export function Modal({
     [panelRef],
   );
 
-  if (!isOpen || typeof document === 'undefined') return null;
+  if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
-      className={classNames(
-        'fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 px-4 backdrop-blur-md',
-        alignment === 'center' && 'py-4',
-        alignment === 'top' && 'items-start pt-4 pb-safe',
+    <AnimatePresence propagate>
+      {isOpen && (
+        <motion.div
+          key="modal"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+          className={classNames(
+            'fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 px-4 backdrop-blur-md',
+            alignment === 'center' && 'py-4',
+            alignment === 'top' && 'items-start pt-4 pb-safe',
+          )}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={ariaLabelledBy}
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="none"
+            className="fixed inset-0 h-full w-full"
+            onClick={onClose}
+            aria-label="Close modal"
+            tabIndex={-1}
+          />
+          <motion.div
+            initial={
+              shouldReduceMotion
+                ? { opacity: 1 }
+                : { opacity: 0, scale: 0.94, y: 28 }
+            }
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={
+              shouldReduceMotion
+                ? { opacity: 0 }
+                : { opacity: 0, scale: 0.96, y: 16 }
+            }
+            transition={{
+              type: 'spring',
+              stiffness: 420,
+              damping: 32,
+              mass: 0.8,
+            }}
+            ref={setPanelRef}
+            tabIndex={-1}
+            className={classNames(
+              'panel-strong relative w-full rounded-4xl p-7 shadow-primary-panel',
+              alignment === 'center' && 'my-auto',
+              size === 'sm' && 'max-w-sm',
+              size === 'md' && 'max-w-2xl',
+              size === 'lg' && 'max-w-5xl',
+              className,
+            )}
+          >
+            {children}
+          </motion.div>
+        </motion.div>
       )}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={ariaLabelledBy}
-    >
-      <Button
-        type="button"
-        variant="ghost"
-        size="none"
-        className="fixed inset-0 h-full w-full"
-        onClick={onClose}
-        aria-label="Close modal"
-        tabIndex={-1}
-      />
-      <motion.div
-        initial={
-          shouldReduceMotion
-            ? { opacity: 1 }
-            : { opacity: 0, scale: 0.94, y: 28 }
-        }
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{
-          type: 'spring',
-          stiffness: 420,
-          damping: 32,
-          mass: 0.8,
-        }}
-        ref={setPanelRef}
-        tabIndex={-1}
-        className={classNames(
-          'panel-strong relative w-full rounded-4xl p-7 shadow-primary-panel',
-          alignment === 'center' && 'my-auto',
-          size === 'sm' && 'max-w-sm',
-          size === 'md' && 'max-w-2xl',
-          size === 'lg' && 'max-w-5xl',
-          className,
-        )}
-      >
-        {children}
-      </motion.div>
-    </motion.div>,
+    </AnimatePresence>,
     document.body,
   );
 }

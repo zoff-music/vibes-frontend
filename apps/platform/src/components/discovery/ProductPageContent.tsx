@@ -1,11 +1,11 @@
 import { Link } from '@kasperrt/smolter/preact';
 import { ArrowRightIcon } from '@vibes/ui/web';
 import type { ReactNode } from 'preact/compat';
-import { SitePage } from '../../../components/layout/SitePage';
-import { ProductAccordion } from '../../../components/seo/ProductAccordion';
-import { ProductLinks } from '../../../components/seo/ProductLinks';
-import { appStoreUrl, playStoreUrl } from '../../../seo/metadata';
-import type { ProductPage } from '../../../seo/productPages';
+import { appStoreUrl, playStoreUrl } from '../../seo/metadata';
+import type { ProductPage } from '../../seo/productPages';
+import { SitePage } from '../layout/SitePage';
+import { ProductAccordion } from '../seo/ProductAccordion';
+import { ProductLinks } from '../seo/ProductLinks';
 
 interface ProductPageContentProps {
   page: ProductPage;

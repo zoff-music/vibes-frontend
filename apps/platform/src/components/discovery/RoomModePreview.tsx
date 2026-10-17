@@ -1,7 +1,7 @@
 import { Button, ContentTransition } from '@vibes/ui/web';
 import { useState } from 'preact/compat';
-import { MusicDemo } from '../../../components/seo/MusicDemo';
-import { useShowcaseMotion } from '../../../components/seo/useShowcaseMotion';
+import { MusicDemo } from '../seo/MusicDemo';
+import { useShowcaseMotion } from '../seo/useShowcaseMotion';
 import { RoomModeScene } from './showcase/RoomModeScene';
 
 export function RoomModePreview() {

@@ -339,28 +339,30 @@ export const RoomHeader = React.memo(
                   </Button>
                 </Tooltip>
 
-                {showSettings && (
-                  <Suspense fallback={<DeferredSettingsLoading />}>
-                    <LazyRoomSettingsMenu
-                      adminError={adminError}
-                      showSettings={showSettings}
-                      onClose={onCloseSettings}
-                      onShareRoom={onShareRoom}
-                      room={displayRoom}
-                      displayRoom={displayRoom}
-                      isAdmin={isAdmin}
-                      updateRoomSettings={updateRoomSettings}
-                      updateRoom={updateRoom}
-                      adminPassword={adminPassword}
-                      focusAdminLogin={focusAdminLogin}
-                      onAdminPasswordChange={onAdminPasswordChange}
-                      onJoinAdmin={onJoinAdmin}
-                      isAuthenticating={isAuthenticating}
-                      settingsMenuRef={settingsMenuRef}
-                      providers={providers}
-                    />
-                  </Suspense>
-                )}
+                <AnimatePresence>
+                  {showSettings && (
+                    <Suspense fallback={<DeferredSettingsLoading />}>
+                      <LazyRoomSettingsMenu
+                        adminError={adminError}
+                        showSettings={showSettings}
+                        onClose={onCloseSettings}
+                        onShareRoom={onShareRoom}
+                        room={displayRoom}
+                        displayRoom={displayRoom}
+                        isAdmin={isAdmin}
+                        updateRoomSettings={updateRoomSettings}
+                        updateRoom={updateRoom}
+                        adminPassword={adminPassword}
+                        focusAdminLogin={focusAdminLogin}
+                        onAdminPasswordChange={onAdminPasswordChange}
+                        onJoinAdmin={onJoinAdmin}
+                        isAuthenticating={isAuthenticating}
+                        settingsMenuRef={settingsMenuRef}
+                        providers={providers}
+                      />
+                    </Suspense>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>

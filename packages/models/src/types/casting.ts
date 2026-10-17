@@ -49,7 +49,7 @@ export interface CastManager {
   disconnectFromDevice(deviceId: string): Promise<void>;
 
   // Playback Control
-  castMedia(mediaInfo: MediaInfo): Promise<void>;
+  castMedia(mediaInfo: MediaInfo, playlistItem: PlaylistItem): Promise<void>;
   updateQueue(queue: PlaylistItem[]): Promise<void>;
   updateRoomInfo(roomInfo: CastRoomInfo): Promise<void>;
   syncPlaybackState(state: PlaybackStateV2): Promise<void>;

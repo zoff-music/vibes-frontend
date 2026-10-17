@@ -1,13 +1,10 @@
 import { classNames } from '@vibes/shared';
 import { ChatMessageLine, QueueItem, SegmentedToggle } from '@vibes/ui/web';
 import { AnimatePresence, MotionConfig, m as motion } from 'framer-motion';
-import logo from '../../../assets/logo-header.webp';
-import { MusicDemo } from '../../../components/seo/MusicDemo';
-import {
-  queueDemoPlaylistItems,
-  watchDemoPlaylistItems,
-} from '../../../components/seo/preview';
-import { useChatPreview } from '../hooks/useChatPreview';
+import logo from '../../assets/logo-header.webp';
+import { useChatPreview } from '../../hooks/discovery/useChatPreview';
+import { MusicDemo } from '../seo/MusicDemo';
+import { queueDemoPlaylistItems, watchDemoPlaylistItems } from '../seo/preview';
 
 interface ChatPreviewProps {
   watch?: boolean;

@@ -1,12 +1,4 @@
-import type { Song } from '@vibes/models';
 import type { PlaylistItem } from '@vibes/shared';
-
-// Cast senders retain the existing wire contract during rolling upgrades.
-export function toPlaylistItem(song: Song): PlaylistItem {
-  const { artist, ...item } = song;
-
-  return normalizePlaylistItem({ ...item, publisher: artist });
-}
 
 export const normalizePlaylistItem = (
   playlistItem: PlaylistItem,

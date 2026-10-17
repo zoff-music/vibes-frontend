@@ -279,7 +279,9 @@ export const useCastStore = create<CastState>((set, get) => ({
       duration: playlistItem.duration,
     };
 
-    const [error, _] = await safeWrapAsync(castManager.castMedia(mediaInfo));
+    const [error, _] = await safeWrapAsync(
+      castManager.castMedia(mediaInfo, playlistItem),
+    );
 
     if (error) {
       console.error('Failed to cast song:', error);
