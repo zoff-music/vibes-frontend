@@ -1,61 +1,64 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
 import { generatedPlaylistPromptMaxLength } from '../limits';
 import { roomTypeSchema } from './room';
 
-export const generatedTrackSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    artist: z.string().check(z.trim()),
-    title: z.string().check(z.trim()),
-    youtubeId: z.optional(z.string().check(z.length(11))),
-    thumbnailUrl: z.optional(z.string()),
-    duration: z.optional(z.int().check(z.positive())),
-  }),
-);
+export const generatedTrackSchema = /* @__PURE__ */ v.object({
+  artist: v.pipe(v.string(), v.trim()),
+  title: v.pipe(v.string(), v.trim()),
+  youtubeId: v.optional(v.pipe(v.string(), v.length(11))),
+  thumbnailUrl: v.optional(v.string()),
+  duration: v.optional(v.pipe(v.number(), v.safeInteger(), v.gtValue(0))),
+});
 
-export type GeneratedTrack = z.infer<typeof generatedTrackSchema>;
+export type GeneratedTrack = v.InferOutput<typeof generatedTrackSchema>;
 
-export const generatedPlaylistRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    prompt: z
-      .string()
-      .check(z.trim(), z.maxLength(generatedPlaylistPromptMaxLength)),
-  }),
-);
+export const generatedPlaylistRequestSchema = /* @__PURE__ */ v.object({
+  prompt: v.pipe(
+    v.string(),
+    v.trim(),
+    v.maxLength(generatedPlaylistPromptMaxLength),
+  ),
+});
 
-export type GeneratedPlaylistRequest = z.infer<
+export type GeneratedPlaylistRequest = v.InferOutput<
   typeof generatedPlaylistRequestSchema
 >;
 
-export const generatedRoomRequestV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    prompt: z
-      .string()
-      .check(z.trim(), z.maxLength(generatedPlaylistPromptMaxLength)),
-    roomType: z.optional(roomTypeSchema),
-  }),
-);
+export const generatedRoomRequestV2Schema = /* @__PURE__ */ v.object({
+  prompt: v.pipe(
+    v.string(),
+    v.trim(),
+    v.maxLength(generatedPlaylistPromptMaxLength),
+  ),
+  roomType: v.optional(roomTypeSchema),
+});
 
-export type GeneratedRoomRequestV2 = z.infer<
+export type GeneratedRoomRequestV2 = v.InferOutput<
   typeof generatedRoomRequestV2Schema
 >;
 
-export const generatedPlaylistSchema = /* @__PURE__ */ z.compile(
-  z.array(generatedTrackSchema).check(z.minLength(1)),
+export const generatedPlaylistSchema = /* @__PURE__ */ v.pipe(
+  v.array(generatedTrackSchema),
+  v.minLength(1),
 );
 
-export type GeneratedPlaylist = z.infer<typeof generatedPlaylistSchema>;
+export type GeneratedPlaylist = v.InferOutput<typeof generatedPlaylistSchema>;
 
-export const roomGenerationStatusSchema = /* @__PURE__ */ z.compile(
-  z.enum(['generating', 'completed', 'failed']),
-);
+export const roomGenerationStatusSchema = /* @__PURE__ */ v.picklist([
+  'generating',
+  'completed',
+  'failed',
+]);
 
-export type RoomGenerationStatus = z.infer<typeof roomGenerationStatusSchema>;
+export type RoomGenerationStatus = v.InferOutput<
+  typeof roomGenerationStatusSchema
+>;
 
-export const roomGenerationUpdateSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    status: roomGenerationStatusSchema,
-    error: z.optional(z.string()),
-  }),
-);
+export const roomGenerationUpdateSchema = /* @__PURE__ */ v.object({
+  status: roomGenerationStatusSchema,
+  error: v.optional(v.string()),
+});
 
-export type RoomGenerationUpdate = z.infer<typeof roomGenerationUpdateSchema>;
+export type RoomGenerationUpdate = v.InferOutput<
+  typeof roomGenerationUpdateSchema
+>;

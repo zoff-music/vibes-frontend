@@ -1,86 +1,88 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
+import { objectInputSchema } from './object-input';
 
-export const remotePairingRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    pairingToken: z.optional(z.string()),
-    pairingCode: z.optional(z.string()),
+export const remotePairingRequestSchema = /* @__PURE__ */ v.pipe(
+  objectInputSchema,
+  v.object({
+    pairingToken: v.optional(v.string()),
+    pairingCode: v.optional(v.string()),
   }),
 );
 
-export type RemotePairingRequest = z.infer<typeof remotePairingRequestSchema>;
+export type RemotePairingRequest = v.InferOutput<
+  typeof remotePairingRequestSchema
+>;
 
-export const remoteStatusV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    enabled: z.boolean(),
-    id: z._default(z.string(), ''),
-    currentRoomId: z._default(z.string(), ''),
-    currentPlaylistItemId: z._default(z.string(), ''),
-    playbackPositionMs: z._default(z.number(), 0),
-    playbackIsPlaying: z._default(z.boolean(), false),
-    playbackObservedAt: z._default(z.string(), ''),
-    partyMode: z._default(z.boolean(), false),
-    online: z.boolean(),
-    paired: z._default(z.boolean(), false),
+export const remoteStatusV2Schema = /* @__PURE__ */ v.object({
+  enabled: v.boolean(),
+  id: v.optional(v.string(), ''),
+  currentRoomId: v.optional(v.string(), ''),
+  currentPlaylistItemId: v.optional(v.string(), ''),
+  playbackPositionMs: v.optional(v.pipe(v.number(), v.finite()), 0),
+  playbackIsPlaying: v.optional(v.boolean(), false),
+  playbackObservedAt: v.optional(v.string(), ''),
+  partyMode: v.optional(v.boolean(), false),
+  online: v.boolean(),
+  paired: v.optional(v.boolean(), false),
+});
+
+export type RemoteStatusV2 = v.InferOutput<typeof remoteStatusV2Schema>;
+
+export const remoteSessionV2Schema = /* @__PURE__ */ v.object({
+  ...remoteStatusV2Schema.entries,
+  ...{
+    controllerToken: v.string(),
+  },
+});
+
+export type RemoteSessionV2 = v.InferOutput<typeof remoteSessionV2Schema>;
+
+export const remotePairingV2Schema = /* @__PURE__ */ v.object({
+  id: v.string(),
+  currentRoomId: v.optional(v.string(), ''),
+  currentPlaylistItemId: v.optional(v.string(), ''),
+  playbackPositionMs: v.optional(v.pipe(v.number(), v.finite()), 0),
+  playbackIsPlaying: v.optional(v.boolean(), false),
+  playbackObservedAt: v.optional(v.string(), ''),
+  partyMode: v.optional(v.boolean(), false),
+  pairingExpiresAt: v.string(),
+  lastSeenAt: v.string(),
+  pairingToken: v.string(),
+  pairingCode: v.string(),
+});
+
+export type RemotePairingV2 = v.InferOutput<typeof remotePairingV2Schema>;
+
+export const remoteUpdateRequestV2Schema = /* @__PURE__ */ v.pipe(
+  objectInputSchema,
+  v.object({
+    partyMode: v.optional(v.boolean()),
+    roomId: v.optional(v.string()),
+    currentPlaylistItemId: v.optional(v.string()),
+    playbackPositionMs: v.optional(v.pipe(v.number(), v.finite())),
+    playbackIsPlaying: v.optional(v.boolean()),
   }),
 );
 
-export type RemoteStatusV2 = z.infer<typeof remoteStatusV2Schema>;
+export type RemoteUpdateRequestV2 = v.InferOutput<
+  typeof remoteUpdateRequestV2Schema
+>;
 
-export const remoteSessionV2Schema = /* @__PURE__ */ z.compile(
-  z.extend(remoteStatusV2Schema, {
-    controllerToken: z.string(),
-  }),
-);
+export const remoteEventV2Schema = /* @__PURE__ */ v.object({
+  type: v.picklist([
+    'remote_room_update',
+    'remote_state_update',
+    'remote_presentation_update',
+  ]),
+  roomId: v.optional(v.string(), ''),
+  origin: v.picklist(['machine', 'controller']),
+  online: v.optional(v.boolean(), true),
+  paired: v.optional(v.boolean(), false),
+  currentPlaylistItemId: v.optional(v.string(), ''),
+  playbackPositionMs: v.optional(v.pipe(v.number(), v.finite()), 0),
+  playbackIsPlaying: v.optional(v.boolean(), false),
+  playbackObservedAt: v.optional(v.string(), ''),
+  partyMode: v.optional(v.boolean(), false),
+});
 
-export type RemoteSessionV2 = z.infer<typeof remoteSessionV2Schema>;
-
-export const remotePairingV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    id: z.string(),
-    currentRoomId: z._default(z.string(), ''),
-    currentPlaylistItemId: z._default(z.string(), ''),
-    playbackPositionMs: z._default(z.number(), 0),
-    playbackIsPlaying: z._default(z.boolean(), false),
-    playbackObservedAt: z._default(z.string(), ''),
-    partyMode: z._default(z.boolean(), false),
-    pairingExpiresAt: z.string(),
-    lastSeenAt: z.string(),
-    pairingToken: z.string(),
-    pairingCode: z.string(),
-  }),
-);
-
-export type RemotePairingV2 = z.infer<typeof remotePairingV2Schema>;
-
-export const remoteUpdateRequestV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    partyMode: z.optional(z.boolean()),
-    roomId: z.optional(z.string()),
-    currentPlaylistItemId: z.optional(z.string()),
-    playbackPositionMs: z.optional(z.number()),
-    playbackIsPlaying: z.optional(z.boolean()),
-  }),
-);
-
-export type RemoteUpdateRequestV2 = z.infer<typeof remoteUpdateRequestV2Schema>;
-
-export const remoteEventV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    type: z.enum([
-      'remote_room_update',
-      'remote_state_update',
-      'remote_presentation_update',
-    ]),
-    roomId: z._default(z.string(), ''),
-    origin: z.enum(['machine', 'controller']),
-    online: z._default(z.boolean(), true),
-    paired: z._default(z.boolean(), false),
-    currentPlaylistItemId: z._default(z.string(), ''),
-    playbackPositionMs: z._default(z.number(), 0),
-    playbackIsPlaying: z._default(z.boolean(), false),
-    playbackObservedAt: z._default(z.string(), ''),
-    partyMode: z._default(z.boolean(), false),
-  }),
-);
-
-export type RemoteEventV2 = z.infer<typeof remoteEventV2Schema>;
+export type RemoteEventV2 = v.InferOutput<typeof remoteEventV2Schema>;

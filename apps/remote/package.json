@@ -12,15 +12,16 @@
     "preview": "node server/index.ts"
   },
   "dependencies": {
+    "@kasperrt/smolter": "0.4.4",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "jsqr": "1.4.0",
-    "@kasperrt/smolter": "0.4.4",
     "preact": "11.0.1",
-    "preact-render-to-string": "6.8.1"
+    "preact-render-to-string": "6.8.1",
+    "valibot": "1.4.2"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",

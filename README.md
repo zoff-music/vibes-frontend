@@ -86,7 +86,7 @@ subject to browser, device, and provider restrictions.
 | Package | Responsibility |
 | --- | --- |
 | `@vibes/api` | React-free REST capabilities, typed transport/error handling, SSE plumbing, and reusable SSE lifecycle hooks |
-| `@vibes/models` | Compiled Zod 4 schemas and derived domain types |
+| `@vibes/models` | Valibot schemas and derived domain types |
 | `@vibes/shared` | Renderer-neutral hooks, stores, constants, and safe-wrap utilities |
 | `@vibes/ui/web` | DOM controls and provider players |
 | `@vibes/ui/native` | Shared React Native controls and provider-player wrappers |

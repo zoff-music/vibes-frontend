@@ -1,42 +1,37 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
 import { chatMessageMaxLength } from '../limits';
 
-export const roomMessageSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    id: z.string(),
-    userId: z.string(),
-    name: z.string(),
-    isAdmin: z.boolean(),
-    isModerator: z.optional(z.boolean()),
-    isHost: z.optional(z.boolean()),
-    activity: z.optional(z.boolean()),
-    kind: z.enum([
-      'chat',
-      'added',
-      'voted',
-      'deleted',
-      'renamed',
-      'skipped',
-      'skipvoted',
-      'settings',
-    ]),
-    text: z.string(),
-    createdAt: z.number(),
-  }),
-);
+export const roomMessageSchema = /* @__PURE__ */ v.object({
+  id: v.string(),
+  userId: v.string(),
+  name: v.string(),
+  isAdmin: v.boolean(),
+  isModerator: v.optional(v.boolean()),
+  isHost: v.optional(v.boolean()),
+  activity: v.optional(v.boolean()),
+  kind: v.picklist([
+    'chat',
+    'added',
+    'voted',
+    'deleted',
+    'renamed',
+    'skipped',
+    'skipvoted',
+    'settings',
+  ]),
+  text: v.string(),
+  createdAt: v.pipe(v.number(), v.finite()),
+});
 
-export type RoomMessage = z.infer<typeof roomMessageSchema>;
-export const createMessageSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    text: z
-      .string()
-      .check(
-        z.trim(),
-        z.minLength(1, 'Enter a message.'),
-        z.maxLength(
-          chatMessageMaxLength,
-          'Messages can be at most 500 characters.',
-        ),
-      ),
-  }),
-);
+export type RoomMessage = v.InferOutput<typeof roomMessageSchema>;
+export const createMessageSchema = /* @__PURE__ */ v.object({
+  text: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, 'Enter a message.'),
+    v.maxLength(
+      chatMessageMaxLength,
+      'Messages can be at most 500 characters.',
+    ),
+  ),
+});

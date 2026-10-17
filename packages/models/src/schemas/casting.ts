@@ -1,96 +1,94 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
+import { objectInputSchema } from './object-input';
 
-export const castDeviceTypeSchema = /* @__PURE__ */ z.compile(
-  z.enum(['chromecast', 'airplay', 'dlna']),
-);
-export const castSessionStateSchema = /* @__PURE__ */ z.compile(
-  z.enum(['connecting', 'connected', 'syncing', 'error', 'disconnected']),
-);
+export const castDeviceTypeSchema = /* @__PURE__ */ v.picklist([
+  'chromecast',
+  'airplay',
+  'dlna',
+]);
+export const castSessionStateSchema = /* @__PURE__ */ v.picklist([
+  'connecting',
+  'connected',
+  'syncing',
+  'error',
+  'disconnected',
+]);
 
-export const castDeviceSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    id: z.string(),
-    name: z.string(),
-    type: castDeviceTypeSchema,
-    capabilities: z._default(z.array(z.string()), []),
-    isAvailable: z.boolean(),
-    lastSeen: z.date(),
-  }),
-);
+export const castDeviceSchema = /* @__PURE__ */ v.object({
+  id: v.string(),
+  name: v.string(),
+  type: castDeviceTypeSchema,
+  capabilities: v.optional(v.array(v.string()), []),
+  isAvailable: v.boolean(),
+  lastSeen: v.date(),
+});
 
-export const castSessionSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    id: z.string(),
-    deviceId: z.string(),
-    deviceName: z.string(),
-    deviceType: castDeviceTypeSchema,
-    state: castSessionStateSchema,
-    startedAt: z.date(),
-    lastSyncAt: z.optional(z.date()),
-    mediaSessionId: z.optional(z.string()),
-  }),
-);
+export const castSessionSchema = /* @__PURE__ */ v.object({
+  id: v.string(),
+  deviceId: v.string(),
+  deviceName: v.string(),
+  deviceType: castDeviceTypeSchema,
+  state: castSessionStateSchema,
+  startedAt: v.date(),
+  lastSyncAt: v.optional(v.date()),
+  mediaSessionId: v.optional(v.string()),
+});
 
-export const mediaInfoSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    contentId: z.string(),
-    contentType: z.string(),
-    streamType: z.enum(['BUFFERED', 'LIVE']),
-    metadata: z.object({
-      title: z.string(),
-      artist: z.optional(z.string()),
-      albumArtist: z.optional(z.string()),
-      albumName: z.optional(z.string()),
-      images: z.optional(
-        z.array(
-          z.object({
-            url: z.string(),
-            height: z.optional(z.number()),
-            width: z.optional(z.number()),
-          }),
-        ),
+export const mediaInfoSchema = /* @__PURE__ */ v.object({
+  contentId: v.string(),
+  contentType: v.string(),
+  streamType: v.picklist(['BUFFERED', 'LIVE']),
+  metadata: v.object({
+    title: v.string(),
+    artist: v.optional(v.string()),
+    albumArtist: v.optional(v.string()),
+    albumName: v.optional(v.string()),
+    images: v.optional(
+      v.array(
+        v.object({
+          url: v.string(),
+          height: v.optional(v.pipe(v.number(), v.finite())),
+          width: v.optional(v.pipe(v.number(), v.finite())),
+        }),
       ),
-    }),
-    duration: z.optional(z.number()),
+    ),
   }),
-);
+  duration: v.optional(v.pipe(v.number(), v.finite())),
+});
 
-export const castErrorSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    code: z.string(),
-    description: z.string(),
-    details: z.optional(z.unknown()),
-  }),
-);
+export const castErrorSchema = /* @__PURE__ */ v.object({
+  code: v.string(),
+  description: v.string(),
+  details: v.optional(v.unknown()),
+});
 
-export const createCastingTokenRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    roomId: z.string(),
-  }),
-);
+export const createCastingTokenRequestSchema = /* @__PURE__ */ v.object({
+  roomId: v.string(),
+});
 
-export type CreateCastingTokenRequest = z.infer<
+export type CreateCastingTokenRequest = v.InferOutput<
   typeof createCastingTokenRequestSchema
 >;
 
-export const castingTokenResponseSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    token: z.string(),
-    expiresAt: z.string(),
-    roomId: z.string(),
+export const castingTokenResponseSchema = /* @__PURE__ */ v.object({
+  token: v.string(),
+  expiresAt: v.string(),
+  roomId: v.string(),
+});
+
+export type CastingTokenResponse = v.InferOutput<
+  typeof castingTokenResponseSchema
+>;
+
+export const sseQuerySchema = /* @__PURE__ */ v.pipe(
+  objectInputSchema,
+  v.object({
+    castReceiver: v.optional(v.string()),
+    casterId: v.optional(v.string()),
+    lastEventId: v.optional(v.string()),
   }),
 );
 
-export type CastingTokenResponse = z.infer<typeof castingTokenResponseSchema>;
-
-export const sseQuerySchema = /* @__PURE__ */ z.compile(
-  z.object({
-    castReceiver: z.optional(z.string()),
-    casterId: z.optional(z.string()),
-    lastEventId: z.optional(z.string()),
-  }),
-);
-
-export const optionalSseQuerySchema = /* @__PURE__ */ z.compile(
-  z.optional(sseQuerySchema),
+export const optionalSseQuerySchema = /* @__PURE__ */ v.optional(
+  sseQuerySchema,
 );

@@ -1,10 +1,10 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
 
-export const addPlaylistResponseSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    importId: z.string(),
-    queuedCount: z.int().check(z.minimum(1)),
-  }),
-);
+export const addPlaylistResponseSchema = /* @__PURE__ */ v.object({
+  importId: v.string(),
+  queuedCount: v.pipe(v.number(), v.safeInteger(), v.minValue(1)),
+});
 
-export type AddPlaylistResponse = z.infer<typeof addPlaylistResponseSchema>;
+export type AddPlaylistResponse = v.InferOutput<
+  typeof addPlaylistResponseSchema
+>;

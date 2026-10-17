@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import { createProvidersRequest } from '@vibes/api';
 import { type Providers, roomNameInputSchema } from '@vibes/models';
+import { safeParse } from 'valibot';
 import { getServerApi } from '../../http.server';
 import { getLoaderError } from './utils/getLoaderError';
 import { slugifyRoomName } from './utils/slugifyRoomName';
@@ -76,12 +77,12 @@ async function loadRoomNameExistence(
   request: Request,
   name: string,
 ): Promise<RoomsCreateLoaderData> {
-  const parsed = roomNameInputSchema.safeParse(name);
+  const parsed = safeParse(roomNameInputSchema, name);
 
   if (!parsed.success) {
     return {
       checkedName: name,
-      error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+      error: parsed.issues[0]?.message ?? 'Enter a valid room name.',
     };
   }
 

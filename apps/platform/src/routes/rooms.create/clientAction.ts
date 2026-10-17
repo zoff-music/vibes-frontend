@@ -13,6 +13,7 @@ import {
   type RoomNameReservation,
   roomNameInputSchema,
 } from '@vibes/models';
+import { safeParse } from 'valibot';
 
 export interface RoomsCreateActionData {
   checkedName?: string;
@@ -48,11 +49,11 @@ export async function clientAction({
   }
 
   const name = String(formData.get('name') ?? '').trim();
-  const parsed = roomNameInputSchema.safeParse(name);
+  const parsed = safeParse(roomNameInputSchema, name);
 
   if (!parsed.success) {
     return {
-      error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+      error: parsed.issues[0]?.message ?? 'Enter a valid room name.',
     };
   }
 
@@ -118,12 +119,12 @@ async function reserveRoomName(
   const name = String(formData.get('name') ?? '').trim();
 
   if (name) {
-    const parsed = roomNameInputSchema.safeParse(name);
+    const parsed = safeParse(roomNameInputSchema, name);
 
     if (!parsed.success) {
       return {
         checkedName: name,
-        error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+        error: parsed.issues[0]?.message ?? 'Enter a valid room name.',
       };
     }
   }

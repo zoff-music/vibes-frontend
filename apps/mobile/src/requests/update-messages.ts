@@ -1,5 +1,6 @@
 import { createMessageSchema, type RoomMessage } from '@vibes/models';
 import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
+import { safeParse } from 'valibot';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 export async function updateMessages({
@@ -7,7 +8,7 @@ export async function updateMessages({
   params,
   signal,
 }: MutationArgs): Promise<RequestResult<RoomMessage>> {
-  const parsed = createMessageSchema.safeParse(input);
+  const parsed = safeParse(createMessageSchema, input);
 
   if (!parsed.success)
     return { data: null, error: 'Use between 1 and 500 characters.' };
@@ -15,7 +16,7 @@ export async function updateMessages({
   const [error, data] = await mobileApi.post(
     '/rooms/{id}/messages',
     { id: params.id },
-    parsed.data,
+    parsed.output,
     { signal, retry: 0 },
   );
 

@@ -23,6 +23,7 @@
     "preact": "11.0.1",
     "preact-render-to-string": "6.8.1",
     "qrcode.react": "4.2.0",
+    "valibot": "1.4.2",
     "zustand": "5.0.15"
   },
   "devDependencies": {

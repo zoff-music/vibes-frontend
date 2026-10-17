@@ -1,0 +1,382 @@
+{
+  "addPlaylistItemOutcomeSchema": {
+    "cases": 23,
+    "sha256": "5aaceac37bb2447153920e0fa04c47a9bf222f32591a235a41c52018ef6603ec"
+  },
+  "addPlaylistItemRequestSchema": {
+    "cases": 192,
+    "sha256": "f1f20576f3ce027b9e0929955bdb486a4889c38109a544029055315084c00236"
+  },
+  "addPlaylistItemResponseSchema": {
+    "cases": 361,
+    "sha256": "e50bb6e62841a2a2d04cd0d40a6062d17b447550959be5db9f4344cf1f50554f"
+  },
+  "addPlaylistRequestV2Schema": {
+    "cases": 241,
+    "sha256": "d2311a9f5313a1d9dbb8bfef4550a2c3f5cf2b7df348e79910ce490334b5184e"
+  },
+  "addPlaylistResponseSchema": {
+    "cases": 72,
+    "sha256": "64f3369ef87aae1cba1667245ed1117c24230927c6cf4d853486ace480bf14db"
+  },
+  "adminCreateUserRequestSchema": {
+    "cases": 72,
+    "sha256": "5ba1f124929b4945aeeea20c686900e29cebb7e4484df5ae257a72e4b46dbe77"
+  },
+  "adminListenerUsageSchema": {
+    "cases": 338,
+    "sha256": "bb18dbd7e0a8db11ae9de2d63647a65b792ab5239d9ac1acd40bc70af1083dbd"
+  },
+  "adminLoginRequestSchema": {
+    "cases": 72,
+    "sha256": "5ba1f124929b4945aeeea20c686900e29cebb7e4484df5ae257a72e4b46dbe77"
+  },
+  "adminMessageUsageSchema": {
+    "cases": 386,
+    "sha256": "1d6a8f1d8b274cd9c3cdc26e3ceb203d56536843fedb70a208fb129f345798ef"
+  },
+  "adminMessageUsageSearchSchema": {
+    "cases": 48,
+    "sha256": "8cef895ab917f8a140a07c3b406514b9f86267ba95cf0776b62efa2e6c732375"
+  },
+  "adminRoomResultV2Schema": {
+    "cases": 385,
+    "sha256": "05a3f663faeeb3d0d7d2a1cc7fa5077f5acd94ee2c757a40473b4b5d5f084393"
+  },
+  "adminRoomSearchV2Schema": {
+    "cases": 144,
+    "sha256": "1f3db079304b527935d09c3fd01eb921b3d01d961ef3a310a151b840a499fc63"
+  },
+  "adminRoomSummaryV2Schema": {
+    "cases": 240,
+    "sha256": "fc7c0ca5bac5bb96cfce13774006c9d9e4b41dcab8fdb7bce9b082da6b7d8d76"
+  },
+  "adminRoomsV2Schema": {
+    "cases": 264,
+    "sha256": "36e6bcc1afa6751b552b20da592c538ac1a9e73dce03cefdf96da22709b364d3"
+  },
+  "adminSearchUsagePointSchema": {
+    "cases": 192,
+    "sha256": "af6e245e4de812c7336e6b25bc0a0e39ea79cc1588751810d1c5750f4333f42a"
+  },
+  "adminSearchUsageSchema": {
+    "cases": 506,
+    "sha256": "8d649841cdb111dafec10713b7b686a183cc3c9a9df99f67c81bb535e5f72169"
+  },
+  "adminSessionResponseSchema": {
+    "cases": 169,
+    "sha256": "38edb8b3a089dc803f1df80c95185873aa45f822a5535dfa8bc304de81f190c0"
+  },
+  "adminUpdateRoomRequestSchema": {
+    "cases": 72,
+    "sha256": "b7d5ecfd44614210d5a53ab50afb47ceaed63962eb3fe2737bdc437971f9ec02"
+  },
+  "adminUpdateUserRequestSchema": {
+    "cases": 48,
+    "sha256": "f7cdebf85c3aad840d124b01bd606688deed7a896e0d2424aa43b261573a391a"
+  },
+  "adminUserSchema": {
+    "cases": 120,
+    "sha256": "acd9751b7936645f6e73fd0921e76bc73c93b5acecdde0fdc5779e5626c6313e"
+  },
+  "adminUsersSchema": {
+    "cases": 144,
+    "sha256": "48c336ea545eb5df216b511efe0c0154c5be7506e69c2784dcab85e20f9b3ca6"
+  },
+  "authorizationsListSchema": {
+    "cases": 47,
+    "sha256": "11c638a0d6a1d4fe58691ba5521f7647ee74d1295259eba6c20912f3a0ea1a2c"
+  },
+  "castDeviceSchema": {
+    "cases": 168,
+    "sha256": "128dc2e3b9c118b98d3aeb592c97448566cca63f5f18eb3a0b9f120ef21ee3f1"
+  },
+  "castDeviceTypeSchema": {
+    "cases": 23,
+    "sha256": "c1ca195280f4096ecd7dddb18fa82bd814e2d05d1f4c88845b8ed10cdd86a5ad"
+  },
+  "castErrorSchema": {
+    "cases": 96,
+    "sha256": "b2048496bcc146494644c07b3dab2d22b670e702348183ff0939f15e4f64f240"
+  },
+  "castSessionSchema": {
+    "cases": 216,
+    "sha256": "0856fd07dd1c42ddf2b864f0b9bfeef9fdfec6e4e25d01693e9bc7728651b5fc"
+  },
+  "castSessionStateSchema": {
+    "cases": 23,
+    "sha256": "787328ce07addda01bc245955286929dd1944d16f8a89859caaf0066cee1f5bb"
+  },
+  "castingTokenResponseSchema": {
+    "cases": 96,
+    "sha256": "08fe36b31fcdbbb269e95126e43f914ab7a0580581b5d9eef8046e4e613314f9"
+  },
+  "connectedSchema": {
+    "cases": 48,
+    "sha256": "54a45ed0ac396b9435c1abb8b804af3a555daf90bc6b7dd11cc1d82252b86e8e"
+  },
+  "createCastingTokenRequestSchema": {
+    "cases": 48,
+    "sha256": "4c490e9d8271e09876cbcc83aa896074d530d81fb4e5a4b56d27352317ea0049"
+  },
+  "createMessageSchema": {
+    "cases": 48,
+    "sha256": "04b44b45c0cf15cbd972d7dc461803065e5367f6f706b4087f63ab026711c0e3"
+  },
+  "createRoomRequestV2Schema": {
+    "cases": 433,
+    "sha256": "1e8c9a236fee6baed6ee79c9e024fc7a6b280c2448ae57d92c190c1def767442"
+  },
+  "createSessionRequestSchema": {
+    "cases": 72,
+    "sha256": "7baee4f24b3b3472aca457f1cf2e140a3540449a17a7b1c87228d1fcb35043dd"
+  },
+  "emptyObjectSchema": {
+    "cases": 24,
+    "sha256": "96abc1dc9bbd5651d7ab8614ad1c0c6bbe31b905f438e989bac658bc6a4f35c8"
+  },
+  "errorCodeResponseSchema": {
+    "cases": 120,
+    "sha256": "2c25658d6663b4f9d5b2150d44876a4f1ff7c330709b835db36f5877ea5a302d"
+  },
+  "eventCursorSchema": {
+    "cases": 48,
+    "sha256": "f8c8d0fe848d3f72424707bcdc35169df5e4f79797736447dd6a32a1bc4bb6a8"
+  },
+  "generatedPlaylistRequestSchema": {
+    "cases": 48,
+    "sha256": "59bcd68f4d4b66a04d32776389a056f136b86f6cc3228419f9726f3eaad73918"
+  },
+  "generatedPlaylistSchema": {
+    "cases": 168,
+    "sha256": "f6c482a263479c4bd80e3df21a63f51ed1312aea03d94962ee93003938d6e95a"
+  },
+  "generatedRoomRequestV2Schema": {
+    "cases": 72,
+    "sha256": "19d41ef1004ca033fc1085a04d1c5e788f17ce42092c33b69799e0d66514626b"
+  },
+  "generatedTrackSchema": {
+    "cases": 144,
+    "sha256": "846173ef6fd922565ac7e7acc8efce8d6db491187bae73ba2c07da93c063ed27"
+  },
+  "itemsQueryV3Schema": {
+    "cases": 120,
+    "sha256": "fe1b40c3911d729ac2387e48af27a4c5386936953d1276727a08fc49bdf82a5e"
+  },
+  "itemsResultV3Schema": {
+    "cases": 505,
+    "sha256": "8672b4c8646b38ab16b40f2e0777b3d3560adc5664d93d3ad214f03d7e9d5cb5"
+  },
+  "listenerUsagePointSchema": {
+    "cases": 96,
+    "sha256": "42b6d5dc61401bad838d07f93d7edb376ee167f7613d40046d7b291c8ac3c0a6"
+  },
+  "mediaInfoSchema": {
+    "cases": 362,
+    "sha256": "740dfbf09ce58e148d12e95d9172c0885d69d8cdd6a87abf9adaa5ed6e12ce43"
+  },
+  "messageResponseSchema": {
+    "cases": 23,
+    "sha256": "b5331c1fd0cb83bfc2c9c5ae5619bc2cf6e6dd4d8713076e5c4bc56feb8426e0"
+  },
+  "optionalAdminMessageUsageSearchSchema": {
+    "cases": 48,
+    "sha256": "c473f3a745abf8186c4a546d6c433f20ae7d58af2caeec9e8d8f829c9e733fdf"
+  },
+  "optionalSseQuerySchema": {
+    "cases": 96,
+    "sha256": "2f41874467427f0447724b040caf3becb53da9be9007f177aa7f9556a26b68b3"
+  },
+  "playbackFailureRequestV2Schema": {
+    "cases": 48,
+    "sha256": "c4f6831edb0f54210aedd6f4a85f0053f15206e9687737439233a9093da3290e"
+  },
+  "playbackRestrictionSchema": {
+    "cases": 23,
+    "sha256": "dfa0defc2ab25fae63b3686f4a265b4d0f07d078c491a5b90010c0766ef910d9"
+  },
+  "playbackStateV2Schema": {
+    "cases": 433,
+    "sha256": "00c99c6549256c75f053268d06810f7ebf0daa39c243adaefdd5265907d4b9f7"
+  },
+  "playlistItemIdUpdateSchema": {
+    "cases": 48,
+    "sha256": "f8c8d0fe848d3f72424707bcdc35169df5e4f79797736447dd6a32a1bc4bb6a8"
+  },
+  "playlistItemPositionUpdateSchema": {
+    "cases": 361,
+    "sha256": "5ff90f2bd13113ca36872eadbca8c3df81ff3cb6f7dac250a16539008a37e115"
+  },
+  "playlistItemSchema": {
+    "cases": 312,
+    "sha256": "2d23b5d71584ee8ac29bee7699406caf4dfcce9489acfb643391d0b63e51b8cf"
+  },
+  "playlistItemsListSchema": {
+    "cases": 336,
+    "sha256": "0f085ab87bd955d21325b63c17353d25a25b93c469637dd53173c4cd7af181b0"
+  },
+  "providerItemSchema": {
+    "cases": 288,
+    "sha256": "9b9044bdae8bb6a17b24b3187882c92cb8f70f2fbebaa856314b8c5e338fafc3"
+  },
+  "providerPlaylistSchema": {
+    "cases": 505,
+    "sha256": "756d69a8fbb9b7b535600b03bedca2f41a3909f035f9d2a2c914f562086de4c0"
+  },
+  "providerSearchResponseSchema": {
+    "cases": 312,
+    "sha256": "12f9cf6cd077315796ae10ade54aa08a103bff08942bf7540b278a65e4081fb8"
+  },
+  "providerTokenSchema": {
+    "cases": 72,
+    "sha256": "14ff4ea4ec720b8bd94abacfa98b119b42f7f1f24b05c65012a5d5a9096e7add"
+  },
+  "providerURLQuerySchema": {
+    "cases": 48,
+    "sha256": "8d062ad9e0d3958c1664707978dbad417660db33609bcde663921e7230a07fa8"
+  },
+  "providersSchema": {
+    "cases": 47,
+    "sha256": "4b3ed84c8c01e8d1933ff8ba3a02a2ad216dfbaea5989e2fe1333d3854e2f700"
+  },
+  "publicRoomResultV3Schema": {
+    "cases": 289,
+    "sha256": "0f3b8d4408a48ba527434f7aacd7564b5c7732209f130a89fd7592ed778d126e"
+  },
+  "publicRoomSearchSchema": {
+    "cases": 144,
+    "sha256": "e6afa7e81dc9df37f3a40c6f0a43229d4d3f4abd16b8cc4fa7092fe60463486e"
+  },
+  "publicRoomV3Schema": {
+    "cases": 144,
+    "sha256": "1ce9c5328e6f3195c73bf2d6ea5fe4892eecdcc3d4ba89a709ee53f8b52ad1c6"
+  },
+  "publicRoomsV3Schema": {
+    "cases": 168,
+    "sha256": "f796ef870e42d982d8a11e42894c06a0265be07d6c4393744e47830e05dbfb7f"
+  },
+  "remoteEventV2Schema": {
+    "cases": 264,
+    "sha256": "c0dd8f5bed1c8efd326b6ac2d54edff420757ee81527562bb3b967096044ce11"
+  },
+  "remotePairingRequestSchema": {
+    "cases": 72,
+    "sha256": "d91203f49551a94552f8b83ea940b5fa637e21f26b6ebb74ef59752673589795"
+  },
+  "remotePairingV2Schema": {
+    "cases": 288,
+    "sha256": "8204dc7cdb7dbeb7ce8155e904fb0e274df542ac0ebd63e4decfb91b4b9b338f"
+  },
+  "remoteSessionV2Schema": {
+    "cases": 288,
+    "sha256": "fc1cb714bee4dba3461da8f6bf35a76cadd9e4a691e20213e261b7b1370a7a58"
+  },
+  "remoteStatusV2Schema": {
+    "cases": 264,
+    "sha256": "8c57ae926576265459007e330977987d7781fc70117a7c6d440dce2236069dfd"
+  },
+  "remoteUpdateRequestV2Schema": {
+    "cases": 144,
+    "sha256": "1f06cfdaed4cf5c502137b327bc2cf703f11f2c53786d42408f71acee9c5c3e0"
+  },
+  "roomActionRequestSchema": {
+    "cases": 72,
+    "sha256": "1e5e04b2685f4231546021ea005ba8457a6931290f533f2058c4953b3cd0e9ec"
+  },
+  "roomGenerationStatusSchema": {
+    "cases": 23,
+    "sha256": "2ee177453f4633b57927dd7c87ccee10d5e9b1e5c173f41f3b6f04137c960daa"
+  },
+  "roomGenerationUpdateSchema": {
+    "cases": 72,
+    "sha256": "0dcbeb1fcb0ee5d3157a2bf2708a411bab309a105eb6670dbf585837639a6031"
+  },
+  "roomHostUpdateSchema": {
+    "cases": 72,
+    "sha256": "89910f84ea37bba0808c8d8ee83f587fb1ff291bc75c28cf3e71b5f33df4ab0f"
+  },
+  "roomMessageSchema": {
+    "cases": 264,
+    "sha256": "fba0118d2458ed01c1711c3475e487015c2258e23234ea4cc35906cae78a106f"
+  },
+  "roomNameInputSchema": {
+    "cases": 23,
+    "sha256": "42b7c1cedf49f9320ddd044d9ff096927df1b4d2041cd468bae1644d79057923"
+  },
+  "roomNameReservationRequestSchema": {
+    "cases": 48,
+    "sha256": "073ac36e94fc944f43a764f1ddcdab8c74eb6556a697c3fcccfa702c50e37bd1"
+  },
+  "roomNameReservationSchema": {
+    "cases": 96,
+    "sha256": "026d9fda2214cf5a8f3f07cfe04b55e51129eb798156ec326198e6fd08adfb05"
+  },
+  "roomSettingsV2Schema": {
+    "cases": 288,
+    "sha256": "4800da3725f60d52d2a4656381038c5398b6889daa5550512ea56af304bf258b"
+  },
+  "roomTypeQuerySchema": {
+    "cases": 48,
+    "sha256": "e2d6fdffb9795b2a6e0886fceac6c957ab55bad54eb596caf35647283167b2dd"
+  },
+  "roomTypeSchema": {
+    "cases": 23,
+    "sha256": "e505957106f586cbd92b888fba4c282e745fbfcc9c83b8911bc939e4142572d4"
+  },
+  "roomUpdateV2Schema": {
+    "cases": 361,
+    "sha256": "7f46656faf9e1458b781f2954006c1b286abc43a344f02af38898346344bb212"
+  },
+  "roomUserSchema": {
+    "cases": 144,
+    "sha256": "3ad988c2aae6ca0db9aa4e0fd2f493a0d56279928b1fd4ccb5b1c0f7f8e1174c"
+  },
+  "roomV2Schema": {
+    "cases": 721,
+    "sha256": "8bae723c0e276bebbe13052850ec2b85879b6cf5eb9d84e13126a616c17eb56d"
+  },
+  "searchQuerySchema": {
+    "cases": 72,
+    "sha256": "2f5f97feeb37710dd4c41331b3a537536d14f570f7f6c4b38a5950f3065b0d6d"
+  },
+  "sessionProfileSchema": {
+    "cases": 48,
+    "sha256": "d251d485aa6fbebeaa310c164db275e475759e007f558b34b0559b64cc25471c"
+  },
+  "sessionResponseV2Schema": {
+    "cases": 842,
+    "sha256": "e7e7243095a452875b8104b922e8ae102979a41bd7762b5802c949a119e0f159"
+  },
+  "skipPlaylistItemResponseSchema": {
+    "cases": 915,
+    "sha256": "f1aba0388a73cc0e69d8dc7de25d7bcf5afd54ad405c5f8265c8d0124a3f260f"
+  },
+  "skipVoteUpdateV2Schema": {
+    "cases": 120,
+    "sha256": "e4e05220fe3b9f64a70cdbe6f25485b1a05add20761f8f0c75971c28918d162d"
+  },
+  "sourceTypeSchema": {
+    "cases": 23,
+    "sha256": "8f403595669a4ffa6a36f31aedff86ae4499b297d42a2ece9d4bd96006db9a06"
+  },
+  "sseQuerySchema": {
+    "cases": 96,
+    "sha256": "644ae4a2e925f99a1d90277ad8c81dc2e8a200c3976b489b0c51851aa6362acf"
+  },
+  "statsV2Schema": {
+    "cases": 96,
+    "sha256": "de1a67d5c5907385359d57bf24a3fd9d7117da28b9dcc6a5c8b75768eef52e2f"
+  },
+  "tvPlayerQuerySchema": {
+    "cases": 72,
+    "sha256": "d98ffa92a9949e632fb6ab3f10ce837154e944b65cad4c411450c7ce3d1f2e5a"
+  },
+  "updateSessionProfileRequestSchema": {
+    "cases": 48,
+    "sha256": "cec0911f8f5e8fa767e874ff7123dfcfdada6548f1647dc3cf3a419cf272f089"
+  },
+  "usersUpdateSchema": {
+    "cases": 23,
+    "sha256": "406fb8c80447ba9936a397a3e116f8ea0920e31fcfe18f45125dc2f6c9bfa558"
+  }
+}

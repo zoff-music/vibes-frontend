@@ -1,129 +1,126 @@
-import * as z from 'zod/mini';
+import * as v from 'valibot';
+import { objectInputSchema } from './object-input';
 
-export const sourceTypeSchema = /* @__PURE__ */ z.compile(
-  z.enum(['youtube', 'soundcloud']),
-);
+export const sourceTypeSchema = /* @__PURE__ */ v.picklist([
+  'youtube',
+  'soundcloud',
+]);
 
-export type SourceType = z.infer<typeof sourceTypeSchema>;
+export type SourceType = v.InferOutput<typeof sourceTypeSchema>;
 
 export function isSourceType(value: string): value is SourceType {
   return value === 'youtube' || value === 'soundcloud';
 }
 
-export const playbackRestrictionSchema = /* @__PURE__ */ z.compile(
-  z.optional(z.enum(['age', 'region', 'embedding'])),
+export const playbackRestrictionSchema = /* @__PURE__ */ v.optional(
+  v.picklist(['age', 'region', 'embedding']),
 );
 
-export type PlaybackRestriction = z.infer<typeof playbackRestrictionSchema>;
+export type PlaybackRestriction = v.InferOutput<
+  typeof playbackRestrictionSchema
+>;
 
-export const playlistItemSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    id: z.string(),
-    sourceType: sourceTypeSchema,
-    sourceId: z.string(),
-    providerUrl: z.optional(z.string()),
-    title: z.string(),
-    publisher: z.optional(z.string()),
-    thumbnailUrl: z.string(),
-    duration: z.number(),
-    addedBy: z.optional(z.string()),
-    addedAt: z.string(),
-    voteCount: z.optional(z.number()),
-    playbackRestriction: playbackRestrictionSchema,
+export const playlistItemSchema = /* @__PURE__ */ v.object({
+  id: v.string(),
+  sourceType: sourceTypeSchema,
+  sourceId: v.string(),
+  providerUrl: v.optional(v.string()),
+  title: v.string(),
+  publisher: v.optional(v.string()),
+  thumbnailUrl: v.string(),
+  duration: v.pipe(v.number(), v.finite()),
+  addedBy: v.optional(v.string()),
+  addedAt: v.string(),
+  voteCount: v.optional(v.pipe(v.number(), v.finite())),
+  playbackRestriction: playbackRestrictionSchema,
+});
+
+export type PlaylistItem = v.InferOutput<typeof playlistItemSchema>;
+
+export const itemsQueryV3Schema = /* @__PURE__ */ v.pipe(
+  objectInputSchema,
+  v.object({
+    from: v.optional(v.pipe(v.number(), v.safeInteger(), v.minValue(1))),
+    to: v.optional(v.pipe(v.number(), v.safeInteger(), v.minValue(1))),
+    sourceType: v.optional(sourceTypeSchema),
+    excludeCurrent: v.optional(v.boolean()),
   }),
 );
 
-export type PlaylistItem = z.infer<typeof playlistItemSchema>;
+export const itemsResultV3Schema = /* @__PURE__ */ v.object({
+  data: v.array(playlistItemSchema),
+  from: v.pipe(v.number(), v.safeInteger()),
+  to: v.pipe(v.number(), v.safeInteger()),
+  reqFrom: v.pipe(v.number(), v.safeInteger()),
+  reqTo: v.pipe(v.number(), v.safeInteger()),
+  count: v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
+  total: v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
+});
 
-export const itemsQueryV3Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    from: z.optional(z.int().check(z.minimum(1))),
-    to: z.optional(z.int().check(z.minimum(1))),
-    sourceType: z.optional(sourceTypeSchema),
-    excludeCurrent: z.optional(z.boolean()),
-  }),
-);
+export type ItemsQueryV3 = v.InferOutput<typeof itemsQueryV3Schema>;
 
-export const itemsResultV3Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    data: z.array(playlistItemSchema),
-    from: z.int(),
-    to: z.int(),
-    reqFrom: z.int(),
-    reqTo: z.int(),
-    count: z.int().check(z.minimum(0)),
-    total: z.int().check(z.minimum(0)),
-  }),
-);
+export type ItemsResultV3 = v.InferOutput<typeof itemsResultV3Schema>;
 
-export type ItemsQueryV3 = z.infer<typeof itemsQueryV3Schema>;
+export const addPlaylistItemRequestSchema = /* @__PURE__ */ v.object({
+  sourceType: sourceTypeSchema,
+  sourceId: v.string(),
+  providerUrl: v.optional(v.string()),
+  title: v.string(),
+  publisher: v.optional(v.string()),
+  thumbnailUrl: v.string(),
+  duration: v.pipe(v.number(), v.finite()),
+});
 
-export type ItemsResultV3 = z.infer<typeof itemsResultV3Schema>;
-
-export const addPlaylistItemRequestSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    sourceType: sourceTypeSchema,
-    sourceId: z.string(),
-    providerUrl: z.optional(z.string()),
-    title: z.string(),
-    publisher: z.optional(z.string()),
-    thumbnailUrl: z.string(),
-    duration: z.number(),
-  }),
-);
-
-export type AddPlaylistItemRequest = z.infer<
+export type AddPlaylistItemRequest = v.InferOutput<
   typeof addPlaylistItemRequestSchema
 >;
 
-export const addPlaylistItemOutcomeSchema = /* @__PURE__ */ z.compile(
-  z.enum(['added', 'duplicate_voted', 'duplicate_already_voted']),
-);
+export const addPlaylistItemOutcomeSchema = /* @__PURE__ */ v.picklist([
+  'added',
+  'duplicate_voted',
+  'duplicate_already_voted',
+]);
 
-export type AddPlaylistItemOutcome = z.infer<
+export type AddPlaylistItemOutcome = v.InferOutput<
   typeof addPlaylistItemOutcomeSchema
 >;
 
-export const addPlaylistItemResponseSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    playlistItem: playlistItemSchema,
-    outcome: addPlaylistItemOutcomeSchema,
-  }),
-);
+export const addPlaylistItemResponseSchema = /* @__PURE__ */ v.object({
+  playlistItem: playlistItemSchema,
+  outcome: addPlaylistItemOutcomeSchema,
+});
 
-export type AddPlaylistItemResponse = z.infer<
+export type AddPlaylistItemResponse = v.InferOutput<
   typeof addPlaylistItemResponseSchema
 >;
 
-export const addPlaylistRequestV2Schema = /* @__PURE__ */ z.compile(
-  z.object({
-    playlistItems: z.array(addPlaylistItemRequestSchema).check(z.minLength(1)),
-  }),
+export const addPlaylistRequestV2Schema = /* @__PURE__ */ v.object({
+  playlistItems: v.pipe(v.array(addPlaylistItemRequestSchema), v.minLength(1)),
+});
+
+export type AddPlaylistRequestV2 = v.InferOutput<
+  typeof addPlaylistRequestV2Schema
+>;
+
+export const playlistItemsListSchema = /* @__PURE__ */ v.array(
+  playlistItemSchema,
 );
 
-export type AddPlaylistRequestV2 = z.infer<typeof addPlaylistRequestV2Schema>;
+export type PlaylistItemsList = v.InferOutput<typeof playlistItemsListSchema>;
 
-export const playlistItemsListSchema = /* @__PURE__ */ z.compile(
-  z.array(playlistItemSchema),
-);
+export const playlistItemIdUpdateSchema = /* @__PURE__ */ v.object({
+  id: v.string(),
+});
 
-export type PlaylistItemsList = z.infer<typeof playlistItemsListSchema>;
+export type PlaylistItemIdUpdate = v.InferOutput<
+  typeof playlistItemIdUpdateSchema
+>;
 
-export const playlistItemIdUpdateSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    id: z.string(),
-  }),
-);
+export const playlistItemPositionUpdateSchema = /* @__PURE__ */ v.object({
+  playlistItem: playlistItemSchema,
+  position: v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
+});
 
-export type PlaylistItemIdUpdate = z.infer<typeof playlistItemIdUpdateSchema>;
-
-export const playlistItemPositionUpdateSchema = /* @__PURE__ */ z.compile(
-  z.object({
-    playlistItem: playlistItemSchema,
-    position: z.int().check(z.minimum(0)),
-  }),
-);
-
-export type PlaylistItemPositionUpdate = z.infer<
+export type PlaylistItemPositionUpdate = v.InferOutput<
   typeof playlistItemPositionUpdateSchema
 >;

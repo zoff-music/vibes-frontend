@@ -1,5 +1,6 @@
 import { errorCodeResponseSchema } from '@vibes/models';
 import { safeWrap, safeWrapAsync } from '@vibes/shared/wrap';
+import { parse } from 'valibot';
 import { getHttpError } from 'wiretyped';
 
 function getRetryAfterSeconds(response: Response) {
@@ -74,7 +75,7 @@ export async function getAPIErrorResponse(error: Error) {
   }
 
   const [validationError, parsedBody] = safeWrap(() =>
-    errorCodeResponseSchema.parse(body),
+    parse(errorCodeResponseSchema, body),
   );
 
   if (validationError || !parsedBody?.propagate) {
