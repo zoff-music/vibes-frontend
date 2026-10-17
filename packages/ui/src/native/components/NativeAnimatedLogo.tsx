@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import type { SharedValue } from 'react-native-reanimated';
+
 import Animated, {
   cancelAnimation,
   Easing,
   Extrapolation,
   interpolate,
+  type SharedValue,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -37,6 +38,7 @@ export function NativeAnimatedLogo({
       pinkJitterPhase.value = 0;
       cyanSlicePhase.value = 0;
       pinkSlicePhase.value = 0;
+
       return;
     }
 
@@ -56,6 +58,7 @@ export function NativeAnimatedLogo({
       withTiming(glitchPhaseCount, pinkSliceTiming),
       -1,
     );
+
     return () => {
       cancelAnimation(cyanJitterPhase);
       cancelAnimation(pinkJitterPhase);

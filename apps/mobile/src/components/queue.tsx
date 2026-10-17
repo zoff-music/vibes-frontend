@@ -2,13 +2,17 @@ import type { PlaylistItem } from '@vibes/models';
 import { classNames, getProviderItemUrl, safeWrapAsync } from '@vibes/shared';
 import { Image } from 'expo-image';
 import { memo, type ReactElement, useCallback } from 'react';
-import type { ListRenderItemInfo } from 'react-native';
-import { FlatList, Linking, Pressable, Text, View } from 'react-native';
+
+import {
+  FlatList,
+  Linking,
+  type ListRenderItemInfo,
+  Pressable,
+  Text,
+  View,
+} from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Animated, {
-  FadeInDown,
-  LinearTransition,
-} from 'react-native-reanimated';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 
 import { Copy, Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
@@ -46,6 +50,7 @@ const QueueItem = memo(function QueueItem({
   );
   const openExternally = async () => {
     if (!providerUrl) return;
+
     await safeWrapAsync(Linking.openURL(providerUrl));
   };
   const row = (
@@ -208,7 +213,6 @@ export function Queue({
     ({ item, index }: ListRenderItemInfo<PlaylistItem>) => (
       <Animated.View
         className={classNames(!contained && 'px-4')}
-        entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
         layout={LinearTransition.duration(180)}
       >
         <QueueItem
@@ -227,6 +231,7 @@ export function Queue({
   );
 
   let listHeader: ReactElement | null = null;
+
   if (!contained) {
     listHeader = (
       <>

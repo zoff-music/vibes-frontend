@@ -1,6 +1,6 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useReducedMotion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'preact/compat';
 
 const ANIMATED_WORDS = [
   'electro',
@@ -85,6 +85,7 @@ export function useAnimatedPlaceholder(
     if (!active) {
       return;
     }
+
     const animatedWords = isAIMode ? prompts : words;
     const currentWord = animatedWords[wordIndex % animatedWords.length];
     const fullTarget = `${currentWord}...`;
@@ -96,6 +97,7 @@ export function useAnimatedPlaceholder(
         setCharIndex(0);
         setWordIndex((current) => (current + 1) % animatedWords.length);
       }, 1600);
+
       return () => window.clearTimeout(timer);
     }
 
@@ -104,6 +106,7 @@ export function useAnimatedPlaceholder(
         setPlaceholderText(fullTarget.substring(0, charIndex + 1));
         setCharIndex((current) => current + 1);
       }, typingDelay);
+
       return () => window.clearTimeout(timer);
     }
 
@@ -113,10 +116,13 @@ export function useAnimatedPlaceholder(
   useEffect(() => {
     if (!active) {
       setIsBlinkerVisible(true);
+
       return;
     }
+
     if (!isPaused) {
       setIsBlinkerVisible(true);
+
       return;
     }
 

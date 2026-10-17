@@ -1,6 +1,6 @@
+import { Link } from '@kasperrt/smolter/preact';
 import { classNames } from '@vibes/shared';
 import { ArrowRightIcon, CheckIcon } from '@vibes/ui/web';
-import { Link } from 'react-router';
 import {
   productNavigation,
   watchNavigation,
@@ -16,6 +16,7 @@ export function ProductLinks({
   watch = false,
 }: ProductLinksProps) {
   const pages = watch ? watchNavigation : productNavigation;
+
   return (
     <nav
       aria-label={watch ? 'Zoff Watch guides' : 'Zoff guides'}

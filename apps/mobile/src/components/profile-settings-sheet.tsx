@@ -1,8 +1,7 @@
 import { displayNameMaxLength, type SessionProfile } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
+import { useMutation, useRequest } from '@vibes/shared/use-request';
 import { useEffect, useRef, useState } from 'react';
 import { Modal, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
   Card,
@@ -12,6 +11,9 @@ import {
   IconButton,
   Screen,
 } from '@/components/native';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
+import { loadProfile } from '@/requests/load-profile';
+import { updateProfile } from '@/requests/update-profile';
 
 interface ProfileSettingsSheetProps {
   initialProfile: SessionProfile | null;
@@ -26,9 +28,8 @@ export function ProfileSettingsSheet({
   onSaved,
   visible,
 }: ProfileSettingsSheetProps) {
-  const [, profileFetcher] = useFetcher<SessionProfile>({
-    routeId: 'sessions.profile',
-  });
+  const [, profileFetcherLoad] = useRequest(loadProfile);
+  const [, profileFetcherSubmit] = useMutation(updateProfile);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,42 +38,53 @@ export function ProfileSettingsSheet({
   useEffect(() => {
     const opened = visible && !wasVisible.current;
     wasVisible.current = visible;
+
     if (!opened) return;
 
     if (initialProfile) {
       setName(initialProfile.name);
       setError('');
+
       return;
     }
 
     const loadProfile = async () => {
       setLoading(true);
       setError('');
-      const result = await profileFetcher.load();
+      const result = await profileFetcherLoad();
       setLoading(false);
+
       if (!result.data) {
         setError(result.error || 'Could not load your name.');
+
         return;
       }
+
       setName(result.data.name);
     };
     void loadProfile();
-  }, [initialProfile, profileFetcher.load, visible]);
+  }, [initialProfile, profileFetcherLoad, visible]);
 
   const save = async () => {
     const trimmedName = name.trim();
+
     if (!trimmedName) {
       setError('Enter a name.');
+
       return;
     }
+
     setLoading(true);
     setError('');
-    const result = await profileFetcher.submit({ name: trimmedName });
+    const result = await profileFetcherSubmit({ name: trimmedName });
     setLoading(false);
+
     if (!result.data) {
       setError(result.error || 'Could not save your name.');
+
       return;
     }
+
     setName(result.data.name);
     onSaved(result.data);
     onClose();
@@ -112,10 +124,10 @@ export function ProfileSettingsSheet({
                 }
                 value={name}
               />
-              {error ? <Copy muted>{error}</Copy> : null}
-              {name ? (
+              {Boolean(error) && <Copy muted>{error}</Copy>}
+              {Boolean(name) && (
                 <Copy muted>New items will show “Added by {name}”.</Copy>
-              ) : null}
+              )}
               <Button
                 disabled={loading || !name.trim()}
                 label={loading ? 'Saving…' : 'Save profile'}

@@ -1,6 +1,6 @@
+import { useFetcher } from '@kasperrt/smolter/preact';
 import type { RoomV2 } from '@vibes/models';
-import { useFetcher } from 'react-router';
-import type { TizenSkipData } from '@/tizen/routes/skip/action';
+import type { TizenSkipData } from './routes/rooms.$id.skip/clientAction';
 
 interface TizenRoomControlsProps {
   room: RoomV2;
@@ -25,11 +25,15 @@ export function TizenRoomControls({
   const result = fetcher.data?.result;
   const voted = Boolean(result?.voted || result?.alreadyVoted);
   let message = '';
+
   if (!allowed) message = 'Skipping is not allowed for this TV in this room.';
+
   if (result?.skipped) message = 'Skipped.';
+
   if (voted && !result?.skipped) {
     message = `Skip vote recorded (${result?.currentVotes}/${result?.requiredVotes}).`;
   }
+
   if (fetcher.data?.error) message = fetcher.data.error;
 
   return (

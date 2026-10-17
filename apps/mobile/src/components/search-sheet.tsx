@@ -1,11 +1,13 @@
-import type { Providers, RoomType } from '@vibes/models';
-import { generatedPlaylistPromptMaxLength } from '@vibes/models';
+import {
+  generatedPlaylistPromptMaxLength,
+  type Providers,
+  type RoomType,
+} from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { getProviderDisplayName, getRoomLabels } from '@vibes/ui/shared';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { Button, Copy, Field, IconButton, Screen } from '@/components/native';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { SearchResults } from '@/components/search-results';
 import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
@@ -93,6 +95,7 @@ export function SearchSheet({
     <Screen>
       <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
         <ScrollView
+          contentInsetAdjustmentBehavior="never"
           contentContainerClassName="w-full max-w-3xl self-center px-5 pt-4 pb-32"
           keyboardShouldPersistTaps="handled"
         >

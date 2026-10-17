@@ -33,14 +33,18 @@ export function useLivePosition(
       });
     };
     updatePosition();
+
     if (!isPlaying) return;
+
     const interval = setInterval(updatePosition, playbackPositionIntervalMs);
+
     return () => clearInterval(interval);
   }, [durationSeconds, isPlaying, positionMs, referenceKey, referenceTimeMs]);
 
   if (positionState.key !== referenceKey) {
     return resolvedPosition;
   }
+
   return positionState.positionMs;
 }
 
@@ -49,6 +53,7 @@ function resolveReferenceTime(
   serverTimeMs?: number,
 ): number {
   if (!isPlaying || serverTimeMs === undefined) return Date.now();
+
   return getClientReferenceTimeMs(serverTimeMs);
 }
 
@@ -59,8 +64,10 @@ function getLivePosition(
   referenceTimeMs: number,
 ) {
   if (!isPlaying) return positionMs;
+
   const durationMs = durationSeconds * millisecondsPerSecond;
   const nextPosition = positionMs + Math.max(Date.now() - referenceTimeMs, 0);
+
   return durationMs ? Math.min(nextPosition, durationMs) : nextPosition;
 }
 

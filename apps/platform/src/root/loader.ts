@@ -1,7 +1,7 @@
+import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import type { RemoteStatusV2, SessionProfile } from '@vibes/models';
-import type { LoaderFunctionArgs } from 'react-router';
+import { getThemeFromCookies } from '@vibes/serve/theme';
 import { getServerApi } from '../http.server';
-import { getThemeFromCookies } from '../ssr/theme.server';
 import { createEmptyRemoteStatus } from '../utils/remoteStatus';
 
 interface RootContext {
@@ -49,7 +49,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     embedBasePath,
     cspNonce,
     remoteStatus,
-    sessionProfile,
+    sessionProfile: await sessionProfile,
   };
 }
 

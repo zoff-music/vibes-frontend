@@ -1,10 +1,11 @@
-import type { ClientActionFunctionArgs } from 'react-router';
+import type { ClientActionFunctionArgs } from '@kasperrt/smolter/preact';
 
 export function preloadHomeAction() {
-  return import('./action');
+  return import('./utils/submitHomeAction');
 }
 
 export async function clientAction(args: ClientActionFunctionArgs) {
   const action = await preloadHomeAction();
-  return action.clientAction(args);
+
+  return action.submitHomeAction(args);
 }

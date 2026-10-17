@@ -1,5 +1,10 @@
+import {
+  Link,
+  useNavigate,
+  useNavigation,
+  useRevalidator,
+} from '@kasperrt/smolter/preact';
 import { Button } from '@vibes/ui/web';
-import { Link, useNavigate, useRevalidator } from 'react-router';
 
 interface PlatformErrorViewProps {
   message: string;
@@ -14,14 +19,16 @@ export function PlatformErrorView({
 }: PlatformErrorViewProps) {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
+  const navigation = useNavigation();
 
   const retry = () => {
     if (requiresReload) {
       window.location.reload();
+
       return;
     }
 
-    void revalidator.revalidate();
+    void revalidator();
   };
 
   return (
@@ -35,7 +42,7 @@ export function PlatformErrorView({
         <p className="mt-3 text-sm text-theme-muted">{message}</p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Button
-            disabled={revalidator.state === 'loading'}
+            disabled={navigation.state === 'loading'}
             onClick={retry}
             type="button"
             variant="primary"

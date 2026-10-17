@@ -6,15 +6,17 @@ import type {
   RoomType,
   RoomV2,
 } from '@vibes/models';
-import { useFetcher, useLoaderData } from '@vibes/native-router';
 import { usePlaybackStore, useQueueStore, useRoomStore } from '@vibes/shared';
+import { useMutation, useRequest } from '@vibes/shared/use-request';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { RoomSnapshot } from '@/data-router/room-snapshot';
+import { roomNotFoundError } from '@/constants/room';
 import { useTvRoomEvents } from '@/hooks/use-tv-room-events';
 import { subscribeToAppResume } from '@/lib/app-resume';
 import { applyRoomSnapshot } from '@/lib/apply-room-snapshot';
-import type { DiscoveryData } from '@/routes/_index/loader';
-import type { CreateRoomData } from '@/routes/rooms.create/action';
+import type { DiscoveryData } from '@/requests/load-discovery';
+import { loadDiscovery } from '@/requests/load-discovery';
+import { loadRoom as loadRoomRequest } from '@/requests/load-room';
+import { updateRoomCreation } from '@/requests/update-room-creation';
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
 
@@ -41,18 +43,17 @@ export interface TvSessionState {
 }
 
 export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
-  const discovery = useLoaderData<DiscoveryData>();
-  const [, discoveryFetcher] = useFetcher<DiscoveryData>({ routeId: '_index' });
+  const [discovery, setDiscovery] = useState<DiscoveryData | null>(null);
+  const [initialError, setInitialError] = useState('');
+  const [initialized, setInitialized] = useState(false);
+  const [, discoveryFetcherLoad] = useRequest(loadDiscovery);
   const [roomType, setRoomType] = useState<RoomType>('MUSIC');
   const [selectedDiscovery, setSelectedDiscovery] =
     useState<DiscoveryData | null>(null);
   const [discoveryLoading, setDiscoveryLoading] = useState(false);
   const discoveryRequest = useRef(0);
-  const [, roomFetcher] = useFetcher<RoomSnapshot>({ routeId: 'rooms.$id' });
-  const [createFetcherState, createFetcher] = useFetcher<CreateRoomData>({
-    routeId: 'rooms.create',
-  });
-  const submitCreate = createFetcher.submit;
+  const [, roomFetcherLoad] = useRequest(loadRoomRequest);
+  const [createFetcherState, submitCreate] = useMutation(updateRoomCreation);
   const room = useRoomStore((state) => state.room);
   const listenerCount = useRoomStore((state) => state.usersCount);
   const playlistItems = useQueueStore((state) => state.playlistItems);
@@ -84,6 +85,21 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
     ? []
     : (activeDiscovery?.publicRooms ?? []);
 
+  useEffect(() => {
+    let active = true;
+    void discoveryFetcherLoad().then((result) => {
+      if (!active) return;
+
+      setDiscovery(result.data);
+      setInitialError(result.error);
+      setInitialized(true);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [discoveryFetcherLoad]);
+
   const changeRoomType = async (nextType: RoomType) => {
     if (nextType === roomType) return;
 
@@ -92,7 +108,7 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
     setSelectedDiscovery(null);
     setRequestError('');
     setDiscoveryLoading(true);
-    const result = await discoveryFetcher.load({
+    const result = await discoveryFetcherLoad({
       params: { roomType: nextType },
     });
 
@@ -108,44 +124,62 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
   const loadRoom = useCallback(
     async (nextRoomId: string): Promise<RoomJoinResult> => {
       const normalizedRoomId = nextRoomId.trim().toLowerCase();
+
       if (!normalizedRoomId) {
         setRequestError('Enter a room name.');
+
         return 'error';
       }
+
       const requestId = roomRequest.current + 1;
       roomRequest.current = requestId;
       setRoomLoading(true);
-      const result = await roomFetcher.load({
+      const result = await roomFetcherLoad({
         params: { id: normalizedRoomId },
       });
+
       if (requestId !== roomRequest.current) return 'error';
+
       setRoomLoading(false);
+
       if (result.error === roomNotFoundError) {
         setRequestError('That room does not exist yet.');
+
         return 'notFound';
       }
+
       if (result.error || !result.data) {
         setRequestError(result.error || 'Could not find that room.');
+
         return 'error';
       }
+
       applyRoomSnapshot(result.data);
       setRoomId(normalizedRoomId);
       setRequestError('');
+
       return 'joined';
     },
-    [roomFetcher.load],
+    [roomFetcherLoad],
   );
 
   const refreshRoom = useCallback(async () => {
-    if (!roomId) return;
-    const result = await roomFetcher.load({ params: { id: roomId } });
+    if (!roomId || roomLoading) return;
+
+    const requestId = ++roomRequest.current;
+    const result = await roomFetcherLoad({ params: { id: roomId } });
+
+    if (requestId !== roomRequest.current) return;
+
     if (result.error || !result.data) {
       setRequestError(result.error || 'Could not refresh the room.');
+
       return;
     }
+
     applyRoomSnapshot(result.data);
     setRequestError('');
-  }, [roomFetcher.load, roomId]);
+  }, [roomFetcherLoad, roomId, roomLoading]);
 
   useEffect(
     () => subscribeToAppResume(() => void refreshRoom()),
@@ -159,10 +193,13 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
         prompt,
         roomType,
       });
+
       if (result.error || !result.data) {
         setRequestError(result.error || 'Could not generate the room.');
+
         return;
       }
+
       await loadRoom(result.data.roomId);
     },
     [loadRoom, submitCreate, roomType],
@@ -176,10 +213,13 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
         providers,
         roomType,
       });
+
       if (result.error || !result.data) {
         setRequestError(result.error || 'Could not create the room.');
+
         return;
       }
+
       await loadRoom(result.data.roomId);
     },
     [loadRoom, providers, submitCreate, roomType],
@@ -187,6 +227,7 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
 
   const leaveRoom = useCallback(() => {
     roomRequest.current += 1;
+    setRoomLoading(false);
     setRoomId('');
     setRequestError('');
     useRoomStore.getState().reset();
@@ -196,14 +237,11 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
 
   return [
     {
-      error: requestError || activeDiscovery?.warning || '',
+      error: requestError || initialError || activeDiscovery?.warning || '',
       roomType,
-      hydrating: discovery === null,
+      hydrating: !initialized,
       listenerCount,
-      loading:
-        discoveryLoading ||
-        roomLoading ||
-        createFetcherState.state === 'submitting',
+      loading: discoveryLoading || roomLoading || createFetcherState,
       playback,
       providers,
       publicRooms,
@@ -215,7 +253,6 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
   ];
 }
 
-const roomNotFoundError = 'ROOM_NOT_FOUND';
 const emptyPlaybackState: PlaybackStateV2 = {
   currentPlaylistItem: null,
   isPlaying: false,

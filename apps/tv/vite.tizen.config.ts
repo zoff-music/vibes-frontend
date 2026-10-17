@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
+import { applicationPlugins } from '@vibes/serve/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -14,7 +14,16 @@ export default defineConfig({
       input: 'tizen.html',
     },
   },
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    ...applicationPlugins({
+      ssr: false,
+      deployment: false,
+      directory: 'src/tizen/routes',
+      // Packaged Tizen pages require one classic script, not module imports.
+      splitRoutes: false,
+    }),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

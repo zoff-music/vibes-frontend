@@ -1,4 +1,10 @@
+import {
+  Outlet,
+  useURLLocation as useLocation,
+  useRouteLoaderData,
+} from '@kasperrt/smolter/preact';
 import { isBrowserDebugEnabled, safeWrapAsync } from '@vibes/shared';
+import { useThemeStore } from '@vibes/shared/themeStore';
 import { ToastViewport } from '@vibes/ui/web';
 import { MotionConfig } from 'framer-motion';
 import {
@@ -7,13 +13,11 @@ import {
   useEffect,
   useLayoutEffect,
   useState,
-} from 'react';
-import { Outlet, useLocation, useRouteLoaderData } from 'react-router';
+} from 'preact/compat';
 import { Background } from './components/layout/Background';
 import { SiteLayout } from './components/layout/SiteLayout';
 import { RemoteControlProvider } from './components/remote/RemoteControlProvider';
 import type { RootLoaderData } from './root/loader';
-import { useThemeStore } from './stores/themeStore';
 import { updateNavigationHistory } from './utils/navigationHistory';
 
 type DebugConsoleComponent = ComponentType;
@@ -33,12 +37,15 @@ function DebugConsoleLoader() {
 
     const loadDebugConsole = async () => {
       const [loadErr, module] = await safeWrapAsync(importDebugConsole());
+
       if (!isMounted || loadErr || !module?.DebugConsole) {
         if (loadErr) {
           console.error('[DebugConsole] Failed to load', loadErr);
         }
+
         return;
       }
+
       setDebugConsole(() => module.DebugConsole);
     };
 
@@ -56,6 +63,7 @@ function DebugConsoleLoader() {
 
 export function App() {
   const rootData = useRouteLoaderData<RootLoaderData>('root') ?? null;
+
   return <AppContent rootData={rootData} />;
 }
 

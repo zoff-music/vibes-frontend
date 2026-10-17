@@ -24,6 +24,7 @@ export function formatPlaybackSeconds(seconds: number): string {
   const safeSeconds = Math.max(0, Math.floor(seconds));
   const minutes = Math.floor(safeSeconds / secondsPerMinute);
   const remainingSeconds = safeSeconds % secondsPerMinute;
+
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
@@ -32,13 +33,17 @@ export function getQueueRemainderLabel(
   visibleCount: number,
 ): string | null {
   const remainder = Math.max(totalCount - visibleCount, 0);
+
   if (remainder === 0) return null;
+
   return `and ${remainder} more`;
 }
 
 export function getProviderDisplayName(provider: string): string {
   if (provider === 'youtube') return 'YouTube';
+
   if (provider === 'soundcloud') return 'SoundCloud';
+
   return provider;
 }
 
@@ -49,9 +54,11 @@ export function chunkItems<Item>(
   if (chunkSize <= 0) return [];
 
   const chunks: Item[][] = [];
+
   for (let index = 0; index < items.length; index += chunkSize) {
     chunks.push(items.slice(index, index + chunkSize));
   }
+
   return chunks;
 }
 

@@ -17,6 +17,7 @@ export function useAdminEvents({
   }, [onRoomsUpdate]);
   useEffect(() => {
     if (!enabled) return;
+
     let active = true;
     let unsubscribe: (() => void) | null = null;
     void subscribeAdminEvents((rooms) => {
@@ -24,10 +25,13 @@ export function useAdminEvents({
     }).then(([error, stop]) => {
       if (!active) {
         stop?.();
+
         return;
       }
+
       if (!error && stop) unsubscribe = stop;
     });
+
     return () => {
       active = false;
       unsubscribe?.();

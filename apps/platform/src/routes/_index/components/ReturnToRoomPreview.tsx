@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'preact/compat';
 import { ReturnToRoomCard } from './ReturnToRoomCard';
 
 interface ReturnToRoomPreviewProps {
@@ -12,6 +12,7 @@ export function ReturnToRoomPreview({
   listenerCount,
 }: ReturnToRoomPreviewProps) {
   const [dismissed, setDismissed] = useState(false);
+
   if (dismissed) return null;
 
   return (

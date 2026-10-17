@@ -3,16 +3,15 @@ import postcssCascadeLayers from '@csstools/postcss-cascade-layers';
 import tailwindcss from '@tailwindcss/vite';
 import { assetBase } from '@vibes/serve/assets';
 import { precompressAssets } from '@vibes/serve/precompress';
-import { reactCompiler } from '@vibes/serve/react-compiler';
+import { applicationPlugins } from '@vibes/serve/vite';
 import legacy from '@vitejs/plugin-legacy';
-import react from '@vitejs/plugin-react';
-import type { PluginOption } from 'vite';
-import { defineConfig, loadEnv } from 'vite';
+
+import { defineConfig, loadEnv, type PluginOption } from 'vite';
 
 const plugins: PluginOption[] = [
   tailwindcss(),
-  react(),
-  reactCompiler(),
+  ...applicationPlugins({ ssr: false }),
+
   legacy({
     targets: ['chrome >= 80'],
     additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
@@ -24,7 +23,7 @@ const hmrHost = process.env.CAST_HMR_HOST;
 
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:8080';
+  const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'https://zoff.me';
   const proxiesRemoteApi = apiProxyTarget.startsWith('https://');
 
   return {
@@ -58,7 +57,9 @@ export default defineConfig(({ mode, command }) => {
             });
             proxy.on('proxyRes', (proxyResponse) => {
               const cookies = proxyResponse.headers['set-cookie'];
+
               if (!cookies) return;
+
               proxyResponse.headers['set-cookie'] = cookies.map((cookie) =>
                 cookie.replace(/; Secure/gi, ''),
               );

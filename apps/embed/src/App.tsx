@@ -1,5 +1,5 @@
+import { Outlet } from '@kasperrt/smolter/preact';
 import { ToastViewport } from '@vibes/ui/web';
-import { Outlet } from 'react-router';
 
 export function App() {
   return (

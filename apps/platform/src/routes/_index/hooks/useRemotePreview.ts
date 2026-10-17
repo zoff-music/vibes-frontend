@@ -1,6 +1,6 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'preact/compat';
 import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
 const durations = [2800, 3000, 2200, 2800, 4000];
@@ -45,10 +45,12 @@ export function useRemotePreview() {
     const timer = window.setTimeout(() => {
       const next = (phase + 1) % durations.length;
       setPhase(next);
+
       if (next === 4) {
         setTrack((current) => current + 1);
         setPosition(0);
       }
+
       if (next === 0) {
         setTrack(0);
         setPosition(45000);

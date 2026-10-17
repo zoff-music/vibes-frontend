@@ -1,4 +1,5 @@
 export type Pad = 0 | 1 | 2 | 3;
+
 type Phase = 'idle' | 'showing' | 'playing' | 'cleared' | 'lost' | 'won';
 
 export interface BeatGameState {
@@ -57,6 +58,7 @@ export function beatGameReducer(
     }
 
     const answered = state.answered + 1;
+
     if (answered === state.round + 1) {
       return {
         ...state,

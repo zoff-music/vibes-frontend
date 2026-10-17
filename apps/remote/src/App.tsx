@@ -1,3 +1,4 @@
+import { Outlet } from '@kasperrt/smolter/preact';
 import {
   Button,
   SettingsIcon,
@@ -11,12 +12,12 @@ import {
   ToastViewport,
   Tooltip,
 } from '@vibes/ui/web';
-import { lazy, Suspense, useState } from 'react';
-import { Outlet } from 'react-router';
-import { useThemeSync } from './theme';
+import { lazy, Suspense, useState } from 'preact/compat';
+import { useThemeSync } from './hooks/useThemeSync';
 
 const LazyDeviceSettings = lazy(async () => {
   const module = await import('./components/DeviceSettings');
+
   return { default: module.DeviceSettings };
 });
 

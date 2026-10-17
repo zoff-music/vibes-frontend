@@ -1,1 +1,1 @@
-export { redirectSystemPath } from '@/routes/native-intent/route';
+export { redirectSystemPath } from '../utils/redirect-system-path';

@@ -1,11 +1,11 @@
+import { Link } from '@kasperrt/smolter/preact';
 import {
   ArrowRightIcon,
   Button,
   DeferredContent,
   SparklesIcon,
 } from '@vibes/ui/web';
-import { lazy } from 'react';
-import { Link } from 'react-router';
+import { lazy } from 'preact/compat';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { CommunityStats } from './CommunityStats';
 import { RemotePreview } from './RemotePreview';

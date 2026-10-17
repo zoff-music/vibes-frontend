@@ -1,5 +1,4 @@
 export * from './constants';
-export { PUBLIC_ROOM_PAGE_SIZE } from './constants';
 export * from './hooks/useChatTimeline';
 export * from './hooks/useMediaSession';
 export * from './hooks/usePageVisibility';
@@ -15,4 +14,4 @@ export * from './utils/provider';
 export * from './utils/serverClock';
 export * from './utils/theme';
 export * from './utils/time';
-export * from './utils/wrap';
+export * from './wrap';

@@ -5,7 +5,7 @@ import {
   resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
 import { m as motion } from 'framer-motion';
-import React from 'react';
+import React from 'preact/compat';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../../shared';
 import { TrashIcon, VoteIcon } from '../../icons';
 import { Button } from '../Button';

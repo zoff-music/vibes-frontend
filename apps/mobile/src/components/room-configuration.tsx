@@ -38,6 +38,7 @@ function SettingsSwitch({
   value,
 }: SettingsSwitchProps) {
   const theme = useAppTheme();
+
   return (
     <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
       <View className="min-w-0 flex-1 gap-1">
@@ -81,13 +82,16 @@ export function RoomConfiguration({
     let enabledSources = settings.enabledSources.filter(
       (source) => source !== provider,
     );
+
     if (enabled) {
       enabledSources = [...enabledSources, provider];
     }
+
     updateSetting('enabledSources', enabledSources);
   };
 
   let publicDescription = 'Requires an admin password.';
+
   if (hasPassword) {
     publicDescription = 'Let anyone find this room in Browse.';
   }

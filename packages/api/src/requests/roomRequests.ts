@@ -67,6 +67,7 @@ export function createRoomReadRequests(client: ApiClient): RoomReadRequests {
         { id: roomId, $search: {} },
         options,
       );
+
       if (error) return [error, null];
 
       return [null, result.data];
@@ -97,6 +98,7 @@ export function createRoomDiscoveryRequests(
         { $search: { live: true, from: 0, to: 5, roomType } },
         options,
       );
+
       if (error) return [error, null];
 
       return [null, result.rooms];

@@ -1,3 +1,4 @@
+import { NavLink, useRootData } from '@kasperrt/smolter/preact';
 import {
   Button,
   SettingsIcon,
@@ -7,17 +8,17 @@ import {
   siteNavigationClassName,
   Tooltip,
 } from '@vibes/ui/web';
-import { lazy, Suspense, useState } from 'react';
-import { NavLink, useRouteLoaderData } from 'react-router';
-import type { AdminLoaderData } from '../routes/admin/loader';
+import { lazy, Suspense, useState } from 'preact/compat';
+import type { RootLoaderData } from '../root/loader';
 
 const LazyDeviceSettings = lazy(async () => {
   const module = await import('./DeviceSettings');
+
   return { default: module.DeviceSettings };
 });
 
 export function AdminHeader() {
-  const data = useRouteLoaderData<AdminLoaderData>('routes/admin/route');
+  const { admin: data } = useRootData<RootLoaderData>();
   const [showSettings, setShowSettings] = useState(false);
 
   return (

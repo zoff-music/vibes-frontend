@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router';
+import { useURLLocation as useLocation } from '@kasperrt/smolter/preact';
 import { watchNavigation } from '../seo/productNavigation';
 
 export function useExperience() {

@@ -1,3 +1,4 @@
+import { Link, NavLink } from '@kasperrt/smolter/preact';
 import {
   Button,
   SettingsIcon,
@@ -7,17 +8,22 @@ import {
   siteNavigationClassName,
   Tooltip,
 } from '@vibes/ui/web';
-import { lazy, Suspense, useState } from 'react';
-import { Link, NavLink } from 'react-router';
+import { AnimatePresence } from 'framer-motion';
+import { lazy, Suspense, useState } from 'preact/compat';
 import { useExperience } from '../../hooks/useExperience';
 import { ExperienceSwitch } from '../layout/ExperienceSwitch';
 
 const LazyProfileSettingsModal = lazy(async () => {
   const module = await import('../profile/ProfileSettingsModal');
+
   return { default: module.ProfileSettingsModal };
 });
 
-export function SiteHeader() {
+interface SiteHeaderProps {
+  showExperienceSwitch: boolean;
+}
+
+export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
   const [showSettings, setShowSettings] = useState(false);
   const watch = useExperience() === 'WATCH';
 
@@ -34,7 +40,7 @@ export function SiteHeader() {
             <SiteBrand />
           </Link>
         }
-        center={<ExperienceSwitch />}
+        {...(showExperienceSwitch && { center: <ExperienceSwitch /> })}
         navigation={
           <>
             <NavLink
@@ -83,20 +89,22 @@ export function SiteHeader() {
           </>
         }
       />
-      {showSettings && (
-        <Suspense
-          fallback={
-            <p role="status" className="sr-only">
-              Loading settings...
-            </p>
-          }
-        >
-          <LazyProfileSettingsModal
-            isOpen
-            onClose={() => setShowSettings(false)}
-          />
-        </Suspense>
-      )}
+      <AnimatePresence>
+        {showSettings && (
+          <Suspense
+            fallback={
+              <p role="status" className="sr-only">
+                Loading settings...
+              </p>
+            }
+          >
+            <LazyProfileSettingsModal
+              isOpen
+              onClose={() => setShowSettings(false)}
+            />
+          </Suspense>
+        )}
+      </AnimatePresence>
     </>
   );
 }

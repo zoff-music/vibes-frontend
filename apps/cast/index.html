@@ -23,21 +23,21 @@
     <!-- nosemgrep: html.security.audit.missing-integrity.missing-integrity -->
     <script src="https://www.youtube.com/iframe_api"></script>
   </head>
-  <body>
-    <div id="static-loading" class="relative flex min-h-screen w-screen animate-fade-in items-center justify-center overflow-hidden bg-theme text-theme">
-      <div class="absolute inset-0 synth-sky"></div>
-      <div class="absolute inset-0 vhs-scanlines pointer-events-none"></div>
-      <div class="sun-hero opacity-80"></div>
-      <div class="retro-grid opacity-70"></div>
+  <body class="m-0 min-h-screen bg-background font-body text-text dark:bg-dark-background dark:text-dark-text [&_cast-media-player]:hidden">
+    <div id="static-loading" class="relative flex min-h-screen w-screen animate-fade-in items-center justify-center overflow-hidden bg-background dark:bg-dark-background text-text dark:text-dark-text">
+
+
+
+
       <div class="relative z-10 flex h-full w-full items-center justify-center">
         <div class="relative z-10 flex max-w-3xl flex-col items-center gap-8 px-6 text-center">
-          <div class="panel-frame panel-surface w-full px-10 py-12">
+          <div class="rounded-2xl border border-cast-border-strong shadow-cast dark:border-cast-border-strong-dark dark:shadow-cast-dark bg-cast-panel-surface dark:bg-cast-panel-surface-dark w-full px-10 py-12">
             <div class="mb-6 flex flex-col items-center gap-3">
-              <span class="vhs-tear-strong font-display text-6xl uppercase tracking-[0.22em] text-theme glow-text text-readable md:text-7xl" data-text="ゾフ">ゾフ</span>
-              <p class="font-mono text-xs uppercase tracking-[0.4em] text-theme-subtle">ゾフ zoff cast</p>
+              <span class="font-display text-6xl uppercase tracking-[0.22em] text-text dark:text-dark-text   md:text-7xl" data-text="ゾフ">ゾフ</span>
+              <p class="font-mono text-xs uppercase tracking-[0.4em] text-text-subtle dark:text-dark-text-subtle">ゾフ zoff cast</p>
             </div>
-            <p class="text-readable font-display text-2xl text-theme">Ready for Casting</p>
-            <p class="mt-3 text-base text-theme-muted">Waiting for music to play...</p>
+            <p class="font-display text-2xl text-text dark:text-dark-text">Ready for Casting</p>
+            <p class="mt-3 text-base text-text-muted dark:text-dark-text-muted">Waiting for music to play...</p>
           </div>
         </div>
       </div>

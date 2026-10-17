@@ -19,8 +19,10 @@ export function RoomPlayerSpace({ width, height, ref }: Props) {
   const [, updateFrame] = useRoomPlayerLayout();
   const measure = useCallback(() => {
     if (pathname !== '/') return;
+
     viewRef.current?.measureInWindow((x, y, measuredWidth, measuredHeight) => {
       if (measuredWidth <= 0 || measuredHeight <= 0) return;
+
       updateFrame({ x, y, width: measuredWidth, height: measuredHeight });
     });
   }, [pathname, updateFrame]);
@@ -29,6 +31,7 @@ export function RoomPlayerSpace({ width, height, ref }: Props) {
   useFocusEffect(
     useCallback(() => {
       const frame = requestAnimationFrame(measure);
+
       return () => {
         cancelAnimationFrame(frame);
         updateFrame(null);

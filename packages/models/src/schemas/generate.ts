@@ -11,6 +11,7 @@ export const generatedTrackSchema = /* @__PURE__ */ z.compile(
     duration: z.optional(z.int().check(z.positive())),
   }),
 );
+
 export type GeneratedTrack = z.infer<typeof generatedTrackSchema>;
 
 export const generatedPlaylistRequestSchema = /* @__PURE__ */ z.compile(
@@ -20,6 +21,7 @@ export const generatedPlaylistRequestSchema = /* @__PURE__ */ z.compile(
       .check(z.trim(), z.maxLength(generatedPlaylistPromptMaxLength)),
   }),
 );
+
 export type GeneratedPlaylistRequest = z.infer<
   typeof generatedPlaylistRequestSchema
 >;
@@ -32,6 +34,7 @@ export const generatedRoomRequestV2Schema = /* @__PURE__ */ z.compile(
     roomType: z.optional(roomTypeSchema),
   }),
 );
+
 export type GeneratedRoomRequestV2 = z.infer<
   typeof generatedRoomRequestV2Schema
 >;
@@ -39,11 +42,13 @@ export type GeneratedRoomRequestV2 = z.infer<
 export const generatedPlaylistSchema = /* @__PURE__ */ z.compile(
   z.array(generatedTrackSchema).check(z.minLength(1)),
 );
+
 export type GeneratedPlaylist = z.infer<typeof generatedPlaylistSchema>;
 
 export const roomGenerationStatusSchema = /* @__PURE__ */ z.compile(
   z.enum(['generating', 'completed', 'failed']),
 );
+
 export type RoomGenerationStatus = z.infer<typeof roomGenerationStatusSchema>;
 
 export const roomGenerationUpdateSchema = /* @__PURE__ */ z.compile(
@@ -52,4 +57,5 @@ export const roomGenerationUpdateSchema = /* @__PURE__ */ z.compile(
     error: z.optional(z.string()),
   }),
 );
+
 export type RoomGenerationUpdate = z.infer<typeof roomGenerationUpdateSchema>;

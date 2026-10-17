@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'preact/compat';
 import { useShowcaseMotion } from './useShowcaseMotion';
 
 interface ShowcaseProps {

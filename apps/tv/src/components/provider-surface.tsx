@@ -32,6 +32,7 @@ export function ProviderSurface({
       if (currentSize.height === height && currentSize.width === width) {
         return currentSize;
       }
+
       return { height, width };
     });
   }, []);
@@ -54,9 +55,11 @@ export function ProviderSurface({
   useEffect(() => {
     if (playlistItem?.sourceType === 'youtube')
       setRetainedYouTubePlaylistItem(playlistItem);
+
     if (playlistItem?.sourceType === 'soundcloud')
       setRetainedSoundCloudPlaylistItem(playlistItem);
   }, [playlistItem]);
+
   if (!playlistItem) {
     return (
       <View className="h-full items-center justify-center rounded-[2rem] bg-black">

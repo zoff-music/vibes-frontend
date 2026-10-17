@@ -1,11 +1,10 @@
 import type { RoomV2 } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
+import { useRequest } from '@vibes/shared/use-request';
 import { useEffect, useState } from 'react';
 import { Modal } from 'react-native';
-
 import { SearchSheet } from '@/components/search-sheet';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
-import type { ControllerRemoteData } from '@/routes/remotes.controller.$id/loader';
+import { loadController } from '@/requests/load-controller';
 
 interface AddPlaylistItemSheetProps {
   onClose: () => void;
@@ -19,12 +18,9 @@ export function AddPlaylistItemSheet({
   const { controllerRemote, room, playlistItems } = useRoomSession();
   const { refresh } = useRoomActions();
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
-  const [, roomFetcher] = useFetcher<ControllerRemoteData>({
-    params: {
-      controllerToken: controllerRemote?.controllerToken ?? '',
-      id: controllerRemote?.id ?? '',
-    },
-    routeId: 'remotes.controller.$id',
+  const [, roomFetcherLoad] = useRequest(loadController, {
+    controllerToken: controllerRemote?.controllerToken ?? '',
+    id: controllerRemote?.id ?? '',
   });
   const [targetRoom, setTargetRoom] = useState<RoomV2 | null>(room);
   const [targetPlaylistItemCount, setTargetPlaylistItemCount] = useState(
@@ -35,17 +31,21 @@ export function AddPlaylistItemSheet({
     if (!controllerRemote?.roomId) {
       setTargetRoom(room);
       setTargetPlaylistItemCount(playlistItems.length);
+
       return;
     }
+
     const loadRoom = async () => {
-      const result = await roomFetcher.load({
+      const result = await roomFetcherLoad({
         params: {
           controllerToken: controllerRemote.controllerToken,
           id: controllerRemote.id,
         },
       });
       const snapshot = result.data?.snapshot;
+
       if (!snapshot) return;
+
       setTargetRoom(snapshot.room);
       setTargetPlaylistItemCount(snapshot.playlistItems.length);
     };
@@ -55,7 +55,7 @@ export function AddPlaylistItemSheet({
     controllerRemote?.id,
     controllerRemote?.roomId,
     room,
-    roomFetcher.load,
+    roomFetcherLoad,
     playlistItems.length,
   ]);
 
@@ -72,16 +72,20 @@ export function AddPlaylistItemSheet({
     (targetRoom?.generationCount ?? 0) >=
     (targetRoom?.roomGenerationMaxDailyCount ?? 0);
   let generationUnavailableReason = '';
+
   if (!targetRoom) {
     generationUnavailableReason =
       'Room details are still loading. Try again in a moment.';
   }
+
   if (targetRoom && !hasGenerationPermission) {
     generationUnavailableReason = 'Log in as room admin to fill this playlist.';
   }
+
   if (targetRoom && hasGenerationPermission && isAbovePlaylistItemLimit) {
     generationUnavailableReason = `AI fill is unavailable when the room has ${playlistItemCountCutoff} items or more.`;
   }
+
   if (
     targetRoom &&
     hasGenerationPermission &&
@@ -90,6 +94,7 @@ export function AddPlaylistItemSheet({
   ) {
     generationUnavailableReason = 'A playlist is already being generated.';
   }
+
   if (
     targetRoom &&
     hasGenerationPermission &&
@@ -99,6 +104,7 @@ export function AddPlaylistItemSheet({
   ) {
     generationUnavailableReason = `This room has used its ${targetRoom.roomGenerationMaxDailyCount} playlist generations for the day.`;
   }
+
   const canGenerate = Boolean(targetRoom) && !generationUnavailableReason;
   const refreshSession = async () => {
     if (!controllerRemote) await refresh();

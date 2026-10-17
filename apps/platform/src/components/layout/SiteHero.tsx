@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'preact/compat';
 
 interface SiteHeroProps {
   id: string;
@@ -10,6 +10,7 @@ interface SiteHeroProps {
   aside?: ReactNode;
   footer?: ReactNode;
   layout?: 'split' | 'centered';
+  className?: string;
 }
 
 export function SiteHero({
@@ -21,13 +22,17 @@ export function SiteHero({
   aside,
   footer,
   layout = 'split',
+  className,
 }: SiteHeroProps) {
   const centered = layout === 'centered';
 
   return (
     <section
       aria-labelledby={id}
-      className="site-hero crt-frame overflow-hidden rounded-frame"
+      className={classNames(
+        'site-hero crt-frame overflow-hidden rounded-frame',
+        className,
+      )}
     >
       <div
         className={classNames(

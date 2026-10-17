@@ -13,18 +13,23 @@ function operationName(req: ServerRequest) {
   if (req.path === '/') {
     return 'Home';
   }
+
   if (req.path === '/rooms/create') {
     return 'CreateRoomPage';
   }
+
   if (req.path.startsWith('/rooms/')) {
     return 'RoomPage';
   }
+
   if (req.path.startsWith('/callback')) {
     return 'OAuthCallbackPage';
   }
+
   if (req.path === '/favicon.ico' || req.path.includes('.')) {
     return 'StaticAsset';
   }
+
   return 'FrontendRoute';
 }
 

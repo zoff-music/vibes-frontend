@@ -4,7 +4,7 @@ import {
   getQueueRemainderLabel,
 } from '@vibes/ui/shared';
 import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'preact/compat';
 
 interface Props {
   playlistItems: PlaylistItem[];
@@ -16,6 +16,7 @@ export function CastQueue({ playlistItems }: Props) {
 
   useEffect(() => {
     const viewport = viewportRef.current;
+
     if (!viewport) return;
 
     const updateVisibleCount = () => {
@@ -49,22 +50,22 @@ export function CastQueue({ playlistItems }: Props) {
   return (
     <div
       ref={viewportRef}
-      className="cast-queue-viewport flex min-h-0 flex-1 flex-col overflow-hidden"
+      className="flex min-h-0 flex-1 flex-col overflow-hidden [--cast-queue-track-gap:12px] [--cast-queue-track-height:96px] cast-compact:[--cast-queue-track-gap:8px] cast-compact:[--cast-queue-track-height:72px] max-sm:[--cast-queue-track-gap:6px] max-sm:[--cast-queue-track-height:64px]"
     >
       {playlistItems.length === 0 && (
-        <div className="cast-queue-empty flex h-full items-center justify-center rounded-2xl border border-theme text-center text-theme-muted">
+        <div className="flex h-full items-center justify-center rounded-2xl border border-cast-border bg-surface/88 text-center text-text-muted dark:border-cast-border-dark dark:bg-cast-surface-dark/88 dark:text-dark-text-muted">
           The queue is empty
         </div>
       )}
       {visiblePlaylistItems.length > 0 && (
         <>
-          <div className="cast-queue-list shrink-0">
+          <div className="flex shrink-0 flex-col gap-(--cast-queue-track-gap)">
             {visiblePlaylistItems.map((playlistItem, index) => (
               <div
                 key={playlistItem.id}
-                className="cast-queue-card flex items-center gap-4 rounded-2xl border px-4"
+                className="flex h-(--cast-queue-track-height) items-center cast-compact:gap-3 gap-4 rounded-2xl border border-cast-border bg-surface cast-compact:px-3 px-4 max-sm:gap-2 max-sm:px-2 dark:border-cast-border-dark dark:bg-cast-surface-dark"
               >
-                <span className="w-7 shrink-0 text-center text-theme-subtle text-xs">
+                <span className="w-7 shrink-0 text-center text-text-subtle text-xs dark:text-dark-text-subtle">
                   {index + 1}
                 </span>
                 <img
@@ -72,13 +73,13 @@ export function CastQueue({ playlistItems }: Props) {
                   alt=""
                   decoding="async"
                   loading="lazy"
-                  className="cast-queue-thumbnail h-16 w-16 shrink-0 rounded-xl border object-cover"
+                  className="cast-compact:h-12 h-16 cast-compact:w-12 w-16 shrink-0 rounded-xl border border-cast-border bg-surface object-cover max-sm:h-10 max-sm:w-10 dark:border-cast-border-dark dark:bg-cast-surface-dark"
                 />
-                <div className="cast-queue-track-details min-w-0 flex-1">
-                  <p className="truncate text-theme text-xs">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-text text-xs dark:text-dark-text">
                     {playlistItem.title}
                   </p>
-                  <p className="mt-1 truncate text-theme-muted text-xs">
+                  <p className="mt-1 truncate text-text-muted text-xs dark:text-dark-text-muted">
                     {playlistItem.publisher || 'Unknown Artist'} ·{' '}
                     {formatPlaybackSeconds(playlistItem.duration)}
                   </p>
@@ -91,7 +92,7 @@ export function CastQueue({ playlistItems }: Props) {
                     </span>
                   </div>
                   <ProviderIcon
-                    className="h-5 w-5 text-theme-muted"
+                    className="h-5 w-5 text-text-muted dark:text-dark-text-muted"
                     provider={playlistItem.sourceType}
                   />
                 </div>
@@ -99,7 +100,7 @@ export function CastQueue({ playlistItems }: Props) {
             ))}
           </div>
           {queueRemainderLabel && (
-            <div className="flex min-h-7 flex-1 items-center justify-center text-theme-muted text-xs">
+            <div className="flex min-h-7 flex-1 items-center justify-center text-text-muted text-xs dark:text-dark-text-muted">
               {queueRemainderLabel}
             </div>
           )}

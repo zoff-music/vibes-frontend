@@ -1,3 +1,8 @@
+import {
+  useFetcher,
+  useURLLocation as useLocation,
+  useNavigate,
+} from '@kasperrt/smolter/preact';
 import { useRemoteEvents } from '@vibes/api';
 import type {
   RemoteEventV2,
@@ -12,6 +17,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { Button, RemoteIcon, Tooltip } from '@vibes/ui/web';
+import { AnimatePresence } from 'framer-motion';
 import {
   createContext,
   lazy,
@@ -22,11 +28,15 @@ import {
   useEffect,
   useMemo,
   useState,
-} from 'react';
-import { useFetcher, useLocation, useNavigate } from 'react-router';
-import type { RemoteControlActionData } from '../../routes/remote-control/action';
+} from 'preact/compat';
+import type { RemoteControlActionData } from '../../routes/resources.remotes/clientAction';
 import { createEmptyRemoteStatus } from '../../utils/remoteStatus';
 import { canUseViewTransition } from '../../utils/viewTransition';
+
+interface RemoteRoomUpdate {
+  origin: string;
+  roomId: string;
+}
 
 const loadRemoteControlDialog = () => import('./RemoteControlDialog');
 
@@ -36,6 +46,7 @@ function preloadRemoteControlDialog() {
 
 const LazyRemoteControlDialog = lazy(async () => {
   const module = await loadRemoteControlDialog();
+
   return {
     default: module.RemoteControlDialog,
   };
@@ -88,7 +99,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
           roomId: machineRoomId,
           partyMode: String(partyMode),
         },
-        { method: 'post', action: '/remote-control' },
+        { method: 'post', action: '/resources/remotes' },
       );
     };
 
@@ -119,10 +130,13 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
 
   useEffect(() => {
     if (controlFetcher.state !== 'idle' || !controlFetcher.data) return;
+
     if (controlFetcher.data.error) {
       showToast(controlFetcher.data.error, 'error');
+
       return;
     }
+
     if (
       controlFetcher.data.intent === 'enable' &&
       controlFetcher.data.pairing
@@ -141,8 +155,10 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
         playbackObservedAt: nextPairing.playbackObservedAt,
         playbackPositionMs: nextPairing.playbackPositionMs,
       });
+
       return;
     }
+
     if (controlFetcher.data.intent === 'delete') {
       setPairing(null);
       setRemote(createEmptyRemoteStatus());
@@ -151,8 +167,9 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   }, [controlFetcher.data, controlFetcher.state]);
 
   const handleRemoteRoomUpdate = useCallback(
-    (event: { origin: string; roomId: string }) => {
+    (event: RemoteRoomUpdate) => {
       if (event.origin !== 'controller' || !event.roomId) return;
+
       navigate(`/${encodeURIComponent(event.roomId)}`, {
         viewTransition: canUseViewTransition(),
       });
@@ -173,14 +190,17 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
         partyMode: event.partyMode,
         playbackPositionMs: event.playbackPositionMs,
       }));
+
       if (event.paired) {
         setPairing((current) => {
           if (current) {
             showToast('Remote paired successfully', 'success');
           }
+
           return null;
         });
       }
+
       if (
         event.origin !== 'controller' ||
         event.roomId !== machineRoomId ||
@@ -188,6 +208,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
       ) {
         return;
       }
+
       if (
         !event.currentPlaylistItemId ||
         event.currentPlaylistItemId === currentPlaylistItemId
@@ -215,6 +236,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
         return;
 
       const search = new URLSearchParams(location.search);
+
       if (event.partyMode) search.set('view', 'party');
       else search.delete('view');
 
@@ -249,35 +271,39 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     <RemoteControlContext.Provider value={value}>
       {children}
 
-      {isOpen && (
-        <Suspense
-          fallback={
-            <p role="status" className="sr-only">
-              Loading remote controls...
-            </p>
-          }
-        >
-          <LazyRemoteControlDialog
-            controlFetcher={controlFetcher}
-            remote={remote}
-            pairing={pairing}
-            machineRoomId={machineRoomId}
-            isOpen={isOpen}
-            closeRemoteControl={closeRemoteControl}
-          />
-        </Suspense>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <Suspense
+            fallback={
+              <p role="status" className="sr-only">
+                Loading remote controls...
+              </p>
+            }
+          >
+            <LazyRemoteControlDialog
+              controlFetcher={controlFetcher}
+              remote={remote}
+              pairing={pairing}
+              machineRoomId={machineRoomId}
+              isOpen={isOpen}
+              closeRemoteControl={closeRemoteControl}
+            />
+          </Suspense>
+        )}
+      </AnimatePresence>
     </RemoteControlContext.Provider>
   );
 }
 
 export function useRemoteControl() {
   const context = useContext(RemoteControlContext);
+
   if (!context) {
     throw new Error(
       'useRemoteControl must be used within RemoteControlProvider',
     );
   }
+
   return context;
 }
 

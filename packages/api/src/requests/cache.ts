@@ -27,6 +27,7 @@ export function createPublicRequestCache<T>(lifetime: number) {
     }
 
     const cached = values.get(key);
+
     if (cached && cached.expires > Date.now()) {
       if (consume) values.delete(key);
 
@@ -35,6 +36,7 @@ export function createPublicRequestCache<T>(lifetime: number) {
 
     values.delete(key);
     let request = pending.get(key);
+
     if (!request || request.controller.signal.aborted) {
       const controller = new AbortController();
       const result = load(controller.signal);
@@ -53,8 +55,10 @@ export function createPublicRequestCache<T>(lifetime: number) {
         settled = true;
         signal?.removeEventListener('abort', abort);
         active.consumers -= 1;
+
         if (active.consumers === 0) {
           active.controller.abort();
+
           if (pending.get(key) === active) pending.delete(key);
         }
 
@@ -78,6 +82,7 @@ export function createPublicRequestCache<T>(lifetime: number) {
         }
 
         if (consume) values.delete(key);
+
         finish(result);
       });
     });

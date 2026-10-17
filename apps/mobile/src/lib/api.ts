@@ -46,6 +46,7 @@ export async function getRequestErrorMessage(
 
   const response = getHttpError(error)?.response;
   const apiMessage = await getApiRequestErrorMessage(error, fallback);
+
   if (apiMessage !== fallback && !isTechnicalRequestMessage(apiMessage)) {
     return apiMessage;
   }
@@ -54,20 +55,26 @@ export async function getRequestErrorMessage(
     if (isTimeoutError(error)) {
       return 'Zoff took too long to respond. Check your connection and try again.';
     }
+
     return 'Could not reach Zoff. Check your connection and try again.';
   }
+
   if (response.status === unauthorizedStatus) {
     return 'Your credentials were rejected. Check the password and try again.';
   }
+
   if (response.status === forbiddenStatus) {
     return 'You do not have permission to do that in this room.';
   }
+
   if (response.status === conflictStatus) {
     return 'That change conflicts with the latest room state. Refresh and try again.';
   }
+
   if (response.status >= serverErrorStatus) {
     return 'Zoff is having trouble completing that request. Try again in a moment.';
   }
+
   return fallback;
 }
 

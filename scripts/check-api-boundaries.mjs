@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 
-const reactRouterSourceDirectories = [
+const webRouteSourceDirectories = [
   'apps/admin/src',
   'apps/cast',
   'apps/embed/src',
@@ -9,6 +9,12 @@ const reactRouterSourceDirectories = [
   'apps/remote/src',
   'apps/tv/src/tizen',
 ];
+// Shared request implementations are invoked only by route data handlers.
+const routeRequestUtilities = new Set([
+  'apps/platform/src/routes/_index/utils/submitHomeAction.ts',
+  'apps/platform/src/utils/room-actions/submitRoomAction.ts',
+  'apps/platform/src/utils/room-actions/submitPlaylistAction.ts',
+]);
 const nativeSourceDirectories = ['apps/mobile/src', 'apps/tv/src'];
 const literalRequestCallPattern =
   /\.[ \t]*(?:delete|get|patch|post|put|roomExists)[ \t]*\([ \t\r\n]*['"]\//;
@@ -22,6 +28,8 @@ const routeDataModulePattern =
 function listSourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
+    if (['node_modules', 'dist', 'build', '.expo'].includes(entry.name))
+      return [];
     if (entry.isDirectory()) return listSourceFiles(path);
     return ['.ts', '.tsx'].includes(extname(entry.name)) ? [path] : [];
   });
@@ -64,43 +72,12 @@ function hasClientRequestCall(source) {
 
 const violations = [];
 
-for (const file of listSourceFiles('apps/mobile/src/app')) {
-  const repositoryPath = relative('.', file);
-  const source = readFileSync(file, 'utf8');
-  if (/\b(?:class|const|function|let|var)\b|<[A-Z][A-Za-z0-9.]*/.test(source)) {
+for (const directory of ['apps/mobile/src/routes', 'apps/tv/src/routes']) {
+  if (existsSync(directory) && listSourceFiles(directory).length > 0) {
     violations.push(
-      `${repositoryPath}: Expo Router files must be re-export-only adapters`,
+      `${directory}: native apps must not have a second route tree`,
     );
   }
-  const routeTargets = [...source.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)];
-  if (routeTargets.length === 0) {
-    violations.push(
-      `${repositoryPath}: Expo Router adapter must re-export a route module`,
-    );
-  }
-  for (const match of routeTargets) {
-    const target = match[1];
-    if (!target.startsWith('@/routes/') || !target.endsWith('/route')) {
-      violations.push(
-        `${repositoryPath}: Expo Router adapters may only re-export src/routes/*/route.tsx`,
-      );
-      continue;
-    }
-    const targetFile = join(
-      'apps/mobile/src',
-      `${target.replace(/^@\//, '')}.tsx`,
-    );
-    if (!existsSync(targetFile)) {
-      violations.push(`${repositoryPath}: missing route module ${targetFile}`);
-    }
-  }
-}
-
-for (const file of listSourceFiles('apps/mobile/src/routes')) {
-  if (!/(?:^|\/)(?:component|components)\.tsx$/.test(file)) continue;
-  violations.push(
-    `${relative('.', file)}: route pages must be named route.tsx; route-specific components belong in a components directory`,
-  );
 }
 
 const allowedApiHooks = new Set([
@@ -177,21 +154,32 @@ for (const file of listSourceFiles('packages/api/src')) {
   }
 }
 
-for (const sourceDirectory of reactRouterSourceDirectories) {
+for (const sourceDirectory of webRouteSourceDirectories) {
   for (const file of listSourceFiles(sourceDirectory)) {
     const repositoryPath = relative('.', file);
     const source = readFileSync(file, 'utf8');
+    if (
+      /\/(?:route|root)\.tsx?$/.test(repositoryPath) &&
+      /export\s+(?:async\s+)?(?:function|const|let)\s+(?:ErrorBoundary|HydrateFallback|shouldRevalidate|meta|links|loader|clientLoader|action|clientAction)\b/.test(
+        source,
+      )
+    ) {
+      violations.push(
+        `${repositoryPath}: route hooks and boundaries must live in separate files and be re-exported`,
+      );
+    }
     if (
       requestCapabilityPattern.test(source) ||
       requestFactoryPattern.test(source)
     ) {
       if (routeDataModulePattern.test(repositoryPath)) continue;
       violations.push(
-        `${repositoryPath}: request hooks and endpoint helpers are not allowed in React Router apps`,
+        `${repositoryPath}: request hooks and endpoint helpers are not allowed outside Smolter route data modules`,
       );
     }
     if (!hasClientRequestCall(source)) continue;
     if (routeDataModulePattern.test(repositoryPath)) continue;
+    if (routeRequestUtilities.has(repositoryPath)) continue;
     violations.push(
       `${repositoryPath}: REST calls must run in a loader, clientLoader, action, or clientAction`,
     );
@@ -203,50 +191,30 @@ for (const sourceDirectory of nativeSourceDirectories) {
     const repositoryPath = relative('.', file);
     if (repositoryPath.includes('/tizen/')) continue;
     const source = readFileSync(file, 'utf8');
-    const isRouteDataModule = routeDataModulePattern.test(repositoryPath);
+    const isRequestModule = repositoryPath.includes('/src/requests/');
     const isApiConstructionModule = /\/lib\/api\.ts$/.test(repositoryPath);
-    if (hasClientRequestCall(source) && !isRouteDataModule) {
+    if (routeDataModulePattern.test(repositoryPath)) {
       violations.push(
-        `${repositoryPath}: native REST calls must run in a loader or action`,
+        `${repositoryPath}: native requests are not route loaders/actions`,
       );
     }
-    if (requestFactoryPattern.test(source) && !isRouteDataModule) {
+    if (hasClientRequestCall(source) && !isRequestModule) {
       violations.push(
-        `${repositoryPath}: native request capabilities must be constructed in a loader or action`,
+        `${repositoryPath}: native REST calls must run in typed request functions`,
+      );
+    }
+    if (requestFactoryPattern.test(source) && !isRequestModule) {
+      violations.push(
+        `${repositoryPath}: native request capabilities must be constructed in request modules`,
       );
     }
     if (
       /createApiClient[A-Za-z]*\s*\(/.test(source) &&
       !isApiConstructionModule &&
-      !isRouteDataModule
+      !isRequestModule
     ) {
       violations.push(
-        `${repositoryPath}: native API clients must be constructed in the app API module or route data modules`,
-      );
-    }
-  }
-}
-
-for (const packageDirectory of [
-  'apps/admin',
-  'apps/cast',
-  'apps/embed',
-  'apps/platform',
-  'apps/remote',
-  'packages/api',
-  'packages/models',
-  'packages/serve',
-  'packages/shared',
-  'packages/tailwind',
-  'packages/ui',
-]) {
-  const manifest = JSON.parse(
-    readFileSync(join(packageDirectory, 'package.json'), 'utf8'),
-  );
-  for (const group of ['dependencies', 'devDependencies', 'peerDependencies']) {
-    if (manifest[group]?.['@vibes/native-router']) {
-      violations.push(
-        `${packageDirectory}/package.json: @vibes/native-router is restricted to mobile and TV apps`,
+        `${repositoryPath}: native API clients must be constructed in the app API module or request modules`,
       );
     }
   }

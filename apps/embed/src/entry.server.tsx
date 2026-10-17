@@ -1,29 +1,22 @@
-import { handleServerError } from '@vibes/serve';
-import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
-import { renderToReadableStream } from 'react-dom/server';
-import type { EntryContext, HandleErrorFunction } from 'react-router';
-import { ServerRouter } from 'react-router';
-import { robotsDirectives } from './robots';
+import fileRoutes from 'virtual:smolter/routes';
+import type { RootModule } from '@kasperrt/smolter/preact';
+import { configureApplication } from '@kasperrt/smolter/preact/client';
+import {
+  dispatchRoute,
+  renderApplication,
+} from '@kasperrt/smolter/preact/server';
+import { applicationEnvironment } from '@vibes/shared/navigation';
+import * as root from './root';
 
-export const handleError: HandleErrorFunction = handleServerError;
+configureApplication(applicationEnvironment);
 
-export const documentPreloads = [
-  `<${regularFontUrl}>; rel=preload; as=font; type="font/woff2"; crossorigin`,
-];
+export const clientAssetBase = import.meta.env.BASE_URL;
 
-export default async function handleRequest(
-  request: Request,
-  statusCode: number,
-  headers: Headers,
-  context: EntryContext,
-) {
-  const stream = await renderToReadableStream(
-    <ServerRouter context={context} url={request.url} />,
-    { signal: request.signal },
-  );
+export const routes = fileRoutes;
 
-  headers.set('Content-Type', 'text/html');
-  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  headers.set('X-Robots-Tag', robotsDirectives);
-  return new Response(stream, { status: statusCode, headers });
+export const handleDataRequest = (request: Request) =>
+  dispatchRoute(request, routes);
+
+export default function handleRequest(request: Request, entry: string) {
+  return renderApplication(request, routes, root as RootModule, entry);
 }

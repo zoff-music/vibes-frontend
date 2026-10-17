@@ -10,7 +10,9 @@ const dynamicImport = new Function('specifier', 'return import(specifier)') as (
 
 function operationName(req: ServerRequest) {
   if (req.path.startsWith('/remotes/assets')) return 'StaticAsset';
+
   if (req.path.startsWith('/remotes')) return 'RemotePage';
+
   return 'RemoteRoute';
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'preact/compat';
 import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 import type { RoomSetupId, RoomSetupSettings } from './roomSetups';
 
@@ -59,12 +59,14 @@ export function useRoomSetupScene({
     caption = settings.skipAllowed
       ? 'Try skipping as a listener.'
       : 'Skipping is locked to admins.';
+
     if (changedPlaylistItem)
       caption = 'Streetlight swing is playing for everyone.';
   }
 
   if (setupId === 'repeating') {
     caption = 'Finish the song to try it.';
+
     if (advanced) {
       caption = settings.removeOnPlay
         ? 'Finished and removed.'

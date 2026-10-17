@@ -10,8 +10,11 @@ export function canOfferRoomReminder({
   referrer,
 }: ReminderNavigation) {
   if (navigationType === 'back_forward') return false;
+
   if (!referrer) return true;
+
   const previousPage = new URL(referrer);
+
   return previousPage.origin !== origin || previousPage.pathname === '/';
 }
 
@@ -21,6 +24,7 @@ export function isInternalDeparture(
 ) {
   const current = new URL(currentUrl);
   const destination = new URL(destinationUrl, current);
+
   return (
     destination.origin === current.origin &&
     destination.pathname !== current.pathname

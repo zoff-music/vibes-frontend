@@ -68,6 +68,7 @@ export const createCastingTokenRequestSchema = /* @__PURE__ */ z.compile(
     roomId: z.string(),
   }),
 );
+
 export type CreateCastingTokenRequest = z.infer<
   typeof createCastingTokenRequestSchema
 >;
@@ -79,6 +80,7 @@ export const castingTokenResponseSchema = /* @__PURE__ */ z.compile(
     roomId: z.string(),
   }),
 );
+
 export type CastingTokenResponse = z.infer<typeof castingTokenResponseSchema>;
 
 export const sseQuerySchema = /* @__PURE__ */ z.compile(

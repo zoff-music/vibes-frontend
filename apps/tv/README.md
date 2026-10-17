@@ -10,6 +10,16 @@ TV platforms run different application technologies:
 - Samsung TV requires a browser-based application package, so that target uses
   Tailwind, spatial remote navigation, and official provider iframes.
 
+## Route data
+
+Android TV uses Expo's registered root component and its existing room/session
+state, including directional focus and hardware Back. App hooks call typed
+request handlers directly; there is no second router or module registry.
+Native request functions live in `src/requests`, separate from `src/screens`;
+Android TV has no `src/routes` tree or loader/action modules.
+The Samsung Tizen DOM renderer keeps `@kasperrt/smolter/preact` with flat routes
+under `src/tizen/routes`.
+
 ## Visual preview
 
 ### Android TV

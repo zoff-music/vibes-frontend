@@ -1,15 +1,17 @@
 import { classNames } from '@vibes/shared';
-import React from 'react';
+import React from 'preact/compat';
 
-interface Props
-  extends Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    'className' | 'style'
-  > {
+interface InputOptions {
   label?: string;
   error?: string;
   containerClassName?: string;
 }
+
+type InputProps<T> = T extends unknown
+  ? Omit<T, 'className' | 'style'> & InputOptions
+  : never;
+
+type Props = InputProps<React.ComponentProps<'input'>>;
 
 export const Input: React.FC<Props> = ({
   label,
@@ -52,4 +54,3 @@ export const Input: React.FC<Props> = ({
     </div>
   );
 };
-export const GlassInput = Input;

@@ -9,6 +9,13 @@ import {
 import { CUSTOM_RECEIVER_URL, LOCAL_EMULATOR_DEVICE_ID } from './constants';
 import type { LocalCastMessage } from './types';
 
+interface LocalEmulatorDependencies {
+  notifyDeviceAvailable: (device: CastDevice) => void;
+  getDevices: () => CastDevice[];
+  setDevices: (devices: CastDevice[]) => void;
+  getColorScheme: () => ResolvedColorScheme;
+}
+
 /**
  * Handles local cast receiver window for development/testing.
  * Opens a popup window that displays the cast receiver UI locally.
@@ -26,12 +33,7 @@ export class LocalEmulator {
   private setDevices: (devices: CastDevice[]) => void;
   private getColorScheme: () => ResolvedColorScheme;
 
-  constructor(deps: {
-    notifyDeviceAvailable: (device: CastDevice) => void;
-    getDevices: () => CastDevice[];
-    setDevices: (devices: CastDevice[]) => void;
-    getColorScheme: () => ResolvedColorScheme;
-  }) {
+  constructor(deps: LocalEmulatorDependencies) {
     this.notifyDeviceAvailable = deps.notifyDeviceAvailable;
     this.getDevices = deps.getDevices;
     this.setDevices = deps.setDevices;
@@ -47,7 +49,9 @@ export class LocalEmulator {
 
   handleLocalReceiverMessage(event: MessageEvent): void {
     const data = event.data as LocalCastMessage | null;
+
     if (!data || typeof data !== 'object' || !('action' in data)) return;
+
     if (data.action !== 'receiverReady') return;
 
     if (event.origin !== window.location.origin) {
@@ -64,14 +68,17 @@ export class LocalEmulator {
           originUrl.hostname === '127.0.0.1') &&
         (receiverUrl.hostname === 'localhost' ||
           receiverUrl.hostname === '127.0.0.1');
+
       if (!isLocalOrigin) return;
     }
 
     this.localReceiverReady = true;
+
     if (this.localReadyTimeout) {
       clearTimeout(this.localReadyTimeout);
       this.localReadyTimeout = null;
     }
+
     this.flushLocalMessageQueue();
   }
 
@@ -80,6 +87,7 @@ export class LocalEmulator {
     const exists = devices.some(
       (device) => device.id === LOCAL_EMULATOR_DEVICE_ID,
     );
+
     if (exists) return;
 
     const device: CastDevice = {
@@ -102,10 +110,12 @@ export class LocalEmulator {
       new URLSearchParams(window.location.search).get('roomId') || '';
     const roomIdFromPath = (() => {
       const match = window.location.pathname.match(/\/rooms\/([^/]+)/);
+
       return match?.[1] || '';
     })();
     const roomIdFromHash = (() => {
       const match = window.location.hash.match(/\/rooms\/([^/]+)/);
+
       return match?.[1] || '';
     })();
 
@@ -116,9 +126,11 @@ export class LocalEmulator {
 
   getCasterIdFromContext(): string {
     const roomState = useRoomStore.getState();
+
     if (roomState.userId) return roomState.userId;
 
     const params = new URLSearchParams(window.location.search);
+
     return params.get('casterId') || params.get('sessionId') || '';
   }
 
@@ -131,11 +143,13 @@ export class LocalEmulator {
         const [parseErr, parsedUrl] = safeWrap(
           () => new URL(CUSTOM_RECEIVER_URL),
         );
+
         if (parseErr || !parsedUrl) {
           console.error(
             'Invalid custom receiver URL; falling back to path:',
             CUSTOM_RECEIVER_URL,
           );
+
           return '/casting/receiver/';
         }
 
@@ -168,11 +182,13 @@ export class LocalEmulator {
     params.set('theme', this.getColorScheme());
 
     const roomId = this.getRoomIdFromContext();
+
     if (roomId) {
       params.set('roomId', roomId);
     }
 
     const casterId = this.getCasterIdFromContext();
+
     if (casterId) {
       params.set('casterId', casterId);
       params.set('sessionId', casterId);
@@ -184,6 +200,7 @@ export class LocalEmulator {
     }
 
     const separator = baseUrl.includes('?') ? '&' : '?';
+
     return `${baseUrl}${separator}${params.toString()}`;
   }
 
@@ -193,6 +210,7 @@ export class LocalEmulator {
     }
 
     this.localReceiverReady = false;
+
     if (this.localReadyTimeout) {
       clearTimeout(this.localReadyTimeout);
       this.localReadyTimeout = null;
@@ -200,8 +218,10 @@ export class LocalEmulator {
 
     const receiverUrl = this.getLocalReceiverUrl();
     const [urlErr, parsedUrl] = safeWrap(() => new URL(receiverUrl));
+
     if (urlErr || !parsedUrl) {
       console.error('Invalid local receiver URL:', receiverUrl);
+
       return null;
     }
 
@@ -217,14 +237,17 @@ export class LocalEmulator {
       'fixed right-4 bottom-4 z-50 aspect-video w-3/5 max-w-4xl border-2 border-primary bg-black shadow-2xl';
     receiverFrame.src = receiverUrl;
     receiverFrame.title = 'Local Cast Receiver';
+
     if (!existingFrame) {
       document.body.appendChild(receiverFrame);
     }
 
     const receiverWindow = receiverFrame.contentWindow;
+
     if (!receiverWindow) {
       receiverFrame.remove();
       console.error('Local cast receiver frame failed to initialize');
+
       return null;
     }
 
@@ -235,20 +258,24 @@ export class LocalEmulator {
         this.localReceiverReady = true;
         this.flushLocalMessageQueue();
       }
+
       this.localReadyTimeout = null;
     }, 1500);
     this.flushLocalMessageQueue();
+
     return receiverWindow;
   }
 
   sendLocalMessage(message: LocalCastMessage): void {
     if (!this.localReceiverWindow || this.localReceiverWindow.closed) {
       console.warn('[Local Cast] receiver window not available');
+
       return;
     }
 
     if (!this.localReceiverReady) {
       this.localMessageQueue.push(message);
+
       return;
     }
 
@@ -258,11 +285,13 @@ export class LocalEmulator {
 
   flushLocalMessageQueue(): void {
     if (!this.localReceiverReady) return;
+
     if (!this.localReceiverWindow || this.localReceiverWindow.closed) return;
 
     const targetOrigin = this.localReceiverOrigin || '*';
     while (this.localMessageQueue.length > 0) {
       const message = this.localMessageQueue.shift();
+
       if (message) {
         this.localReceiverWindow.postMessage(message, targetOrigin);
       }
@@ -271,6 +300,7 @@ export class LocalEmulator {
 
   prepareLocalReceiverWindow(): boolean {
     const receiverWindow = this.openLocalReceiver();
+
     return receiverWindow !== null;
   }
 
@@ -295,11 +325,14 @@ export class LocalEmulator {
     ) {
       this.localReceiverWindow.close();
     }
+
     this.localReceiverWindow = null;
     this.localReceiverOrigin = null;
+
     if (this.localReceiverFrame) {
       this.localReceiverFrame.remove();
     }
+
     this.localReceiverFrame = null;
     this.localReceiverReady = false;
     this.localMessageQueue = [];
@@ -311,6 +344,7 @@ export class LocalEmulator {
 
   destroy(): void {
     this.disconnectLocal();
+
     if (typeof window !== 'undefined') {
       window.removeEventListener('message', this.handleLocalReceiverMessage);
     }

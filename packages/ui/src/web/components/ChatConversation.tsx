@@ -1,6 +1,6 @@
 import type { RoomMessage } from '@vibes/models';
 import { chatMessageMaxLength } from '@vibes/models/limits';
-import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { type FormEvent, useEffect, useRef, useState } from 'preact/compat';
 import { ArrowRightIcon } from '../icons';
 import { Button } from './Button';
 import { ChatMessageLine } from './ChatMessageLine';
@@ -33,13 +33,17 @@ export function ChatConversation({
       !conversationRef.current
     )
       return;
+
     conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
   }, [latestMessageId, active]);
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     if (sending || !draft.trim()) return;
+
     const sent = await onSend(draft.trim());
+
     if (sent) setDraft('');
   };
 
@@ -83,7 +87,7 @@ export function ChatConversation({
           <span className="sr-only">Room message</span>
           <input
             value={draft}
-            onChange={(event) => setDraft(event.target.value)}
+            onChange={(event) => setDraft(event.currentTarget.value)}
             placeholder="Send a message…"
             maxLength={chatMessageMaxLength}
             className="h-12 w-full rounded-xl border border-theme bg-theme-surface px-4 text-base text-theme placeholder:text-theme-muted focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"

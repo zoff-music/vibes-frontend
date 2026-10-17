@@ -1,12 +1,12 @@
 import type { PlaybackStateV2, RoomV2 } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
 import {
   getEstimatedServerTimeMs,
   synchronizeServerClock,
 } from '@vibes/shared';
-import type { MutableRefObject } from 'react';
-import { useCallback, useRef, useState } from 'react';
+import { useRequest } from '@vibes/shared/use-request';
+import { type MutableRefObject, useCallback, useRef, useState } from 'react';
 import { getObservedPosition } from '@/hooks/use-machine-remote';
+import { loadPlayback } from '@/requests/load-playback';
 
 interface PlaybackRuntimeOptions {
   roomId: string;
@@ -42,9 +42,7 @@ export function usePlaybackRuntime({
   PlaybackRuntimeState,
   PlaybackRuntimeActions,
 ] {
-  const [, playbackLoader] = useFetcher<PlaybackStateV2>({
-    routeId: 'rooms.$id.playback',
-  });
+  const [, playbackLoaderLoad] = useRequest(loadPlayback);
   const [playback, setPlayback] = useState<PlaybackStateV2 | null>(null);
   const [authoritativePlayback, setAuthoritativePlayback] =
     useState<PlaybackStateV2 | null>(null);
@@ -59,7 +57,9 @@ export function usePlaybackRuntime({
   const setLocalPlaying = useCallback(
     (isPlaying: boolean, positionMs?: number) => {
       const currentPlayback = playbackRef.current;
+
       if (!currentPlayback) return;
+
       localPlayingRef.current = isPlaying;
       setHasLocalPlaybackChanges(
         authoritativePlaybackRef.current?.isPlaying !== isPlaying,
@@ -82,7 +82,9 @@ export function usePlaybackRuntime({
 
   const setLocalPlaybackPosition = useCallback((positionMs: number) => {
     const currentPlayback = playbackRef.current;
+
     if (!currentPlayback) return;
+
     const nextPlayback = {
       ...currentPlayback,
       positionMs,
@@ -92,7 +94,9 @@ export function usePlaybackRuntime({
     setPlayback(nextPlayback);
     setHasLocalPlaybackChanges(true);
     const authoritative = authoritativePlaybackRef.current;
+
     if (!authoritative) return;
+
     setHasLocalPlaybackPositionDrift(
       Math.abs(positionMs - getObservedPosition(authoritative)) >
         alignedPositionToleranceMs,
@@ -105,12 +109,15 @@ export function usePlaybackRuntime({
     const playingIsAligned =
       localPlaying === null || localPlaying === authoritativePlaying;
     setHasLocalPlaybackChanges(!(isAligned && playingIsAligned));
+
     if (isAligned && playingIsAligned) localPlayingRef.current = null;
   }, []);
 
   const observeLocalPlaybackPosition = useCallback((positionMs: number) => {
     const authoritative = authoritativePlaybackRef.current;
+
     if (!authoritative) return;
+
     const positionIsAligned =
       Math.abs(positionMs - getObservedPosition(authoritative)) <=
       alignedPositionToleranceMs;
@@ -119,6 +126,7 @@ export function usePlaybackRuntime({
     const playingIsAligned =
       localPlaying === null || localPlaying === authoritative.isPlaying;
     setHasLocalPlaybackChanges(!(positionIsAligned && playingIsAligned));
+
     if (positionIsAligned && playingIsAligned) localPlayingRef.current = null;
   }, []);
 
@@ -131,6 +139,7 @@ export function usePlaybackRuntime({
       let nextPlayback = incomingPlayback;
       authoritativePlaybackRef.current = incomingPlayback;
       setAuthoritativePlayback(incomingPlayback);
+
       if (
         roomModeRef.current === 'server' &&
         localPlayingRef.current !== null
@@ -139,6 +148,7 @@ export function usePlaybackRuntime({
           ...incomingPlayback,
           isPlaying: localPlayingRef.current,
         };
+
         if (
           localPlayingRef.current === false &&
           isSamePlaylistItem &&
@@ -147,12 +157,15 @@ export function usePlaybackRuntime({
           nextPlayback.positionMs = previousPlayback.positionMs;
         }
       }
+
       if (roomModeRef.current === 'host') {
         localPlayingRef.current = null;
         setHasLocalPlaybackChanges(false);
         setHasLocalPlaybackPositionDrift(false);
       }
+
       if (!isSamePlaylistItem) setHasLocalPlaybackPositionDrift(false);
+
       playbackRef.current = nextPlayback;
       setPlayback(nextPlayback);
     },
@@ -175,11 +188,15 @@ export function usePlaybackRuntime({
 
   const resetLocalPlayback = useCallback(async () => {
     if (!roomId) return;
-    const result = await playbackLoader.load({ params: { id: roomId } });
+
+    const result = await playbackLoaderLoad({ params: { id: roomId } });
+
     if (!result.data) {
       setError(result.error || 'Could not reset playback position.');
+
       return;
     }
+
     synchronizeServerClock(result.data.serverTimeMs);
     authoritativePlaybackRef.current = result.data;
     setAuthoritativePlayback(result.data);
@@ -190,7 +207,7 @@ export function usePlaybackRuntime({
     setHasLocalPlaybackPositionDrift(false);
     setPlaybackResetVersion((version) => version + 1);
     setError('');
-  }, [playbackLoader.load, roomId, setError]);
+  }, [playbackLoaderLoad, roomId, setError]);
 
   return [
     {

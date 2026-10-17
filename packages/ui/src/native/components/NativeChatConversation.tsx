@@ -24,6 +24,7 @@ const nameColors = [
   'text-emerald-700 dark:text-emerald-300',
   'text-pink-700 dark:text-pink-300',
 ];
+
 export function NativeChatConversation({ messages, onSend, error }: Props) {
   const isDark = useColorScheme() === 'dark';
   const moderatorColor = isDark ? '#fcd34d' : '#b45309';
@@ -34,11 +35,15 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
   const newestFirst = useMemo(() => [...messages].reverse(), [messages]);
   const send = async () => {
     if (sending || !draft.trim()) return;
+
     setSending(true);
     const sent = await onSend(draft.trim());
+
     if (sent) setDraft('');
+
     setSending(false);
   };
+
   return (
     <View className="min-h-0 flex-1">
       <FlatList

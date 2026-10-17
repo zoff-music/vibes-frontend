@@ -1,5 +1,6 @@
 // Cast message types for communication between sender and receiver
 
+import type { PlaylistItem } from '@vibes/models';
 import type { ResolvedColorScheme } from '@vibes/shared';
 
 export type LocalCastMessage =
@@ -9,26 +10,10 @@ export type LocalCastMessage =
     }
   | {
       action: 'updatePlayback';
-      currentSong: {
-        id: string;
-        title: string;
-        artist: string;
-        sourceType: string;
-        sourceId: string;
-        thumbnailUrl?: string;
-        duration?: number;
-      };
+      currentSong: PlaylistItem;
       isPlaying: boolean;
       positionMs: number;
-      queue: Array<{
-        id: string;
-        title: string;
-        artist: string;
-        sourceType: string;
-        sourceId: string;
-        thumbnailUrl?: string;
-        duration?: number;
-      }>;
+      queue: PlaylistItem[];
       roomInfo: {
         name: string;
         participantCount: number;
@@ -51,15 +36,7 @@ export type LocalCastMessage =
     }
   | {
       action: 'updateQueue';
-      queue: Array<{
-        id: string;
-        title: string;
-        artist: string;
-        sourceType: string;
-        sourceId: string;
-        thumbnailUrl?: string;
-        duration?: number;
-      }>;
+      queue: PlaylistItem[];
       timestamp: number;
     }
   | {
@@ -76,14 +53,6 @@ export type LocalCastMessage =
       positionMs: number;
       updatedAt: string;
       serverTimeMs: number;
-      currentSong?: {
-        id: string;
-        title: string;
-        artist: string;
-        sourceType: string;
-        sourceId: string;
-        thumbnailUrl?: string;
-        duration?: number;
-      };
+      currentSong?: PlaylistItem | null;
       timestamp: number;
     };

@@ -6,9 +6,9 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { useEffect } from 'react';
+import { useThemeStore } from '@vibes/shared/themeStore';
+import { useEffect } from 'preact/compat';
 import { useCastStore } from '../stores/castStore';
-import { useThemeStore } from '../stores/themeStore';
 import { useCastRoomHandshake } from './useCastRoomHandshake';
 
 /**
@@ -37,6 +37,7 @@ export const useCasting = (_roomId: string) => {
     if (isTruthyFlag(import.meta.env.VITE_CAST_LOCAL_EMULATOR)) {
       return true;
     }
+
     return (
       typeof window !== 'undefined' &&
       (window.location.hostname === 'localhost' ||
@@ -46,8 +47,11 @@ export const useCasting = (_roomId: string) => {
 
   useEffect(() => {
     if (!isLocalEmulatorEnabled) return;
+
     if (isConnected) return;
+
     if (availableDevices.length === 0) return;
+
     browserDebugLog(
       '[Cast] local emulator available; waiting for user connect',
     );
@@ -62,6 +66,7 @@ export const useCasting = (_roomId: string) => {
 
   useEffect(() => {
     if (!isConnected || !currentSession || !currentPlaylistItem) return;
+
     if (!isSessionInitialized(currentSession.id)) return;
 
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
@@ -80,6 +85,7 @@ export const useCasting = (_roomId: string) => {
           serverTimeMs: usePlaybackStore.getState().serverTimeMs,
         }),
       );
+
       if (error) {
         console.error('Failed to sync playback state:', error);
       }
@@ -96,6 +102,7 @@ export const useCasting = (_roomId: string) => {
 
   useEffect(() => {
     if (currentSession?.deviceId !== 'local-cast-emulator') return;
+
     if (!room) return;
 
     void (async () => {
@@ -105,6 +112,7 @@ export const useCasting = (_roomId: string) => {
           participantCount: usersCount,
         }),
       );
+
       if (error) {
         console.error('Failed to update local room info:', error);
       }
@@ -116,6 +124,7 @@ export const useCasting = (_roomId: string) => {
 
     void (async () => {
       const [error] = await safeWrapAsync(updateQueue(queuePlaylistItems));
+
       if (error) {
         console.error('Failed to update local queue:', error);
       }
@@ -124,10 +133,12 @@ export const useCasting = (_roomId: string) => {
 
   useEffect(() => {
     if (!isConnected || !currentSession) return;
+
     if (!isSessionInitialized(currentSession.id)) return;
 
     void (async () => {
       const [error] = await safeWrapAsync(updateTheme(resolvedTheme));
+
       if (error) {
         console.error('Failed to update cast display theme:', error);
       }

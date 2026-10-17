@@ -1,16 +1,11 @@
-import { useLoaderData } from 'react-router';
-import { TermsOfServiceHydrateFallback } from './components/HydrateFallback';
+import { useLoaderData } from '@kasperrt/smolter/preact';
 import { TermsOfServiceContent } from './components/TermsOfServiceContent';
-import { type TermsOfServiceLoaderData, termsOfServiceLoader } from './loader';
-import { termsOfServiceMeta } from './meta';
+import { type TermsOfServiceLoaderData } from './loader';
 
+export { LegalDocumentFallback as HydrateFallback } from '../../components/legal/LegalDocumentFallback';
 export { shouldRevalidate } from '../../components/legal/shouldRevalidate';
 
-export const HydrateFallback = TermsOfServiceHydrateFallback;
-
-export const loader = termsOfServiceLoader;
-
-export const meta = termsOfServiceMeta;
+export { termsOfServiceMeta as meta } from './meta';
 
 export default function TermsOfService() {
   const loaderData = useLoaderData<TermsOfServiceLoaderData>();
@@ -22,3 +17,5 @@ export default function TermsOfService() {
     />
   );
 }
+
+export { loader } from './loader';

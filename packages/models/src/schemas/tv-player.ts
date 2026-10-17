@@ -9,4 +9,5 @@ export const tvPlayerQuerySchema = /* @__PURE__ */ z.compile(
     ),
   }),
 );
+
 export type TvPlayerQuery = z.infer<typeof tvPlayerQuerySchema>;

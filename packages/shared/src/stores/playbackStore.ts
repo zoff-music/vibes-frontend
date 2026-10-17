@@ -74,6 +74,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       if (roomMode) {
         set({ roomMode });
       }
+
       return;
     }
 
@@ -101,6 +102,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       } else {
         get().stopAutoUpdate();
       }
+
       return;
     }
 
@@ -131,6 +133,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
   setIsPlaying: (isPlaying) => {
     set({ isPlaying });
+
     if (isPlaying) {
       get().startAutoUpdate();
     } else {
@@ -156,8 +159,10 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
     if (state.isPlaying) {
       get().startAutoUpdate();
+
       return;
     }
+
     get().stopAutoUpdate();
   },
 
@@ -167,13 +172,16 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
         hasLocalPlaybackChanges: false,
         localIsPlaying: null,
       });
+
       return;
     }
+
     set({ hasLocalPlaybackChanges: true });
   },
 
   getAuthoritativePositionMs: () => {
     const { authoritativeClientReferenceTime, authoritativePlayback } = get();
+
     if (!authoritativePlayback.isPlaying) {
       return authoritativePlayback.positionMs;
     }
@@ -183,12 +191,14 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       Date.now() - authoritativeClientReferenceTime,
     );
     let positionMs = authoritativePlayback.positionMs + elapsedOnClient;
+
     if (authoritativePlayback.currentPlaylistItem?.duration) {
       positionMs = Math.min(
         positionMs,
         authoritativePlayback.currentPlaylistItem.duration * 1000,
       );
     }
+
     return positionMs;
   },
 
@@ -233,8 +243,10 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
     if (isPlaying) {
       get().startAutoUpdate();
+
       return;
     }
+
     get().stopAutoUpdate();
   },
 
@@ -260,7 +272,9 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
       if (actualPositionMs === positionMs) {
         return;
       }
+
       set({ actualPositionMs: positionMs });
+
       return;
     }
 
@@ -277,11 +291,13 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
     if (actualPositionMs === newPositionMs) {
       return;
     }
+
     set({ actualPositionMs: newPositionMs });
   },
 
   startAutoUpdate: () => {
     const { autoUpdateInterval, isPlaying } = get();
+
     if (autoUpdateInterval || !isPlaying) return;
 
     if (typeof document !== 'undefined' && !visibilityChangeListener) {
@@ -291,8 +307,10 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
         if (shouldThrottle && roomMode !== 'host') {
           get().stopAutoUpdate();
+
           return;
         }
+
         if (currentlyPlaying) {
           get().startAutoUpdate();
         }
@@ -304,6 +322,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
     if (typeof document !== 'undefined') {
       const { roomMode } = get();
+
       if (document.visibilityState === 'hidden' && roomMode !== 'host') {
         return;
       }
@@ -318,6 +337,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set, get) => ({
 
   stopAutoUpdate: () => {
     const { autoUpdateInterval } = get();
+
     if (autoUpdateInterval) {
       clearInterval(autoUpdateInterval);
       set({ autoUpdateInterval: null });

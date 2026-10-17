@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'preact/compat';
 import { publicAssetUrl } from '../assets';
 import headerLogo from '../assets/logo-header.webp';
 import headerLogo48 from '../assets/logo-header-48.webp?no-inline';
@@ -22,7 +22,7 @@ export function SiteHeader({
   return (
     <header
       className={classNames(
-        'site-header product-content relative z-10 mx-auto grid w-full max-w-6xl grid-cols-[auto_minmax(0,1fr)] items-center gap-2 px-5 py-5 sm:gap-4 sm:px-6 sm:py-7',
+        'site-header product-content relative z-10 mx-auto grid w-full max-w-6xl grid-cols-[auto_minmax(0,1fr)] items-center gap-2 px-5 py-5 [view-transition-name:site-header] sm:gap-4 sm:px-6 sm:py-7',
         Boolean(center) && 'lg:grid-cols-[1fr_auto_1fr]',
       )}
     >
@@ -35,7 +35,7 @@ export function SiteHeader({
       <nav
         aria-label={navigationLabel}
         className={classNames(
-          'col-start-2 row-start-1 flex min-w-0 flex-wrap items-center justify-end gap-1 justify-self-end sm:gap-2',
+          'col-start-2 row-start-1 flex min-w-0 flex-wrap items-center justify-end gap-1 justify-self-end [view-transition-name:site-navigation] sm:gap-2',
           Boolean(center) && 'lg:col-start-3',
         )}
       >
@@ -78,7 +78,7 @@ export function SiteBrand() {
 }
 
 export const siteBrandLinkClassName =
-  'group flex shrink-0 cursor-pointer items-center gap-3 rounded-xl transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';
+  'group flex shrink-0 cursor-pointer items-center gap-3 rounded-xl transition-opacity [view-transition-name:site-brand] hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';
 
 export const siteNavigationClassName =
   'inline-flex min-h-11 cursor-pointer items-center rounded-xl px-2 text-sm text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:text-cyan-800 dark:aria-[current=page]:text-secondary sm:px-4';

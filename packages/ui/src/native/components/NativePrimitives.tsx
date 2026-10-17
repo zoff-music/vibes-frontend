@@ -1,11 +1,22 @@
 import { classNames } from '@vibes/shared';
-import type { PropsWithChildren, ReactNode } from 'react';
-import { forwardRef, useState } from 'react';
-import type { ImageSourcePropType } from 'react-native';
-import { Pressable, Text, TextInput, View } from 'react-native';
+
+import {
+  forwardRef,
+  type PropsWithChildren,
+  type ReactNode,
+  useState,
+} from 'react';
+
+import {
+  type ImageSourcePropType,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import type { ZoffIconName } from '../../shared';
-import { zoffIconDefinitions } from '../../shared';
+
+import { type ZoffIconName, zoffIconDefinitions } from '../../shared';
 import { NativeIcon } from '../icons/NativeIcon';
 
 export type NativeControlSize = 'default' | 'large';
@@ -118,7 +129,9 @@ export function NativeButton({
   const [focused, setFocused] = useState(false);
   const resolvedAccessibilityLabel = accessibilityLabel ?? label;
   let resolvedIconColor = iconColor ?? '#e8dff5';
+
   if (tone === 'primary') resolvedIconColor = '#ffffff';
+
   if (tone === 'danger') resolvedIconColor = '#d91465';
 
   return (
@@ -229,6 +242,7 @@ export function NativeIconButton({
   size = 'default',
 }: NativeIconButtonProps) {
   const [focused, setFocused] = useState(false);
+
   return (
     <Pressable
       accessibilityLabel={accessibilityLabel}

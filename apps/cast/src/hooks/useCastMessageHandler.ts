@@ -1,15 +1,17 @@
-import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
-import { getEstimatedServerTimeMs, usePlaybackStore } from '@vibes/shared';
-import { type Dispatch, type SetStateAction, useCallback } from 'react';
+import type { CastRoomConnection } from '@vibes/models';
+
+import {
+  getEstimatedServerTimeMs,
+  type PlaylistItem,
+  type ResolvedColorScheme,
+  usePlaybackStore,
+} from '@vibes/shared';
+import { type Dispatch, type SetStateAction, useCallback } from 'preact/compat';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
-import { toPlaylistItem } from '../utils/item';
+import { normalizePlaylistItem } from '../utils/item';
 
 interface UseCastMessageHandlerProps {
-  joinRoom: (connection: {
-    castToken?: string;
-    casterId?: string;
-    roomId: string;
-  }) => void;
+  joinRoom: (connection: CastRoomConnection) => void;
   setRoomInfo: Dispatch<SetStateAction<RoomInfo | null>>;
   setQueue: (queue: QueueItem[]) => void;
   setStatusText: (text: string) => void;
@@ -47,9 +49,11 @@ export const useCastMessageHandler = ({
             ...(message.castToken ? { castToken: message.castToken } : {}),
             ...(casterId ? { casterId } : {}),
           });
+
           if (message.theme) {
             setColorScheme(message.theme);
           }
+
           break;
         }
 
@@ -60,7 +64,9 @@ export const useCastMessageHandler = ({
         case 'updatePlayback':
         case 'syncPlayback': {
           if (message.currentSong) {
-            const normalizedPlaylistItem = toPlaylistItem(message.currentSong);
+            const normalizedPlaylistItem = normalizePlaylistItem(
+              message.currentSong,
+            );
             const isSamePlaylistItem =
               currentPlaylistItemId === normalizedPlaylistItem.id;
 
@@ -89,8 +95,10 @@ export const useCastMessageHandler = ({
             if (action === 'updatePlayback') {
               setStatusText(`Now Playing: ${message.currentSong.title}`);
             }
+
             updateMediaMetadata(normalizedPlaylistItem);
           }
+
           if (
             action === 'updatePlayback' &&
             'roomInfo' in message &&
@@ -102,12 +110,13 @@ export const useCastMessageHandler = ({
               roomType: current?.roomType ?? roomInfo.roomType ?? 'MUSIC',
             }));
           }
+
           break;
         }
 
         case 'updateQueue':
           if (message.queue) {
-            setQueue(message.queue.map((item) => toPlaylistItem(item)));
+            setQueue(message.queue.map((item) => normalizePlaylistItem(item)));
           }
           break;
 

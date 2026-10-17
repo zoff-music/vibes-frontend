@@ -7,7 +7,7 @@ import {
   useReducedMotion,
   useTransform,
 } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'preact/compat';
 
 interface AnimatedNumberProps {
   value: number;
@@ -30,6 +30,7 @@ export function AnimatedNumber({ value }: AnimatedNumberProps) {
     if (reducedMotion) {
       count.set(value);
       setStarted(true);
+
       return;
     }
 

@@ -1,46 +1,11 @@
-import { createRoot } from 'react-dom/client';
-import { createHashRouter, RouterProvider } from 'react-router';
-import { loader as publicRoomsLoader } from '@/tizen/routes/public-rooms/loader';
-import { action } from '@/tizen/routes/session/action';
-import { loader } from '@/tizen/routes/session/loader';
+import routes from 'virtual:smolter/routes';
 import {
-  shouldRevalidate,
-  TizenSessionRoute,
-} from '@/tizen/routes/session/route';
-import { action as skipAction } from '@/tizen/routes/skip/action';
-import {
-  TizenErrorBoundary,
-  TizenHydrateFallback,
-  TizenRecoveryView,
-} from '@/tizen/tizen-error-boundary';
+  configureApplication,
+  mountApplication,
+} from '@kasperrt/smolter/preact/client';
+import { applicationEnvironment } from '@vibes/shared/navigation';
 import '@/tizen/tizen.css';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  const fallback = document.createElement('main');
-  fallback.className =
-    'flex h-full items-center justify-center bg-tv-background p-16 text-center text-tv-text';
-  fallback.textContent =
-    'The TV screen could not start. Restart Zoff to try again.';
-  document.body.replaceChildren(fallback);
-}
-if (rootElement) {
-  const router = createHashRouter([
-    { path: '/rooms/:id/skip', action: skipAction },
-    { path: '/rooms/public', loader: publicRoomsLoader },
-    {
-      action,
-      Component: TizenSessionRoute,
-      errorElement: <TizenRecoveryView />,
-      HydrateFallback: TizenHydrateFallback,
-      loader,
-      path: '/',
-      shouldRevalidate,
-    },
-  ]);
-  createRoot(rootElement).render(
-    <TizenErrorBoundary>
-      <RouterProvider router={router} />
-    </TizenErrorBoundary>,
-  );
-}
+configureApplication(applicationEnvironment);
+
+mountApplication(routes, undefined, { hash: true });

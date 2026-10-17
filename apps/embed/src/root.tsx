@@ -1,32 +1,16 @@
-import { classNames, parseColorScheme } from '@vibes/shared';
-import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
-import { MotionProvider } from '@vibes/ui/web';
-import type { ReactNode } from 'react';
+import { useURLLocation } from '@kasperrt/smolter/preact';
 import {
+  Document,
   Links,
-  type LoaderFunctionArgs,
   Meta,
   Scripts,
-  useLoaderData,
-} from 'react-router';
+} from '@kasperrt/smolter/preact/document';
+import { classNames, parseColorScheme } from '@vibes/shared';
+import { FontPreloads, MotionProvider, ThemeScript } from '@vibes/ui/web';
+import type { ReactNode } from 'preact/compat';
 import { App } from './App';
-import logoUrl from './assets/logo.png';
 import { useEmbedScrollContainment } from './hooks/use-embed-scroll-containment';
-import stylesUrl from './index.css?url';
-import { EmbedRoomErrorBoundary } from './routes/embed.$roomId/components/error-boundary';
-
-export function loader({ request }: LoaderFunctionArgs) {
-  const requestUrl = new URL(request.url);
-  return {
-    debug: process.env.VITE_DEBUG === 'true',
-    logoUrl,
-    fontUrl: regularFontUrl,
-    stylesheetUrl: stylesUrl,
-    colorScheme: parseColorScheme(requestUrl.searchParams.get('theme')),
-  };
-}
-
-export type RootLoaderData = ReturnType<typeof loader>;
+import stylesheetUrl from './index.css?url';
 
 interface Props {
   children: ReactNode;
@@ -34,27 +18,24 @@ interface Props {
 
 export function Layout({ children }: Props) {
   useEmbedScrollContainment();
-  const { stylesheetUrl, fontUrl, colorScheme, debug } =
-    useLoaderData<typeof loader>();
+  const location = useURLLocation();
+  const colorScheme = parseColorScheme(location.searchParams.get('theme'));
+  const debug = import.meta.env.VITE_DEBUG === 'true';
   const className = classNames(
-    'h-full overflow-hidden overscroll-none',
+    'page-transitions h-full overflow-hidden overscroll-none',
     colorSchemeClasses[colorScheme],
   );
   const colorSchemeContent =
     colorScheme === 'auto' ? 'light dark' : colorScheme;
+
   return (
-    <html lang="en" className={className} data-debug={debug}>
+    <Document lang="en" className={className} data-debug={debug}>
       <head>
         <meta charSet="UTF-8" />
+        <ThemeScript />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content={colorSchemeContent} />
-        <link
-          rel="preload"
-          href={fontUrl}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        <FontPreloads />
         <link
           rel="preload"
           href={stylesheetUrl}
@@ -71,7 +52,7 @@ export function Layout({ children }: Props) {
         </div>
         <Scripts />
       </body>
-    </html>
+    </Document>
   );
 }
 
@@ -79,7 +60,7 @@ export default function Root() {
   return <App />;
 }
 
-export const ErrorBoundary = EmbedRoomErrorBoundary;
+export { EmbedRoomErrorBoundary as ErrorBoundary } from './routes/$/components/error-boundary';
 
 const colorSchemeClasses = {
   auto: '',

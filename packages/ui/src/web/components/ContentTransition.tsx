@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { AnimatePresence, m as motion, useReducedMotion } from 'framer-motion';
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'preact/compat';
 
 interface ContentTransitionProps {
   children: ReactNode;

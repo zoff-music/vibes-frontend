@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'preact/compat';
 
 export interface SiteFooterLink {
   href: string;
@@ -12,7 +12,7 @@ interface SiteFooterProps {
 
 export function SiteFooter({ renderLocalLink }: SiteFooterProps) {
   return (
-    <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 sm:px-6 sm:pb-6">
+    <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 [view-transition-name:site-footer] sm:px-6 sm:pb-6">
       <nav
         aria-label="Site links"
         className="panel-surface mx-auto flex w-fit max-w-full items-center rounded-2xl border border-theme p-1 sm:px-2"

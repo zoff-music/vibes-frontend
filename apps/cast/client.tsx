@@ -1,54 +1,14 @@
-import { safeWrap } from '@vibes/shared';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router';
+import deployment from 'virtual:smolter/deployment';
+import routes from 'virtual:smolter/routes';
+import {
+  configureApplication,
+  mountApplication,
+} from '@kasperrt/smolter/preact/client';
+import { applicationEnvironment } from '@vibes/shared/navigation';
 import './src/styles/index.css';
-import { action } from './src/routes/cast/action';
-import { loader } from './src/routes/cast/loader';
-import CastRoute, {
-  ErrorBoundary,
-  shouldRevalidate,
-} from './src/routes/cast/route';
 
-// Wrap initialization in safeWrap to report errors
-const [err] = safeWrap(() => {
-  const rootElement = document.getElementById('root');
-  if (!rootElement) throw new Error('Cast receiver root is unavailable.');
+configureApplication(applicationEnvironment);
 
-  const loadingElement = document.getElementById('static-loading');
-  if (loadingElement) loadingElement.classList.add('hidden');
-
-  const basename = window.location.pathname.startsWith('/casting/receiver')
-    ? '/casting/receiver'
-    : '/';
-  const router = createBrowserRouter(
-    [
-      {
-        action,
-        Component: CastRoute,
-        ErrorBoundary,
-        loader,
-        path: '/',
-        shouldRevalidate,
-      },
-    ],
-    { basename },
-  );
-  const root = createRoot(rootElement);
-  root.render(
-    <StrictMode>
-      <div className="hidden p-4">Debug</div>
-      <RouterProvider router={router} />
-    </StrictMode>,
-  );
-});
-
-if (err) {
-  console.error('The Cast receiver failed during startup.');
-  const errDiv = document.createElement('div');
-  errDiv.className =
-    'cast-shell flex h-screen w-screen items-center justify-center px-8 text-center font-display text-3xl text-theme';
-  errDiv.textContent =
-    'The Zoff receiver could not start. Reload to try again.';
-  document.body.replaceChildren(errDiv);
-}
+const loading = document.getElementById('static-loading');
+loading?.classList.add('hidden');
+mountApplication(routes, undefined, { deployment });

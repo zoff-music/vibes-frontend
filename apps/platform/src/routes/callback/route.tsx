@@ -1,9 +1,6 @@
+import { useSearchParams } from '@kasperrt/smolter/preact';
 import { browserDebugLog } from '@vibes/shared';
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
-import { loader } from './loader';
-
-export { loader };
+import { useEffect } from 'preact/compat';
 
 export default function Callback() {
   const [searchParams] = useSearchParams();
@@ -38,3 +35,5 @@ export default function Callback() {
     </div>
   );
 }
+
+export { loader } from './loader';

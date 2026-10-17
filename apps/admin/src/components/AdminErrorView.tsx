@@ -1,5 +1,5 @@
+import { Link } from '@kasperrt/smolter/preact';
 import { Button } from '@vibes/ui/web';
-import { Link } from 'react-router';
 
 interface AdminErrorViewProps {
   message: string;

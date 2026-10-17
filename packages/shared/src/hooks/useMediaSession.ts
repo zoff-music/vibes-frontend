@@ -1,6 +1,6 @@
 import type { PlaylistItem } from '@vibes/models';
 import { useEffect, useRef } from 'react';
-import { safeWrap } from '../utils/wrap';
+import { safeWrap } from '../wrap';
 
 interface UseMediaSessionProps {
   canPlay: boolean;
@@ -44,6 +44,7 @@ export function useMediaSession({
 
     if (!currentPlaylistItem || !('MediaMetadata' in window)) {
       navigator.mediaSession.metadata = null;
+
       return;
     }
 

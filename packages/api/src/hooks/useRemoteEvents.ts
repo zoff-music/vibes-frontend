@@ -11,6 +11,7 @@ export function useRemoteEvents(options: RemoteEventSubscriptionOptions) {
   const { client, controller, remoteId } = options;
   useEffect(() => {
     if (!remoteId) return;
+
     let active = true;
     let unsubscribe: (() => void) | null = null;
 
@@ -18,6 +19,7 @@ export function useRemoteEvents(options: RemoteEventSubscriptionOptions) {
       const [loadError, transport] = await safeWrapAsync(
         import('../remoteEvents'),
       );
+
       if (!active || loadError || !transport) return;
 
       const [error, stop] = await transport.subscribeRemoteEvents({
@@ -29,14 +31,18 @@ export function useRemoteEvents(options: RemoteEventSubscriptionOptions) {
         onPresentationUpdate: (event) =>
           callbacksRef.current.onPresentationUpdate?.(event),
       });
+
       if (!active) {
         stop?.();
+
         return;
       }
+
       if (!error && stop) unsubscribe = stop;
     }
 
     void subscribe();
+
     return () => {
       active = false;
       unsubscribe?.();

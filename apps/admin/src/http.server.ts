@@ -19,6 +19,7 @@ function composeFetchLifecycle(
   return {
     beforeRequest(request) {
       const nextRequest = primary.beforeRequest?.(request) ?? request;
+
       return secondary?.beforeRequest?.(nextRequest) ?? nextRequest;
     },
     afterResponse(request, response) {
@@ -41,12 +42,14 @@ function resolveServerApiBaseUrl(request?: Request) {
     typeof process !== 'undefined'
       ? process.env?.VITE_API_URL_INTERNAL
       : undefined;
+
   if (internalApiUrl) {
     return internalApiUrl;
   }
 
   if (request) {
     const [urlErr, originUrl] = safeWrap(() => new URL(request.url));
+
     if (!urlErr && originUrl) {
       if (
         (originUrl.hostname === 'localhost' ||
@@ -55,12 +58,14 @@ function resolveServerApiBaseUrl(request?: Request) {
       ) {
         return 'http://localhost:8080';
       }
+
       return originUrl.origin;
     }
   }
 
   const runtimeApiUrl =
     typeof process !== 'undefined' ? process.env?.VITE_API_URL : undefined;
+
   if (runtimeApiUrl) {
     return runtimeApiUrl;
   }
@@ -77,6 +82,7 @@ export function getServerApi(
     createTracedApiFetchLifecycle(serviceName),
     options.fetchLifecycle,
   );
+
   return createAdminApiClientWithBaseUrl(baseUrl, {
     customHeaders: {
       // Preserve the ingress-appended client chain for internal login limiting.

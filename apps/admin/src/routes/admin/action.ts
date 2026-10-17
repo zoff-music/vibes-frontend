@@ -1,5 +1,9 @@
+import {
+  type ActionFunctionArgs,
+  data,
+  redirect,
+} from '@kasperrt/smolter/preact';
 import { getRateLimitMessage } from '@vibes/api';
-import { type ActionFunctionArgs, data, redirect } from 'react-router';
 import { getServerApi } from '../../http.server';
 
 export interface AdminActionData {
@@ -28,7 +32,9 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === 'logout') {
     const [error] = await serverApi.delete('/admin/sessions', null, {
       headers,
+      signal: request.signal,
     });
+
     if (error) {
       return getActionError(error, 'Failed to sign out.');
     }
@@ -51,8 +57,9 @@ export async function action({ request }: ActionFunctionArgs) {
     '/admin/sessions',
     null,
     { username, password },
-    { headers },
+    { headers, signal: request.signal },
   );
+
   if (error || !session?.authorized) {
     return getActionError(error, 'Invalid admin username or password.');
   }
@@ -64,6 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 function getActionError(error: Error | null, fallback: string) {
   const rateLimitMessage = error ? getRateLimitMessage(error) : null;
+
   return {
     error: rateLimitMessage ?? fallback,
     ...(rateLimitMessage && { rateLimitMessage }),
@@ -76,6 +84,7 @@ function getResponseHeaders(setCookieHeaders: string[]) {
   }
 
   const headers = new Headers();
+
   for (const setCookieHeader of setCookieHeaders) {
     headers.append('Set-Cookie', setCookieHeader);
   }

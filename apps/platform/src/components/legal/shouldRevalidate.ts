@@ -1,4 +1,4 @@
-import type { ShouldRevalidateFunctionArgs } from 'react-router';
+import type { ShouldRevalidateFunctionArgs } from '@kasperrt/smolter/preact';
 
 export function shouldRevalidate({
   currentUrl,

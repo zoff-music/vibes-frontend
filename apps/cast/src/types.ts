@@ -1,4 +1,4 @@
-import type { RoomType, Song } from '@vibes/models';
+import type { RoomType } from '@vibes/models';
 import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
 
 export interface RoomInfo {
@@ -16,17 +16,17 @@ export type LocalCastMessage =
     }
   | {
       action: 'updatePlayback';
-      currentSong?: Song;
+      currentSong?: PlaylistItem;
       isPlaying?: boolean;
       positionMs?: number;
       updatedAt?: string;
       serverTimeMs?: number;
-      queue?: Song[];
+      queue?: PlaylistItem[];
       roomInfo?: RoomInfo;
     }
   | {
       action: 'syncPlayback';
-      currentSong?: Song;
+      currentSong?: PlaylistItem;
       isPlaying?: boolean;
       positionMs?: number;
       updatedAt?: string;
@@ -34,7 +34,7 @@ export type LocalCastMessage =
     }
   | {
       action: 'updateQueue';
-      queue?: Song[];
+      queue?: PlaylistItem[];
     }
   | {
       action: 'updateRoomInfo';

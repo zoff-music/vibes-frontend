@@ -31,7 +31,8 @@ test('suppresses browser Back and same-site document navigation', () => {
     }),
     false,
   );
-  for (const path of ['/electro', '/discovery/listening', '/explore/rooms']) {
+
+  for (const path of ['/electro', '/discovery/listening', '/rooms/explore']) {
     assert.equal(
       canOfferRoomReminder({
         origin,
@@ -56,9 +57,11 @@ test('allows refreshing a reminder already shown on the homepage', () => {
 
 test('same-site page changes clear the reminder; external links and room anchors do not', () => {
   const roomUrl = `${origin}/electro`;
+
   for (const path of ['/', '/another-room', '/discovery/apps']) {
     assert.equal(isInternalDeparture(roomUrl, path), true);
   }
+
   assert.equal(isInternalDeparture(roomUrl, '#queue'), false);
   assert.equal(isInternalDeparture(roomUrl, '?view=party'), false);
   assert.equal(isInternalDeparture(roomUrl, 'https://example.com/'), false);

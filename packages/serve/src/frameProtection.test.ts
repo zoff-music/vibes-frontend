@@ -23,11 +23,13 @@ test('file framing exception is exact and does not weaken other website routes',
     server.close();
   });
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+
   for (const path of [TV_PLAYER_PATH, `${TV_PLAYER_PATH}/`]) {
     const response = await fetch(`${origin}${path}`);
     assert.equal(response.headers.get('content-security-policy'), null);
     assert.equal(response.headers.get('x-frame-options'), null);
   }
+
   for (const path of [
     '/',
     '/room-name',
@@ -44,6 +46,7 @@ test('file framing exception is exact and does not weaken other website routes',
     );
     assert.equal(response.headers.get('x-frame-options'), 'DENY');
   }
+
   const embed = await fetch(`${origin}/embed/room`);
   assert.equal(
     embed.headers.get('content-security-policy'),

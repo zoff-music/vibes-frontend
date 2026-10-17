@@ -1,11 +1,10 @@
 import type { PublicRoomResultV3, RoomType } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
+import { useRequest } from '@vibes/shared/use-request';
 import { useRef, useState } from 'react';
+import { loadPublicRooms } from '@/requests/load-public-rooms';
 
 export function useRoomBrowser(roomType: RoomType) {
-  const [, fetcher] = useFetcher<PublicRoomResultV3>({
-    routeId: 'rooms.public',
-  });
+  const [, fetcherLoad] = useRequest(loadPublicRooms);
   const [browsing, setBrowsing] = useState(false);
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<PublicRoomResultV3 | null>(null);
@@ -18,10 +17,12 @@ export function useRoomBrowser(roomType: RoomType) {
     setBrowsing(true);
     setLoading(true);
     setError('');
-    const response = await fetcher.load({
+    const response = await fetcherLoad({
       params: { from: String(from), q: search, roomType },
     });
+
     if (id !== requestId.current) return;
+
     setResult(response.data);
     setError(response.error);
     setLoading(false);
@@ -32,5 +33,6 @@ export function useRoomBrowser(roomType: RoomType) {
     setLoading(false);
     setError('');
   };
+
   return { browsing, query, setQuery, result, error, loading, load, showLive };
 }

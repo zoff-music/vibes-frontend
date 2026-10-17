@@ -10,6 +10,7 @@ function loadAnalytics() {
   const script = document.createElement('script');
   script.async = true;
   script.dataset.domain = 'zoff.me';
+  script.dataset.smolterPreserve = '';
   script.src =
     'https://analytics.zoff.me/js/script.outbound-links.tagged-events.js';
   document.head.append(script);

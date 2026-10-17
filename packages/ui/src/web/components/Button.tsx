@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import React from 'react';
+import React from 'preact/compat';
 
 export type ButtonVariant =
   | 'primary'
@@ -86,7 +86,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       contentAlignmentClasses[contentAlignment],
       variantClasses[variant],
       sizeClasses[size],
-      className,
+      String(className ?? ''),
     );
     const ariaLabel = props['aria-label'] || title;
 

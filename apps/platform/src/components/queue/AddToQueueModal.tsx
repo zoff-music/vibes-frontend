@@ -1,3 +1,4 @@
+import { useFetcher } from '@kasperrt/smolter/preact';
 import {
   generatedPlaylistPromptMaxLength,
   type PlaybackRestriction,
@@ -31,9 +32,8 @@ import {
   Tooltip,
   YouTubeIcon,
 } from '@vibes/ui/web';
-import React, { useEffect, useRef, useState } from 'react';
-import { useFetcher } from 'react-router';
-import type { RoomActionData } from '../../routes/rooms.$id/action';
+import React, { useEffect, useRef, useState } from 'preact/compat';
+import type { RoomActionData } from '../../utils/room-actions/submitRoomAction';
 
 interface Props {
   room: RoomV2;
@@ -112,15 +112,19 @@ export const AddToQueueModal: React.FC<Props> = ({
     playlistItems.length >= playlistItemCountCutoff;
   const isAboveDailyLimit = generationCount >= roomGenerationMaxDailyCount;
   let generationUnavailableReason = '';
+
   if (!hasGenerationPermission) {
     generationUnavailableReason = 'Log in as room admin to fill this playlist.';
   }
+
   if (hasGenerationPermission && isAbovePlaylistItemLimit) {
     generationUnavailableReason = `AI fill is unavailable when the room has ${playlistItemCountCutoff} ${labels.items} or more.`;
   }
+
   if (hasGenerationPermission && !isAbovePlaylistItemLimit && isGenerating) {
     generationUnavailableReason = 'A playlist is already being generated.';
   }
+
   if (
     hasGenerationPermission &&
     !isAbovePlaylistItemLimit &&
@@ -129,6 +133,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   ) {
     generationUnavailableReason = `This room has used its ${roomGenerationMaxDailyCount} playlist generations for the day.`;
   }
+
   const canGenerate = !generationUnavailableReason;
   const isGenerationSubmitting = generationFetcher.state !== 'idle';
 
@@ -180,6 +185,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       setError(
         generationFetcher.data.error ?? 'Could not start playlist generation.',
       );
+
       return;
     }
 
@@ -195,12 +201,14 @@ export const AddToQueueModal: React.FC<Props> = ({
 
   useEffect(() => {
     if (searchFetcher.state !== 'idle' || !searchFetcher.data) return;
+
     setIsSearching(false);
 
     if (searchFetcher.data.error) {
       setError(searchFetcher.data.error);
       setSearchResults([]);
       setShowResults(false);
+
       return;
     }
 
@@ -227,6 +235,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         skippedMadeForKidsCount: playlist.skippedMadeForKidsCount ?? 0,
         skippedRoomTypeCount: playlist.skippedRoomTypeCount ?? 0,
       });
+
       return;
     }
 
@@ -245,6 +254,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         thumbnailUrl: item.thumbnailUrl ?? '',
         title: item.title,
       });
+
       return;
     }
 
@@ -274,11 +284,13 @@ export const AddToQueueModal: React.FC<Props> = ({
   useEffect(() => {
     if (playlistItemFetcher.state !== 'idle' || !playlistItemFetcher.data)
       return;
+
     if (
       playlistItemFetcher.data.intent !== 'addPlaylistItem' &&
       playlistItemFetcher.data.intent !== 'addPlaylist'
     )
       return;
+
     setIsLoading(false);
 
     if (playlistItemFetcher.data.intent === 'addPlaylist') {
@@ -289,12 +301,14 @@ export const AddToQueueModal: React.FC<Props> = ({
         setError(
           playlistItemFetcher.data.error ?? 'Failed to add playlist to queue',
         );
+
         return;
       }
 
       setQueuedPlaylistCount(playlistItemFetcher.data.addPlaylist.queuedCount);
       setJustAdded(true);
       const timeout = window.setTimeout(onClose, 1600);
+
       return () => window.clearTimeout(timeout);
     }
 
@@ -306,6 +320,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         playlistItemFetcher.data.error ??
           `Failed to add ${labels.item} to queue`,
       );
+
       return;
     }
 
@@ -316,6 +331,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       onClose,
       result.outcome === 'added' ? 800 : 1600,
     );
+
     return () => window.clearTimeout(timeout);
   }, [
     onClose,
@@ -326,11 +342,14 @@ export const AddToQueueModal: React.FC<Props> = ({
 
   const performSearch = (query: string) => {
     const trimmedQuery = query.trim();
+
     if (!trimmedQuery) {
       setSearchResults([]);
       setShowResults(false);
+
       return;
     }
+
     if (isSearching) return;
 
     setIsSearching(true);
@@ -341,17 +360,21 @@ export const AddToQueueModal: React.FC<Props> = ({
     setShowResults(false);
 
     const providerPlaylistLink = parseProviderPlaylistLink(trimmedQuery);
+
     if (providerPlaylistLink) {
       if (!room.settings.playlistImport) {
         setIsSearching(false);
         setError('Playlist importing is disabled in this room');
+
         return;
       }
+
       if (!providerList.includes(providerPlaylistLink.provider)) {
         setIsSearching(false);
         setError(
           `${providerNames[providerPlaylistLink.provider]} is not enabled in this room`,
         );
+
         return;
       }
 
@@ -376,16 +399,19 @@ export const AddToQueueModal: React.FC<Props> = ({
           method: 'post',
         },
       );
+
       return;
     }
 
     const providerTrackLink = parseProviderItemLink(trimmedQuery);
+
     if (providerTrackLink) {
       if (!providerList.includes(providerTrackLink.provider)) {
         setIsSearching(false);
         setError(
           `${providerNames[providerTrackLink.provider]} is not enabled in this room`,
         );
+
         return;
       }
 
@@ -410,6 +436,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           method: 'post',
         },
       );
+
       return;
     }
 
@@ -418,6 +445,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       setError(
         `Enter at least ${MINIMUM_SEARCH_QUERY_LENGTH} characters to search`,
       );
+
       return;
     }
 
@@ -446,6 +474,7 @@ export const AddToQueueModal: React.FC<Props> = ({
 
     if (!query.trim()) {
       setIsSearching(false);
+
       return;
     }
   };
@@ -480,10 +509,13 @@ export const AddToQueueModal: React.FC<Props> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+
       if (isAIMode) {
         handleGenerate();
+
         return;
       }
+
       performSearch(searchQuery);
     }
   };
@@ -491,6 +523,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const handleToggleAIMode = () => {
     if (!isAIMode && !canGenerate) {
       setError(generationUnavailableReason);
+
       return;
     }
 
@@ -505,11 +538,14 @@ export const AddToQueueModal: React.FC<Props> = ({
 
   const handleGenerate = () => {
     const prompt = searchQuery.trim();
+
     if (!prompt || isGenerationSubmitting) {
       return;
     }
+
     if (!canGenerate) {
       setError(generationUnavailableReason);
+
       return;
     }
 
@@ -528,14 +564,17 @@ export const AddToQueueModal: React.FC<Props> = ({
 
   const handleAdd = () => {
     if (!previewItem || justAdded) return;
+
     handleSelectResult(previewItem);
   };
 
   const handleAddPlaylist = () => {
     if (!room.settings.playlistImport) {
       setError('Playlist importing is disabled in this room');
+
       return;
     }
+
     if (!previewPlaylist || justAdded || previewPlaylist.items.length === 0)
       return;
 
@@ -569,7 +608,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const handleSearchInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    handleSearchChange(event.target.value);
+    handleSearchChange(event.currentTarget.value);
   };
 
   const handleSearch = () => {
@@ -579,8 +618,10 @@ export const AddToQueueModal: React.FC<Props> = ({
   const handlePrimaryAction = () => {
     if (isAIMode) {
       handleGenerate();
+
       return;
     }
+
     handleSearch();
   };
 
@@ -597,14 +638,17 @@ export const AddToQueueModal: React.FC<Props> = ({
 
   let successTitle = 'Added to Queue!';
   let successDescription = 'Everyone will hear it soon';
+
   if (addOutcome === 'duplicate_voted') {
     successTitle = `Already queued, voted on ${labels.item}`;
     successDescription = 'Your vote moved it up the queue';
   }
+
   if (addOutcome === 'duplicate_already_voted') {
     successTitle = 'Already queued, vote already counted';
     successDescription = 'Your existing vote is still counted';
   }
+
   if (queuedPlaylistCount > 0) {
     successTitle = `Queued ${queuedPlaylistCount} ${labels.items}`;
     successDescription = 'Items will appear as the playlist is imported';

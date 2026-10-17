@@ -7,4 +7,5 @@ export const statsV2Schema = /* @__PURE__ */ z.compile(
     totalRooms: z.int().check(z.minimum(0)),
   }),
 );
+
 export type StatsV2 = z.infer<typeof statsV2Schema>;

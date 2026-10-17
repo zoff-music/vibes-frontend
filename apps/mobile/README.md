@@ -13,6 +13,20 @@ Shared controls and the native YouTube wrapper come from `@vibes/ui/native`,
 while platform-neutral presentation helpers come from `@vibes/ui/shared`.
 The app deliberately has no Expo web target.
 
+## Navigation and requests
+
+Expo Router owns screen navigation, deep links, system tabs, modal presentation,
+and route error boundaries. Mobile has no second router or route registry.
+The only route tree is `src/app`. Screens and layout controls live under
+`src/components`, workflows in `src/hooks`, and named typed API functions in
+`src/requests`. There are no native loader/action route modules.
+
+App hooks call typed request handlers through `@vibes/api`. The small shared
+request hook handles pending state and abort cleanup; it does not match paths,
+cache routes, or implement navigation. Initial preferences, profile, discovery,
+and remote-session data are loaded by the app provider. Mutations update their
+own state or explicitly refresh the affected room.
+
 ## Visual preview
 
 <p>
@@ -115,6 +129,17 @@ Test at least these flows before publishing:
    YouTube. Confirm Watch rooms use video and watcher labels throughout the app.
 
 ## EAS development and preview builds
+
+Native tab screens own their safe-area padding and scroll-content spacing.
+Keep `disableAutomaticContentInsets` on their native tab triggers and
+`contentInsetAdjustmentBehavior="never"` on their scroll views, so iOS does not
+apply a second inset adjustment after presenting a tab. The root safe-area
+provider starts with `initialWindowMetrics`. Screens and sheets use
+`ScreenSafeArea`, which applies the context insets in the first React render,
+rather than waiting for a native safe-area view to attach and update its padding.
+Expo's per-tab providers inherit these initial context metrics. Do not hide
+layout corrections behind delayed rendering or entrance animations. Queue
+reordering still animates, but initial queue/search rows render in place.
 
 Install and authenticate the EAS CLI, then associate the project with the Zoff
 Expo organization on the first run:

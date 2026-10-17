@@ -1,75 +1,36 @@
-import { classNames } from '@vibes/shared';
-import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
-import { MotionProvider, NotFoundView, publicAssetUrl } from '@vibes/ui/web';
-import { lazy, type ReactNode, Suspense, useState } from 'react';
-import type { MetaFunction, ShouldRevalidateFunctionArgs } from 'react-router';
+import { useRootData } from '@kasperrt/smolter/preact';
 import {
-  isRouteErrorResponse,
+  Document,
   Links,
   Meta,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
-  useRouteError,
-} from 'react-router';
+} from '@kasperrt/smolter/preact/document';
+import { classNames } from '@vibes/shared';
+import {
+  FontPreloads,
+  MotionProvider,
+  publicAssetUrl,
+  ThemeScript,
+} from '@vibes/ui/web';
+import { type ReactNode, useState } from 'preact/compat';
 import { App } from './App';
 import analyticsUrl from './assets/analytics.js?no-inline&url';
-import { PlatformErrorView } from './components/errors/PlatformErrorView';
-import { isStaleRouteError } from './components/errors/recovery';
-import { Background } from './components/layout/Background';
-import { SiteLayout } from './components/layout/SiteLayout';
 import stylesUrl from './index.css?url';
 import { loader, type RootLoaderData } from './root/loader';
 
 export type { RootLoaderData } from './root/loader';
-export { loader };
 
-const LazyBeatGame = lazy(() =>
-  import('./components/not-found/BeatGame').then((module) => ({
-    default: module.BeatGame,
-  })),
-);
+export { meta } from './root/meta';
 
-export const meta: MetaFunction = ({ error }) => {
-  if (isRouteErrorResponse(error) && error.status === 404) {
-    return [
-      {
-        title: 'Page Not Found | Zoff',
-      },
-      {
-        name: 'robots',
-        content: 'noindex',
-      },
-    ];
-  }
-  return [
-    {
-      title: 'Zoff | Shared Music Queue & Listening Rooms',
-    },
-    {
-      name: 'description',
-      content: 'Shared rooms, made for listening together.',
-    },
-  ];
-};
-
-export function shouldRevalidate({
-  formAction,
-  formMethod,
-}: ShouldRevalidateFunctionArgs) {
-  return (
-    formAction === '/resources/profile' && formMethod?.toUpperCase() === 'POST'
-  );
-}
+export { shouldRevalidate } from './root/shouldRevalidate';
 
 interface Props {
   children: ReactNode;
 }
 
 export function Layout({ children }: Props) {
-  const loaderData = useLoaderData<typeof loader>() as
-    | RootLoaderData
-    | undefined;
+  const loaderData = useRootData<typeof loader>() as RootLoaderData | undefined;
   const themeId = loaderData?.theme ?? 'auto';
   // Nonce is only relevant for the initial document; keep it stable across client navigations.
   const [cspNonce] = useState(() => loaderData?.cspNonce);
@@ -78,22 +39,20 @@ export function Layout({ children }: Props) {
   const initialDataJson = JSON.stringify({ theme: themeId });
 
   return (
-    <html
+    <Document
       lang="en"
       data-debug={loaderData?.debug === true}
-      className={classNames(themeClass, 'motion-safe:scroll-smooth')}
+      className={classNames(
+        themeClass,
+        'page-transitions motion-safe:scroll-smooth',
+      )}
     >
       <head>
         <meta charSet="UTF-8" />
+        <ThemeScript {...(cspNonce && { nonce: cspNonce })} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="apple-itunes-app" content="app-id=6799954460" />
-        <link
-          rel="preload"
-          href={regularFontUrl}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        <FontPreloads />
 
         <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
         <link rel="stylesheet" href={stylesUrl} />
@@ -134,7 +93,7 @@ export function Layout({ children }: Props) {
         <ScrollRestoration nonce={cspNonce} />
         <Scripts nonce={cspNonce} />
       </body>
-    </html>
+    </Document>
   );
 }
 
@@ -142,46 +101,4 @@ export default function Root() {
   return <App />;
 }
 
-export function ErrorBoundary() {
-  const error = useRouteError();
-  const requiresReload = error instanceof Error && isStaleRouteError(error);
-
-  if (isRouteErrorResponse(error) && error.status === 404) {
-    return (
-      <>
-        <Background />
-        <SiteLayout>
-          <NotFoundView>
-            <Suspense
-              fallback={
-                <div
-                  aria-hidden="true"
-                  className="mx-auto h-92 w-full max-w-sm rounded-3xl border border-theme bg-theme-surface sm:h-102"
-                />
-              }
-            >
-              <LazyBeatGame />
-            </Suspense>
-          </NotFoundView>
-        </SiteLayout>
-      </>
-    );
-  }
-  return (
-    <SiteLayout>
-      <PlatformErrorView
-        message={
-          requiresReload
-            ? 'This page changed while Zoff was open. Load the latest version to continue.'
-            : 'Something went wrong. Try again or return home.'
-        }
-        requiresReload={requiresReload}
-        title={
-          requiresReload
-            ? 'A newer page is available'
-            : 'Zoff is temporarily unavailable'
-        }
-      />
-    </SiteLayout>
-  );
-}
+export { ErrorBoundary } from './root/ErrorBoundary';

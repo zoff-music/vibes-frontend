@@ -53,22 +53,31 @@ export function LandingScreen({
   const submit = () => {
     if (isAIMode) {
       void sessionActions.generateRoom(value);
+
       return;
     }
+
     const joinOrCreate = async () => {
       const result = await sessionActions.loadRoom(value);
+
       if (result === 'notFound') await sessionActions.createRoom(value);
     };
     void joinOrCreate();
   };
 
   let buttonLabel = 'Enter a room name';
+
   if (value.trim()) buttonLabel = 'Join or create room';
+
   if (isAIMode) buttonLabel = 'Generate playlist';
+
   if (session.loading && !isAIMode) buttonLabel = 'Tuning the signal…';
+
   if (session.loading && isAIMode) buttonLabel = generationMessage;
+
   let placeholder = 'Room name';
   let aiTone: 'primary' | 'secondary' = 'secondary';
+
   if (isAIMode) {
     placeholder = watch
       ? 'A trip through the solar system'

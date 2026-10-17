@@ -1,7 +1,10 @@
-import type { PlaylistItem } from '@vibes/shared';
-import { resolvePlaylistItemThumbnail, safeWrap } from '@vibes/shared';
+import {
+  type PlaylistItem,
+  resolvePlaylistItemThumbnail,
+  safeWrap,
+} from '@vibes/shared';
 import type { framework } from 'chromecast-caf-receiver';
-import { useCallback } from 'react';
+import { useCallback } from 'preact/compat';
 
 interface ExtendedPlayerManager extends framework.PlayerManager {
   broadcastStatus(includeMediaStatus: boolean): void;
@@ -13,6 +16,7 @@ export function useMediaMetadata() {
 
     const context = window.cast.framework.CastReceiverContext.getInstance();
     const playerManager = context.getPlayerManager();
+
     if (!playerManager) return;
 
     const [err] = safeWrap(() => {

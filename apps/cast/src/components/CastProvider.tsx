@@ -1,7 +1,15 @@
+import {
+  useFetcher,
+  useURLLocation as useLocation,
+  useNavigate,
+} from '@kasperrt/smolter/preact';
 import { API_BASE_URL } from '@vibes/api';
-import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
+import type { CastRoomConnection } from '@vibes/models';
+
 import {
   isBrowserDebugEnabled,
+  type PlaylistItem,
+  type ResolvedColorScheme,
   safeWrap,
   usePlaybackStore,
 } from '@vibes/shared';
@@ -12,14 +20,13 @@ import React, {
   useEffect,
   useRef,
   useState,
-} from 'react';
-import { useFetcher, useLocation, useNavigate } from 'react-router';
+} from 'preact/compat';
 import { useCastMessageHandler } from '../hooks/useCastMessageHandler';
 import { useCastReceiver } from '../hooks/useCastReceiver';
 import { useMediaMetadata } from '../hooks/useMediaMetadata';
 import { useRoomSync } from '../hooks/useRoomSync';
-import type { CastActionData } from '../routes/cast/action';
-import type { CastLoaderData } from '../routes/cast/loader';
+import type { CastActionData } from '../routes/$/clientAction';
+import type { CastLoaderData } from '../routes/$/clientLoader';
 import type { LocalCastMessage, QueueItem, RoomInfo } from '../types';
 import { applyColorScheme, getInitialColorScheme } from '../utils/theme';
 
@@ -59,6 +66,7 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
   );
   const [debugMode, setDebugModeState] = useState(() => {
     const params = new URLSearchParams(window.location.search);
+
     return isBrowserDebugEnabled() && params.get('debug') === 'true';
   });
 
@@ -83,15 +91,18 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
   const updateMediaMetadata = useMediaMetadata();
 
   const joinRoom = useCallback(
-    (connection: { castToken?: string; casterId?: string; roomId: string }) => {
+    (connection: CastRoomConnection) => {
       const params = new URLSearchParams(location.search);
       params.set('roomId', connection.roomId);
+
       if (connection.castToken) {
         params.set('castToken', connection.castToken);
       }
+
       if (connection.casterId) {
         params.set('casterId', connection.casterId);
       }
+
       void navigate(
         { pathname: location.pathname, search: `?${params.toString()}` },
         {
@@ -136,6 +147,7 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
   const reportPlaybackFailure = useCallback(
     (playlistItemId: string) => {
       if (!castToken || !roomId) return;
+
       failureFetcher.submit(
         { castToken, intent: 'reportPlaybackFailure', roomId, playlistItemId },
         { method: 'post' },
@@ -146,6 +158,7 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
 
   useEffect(() => {
     if (!failureFetcher.data?.error) return;
+
     console.error('[Cast] Failed to report restricted playback failure.');
   }, [failureFetcher.data]);
 
@@ -160,23 +173,30 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) {
         const [parseErr, originUrl] = safeWrap(() => new URL(event.origin));
+
         if (parseErr || !originUrl) return;
+
         const receiverUrl = new URL(window.location.origin);
         const isLocalOrigin =
           (originUrl.hostname === 'localhost' ||
             originUrl.hostname === '127.0.0.1') &&
           (receiverUrl.hostname === 'localhost' ||
             receiverUrl.hostname === '127.0.0.1');
+
         if (!isLocalOrigin) return;
       }
+
       const data = event.data as LocalCastMessage | null;
+
       if (!data || typeof data !== 'object') return;
+
       if (!('action' in data)) return;
 
       handleCastMessage(data);
     };
 
     window.addEventListener('message', onMessage);
+
     return () => {
       window.removeEventListener('message', onMessage);
     };
@@ -184,6 +204,7 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
 
   useEffect(() => {
     const opener = window.opener;
+
     if (!opener) return;
 
     const [err, referrerUrl] = safeWrap(() => new URL(document.referrer));
@@ -223,8 +244,10 @@ export function CastProvider({ children, loaderData }: CastProviderProps) {
 
 export function useCast() {
   const context = useContext(CastContext);
+
   if (context === undefined) {
     throw new Error('useCast must be used within a CastProvider');
   }
+
   return context;
 }

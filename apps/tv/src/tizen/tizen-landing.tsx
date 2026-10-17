@@ -1,13 +1,15 @@
-import type { PublicRoomV3, RoomType } from '@vibes/models';
+import { Link, useFetcher } from '@kasperrt/smolter/preact';
+
 import {
   generatedPlaylistPromptMaxLength,
+  type PublicRoomV3,
+  type RoomType,
   roomNameMaxLength,
 } from '@vibes/models';
 import { chunkItems, getRoomLabels } from '@vibes/ui/shared';
-import { useEffect, useRef, useState } from 'react';
-import { Link, useFetcher } from 'react-router';
+import { useEffect, useRef, useState } from 'preact/compat';
 import { useGenerationMessage } from '@/hooks/use-generation-message';
-import type { PublicRoomsData } from '@/tizen/routes/public-rooms/loader';
+import type { PublicRoomsData } from '@/tizen/routes/rooms.public/clientLoader';
 import zoffLogo from '../../assets/icon.png';
 
 interface TizenLandingProps {
@@ -60,26 +62,33 @@ export function TizenLanding({
   const submit = () => {
     if (isAIMode) {
       onGenerateRoom(value);
+
       return;
     }
+
     onJoinOrCreateRoom(value);
   };
   let placeholder = 'Room name';
   let submitLabel = 'Join or create room';
+
   if (isAIMode) {
     placeholder = watch
       ? 'A trip through the solar system'
       : 'Late-night synthwave for a rainy drive';
     submitLabel = 'Generate playlist';
   }
+
   if (loading && isAIMode) submitLabel = generationMessage;
+
   return (
-    <div className="tv-space-y-10 relative mx-auto flex h-full max-w-7xl flex-col overflow-y-auto px-16 py-12">
+    <div className="tv-space-y-10 relative mx-auto flex h-full max-w-7xl flex-col overflow-y-auto px-16 py-12 2xl:max-w-none">
       <header className="flex items-center">
         <img src={zoffLogo} alt="Zoff" className="mr-6 size-28 rounded-full" />
         <div>
           <h1 className="text-6xl">Zoff</h1>
-          <p className="mt-2 text-2xl text-tv-muted">Rooms on your TV</p>
+          <p className="mt-2 text-2xl text-tv-muted 2xl:text-3xl">
+            Rooms on your TV
+          </p>
         </div>
         <nav
           aria-label="Choose room type"
@@ -89,7 +98,7 @@ export function TizenLanding({
             to="/"
             prefetch="intent"
             aria-current={!watch ? 'page' : false}
-            className="rounded-2xl border-2 border-tv-border bg-tv-card px-8 py-5 text-2xl aria-[current=page]:border-accent"
+            className="rounded-2xl border-2 border-tv-border bg-tv-card px-8 py-5 text-2xl aria-[current=page]:border-accent 2xl:text-3xl"
           >
             Music
           </Link>
@@ -97,7 +106,7 @@ export function TizenLanding({
             to="/?type=watch"
             prefetch="intent"
             aria-current={watch ? 'page' : false}
-            className="rounded-2xl border-2 border-tv-border bg-tv-card px-8 py-5 text-2xl aria-[current=page]:border-accent"
+            className="rounded-2xl border-2 border-tv-border bg-tv-card px-8 py-5 text-2xl aria-[current=page]:border-accent 2xl:text-3xl"
           >
             Watch
           </Link>
@@ -119,7 +128,7 @@ export function TizenLanding({
                 </div>
               )}
             </div>
-            <h2 className="mb-8 text-4xl">
+            <h2 className="mb-8 text-4xl 2xl:text-5xl">
               {isAIMode
                 ? watch
                   ? 'Follow your '
@@ -141,8 +150,8 @@ export function TizenLanding({
               <div className="tv-space-x-5 flex">
                 <input
                   aria-label={isAIMode ? 'Playlist prompt' : 'Room name'}
-                  className="min-h-20 min-w-0 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-5 text-2xl"
-                  onChange={(event) => setValue(event.target.value)}
+                  className="min-h-20 min-w-0 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-5 text-2xl 2xl:text-3xl"
+                  onChange={(event) => setValue(event.currentTarget.value)}
                   placeholder={placeholder}
                   maxLength={
                     isAIMode
@@ -162,7 +171,7 @@ export function TizenLanding({
                 </button>
               </div>
               <button
-                className="min-h-20 w-full rounded-2xl border-2 border-primary bg-primary px-10 text-2xl disabled:opacity-40"
+                className="min-h-20 w-full rounded-2xl border-2 border-primary bg-primary px-10 text-2xl disabled:opacity-40 2xl:text-3xl"
                 disabled={loading || !value.trim()}
                 type="submit"
               >
@@ -183,7 +192,7 @@ export function TizenLanding({
               <button
                 type="button"
                 aria-pressed={!browsing}
-                className="min-h-16 flex-1 rounded-2xl border-2 border-tv-border bg-tv-card px-5 text-2xl aria-pressed:border-accent"
+                className="min-h-16 flex-1 rounded-2xl border-2 border-tv-border bg-tv-card px-5 text-2xl aria-pressed:border-accent 2xl:text-3xl"
                 onClick={() => setBrowsing(false)}
                 ref={liveRoomsRef}
               >
@@ -192,7 +201,7 @@ export function TizenLanding({
               <button
                 type="button"
                 aria-pressed={browsing}
-                className="min-h-16 flex-1 rounded-2xl border-2 border-tv-border bg-tv-card px-5 text-2xl aria-pressed:border-accent"
+                className="min-h-16 flex-1 rounded-2xl border-2 border-tv-border bg-tv-card px-5 text-2xl aria-pressed:border-accent 2xl:text-3xl"
                 onClick={() => loadRooms()}
               >
                 Browse
@@ -211,8 +220,8 @@ export function TizenLanding({
                   placeholder="Search rooms"
                   value={query}
                   maxLength={100}
-                  onChange={(event) => setQuery(event.target.value)}
-                  className="min-h-16 min-w-0 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-5 text-2xl"
+                  onChange={(event) => setQuery(event.currentTarget.value)}
+                  className="min-h-16 min-w-0 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-5 text-2xl 2xl:text-3xl"
                 />
                 <button
                   type="submit"
@@ -250,17 +259,17 @@ export function TizenLanding({
                       type="button"
                     >
                       <span className="min-w-0">
-                        <strong className="block truncate text-xl">
+                        <strong className="block truncate text-xl 2xl:text-3xl">
                           {room.name}
                         </strong>
-                        <span className="mt-1 block truncate text-base text-tv-muted">
+                        <span className="mt-1 block truncate text-base text-tv-muted 2xl:text-2xl">
                           {room.listenerCount}{' '}
                           {getRoomLabels(room.roomType).activity} ·{' '}
                           {room.playlistItemCount}{' '}
                           {getRoomLabels(room.roomType).items}
                         </span>
                       </span>
-                      <span className="shrink-0 text-accent text-lg">
+                      <span className="shrink-0 text-accent text-lg 2xl:text-2xl">
                         Join →
                       </span>
                     </button>

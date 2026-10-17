@@ -1,11 +1,13 @@
 import { classNames } from '@vibes/shared';
+
 import {
+  type CSSProperties as importCSSProperties,
   type ReactNode,
   useCallback,
   useLayoutEffect,
   useRef,
   useState,
-} from 'react';
+} from 'preact/compat';
 import { createPortal } from 'react-dom';
 
 type TooltipSide = 'bottom' | 'top';
@@ -21,7 +23,7 @@ interface TooltipProps {
   side?: TooltipSide;
 }
 
-interface TooltipPosition {
+interface TooltipPosition extends importCSSProperties {
   left: number;
   top: number;
 }
@@ -47,25 +49,35 @@ export function Tooltip({
   useLayoutEffect(() => {
     if (!visible) {
       setPosition(null);
+
       return;
     }
+
     const updatePosition = () => {
       const anchor = anchorRef.current;
       const tooltip = tooltipRef.current;
+
       if (!anchor || !tooltip) return;
+
       const bounds = anchor.getBoundingClientRect();
       const width = tooltip.offsetWidth;
       const height = tooltip.offsetHeight;
       let left = bounds.left + (bounds.width - width) / 2;
+
       if (align === 'start') left = bounds.left;
+
       if (align === 'end') left = bounds.right - width;
+
       let top = bounds.top - height - tooltipGap;
+
       if (side === 'bottom' || top < tooltipGap) {
         top = bounds.bottom + tooltipGap;
       }
+
       if (top + height > window.innerHeight - tooltipGap) {
         top = bounds.top - height - tooltipGap;
       }
+
       setPosition({
         left: Math.max(
           tooltipGap,
@@ -83,10 +95,13 @@ export function Tooltip({
     };
     updatePosition();
     const observer = new ResizeObserver(updatePosition);
+
     if (tooltipRef.current) observer.observe(tooltipRef.current);
+
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', dismiss, true);
     window.addEventListener('keydown', onKeyDown);
+
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', updatePosition);
@@ -105,7 +120,12 @@ export function Tooltip({
       onPointerLeave={() => setHovered(false)}
       onFocus={() => setFocused(true)}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget))
+        if (
+          !(
+            event.relatedTarget instanceof Node &&
+            event.currentTarget.contains(event.relatedTarget)
+          )
+        )
           setFocused(false);
       }}
     >

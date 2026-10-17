@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import type React from 'react';
+import type React from 'preact/compat';
 import {
   formatPlaybackMilliseconds,
   getPlaybackPresentation,

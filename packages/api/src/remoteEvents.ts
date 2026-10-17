@@ -25,20 +25,25 @@ export function subscribeRemoteEvents({
   const client =
     eventClient ??
     (controller ? createApiClient({ 'X-Zoff-Remote-ID': remoteId }) : api);
+
   return client.v2.sse(
     '/remotes/{id}/events',
     { id: remoteId },
     ([eventError, message]) => {
       if (eventError || !message) return;
+
       if (message.type === 'remote_presentation_update') {
         onPresentationUpdate?.(message.data);
+
         return;
       }
 
       if (message.type === 'remote_state_update') {
         onStateUpdate?.(message.data);
+
         return;
       }
+
       onRoomUpdate(message.data);
     },
   );

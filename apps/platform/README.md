@@ -63,6 +63,7 @@ navigation do not show the reminder. Dismissing it clears the saved ID.
 
 The compact homepage card uses fresh room and playback reads through its
 resource client loader, without joining the room or subscribing as a listener.
+Its discovered route is `resources.recents` at `/resources/recents`.
 It refreshes every 30 seconds while visible and on returning to the tab. Empty
 rooms omit the listener count; missing or unavailable rooms hide the card.
 The development-only `/?preview=return-to-room` fixture shows the same card
@@ -271,9 +272,15 @@ Normal page stacking keeps both layers behind the opaque card, avoiding Safari
 snapshot compositing failures and overlap. The opaque hero surface disables
 unnecessary backdrop blur.
 Only switches between landing pages use this eclipse. The same selector on
-policy, discovery and other pages navigates normally without capturing their
-content into animation layers. Navigation state enables the eclipse only when
+discovery and other pages navigates normally without capturing their
+content into animation layers. Policy pages omit the Music/Watch selector.
+Navigation state enables the eclipse only when
 switching directly between landing pages; initial visits show the final artwork.
+Page transitions preserve the shared site header. Only policy heroes share a
+snapshot name with other policy heroes; the interactive landing hero must not
+morph into a legal document. Unrelated content crossfades while matching surfaces
+stay stable, using the shared Tailwind `page-transitions` utility and component
+transition-name utilities. Reduced motion disables these animations.
 The moon retains its original crescent, ring and dark palette; only its light
 palette changes to a pale center with stronger violet/cyan edges. Reduced
 motion disables the transition. Navigation and the CSS pill slide do not depend
@@ -515,7 +522,7 @@ it when the header unmounts and measure again when it returns.
 
 ## 📁 Source Structure
 
-- `src/routes`: React Router route modules and colocated route workflows
+- `src/routes`: Smolter flat-route modules and colocated route workflows
 - `src/components`: Platform-specific room, queue, casting, and layout components
 - `src/hooks`: Platform workflows built on the shared typed API
 - `server`: Production server entrypoint and SSR asset handling
@@ -556,7 +563,7 @@ or proxies that do not support informational responses. This uses preload, not
 the retired HTTP/2 server-push mechanism. Only HTML GET requests receive hints.
 The shared server also hints the hydration entry and its static imports from
 the build manifest. Framework requests can start in parallel with the server's
-data loading; React Router's HTML modulepreloads remain the fallback. Do not
+data loading; the SSR document's modulepreloads remain the fallback. Do not
 hint all lazy routes, feature panels or provider SDKs on every page.
 
 The regular Latin font and main stylesheet are preloaded before loaders finish.
@@ -585,6 +592,11 @@ the original remains available for larger uses. Regenerate it with:
 ```sh
 cwebp -q 85 -resize 256 256 apps/platform/public/logo.png -o apps/platform/src/assets/logo-header.webp
 ```
+
+The shared background renders its full static appearance in SSR. Decorative
+background drift and grid motion start in a post-hydration effect, keeping their
+animated layers out of initial SSR paint work. Hydration and controls are not
+delayed. Reduced-motion and page-visibility behavior still apply.
 
 Measure production builds with both Brotli and gzip, not Vite's dev server.
 Shared API models use Zod Mini with `z.compile()` for the same compiled
@@ -622,7 +634,7 @@ cleanup covers both module loading and connection setup.
 Zod's compiler and core also have separate cached chunks; schemas still use
 the same compiled validation and fallback parser.
 
-Platform builds enforce React Router's route-module splitting. Keep shared
+Platform builds split Smolter flat-route modules into lazy browser chunks. Keep shared
 loader functions outside route modules, including canonical-room redirects.
 Matched client actions are still imported by the initial SSR document, so the
 homepage exports a small action adapter and loads its implementation when the
@@ -662,12 +674,7 @@ and preferring Brotli for ties. Responses preserve the original MIME type,
 without sidecars retain the normal static-server path. Docker copies the full
 build output, including sidecars; no extra runtime compression tool is needed.
 
-React Compiler targets React 19 for Platform, Remote, Embed, Cast, and the shared
-DOM UI they import, on both client and SSR builds where applicable. Third-party
-packages, native apps, and Admin are outside this compiler rollout. Existing manual
-memoization is retained. The compiler reports skipped optimizations in the
-build log and leaves unsupported functions unchanged; do not suppress those
-diagnostics or force compilation of incompatible code. Verify hydration,
-settings, room navigation, queue/chat updates, and player behavior when changing
-compiler versions. Memoization can increase download size, so measure both
-transfer size and interaction performance rather than treating it as a minifier.
+DOM apps use Preact with the shared Smolter adapter and optional flat-file route
+manifest. React Compiler is disabled for these builds; native apps retain their
+React runtime. Compatibility imports resolve to Preact in web bundles. Measure
+both transfer size and interaction performance when changing memoization.

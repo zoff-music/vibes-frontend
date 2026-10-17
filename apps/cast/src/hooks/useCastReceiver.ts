@@ -1,15 +1,15 @@
-import type { Song } from '@vibes/models';
-import type { PlaylistItem, ResolvedColorScheme } from '@vibes/shared';
 import {
   getEstimatedServerTimeMs,
   isBrowserDebugEnabled,
+  type PlaylistItem,
+  type ResolvedColorScheme,
   safeWrap,
   usePlaybackStore,
 } from '@vibes/shared';
 import type { framework } from 'chromecast-caf-receiver';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'preact/compat';
 import type { LocalCastMessage } from '../types';
-import { toPlaylistItem } from '../utils/item';
+import { normalizePlaylistItem } from '../utils/item';
 
 let isCastReceiverInitialized = false;
 
@@ -17,7 +17,7 @@ interface CustomLoadData {
   roomId?: string;
   castToken?: string;
   debug?: boolean;
-  currentSong?: Song;
+  currentSong?: PlaylistItem;
   positionMs?: number;
   theme?: ResolvedColorScheme;
 }
@@ -101,8 +101,10 @@ export const useCastReceiver = ({
           // but it's the official way to tell CAF "I got this, don't play anything".
 
           const media = loadRequestData.media;
+
           if (media?.customData && isCustomLoadData(media.customData)) {
             const data = media.customData;
+
             if (data.debug) setDebugMode(true);
 
             if (data.roomId) {
@@ -115,7 +117,9 @@ export const useCastReceiver = ({
             }
 
             if (data.currentSong) {
-              const normalizedPlaylistItem = toPlaylistItem(data.currentSong);
+              const normalizedPlaylistItem = normalizePlaylistItem(
+                data.currentSong,
+              );
               setPlaybackState({
                 currentPlaylistItem: normalizedPlaylistItem,
                 isPlaying: true,
@@ -138,6 +142,7 @@ export const useCastReceiver = ({
         'urn:x-cast:com.vibez.cast',
         (customEvent) => {
           const message = customEvent.data;
+
           if (isLocalCastMessage(message)) {
             handleCastMessage(message);
           }
@@ -160,8 +165,10 @@ export const useCastReceiver = ({
         const [senderErr, senders] = safeWrap(() =>
           contextWithSenders.getSenders(),
         );
+
         if (senderErr) {
           console.error('Failed to get cast senders:', senderErr);
+
           return;
         }
 
@@ -178,6 +185,7 @@ export const useCastReceiver = ({
               message,
             );
           });
+
           if (sendErr) {
             console.error('Failed to send receiverReady message:', sendErr);
           }
@@ -189,6 +197,7 @@ export const useCastReceiver = ({
       const frameworkEvents = cast.framework as CastFrameworkWithEvents;
       const senderConnectedEvent =
         frameworkEvents.CastReceiverContextEventType?.SENDER_CONNECTED;
+
       if (senderConnectedEvent) {
         (
           contextWithSenders as unknown as {

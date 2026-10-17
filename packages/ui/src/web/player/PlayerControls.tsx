@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import React from 'react';
+import React from 'preact/compat';
 import { getRoomLabels } from '../../shared/room';
 import { Button } from '../components/Button';
 import { Tooltip } from '../components/Tooltip';
@@ -54,6 +54,7 @@ const VolumeControl = ({
 
   React.useEffect(() => {
     const control = controlRef.current;
+
     if (!control) return;
 
     const handleWheel = (event: WheelEvent) => {
@@ -70,6 +71,7 @@ const VolumeControl = ({
     };
 
     control.addEventListener('wheel', handleWheel, { passive: false });
+
     return () => control.removeEventListener('wheel', handleWheel);
   }, [onVolumeChange, volume]);
 

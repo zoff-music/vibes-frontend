@@ -4,12 +4,11 @@ import type {
   RemotePairingV2,
   RemoteStatusV2,
 } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
 import { getClientReferenceTimeMs } from '@vibes/shared';
-import type { RefObject } from 'react';
-import { useCallback, useEffect, useState } from 'react';
-
-import type { MachineRemoteActionData } from '@/routes/remotes.machine/action';
+import { useMutation, useRequest } from '@vibes/shared/use-request';
+import { type RefObject, useCallback, useEffect, useState } from 'react';
+import { loadMachine } from '@/requests/load-machine';
+import { updateMachine } from '@/requests/update-machine';
 
 interface UseMachineRemoteOptions {
   playbackRef: RefObject<PlaybackStateV2 | null>;
@@ -37,12 +36,8 @@ export function useMachineRemote({
   MachineRemoteState,
   MachineRemoteActions,
 ] {
-  const [, remoteLoader] = useFetcher<RemoteStatusV2>({
-    routeId: 'remotes.machine',
-  });
-  const [, remoteAction] = useFetcher<MachineRemoteActionData>({
-    routeId: 'remotes.machine',
-  });
+  const [, remoteLoaderLoad] = useRequest(loadMachine);
+  const [, remoteActionSubmit] = useMutation(updateMachine);
   const [machinePairing, setMachinePairing] = useState<RemotePairingV2 | null>(
     null,
   );
@@ -53,6 +48,7 @@ export function useMachineRemote({
   const applyMachineRemoteEvent = useCallback((event: RemoteEventV2) => {
     setMachineRemote((current) => {
       if (!current) return current;
+
       return {
         ...current,
         currentRoomId: event.roomId,
@@ -64,23 +60,28 @@ export function useMachineRemote({
         playbackPositionMs: event.playbackPositionMs,
       };
     });
+
     if (event.paired) setMachinePairing(null);
   }, []);
 
   const refreshMachineRemote = useCallback(async () => {
-    const result = await remoteLoader.load();
+    const result = await remoteLoaderLoad();
+
     if (!result.data) {
       setError(result.error || 'Could not load remote control status.');
+
       return;
     }
+
     const nextRemote = result.data;
     setMachineRemote(nextRemote);
+
     if (nextRemote.paired) setMachinePairing(null);
-  }, [remoteLoader.load, setError]);
+  }, [remoteLoaderLoad, setError]);
 
   const enableMachineRemote = useCallback(async () => {
     const playback = playbackRef.current;
-    const result = await remoteAction.submit({
+    const result = await remoteActionSubmit({
       intent: 'enable',
       request: {
         currentPlaylistItemId: playback?.currentPlaylistItem?.id ?? '',
@@ -89,10 +90,13 @@ export function useMachineRemote({
         roomId,
       },
     });
+
     if (result.data?.intent !== 'enabled') {
       setError(result.error || 'Could not enable remote control.');
+
       return;
     }
+
     const { pairing } = result.data;
     setMachinePairing(pairing);
     setMachineRemote({
@@ -108,22 +112,26 @@ export function useMachineRemote({
       playbackPositionMs: pairing.playbackPositionMs,
     });
     setError('');
-  }, [playbackRef, remoteAction.submit, roomId, setError]);
+  }, [playbackRef, remoteActionSubmit, roomId, setError]);
 
   const disableMachineRemote = useCallback(async () => {
     if (!machineRemote?.id) return;
-    const result = await remoteAction.submit({
+
+    const result = await remoteActionSubmit({
       intent: 'disable',
       remoteId: machineRemote.id,
     });
+
     if (result.error) {
       setError(result.error);
+
       return;
     }
+
     setMachinePairing(null);
     setMachineRemote(null);
     setError('');
-  }, [machineRemote?.id, remoteAction.submit, setError]);
+  }, [machineRemote?.id, remoteActionSubmit, setError]);
 
   useEffect(() => {
     void refreshMachineRemote();
@@ -142,9 +150,12 @@ export function useMachineRemote({
 
 export function getObservedPosition(playback: PlaybackStateV2 | null) {
   if (!playback) return 0;
+
   if (!playback.isPlaying) return playback.positionMs;
+
   const referenceTimeMs = getClientReferenceTimeMs(playback.serverTimeMs);
   const elapsed = Math.max(Date.now() - referenceTimeMs, 0);
   const duration = (playback.currentPlaylistItem?.duration ?? 0) * 1_000;
+
   return Math.min(playback.positionMs + elapsed, duration || Number.MAX_VALUE);
 }

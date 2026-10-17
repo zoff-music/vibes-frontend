@@ -1,9 +1,7 @@
 import type { Providers, RoomSettingsV2, RoomV2 } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
+import { useMutation } from '@vibes/shared/use-request';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, Modal, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import {
   Button,
   Card,
@@ -14,10 +12,11 @@ import {
   Screen,
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { Toast, ToastViewport } from '@/components/toast';
-import type { ControllerRoomActionData } from '@/routes/remotes.controller.$id.room/action';
-import type { RoomSessionActionData } from '@/routes/rooms.$id.session/action';
-import type { RoomSettingsActionData } from '@/routes/rooms.$id.settings/action';
+import { updateControllerRoom } from '@/requests/update-controller-room';
+import { updateRoomSession } from '@/requests/update-room-session';
+import { updateRoomSettings } from '@/requests/update-room-settings';
 
 interface RoomSettingsSheetProps {
   controllerToken?: string;
@@ -42,21 +41,16 @@ export function RoomSettingsSheet({
   room,
   visible,
 }: RoomSettingsSheetProps) {
-  const [, roomSessionFetcher] = useFetcher<RoomSessionActionData>({
-    params: { id: room.id },
-    routeId: 'rooms.$id.session',
+  const [, submitRoomSession] = useMutation(updateRoomSession, {
+    id: room.id,
   });
-  const [, roomSettingsFetcher] = useFetcher<RoomSettingsActionData>({
-    params: { id: room.id },
-    routeId: 'rooms.$id.settings',
+  const [, submitRoomSettings] = useMutation(updateRoomSettings, {
+    id: room.id,
   });
-  const [, remoteFetcher] = useFetcher<ControllerRoomActionData>({
-    params: { controllerToken: controllerToken ?? '', id: remoteId ?? '' },
-    routeId: 'remotes.controller.$id.room',
+  const [, submitRemote] = useMutation(updateControllerRoom, {
+    controllerToken: controllerToken ?? '',
+    id: remoteId ?? '',
   });
-  const submitRoomSession = roomSessionFetcher.submit;
-  const submitRoomSettings = roomSettingsFetcher.submit;
-  const submitRemote = remoteFetcher.submit;
   const [activeRoom, setActiveRoom] = useState(room);
   const [settings, setSettings] = useState(room.settings);
   const [mode, setMode] = useState(room.mode);
@@ -68,7 +62,9 @@ export function RoomSettingsSheet({
   useEffect(() => {
     const opened = visible && !wasVisible.current;
     wasVisible.current = visible;
+
     if (!opened) return;
+
     setActiveRoom(room);
     setSettings(room.settings);
     setMode(room.mode);
@@ -78,14 +74,17 @@ export function RoomSettingsSheet({
 
   const authenticate = async () => {
     const submittedPassword = password.trim();
+
     if (!submittedPassword) {
       setError(
         activeRoom.hasPassword
           ? 'Enter the room admin password.'
           : 'Enter a new admin password.',
       );
+
       return;
     }
+
     setLoading(true);
     const result = controllerToken
       ? await submitRemote({
@@ -97,11 +96,14 @@ export function RoomSettingsSheet({
           intent: 'authenticate',
           password: submittedPassword,
         });
+
     if (result.data?.intent !== 'roomUpdated') {
       setLoading(false);
       setError(result.error || 'The admin password was not accepted.');
+
       return;
     }
+
     setLoading(false);
     setActiveRoom(result.data.room);
     setSettings(result.data.room.settings);
@@ -109,6 +111,7 @@ export function RoomSettingsSheet({
     setPassword('');
     setError('warning' in result.data ? result.data.warning : '');
     await onUpdated();
+
     if (onAuthenticated) {
       await onAuthenticated(activeRoom.id, submittedPassword);
     }
@@ -132,12 +135,15 @@ export function RoomSettingsSheet({
     setLoading(false);
     const updatedRoom =
       result.data && 'room' in result.data ? result.data.room : null;
+
     if (!updatedRoom) {
       setMode(activeRoom.mode);
       setSettings(activeRoom.settings);
       setError(result.error || 'Could not update room settings.');
+
       return;
     }
+
     setActiveRoom(updatedRoom);
     setMode(updatedRoom.mode);
     setSettings(updatedRoom.settings);
@@ -160,14 +166,18 @@ export function RoomSettingsSheet({
           roomId: activeRoom.id,
         })
       : await submitRoomSession({ intent: 'logoutAdmin' });
+
     if (result.error || result.data?.intent !== 'success') {
       setLoading(false);
       setError(result.error || 'Could not sign out as room admin.');
+
       return;
     }
+
     if (onLoggedOut) {
       await onLoggedOut(activeRoom.id);
     }
+
     const guestRoom = {
       ...activeRoom,
       isAdmin: false,

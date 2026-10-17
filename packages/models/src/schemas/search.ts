@@ -16,6 +16,7 @@ export const providerItemSchema = /* @__PURE__ */ z.compile(
     playbackRestriction: playbackRestrictionSchema,
   }),
 );
+
 export type ProviderItem = z.infer<typeof providerItemSchema>;
 
 export const providerPlaylistSchema = /* @__PURE__ */ z.compile(
@@ -30,11 +31,13 @@ export const providerPlaylistSchema = /* @__PURE__ */ z.compile(
     skippedRoomTypeCount: z.optional(z.int().check(z.minimum(0))),
   }),
 );
+
 export type ProviderPlaylist = z.infer<typeof providerPlaylistSchema>;
 
 export const providerSearchResponseSchema = /* @__PURE__ */ z.compile(
   z.array(providerItemSchema),
 );
+
 export type ProviderSearchResponse = z.infer<
   typeof providerSearchResponseSchema
 >;
@@ -45,6 +48,7 @@ export const searchQuerySchema = /* @__PURE__ */ z.compile(
     roomId: z.optional(z.string().check(z.maxLength(200))),
   }),
 );
+
 export type SearchQuery = z.infer<typeof searchQuerySchema>;
 
 export const providerURLQuerySchema = /* @__PURE__ */ z.compile(
@@ -52,4 +56,5 @@ export const providerURLQuerySchema = /* @__PURE__ */ z.compile(
     url: z.url(),
   }),
 );
+
 export type ProviderURLQuery = z.infer<typeof providerURLQuerySchema>;

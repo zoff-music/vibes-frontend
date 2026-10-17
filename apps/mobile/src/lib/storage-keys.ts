@@ -9,6 +9,7 @@ export function getRoomAdminPasswordStorageKey(roomId: string) {
   const encodedRoomId = Array.from(roomId, (character) =>
     character.codePointAt(0)?.toString(16),
   ).join('-');
+
   return `${roomAdminPasswordStoragePrefix}.${encodedRoomId}`;
 }
 

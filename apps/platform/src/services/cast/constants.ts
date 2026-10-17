@@ -16,8 +16,11 @@ export const CUSTOM_RECEIVER_URL =
 
 export const LOCAL_EMULATOR_ENABLED = (() => {
   const envValue = import.meta.env.VITE_CAST_LOCAL_EMULATOR;
+
   if (envValue === 'true' || envValue === '1') return true;
+
   if (typeof window === 'undefined') return false;
+
   return (
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1'
@@ -30,6 +33,7 @@ export const CAST_DEVICE_PICKER_ID = 'chromecast-available';
 
 export const isGoogleCastSupportedBrowser = () => {
   if (LOCAL_EMULATOR_ENABLED) return true;
+
   if (typeof window === 'undefined' || typeof navigator === 'undefined') {
     return false;
   }

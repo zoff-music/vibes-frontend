@@ -13,11 +13,13 @@ export const adminRoomSummaryV2Schema = /* @__PURE__ */ z.compile(
     playlistItemCount: z.number(),
   }),
 );
+
 export type AdminRoomSummaryV2 = z.infer<typeof adminRoomSummaryV2Schema>;
 
 export const adminRoomsV2Schema = /* @__PURE__ */ z.compile(
   z.array(adminRoomSummaryV2Schema),
 );
+
 export type AdminRoomsV2 = z.infer<typeof adminRoomsV2Schema>;
 
 export const adminRoomResultV2Schema = /* @__PURE__ */ z.compile(
@@ -29,6 +31,7 @@ export const adminRoomResultV2Schema = /* @__PURE__ */ z.compile(
     count: z.number(),
   }),
 );
+
 export type AdminRoomResultV2 = z.infer<typeof adminRoomResultV2Schema>;
 
 export const adminRoomSearchV2Schema = /* @__PURE__ */ z.compile(
@@ -47,6 +50,7 @@ export const adminLoginRequestSchema = /* @__PURE__ */ z.compile(
     password: z.string(),
   }),
 );
+
 export type AdminLoginRequest = z.infer<typeof adminLoginRequestSchema>;
 
 export const adminUserSchema = /* @__PURE__ */ z.compile(
@@ -57,11 +61,13 @@ export const adminUserSchema = /* @__PURE__ */ z.compile(
     updatedAt: z.string(),
   }),
 );
+
 export type AdminUser = z.infer<typeof adminUserSchema>;
 
 export const adminUsersSchema = /* @__PURE__ */ z.compile(
   z.array(adminUserSchema),
 );
+
 export type AdminUsers = z.infer<typeof adminUsersSchema>;
 
 export const adminCreateUserRequestSchema = /* @__PURE__ */ z.compile(
@@ -70,6 +76,7 @@ export const adminCreateUserRequestSchema = /* @__PURE__ */ z.compile(
     password: z.string(),
   }),
 );
+
 export type AdminCreateUserRequest = z.infer<
   typeof adminCreateUserRequestSchema
 >;
@@ -79,6 +86,7 @@ export const adminUpdateUserRequestSchema = /* @__PURE__ */ z.compile(
     password: z.string(),
   }),
 );
+
 export type AdminUpdateUserRequest = z.infer<
   typeof adminUpdateUserRequestSchema
 >;
@@ -89,6 +97,7 @@ export const adminUpdateRoomRequestSchema = /* @__PURE__ */ z.compile(
     clearAdminPassword: z.optional(z.boolean()),
   }),
 );
+
 export type AdminUpdateRoomRequest = z.infer<
   typeof adminUpdateRoomRequestSchema
 >;
@@ -99,6 +108,7 @@ export const adminSessionResponseSchema = /* @__PURE__ */ z.compile(
     user: z.optional(adminUserSchema),
   }),
 );
+
 export type AdminSessionResponse = z.infer<typeof adminSessionResponseSchema>;
 
 export const adminSearchUsagePointSchema = /* @__PURE__ */ z.compile(
@@ -112,6 +122,7 @@ export const adminSearchUsagePointSchema = /* @__PURE__ */ z.compile(
     live: z.number(),
   }),
 );
+
 export type AdminSearchUsagePoint = z.infer<typeof adminSearchUsagePointSchema>;
 
 export const adminSearchUsageSchema = /* @__PURE__ */ z.compile(
@@ -131,6 +142,7 @@ export const adminSearchUsageSchema = /* @__PURE__ */ z.compile(
     generatedAt: z.string(),
   }),
 );
+
 export type AdminSearchUsage = z.infer<typeof adminSearchUsageSchema>;
 
 export const listenerUsagePointSchema = /* @__PURE__ */ z.compile(
@@ -140,6 +152,7 @@ export const listenerUsagePointSchema = /* @__PURE__ */ z.compile(
     listeners: z.number(),
   }),
 );
+
 export type ListenerUsagePoint = z.infer<typeof listenerUsagePointSchema>;
 
 export const adminListenerUsageSchema = /* @__PURE__ */ z.compile(
@@ -157,6 +170,7 @@ export const adminListenerUsageSchema = /* @__PURE__ */ z.compile(
     generatedAt: z.string(),
   }),
 );
+
 export type AdminListenerUsage = z.infer<typeof adminListenerUsageSchema>;
 
 export const adminMessageUsageSchema = /* @__PURE__ */ z.compile(
@@ -184,6 +198,7 @@ export const adminMessageUsageSchema = /* @__PURE__ */ z.compile(
     ),
   }),
 );
+
 export type AdminMessageUsage = z.infer<typeof adminMessageUsageSchema>;
 
 export const adminMessageUsageSearchSchema = /* @__PURE__ */ z.compile(

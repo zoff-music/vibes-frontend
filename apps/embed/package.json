@@ -4,28 +4,25 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "react-router dev --host 0.0.0.0 --port 3006",
-    "build": "react-router build",
+    "dev": "vite --host 127.0.0.1 --port 3006",
+    "build": "vite build --outDir dist/client && vite build --ssr src/entry.server.tsx --outDir dist/server",
     "start": "node server/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src server",
     "preview": "node server/index.ts"
   },
   "dependencies": {
-    "@react-router/express": "8.4.0",
-    "@react-router/serve": "8.4.0",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "framer-motion": "14.1.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "react-router": "8.4.0"
+    "@kasperrt/smolter": "0.4.4",
+    "preact": "11.0.1",
+    "preact-render-to-string": "6.8.1"
   },
   "devDependencies": {
-    "@react-router/dev": "8.4.0",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "26.6.5",
     "@types/react": "19.2.18",

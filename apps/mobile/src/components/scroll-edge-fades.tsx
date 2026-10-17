@@ -1,5 +1,4 @@
-import type { ComponentProps } from 'react';
-import { useCallback, useRef, useState } from 'react';
+import { type ComponentProps, useCallback, useRef, useState } from 'react';
 import {
   type LayoutChangeEvent,
   type NativeScrollEvent,
@@ -123,6 +122,7 @@ export function useScrollEdgeFades({
 
 function ScrollEdgeFade({ backgroundColor, direction }: ScrollEdgeFadeProps) {
   const startsOpaque = direction === 'top';
+
   return (
     <Svg
       height="100%"

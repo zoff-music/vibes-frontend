@@ -1,13 +1,17 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import {
+  type RouteAssets,
+  routePreloads,
+} from '@kasperrt/smolter/utils/assets';
+import {
+  createRequestHandler,
+  type ServerBuild,
+} from '@kasperrt/smolter/utils/http';
+import { isRouteErrorResponse } from '@kasperrt/smolter/utils/responses';
 import { safeWrapAsync } from '@vibes/shared/wrap';
 import compression from 'compression';
 import express, { type Request, type Response } from 'express';
-import {
-  type HandleErrorFunction,
-  isRouteErrorResponse,
-  type ServerBuild,
-} from 'react-router';
 import { metricsApp } from './metrics.ts';
 import {
   createBodySizeLimitMiddleware,
@@ -18,11 +22,22 @@ import {
 import { precompressedAssets } from './precompressed.ts';
 import { initTracing } from './tracing.ts';
 
+interface ServerErrorContext {
+  request: globalThis.Request;
+}
+
+interface ApplicationBuild extends ServerBuild {
+  clientAssetBase: string;
+}
+
 export type ServerRequest = Request;
 
 const defaultBodySizeLimitBytes = 1024 * 1024;
 
-export const handleServerError: HandleErrorFunction = (error, { request }) => {
+export const handleServerError = (
+  error: unknown,
+  { request }: ServerErrorContext,
+) => {
   if (request.signal.aborted) {
     return;
   }
@@ -71,6 +86,7 @@ function resolveBodySizeLimitBytes(config: ServerConfig) {
   }
 
   const parsed = Number.parseInt(process.env.BODY_SIZE_LIMIT_BYTES ?? '', 10);
+
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
@@ -80,25 +96,29 @@ function resolveBodySizeLimitBytes(config: ServerConfig) {
 
 async function setupRoutes(app: express.Express, config: ServerConfig) {
   if (config.dev) {
-    const { createRequestHandler } = await import('@react-router/express');
     const vite = await import('vite');
     const devServer = await vite.createServer({
       server: { middlewareMode: true },
     });
-
     app.use(devServer.middlewares);
-    app.use(
-      createRequestHandler({
-        build: () =>
-          devServer.ssrLoadModule(
-            'virtual:react-router/server-build',
-          ) as Promise<ServerBuild>,
-      }),
-    );
+
     return;
   }
 
   const staticBase = config.assets.path.replace(/\/assets\/?$/, '') || '/';
+  const dataEndpoint = `${staticBase.replace(/\/$/, '')}/_smolter`;
+  app.get(
+    `${staticBase.replace(/\/$/, '')}/smolter-manifest.json`,
+    (_req, res) => {
+      res.set({
+        'Cache-Control': 'no-store',
+        'Access-Control-Allow-Origin': '*',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
+      });
+      res.sendFile(path.resolve(config.staticDir, 'smolter-manifest.json'));
+    },
+  );
+
   const assetRouter = express.Router();
   assetRouter.use((_req, res, next) => {
     res.set('Access-Control-Allow-Origin', '*');
@@ -126,6 +146,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     // Public images only: never expose documents, data or app routes here.
     if (!/\.(?:png|webp|avif|jpe?g|gif|svg|ico|woff2?)$/i.test(req.path)) {
       next();
+
       return;
     }
 
@@ -135,12 +156,14 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
   app.use((req, res, next) => {
     if (!process.env.ASSET_HOST || req.hostname !== process.env.ASSET_HOST) {
       next();
+
       return;
     }
 
     // This hostname has no SSR/API fallback, including for missing chunks.
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.set('Cache-Control', 'no-store').sendStatus(405);
+
       return;
     }
 
@@ -182,48 +205,42 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     );
     app.use(express.static(config.staticDir, staticOptions));
 
-    const { createRequestHandler } = await import('@react-router/express');
-    const { loadBuild } = config.mode;
-    const build = (await loadBuild()) as ServerBuild;
-    const entry = build.entry.module as ServerBuild['entry']['module'] & {
-      documentPreloads?: string[];
-    };
-    const modulePreloads = [
-      ...new Set([build.assets.entry.module, ...build.assets.entry.imports]),
-    ].map((url) => `<${url}>; rel=modulepreload`);
-    const assetPreconnects = build.assets.entry.module.startsWith('https://')
-      ? [
-          `<${new URL(build.assets.entry.module).origin}>; rel=preconnect; crossorigin`,
-        ]
-      : [];
-    const preloads = [
-      ...assetPreconnects,
-      ...(entry.documentPreloads
-        ? [...entry.documentPreloads, ...modulePreloads]
-        : []),
-    ];
-
-    if (preloads?.length) {
-      app.use((req, res, next) => {
-        // Start shared hydration dependencies while document loaders run.
-        // Data requests and assets must not preload an application shell.
-        if (
-          req.method === 'GET' &&
-          req.get('Accept')?.includes('text/html') &&
-          !req.path.includes('.')
-        ) {
-          res.writeEarlyHints({ link: preloads });
-          res.append('Link', preloads);
-        }
-        next();
-      });
-    }
-
-    app.use(
-      createRequestHandler({
-        build,
-      }),
+    const build = (await config.mode.loadBuild()) as ApplicationBuild;
+    const manifest = JSON.parse(
+      await readFile(
+        path.join(config.staticDir, '.vite/manifest.json'),
+        'utf8',
+      ),
+    ) as Record<string, { file: string; isEntry?: boolean }>;
+    const routeAssets: RouteAssets[] = JSON.parse(
+      await readFile(
+        path.join(config.staticDir, '.vite/route-assets.json'),
+        'utf8',
+      ),
     );
+    const client = Object.values(manifest).find((item) => item.isEntry);
+
+    if (!client)
+      throw new Error('Client entry is missing from the Vite manifest');
+
+    const clientAssetBase = build.clientAssetBase || staticBase;
+    const entry = `${clientAssetBase.replace(/\/$/, '')}/${client.file}`;
+
+    app.use((req, res, next) => {
+      if (
+        req.path !== dataEndpoint &&
+        (req.method === 'GET' || req.method === 'HEAD')
+      ) {
+        res.set('Cache-Control', 'no-cache');
+        const preloads = routePreloads(routeAssets, req.path, clientAssetBase);
+
+        if (preloads) res.set('Link', preloads);
+      }
+
+      next();
+    });
+    app.use(createRequestHandler({ build, entry, dataEndpoint }));
+
     return;
   }
 
@@ -324,9 +341,11 @@ export async function startServer(config: ServerConfig) {
 
     void (async () => {
       const [err] = await safeWrapAsync(sdk.shutdown());
+
       if (err) {
         console.error(err);
       }
+
       process.exit(0);
     })();
   }

@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import {
   NativeButton,
   NativeCard,
@@ -30,6 +31,7 @@ export function Screen({ children, gridPaused = false }: ScreenProps) {
   const tabletLayout = useTabletLandscapeLayout();
   const reservesTabletNavigation =
     Platform.OS === 'android' && tabletLayout.isTablet;
+
   return (
     <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
       <NativeRetroGrid paused={gridPaused} />
@@ -52,10 +54,13 @@ export const Card = NativeCard;
 
 export function ContentColumn({ children }: PropsWithChildren) {
   const { width } = useWindowDimensions();
+
   return (
     <View
-      className="w-full"
-      style={width >= tabletWidth ? tabletContentColumnStyle : null}
+      className={classNames(
+        'w-full',
+        width >= tabletWidth && 'max-w-190 self-center',
+      )}
     >
       {children}
     </View>
@@ -94,6 +99,7 @@ export function IconButton({
   onPress,
 }: IconButtonProps) {
   const theme = useAppTheme();
+
   return (
     <NativeIconButton
       accessibilityLabel={accessibilityLabel}
@@ -102,6 +108,7 @@ export function IconButton({
       iconColor={theme.text}
       onPress={() => {
         if (feedback) void triggerSelectionFeedback();
+
         onPress();
       }}
       pressFeedback={feedback}
@@ -121,12 +128,15 @@ export function Button({
 }: ButtonProps) {
   const theme = useAppTheme();
   let iconColor: string = theme.text;
+
   if (tone === 'primary') {
     iconColor = '#ffffff';
   }
+
   if (tone === 'danger') {
     iconColor = theme.danger;
   }
+
   return (
     <NativeButton
       accessibilityLabel={accessibilityLabel ?? label}
@@ -136,6 +146,7 @@ export function Button({
       label={label}
       onPress={() => {
         if (feedback) void triggerSelectionFeedback();
+
         onPress();
       }}
       pressFeedback={feedback}
@@ -153,6 +164,7 @@ interface EmptyProps {
 
 export function Empty({ children, loading }: EmptyProps) {
   const theme = useAppTheme();
+
   return (
     <View className="flex-1 items-center justify-center gap-3">
       {loading && <ActivityIndicator color={theme.accent} />}
@@ -162,7 +174,3 @@ export function Empty({ children, loading }: EmptyProps) {
 }
 
 const tabletWidth = 768;
-const tabletContentColumnStyle = {
-  alignSelf: 'center' as const,
-  maxWidth: 760,
-};

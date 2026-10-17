@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from 'preact/compat';
 
 export function useEmbedScrollContainment() {
   useEffect(() => {
@@ -6,7 +6,9 @@ export function useEmbedScrollContainment() {
 
     const handleWheel = (event: WheelEvent) => {
       if (!event.cancelable || event.ctrlKey || event.defaultPrevented) return;
+
       if (canScroll(event.target, event.deltaY)) return;
+
       event.preventDefault();
     };
 
@@ -21,12 +23,16 @@ export function useEmbedScrollContainment() {
         event.defaultPrevented
       ) {
         touchY = null;
+
         return;
       }
+
       const nextTouchY = event.touches[0].clientY;
       const deltaY = touchY === null ? 0 : touchY - nextTouchY;
       touchY = nextTouchY;
+
       if (canScroll(event.target, deltaY)) return;
+
       event.preventDefault();
     };
 
@@ -48,14 +54,19 @@ export function useEmbedScrollContainment() {
 
 function canScroll(target: EventTarget | null, deltaY: number): boolean {
   if (!(target instanceof Element)) return false;
+
   const scrollArea = target.closest('[data-embed-scroll]');
+
   if (!(scrollArea instanceof HTMLElement)) return false;
+
   if (deltaY < 0) return scrollArea.scrollTop > 0;
+
   if (deltaY > 0) {
     return (
       scrollArea.scrollTop + scrollArea.clientHeight <
       scrollArea.scrollHeight - 1
     );
   }
+
   return false;
 }

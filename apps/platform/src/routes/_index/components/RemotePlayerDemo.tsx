@@ -59,17 +59,21 @@ export function RemotePlayerDemo() {
             </div>
             <div className="flex items-center gap-4 sm:block">
               <div className="relative size-24 shrink-0 overflow-hidden rounded-2xl sm:mx-auto sm:aspect-square sm:size-auto sm:w-full sm:max-w-64">
-                <motion.img
+                <motion.div
                   key={state.playlistItem.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: state.reducedMotion ? 0 : 0.5 }}
-                  src={state.playlistItem.thumbnailUrl}
-                  width={240}
-                  height={240}
-                  alt="Illustrative album artwork"
-                  className="absolute inset-0 size-full object-cover"
-                />
+                  className="absolute inset-0 size-full"
+                >
+                  <img
+                    src={state.playlistItem.thumbnailUrl}
+                    width={240}
+                    height={240}
+                    alt="Illustrative album artwork"
+                    className="size-full object-cover"
+                  />
+                </motion.div>
                 <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/10" />
                 {!state.paired && (
                   <div

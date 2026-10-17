@@ -6,7 +6,7 @@ import {
   getRoomLabels,
 } from '@vibes/ui/shared';
 import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'preact/compat';
 import { QrCode } from '@/tizen/qr-code';
 import { TizenPlaybackStatus } from '@/tizen/tizen-playback-status';
 import { TizenProviderSurface } from '@/tizen/tizen-provider-surface';
@@ -40,7 +40,9 @@ export function TizenRoom({
   const joinUrl = `https://zoff.me/${encodeURIComponent(roomId)}`;
   useEffect(() => {
     const queue = queueRef.current;
+
     if (!queue) return;
+
     const updateVisibleQueueLength = () => {
       const height = queue.getBoundingClientRect().height;
       setVisibleQueueLength(
@@ -55,6 +57,7 @@ export function TizenRoom({
     updateVisibleQueueLength();
     const observer = new ResizeObserver(updateVisibleQueueLength);
     observer.observe(queue);
+
     return () => observer.disconnect();
   }, []);
   const displayedListenerCount = listenerCount || room.userCount || 0;
@@ -62,6 +65,7 @@ export function TizenRoom({
     queued.length,
     visibleQueueLength,
   );
+
   return (
     <div className="relative flex h-full overflow-hidden p-6">
       <section className="flex h-full w-[68%] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-primary/30 bg-tv-card">

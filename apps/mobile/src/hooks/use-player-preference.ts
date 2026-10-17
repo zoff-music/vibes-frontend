@@ -1,14 +1,11 @@
-import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
+import { useMutation } from '@vibes/shared/use-request';
 import { useCallback, useEffect, useState } from 'react';
-import type { PlayerPreferenceActionData } from '@/routes/preferences.player/action';
-import type { PlayerPreferenceData } from '@/routes/preferences.player/loader';
+import { useInitialData } from '@/providers/initial-data-provider';
+import { updatePlayerPreference } from '@/requests/update-player-preference';
 
 export function usePlayerPreference() {
-  const preference =
-    useRouteLoaderData<PlayerPreferenceData>('preferences.player');
-  const [, preferenceFetcher] = useFetcher<PlayerPreferenceActionData>({
-    routeId: 'preferences.player',
-  });
+  const preference = useInitialData().player;
+  const [, preferenceFetcherSubmit] = useMutation(updatePlayerPreference);
   const [enabled, setEnabledValue] = useState(true);
   const [warning, setWarning] = useState('');
 
@@ -18,12 +15,14 @@ export function usePlayerPreference() {
 
   const setEnabled = useCallback(
     async (nextEnabled: boolean) => {
-      const result = await preferenceFetcher.submit({ enabled: nextEnabled });
+      const result = await preferenceFetcherSubmit({ enabled: nextEnabled });
+
       if (!result.data) return;
+
       setEnabledValue(result.data.enabled);
       setWarning(result.data.warning);
     },
-    [preferenceFetcher.submit],
+    [preferenceFetcherSubmit],
   );
 
   return [

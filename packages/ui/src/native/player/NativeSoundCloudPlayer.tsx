@@ -95,6 +95,7 @@ export function NativeSoundCloudPlayer({
 
   useEffect(() => {
     if (!ready || loadedTrackUrl.current === trackUrl) return;
+
     loadedTrackUrl.current = trackUrl;
     setReady(false);
     playerRef.current?.injectJavaScript(
@@ -104,7 +105,9 @@ export function NativeSoundCloudPlayer({
 
   useEffect(() => {
     desiredPlaying.current = isPlaying;
+
     if (!ready) return;
+
     setPlayerPlaying(isPlaying);
   }, [isPlaying, ready, setPlayerPlaying]);
 
@@ -112,6 +115,7 @@ export function NativeSoundCloudPlayer({
     latestPosition.current = positionMs;
     const positionChanged = Math.abs(positionMs - previousPosition.current);
     previousPosition.current = positionMs;
+
     if (
       !ready ||
       !synchronizePosition ||
@@ -119,11 +123,13 @@ export function NativeSoundCloudPlayer({
     ) {
       return;
     }
+
     seekToPosition(positionMs);
   }, [positionMs, ready, seekToPosition, synchronizePosition]);
 
   useEffect(() => {
     if (!ready || lastResetVersion.current === resetVersion) return;
+
     lastResetVersion.current = resetVersion;
     expectedPosition.current = {
       commandedAt: Date.now(),
@@ -137,10 +143,12 @@ export function NativeSoundCloudPlayer({
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState !== 'active' || !ready) return;
+
       playerRef.current?.injectJavaScript(
         `window.zoffReset?.(${Math.max(0, Math.round(latestPosition.current))}, ${desiredPlaying.current ? 'true' : 'false'}); true;`,
       );
     });
+
     return () => subscription.remove();
   }, [ready]);
 
@@ -156,15 +164,21 @@ export function NativeSoundCloudPlayer({
       const [messageError, message] = safeWrap<unknown>(() =>
         JSON.parse(event.nativeEvent.data),
       );
+
       if (messageError || !isPlayerMessage(message)) return;
+
       if (message.type === 'ready') {
         handleReady();
+
         return;
       }
+
       if (message.type === 'playing') {
         if (!message.commanded) onPlayingChange?.(message.isPlaying);
+
         return;
       }
+
       if (message.type === 'position') {
         if (
           shouldSuppressExpectedPosition(
@@ -175,17 +189,24 @@ export function NativeSoundCloudPlayer({
         ) {
           return;
         }
+
         onLocalPositionObserved?.(message.positionMs);
+
         return;
       }
+
       if (message.type === 'seek') {
         if (!message.commanded) onLocalSeek?.(message.positionMs);
+
         return;
       }
+
       if (message.type === 'ended') {
         onEnded?.();
+
         return;
       }
+
       onError?.('SoundCloud could not play this track.');
     },
     [
@@ -201,14 +222,18 @@ export function NativeSoundCloudPlayer({
   const handleNavigationRequest = useCallback(
     (request: WebViewNavigation) => {
       const url = request.mainDocumentURL || request.url;
+
       if (url.startsWith('about:') || isPlayerNavigation(url)) return true;
+
       const openExternal = async () => {
         const [openError] = await safeWrapAsync(Linking.openURL(url));
+
         if (openError) {
           onError?.('This SoundCloud link could not be opened on this device.');
         }
       };
       void openExternal();
+
       return false;
     },
     [onError],
@@ -299,6 +324,7 @@ function isPlayerMessage(message: unknown): message is PlayerMessage {
   if (!message || typeof message !== 'object' || !('type' in message)) {
     return false;
   }
+
   if (
     message.type === 'ready' ||
     message.type === 'ended' ||
@@ -306,6 +332,7 @@ function isPlayerMessage(message: unknown): message is PlayerMessage {
   ) {
     return true;
   }
+
   if (
     message.type === 'playing' &&
     'commanded' in message &&
@@ -315,6 +342,7 @@ function isPlayerMessage(message: unknown): message is PlayerMessage {
   ) {
     return true;
   }
+
   if (
     (message.type === 'position' || message.type === 'seek') &&
     'positionMs' in message &&
@@ -325,6 +353,7 @@ function isPlayerMessage(message: unknown): message is PlayerMessage {
       ('commanded' in message && typeof message.commanded === 'boolean')
     );
   }
+
   return false;
 }
 
@@ -334,23 +363,31 @@ function shouldSuppressExpectedPosition(
   observedAt: number,
 ) {
   const expected = expectedPosition.current;
+
   if (!expected) return false;
+
   const isAligned =
     Math.abs(observedPositionMs - expected.positionMs) <=
     expectedPositionToleranceMs;
   const didTimeOut =
     observedAt - expected.commandedAt >= expectedPositionTimeoutMs;
+
   if (isAligned || didTimeOut) {
     expectedPosition.current = null;
+
     return false;
   }
+
   return true;
 }
 
 function getSoundCloudTrackUrl(sourceId: string, providerUrl?: string) {
   if (providerUrl) return providerUrl;
+
   if (sourceId.startsWith('http')) return sourceId;
+
   const trackId = sourceId.replace(soundCloudTrackUrnPattern, '');
+
   return `https://api.soundcloud.com/tracks/${trackId}`;
 }
 
@@ -369,6 +406,7 @@ function getPlayerHtml(
     artworkHeight >= minimumArtworkHeight
       ? `<img id="artwork" src=${JSON.stringify(artworkUrl)} alt="" />`
       : '';
+
   return `<!doctype html>
 <html>
   <head>

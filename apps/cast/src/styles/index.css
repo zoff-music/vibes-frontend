@@ -1,1 +1,7 @@
-@import "@vibes/tailwind/cast.css";
+@import "tailwindcss";
+@import "@vibes/tailwind/theme.css";
+@import "@vibes/tailwind/fonts.css";
+
+@config "@vibes/tailwind/cast-config";
+@source "../../../../packages/ui/src/web";
+@source "../../../../packages/ui/src/shared";

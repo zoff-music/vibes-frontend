@@ -1,7 +1,7 @@
 import { displayNameMaxLength } from '@vibes/models/limits';
 import { classNames } from '@vibes/shared';
 import type { ThemeId } from '@vibes/shared/themeStore';
-import { type FormEventHandler, type ReactNode, useRef } from 'react';
+import { type FormEventHandler, type ReactNode, useRef } from 'preact/compat';
 import { CircleHalfIcon, CloseIcon, MoonIcon, SunIcon } from '../icons';
 import { Button } from './Button';
 import { Modal } from './Modal';
@@ -78,7 +78,7 @@ export function PersonalSettingsModal({
               id="profile-name"
               maxLength={displayNameMaxLength}
               name="name"
-              onChange={(event) => onNameChange(event.target.value)}
+              onChange={(event) => onNameChange(event.currentTarget.value)}
               placeholder={isLoading ? 'Loading your profile…' : 'Display name'}
               ref={inputRef}
               required

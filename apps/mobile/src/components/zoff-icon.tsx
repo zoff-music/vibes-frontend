@@ -1,6 +1,6 @@
 import { NativeIcon } from '@vibes/ui/native';
-import type { ZoffIconName } from '@vibes/ui/shared';
-import { zoffIconDefinitions } from '@vibes/ui/shared';
+
+import { type ZoffIconName, zoffIconDefinitions } from '@vibes/ui/shared';
 
 import addTabIcon from '@/assets/icons/add.png';
 import addTabIconAndroid from '@/assets/icons/add-android.png';

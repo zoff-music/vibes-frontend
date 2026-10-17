@@ -10,12 +10,15 @@ function operationName(req: ServerRequest) {
   if (req.path === basePath || req.path === `${basePath}/`) {
     return 'CastReceiver';
   }
+
   if (req.path.startsWith(`${basePath}/assets/`)) {
     return 'StaticAsset';
   }
+
   if (req.path.startsWith(basePath)) {
     return 'CastReceiverAsset';
   }
+
   return 'CastRoute';
 }
 

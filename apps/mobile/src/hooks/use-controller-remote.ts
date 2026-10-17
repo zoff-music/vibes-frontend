@@ -1,14 +1,16 @@
 import { useRemoteEvents, useRoomEventsV3 } from '@vibes/api';
-import type {
-  PlaybackStateV2,
-  PlaylistItem,
-  RemoteEventV2,
-  RemoteSessionV2,
-  RemoteStatusV2,
-  RoomV2,
+import {
+  type PlaybackStateV2,
+  type PlaylistItem,
+  type PlaylistItemIdUpdate,
+  type PlaylistItemPositionUpdate,
+  type RemoteEventV2,
+  type RemoteSessionV2,
+  type RemoteStatusV2,
+  type RoomV2,
 } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
 import { synchronizeServerClock, usePlaybackDrift } from '@vibes/shared';
+import { useRequest } from '@vibes/shared/use-request';
 import type { BarcodeScanningResult } from 'expo-camera';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useControllerCommands } from '@/hooks/use-controller-commands';
@@ -26,7 +28,7 @@ import {
   useControllerSessionActions,
   useRoomSession,
 } from '@/providers/app-provider';
-import type { ControllerRemoteData } from '@/routes/remotes.controller.$id/loader';
+import { loadController } from '@/requests/load-controller';
 
 export interface ControllerRemoteActions {
   setPartyMode: (enabled: boolean) => Promise<void>;
@@ -117,9 +119,9 @@ export function useControllerRemote(): readonly [
     session: controllerRemote,
     setError,
   });
-  const [, remoteLoader] = useFetcher<ControllerRemoteData>({
-    params: { controllerToken, id: remoteId },
-    routeId: 'remotes.controller.$id',
+  const [, remoteLoaderLoad] = useRequest(loadController, {
+    controllerToken,
+    id: remoteId,
   });
   const client = useMemo(
     () => createRemoteApi(remoteId, controllerToken),
@@ -193,14 +195,15 @@ export function useControllerRemote(): readonly [
     if (!remoteId || !controllerToken || pairing) return;
 
     const requestId = ++refreshRequestRef.current;
-    const result = await remoteLoader.load();
+    const result = await remoteLoaderLoad();
+
     if (
       credentialsRef.current !== credentialsKey ||
       refreshRequestRef.current !== requestId
     )
       return;
 
-    // Cancelled native-router loads have neither data nor an error.
+    // Cancelled resource loads have neither data nor an error.
     if (!result.data && !result.error) return;
 
     if (!result.data) {
@@ -212,15 +215,19 @@ export function useControllerRemote(): readonly [
         setPlayback(null);
         await clearControllerRemote();
       }
+
       setError(
         result.error === invalidRemoteError
           ? 'Remote pairing expired. Pair the remote again.'
           : result.error || 'Remote is unavailable.',
       );
+
       return;
     }
+
     const { remote: nextRemote, snapshot } = result.data;
     setRemote(nextRemote);
+
     if (controllerRemote?.roomId !== nextRemote.currentRoomId) {
       await activateControllerRemote(
         remoteId,
@@ -240,9 +247,12 @@ export function useControllerRemote(): readonly [
       setPlaylistItems([]);
       setPlayback(null);
       setError('');
+
       return;
     }
+
     if (!snapshot) return;
+
     setRoom(normalizeMobileRoom(snapshot.room));
     setPlaylistItems(filterMobilePlaylistItems(snapshot.playlistItems));
     synchronizeServerClock(snapshot.playback.serverTimeMs);
@@ -257,7 +267,7 @@ export function useControllerRemote(): readonly [
     credentialsKey,
     pairing,
     remoteId,
-    remoteLoader.load,
+    remoteLoaderLoad,
   ]);
 
   useEffect(() => {
@@ -267,6 +277,7 @@ export function useControllerRemote(): readonly [
   const handleRemoteRoomUpdate = useCallback(
     (event: RemoteEventV2) => {
       if (!event.roomId || event.roomId === remote?.currentRoomId) return;
+
       void refresh();
     },
     [refresh, remote?.currentRoomId],
@@ -280,6 +291,7 @@ export function useControllerRemote(): readonly [
 
       setRemote((current) => {
         if (!current) return current;
+
         return {
           ...current,
           currentRoomId: event.roomId,
@@ -316,13 +328,15 @@ export function useControllerRemote(): readonly [
         setRoom(normalizeMobileRoom(nextRoom)),
       onPlaylistItemAdded: (playlistItem: PlaylistItem) => {
         if (!isMobileProvider(playlistItem.sourceType)) return;
+
         setPlaylistItems((current) => {
           if (current.some((item) => item.id === playlistItem.id))
             return current;
+
           return [...current, playlistItem];
         });
       },
-      onPlaylistItemRemoved: ({ id }: { id: string }) => {
+      onPlaylistItemRemoved: ({ id }: PlaylistItemIdUpdate) => {
         setPlaylistItems((current) =>
           current.filter((playlistItem) => playlistItem.id !== id),
         );
@@ -330,10 +344,7 @@ export function useControllerRemote(): readonly [
       onPlaylistItemUpdated: ({
         playlistItem,
         position,
-      }: {
-        playlistItem: PlaylistItem;
-        position: number;
-      }) => {
+      }: PlaylistItemPositionUpdate) => {
         setPlaylistItems((current) =>
           positionMobilePlaylistItem(current, playlistItem, position),
         );
@@ -343,6 +354,7 @@ export function useControllerRemote(): readonly [
       onUsersUpdate: (count: number) => {
         setRoom((current) => {
           if (!current) return current;
+
           return { ...current, userCount: count };
         });
       },

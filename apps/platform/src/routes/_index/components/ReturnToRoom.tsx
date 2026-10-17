@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useFetcher } from 'react-router';
+import { useFetcher } from '@kasperrt/smolter/preact';
+import { useEffect, useState } from 'preact/compat';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import {
   clearRoomReminder,
   readRoomReminder,
 } from '../../../utils/roomReminder';
-import type { clientLoader } from '../../room-reminder/clientLoader';
+import type { clientLoader } from '../../resources.recents/clientLoader';
 import { ReturnToRoomCard } from './ReturnToRoomCard';
 
 interface ReturnToRoomProps {
@@ -27,26 +27,32 @@ export function ReturnToRoom({ onJoinRoom }: ReturnToRoomProps) {
         !readRoomReminder()
       )
         return;
-      void load('/resources/room-reminder');
+
+      void load('/resources/recents');
     };
     refresh();
     const interval = eligible ? window.setInterval(refresh, 30_000) : null;
     const handlePageShow = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
+
       setDismissed(true);
       const roomId = readRoomReminder();
+
       if (roomId) clearRoomReminder(roomId);
     };
     window.addEventListener('pageshow', handlePageShow);
     document.addEventListener('visibilitychange', refresh);
+
     return () => {
       if (interval !== null) window.clearInterval(interval);
+
       window.removeEventListener('pageshow', handlePageShow);
       document.removeEventListener('visibilitychange', refresh);
     };
   }, [dismissed, load]);
 
   const room = data?.room;
+
   if (!room || dismissed) return null;
 
   return (

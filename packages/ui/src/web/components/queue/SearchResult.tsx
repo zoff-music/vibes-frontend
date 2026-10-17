@@ -1,5 +1,5 @@
 import { formatDuration, resolvePlaylistItemThumbnail } from '@vibes/shared';
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'preact/compat';
 import { Button } from '../Button';
 
 interface PlaylistItemSearchResultProps {

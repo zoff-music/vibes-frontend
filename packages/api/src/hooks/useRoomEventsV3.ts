@@ -17,6 +17,7 @@ export function useRoomEventsV3(
 
   useEffect(() => {
     if (!roomId) return;
+
     let active = true;
     let unsubscribe: (() => void) | null = null;
     void subscribeRoomUpdatesV3(client, roomId, {
@@ -41,10 +42,13 @@ export function useRoomEventsV3(
     }).then(([error, stop]) => {
       if (!active) {
         stop?.();
+
         return;
       }
+
       if (!error && stop) unsubscribe = stop;
     });
+
     return () => {
       active = false;
       unsubscribe?.();

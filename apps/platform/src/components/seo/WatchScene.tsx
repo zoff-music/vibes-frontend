@@ -7,7 +7,7 @@ import {
   PlayIcon,
 } from '@vibes/ui/web';
 import { MotionConfig, m as motion } from 'framer-motion';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useState } from 'preact/compat';
 import logo from '../../assets/logo-header.webp';
 import { useShowcaseMotion } from './useShowcaseMotion';
 
@@ -31,6 +31,7 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
       () => setFrame((value) => (value + 1) % 15),
       850,
     );
+
     return () => window.clearInterval(timer);
   }, [state.playing]);
 

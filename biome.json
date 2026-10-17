@@ -9,7 +9,13 @@
       "!**/dist",
       "!apps/**/e2e",
       "!apps/**/playwright-report",
-      "!**/.last-run.json"
+      "!**/.last-run.json",
+      "!**/.react-router",
+      "!**/.expo",
+      "!**/coverage",
+      "!**/test-results",
+      "!apps/*/android",
+      "!apps/*/ios"
     ]
   },
   "formatter": {
@@ -20,7 +26,6 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
       "a11y": {
         "useButtonType": "off",
         "noSvgWithoutTitle": "off",
@@ -48,7 +53,8 @@
       "style": {
         "noNonNullAssertion": "off",
         "useImportType": "off"
-      }
+      },
+      "preset": "recommended"
     }
   },
   "javascript": {

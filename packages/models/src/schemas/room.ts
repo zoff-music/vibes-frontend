@@ -22,6 +22,7 @@ export const roomHostUpdateSchema = /* @__PURE__ */ z.compile(
     message: z.string(),
   }),
 );
+
 export type RoomHostUpdate = z.infer<typeof roomHostUpdateSchema>;
 
 export const roomNameReservationSchema = /* @__PURE__ */ z.compile(
@@ -31,6 +32,7 @@ export const roomNameReservationSchema = /* @__PURE__ */ z.compile(
     expiresAt: z.string(),
   }),
 );
+
 export type RoomNameReservation = z.infer<typeof roomNameReservationSchema>;
 
 export const roomNameReservationRequestSchema = /* @__PURE__ */ z.compile(
@@ -38,6 +40,7 @@ export const roomNameReservationRequestSchema = /* @__PURE__ */ z.compile(
     name: z.optional(roomNameField),
   }),
 );
+
 export type RoomNameReservationRequest = z.infer<
   typeof roomNameReservationRequestSchema
 >;
@@ -45,6 +48,7 @@ export type RoomNameReservationRequest = z.infer<
 export const usersUpdateSchema = /* @__PURE__ */ z.compile(z.number());
 
 export const roomTypeSchema = z.enum(['MUSIC', 'WATCH']);
+
 export type RoomType = z.infer<typeof roomTypeSchema>;
 
 export const roomTypeQuerySchema = /* @__PURE__ */ z.compile(
@@ -62,6 +66,7 @@ export const publicRoomSearchSchema = /* @__PURE__ */ z.compile(
     to: z.optional(z.int().check(z.minimum(0), z.maximum(2_147_483_647))),
   }),
 );
+
 export type PublicRoomSearch = z.infer<typeof publicRoomSearchSchema>;
 
 const roomSettingsV2Shape = {
@@ -80,6 +85,7 @@ const roomSettingsV2Shape = {
 export const roomSettingsV2Schema = /* @__PURE__ */ z.compile(
   z.object(roomSettingsV2Shape),
 );
+
 export type RoomSettingsV2 = z.infer<typeof roomSettingsV2Schema>;
 
 export const roomV2Schema = /* @__PURE__ */ z.compile(
@@ -103,6 +109,7 @@ export const roomV2Schema = /* @__PURE__ */ z.compile(
     generationError: z.optional(z.string()),
   }),
 );
+
 export type RoomV2 = z.infer<typeof roomV2Schema>;
 
 const partialRoomSettingsV2Schema = z.partial(z.object(roomSettingsV2Shape));
@@ -117,6 +124,7 @@ export const createRoomRequestV2Schema = /* @__PURE__ */ z.compile(
     settings: z.optional(partialRoomSettingsV2Schema),
   }),
 );
+
 export type CreateRoomRequestV2 = z.infer<typeof createRoomRequestV2Schema>;
 
 export const roomUpdateV2Schema = /* @__PURE__ */ z.compile(
@@ -126,6 +134,7 @@ export const roomUpdateV2Schema = /* @__PURE__ */ z.compile(
     settings: z.optional(partialRoomSettingsV2Schema),
   }),
 );
+
 export type RoomUpdateV2 = z.infer<typeof roomUpdateV2Schema>;
 
 export const publicRoomV3Schema = /* @__PURE__ */ z.compile(
@@ -137,6 +146,7 @@ export const publicRoomV3Schema = /* @__PURE__ */ z.compile(
     playlistItemCount: z.int().check(z.minimum(0)),
   }),
 );
+
 export type PublicRoomV3 = z.infer<typeof publicRoomV3Schema>;
 
 export const publicRoomsV3Schema = /* @__PURE__ */ z.compile(
@@ -152,4 +162,5 @@ export const publicRoomResultV3Schema = /* @__PURE__ */ z.compile(
     count: z.int().check(z.minimum(0)),
   }),
 );
+
 export type PublicRoomResultV3 = z.infer<typeof publicRoomResultV3Schema>;

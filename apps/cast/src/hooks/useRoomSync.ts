@@ -5,8 +5,8 @@ import {
 } from '@vibes/api';
 import type { PlaylistItem } from '@vibes/models';
 import { synchronizeServerClock, usePlaybackStore } from '@vibes/shared';
-import { useEffect } from 'react';
-import type { CastRoomSnapshot } from '../routes/cast/loader';
+import { useEffect } from 'preact/compat';
+import type { CastRoomSnapshot } from '../routes/$/clientLoader';
 import type { QueueItem, RoomInfo } from '../types';
 import { normalizePlaylistItem } from '../utils/item';
 
@@ -46,8 +46,10 @@ export function useRoomSync({
     if (loadError) {
       setError(loadError);
       setStatusText('Could not load the room. Waiting for updates…');
+
       return;
     }
+
     if (!snapshot) return;
 
     setError(null);
@@ -65,6 +67,7 @@ export function useRoomSync({
     );
 
     if (!snapshot.playback.currentPlaylistItem) return;
+
     synchronizeServerClock(snapshot.playback.serverTimeMs);
     const normalizedPlaylistItem = normalizePlaylistItem(
       snapshot.playback.currentPlaylistItem,
@@ -104,10 +107,12 @@ export function useRoomSync({
         roomId,
         (result) => {
           const [eventError, message] = result;
+
           if (eventError) {
             // connection error
             return;
           }
+
           if (!message || !isMounted) return;
 
           const typedMessage: RoomSSEV3Message = message;
@@ -151,6 +156,7 @@ export function useRoomSync({
               setQueue((current) => {
                 if (current.some((item) => item.id === playlistItem.id))
                   return current;
+
                 return [...current, playlistItem];
               });
               break;
@@ -168,6 +174,7 @@ export function useRoomSync({
                   queue.length,
                 );
                 queue.splice(position, 0, playlistItem);
+
                 return queue;
               });
               break;
@@ -206,6 +213,7 @@ export function useRoomSync({
         if (!err && stop) {
           stop();
         }
+
         return;
       }
 
@@ -218,6 +226,7 @@ export function useRoomSync({
 
     return () => {
       isMounted = false;
+
       if (unsubscribe) unsubscribe();
     };
   }, [

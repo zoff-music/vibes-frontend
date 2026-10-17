@@ -1,7 +1,9 @@
 import type { CastDevice, CastError, CastSession } from '@vibes/models';
 
 type DeviceCallback = (device: CastDevice) => void;
+
 type SessionCallback = (session: CastSession) => void;
+
 type ErrorCallback = (error: CastError) => void;
 
 /**
@@ -39,6 +41,7 @@ export class CastEventBus {
 
   notifyError(error: CastError): void {
     console.error('[Cast] Error:', error);
+
     for (const callback of this.errorCallbacks) {
       callback(error);
     }

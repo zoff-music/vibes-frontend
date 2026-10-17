@@ -22,3 +22,4 @@ export * from './schemas/songs';
 export * from './schemas/stats';
 export * from './schemas/tv-player';
 export * from './types/casting';
+export type { RoomSnapshot } from './types/room-snapshot';

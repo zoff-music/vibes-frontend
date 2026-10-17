@@ -1,10 +1,20 @@
-import { StrictMode } from 'react';
-import { hydrateRoot } from 'react-dom/client';
-import { HydratedRouter } from 'react-router/dom';
+import deployment from 'virtual:smolter/deployment';
+import routes from 'virtual:smolter/routes';
+import type { RootModule } from '@kasperrt/smolter/preact';
+import {
+  configureApplication,
+  mountApplication,
+} from '@kasperrt/smolter/preact/client';
+import { applicationEnvironment } from '@vibes/shared/navigation';
+import * as root from './root';
 
-hydrateRoot(
-  document,
-  <StrictMode>
-    <HydratedRouter />
-  </StrictMode>,
+configureApplication(applicationEnvironment);
+
+mountApplication(
+  routes,
+  {
+    ...root,
+    loaderPath: '/resources/root',
+  } as RootModule,
+  { deployment },
 );

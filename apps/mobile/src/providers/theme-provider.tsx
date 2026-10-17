@@ -1,7 +1,7 @@
-import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
-import type { PropsWithChildren } from 'react';
+import { useMutation } from '@vibes/shared/use-request';
 import {
   createContext,
+  type PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -9,7 +9,8 @@ import {
   useState,
 } from 'react';
 import { Appearance, useColorScheme } from 'react-native';
-import type { ThemeActionData } from '@/routes/preferences.theme/action';
+import { useInitialData } from '@/providers/initial-data-provider';
+import { updateThemePreference } from '@/requests/update-theme-preference';
 
 export type ThemePreference = 'auto' | 'dark' | 'light';
 
@@ -27,17 +28,15 @@ type ThemeContextValue = readonly [
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function AppThemeProvider({ children }: PropsWithChildren) {
-  const [, preferenceFetcher] = useFetcher<ThemeActionData>({
-    routeId: 'preferences.theme',
-  });
+  const [, preferenceFetcherSubmit] = useMutation(updateThemePreference);
   const systemScheme = useColorScheme();
-  const loadedPreference =
-    useRouteLoaderData<ThemePreference>('preferences.theme');
+  const loadedPreference = useInitialData().theme;
   const [preference, setPreferenceValue] = useState<ThemePreference>('auto');
   const [warning, setWarning] = useState('');
 
   useEffect(() => {
     if (!loadedPreference) return;
+
     Appearance.setColorScheme(
       loadedPreference === 'auto' ? 'unspecified' : loadedPreference,
     );
@@ -46,8 +45,10 @@ export function AppThemeProvider({ children }: PropsWithChildren) {
 
   const setPreference = useCallback(
     async (nextPreference: ThemePreference) => {
-      const result = await preferenceFetcher.submit(nextPreference);
+      const result = await preferenceFetcherSubmit(nextPreference);
+
       if (!result.data) return;
+
       Appearance.setColorScheme(
         result.data.preference === 'auto'
           ? 'unspecified'
@@ -56,7 +57,7 @@ export function AppThemeProvider({ children }: PropsWithChildren) {
       setPreferenceValue(result.data.preference);
       setWarning(result.data.warning);
     },
-    [preferenceFetcher.submit],
+    [preferenceFetcherSubmit],
   );
 
   const resolvedScheme =
@@ -78,8 +79,10 @@ export function AppThemeProvider({ children }: PropsWithChildren) {
 
 export function useThemePreference() {
   const context = useContext(ThemeContext);
+
   if (!context) {
     throw new Error('useThemePreference must be used inside AppThemeProvider');
   }
+
   return context;
 }

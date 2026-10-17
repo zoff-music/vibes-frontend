@@ -209,3 +209,105 @@
     display: block;
   }
 }
+
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Cross-document opt-in must be a stylesheet at-rule, not an element utility. */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+@utility page-transitions {
+  &::view-transition,
+  &::view-transition-group(*),
+  &::view-transition-image-pair(*),
+  &::view-transition-old(*),
+  &::view-transition-new(*) {
+    pointer-events: none;
+  }
+
+  &::view-transition-group(*) {
+    animation-duration: 220ms;
+    animation-timing-function: ease-out;
+  }
+
+  &::view-transition-group(root),
+  &::view-transition-group(site-footer) {
+    animation: none;
+  }
+
+  &::view-transition-old(*) {
+    animation: none;
+    opacity: 0;
+  }
+
+  &::view-transition-new(*) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  &::view-transition-old(site-header),
+  &::view-transition-old(site-brand),
+  &::view-transition-old(site-navigation) {
+    opacity: 1;
+    animation: page-fade-out 220ms ease-out both;
+    mix-blend-mode: normal;
+  }
+
+  &::view-transition-new(site-header),
+  &::view-transition-new(site-brand),
+  &::view-transition-new(site-navigation) {
+    animation: page-fade-in 220ms ease-out both;
+  }
+
+  &::view-transition-old(root),
+  &::view-transition-old(*):only-child {
+    opacity: 1;
+    animation: page-fade-out 140ms ease-out both;
+  }
+
+  &::view-transition-new(root),
+  &::view-transition-new(*):only-child {
+    animation: page-fade-in 180ms ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::view-transition-group(*),
+    &::view-transition-old(*),
+    &::view-transition-new(*) {
+      animation: none;
+    }
+  }
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0.96;
+  }
+}
+
+html[data-page-enter] main {
+  animation: app-fade-in 120ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-page-enter] main {
+    animation: none;
+  }
+}

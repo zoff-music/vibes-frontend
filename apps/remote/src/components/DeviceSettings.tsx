@@ -1,10 +1,10 @@
+import { useFetcher } from '@kasperrt/smolter/preact';
 import { showToast } from '@vibes/shared';
 import { useChatPreferenceStore } from '@vibes/shared/chatPreferenceStore';
 import { useThemeStore } from '@vibes/shared/themeStore';
 import { PersonalSettingsModal } from '@vibes/ui/web';
-import { useEffect, useRef, useState } from 'react';
-import { useFetcher } from 'react-router';
-import type { ProfileRouteData } from '../routes/profile/clientLoader';
+import { useEffect, useRef, useState } from 'preact/compat';
+import type { ProfileRouteData } from '../routes/remotes.resources.profile/clientLoader';
 
 interface DeviceSettingsProps {
   onClose: () => void;
@@ -20,13 +20,14 @@ export function DeviceSettings({ onClose }: DeviceSettingsProps) {
   const setTheme = useThemeStore((state) => state.setTheme);
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && !fetcher.data) {
+    if (fetcher.state === 'idle' && !fetcher.data && !fetcher.error) {
       void fetcher.load('/remotes/resources/profile');
     }
   }, [fetcher]);
 
   useEffect(() => {
     const profile = fetcher.data?.profile;
+
     if (profile) {
       setName(profile.name);
     }
@@ -35,6 +36,7 @@ export function DeviceSettings({ onClose }: DeviceSettingsProps) {
   useEffect(() => {
     if (fetcher.state === 'submitting') {
       wasSavingRef.current = true;
+
       return;
     }
 
@@ -43,6 +45,7 @@ export function DeviceSettings({ onClose }: DeviceSettingsProps) {
     }
 
     wasSavingRef.current = false;
+
     if (fetcher.data?.profile && !fetcher.data.error) {
       showToast('Profile saved', 'success');
     }
@@ -50,6 +53,7 @@ export function DeviceSettings({ onClose }: DeviceSettingsProps) {
 
   const isLoading = fetcher.state === 'loading' && !fetcher.data?.profile;
   const isSaving = fetcher.state === 'submitting';
+  const error = fetcher.data?.error ?? fetcher.error?.message;
 
   return (
     <PersonalSettingsModal
@@ -59,7 +63,7 @@ export function DeviceSettings({ onClose }: DeviceSettingsProps) {
       onNameChange={setName}
       isLoading={isLoading}
       isSaving={isSaving}
-      {...(fetcher.data?.error ? { error: fetcher.data.error } : {})}
+      {...(error ? { error } : {})}
       chatEnabled={chatEnabled}
       onChatChange={setChatEnabled}
       themeId={themeId}

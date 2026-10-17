@@ -1,5 +1,5 @@
+import { useEffect, useState } from 'preact/compat';
 import QRCode from 'qrcode';
-import { useEffect, useState } from 'react';
 import logoUrl from '../../assets/icon.png';
 
 interface QrCodeProps {
@@ -20,7 +20,9 @@ export function QrCode({ value }: QrCodeProps) {
     };
     void loadQrCode();
   }, [value]);
+
   if (!source) return <div className="size-44 rounded-2xl bg-black" />;
+
   return (
     <div className="relative size-44 overflow-hidden rounded-2xl bg-black">
       <img alt="Scan to join this Zoff room" className="size-44" src={source} />

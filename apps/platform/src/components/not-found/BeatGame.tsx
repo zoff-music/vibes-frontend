@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent } from 'preact/compat';
 import { type Pad, TOTAL_ROUNDS } from './beatGameState';
 import { useBeatGame } from './useBeatGame';
 
@@ -44,6 +44,7 @@ export function BeatGame() {
     won: 'Perfect loop. You found the beat.',
   };
   let status = messages[state.phase];
+
   if (showing && !state.active) {
     status = 'Paused. Come back when you’re ready.';
   } else if (manual) {
@@ -58,6 +59,7 @@ export function BeatGame() {
     }
 
     const pad = pads.find((item) => String(item.id + 1) === event.key);
+
     if (pad && playing) {
       event.preventDefault();
       actions.press(pad.id);
@@ -67,16 +69,21 @@ export function BeatGame() {
   function handleAction() {
     if (manual) {
       actions.ready();
+
       return;
     }
+
     if (cleared) {
       actions.next();
+
       return;
     }
+
     actions.start();
   }
 
   let actionLabel = 'Play a round';
+
   if (manual) {
     actionLabel = 'Ready';
   } else if (cleared) {

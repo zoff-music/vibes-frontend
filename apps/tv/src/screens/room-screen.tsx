@@ -65,6 +65,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
       playlistItem={currentPlaylistItem}
     />
   );
+
   if (isGenerating && !currentPlaylistItem) {
     player = (
       <View className="flex-1 items-center justify-center gap-3 bg-tv-surface">

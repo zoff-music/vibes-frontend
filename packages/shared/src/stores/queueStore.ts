@@ -23,6 +23,7 @@ export const useQueueStore = create<QueueState>((set) => ({
       if (state.playlistItems.some((s) => s.id === playlistItem.id)) {
         return state;
       }
+
       return {
         playlistItems: [...state.playlistItems, playlistItem], // Backend handles sorting
       };
@@ -43,6 +44,7 @@ export const useQueueStore = create<QueueState>((set) => ({
         playlistItems.length,
       );
       playlistItems.splice(boundedPosition, 0, playlistItem);
+
       return { playlistItems };
     }),
 

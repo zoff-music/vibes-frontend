@@ -1,9 +1,10 @@
-import type {
-  CastDevice,
-  CastError,
-  CastSession,
-  PlaybackStateV2,
-  PlaylistItem,
+import {
+  type CastDevice,
+  type CastError,
+  type CastRoomInfo,
+  type CastSession,
+  type PlaybackStateV2,
+  type PlaylistItem,
 } from '@vibes/models';
 import {
   browserDebugLog,
@@ -26,6 +27,7 @@ const getCastManager = async () => {
 
   const module = await import('../services/cast');
   loadedCastManager = module.castManager;
+
   return loadedCastManager;
 };
 
@@ -62,10 +64,7 @@ interface CastState {
   castCurrentPlaylistItem: (playlistItem: PlaylistItem) => Promise<void>;
   syncPlaybackState: (state: PlaybackStateV2) => Promise<void>;
   updateQueue: (queue: PlaylistItem[]) => Promise<void>;
-  updateRoomInfo: (roomInfo: {
-    name: string;
-    participantCount: number;
-  }) => Promise<void>;
+  updateRoomInfo: (roomInfo: CastRoomInfo) => Promise<void>;
   joinRoom: (roomId: string, castToken: string) => Promise<void>;
   updateTheme: (theme: ResolvedColorScheme) => Promise<void>;
   clearError: () => void;
@@ -85,6 +84,7 @@ export const useCastStore = create<CastState>((set, get) => ({
   // Actions
   initialize: async () => {
     if (!get().isSupported) return;
+
     if (get().isInitialized || isCastInitializationStarted) return;
 
     isCastInitializationStarted = true;
@@ -101,6 +101,7 @@ export const useCastStore = create<CastState>((set, get) => ({
         const filteredDevices = state.availableDevices.filter(
           (d) => d.id !== device.id,
         );
+
         return {
           availableDevices: [...filteredDevices, device],
         };
@@ -134,6 +135,7 @@ export const useCastStore = create<CastState>((set, get) => ({
           details: error,
         },
       });
+
       return;
     }
 
@@ -162,6 +164,7 @@ export const useCastStore = create<CastState>((set, get) => ({
           details: error,
         },
       });
+
       return;
     }
 
@@ -189,6 +192,7 @@ export const useCastStore = create<CastState>((set, get) => ({
           details: error,
         },
       });
+
       return;
     }
 
@@ -216,6 +220,7 @@ export const useCastStore = create<CastState>((set, get) => ({
           details: error,
         },
       });
+
       return;
     }
 
@@ -241,6 +246,7 @@ export const useCastStore = create<CastState>((set, get) => ({
 
     // Build content URL based on source type
     let contentId = '';
+
     switch (playlistItem.sourceType) {
       case 'youtube':
         contentId = `https://www.youtube.com/watch?v=${playlistItem.sourceId}`;
@@ -273,7 +279,9 @@ export const useCastStore = create<CastState>((set, get) => ({
       duration: playlistItem.duration,
     };
 
-    const [error, _] = await safeWrapAsync(castManager.castMedia(mediaInfo));
+    const [error, _] = await safeWrapAsync(
+      castManager.castMedia(mediaInfo, playlistItem),
+    );
 
     if (error) {
       console.error('Failed to cast song:', error);
@@ -286,6 +294,7 @@ export const useCastStore = create<CastState>((set, get) => ({
       });
       throw error;
     }
+
     browserDebugLog('[Cast] store castCurrentSong:done');
   },
 
@@ -335,10 +344,7 @@ export const useCastStore = create<CastState>((set, get) => ({
     }
   },
 
-  updateRoomInfo: async (roomInfo: {
-    name: string;
-    participantCount: number;
-  }) => {
+  updateRoomInfo: async (roomInfo: CastRoomInfo) => {
     if (!get().isConnected) return;
 
     browserDebugLog('[Cast] store updateRoomInfo:start', roomInfo);
@@ -387,6 +393,7 @@ export const useCastStore = create<CastState>((set, get) => ({
 
     const castManager = await getCastManager();
     const [error] = await safeWrapAsync(castManager.updateTheme(theme));
+
     if (!error) return;
 
     console.error('Failed to update theme on cast device:', error);
@@ -410,6 +417,7 @@ export const useCastStore = create<CastState>((set, get) => ({
     if (error) {
       console.error('Error during cleanup:', error);
     }
+
     loadedCastManager = null;
 
     set({

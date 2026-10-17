@@ -6,6 +6,7 @@ export const remotePairingRequestSchema = /* @__PURE__ */ z.compile(
     pairingCode: z.optional(z.string()),
   }),
 );
+
 export type RemotePairingRequest = z.infer<typeof remotePairingRequestSchema>;
 
 export const remoteStatusV2Schema = /* @__PURE__ */ z.compile(
@@ -22,6 +23,7 @@ export const remoteStatusV2Schema = /* @__PURE__ */ z.compile(
     paired: z._default(z.boolean(), false),
   }),
 );
+
 export type RemoteStatusV2 = z.infer<typeof remoteStatusV2Schema>;
 
 export const remoteSessionV2Schema = /* @__PURE__ */ z.compile(
@@ -29,6 +31,7 @@ export const remoteSessionV2Schema = /* @__PURE__ */ z.compile(
     controllerToken: z.string(),
   }),
 );
+
 export type RemoteSessionV2 = z.infer<typeof remoteSessionV2Schema>;
 
 export const remotePairingV2Schema = /* @__PURE__ */ z.compile(
@@ -46,6 +49,7 @@ export const remotePairingV2Schema = /* @__PURE__ */ z.compile(
     pairingCode: z.string(),
   }),
 );
+
 export type RemotePairingV2 = z.infer<typeof remotePairingV2Schema>;
 
 export const remoteUpdateRequestV2Schema = /* @__PURE__ */ z.compile(
@@ -57,6 +61,7 @@ export const remoteUpdateRequestV2Schema = /* @__PURE__ */ z.compile(
     playbackIsPlaying: z.optional(z.boolean()),
   }),
 );
+
 export type RemoteUpdateRequestV2 = z.infer<typeof remoteUpdateRequestV2Schema>;
 
 export const remoteEventV2Schema = /* @__PURE__ */ z.compile(
@@ -77,4 +82,5 @@ export const remoteEventV2Schema = /* @__PURE__ */ z.compile(
     partyMode: z._default(z.boolean(), false),
   }),
 );
+
 export type RemoteEventV2 = z.infer<typeof remoteEventV2Schema>;

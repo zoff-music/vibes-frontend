@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from 'preact/compat';
 import { clearRoomReminder, rememberRoom } from '../utils/roomReminder';
 import { isInternalDeparture } from '../utils/roomReminderNavigation';
 
@@ -14,14 +14,17 @@ export function useRememberRoom(roomId: string) {
         event.altKey
       )
         return;
+
       const anchor =
         event.target instanceof Element ? event.target.closest('a') : null;
+
       if (
         !anchor ||
         anchor.download ||
         (anchor.target && anchor.target !== '_self')
       )
         return;
+
       if (isInternalDeparture(window.location.href, anchor.href)) {
         clearRoomReminder(roomId);
       }

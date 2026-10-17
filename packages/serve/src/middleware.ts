@@ -29,6 +29,7 @@ export function createFrameProtectionMiddleware(
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
     const fileAllowedPath = options.fileAllowedPath?.replace(/\/$/, '');
+
     if (
       fileAllowedPath &&
       (req.path === fileAllowedPath || req.path === `${fileAllowedPath}/`)
@@ -37,17 +38,21 @@ export function createFrameProtectionMiddleware(
       // Do not broaden the normal website's frame policy to allow file: apps.
       return next();
     }
+
     const allowedPath = options.allowedPath?.replace(/\/$/, '');
     const framingAllowed =
       allowedPath &&
       (req.path === allowedPath || req.path.startsWith(`${allowedPath}/`));
+
     if (framingAllowed) {
       res.setHeader('Content-Security-Policy', 'frame-ancestors *');
+
       return next();
     }
 
     res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
     res.setHeader('X-Frame-Options', 'DENY');
+
     return next();
   };
 }
@@ -55,19 +60,24 @@ export function createFrameProtectionMiddleware(
 export function createBodySizeLimitMiddleware(options: BodySizeLimitOptions) {
   return (req: Request, res: Response, next: NextFunction) => {
     const rawContentLength = req.headers['content-length'];
+
     if (Array.isArray(rawContentLength)) {
       res.status(400).send('Invalid Content-Length');
+
       return undefined;
     }
 
     const contentLength = Number(rawContentLength ?? 0);
+
     if (!Number.isSafeInteger(contentLength) || contentLength < 0) {
       res.status(400).send('Invalid Content-Length');
+
       return undefined;
     }
 
     if (contentLength > options.maxBytes) {
       res.status(413).send('Request body too large');
+
       return undefined;
     }
 
@@ -76,6 +86,7 @@ export function createBodySizeLimitMiddleware(options: BodySizeLimitOptions) {
     let receivedBytes = 0;
     req.on('data', (chunk: Buffer | string) => {
       receivedBytes += Buffer.byteLength(chunk);
+
       if (receivedBytes <= options.maxBytes || res.writableEnded) return;
 
       req.pause();
@@ -136,9 +147,11 @@ export function createTracingMiddleware(options: MiddlewareOptions) {
         span.setAttribute('http.route', name);
         span.setAttribute('http.target', req.originalUrl);
         span.setAttribute('http.status_code', res.statusCode);
+
         if (res.statusCode >= 500) {
           span.setStatus({ code: SpanStatusCode.ERROR });
         }
+
         span.end();
       });
 

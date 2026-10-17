@@ -2,10 +2,10 @@ import type {
   PlaybackStateV2,
   PlaylistItem,
   Providers,
+  RoomSnapshot,
   RoomV2,
   SourceType,
 } from '@vibes/models';
-import type { RoomSnapshot } from '@/data-router/room-snapshot';
 
 export const mobileProviders: Providers = ['youtube', 'soundcloud'];
 
@@ -31,6 +31,7 @@ export function positionMobilePlaylistItem(
   const nextPlaylistItems = playlistItems.filter(
     (item) => item.id !== playlistItem.id,
   );
+
   if (!isMobileProvider(playlistItem.sourceType)) return nextPlaylistItems;
 
   const boundedPosition = Math.min(
@@ -51,6 +52,7 @@ export function normalizeMobilePlayback(
   ) {
     return playback;
   }
+
   return {
     ...playback,
     currentPlaylistItem: null,

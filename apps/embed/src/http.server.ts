@@ -6,6 +6,7 @@ const serviceName = process.env.OTEL_SERVICE_NAME ?? 'vibes-frontend-embed';
 
 export function getServerApi() {
   const baseUrl = process.env.VITE_API_URL_INTERNAL ?? fallbackApiBaseUrl;
+
   return createApiClientWithBaseUrl(baseUrl, {
     customHeaders: { 'X-Zoff-Embed': 'true' },
     fetchLifecycle: createTracedApiFetchLifecycle(serviceName),

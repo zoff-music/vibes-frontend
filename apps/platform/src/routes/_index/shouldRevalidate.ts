@@ -1,4 +1,4 @@
-import type { ShouldRevalidateFunctionArgs } from 'react-router';
+import type { ShouldRevalidateFunctionArgs } from '@kasperrt/smolter/preact';
 
 export function shouldRevalidate({
   currentUrl,
@@ -12,7 +12,8 @@ export function shouldRevalidate({
   }
 
   if (
-    formAction === '/resources/profile' &&
+    formAction &&
+    new URL(formAction, currentUrl).pathname === '/resources/profile' &&
     formMethod?.toUpperCase() === 'POST'
   ) {
     return false;

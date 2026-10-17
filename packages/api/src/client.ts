@@ -89,6 +89,7 @@ const defaultRestTimeoutMs = 10_000;
 function readEnvValue(name: string) {
   const runtimeValue =
     typeof process !== 'undefined' ? process.env?.[name] : undefined;
+
   if (runtimeValue) {
     return runtimeValue;
   }
@@ -104,11 +105,13 @@ function getRestTimeoutMs() {
   const rawTimeout =
     readEnvValue('VITE_API_REST_TIMEOUT_MS') ??
     readEnvValue('API_REST_TIMEOUT_MS');
+
   if (rawTimeout === 'false') {
     return false;
   }
 
   const parsed = Number.parseInt(rawTimeout ?? '', 10);
+
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
@@ -119,28 +122,15 @@ function getRestTimeoutMs() {
 function getApiUrl() {
   // If explicitly set via runtime env var (e.g. in SSR), use it first
   const runtimeApiUrl = readEnvValue('VITE_API_URL');
+
   if (runtimeApiUrl) {
     return runtimeApiUrl;
   }
 
   // If in a browser environment
   if (typeof window !== 'undefined' && window.location) {
-    const { protocol, hostname, origin } = window.location;
-
-    // Local development
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      // If using HTTPS locally (likely via Caddy/reverse proxy)
-      // We assume the proxy handles the /api/* routing to the backend
-      if (protocol === 'https:') {
-        return origin;
-      }
-      // If using HTTP locally (likely direct dev server)
-      // We assume backend is on standard 8080
-      return 'http://localhost:8080';
-    }
-
-    // Production/Deployed: use the same origin
-    return origin;
+    // The development server proxies /api to the configured backend.
+    return window.location.origin;
   }
 
   // Fallback for non-browser environments
@@ -256,21 +246,6 @@ const v2Endpoints = {
       request: playbackFailureRequestV2Schema,
       response: playbackStateV2Schema,
     },
-  },
-  '/rooms/{id}/playlist-items': {
-    /** @deprecated Use v3 GET /rooms/{id}/items and its data envelope. */
-    get: { response: playlistItemsListSchema },
-    /** @deprecated Use v3 POST /rooms/{id}/items. */
-    post: {
-      request: addPlaylistItemRequestSchema,
-      response: addPlaylistItemResponseSchema,
-    },
-  },
-  '/rooms/{id}/playlist-items/{playlistItemId}': {
-    /** @deprecated Use v3 POST /rooms/{id}/items/{itemId}. */
-    post: { response: emptyObjectSchema },
-    /** @deprecated Use v3 DELETE /rooms/{id}/items/{itemId}. */
-    delete: { response: emptyObjectSchema },
   },
   '/rooms/{id}/playlists': {
     post: {
@@ -398,6 +373,7 @@ export type ApiClient = RequestClient<typeof endpoints> & {
 };
 
 export type ApiV2Client = RequestClient<typeof v2Endpoints>;
+
 export type ApiV3Client = RequestClient<typeof v3Endpoints>;
 
 export function createRequestClient<const Endpoints extends RequestDefinitions>(
@@ -430,6 +406,7 @@ function resolveApiBaseUrl(baseUrl: string) {
   const normalized = baseUrl.endsWith(API_BASE_PATH)
     ? baseUrl
     : `${baseUrl}${API_BASE_PATH}`;
+
   return normalized.replace(/([^:]\/)\/+/g, '$1');
 }
 
@@ -457,6 +434,7 @@ export function createApiClientWithBaseUrl(
     ),
     roomExists: (roomID: string, roomExistsOptions: RoomExistsOptions = {}) => {
       const roomURL = `${resolvedBaseUrl}/rooms/${encodeURIComponent(roomID)}`;
+
       return headApiUrl(
         roomURL,
         {
@@ -491,8 +469,6 @@ export function createApiV2Client(
 ): ApiV2Client {
   return createApiV2ClientWithBaseUrl(API_URL, { customHeaders });
 }
-
-export const apiV2 = /* @__PURE__ */ createApiV2Client();
 
 export function createApiV3ClientWithBaseUrl(
   baseUrl: string,
