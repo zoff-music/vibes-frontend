@@ -21,15 +21,20 @@ export async function clientLoader({
   request,
 }: ClientLoaderFunctionArgs): Promise<TizenSessionLoaderData> {
   const roomId = new URL(request.url).searchParams.get('room')?.trim() ?? '';
+  const options = { signal: request.signal };
   const roomType =
     new URL(request.url).searchParams.get('type') === 'watch'
       ? 'WATCH'
       : 'MUSIC';
   const discoveryResults = await Promise.all([
-    tizenApi.get('/providers', null),
-    tizenApi.v3.get('/rooms/public', {
-      $search: { live: true, from: 0, to: 5, roomType },
-    }),
+    tizenApi.get('/providers', null, options),
+    tizenApi.v3.get(
+      '/rooms/public',
+      {
+        $search: { live: true, from: 0, to: 5, roomType },
+      },
+      options,
+    ),
   ]);
   const providers = discoveryResults[0][1] ?? [];
   const publicRooms = discoveryResults[1][1]?.rooms ?? [];
@@ -46,9 +51,9 @@ export async function clientLoader({
   }
 
   const snapshotResults = await Promise.all([
-    tizenApi.v2.get('/rooms/{id}', { id: roomId }),
-    tizenApi.v3.get('/rooms/{id}/items', { id: roomId, $search: {} }),
-    tizenApi.v2.get('/rooms/{id}/states', { id: roomId }),
+    tizenApi.v2.get('/rooms/{id}', { id: roomId }, options),
+    tizenApi.v3.get('/rooms/{id}/items', { id: roomId, $search: {} }, options),
+    tizenApi.v2.get('/rooms/{id}/states', { id: roomId }, options),
   ]);
   const requestError =
     snapshotResults[0][0] ?? snapshotResults[1][0] ?? snapshotResults[2][0];

@@ -4,13 +4,10 @@ import type { RootModule } from '@kasperrt/smolter/preact';
 import {
   configureApplication,
   mountApplication,
-  watchDeployment,
 } from '@kasperrt/smolter/preact/client';
 import { applicationEnvironment } from '@vibes/shared/navigation';
 import * as root from './root';
 
 configureApplication(applicationEnvironment);
 
-mountApplication(routes, root as RootModule).then((router) =>
-  watchDeployment(router, deployment),
-);
+mountApplication(routes, root as RootModule, { deployment });

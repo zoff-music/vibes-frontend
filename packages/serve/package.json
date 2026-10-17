@@ -14,6 +14,7 @@
   "scripts": {
     "lint": "biome check src",
     "test:frame-protection": "node --test src/frameProtection.test.ts",
+    "test:transport": "node --test src/transport.test.ts src/cache.test.ts src/revalidation.test.ts",
     "typecheck": "tsc --noEmit",
     "test:theme": "node --test src/theme.test.ts"
   },
@@ -28,7 +29,7 @@
     "compression": "1.8.2",
     "express": "5.3.0",
     "negotiator": "^1.1.0",
-    "@kasperrt/smolter": "0.3.1"
+    "@kasperrt/smolter": "0.3.2"
   },
   "peerDependencies": {
     "vite": "*"

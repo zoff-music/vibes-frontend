@@ -10,6 +10,7 @@ import { createRoomPageUrl } from './utils/share';
 export async function clientLoader({
   request,
   params,
+  reason,
 }: ClientLoaderFunctionArgs): Promise<RoomLoaderData | Response> {
   const roomId = params.id;
 
@@ -19,8 +20,7 @@ export async function clientLoader({
 
   const options = { signal: request.signal };
   // Reconnects still recover the full queue, including missed removal events.
-  const isRevalidation =
-    new URL(request.url).pathname === window.location.pathname;
+  const isRevalidation = reason === 'revalidation' || reason === 'action';
 
   const [
     roomRes,

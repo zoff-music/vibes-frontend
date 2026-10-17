@@ -196,6 +196,10 @@ storage: it does not by itself guarantee retention of previous build files.
 
 ## Production deployment updates
 
+The DOM apps use published [Smolter 0.3.2](https://github.com/kasperrt/smolter/releases/tag/v0.3.2)
+without a local router patch. See [migration validation](docs/smolter-migration.md)
+for verified behavior and remaining merge blockers.
+
 Platform, Admin, Embed, Remote and Cast emit a per-build
 `smolter-manifest.json`. The shared Express host serves it with
 `Cache-Control: no-store`, including on the configured asset hostname. HTML is
@@ -207,6 +211,23 @@ changed version reloads the destination using the new build. Missing lazy chunks
 trigger another check to cover deployments racing with navigation. Failed checks
 continue normal routing, and a per-build session marker prevents reload loops.
 Hash links do not check; mutations are never replayed. There is no background polling.
+
+Mounting receives the deployment options before the first lazy route import.
+Recovery still requires the entry script to load; retain previous hashed assets
+through rollouts. A missing entry script cannot execute recovery code.
+
+SSR apps use distinct same-origin data endpoints: `/_smolter`,
+`/admin/_smolter`, `/remotes/_smolter` and `/embed/_smolter` (or the configured
+embed base). Vite-generated transports and the Express adapter must agree.
+Data responses use `Cache-Control: private, no-store`, including failures and
+mutations. Cast and packaged Tizen use client handlers, not server transport.
+
+Production SSR streams the shell while optional homepage statistics and room
+lists resolve. Hydration starts after the document stream completes; this is
+not progressive hydration. Development HTML transformation buffers, so measure
+streaming with production builds. Keep `preact-render-to-string >=6.8.1`.
+SSR hydration entries and modulepreloads use the build's asset base, including
+the configured CDN origin; data requests remain on the application origin.
 
 Development uses Vite HMR and route discovery updates; no deployment checks run.
 Packaged Tizen and native apps do not use this web deployment mechanism.

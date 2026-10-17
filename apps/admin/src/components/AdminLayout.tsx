@@ -1,43 +1,12 @@
-import {
-  type ShouldRevalidateFunctionArgs,
-  useFetcher,
-  useRootData,
-} from '@kasperrt/smolter/preact';
-import type { AdminUser } from '@vibes/models';
+import { useFetcher, useRootData } from '@kasperrt/smolter/preact';
 import { showRateLimitMessageToast } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
 import { type ChangeEvent, useEffect, useState } from 'preact/compat';
 import type { AdminActionData } from '../routes/admin/action';
 import type { AdminLoaderData } from '../utils/admin-session/loader';
-import { AdminErrorView } from './AdminErrorView';
 
 interface LayoutProps {
   children: import('preact').ComponentChildren;
-}
-
-export { adminMeta as meta } from '../root/meta';
-
-export interface AdminOutletContext {
-  user: AdminUser;
-}
-
-export function shouldRevalidate({
-  actionResult,
-  defaultShouldRevalidate,
-}: ShouldRevalidateFunctionArgs): boolean {
-  if (
-    typeof actionResult === 'object' &&
-    actionResult !== null &&
-    ('completedIntent' in actionResult ||
-      'error' in actionResult ||
-      'message' in actionResult ||
-      'rooms' in actionResult ||
-      'success' in actionResult)
-  ) {
-    return false;
-  }
-
-  return defaultShouldRevalidate;
 }
 
 export default function AdminLayout({ children }: LayoutProps) {
@@ -156,7 +125,7 @@ export default function AdminLayout({ children }: LayoutProps) {
               </p>
             </div>
 
-            <fetcher.Form method="post">
+            <fetcher.Form action="/admin" method="post">
               <input name="intent" type="hidden" value="logout" />
               <Button disabled={isSubmitting} type="submit" variant="secondary">
                 Sign Out
@@ -168,14 +137,5 @@ export default function AdminLayout({ children }: LayoutProps) {
         {children}
       </div>
     </div>
-  );
-}
-
-export function ErrorBoundary() {
-  return (
-    <AdminErrorView
-      message="The requested admin data could not be loaded. Reload the page to try again."
-      title="Admin request failed"
-    />
   );
 }

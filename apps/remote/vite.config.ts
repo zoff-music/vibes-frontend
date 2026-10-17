@@ -16,7 +16,7 @@ export default defineConfig(({ command, mode }) => {
     base: command === 'build' ? assetBase(env.ASSET_ORIGIN, '/remotes/') : '/',
     plugins: [
       tailwindcss(),
-      ...applicationPlugins(),
+      ...applicationPlugins({ dataEndpoint: '/remotes/_smolter' }),
 
       precompressAssets(),
     ],

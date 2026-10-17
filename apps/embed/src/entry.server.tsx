@@ -10,6 +10,8 @@ import * as root from './root';
 
 configureApplication(applicationEnvironment);
 
+export const clientAssetBase = import.meta.env.BASE_URL;
+
 export const routes = fileRoutes.map((route) => ({
   ...route,
   path: route.routePath ?? route.path,

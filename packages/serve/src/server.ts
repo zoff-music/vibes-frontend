@@ -26,6 +26,10 @@ interface ServerErrorContext {
   request: globalThis.Request;
 }
 
+interface ApplicationBuild extends ServerBuild {
+  clientAssetBase: string;
+}
+
 export type ServerRequest = Request;
 
 const defaultBodySizeLimitBytes = 1024 * 1024;
@@ -102,6 +106,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
   }
 
   const staticBase = config.assets.path.replace(/\/assets\/?$/, '') || '/';
+  const dataEndpoint = `${staticBase.replace(/\/$/, '')}/_smolter`;
   app.get(
     `${staticBase.replace(/\/$/, '')}/smolter-manifest.json`,
     (_req, res) => {
@@ -200,7 +205,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     );
     app.use(express.static(config.staticDir, staticOptions));
 
-    const build = (await config.mode.loadBuild()) as ServerBuild;
+    const build = (await config.mode.loadBuild()) as ApplicationBuild;
     const manifest = JSON.parse(
       await readFile(
         path.join(config.staticDir, '.vite/manifest.json'),
@@ -218,22 +223,23 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     if (!client)
       throw new Error('Client entry is missing from the Vite manifest');
 
-    const entry = `${staticBase.replace(/\/$/, '')}/${client.file}`;
+    const clientAssetBase = build.clientAssetBase || staticBase;
+    const entry = `${clientAssetBase.replace(/\/$/, '')}/${client.file}`;
 
     app.use((req, res, next) => {
       if (
-        req.path !== '/_smolter' &&
+        req.path !== dataEndpoint &&
         (req.method === 'GET' || req.method === 'HEAD')
       ) {
         res.set('Cache-Control', 'no-cache');
-        const preloads = routePreloads(routeAssets, req.path, staticBase);
+        const preloads = routePreloads(routeAssets, req.path, clientAssetBase);
 
         if (preloads) res.set('Link', preloads);
       }
 
       next();
     });
-    app.use(createRequestHandler({ build, entry }));
+    app.use(createRequestHandler({ build, entry, dataEndpoint }));
 
     return;
   }

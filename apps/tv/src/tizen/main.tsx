@@ -8,4 +8,4 @@ import '@/tizen/tizen.css';
 
 configureApplication(applicationEnvironment);
 
-mountApplication(routes, undefined, true);
+mountApplication(routes, undefined, { hash: true });

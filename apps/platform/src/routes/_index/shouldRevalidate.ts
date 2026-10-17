@@ -12,7 +12,8 @@ export function shouldRevalidate({
   }
 
   if (
-    formAction === '/resources/profile' &&
+    formAction &&
+    new URL(formAction, currentUrl).pathname === '/resources/profile' &&
     formMethod?.toUpperCase() === 'POST'
   ) {
     return false;

@@ -58,7 +58,7 @@
     "react-native-youtube-iframe": "2.4.1",
     "tailwindcss": "catalog:",
     "vite": "8.3.4",
-    "@kasperrt/smolter": "0.3.1",
+    "@kasperrt/smolter": "0.3.2",
     "preact": "11.0.1",
     "preact-render-to-string": "6.8.1"
   },

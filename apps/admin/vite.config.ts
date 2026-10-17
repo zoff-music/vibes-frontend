@@ -13,7 +13,11 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: isBuild ? assetBase(env.ASSET_ORIGIN, '/admin/') : '/',
-    plugins: [tailwindcss(), ...applicationPlugins(), precompressAssets()],
+    plugins: [
+      tailwindcss(),
+      ...applicationPlugins({ dataEndpoint: '/admin/_smolter' }),
+      precompressAssets(),
+    ],
     appType: 'custom',
     build: {
       manifest: true,

@@ -22,6 +22,7 @@ export async function clientAction({
     '/rooms/{id}/skips',
     { id: roomId },
     {},
+    { signal: request.signal },
   );
 
   if (error || !result) {

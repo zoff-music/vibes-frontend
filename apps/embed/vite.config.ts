@@ -21,7 +21,7 @@ export default defineConfig(({ command, mode }) => {
     base: isBuild ? assetBase(env.ASSET_ORIGIN, embedBasePath) : '/',
     plugins: [
       tailwindcss(),
-      ...applicationPlugins(),
+      ...applicationPlugins({ dataEndpoint: `${embedBasePath}_smolter` }),
 
       precompressAssets(),
     ],

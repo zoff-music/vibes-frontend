@@ -15,6 +15,7 @@ export async function loader({
   const headers = cookieHeader ? { Cookie: cookieHeader } : undefined;
   const [error, session] = await serverApi.get('/admin/sessions', null, {
     headers,
+    signal: request.signal,
   });
 
   if (error || !session) {
