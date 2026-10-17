@@ -14,6 +14,7 @@ import {
 import { RoomConfiguration } from '@/components/room-configuration';
 import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { Toast, ToastViewport } from '@/components/toast';
+import { useAppTheme } from '@/hooks/use-app-theme';
 import { updateControllerRoom } from '@/requests/update-controller-room';
 import { updateRoomSession } from '@/requests/update-room-session';
 import { updateRoomSettings } from '@/requests/update-room-settings';
@@ -41,6 +42,7 @@ export function RoomSettingsSheet({
   room,
   visible,
 }: RoomSettingsSheetProps) {
+  const theme = useAppTheme();
   const [, submitRoomSession] = useMutation(updateRoomSession, {
     id: room.id,
   });
@@ -278,11 +280,12 @@ export function RoomSettingsSheet({
   return (
     <Modal
       animationType="slide"
+      backdropColor={theme.background}
       presentationStyle="pageSheet"
       visible={visible}
       onRequestClose={onClose}
     >
-      <Screen>
+      <Screen showGrid={false}>
         <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
           <View className="flex-row items-center justify-between gap-4 px-5 py-4">
             <Heading>Room settings</Heading>

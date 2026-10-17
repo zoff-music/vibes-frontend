@@ -30,7 +30,6 @@ interface SearchSheetProps {
   providersOverride?: Providers;
   remoteCredentials?: SearchRemoteCredentials;
   roomIdOverride?: string;
-  visible: boolean;
 }
 
 export function SearchSheet({
@@ -44,7 +43,6 @@ export function SearchSheet({
   providersOverride,
   remoteCredentials,
   roomIdOverride,
-  visible,
 }: SearchSheetProps) {
   const theme = useAppTheme();
   const labels = getRoomLabels(roomType);
@@ -89,10 +87,8 @@ export function SearchSheet({
       : {}),
   });
 
-  if (!visible) return null;
-
   return (
-    <Screen>
+    <Screen showGrid={false}>
       <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
         <ScrollView
           contentInsetAdjustmentBehavior="never"
