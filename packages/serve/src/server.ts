@@ -12,6 +12,7 @@ import { isRouteErrorResponse } from '@kasperrt/smolter/utils/responses';
 import { safeWrapAsync } from '@vibes/shared/wrap';
 import compression from 'compression';
 import express, { type Request, type Response } from 'express';
+import type { Manifest } from 'vite';
 import { metricsApp } from './metrics.ts';
 import {
   createBodySizeLimitMiddleware,
@@ -20,7 +21,11 @@ import {
   createTracingMiddleware,
 } from './middleware.ts';
 import { precompressedAssets } from './precompressed.ts';
-import { sendDocumentPreloads, staticDocumentPreloads } from './preloads.ts';
+import {
+  clientEntryPreloads,
+  sendDocumentPreloads,
+  staticDocumentPreloads,
+} from './preloads.ts';
 import { initTracing } from './tracing.ts';
 
 interface ServerErrorContext {
@@ -213,7 +218,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
         path.join(config.staticDir, '.vite/manifest.json'),
         'utf8',
       ),
-    ) as Record<string, { file: string; isEntry?: boolean }>;
+    ) as Manifest;
     const routeAssets: RouteAssets[] = JSON.parse(
       await readFile(
         path.join(config.staticDir, '.vite/route-assets.json'),
@@ -227,6 +232,10 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
 
     const clientAssetBase = build.clientAssetBase || staticBase;
     const entry = `${clientAssetBase.replace(/\/$/, '')}/${client.file}`;
+    const documentPreloads = [
+      ...(build.documentPreloads ?? []),
+      ...clientEntryPreloads(manifest, client, clientAssetBase),
+    ];
 
     app.use((req, res, next) => {
       if (
@@ -238,7 +247,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
 
         if (preloads) res.set('Link', preloads);
 
-        sendDocumentPreloads(req, res, build.documentPreloads ?? []);
+        sendDocumentPreloads(req, res, documentPreloads);
       }
 
       next();
