@@ -1,8 +1,8 @@
-# Smolter 0.3.4 integration review
+# Smolter 0.3.5 integration review
 
 This supplements draft PR #413. It is not a ten-pass or physical-device sign-off.
-The integration uses the published [0.3.4 release](https://github.com/kasperrt/smolter/releases/tag/v0.3.4)
-containing [upstream PR #14](https://github.com/kasperrt/smolter/pull/14), retaining
+The integration uses the published [0.3.5 release](https://github.com/kasperrt/smolter/releases/tag/v0.3.5)
+containing [upstream PR #15](https://github.com/kasperrt/smolter/pull/15), retaining
 the 0.3.2 integration from [upstream PR #12](https://github.com/kasperrt/smolter/pull/12).
 
 ## Runtime boundaries
@@ -14,7 +14,7 @@ the 0.3.2 integration from [upstream PR #12](https://github.com/kasperrt/smolter
 
 ## Changes
 
-- All nine Smolter dependency declarations and the lockfile resolve published 0.3.4. The temporary 0.3.1 patch and patch registration are removed; unrelated native patches remain. There are no Smolter local-source links, aliases or monkey patches.
+- All nine Smolter dependency declarations and the lockfile resolve published 0.3.5. The temporary 0.3.1 patch and patch registration are removed; unrelated native patches remain. There are no Smolter local-source links, aliases or monkey patches.
 - Removed temporary `dataPath` configuration and environment patching. Official `dataEndpoint` options connect generated routes, development middleware and production handlers. Admin uses `/admin/_smolter`, Remote `/remotes/_smolter`, Embed its configured base plus `/_smolter`; Platform retains `/_smolter`.
 - Removed the post-mount deployment watcher. Platform, Admin, Remote, Embed and Cast pass deployment options directly to mounting. Packaged Tizen has `{ hash: true }` and no deployment watcher.
 - Removed the copied data-cache middleware and obsolete React Router data-response hook. The released adapter owns private/no-store policy.
@@ -163,6 +163,47 @@ totals: Platform 284,386 → 284,418 (+32), Admin 120,666 → 120,690 (+24), Emb
 113,548 → 113,595 (+47), Remote 155,714 → 155,749 (+35), Cast 193,931 → 194,003
 (+72), Tizen 156,890 → 156,934 (+44). Different zlib versions produce different
 totals; do not compare these directly with the Node 26 main comparison above.
+
+## 0.3.5 integration
+
+All nine dependency pins and the lockfile use the published release, with npm
+integrity verified. No local Smolter patch or router workaround was needed.
+The 0.3.2 consumer fixes and deployment integration remain unchanged.
+
+Platform's analytics bootstrap appends an externally owned script directly to
+`head`; that script now has `data-smolter-preserve`. A focused bootstrap check
+verified one append, the marker and the unchanged analytics domain. App-rendered
+theme scripts, fonts, metadata and stylesheets are not marked. No server-side
+head injection was found in the checked-in serving integration. Infrastructure
+outside this repository was not inspected or changed. Future external direct
+children of `head` must carry the marker; unmarked arbitrary injection is not
+supported. Cast's sender SDK is appended after application hydration, and its
+existing lifecycle is unchanged.
+
+Node 26.8.1 / pnpm 12.3.4 frozen install, workspace lint/typechecking, all six
+production web builds and browser-boundary checks passed. The eighteen focused
+transport/recovery, cache, revalidation, framing and theme tests passed again.
+Generated route asset manifests for all four SSR apps were checked against their
+emitted files: every preload target exists, with no external package specifier
+masquerading as a file. This does not establish a request-count improvement.
+
+The browser recovery and performance results above belong to 0.3.4, not a fresh
+0.3.5 browser benchmark. No new physical/native or browser hydration sign-off is
+claimed. Progressive hydration remains unimplemented; TTFB/LCP/interactivity
+limitations from the earlier report still apply.
+
+Same Node 26 gzip-level-9 all-emitted-JS methodology as the 0.3.4 comparison:
+
+| App | 0.3.4 | 0.3.5 | Delta |
+| --- | ---: | ---: | ---: |
+| Platform | 284,337 | 284,463 | +126 |
+| Admin | 120,354 | 120,489 | +135 |
+| Embed | 113,306 | 113,425 | +119 |
+| Remote | 155,357 | 155,489 | +132 |
+| Cast | 193,241 | 193,476 | +235 |
+| Tizen | 155,883 | 156,002 | +119 |
+
+Values are bytes, including lazy/legacy output rather than initial transfer.
 
 ## Remaining blockers and limitations
 
