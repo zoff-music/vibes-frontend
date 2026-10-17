@@ -18,8 +18,8 @@ import { Keyboard } from 'react-native';
 import { useToast } from '@/components/toast';
 import { mobileProviders } from '@/lib/mobile-content';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
-import { action as mutateRoomsIdSearchRequest } from '@/routes/rooms.$id.search/action';
-import { loader as loadRoomsIdSearchRequest } from '@/routes/rooms.$id.search/loader';
+import { loadSearch } from '@/requests/load-search';
+import { updateSearch } from '@/requests/update-search';
 
 interface SearchRemoteCredentials {
   controllerToken: string;
@@ -86,12 +86,12 @@ export function useProviderSearch({
   const [error, setError] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
   const targetRoomId = roomIdOverride ?? roomId;
-  const [, searchLoaderLoad] = useRequest(loadRoomsIdSearchRequest, {
+  const [, searchLoaderLoad] = useRequest(loadSearch, {
     controllerToken: remoteCredentials?.controllerToken ?? '',
     remoteId: remoteCredentials?.remoteId ?? '',
     roomId: targetRoomId,
   });
-  const [, searchActionSubmit] = useMutation(mutateRoomsIdSearchRequest, {
+  const [, searchActionSubmit] = useMutation(updateSearch, {
     controllerToken: remoteCredentials?.controllerToken ?? '',
     remoteId: remoteCredentials?.remoteId ?? '',
     roomId: targetRoomId,

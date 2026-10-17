@@ -14,9 +14,9 @@ import {
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
 import { Toast, ToastViewport } from '@/components/toast';
-import { action as mutateRemotesControllerIdRoomRequest } from '@/routes/remotes.controller.$id.room/action';
-import { action as mutateRoomsIdSessionRequest } from '@/routes/rooms.$id.session/action';
-import { action as mutateRoomsIdSettingsRequest } from '@/routes/rooms.$id.settings/action';
+import { updateControllerRoom } from '@/requests/update-controller-room';
+import { updateRoomSession } from '@/requests/update-room-session';
+import { updateRoomSettings } from '@/requests/update-room-settings';
 
 interface RoomSettingsSheetProps {
   controllerToken?: string;
@@ -41,13 +41,13 @@ export function RoomSettingsSheet({
   room,
   visible,
 }: RoomSettingsSheetProps) {
-  const [, submitRoomSession] = useMutation(mutateRoomsIdSessionRequest, {
+  const [, submitRoomSession] = useMutation(updateRoomSession, {
     id: room.id,
   });
-  const [, submitRoomSettings] = useMutation(mutateRoomsIdSettingsRequest, {
+  const [, submitRoomSettings] = useMutation(updateRoomSettings, {
     id: room.id,
   });
-  const [, submitRemote] = useMutation(mutateRemotesControllerIdRoomRequest, {
+  const [, submitRemote] = useMutation(updateControllerRoom, {
     controllerToken: controllerToken ?? '',
     id: remoteId ?? '',
   });

@@ -17,6 +17,9 @@ The app deliberately has no Expo web target.
 
 Expo Router owns screen navigation, deep links, system tabs, modal presentation,
 and route error boundaries. Mobile has no second router or route registry.
+The only route tree is `src/app`. Screens and layout controls live under
+`src/components`, workflows in `src/hooks`, and named typed API functions in
+`src/requests`. There are no native loader/action route modules.
 
 App hooks call typed request handlers through `@vibes/api`. The small shared
 request hook handles pending state and abort cleanup; it does not match paths,

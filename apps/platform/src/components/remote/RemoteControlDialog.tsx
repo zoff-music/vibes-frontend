@@ -3,7 +3,7 @@ import type { RemotePairingV2, RemoteStatusV2 } from '@vibes/models';
 import { Button, CloseIcon, Modal, RemoteIcon } from '@vibes/ui/web';
 import { Suspense } from 'preact/compat';
 import { QRCodeSVG } from 'qrcode.react';
-import type { RemoteControlActionData } from '../../routes/remote-control/clientAction';
+import type { RemoteControlActionData } from '../../routes/resources.remotes/clientAction';
 
 interface RemoteControlDialogProps {
   controlFetcher: FetcherWithComponents<RemoteControlActionData>;
@@ -131,7 +131,7 @@ export function RemoteControlDialog({
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <controlFetcher.Form
-              action="/remote-control"
+              action="/resources/remotes"
               method="post"
               className="flex-1"
             >
@@ -150,7 +150,7 @@ export function RemoteControlDialog({
 
             {remote.enabled && (
               <controlFetcher.Form
-                action="/remote-control"
+                action="/resources/remotes"
                 method="post"
                 className="flex-1"
               >

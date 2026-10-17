@@ -9,7 +9,6 @@ export function loader() {
       'Disallow: /admin',
       'Disallow: /callback',
       'Disallow: /resources/',
-      'Disallow: /remote-control',
       'Disallow: /remote/',
       'Disallow: /cast/',
       'Disallow: /embed/',

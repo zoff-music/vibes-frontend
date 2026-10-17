@@ -3,7 +3,7 @@ import { msw98uiBoldFontFamily, msw98uiFontFamily } from '@vibes/ui/shared';
 import { useFonts } from 'expo-font';
 import { useEffect, useState } from 'react';
 import { BackHandler, StatusBar, View } from 'react-native';
-import { TvHydrateFallback } from '@/components/tv-hydrate-fallback';
+import { TvLoadingScreen } from '@/components/tv-loading-screen';
 import { useTvSession } from '@/hooks/use-tv-session';
 import { tvAnalytics } from '@/lib/analytics';
 import { LandingScreen } from '@/screens/landing-screen';
@@ -38,7 +38,7 @@ export function TvHome() {
     return () => subscription.remove();
   }, [session.roomId, sessionActions.leaveRoom]);
 
-  if (!fontsLoaded || session.hydrating) return <TvHydrateFallback />;
+  if (!fontsLoaded || session.hydrating) return <TvLoadingScreen />;
 
   let screen = (
     <LandingScreen

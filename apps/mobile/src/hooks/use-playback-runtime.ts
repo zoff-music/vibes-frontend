@@ -6,7 +6,7 @@ import {
 import { useRequest } from '@vibes/shared/use-request';
 import { type MutableRefObject, useCallback, useRef, useState } from 'react';
 import { getObservedPosition } from '@/hooks/use-machine-remote';
-import { loader as loadRoomsIdPlaybackRequest } from '@/routes/rooms.$id.playback/loader';
+import { loadPlayback } from '@/requests/load-playback';
 
 interface PlaybackRuntimeOptions {
   roomId: string;
@@ -42,7 +42,7 @@ export function usePlaybackRuntime({
   PlaybackRuntimeState,
   PlaybackRuntimeActions,
 ] {
-  const [, playbackLoaderLoad] = useRequest(loadRoomsIdPlaybackRequest);
+  const [, playbackLoaderLoad] = useRequest(loadPlayback);
   const [playback, setPlayback] = useState<PlaybackStateV2 | null>(null);
   const [authoritativePlayback, setAuthoritativePlayback] =
     useState<PlaybackStateV2 | null>(null);

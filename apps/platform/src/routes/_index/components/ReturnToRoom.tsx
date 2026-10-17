@@ -5,7 +5,7 @@ import {
   clearRoomReminder,
   readRoomReminder,
 } from '../../../utils/roomReminder';
-import type { clientLoader } from '../../resources.room-reminder/clientLoader';
+import type { clientLoader } from '../../resources.recents/clientLoader';
 import { ReturnToRoomCard } from './ReturnToRoomCard';
 
 interface ReturnToRoomProps {
@@ -28,7 +28,7 @@ export function ReturnToRoom({ onJoinRoom }: ReturnToRoomProps) {
       )
         return;
 
-      void load('/resources/room-reminder');
+      void load('/resources/recents');
     };
     refresh();
     const interval = eligible ? window.setInterval(refresh, 30_000) : null;

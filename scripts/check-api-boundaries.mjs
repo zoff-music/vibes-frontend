@@ -72,43 +72,12 @@ function hasClientRequestCall(source) {
 
 const violations = [];
 
-for (const file of listSourceFiles('apps/mobile/src/app')) {
-  const repositoryPath = relative('.', file);
-  const source = readFileSync(file, 'utf8');
-  if (/\b(?:class|const|function|let|var)\b|<[A-Z][A-Za-z0-9.]*/.test(source)) {
+for (const directory of ['apps/mobile/src/routes', 'apps/tv/src/routes']) {
+  if (existsSync(directory) && listSourceFiles(directory).length > 0) {
     violations.push(
-      `${repositoryPath}: Expo Router files must be re-export-only adapters`,
+      `${directory}: native apps must not have a second route tree`,
     );
   }
-  const routeTargets = [...source.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)];
-  if (routeTargets.length === 0) {
-    violations.push(
-      `${repositoryPath}: Expo Router adapter must re-export a route module`,
-    );
-  }
-  for (const match of routeTargets) {
-    const target = match[1];
-    if (!target.startsWith('@/routes/') || !target.endsWith('/route')) {
-      violations.push(
-        `${repositoryPath}: Expo Router adapters may only re-export src/routes/*/route.tsx`,
-      );
-      continue;
-    }
-    const targetFile = join(
-      'apps/mobile/src',
-      `${target.replace(/^@\//, '')}.tsx`,
-    );
-    if (!existsSync(targetFile)) {
-      violations.push(`${repositoryPath}: missing route module ${targetFile}`);
-    }
-  }
-}
-
-for (const file of listSourceFiles('apps/mobile/src/routes')) {
-  if (!/(?:^|\/)(?:component|components)\.tsx$/.test(file)) continue;
-  violations.push(
-    `${relative('.', file)}: route pages must be named route.tsx; route-specific components belong in a components directory`,
-  );
 }
 
 const allowedApiHooks = new Set([
@@ -222,25 +191,30 @@ for (const sourceDirectory of nativeSourceDirectories) {
     const repositoryPath = relative('.', file);
     if (repositoryPath.includes('/tizen/')) continue;
     const source = readFileSync(file, 'utf8');
-    const isRouteDataModule = routeDataModulePattern.test(repositoryPath);
+    const isRequestModule = repositoryPath.includes('/src/requests/');
     const isApiConstructionModule = /\/lib\/api\.ts$/.test(repositoryPath);
-    if (hasClientRequestCall(source) && !isRouteDataModule) {
+    if (routeDataModulePattern.test(repositoryPath)) {
       violations.push(
-        `${repositoryPath}: native REST calls must run in a loader or action`,
+        `${repositoryPath}: native requests are not route loaders/actions`,
       );
     }
-    if (requestFactoryPattern.test(source) && !isRouteDataModule) {
+    if (hasClientRequestCall(source) && !isRequestModule) {
       violations.push(
-        `${repositoryPath}: native request capabilities must be constructed in a loader or action`,
+        `${repositoryPath}: native REST calls must run in typed request functions`,
+      );
+    }
+    if (requestFactoryPattern.test(source) && !isRequestModule) {
+      violations.push(
+        `${repositoryPath}: native request capabilities must be constructed in request modules`,
       );
     }
     if (
       /createApiClient[A-Za-z]*\s*\(/.test(source) &&
       !isApiConstructionModule &&
-      !isRouteDataModule
+      !isRequestModule
     ) {
       violations.push(
-        `${repositoryPath}: native API clients must be constructed in the app API module or route data modules`,
+        `${repositoryPath}: native API clients must be constructed in the app API module or request modules`,
       );
     }
   }

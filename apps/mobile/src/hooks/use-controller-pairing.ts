@@ -5,8 +5,8 @@ import { type BarcodeScanningResult, useCameraPermissions } from 'expo-camera';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 import type { ControllerRemoteSession } from '@/providers/app-provider';
-import type { ControllerRemoteActionData } from '@/routes/remotes.controller.$id/action';
-import { action as mutateRemotesControllerIdRequest } from '@/routes/remotes.controller.$id/action';
+import type { ControllerRemoteActionData } from '@/requests/update-controller';
+import { updateController } from '@/requests/update-controller';
 
 interface ControllerPairingOptions {
   onPaired: (remoteId: string, session: RemoteSessionV2) => Promise<void>;
@@ -54,9 +54,7 @@ export function useControllerPairing({
   const pairingRef = useRef(false);
   const scanConsumedRef = useRef(false);
   const [permission, requestPermission] = useCameraPermissions();
-  const [, pairingFetcherSubmit] = useMutation(
-    mutateRemotesControllerIdRequest,
-  );
+  const [, pairingFetcherSubmit] = useMutation(updateController);
 
   useEffect(() => {
     if (!session) return;

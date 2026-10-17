@@ -8,25 +8,25 @@ import {
   useRef,
   useState,
 } from 'react';
+import { LoadingScreen } from '@/components/loading-screen';
 import { ErrorBoundary } from '@/components/route-error-boundary';
-import { HydrateFallback } from '@/components/route-fallback';
-import { loader as loadIndexRequest } from '@/routes/_index/loader';
-import { loader as loadPreferencesChatRequest } from '@/routes/preferences.chat/loader';
-import { loader as loadPreferencesPlayerRequest } from '@/routes/preferences.player/loader';
-import { loader as loadPreferencesThemeRequest } from '@/routes/preferences.theme/loader';
-import { loader as loadRemotesSessionRequest } from '@/routes/remotes.session/loader';
-import { loader as loadSessionsProfileRequest } from '@/routes/sessions.profile/loader';
+import { loadChatPreference } from '@/requests/load-chat-preference';
+import { loadDiscovery } from '@/requests/load-discovery';
+import { loadPlayerPreference } from '@/requests/load-player-preference';
+import { loadProfile } from '@/requests/load-profile';
+import { loadRemoteSession } from '@/requests/load-remote-session';
+import { loadThemePreference } from '@/requests/load-theme-preference';
 
 async function loadInitialData(signal: AbortSignal) {
   const args = { params: {}, signal };
   const [discovery, chat, player, theme, remoteSession, profile] =
     await Promise.all([
-      loadIndexRequest(args),
-      loadPreferencesChatRequest(),
-      loadPreferencesPlayerRequest(),
-      loadPreferencesThemeRequest(),
-      loadRemotesSessionRequest(),
-      loadSessionsProfileRequest(args),
+      loadDiscovery(args),
+      loadChatPreference(),
+      loadPlayerPreference(),
+      loadThemePreference(),
+      loadRemoteSession(),
+      loadProfile(args),
     ]);
 
   if (theme.error || profile.error) {
@@ -72,7 +72,7 @@ export function InitialDataProvider({ children }: PropsWithChildren) {
   }, [load]);
 
   if (error) return <ErrorBoundary retry={load} />;
-  if (!data) return <HydrateFallback />;
+  if (!data) return <LoadingScreen />;
 
   return <Context.Provider value={data}>{children}</Context.Provider>;
 }

@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { Appearance, useColorScheme } from 'react-native';
 import { useInitialData } from '@/providers/initial-data-provider';
-import { action as mutatePreferencesThemeRequest } from '@/routes/preferences.theme/action';
+import { updateThemePreference } from '@/requests/update-theme-preference';
 
 export type ThemePreference = 'auto' | 'dark' | 'light';
 
@@ -28,9 +28,7 @@ type ThemeContextValue = readonly [
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function AppThemeProvider({ children }: PropsWithChildren) {
-  const [, preferenceFetcherSubmit] = useMutation(
-    mutatePreferencesThemeRequest,
-  );
+  const [, preferenceFetcherSubmit] = useMutation(updateThemePreference);
   const systemScheme = useColorScheme();
   const loadedPreference = useInitialData().theme;
   const [preference, setPreferenceValue] = useState<ThemePreference>('auto');

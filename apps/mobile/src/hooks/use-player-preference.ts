@@ -1,13 +1,11 @@
 import { useMutation } from '@vibes/shared/use-request';
 import { useCallback, useEffect, useState } from 'react';
 import { useInitialData } from '@/providers/initial-data-provider';
-import { action as mutatePreferencesPlayerRequest } from '@/routes/preferences.player/action';
+import { updatePlayerPreference } from '@/requests/update-player-preference';
 
 export function usePlayerPreference() {
   const preference = useInitialData().player;
-  const [, preferenceFetcherSubmit] = useMutation(
-    mutatePreferencesPlayerRequest,
-  );
+  const [, preferenceFetcherSubmit] = useMutation(updatePlayerPreference);
   const [enabled, setEnabledValue] = useState(true);
   const [warning, setWarning] = useState('');
 

@@ -28,7 +28,7 @@ import {
   useControllerSessionActions,
   useRoomSession,
 } from '@/providers/app-provider';
-import { loader as loadRemotesControllerIdRequest } from '@/routes/remotes.controller.$id/loader';
+import { loadController } from '@/requests/load-controller';
 
 export interface ControllerRemoteActions {
   setPartyMode: (enabled: boolean) => Promise<void>;
@@ -119,7 +119,7 @@ export function useControllerRemote(): readonly [
     session: controllerRemote,
     setError,
   });
-  const [, remoteLoaderLoad] = useRequest(loadRemotesControllerIdRequest, {
+  const [, remoteLoaderLoad] = useRequest(loadController, {
     controllerToken,
     id: remoteId,
   });

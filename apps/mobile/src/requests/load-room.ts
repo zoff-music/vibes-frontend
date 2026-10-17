@@ -1,0 +1,45 @@
+import { createRoomPlaybackRequests, createRoomReadRequests } from '@vibes/api';
+import type { RoomSnapshot } from '@vibes/models';
+import type { RequestArgs, RequestResult } from '@vibes/shared/requests';
+import { getRequestErrorMessage, mobileApi } from '@/lib/api';
+import { normalizeMobileSnapshot } from '@/lib/mobile-content';
+
+const readRequests = createRoomReadRequests(mobileApi);
+const playbackRequests = createRoomPlaybackRequests(mobileApi);
+
+export async function loadRoom({
+  params,
+  signal,
+}: RequestArgs): Promise<RequestResult<RoomSnapshot>> {
+  const roomId = params.id;
+
+  if (!roomId) return { data: null, error: 'A room is required.' };
+
+  const [roomResult, playlistItemsResult, playbackResult] = await Promise.all([
+    readRequests.fetchRoom(roomId, { signal }),
+    readRequests.fetchPlaylistItems(roomId, { signal }),
+    playbackRequests.fetchPlayback(roomId, { signal }),
+  ]);
+  const error = roomResult[0] ?? playlistItemsResult[0] ?? playbackResult[0];
+
+  if (
+    error ||
+    !roomResult[1] ||
+    !playlistItemsResult[1] ||
+    !playbackResult[1]
+  ) {
+    return {
+      data: null,
+      error: await getRequestErrorMessage(error, 'Could not refresh room.'),
+    };
+  }
+
+  return {
+    data: normalizeMobileSnapshot({
+      playback: playbackResult[1],
+      room: roomResult[1],
+      playlistItems: playlistItemsResult[1],
+    }),
+    error: '',
+  };
+}

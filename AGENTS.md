@@ -28,9 +28,10 @@ Non-negotiable conventions. Follow strictly.
 ## File Layout
 
 - DOM apps keep flat routes in `src/routes`. Each route has `route.tsx`, separate `loader.ts`, `clientLoader.ts`, `action.ts`, `clientAction.ts`, boundaries and revalidation modules as needed.
+- Shared non-page DOM loaders/actions use `resources.<name>` routes: one plural word, no hyphens (for example `resources.recents`). Let discovery infer paths and IDs; see the skill for scope and module structure.
 - Route-only helpers belong in that route's `utils` directory. Cross-route helpers belong in `src/utils`; constants belong in `src/constants`.
 - Root modules live in `src/root`. Client hydration and server rendering use `entry.client.tsx` and `entry.server.tsx`.
-- Mobile's `src/app` files are Expo Router adapters to `src/routes`; native workflows live in hooks and typed handlers.
+- Mobile's only route tree is Expo Router's `src/app`; screens/components, hooks and typed request functions live outside it. Do not retain a parallel `src/routes` tree or native loader/action modules.
 - Android TV has a registered root; Tizen keeps its DOM routes in `src/tizen/routes`.
 - Shared packages are `api`, `models`, `shared`, `ui`, `serve` and `tailwind`. Import other packages through their declared exports, never relative source paths.
 - Do not add forwarding packages or aliases that duplicate existing exports. Keep framework-required entrypoints.

@@ -7,8 +7,8 @@ import type {
 import { getClientReferenceTimeMs } from '@vibes/shared';
 import { useMutation, useRequest } from '@vibes/shared/use-request';
 import { type RefObject, useCallback, useEffect, useState } from 'react';
-import { action as mutateRemotesMachineRequest } from '@/routes/remotes.machine/action';
-import { loader as loadRemotesMachineRequest } from '@/routes/remotes.machine/loader';
+import { loadMachine } from '@/requests/load-machine';
+import { updateMachine } from '@/requests/update-machine';
 
 interface UseMachineRemoteOptions {
   playbackRef: RefObject<PlaybackStateV2 | null>;
@@ -36,8 +36,8 @@ export function useMachineRemote({
   MachineRemoteState,
   MachineRemoteActions,
 ] {
-  const [, remoteLoaderLoad] = useRequest(loadRemotesMachineRequest);
-  const [, remoteActionSubmit] = useMutation(mutateRemotesMachineRequest);
+  const [, remoteLoaderLoad] = useRequest(loadMachine);
+  const [, remoteActionSubmit] = useMutation(updateMachine);
   const [machinePairing, setMachinePairing] = useState<RemotePairingV2 | null>(
     null,
   );

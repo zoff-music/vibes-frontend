@@ -50,7 +50,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 - Treat `apps/mobile` as Android/iOS only. Do not add Expo web config, `react-dom`, `react-native-web`, a web script, or favicon assets.
 - Expo Router is the only navigation router in mobile. Do not add a custom native router, a route registry, or a Smolter data-router layer. Keep API orchestration in app hooks and typed request handlers; shared request helpers may manage abort/pending state but must not implement routing.
-- Keep Expo Router files under `apps/mobile/src/app` as small adapters. Default exports are allowed where Expo Router requires them.
+- Keep Expo Router files under `apps/mobile/src/app` as the only native route tree. They compose screens directly, not adapters to a second `src/routes` tree. Default exports are allowed where Expo Router requires them. Native requests use descriptive functions in `src/requests`, not route-shaped loader/action modules.
 - Put screen fragments in `src/components`, stateful workflows in `src/hooks`, API construction in `src/lib`, and room-wide state in providers.
 - Split independent workflows out of `AppProvider`; do not turn the provider into a collection of unrelated API state machines.
 - Inject `expo/fetch` only while constructing the shared API client. Native runtime hooks compose React-free request capabilities and may consume reusable SSE hooks from `@vibes/api`; screens and components must not call endpoints directly.
@@ -61,6 +61,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 ## TV
 
 - Android TV retains Expo’s registered root component and its single-screen room flow; do not add a custom router or route registry.
+- Android TV has no native `src/routes` tree. Typed request functions live in `src/requests`; native screen composition stays in `src/screens`.
 - Android TV uses Expo, `react-native-tvos`, NativeWind, directional focus, and `@vibes/ui/native`.
 - Samsung TVs require a DOM runtime with its own Smolter data route, entrypoint, CSS, spatial navigation, `config.xml`, and store packaging under `apps/tv`; this is a delivery boundary within the same TV app, not a separate product.
 - Share app-owned domain hooks between the TV renderers, not UI trees. Keep REST capabilities in `@vibes/api` React-free; reusable SSE lifecycle hooks may also live there.
@@ -78,6 +79,16 @@ Apply these repository-specific rules together with `AGENTS.md`.
 - Preserve content-hashed assets and the pnpm workspace build system.
 
 ## API and Errors
+
+### DOM resource routes
+
+- Shared application-level loaders/actions serving multiple routes or global UI, without a navigable page, belong in `resources.<name>` file routes. The name is one plural word without hyphens: `resources.profiles`, `resources.remotes`, `resources.recents` resolve to `/resources/profiles`, `/resources/remotes`, `/resources/recents`.
+- Page-specific data handlers remain alongside their owning page. A global dialog or provider does not justify a standalone page-shaped action URL. Actual navigable pages are not resource routes.
+- Keep separate `loader.ts`, `clientLoader.ts`, `action.ts`, and `clientAction.ts` files as applicable, with thin route exports. Discovery infers paths and IDs; do not add manual overrides or empty UI components for resource modules.
+- Route-local helpers belong under the route's `utils`; cross-route helpers remain outside `routes`.
+- This convention applies only to Smolter DOM applications, not Expo native navigation or backend endpoint naming. Resources still use `@vibes/api`; do not add a router or transport implementation.
+
+### Transport boundaries
 
 - `@vibes/api` may export reusable hooks only for SSE subscription lifecycle. REST/request hooks, providers, stores, and application state orchestration are forbidden.
 - Keep REST capabilities, clients, error helpers, and SSE transport functions React-free. SSE hooks may own effects, callback refs, subscription cleanup, and reconnection notification, but state updates remain callback-driven and app-owned.

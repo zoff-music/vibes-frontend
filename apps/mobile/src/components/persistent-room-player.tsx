@@ -14,7 +14,7 @@ import {
   useRoomSession,
 } from '@/providers/app-provider';
 import { useRoomPlayerLayout } from '@/providers/room-player-layout-provider';
-import { action as mutateRoomsIdPlaybackRequest } from '@/routes/rooms.$id.playback/action';
+import { updatePlayback } from '@/requests/update-playback';
 
 export function PersistentRoomPlayer() {
   const { playback, playbackResetVersion } = usePlaybackSession();
@@ -25,7 +25,7 @@ export function PersistentRoomPlayer() {
     setLocalPlaying,
   } = usePlaybackActions();
   const { setError } = useRoomActions();
-  const [, submit] = useMutation(mutateRoomsIdPlaybackRequest, { id: roomId });
+  const [, submit] = useMutation(updatePlayback, { id: roomId });
   const castState = useCastState();
   const pathname = usePathname();
   const [{ active, frame }] = useRoomPlayerLayout();

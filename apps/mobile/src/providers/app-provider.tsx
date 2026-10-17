@@ -38,9 +38,9 @@ import {
   positionMobilePlaylistItem,
 } from '@/lib/mobile-content';
 import { useInitialData } from '@/providers/initial-data-provider';
-import { action as mutateRemotesSessionRequest } from '@/routes/remotes.session/action';
-import { loader as loadRoomsIdRequest } from '@/routes/rooms.$id/loader';
-import { action as mutateRoomsIdSessionRequest } from '@/routes/rooms.$id.session/action';
+import { loadRoom } from '@/requests/load-room';
+import { updateRemoteSession } from '@/requests/update-remote-session';
+import { updateRoomSession } from '@/requests/update-room-session';
 
 interface ControllerSessionActions {
   activateControllerRemote: (
@@ -124,11 +124,9 @@ const RoomNavigationContext = createContext<RoomNavigationState | null>(null);
 const MachineRemoteContext = createContext<MachineRemoteState | null>(null);
 
 export function AppProvider({ children }: PropsWithChildren) {
-  const [, roomLoaderLoad] = useRequest(loadRoomsIdRequest);
-  const [, roomSessionActionSubmit] = useMutation(mutateRoomsIdSessionRequest);
-  const [, remoteSessionFetcherSubmit] = useMutation(
-    mutateRemotesSessionRequest,
-  );
+  const [, roomLoaderLoad] = useRequest(loadRoom);
+  const [, roomSessionActionSubmit] = useMutation(updateRoomSession);
+  const [, remoteSessionFetcherSubmit] = useMutation(updateRemoteSession);
   const { showToast } = useToast();
   const [roomId, setRoomIdValue] = useState('');
   const [room, setRoom] = useState<RoomV2 | null>(null);

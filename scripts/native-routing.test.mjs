@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import test from 'node:test';
+import { build } from 'esbuild';
+
+test('native apps use their Expo entrypoints without a second route tree', () => {
+  assert.equal(existsSync('apps/mobile/src/routes'), false);
+  assert.equal(existsSync('apps/tv/src/routes'), false);
+  assert.equal(
+    JSON.parse(readFileSync('apps/mobile/package.json', 'utf8')).main,
+    'expo-router/entry',
+  );
+  assert.match(
+    readFileSync('apps/tv/src/index.ts', 'utf8'),
+    /registerRootComponent/,
+  );
+  assert.ok(existsSync('apps/tv/src/tizen/routes/_index/route.tsx'));
+});
+
+test('Expo native intent keeps room and remote deep links after relocation', async () => {
+  const result = await build({
+    entryPoints: ['apps/mobile/src/utils/redirect-system-path.ts'],
+    alias: { '@vibes/shared': resolve('packages/shared/src/wrap.ts') },
+    bundle: true,
+    format: 'esm',
+    platform: 'node',
+    write: false,
+  });
+  const source = Buffer.from(result.outputFiles[0].contents).toString('base64');
+  const { redirectSystemPath } = await import(
+    `data:text/javascript;base64,${source}`
+  );
+
+  for (const initial of [true, false]) {
+    for (const [path, expected] of [
+      ['https://zoff.me/electro', '/?roomId=electro'],
+      ['zoff://electro', '/?roomId=electro'],
+      [
+        'https://zoff.me/remotes/join?remoteId=abc&pair=token',
+        '/remote?remoteId=abc&pair=token',
+      ],
+      ['zoff://remote/abc?pair=token', '/remote?remoteId=abc&pair=token'],
+      ['https://zoff.me/security', 'https://zoff.me/security'],
+      ['zoff://app/%invalid', '/'],
+    ]) {
+      assert.equal(redirectSystemPath({ initial, path }), expected);
+    }
+  }
+});

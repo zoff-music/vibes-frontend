@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react';
 import { useInitialData } from '@/providers/initial-data-provider';
-import { action as mutatePreferencesChatRequest } from '@/routes/preferences.chat/action';
+import { updateChatPreference } from '@/requests/update-chat-preference';
 
 interface ChatPreference {
   enabled: boolean;
@@ -19,7 +19,7 @@ const Context = createContext<ChatPreference | null>(null);
 
 export function ChatPreferenceProvider({ children }: PropsWithChildren) {
   const data = useInitialData().chat;
-  const [, fetcherSubmit] = useMutation(mutatePreferencesChatRequest);
+  const [, fetcherSubmit] = useMutation(updateChatPreference);
   const [enabled, setValue] = useState(false);
   const [warning, setWarning] = useState('');
   useEffect(() => {

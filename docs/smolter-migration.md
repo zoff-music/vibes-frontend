@@ -1,5 +1,36 @@
 # Smolter 0.4.2 integration review
 
+## Resource routes, shared headers and native structure
+
+- `resources.recents` now owns `/resources/recents`; remembered-room storage,
+  eligibility, playback reads, dismissal and 30-second refresh remain unchanged.
+- `resources.remotes` replaces the action-only `/remote-control` URL with
+  `/resources/remotes`. It has no UI component, manual ID/path or legacy alias.
+  Enable/update/delete behavior, abort signals and revalidation are retained.
+  Robots already excludes the entire `/resources/` prefix.
+- Shared header, brand and navigation snapshots now animate geometry rather
+  than popping between layouts. Native same-origin cross-document transitions
+  cover Platform/Remote handoffs; ordinary content still fades and reduced
+  motion disables animations. Cross-origin localhost ports cannot share snapshots.
+- Mobile uses only Expo Router's `src/app`, composing components directly.
+  Android TV retains Expo's registered root and single-screen flow. Both native
+  targets use named `src/requests` functions, not loader/action route trees.
+  Samsung Tizen retains its separate Smolter DOM routes. No request behavior,
+  storage key, native navigation semantics or dependency was changed.
+- AGENTS and the frontend skill now specify plural one-word DOM resource names.
+  Existing profile resources (`resources.profile`, `admin.resources.profile`,
+  `remotes.resources.profile`) and `resources.root` do not follow that naming
+  convention; they are reported here, not mechanically renamed. The hosted TV
+  player is a navigable document, not a shared application data action.
+
+Validation for this change: workspace lint/typechecking, Mobile validation,
+TV validation (including Tizen production packaging/test), Platform and Remote
+production builds, 13 resource/reminder/navigation tests and two native
+structure/deep-link tests. A single-origin production browser fixture observed
+non-skipped `pageswap`/`pagereveal` transitions in both Platform/Remote directions;
+the hydrated Settings control remained usable. No physical native/device sign-off
+or release was performed. PR #413 remains draft.
+
 ## Fresh 0.4.2 integration and validation
 
 This section supersedes version-specific statements below; earlier sections are

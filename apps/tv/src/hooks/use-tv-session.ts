@@ -13,10 +13,10 @@ import { roomNotFoundError } from '@/constants/room';
 import { useTvRoomEvents } from '@/hooks/use-tv-room-events';
 import { subscribeToAppResume } from '@/lib/app-resume';
 import { applyRoomSnapshot } from '@/lib/apply-room-snapshot';
-import type { DiscoveryData } from '@/routes/_index/loader';
-import { loader as loadIndexRequest } from '@/routes/_index/loader';
-import { loader as loadRoomsIdRequest } from '@/routes/rooms.$id/loader';
-import { action as mutateRoomsCreateRequest } from '@/routes/rooms.create/action';
+import type { DiscoveryData } from '@/requests/load-discovery';
+import { loadDiscovery } from '@/requests/load-discovery';
+import { loadRoom as loadRoomRequest } from '@/requests/load-room';
+import { updateRoomCreation } from '@/requests/update-room-creation';
 
 export type RoomJoinResult = 'error' | 'joined' | 'notFound';
 
@@ -46,16 +46,14 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
   const [discovery, setDiscovery] = useState<DiscoveryData | null>(null);
   const [initialError, setInitialError] = useState('');
   const [initialized, setInitialized] = useState(false);
-  const [, discoveryFetcherLoad] = useRequest(loadIndexRequest);
+  const [, discoveryFetcherLoad] = useRequest(loadDiscovery);
   const [roomType, setRoomType] = useState<RoomType>('MUSIC');
   const [selectedDiscovery, setSelectedDiscovery] =
     useState<DiscoveryData | null>(null);
   const [discoveryLoading, setDiscoveryLoading] = useState(false);
   const discoveryRequest = useRef(0);
-  const [, roomFetcherLoad] = useRequest(loadRoomsIdRequest);
-  const [createFetcherState, submitCreate] = useMutation(
-    mutateRoomsCreateRequest,
-  );
+  const [, roomFetcherLoad] = useRequest(loadRoomRequest);
+  const [createFetcherState, submitCreate] = useMutation(updateRoomCreation);
   const room = useRoomStore((state) => state.room);
   const listenerCount = useRoomStore((state) => state.usersCount);
   const playlistItems = useQueueStore((state) => state.playlistItems);

@@ -29,7 +29,7 @@ import {
   useMemo,
   useState,
 } from 'preact/compat';
-import type { RemoteControlActionData } from '../../routes/remote-control/clientAction';
+import type { RemoteControlActionData } from '../../routes/resources.remotes/clientAction';
 import { createEmptyRemoteStatus } from '../../utils/remoteStatus';
 import { canUseViewTransition } from '../../utils/viewTransition';
 
@@ -99,7 +99,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
           roomId: machineRoomId,
           partyMode: String(partyMode),
         },
-        { method: 'post', action: '/remote-control' },
+        { method: 'post', action: '/resources/remotes' },
       );
     };
 

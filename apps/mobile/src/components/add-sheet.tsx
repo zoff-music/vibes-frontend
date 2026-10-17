@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Modal } from 'react-native';
 import { SearchSheet } from '@/components/search-sheet';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
-import { loader as loadRemotesControllerIdRequest } from '@/routes/remotes.controller.$id/loader';
+import { loadController } from '@/requests/load-controller';
 
 interface AddPlaylistItemSheetProps {
   onClose: () => void;
@@ -18,7 +18,7 @@ export function AddPlaylistItemSheet({
   const { controllerRemote, room, playlistItems } = useRoomSession();
   const { refresh } = useRoomActions();
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
-  const [, roomFetcherLoad] = useRequest(loadRemotesControllerIdRequest, {
+  const [, roomFetcherLoad] = useRequest(loadController, {
     controllerToken: controllerRemote?.controllerToken ?? '',
     id: controllerRemote?.id ?? '',
   });

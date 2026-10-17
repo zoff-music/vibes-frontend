@@ -222,6 +222,17 @@
   }
 }
 
+/* Cross-document opt-in must be a stylesheet at-rule, not an element utility. */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
 @utility page-transitions {
   &::view-transition,
   &::view-transition-group(*),
@@ -237,7 +248,6 @@
   }
 
   &::view-transition-group(root),
-  &::view-transition-group(site-header),
   &::view-transition-group(site-footer) {
     animation: none;
   }

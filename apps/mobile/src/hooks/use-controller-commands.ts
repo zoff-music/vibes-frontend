@@ -6,9 +6,9 @@ import type {
 } from '@vibes/models';
 import { useMutation } from '@vibes/shared/use-request';
 import { type Dispatch, type SetStateAction, useState } from 'react';
-import { action as mutateRemotesControllerIdRequest } from '@/routes/remotes.controller.$id/action';
-import { action as mutateRemotesControllerIdPlaybackRequest } from '@/routes/remotes.controller.$id.playback/action';
-import { action as mutateRemotesControllerIdQueueRequest } from '@/routes/remotes.controller.$id.queue/action';
+import { updateController } from '@/requests/update-controller';
+import { updateControllerPlayback } from '@/requests/update-controller-playback';
+import { updateControllerQueue } from '@/requests/update-controller-queue';
 
 interface ControllerCommandsOptions {
   controllerToken: string;
@@ -43,18 +43,18 @@ export function useControllerCommands({
   setRemote,
 }: ControllerCommandsOptions): readonly [string, ControllerCommandActions] {
   const [nextRoomId, setNextRoomId] = useState('');
-  const [, remoteActionSubmit] = useMutation(mutateRemotesControllerIdRequest, {
+  const [, remoteActionSubmit] = useMutation(updateController, {
     controllerToken,
     id: remoteId,
   });
-  const [, playbackActionSubmit] = useMutation(
-    mutateRemotesControllerIdPlaybackRequest,
-    { controllerToken, id: remoteId },
-  );
-  const [, queueActionSubmit] = useMutation(
-    mutateRemotesControllerIdQueueRequest,
-    { controllerToken, id: remoteId },
-  );
+  const [, playbackActionSubmit] = useMutation(updateControllerPlayback, {
+    controllerToken,
+    id: remoteId,
+  });
+  const [, queueActionSubmit] = useMutation(updateControllerQueue, {
+    controllerToken,
+    id: remoteId,
+  });
 
   const action = async (kind: 'play' | 'pause' | 'skip') => {
     if (!remote?.currentRoomId) return;

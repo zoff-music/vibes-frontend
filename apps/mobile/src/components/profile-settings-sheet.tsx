@@ -12,8 +12,8 @@ import {
   IconButton,
   Screen,
 } from '@/components/native';
-import { action as mutateSessionsProfileRequest } from '@/routes/sessions.profile/action';
-import { loader as loadSessionsProfileRequest } from '@/routes/sessions.profile/loader';
+import { loadProfile } from '@/requests/load-profile';
+import { updateProfile } from '@/requests/update-profile';
 
 interface ProfileSettingsSheetProps {
   initialProfile: SessionProfile | null;
@@ -28,8 +28,8 @@ export function ProfileSettingsSheet({
   onSaved,
   visible,
 }: ProfileSettingsSheetProps) {
-  const [, profileFetcherLoad] = useRequest(loadSessionsProfileRequest);
-  const [, profileFetcherSubmit] = useMutation(mutateSessionsProfileRequest);
+  const [, profileFetcherLoad] = useRequest(loadProfile);
+  const [, profileFetcherSubmit] = useMutation(updateProfile);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

@@ -63,6 +63,7 @@ navigation do not show the reminder. Dismissing it clears the saved ID.
 
 The compact homepage card uses fresh room and playback reads through its
 resource client loader, without joining the room or subscribing as a listener.
+Its discovered route is `resources.recents` at `/resources/recents`.
 It refreshes every 30 seconds while visible and on returning to the tab. Empty
 rooms omit the listener count; missing or unavailable rooms hide the card.
 The development-only `/?preview=return-to-room` fixture shows the same card

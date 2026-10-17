@@ -1,10 +1,10 @@
 import type { PublicRoomResultV3, RoomType } from '@vibes/models';
 import { useRequest } from '@vibes/shared/use-request';
 import { useRef, useState } from 'react';
-import { loader as loadRoomsPublicRequest } from '@/routes/rooms.public/loader';
+import { loadPublicRooms } from '@/requests/load-public-rooms';
 
 export function useRoomBrowser(roomType: RoomType) {
-  const [, fetcherLoad] = useRequest(loadRoomsPublicRequest);
+  const [, fetcherLoad] = useRequest(loadPublicRooms);
   const [browsing, setBrowsing] = useState(false);
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<PublicRoomResultV3 | null>(null);
