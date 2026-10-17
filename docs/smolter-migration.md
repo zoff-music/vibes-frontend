@@ -1,8 +1,9 @@
-# Smolter 0.4.0 integration review
+# Smolter 0.4.1 integration review
 
 This supplements draft PR #413. It is not a ten-pass or physical-device sign-off.
-The integration uses the published [0.4.0 release](https://github.com/kasperrt/smolter/releases/tag/v0.4.0)
-including [early hydration and asset hints](https://github.com/kasperrt/smolter/pull/16), retaining
+The integration uses the published [0.4.1 release](https://github.com/kasperrt/smolter/releases/tag/v0.4.1)
+including [fetcher recovery ownership](https://github.com/kasperrt/smolter/pull/20)
+and [early hydration and asset hints](https://github.com/kasperrt/smolter/pull/16), retaining
 the 0.3.2 integration from [upstream PR #12](https://github.com/kasperrt/smolter/pull/12).
 
 ## Runtime boundaries
@@ -14,7 +15,7 @@ the 0.3.2 integration from [upstream PR #12](https://github.com/kasperrt/smolter
 
 ## Changes
 
-- All nine Smolter dependency declarations and the lockfile resolve published 0.4.0. The temporary 0.3.1 patch and patch registration are removed; unrelated native patches remain. There are no Smolter local-source links, aliases or monkey patches.
+- All nine Smolter dependency declarations and the lockfile resolve published 0.4.1. The temporary 0.3.1 patch and patch registration are removed; unrelated native patches remain. There are no Smolter local-source links, aliases or monkey patches.
 - Removed temporary `dataPath` configuration and environment patching. Official `dataEndpoint` options connect generated routes, development middleware and production handlers. Admin uses `/admin/_smolter`, Remote `/remotes/_smolter`, Embed its configured base plus `/_smolter`; Platform retains `/_smolter`.
 - Removed the post-mount deployment watcher. Platform, Admin, Remote, Embed and Cast pass deployment options directly to mounting. Packaged Tizen has `{ hash: true }` and no deployment watcher.
 - Removed the copied data-cache middleware and obsolete React Router data-response hook. The released adapter owns private/no-store policy.
@@ -313,6 +314,165 @@ All-emitted totals include lazy/legacy output, not initial transfers. Earlier
 The nonce-enforced, separate-CDN, full recovery/browser, Admin auth and Tizen
 hash-flow matrices have not all been freshly repeated on 0.4.0. No physical or
 native parity sign-off is implied. Keep this PR draft.
+
+## 0.4.1 consumer validation
+
+Starting consumer commit: `fb32ff6fb473549dfdde0ddc0408a2c3bf6a03ec`.
+Only dependency pins, release-age allowance, lockfile, regression tests and
+documentation changed. Platform retains early hydration. Scoped transports,
+bootstrap recovery, loader reasons, Tizen parsing/hash routing, profile URL
+normalization, Admin logout, streaming/cache policy and asset URLs are unchanged.
+No nonce was invented, CSS restructured, or additional SSR app opted into early
+hydration. The root stylesheet still uses its existing rendered link.
+
+### Dependency and normal checks
+
+- Node 26.8.1, pnpm 12.3.4, Preact 11.0.1, preact-render-to-string 6.8.1.
+- Frozen install, workspace lint/typechecking and all six production builds pass.
+- Twenty focused tests pass: sixteen transport/cache/revalidation/deployment
+  tests (including the deployment parent), three theme tests and one framing test.
+- The downloaded npm tarball, npm metadata and lockfile agree on integrity:
+  `sha512-Ftmt9ZqfytDf1Ey3IW/I3bJ+rDdlFSAdqlwWLB7vjmrFS4SXOnufk/vJcc+QV7mcOzYc10xhux8FnucWvRIjQg==`.
+- All nine installed references resolve to the registry-backed 0.4.1 store.
+  No Smolter patches, source links, internal imports or copied routers were added.
+- Generated SSR route manifests contain 676 asset references; every target exists.
+  Browser boundary checks ran as part of the production builds.
+
+### Repeatable recovery regressions
+
+`packages/serve/src/deployment.test.ts` adds two public-API tests. Both fail with
+a separately installed published 0.4.0 and pass with published 0.4.1:
+
+1. An active chunk failure starts a deferred manifest check. Two fetchers created
+   after watcher installation submit independent actions and both complete before
+   the newer manifest resolves. Each action runs once; no reload or marker occurs.
+   The failed route explicitly disables action revalidation so this tests the old
+   check, not a fresh chunk failure caused by another loader invocation.
+2. Two fetchers submit; the first completes while the second remains pending.
+   Navigation to `/security?pending=true#scope` completes without recovery or
+   marker consumption. Once the second settles, a later navigation recovers to
+   `/terms-of-service?settled=true#terms` exactly once; both actions ran once.
+
+Each subtest now gets its own simulated browser EventTarget. Production entries
+still use `mountApplication(..., { deployment })`, which installs tracking before
+rendered components create fetchers. No consumer watcher-order workaround exists.
+
+### Fresh browser evidence
+
+Production Platform used a local fixture API, with optional statistics delayed
+eight seconds. Settings opened at 3,101 ms and profile input occurred at
+3,330.5 ms, both while the document was loading. One profile PATCH and one root
+refresh occurred before completion at 8,085.4 ms. Statistics/public-room reads
+were not duplicated. Security navigation before settlement retained Security
+after completion; the homepage heading and statistics region were absent.
+Marked head script/style nodes remained; no console errors were recorded in that
+Vibes run. These timings include automation overhead, not earliest readiness.
+
+A separate minified production fixture used public `renderApplication`,
+`mountApplication`, `serverRoute`, `useFetcher` and the Node request handler.
+It had a twenty-second deferred value, real HTTP fixture actions and an eight-
+second manifest delay (explicit fifteen-second watcher timeout). Reloads were
+observed through the public reload callback, not executed as document reloads:
+
+- Both fetcher actions completed at 5,120 ms while loading; the older recovery
+  check produced no callback. Input survived completion. A later navigation
+  invoked recovery for `/destination?settled=1#latest`.
+- With the second action delayed fifteen seconds, navigation completed at
+  11,316 ms while loading with no recovery. The second action finished at
+  18,106.7 ms while loading. A later recovery retained the query/hash destination.
+- Each scenario's server log recorded one invocation per independent action.
+
+This is isolated browser coverage plus a real Vibes profile/streaming check,
+not a claim that two real product mutations were exercised concurrently in Vibes.
+The deterministic tests assert marker state directly; the browser fixture
+verified later recovery eligibility instead of inspecting storage internals.
+
+### Upstream investigation: abandoned Suspense fallback
+
+The isolated fixture exposes a separate early-hydration cleanup issue. After
+navigating away before the deferred value settles, `Optional data pending`
+remains beside the new destination, even after document completion. Removing
+deployment watching and submitting no mutations still reproduces it. The DOM
+contains the new destination followed by an orphaned `$s` comment and fallback
+paragraph. The old page does not replace the destination, but stale fallback
+content survives. This was **not reproduced in the real Vibes homepage → Security
+flow**; do not describe it as a confirmed Vibes visual regression.
+
+Reproduction shape for upstream, requiring no private fixture API:
+
+1. Render a whole-document Preact root with `<main><NavigateButton /><Outlet /></main>`
+   and `<Scripts />`, using `renderApplication(..., { earlyHydration: true })`.
+2. `/` returns `{ optional: new Promise(resolve => setTimeout(() => resolve('done'), 20000)) }`.
+3. Its component renders `<Suspense fallback={<p>Optional data pending</p>}><Await
+   resolve={data.optional}>{value => <p>{value}</p>}</Await></Suspense>`.
+4. `/destination` renders `<h2>Destination ready</h2>`.
+5. Mount through the public `mountApplication`; click a real root button calling
+   `router.navigate('/destination?pending=1#scope')` before twenty seconds.
+6. After completion, require the destination heading and zero old fallback
+   paragraphs. The fixture currently retains a fallback paragraph after the heading.
+
+Do not patch this inside Vibes. Upstream should add a regression asserting removal
+of old fallback nodes, not only the presence of the new destination.
+
+### Matched performance comparison
+
+Platform 0.4.0 was freshly built from the starting commit in an isolated worktree,
+with the same runtime, fixtures and build settings. HTTP measurements used gzip,
+keep-alive, serial alternating requests, five warmups then thirty samples per
+route/version; the delayed case used six samples. Values below are median ms:
+
+| Route | 0.4.0 shell TTFB | 0.4.1 shell TTFB | 0.4.0 completion | 0.4.1 completion |
+| --- | ---: | ---: | ---: | ---: |
+| Homepage | 5.89 | 6.17 | 8.66 | 9.47 |
+| Privacy | 8.37 | 6.04 | 10.06 | 7.89 |
+| Empty fixture room | 7.46 | 7.95 | 7.58 | 8.18 |
+| Homepage +1,500 ms stats delay | 5.65 | 6.75 | 1,510.72 | 1,512.49 |
+
+There is no demonstrated TTFB improvement. Local variation is substantial:
+homepage TTFB p95 was 10.13 versus 18.57 ms. No production latency claim follows.
+
+Three unthrottled browser loads per version, with proxy `no-store` responses:
+
+| Metric | 0.4.0 | 0.4.1 |
+| --- | ---: | ---: |
+| JavaScript requests | 41 | 41 |
+| Encoded JS body bytes | 88,200 | 88,249 |
+| Stylesheet requests | 1 | 1 |
+| Encoded CSS body bytes | 17,336 | 17,336 |
+| Median LCP (range), ms | 296 (248–296) | 216 (212–296) |
+| Observed CLS | 0 | 0 |
+| Median final observed JS response end, ms | 237.5 | 193.3 |
+
+These small samples do not establish an LCP improvement. Final JS response time
+includes optional resources and is not required-code readiness or a causal serial
+dependency chain. DOMContentLoaded is not used as hydration readiness. No warm
+browser-cache or representative network/CPU-throttled results were collected.
+The root CSS downloaded once; hints were not changed. Browser encoded sizes use
+negotiated compression and measurement instrumentation, not the gzip inventory.
+
+All-emitted JS, individual gzip level 9 under Node 26.8.1, compared with saved
+0.4.0 inventories using the same script/settings:
+
+| App | 0.4.0 JS gzip | 0.4.1 JS gzip | Delta | JS files | 0.4.1 CSS gzip |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Platform | 284,811 | 284,935 | +124 | 126 | 21,618 |
+| Admin | 120,825 | 120,916 | +91 | 16 | 14,262 |
+| Embed | 113,763 | 113,856 | +93 | 8 | 14,056 |
+| Remote | 155,814 | 155,899 | +85 | 21 | 14,133 |
+| Cast | 194,127 | 194,297 | +170 | 13 | 15,009 |
+| Tizen | 156,339 | 156,419 | +80 | 3 | 5,762 |
+
+Each app emits one CSS file. Inventories include lazy and legacy output, not
+initial-route transfer. Build identities may move compressed sizes slightly.
+
+### Still not freshly verified on 0.4.1
+
+Bootstrap mutation overlap; Back/Forward with both stream and manifest pending;
+root-only/fetcher-only chunk failures; interrupted streams/offline reconnection;
+arbitrary rejected deferred promises reaching their boundary; separate CDN origins
+and customized app bases; complete Admin/Tizen browser regressions; native and
+physical-device parity. Earlier results remain historical, not new sign-off.
+The possible Mobile AppProvider stale-room race remains unresolved. Keep #413 draft.
 
 ## Remaining blockers and limitations
 
