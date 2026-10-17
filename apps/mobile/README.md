@@ -130,6 +130,13 @@ Test at least these flows before publishing:
 
 ## EAS development and preview builds
 
+Native tab screens own their safe-area padding and scroll-content spacing.
+Keep `disableAutomaticContentInsets` on their native tab triggers and
+`contentInsetAdjustmentBehavior="never"` on their scroll views, so iOS does not
+apply a second inset adjustment after presenting a tab. The root safe-area
+provider starts with `initialWindowMetrics`; do not hide layout corrections
+behind delayed rendering or entrance animations.
+
 Install and authenticate the EAS CLI, then associate the project with the Zoff
 Expo organization on the first run:
 

@@ -3,7 +3,10 @@ import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+} from 'react-native-safe-area-context';
 import { ToastProvider } from '@/components/toast';
 import { palette } from '@/constants/theme';
 import { AppProvider } from '@/providers/app-provider';
@@ -21,7 +24,7 @@ export function RootContent() {
 
   return (
     <GestureHandlerRootView className="flex-1 bg-mobile-background dark:bg-mobile-dark-background">
-      <SafeAreaProvider>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <ThemeProvider
           value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
         >

@@ -473,6 +473,7 @@ export function RoomsScreen() {
         {refreshLogo}
         <View className="flex-1">
           <ScrollView
+            contentInsetAdjustmentBehavior="never"
             ref={landingScroll}
             contentContainerClassName={classNames(
               'grow px-5 pt-5 pb-32 md:py-12',

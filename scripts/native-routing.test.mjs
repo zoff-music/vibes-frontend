@@ -4,6 +4,38 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 import { build } from 'esbuild';
 
+test('native tabs leave content insets to the screens safe-area layout', () => {
+  const tabs = readFileSync(
+    'apps/mobile/src/components/layout/app-tabs.tsx',
+    'utf8',
+  );
+  const triggers = tabs.match(/<NativeTabs\.Trigger\s[^>]*>/g);
+
+  assert.equal(triggers.length, 4);
+
+  for (const trigger of triggers) {
+    assert.match(trigger, /disableAutomaticContentInsets/);
+  }
+
+  assert.match(
+    readFileSync('apps/mobile/src/components/layout/root-content.tsx', 'utf8'),
+    /<SafeAreaProvider initialMetrics=\{initialWindowMetrics\}>/,
+  );
+
+  for (const file of [
+    'rooms/rooms-screen',
+    'remote/remote-pairing',
+    'settings/settings-screen',
+  ]) {
+    const screen = readFileSync(
+      `apps/mobile/src/components/${file}.tsx`,
+      'utf8',
+    );
+
+    assert.match(screen, /contentInsetAdjustmentBehavior="never"/);
+  }
+});
+
 test('native apps use their Expo entrypoints without a second route tree', () => {
   assert.equal(existsSync('apps/mobile/src/routes'), false);
   assert.equal(existsSync('apps/tv/src/routes'), false);

@@ -76,7 +76,7 @@ export function AppTabs() {
       }}
       shadowColor="transparent"
     >
-      <NativeTabs.Trigger name="index">
+      <NativeTabs.Trigger name="index" disableAutomaticContentInsets>
         <NativeTabs.Trigger.Label>
           {hasRoom ? 'Room' : 'Rooms'}
         </NativeTabs.Trigger.Label>
@@ -85,14 +85,14 @@ export function AppTabs() {
           src={iconSources.home}
         />
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="remote">
+      <NativeTabs.Trigger name="remote" disableAutomaticContentInsets>
         <NativeTabs.Trigger.Label>Remote</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           renderingMode="template"
           src={iconSources.remote}
         />
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings">
+      <NativeTabs.Trigger name="settings" disableAutomaticContentInsets>
         <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           renderingMode="template"
@@ -100,6 +100,7 @@ export function AppTabs() {
         />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
+        disableAutomaticContentInsets
         hidden={!canAddPlaylistItems || hidesAddTab}
         name="add"
         {...(Platform.OS === 'ios'
