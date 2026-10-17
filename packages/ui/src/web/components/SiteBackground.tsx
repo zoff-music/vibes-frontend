@@ -1,4 +1,5 @@
 import { classNames, usePageVisibility } from '@vibes/shared';
+import { useEffect, useState } from 'preact/compat';
 
 interface SiteBackgroundProps {
   variant?: 'page' | 'landing';
@@ -13,6 +14,12 @@ export function SiteBackground({
 }: SiteBackgroundProps) {
   const visible = usePageVisibility();
   const immersive = variant === 'landing';
+  const [motionReady, setMotionReady] = useState(false);
+
+  // Keep the SSR background visible without promoting animated layers before paint.
+  useEffect(() => {
+    setMotionReady(true);
+  }, []);
 
   return (
     <div
@@ -23,8 +30,10 @@ export function SiteBackground({
         <div
           className={classNames(
             'theme-page-gradient absolute',
+            immersive && '-inset-[12%] [background-size:140%_140%]',
             immersive &&
-              '-inset-[12%] [background-size:140%_140%] md:motion-safe:animate-background-drift md:motion-safe:will-change-transform',
+              motionReady &&
+              'md:motion-safe:animate-background-drift md:motion-safe:will-change-transform',
             !immersive && 'inset-0',
             !visible && '[animation-play-state:paused]',
           )}
@@ -43,7 +52,9 @@ export function SiteBackground({
         >
           <div
             className={classNames(
-              'absolute -top-20 right-0 left-0 h-[calc(100%+5rem)] bg-[length:80px_80px] bg-[linear-gradient(to_right,rgba(255,105,180,0)_0px,rgba(255,105,180,0.45)_1px,rgba(255,105,180,0)_2px),linear-gradient(to_bottom,rgba(0,217,255,0)_0px,rgba(0,217,255,0.45)_1px,rgba(0,217,255,0)_2px)] motion-safe:animate-background-grid motion-safe:will-change-transform',
+              'absolute -top-20 right-0 left-0 h-[calc(100%+5rem)] bg-[length:80px_80px] bg-[linear-gradient(to_right,rgba(255,105,180,0)_0px,rgba(255,105,180,0.45)_1px,rgba(255,105,180,0)_2px),linear-gradient(to_bottom,rgba(0,217,255,0)_0px,rgba(0,217,255,0.45)_1px,rgba(0,217,255,0)_2px)]',
+              motionReady &&
+                'motion-safe:animate-background-grid motion-safe:will-change-transform',
               isWarping && '[animation-duration:80ms]',
               !visible && '[animation-play-state:paused]',
             )}

@@ -593,6 +593,11 @@ the original remains available for larger uses. Regenerate it with:
 cwebp -q 85 -resize 256 256 apps/platform/public/logo.png -o apps/platform/src/assets/logo-header.webp
 ```
 
+The shared background renders its full static appearance in SSR. Decorative
+background drift and grid motion start in a post-hydration effect, keeping their
+animated layers out of initial SSR paint work. Hydration and controls are not
+delayed. Reduced-motion and page-visibility behavior still apply.
+
 Measure production builds with both Brotli and gzip, not Vite's dev server.
 Shared API models use Zod Mini with `z.compile()` for the same compiled
 validation, defaults and input limits. Keep the explicit English locale so
