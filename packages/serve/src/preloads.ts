@@ -28,7 +28,7 @@ export function sendDocumentPreloads(
     .split(/,\s*(?=<)/)
     .filter(Boolean);
 
-  res.set('Link', [...new Set([...existingLinks, ...uniqueLinks])].join(', '));
+  res.set('Link', [...new Set([...uniqueLinks, ...existingLinks])].join(', '));
   res.writeEarlyHints({ link: uniqueLinks });
 }
 

@@ -47,7 +47,7 @@ export function PlatformErrorView({
             type="button"
             variant="primary"
           >
-            {requiresReload ? 'Load latest version' : 'Try again'}
+            {requiresReload ? 'Reload page' : 'Try again'}
           </Button>
           <Button onClick={() => navigate(-1)} type="button" variant="tertiary">
             Go back

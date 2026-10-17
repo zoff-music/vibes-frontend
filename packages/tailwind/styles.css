@@ -245,6 +245,10 @@
   &::view-transition-group(*) {
     animation-duration: 220ms;
     animation-timing-function: ease-out;
+    /* Snapshots already contain the glass surface. Do not blur the new page
+       behind an outgoing card; generated browser keyframes also set this. */
+    /* biome-ignore lint/complexity/noImportantStyles: must override browser-generated snapshot animation keyframes */
+    backdrop-filter: none !important;
   }
 
   &::view-transition-group(root),
