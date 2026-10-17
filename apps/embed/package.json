@@ -18,7 +18,7 @@
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "framer-motion": "14.1.0",
-    "@kasperrt/smolter": "0.3.3",
+    "@kasperrt/smolter": "0.3.4",
     "preact": "11.0.1",
     "preact-render-to-string": "6.8.1"
   },

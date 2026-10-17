@@ -1,8 +1,8 @@
-# Smolter 0.3.3 integration review
+# Smolter 0.3.4 integration review
 
 This supplements draft PR #413. It is not a ten-pass or physical-device sign-off.
-The integration uses the published [0.3.3 release](https://github.com/kasperrt/smolter/releases/tag/v0.3.3)
-containing [upstream PR #13](https://github.com/kasperrt/smolter/pull/13), retaining
+The integration uses the published [0.3.4 release](https://github.com/kasperrt/smolter/releases/tag/v0.3.4)
+containing [upstream PR #14](https://github.com/kasperrt/smolter/pull/14), retaining
 the 0.3.2 integration from [upstream PR #12](https://github.com/kasperrt/smolter/pull/12).
 
 ## Runtime boundaries
@@ -14,7 +14,7 @@ the 0.3.2 integration from [upstream PR #12](https://github.com/kasperrt/smolter
 
 ## Changes
 
-- All nine Smolter dependency declarations and the lockfile resolve published 0.3.3. The temporary 0.3.1 patch and patch registration are removed; unrelated native patches remain. There are no Smolter local-source links, aliases or monkey patches.
+- All nine Smolter dependency declarations and the lockfile resolve published 0.3.4. The temporary 0.3.1 patch and patch registration are removed; unrelated native patches remain. There are no Smolter local-source links, aliases or monkey patches.
 - Removed temporary `dataPath` configuration and environment patching. Official `dataEndpoint` options connect generated routes, development middleware and production handlers. Admin uses `/admin/_smolter`, Remote `/remotes/_smolter`, Embed its configured base plus `/_smolter`; Platform retains `/_smolter`.
 - Removed the post-mount deployment watcher. Platform, Admin, Remote, Embed and Cast pass deployment options directly to mounting. Packaged Tizen has `{ hash: true }` and no deployment watcher.
 - Removed the copied data-cache middleware and obsolete React Router data-response hook. The released adapter owns private/no-store policy.
@@ -81,6 +81,88 @@ Recovery cannot execute if the initial entry script itself is missing. Streaming
 still starts the shell before deferred data completes, but hydration waits for the
 document stream to finish; this is not progressive hydration. The 1,500 ms stats
 measurement above belongs to the previous integration, not a new benchmark.
+
+## 0.3.4 validation and performance against main
+
+The published dependency upgrade preserves the 0.3.2 consumer integration without
+adding router workarounds. Registry integrity matches the lockfile. Frozen install,
+workspace lint/typechecking, all six production web builds and browser-boundary
+checks pass. Eighteen focused tests pass across transport/recovery, cache,
+revalidation, framing and theme (including the recovery parent test).
+
+New public-API regressions cover pending Back checks superseded by Forward to the
+current route/hash; a completed mutation invalidating an older recovery check;
+and an action redirect whose missing destination chunk recovers to
+`/admin/users?created=1#user`, with one mutation and one root refresh. These are
+deterministic tests, not physical-device or full Admin browser sign-off.
+
+Fresh production Platform browser checks passed: failed Security intent prefetch
+from Privacy made no manifest request or document reload; the first click recovered
+to Security and Settings opened. Back followed by Forward while a newer manifest
+was delayed 1,800 ms retained Terms without a document reload. The other browser
+scenarios documented under 0.3.3 were not all repeated for 0.3.4; their deterministic
+recovery assertions were rerun.
+
+### Production comparison, 17 October 2026
+
+Baseline: main `56deeb8abf8fe3c8dc10f0e9a9e3eb5c308e4553`, React 19.2.8 /
+React Router 8.4.0. Candidate: this migration with Smolter 0.3.4 / Preact 11.0.1.
+Both were production-built and served with Node 26.8.1, pnpm 12.3.4 and the same
+local fixture API. This compares the whole migration, not the router in isolation.
+No production database or infrastructure was used.
+
+HTTP measurements use direct app servers, gzip, keep-alive, concurrency one, five
+warmups and thirty alternating samples per app/path. TTFB below is first **body**
+byte, not 103 Early Hints. Processes/provider caches are warm. These localhost
+numbers do not estimate Helsinki WAN/TLS/CDN latency or loaded-server throughput.
+
+| Route | Main median / p95 TTFB ms | Smolter median / p95 TTFB ms | Main / Smolter complete ms, median | Main / Smolter document gzip bytes |
+| --- | ---: | ---: | ---: | ---: |
+| `/` | 2.86 / 4.27 | 3.03 / 3.98 | 5.44 / 3.82 | 18,740 / 9,843 |
+| `/privacy-policy` | 1.75 / 3.20 | 1.78 / 1.97 | 2.91 / 1.92 | 14,686 / 7,815 |
+| `/audit` fixture room | 5.05 / 6.91 | 4.94 / 8.67 | 6.50 / 5.07 | 10,875 / 4,497 |
+
+The room fixture has an empty queue; this is not a large-playlist or live SSE
+benchmark. TTFB is effectively unchanged, and the room p95 is worse in this run.
+Smaller documents and faster completion are measurable; a universal speedup is not.
+
+With optional homepage stats delayed 1,500 ms (six samples each), median shell
+TTFB remained 6.38 ms on main and 8.12 ms on Smolter, while completion took about
+1,511 ms on both. Both stream the shell without waiting for optional stats.
+Smolter still waits for the document to finish before hydration; this is not
+progressive hydration, and TTFB alone does not measure time to interaction.
+
+Three unthrottled Chromium homepage samples per build at 1280×720 used an otherwise
+identical local proxy forcing no-store, collecting through one second after load
+without scrolling. Instrumentation was prepended to the existing analytics script,
+not inserted into the DOM. An earlier extra-head-script experiment disturbed
+whole-document hydration; those samples were discarded as harness artifacts.
+
+| Browser metric | Main | Smolter |
+| --- | ---: | ---: |
+| Observed JS encoded body bytes | 173,154 | 87,747 |
+| Observed JS requests | 38 | 41 |
+| Median DOMContentLoaded end | 175.1 ms | 93.4 ms |
+| Median LCP (range) | 152 ms (148–152) | 164 ms (160–236) |
+| Observed layout shift total | 0 | 0 |
+
+Browser bytes reflect negotiated response compression, not uniformly gzip; include
+all observed JS initiators, including modulepreload. Instrumentation contributes
+a small symmetric overhead. There were no observed long tasks. This small local
+sample is not field Core Web Vitals, INP, hydration timing, slow-device coverage or
+a statistically reliable LCP improvement: LCP was worse and request count rose.
+
+Platform's **all emitted** JS gzip-level-9 inventory under Node 26 is 438,227 bytes /
+151 files on main versus 284,337 bytes / 126 files on Smolter: approximately 35%
+smaller. This includes lazy output, not initial route transfer. Only Platform was
+built for the main comparison. No CPU/RSS/load-throughput improvement is claimed.
+
+For continuity with the older Node 22 compression report, compressing the new
+production output with the same Node 22 gzip methodology gives these 0.3.3 → 0.3.4
+totals: Platform 284,386 → 284,418 (+32), Admin 120,666 → 120,690 (+24), Embed
+113,548 → 113,595 (+47), Remote 155,714 → 155,749 (+35), Cast 193,931 → 194,003
+(+72), Tizen 156,890 → 156,934 (+44). Different zlib versions produce different
+totals; do not compare these directly with the Node 26 main comparison above.
 
 ## Remaining blockers and limitations
 

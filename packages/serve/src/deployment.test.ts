@@ -196,4 +196,137 @@ test('published deployment recovery preserves committed intent without replaying
       router.dispose();
     },
   );
+
+  await t.test(
+    'Forward to the current route cancels a pending Back check',
+    async (t) => {
+      storage.clear();
+      reloads.length = 0;
+      let completeManifest: (response: Response) => void = () =>
+        assert.fail('Manifest promise was not initialized');
+      const manifest = new Promise<Response>((resolve) => {
+        completeManifest = resolve;
+      });
+      t.mock.method(globalThis, 'fetch', () => manifest);
+      const router = createDataRouter([{ path: '/privacy-policy' }], {
+        url: location.href,
+      });
+      watchDeployment(router, options);
+
+      location.href = 'http://localhost/security';
+      events.dispatchEvent(new Event('popstate'));
+      location.href = 'http://localhost/privacy-policy#current';
+      events.dispatchEvent(new Event('popstate'));
+      completeManifest(Response.json({ version: 'new' }));
+      await new Promise(setImmediate);
+
+      assert.equal(reloads.length, 0);
+      assert.equal(storage.size, 0);
+      router.dispose();
+      location.href = 'http://localhost/privacy-policy';
+    },
+  );
+
+  await t.test(
+    'a completed mutation invalidates older pending chunk recovery',
+    async (t) => {
+      storage.clear();
+      reloads.length = 0;
+      let checks = 0;
+      let mutations = 0;
+      let completeManifest: (response: Response) => void = () =>
+        assert.fail('Manifest promise was not initialized');
+      const manifest = new Promise<Response>((resolve) => {
+        completeManifest = resolve;
+      });
+      t.mock.method(globalThis, 'fetch', () => {
+        checks++;
+        if (checks === 1)
+          return Promise.resolve(Response.json({ version: options.version }));
+
+        return manifest;
+      });
+      const router = createDataRouter(
+        [
+          {
+            path: '/security',
+            loader: () => {
+              events.dispatchEvent(new Event('vite:preloadError'));
+
+              return Promise.reject(new TypeError('Missing route chunk'));
+            },
+          },
+          {
+            path: '/privacy-policy',
+            action: () => {
+              mutations++;
+
+              return { saved: true };
+            },
+          },
+        ],
+        { url: location.href },
+      );
+      watchDeployment(router, options);
+      await router.navigate('/security');
+      await router.submit('/privacy-policy', new FormData());
+      completeManifest(Response.json({ version: 'new' }));
+      await new Promise(setImmediate);
+
+      assert.equal(mutations, 1);
+      assert.equal(reloads.length, 0);
+      assert.equal(storage.size, 0);
+      router.dispose();
+    },
+  );
+
+  await t.test(
+    'redirect chunk recovery uses the committed action destination',
+    async (t) => {
+      storage.clear();
+      reloads.length = 0;
+      let mutations = 0;
+      let roots = 0;
+      t.mock.method(globalThis, 'fetch', async () =>
+        Response.json({ version: 'new' }),
+      );
+      const router = createDataRouter(
+        [
+          {
+            path: '/admin',
+            action: () => {
+              mutations++;
+
+              return new Response(null, {
+                status: 303,
+                headers: { Location: '/admin/users?created=1#user' },
+              });
+            },
+          },
+          {
+            path: '/admin/users',
+            loader: () => {
+              events.dispatchEvent(new Event('vite:preloadError'));
+
+              return Promise.reject(new TypeError('Missing redirect chunk'));
+            },
+          },
+        ],
+        { url: 'http://localhost/admin' },
+      );
+      router.registerRevalidator('root', async () => {
+        roots++;
+      });
+      watchDeployment(router, options);
+      await router.submit('/admin', new FormData());
+      await new Promise(setImmediate);
+
+      assert.equal(mutations, 1);
+      assert.equal(roots, 1);
+      assert.deepEqual(reloads, [
+        'http://localhost/admin/users?created=1#user',
+      ]);
+      router.dispose();
+    },
+  );
 });

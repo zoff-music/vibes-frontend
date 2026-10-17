@@ -47,7 +47,7 @@
     "framer-motion": "14.1.0",
     "react-youtube": "10.1.0",
     "preact": "11.0.1",
-    "@kasperrt/smolter": "0.3.3"
+    "@kasperrt/smolter": "0.3.4"
   },
   "devDependencies": {
     "@react-native/metro-config": "0.86.3",
