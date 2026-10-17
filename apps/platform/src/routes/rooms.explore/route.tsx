@@ -1,7 +1,6 @@
 import { useLoaderData } from '@kasperrt/smolter/preact';
 import { RoomBrowser } from './components/RoomBrowser';
 import { loader } from './loader';
-export const id = 'routes/rooms.explore/route';
 
 export { clientLoader } from './clientLoader';
 export { meta } from './meta';

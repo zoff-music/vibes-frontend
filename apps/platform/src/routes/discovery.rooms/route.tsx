@@ -3,7 +3,6 @@ import { ProductPageContent } from '../../components/discovery/ProductPageConten
 import { RoomModePreview } from '../../components/discovery/RoomModePreview';
 import { page } from '../../seo/pages/rooms';
 import { RoomControlPanel } from '../_index/components/RoomControlPanel';
-export const id = 'routes/discovery.rooms/route';
 
 export { meta } from './meta';
 

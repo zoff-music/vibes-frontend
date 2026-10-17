@@ -78,10 +78,7 @@ test('robots excludes the resource prefix without advertising the player URL', a
 });
 
 test('only the unlisted path maps to the player resource', () => {
-  const playerRoutes = routes.filter(
-    (route) =>
-      route.id === 'routes/resources.tv.31378fad7d4621f3d5461e42b371613b/route',
-  );
+  const playerRoutes = routes.filter((route) => route.path === TV_PLAYER_PATH);
   assert.equal(playerRoutes.length, 1);
   assert.equal(playerRoutes[0].path, TV_PLAYER_PATH);
   assert(!routes.some((route) => route.path === '/tv-player'));

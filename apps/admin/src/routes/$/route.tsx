@@ -1,5 +1,4 @@
 import { NotFoundView } from '@vibes/ui/web';
-export const id = 'routes/$/route';
 
 export { notFoundMeta as meta } from './meta';
 

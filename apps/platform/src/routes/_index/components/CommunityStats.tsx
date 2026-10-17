@@ -1,7 +1,6 @@
 import { Await, useLoaderData } from '@kasperrt/smolter/preact';
 import type { StatsV2 } from '@vibes/models';
 import { AnimatedNumber } from '@vibes/ui/web';
-import { Suspense } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
 import type { HomeLoaderData } from '../loader';
 
@@ -14,11 +13,13 @@ export function CommunityStats() {
   const { stats } = data;
 
   return (
-    <Suspense fallback={<StatsSummary stats={null} />}>
-      <Await resolve={stats} errorElement={<StatsSummary stats={null} />}>
-        {(result: StatsV2 | null) => <StatsSummary stats={result} />}
-      </Await>
-    </Suspense>
+    <Await
+      resolve={stats}
+      fallback={<StatsSummary stats={null} />}
+      errorElement={<StatsSummary stats={null} />}
+    >
+      {(result: StatsV2 | null) => <StatsSummary stats={result} />}
+    </Await>
   );
 }
 

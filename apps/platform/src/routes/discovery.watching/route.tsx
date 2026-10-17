@@ -2,7 +2,6 @@ import { ChatPreview } from '../../components/discovery/ChatPreview';
 import { WatchPage } from '../../components/discovery/WatchPage';
 import { WatchScene } from '../../components/seo/WatchScene';
 import { page } from '../../seo/pages/watching';
-export const id = 'routes/discovery.watching/route';
 
 export { meta } from './meta';
 

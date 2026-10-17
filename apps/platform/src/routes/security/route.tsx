@@ -1,7 +1,6 @@
 import { useLoaderData } from '@kasperrt/smolter/preact';
 import { SecurityContent } from './components/SecurityContent';
 import { type SecurityData } from './loader';
-export const id = 'routes/security/route';
 
 export { LegalDocumentFallback as HydrateFallback } from '../../components/legal/LegalDocumentFallback';
 export { shouldRevalidate } from '../../components/legal/shouldRevalidate';

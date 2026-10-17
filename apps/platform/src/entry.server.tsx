@@ -13,10 +13,7 @@ configureApplication(applicationEnvironment);
 
 export const clientAssetBase = import.meta.env.BASE_URL;
 
-export const routes = fileRoutes.map((route) => ({
-  ...route,
-  path: route.routePath ?? route.path,
-}));
+export const routes = fileRoutes;
 
 export const handleDataRequest = (request: Request) =>
   dispatchRoute(request, routes);

@@ -5,7 +5,6 @@ import { clientAction } from './clientAction';
 import { EmbedRoomView } from './components/room-view';
 import type { loader } from './loader';
 import { shouldRevalidate } from './shouldRevalidate';
-export const id = 'routes/$/route';
 
 export { embedRoomClientLoader as clientLoader } from './clientLoader';
 export { EmbedRoomErrorBoundary as ErrorBoundary } from './components/error-boundary';

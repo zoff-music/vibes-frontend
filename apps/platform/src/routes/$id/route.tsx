@@ -5,5 +5,3 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { loader } from './loader';
 export { roomMeta as meta } from './meta';
 export { shouldRevalidate } from './shouldRevalidate';
-
-export const id = 'routes/$id/route';

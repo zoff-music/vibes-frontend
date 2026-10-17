@@ -1,6 +1,6 @@
-import { useMatches } from '@kasperrt/smolter/preact';
+import { useRouter } from '@kasperrt/smolter/preact';
 import { SiteLayout as SharedSiteLayout } from '@vibes/ui/web';
-import { memo, type ReactNode } from 'preact/compat';
+import { memo, type ReactNode, useSyncExternalStore } from 'preact/compat';
 import { SiteFooter } from '../legal/SiteFooter';
 import { SiteHeader } from '../seo/SiteHeader';
 
@@ -9,9 +9,14 @@ interface SiteLayoutProps {
 }
 
 export function SiteLayout({ children }: SiteLayoutProps) {
-  const matches = useMatches();
-  const isRoomPage = matches.some((match) => roomRouteIds.has(match.id));
-  const isPolicyPage = matches.some((match) => policyRouteIds.has(match.id));
+  const router = useRouter();
+  const { path = '' } = useSyncExternalStore(
+    router.subscribe,
+    router.getSnapshot,
+    router.getSnapshot,
+  );
+  const isRoomPage = roomPaths.has(path);
+  const isPolicyPage = policyPaths.has(path);
 
   return (
     <SiteLayoutContent isRoomPage={isRoomPage} isPolicyPage={isPolicyPage}>
@@ -42,9 +47,9 @@ const SiteLayoutContent = memo(function SiteLayoutContent({
   );
 });
 
-const roomRouteIds = new Set(['routes/$id/route', 'routes/rooms.$id/route']);
-const policyRouteIds = new Set([
-  'routes/security/route',
-  'routes/privacy-policy/route',
-  'routes/terms-of-service/route',
+const roomPaths = new Set(['/:id', '/rooms/:id']);
+const policyPaths = new Set([
+  '/security',
+  '/privacy-policy',
+  '/terms-of-service',
 ]);

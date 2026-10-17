@@ -1,4 +1,154 @@
-# Smolter 0.4.1 integration review
+# Smolter 0.4.2 integration review
+
+## Fresh 0.4.2 integration and validation
+
+This section supersedes version-specific statements below; earlier sections are
+historical evidence, not newly repeated browser sign-off. PR #413 remains draft.
+Release: https://github.com/kasperrt/smolter/releases/tag/v0.4.2.
+Upstream fix: https://github.com/kasperrt/smolter/pull/21.
+
+### Dependency and consumer changes
+
+All nine declarations resolve the published 0.4.2 package. Frozen installation
+passes with pnpm 12.3.4 and Node 26.8.1. Registry tarball SHA-512, lockfile and
+release integrity agree:
+
+```text
+sha512-5IU94gut76HFeX2OFsR1xa9MYoXjpNdzUcBf6Y4DLY3cVt9dWrkRyl9A08zHLgevy4gHycS0vT/maR5mNV4ZXg==
+```
+
+Preact remains 11.0.1 and preact-render-to-string 6.8.1. No Smolter patch, local
+source alias, copied router or monkey patch was added. Native patches remain.
+
+- Migrated both deferred homepage boundaries, `CommunityStats` and
+  `PublicRoomDiscovery`, from outer native Suspense to `Await fallback`.
+  Existing error/null handling is retained. No other deferred Await boundaries
+  were found in route or persistent-root application components.
+- Platform retains early hydration; other SSR applications remain unchanged.
+- Removed file-route `id`/`routePath` overrides and redundant server-entry path
+  mapping. Manual Cast/Tizen route configuration remains intact.
+- Renamed resource folders to `robots[.]txt`, `llms[.]txt`, `sitemap[.]xml` and
+  `[.]well-known.security[.]txt`. Their public URLs do not change. The unlisted
+  TV resource keeps its existing path and no longer exports a path override.
+- Layout/background selection uses the public router snapshot's matched path,
+  rather than IDs absent from generated routes. Room chrome, policy navigation
+  and backgrounds retain their intended scope.
+- Scoped transport, bootstrap recovery, loader reasons, Tizen form parsing,
+  profile URL normalization, Admin logout, root CSS links, CDN asset URLs and
+  private/no-store integration were preserved.
+
+### Newly exercised production behavior
+
+Tests used minified production Platform builds and local fixture APIs only.
+No production data or infrastructure was accessed.
+
+- With stats delayed eight seconds, Settings opened and profile input was
+  editable while the document was still loading. Successful settlement retained
+  input and focus; no duplicate initial stats/public-room requests were logged.
+- With stats returning HTTP 503 after eight seconds, Settings opened at 216.3ms,
+  profile input occurred at 449.2ms, and document completion occurred at 8030ms.
+  One profile PATCH and one subsequent root refresh occurred. Dialog and saved
+  input survived; optional homepage requests were not repeated by the mutation.
+  These are single-sample observed interaction times, not minimum readiness.
+- Public rooms settled at three seconds while stats remained pending until
+  eight seconds, then the reverse order was tested. Each resolved boundary
+  removed its fallback without replacing the other boundary.
+- Navigation to Terms before document completion removed both homepage heading
+  and optional sections. Late data did not restore them. Back restored the
+  homepage and Forward removed it again. The initial Back assertion timed out
+  before the delayed loader finished; eventual correctness passed, not a claim
+  that Back renders before optional client-navigation data completes.
+- A marked head script executed once. Marked head style remained and its CSS
+  custom property computed to the expected value during streaming.
+- The four dotted resource URLs returned HTTP 200 with text/plain or
+  application/xml as appropriate, after supplying fixture security contact and
+  expiry settings. Generated-route tests verify each exact path and loader.
+
+Workspace lint/typechecking and all six web production builds pass, including
+browser-boundary checks. Twenty-seven focused transport, cache, recovery,
+revalidation and navigation tests pass; eleven production-route/resource tests
+pass. Four new recovery cases cover a completed page action overlapping two
+fetchers: first fetcher completion, failure, disposal and watcher replacement.
+All preserve the second submission's protection, execute each mutation once,
+leave the marker unused while protected, and allow later query/hash recovery.
+These are deterministic public-API tests, not a combined streaming-browser
+recovery sign-off.
+
+### Size and timing
+
+Same Node/pnpm, build command, minification and gzip level 9; sum of individually
+compressed emitted JavaScript files. Both builds include the same pre-existing,
+unfinished local Cast refactor, excluded from this integration commit. These
+are working-tree comparison inventories, not clean-commit initial transfers.
+
+| App | 0.4.1 JS gzip bytes | 0.4.2 JS gzip bytes | Delta |
+| --- | ---: | ---: | ---: |
+| Platform | 283995 | 283332 | -663 |
+| Admin | 122694 | 122736 | +42 |
+| Embed | 113824 | 113977 | +153 |
+| Remote | 155969 | 155980 | +11 |
+| Cast | 194215 | 194654 | +439 |
+| Tizen | 156391 | 156632 | +241 |
+
+Local HTTP, warm process, uncompressed document, three sequential samples:
+
+| 0.4.2 fixture | Shell TTFB ms | Completion ms | Document bytes |
+| --- | --- | --- | ---: |
+| No optional delay | 4.884, 4.554, 3.261 | 5.899, 5.576, 4.330 | 37660 |
+| Stats delayed 1500ms | 19.199, 3.762, 3.929 | 1510.268, 1505.380, 1508.637 | 37660 |
+
+The shell does not wait 1500ms for stats. No matched 0.4.1 HTTP/browser timing
+baseline was rerun, so this does not establish a TTFB improvement. Initial-route
+JS/CSS transfer, fresh request counts, causal waterfall, LCP, CLS, cold-cache and
+throttled multi-sample comparisons remain unmeasured in this run. Total emitted
+JS is not initial-route transfer and includes lazy/legacy chunks. No performance
+claim versus React Router or wouter is made.
+
+### Concrete upstream feedback
+
+1. Generated file routes have no ID while `useMatches()` derives IDs from
+   `route.id` and otherwise returns an empty string. A component matching the
+   former explicit file ID stops recognizing its route after required override
+   removal. Vibes now uses matched paths. Upstream should document a stable
+   generated identity contract or expose the matched pattern directly through
+   an appropriate hook; no runtime route registry is needed in Vibes.
+2. Ordinary errors in loader-only document resources become HTTP 200 JSON.
+   Minimal public-API reproduction on published 0.4.2:
+
+   ```js
+   import { dispatchRoute } from '@kasperrt/smolter/preact/server';
+   const response = await dispatchRoute(
+     new Request('http://localhost/probe.txt'),
+     [{ path: '/probe.txt', loader() { throw new Error('fixture failure'); } }],
+     true,
+   );
+   console.log(response.status, await response.text());
+   // 200 {"__routeError":{"message":"fixture failure"}}
+   ```
+
+   Expected: non-success HTTP status for a failed document resource (normally
+   500). This also occurs with the final argument false; distinguish an
+   intentional transport envelope from public document HTTP semantics. Vibes
+   reproduced it through security.txt with a missing fixture expiry setting.
+   Supplying the setting fixes the fixture, not the upstream error-status path.
+
+### Limitations and remaining checks
+
+Native Preact streamed Suspense remains an upstream limitation. The supported
+integration is `Await fallback`; JavaScript is required to replace early HTML
+fallbacks. The default deferred deadline remains a total 30 seconds, unchanged.
+
+An abrupt socket-cut attempt produced the test browser's incomplete-response
+error page, preventing a meaningful mounted-state deadline assertion. It is not
+a passing interrupted-stream test or an attributed Smolter defect. Nested and
+persistent-root deferred fixtures, arbitrary rejected promises (distinct from
+API errors converted to null), combined pending-stream/history/manifest races,
+and frame-by-frame flash detection remain unverified. Admin authentication and
+Tizen hash flows retain historical evidence only in this run.
+
+Physical Cast/Samsung, native parity, camera pairing, paired playback, live
+queue reconnects and the Mobile AppProvider stale-room race remain separate
+open work. The unfinished local Cast SDK refactor is not shipped by this commit.
 
 This supplements draft PR #413. It is not a ten-pass or physical-device sign-off.
 The integration uses the published [0.4.1 release](https://github.com/kasperrt/smolter/releases/tag/v0.4.1)

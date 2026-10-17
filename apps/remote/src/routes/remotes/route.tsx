@@ -1,5 +1,3 @@
-export const id = 'routes/remotes/route';
-
 export default function RemoteJoinRedirect() {
   return null;
 }

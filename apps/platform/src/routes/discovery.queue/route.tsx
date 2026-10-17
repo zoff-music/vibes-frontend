@@ -2,7 +2,6 @@ import { ProductPageContent } from '../../components/discovery/ProductPageConten
 import { page } from '../../seo/pages/queue';
 import { GeneratedPlaylistSection } from '../_index/components/GeneratedPlaylistSection';
 import { VotingPreview } from '../_index/components/VotingPreview';
-export const id = 'routes/discovery.queue/route';
 
 export { meta } from './meta';
 

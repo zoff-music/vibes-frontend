@@ -417,6 +417,99 @@ test('published deployment recovery preserves committed intent without replaying
     },
   );
 
+  for (const outcome of ['complete', 'fail', 'dispose', 'replace']) {
+    await t.test(
+      `overlapping submissions retain protection after ${outcome}`,
+      async (t) => {
+        storage.clear();
+        reloads.length = 0;
+        const mutations: [number, number, number] = [0, 0, 0];
+        let completeFirst: (value: { saved: boolean }) => void = () =>
+          assert.fail('Missing first submission');
+        let failFirst: (error: Error) => void = () =>
+          assert.fail('Missing first submission');
+        let completeSecond: (value: { saved: boolean }) => void = () =>
+          assert.fail('Missing second submission');
+        const firstResult = new Promise<{ saved: boolean }>(
+          (resolve, reject) => {
+            completeFirst = resolve;
+            failFirst = reject;
+          },
+        );
+        const secondResult = new Promise<{ saved: boolean }>((resolve) => {
+          completeSecond = resolve;
+        });
+        t.mock.method(globalThis, 'fetch', async () =>
+          Response.json({ version: 'new' }),
+        );
+        const router = createDataRouter(
+          [
+            { path: '/security' },
+            { path: '/terms-of-service' },
+            {
+              path: '/page',
+              action: () => {
+                mutations[2]++;
+                return { saved: true };
+              },
+            },
+            {
+              path: '/first',
+              action: () => {
+                mutations[0]++;
+                return firstResult;
+              },
+            },
+            {
+              path: '/second',
+              action: () => {
+                mutations[1]++;
+                return secondResult;
+              },
+            },
+          ],
+          { url: location.href },
+        );
+        const cleanup = watchDeployment(router, options);
+        t.after(() => router.dispose());
+        const first = router.createFetcher();
+        const second = router.createFetcher();
+        const firstSubmission = first.submit('/first', new FormData());
+        const secondSubmission = second.submit('/second', new FormData());
+        await router.submit('/page', new FormData());
+
+        if (outcome === 'dispose') first.dispose();
+        if (outcome === 'replace') {
+          watchDeployment(router, options);
+          cleanup();
+        }
+
+        if (outcome === 'fail')
+          failFirst(new Error('Fixture mutation failure'));
+        else completeFirst({ saved: true });
+        await firstSubmission;
+        await router.navigate('/security?pending=true#scope');
+
+        assert.equal(
+          router.getSnapshot().url,
+          'http://localhost/security?pending=true#scope',
+        );
+        assert.equal(reloads.length, 0);
+        assert.equal(storage.size, 0);
+
+        completeSecond({ saved: true });
+        await secondSubmission;
+        await router.navigate('/terms-of-service?settled=true#terms');
+
+        assert.deepEqual(mutations, [1, 1, 1]);
+        assert.deepEqual(reloads, [
+          'http://localhost/terms-of-service?settled=true#terms',
+        ]);
+        assert.equal(storage.size, 1);
+      },
+    );
+  }
+
   await t.test(
     'redirect chunk recovery uses the committed action destination',
     async (t) => {

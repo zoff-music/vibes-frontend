@@ -1,7 +1,6 @@
 import { useLoaderData } from '@kasperrt/smolter/preact';
 import { PrivacyPolicyContent } from './components/PrivacyPolicyContent';
 import { type PrivacyPolicyLoaderData } from './loader';
-export const id = 'routes/privacy-policy/route';
 
 export { LegalDocumentFallback as HydrateFallback } from '../../components/legal/LegalDocumentFallback';
 export { shouldRevalidate } from '../../components/legal/shouldRevalidate';

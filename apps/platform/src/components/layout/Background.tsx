@@ -1,26 +1,28 @@
 import {
   useURLLocation as useLocation,
-  useMatches,
+  useRouter,
 } from '@kasperrt/smolter/preact';
 import { classNames, usePageVisibility } from '@vibes/shared';
 import { useThemeStore } from '@vibes/shared/themeStore';
 import { SiteBackground } from '@vibes/ui/web';
 import { useInView } from 'framer-motion';
-import { useRef } from 'preact/compat';
+import { useRef, useSyncExternalStore } from 'preact/compat';
 import { RetroSun } from './RetroSun';
 
 export function Background() {
   const location = useLocation();
-  const matches = useMatches();
+  const router = useRouter();
+  const { path = '' } = useSyncExternalStore(
+    router.subscribe,
+    router.getSnapshot,
+    router.getSnapshot,
+  );
   const isWarping = useThemeStore((state) => state.isWarping);
   const isTabVisible = usePageVisibility();
   const sunRef = useRef<HTMLDivElement>(null);
   const sunVisible = useInView(sunRef);
-  const isHome = matches.some((match) => homeRouteIds.has(match.id));
-  const showGrid = matches.some(
-    (match) =>
-      gridRouteIds.has(match.id) || match.id.startsWith('routes/discovery.'),
-  );
+  const isHome = homePaths.has(path);
+  const showGrid = gridPaths.has(path) || path.startsWith('/discovery/');
 
   // The home hero positions its own sun behind the card.
   const showSun = location.pathname === '/rooms/create';
@@ -53,18 +55,15 @@ export function Background() {
   );
 }
 
-const gridRouteIds = new Set([
-  'routes/_index/route',
-  'routes/features.$experience/route',
-  'routes/rooms.explore/route',
-  'routes/$/route',
-  'routes/rooms.create/route',
-  'routes/security/route',
-  'routes/privacy-policy/route',
-  'routes/terms-of-service/route',
+const gridPaths = new Set([
+  '/',
+  '/features/:experience',
+  '/rooms/explore',
+  '/*',
+  '/rooms/create',
+  '/security',
+  '/privacy-policy',
+  '/terms-of-service',
 ]);
 
-const homeRouteIds = new Set([
-  'routes/_index/route',
-  'routes/features.$experience/route',
-]);
+const homePaths = new Set(['/', '/features/:experience']);
