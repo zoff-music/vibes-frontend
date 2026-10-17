@@ -31,6 +31,16 @@ non-skipped `pageswap`/`pagereveal` transitions in both Platform/Remote directio
 the hydrated Settings control remained usable. No physical native/device sign-off
 or release was performed. PR #413 remains draft.
 
+Header follow-up: outgoing header, brand and navigation snapshots now crossfade
+for 220 ms while their geometry animates, instead of becoming transparent on
+the first frame. Two regression tests cover snapshot styles and reduced-motion
+opt-out. Workspace lint/typechecking and both production builds pass. The
+single-origin browser check completed transitions in both directions and
+confirmed the emitted animation styles. One initial forward navigation was
+skipped by Chromium with `ViewTransition opt-in disabled`; subsequent forward
+and return navigations completed. Cold-cache transition reliability and
+frame-by-frame visual continuity are not signed off by this check.
+
 ## Fresh 0.4.2 integration and validation
 
 This section supersedes version-specific statements below; earlier sections are

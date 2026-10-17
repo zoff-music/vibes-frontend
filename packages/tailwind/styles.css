@@ -262,6 +262,20 @@
     mix-blend-mode: normal;
   }
 
+  &::view-transition-old(site-header),
+  &::view-transition-old(site-brand),
+  &::view-transition-old(site-navigation) {
+    opacity: 1;
+    animation: page-fade-out 220ms ease-out both;
+    mix-blend-mode: normal;
+  }
+
+  &::view-transition-new(site-header),
+  &::view-transition-new(site-brand),
+  &::view-transition-new(site-navigation) {
+    animation: page-fade-in 220ms ease-out both;
+  }
+
   &::view-transition-old(root),
   &::view-transition-old(*):only-child {
     opacity: 1;
