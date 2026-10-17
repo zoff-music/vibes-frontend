@@ -30,6 +30,7 @@ import {
   useState,
 } from 'preact/compat';
 import type { RemoteControlActionData } from '../../routes/resources.remotes/clientAction';
+import { subscribeRemoteReports } from '../../utils/remoteReporting';
 import { createEmptyRemoteStatus } from '../../utils/remoteStatus';
 import { canUseViewTransition } from '../../utils/viewTransition';
 
@@ -91,8 +92,8 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   useEffect(() => {
     if (!remote.enabled || !remote.id) return;
 
-    const report = () => {
-      void reportFetcher.submit(
+    return subscribeRemoteReports(() =>
+      reportFetcher.submit(
         {
           intent: 'update',
           remoteId: remote.id,
@@ -100,26 +101,8 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
           partyMode: String(partyMode),
         },
         { method: 'post', action: '/resources/remotes' },
-      );
-    };
-
-    report();
-    const interval = window.setInterval(report, 10_000);
-    const unsubscribe = usePlaybackStore.subscribe((state, previous) => {
-      if (
-        state.isPlaying !== previous.isPlaying ||
-        state.currentPlaylistItem?.id !== previous.currentPlaylistItem?.id ||
-        state.positionMs !== previous.positionMs ||
-        state.resetVersion !== previous.resetVersion
-      ) {
-        report();
-      }
-    });
-
-    return () => {
-      window.clearInterval(interval);
-      unsubscribe();
-    };
+      ),
+    );
   }, [
     remote.enabled,
     remote.id,
