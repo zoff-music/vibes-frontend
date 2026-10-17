@@ -1,4 +1,4 @@
-import { useRootData } from '@kasperrt/smolter/preact';
+import { useRootData, useRouteError } from '@kasperrt/smolter/preact';
 import {
   Document,
   Links,
@@ -16,7 +16,9 @@ import {
 import { type ReactNode, useState } from 'preact/compat';
 import { App } from './App';
 import analyticsUrl from './assets/analytics.js?no-inline&url';
+import { isStaleRouteError } from './components/errors/recovery';
 import stylesUrl from './index.css?url';
+import { ErrorBoundary } from './root/ErrorBoundary';
 import { loader, type RootLoaderData } from './root/loader';
 
 export type { RootLoaderData } from './root/loader';
@@ -98,6 +100,13 @@ export function Layout({ children }: Props) {
 }
 
 export default function Root() {
+  const error = useRouteError();
+
+  // A lazy route cannot render its own boundary when its chunk is missing.
+  if (error instanceof Error && isStaleRouteError(error)) {
+    return <ErrorBoundary />;
+  }
+
   return <App />;
 }
 
