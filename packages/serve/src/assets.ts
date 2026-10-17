@@ -1,3 +1,12 @@
+export function documentPreloads(stylesUrl: string, fontUrls: string[]) {
+  return [
+    ...fontUrls.map(
+      (url) => `<${url}>; rel=preload; as=font; type="font/woff2"; crossorigin`,
+    ),
+    `<${stylesUrl}>; rel=preload; as=style`,
+  ];
+}
+
 export function assetBase(origin: string | undefined, base: string) {
   if (!origin) return base;
 

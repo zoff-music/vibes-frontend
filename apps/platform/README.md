@@ -616,6 +616,14 @@ participates in layout measurement; reduced motion disables row movement.
 The embed playlist and deferred embed showcase also retain layout features.
 Keep the provider around route error views as well.
 
+Queue removals fade out briefly in normal flow, then surviving rows perform one
+layout movement. Do not use `popLayout` here: with the current Preact/Motion
+combination, final exit removal resets the survivor projection and replays the
+movement. `scripts/queue-animation.browser.mjs` exercises the production-mode
+component with fixed-height fixture rows, rapid removals, voting reorders and
+reduced motion. Run it with an external Playwright installation via
+`PLAYWRIGHT_MODULE` (optionally `CHROMIUM_PATH`); neither is a product dependency.
+
 Platform client builds separate the React runtime, DOM renderer and Router's
 core/React modules from the hydration entry. Chunk boundaries follow framework
 modules and their dependencies, with entry-aware Router chunks so deferred

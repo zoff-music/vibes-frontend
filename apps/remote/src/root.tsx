@@ -35,6 +35,7 @@ export function Layout({ children }: LayoutProps) {
         <ThemeScript />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <FontPreloads />
+        <link rel="preload" href={stylesUrl} as="style" />
         <link rel="stylesheet" href={stylesUrl} />
         <Meta />
         <Links />
