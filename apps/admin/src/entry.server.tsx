@@ -5,13 +5,21 @@ import {
   dispatchRoute,
   renderApplication,
 } from '@kasperrt/smolter/preact/server';
+import { documentPreloads as createDocumentPreloads } from '@vibes/serve/assets';
 import { applicationEnvironment } from '@vibes/shared/navigation';
+import { fontPreloadUrls } from '@vibes/ui/web';
+import stylesUrl from './index.css?url';
 import * as root from './root';
 import { loader } from './root/loader';
 
 configureApplication(applicationEnvironment);
 
 export const clientAssetBase = import.meta.env.BASE_URL;
+
+export const documentPreloads = createDocumentPreloads(
+  stylesUrl,
+  fontPreloadUrls,
+);
 
 export const routes = fileRoutes;
 

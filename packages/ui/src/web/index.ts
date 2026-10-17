@@ -6,7 +6,7 @@ export { ChatMessageLine } from './components/ChatMessageLine';
 export * from './components/ContentTransition';
 export * from './components/DebugConsole';
 export * from './components/DeferredContent';
-export { FontPreloads } from './components/FontPreloads';
+export { FontPreloads, fontPreloadUrls } from './components/FontPreloads';
 export * from './components/GenerationSparkles';
 export * from './components/Input';
 export * from './components/ListenerCount';

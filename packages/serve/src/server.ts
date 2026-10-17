@@ -20,6 +20,7 @@ import {
   createTracingMiddleware,
 } from './middleware.ts';
 import { precompressedAssets } from './precompressed.ts';
+import { sendDocumentPreloads, staticDocumentPreloads } from './preloads.ts';
 import { initTracing } from './tracing.ts';
 
 interface ServerErrorContext {
@@ -28,6 +29,7 @@ interface ServerErrorContext {
 
 interface ApplicationBuild extends ServerBuild {
   clientAssetBase: string;
+  documentPreloads?: string[];
 }
 
 export type ServerRequest = Request;
@@ -235,6 +237,8 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
         const preloads = routePreloads(routeAssets, req.path, clientAssetBase);
 
         if (preloads) res.set('Link', preloads);
+
+        sendDocumentPreloads(req, res, build.documentPreloads ?? []);
       }
 
       next();
@@ -253,7 +257,9 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     '<html',
     `<html data-debug="${process.env.VITE_DEBUG === 'true'}"`,
   );
-  const sendDocument = (_req: Request, res: Response) => {
+  const documentLinks = staticDocumentPreloads(html);
+  const sendDocument = (req: Request, res: Response) => {
+    sendDocumentPreloads(req, res, documentLinks);
     res.set('Cache-Control', 'no-store');
     res.type('html').send(document);
   };
