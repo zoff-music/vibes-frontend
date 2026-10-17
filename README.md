@@ -196,7 +196,7 @@ storage: it does not by itself guarantee retention of previous build files.
 
 ## Production deployment updates
 
-The DOM apps use published [Smolter 0.3.2](https://github.com/kasperrt/smolter/releases/tag/v0.3.2)
+The DOM apps use published [Smolter 0.3.3](https://github.com/kasperrt/smolter/releases/tag/v0.3.3)
 without a local router patch. See [migration validation](docs/smolter-migration.md)
 for verified behavior and remaining merge blockers.
 
