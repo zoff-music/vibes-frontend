@@ -78,7 +78,7 @@ export function SiteBrand() {
 }
 
 export const siteBrandLinkClassName =
-  'group flex shrink-0 cursor-pointer items-center gap-3 rounded-xl transition-opacity [view-transition-name:site-brand] hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';
+  'group flex w-fit shrink-0 cursor-pointer items-center justify-self-start gap-3 rounded-xl transition-opacity [view-transition-name:site-brand] hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary';
 
 export const siteNavigationClassName =
   'inline-flex min-h-11 cursor-pointer items-center rounded-xl px-2 text-sm text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:text-cyan-800 dark:aria-[current=page]:text-secondary sm:px-4';

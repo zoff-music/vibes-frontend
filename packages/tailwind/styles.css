@@ -276,6 +276,24 @@
     animation: page-fade-in 220ms ease-out both;
   }
 
+  /* Snapshot pixels must not stretch with differently sized header grid tracks. */
+  &::view-transition-old(site-brand),
+  &::view-transition-new(site-brand),
+  &::view-transition-old(site-navigation),
+  &::view-transition-new(site-navigation) {
+    width: max-content;
+    height: auto;
+    object-fit: none;
+    object-position: left center;
+  }
+
+  &::view-transition-old(site-navigation),
+  &::view-transition-new(site-navigation) {
+    right: 0;
+    left: auto;
+    object-position: right center;
+  }
+
   &::view-transition-old(root),
   &::view-transition-old(*):only-child {
     opacity: 1;
