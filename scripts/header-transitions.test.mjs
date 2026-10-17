@@ -39,3 +39,23 @@ test('cross-document transitions opt in and respect reduced motion', () => {
     /@media \(prefers-reduced-motion: reduce\)\s*\{\s*@view-transition\s*\{\s*navigation: none;/,
   );
 });
+
+test('brand snapshots use intrinsic width instead of the changing grid track', () => {
+  assert.match(header, /group flex w-fit.*justify-self-start/);
+
+  for (const name of ['site-brand', 'site-navigation']) {
+    for (const phase of ['old', 'new']) {
+      assert.match(
+        styles,
+        new RegExp(
+          `::view-transition-${phase}\\(${name}\\)[^{]*\\{[^}]*object-fit: none;`,
+        ),
+      );
+    }
+  }
+
+  assert.match(
+    styles,
+    /::view-transition-new\(site-navigation\)[^{]*\{[^}]*right: 0;[^}]*left: auto;[^}]*object-position: right center;/,
+  );
+});

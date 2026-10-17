@@ -71,7 +71,8 @@ const QueueListComponent: React.FC<Props> = ({
   return (
     <div className="relative space-y-2">
       <LayoutGroup>
-        <AnimatePresence initial={false} mode="popLayout">
+        {/* Keep exits in flow until removed, so survivors have one layout change. */}
+        <AnimatePresence initial={false}>
           {visiblePlaylistItems.map((playlistItem, index) => (
             <motion.div
               key={playlistItem.id}
@@ -86,6 +87,7 @@ const QueueListComponent: React.FC<Props> = ({
                 opacity: 0,
                 scale: reducedMotion ? 1 : 0.96,
                 y: reducedMotion ? 0 : -14,
+                transition: { duration: reducedMotion ? 0 : 0.16 },
               }}
               transition={{
                 type: 'spring',
