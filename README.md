@@ -192,3 +192,21 @@ asset host's DNS, TLS, CORS, compression and app prefixes. Only then enable the
 build variable. To roll back asset URLs, clear that variable and rebuild. Keep
 the asset host available for already-open pages. CDN caching is not permanent
 storage: it does not by itself guarantee retention of previous build files.
+
+
+## Production deployment updates
+
+Platform, Admin, Embed, Remote and Cast emit a per-build
+`smolter-manifest.json`. The shared Express host serves it with
+`Cache-Control: no-store`, including on the configured asset hostname. HTML is
+revalidated; content-hashed assets remain immutable. A CDN must honor these
+headers and deploy each manifest alongside its matching HTML and assets.
+
+Smolter checks this manifest before path/query navigation and Back/Forward. A
+changed version reloads the destination using the new build. Missing lazy chunks
+trigger another check to cover deployments racing with navigation. Failed checks
+continue normal routing, and a per-build session marker prevents reload loops.
+Hash links do not check; mutations are never replayed. There is no background polling.
+
+Development uses Vite HMR and route discovery updates; no deployment checks run.
+Packaged Tizen and native apps do not use this web deployment mechanism.

@@ -102,6 +102,18 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
   }
 
   const staticBase = config.assets.path.replace(/\/assets\/?$/, '') || '/';
+  app.get(
+    `${staticBase.replace(/\/$/, '')}/smolter-manifest.json`,
+    (_req, res) => {
+      res.set({
+        'Cache-Control': 'no-store',
+        'Access-Control-Allow-Origin': '*',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
+      });
+      res.sendFile(path.resolve(config.staticDir, 'smolter-manifest.json'));
+    },
+  );
+
   const assetRouter = express.Router();
   assetRouter.use((_req, res, next) => {
     res.set('Access-Control-Allow-Origin', '*');
@@ -209,7 +221,11 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     const entry = `${staticBase.replace(/\/$/, '')}/${client.file}`;
 
     app.use((req, res, next) => {
-      if (req.path !== '/_smolter' && req.method === 'GET') {
+      if (
+        req.path !== '/_smolter' &&
+        (req.method === 'GET' || req.method === 'HEAD')
+      ) {
+        res.set('Cache-Control', 'no-cache');
         const preloads = routePreloads(routeAssets, req.path, staticBase);
 
         if (preloads) res.set('Link', preloads);

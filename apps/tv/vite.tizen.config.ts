@@ -17,6 +17,7 @@ export default defineConfig({
   plugins: [
     ...applicationPlugins({
       ssr: false,
+      deployment: false,
       directory: 'src/tizen/routes',
       // Packaged Tizen pages require one classic script, not module imports.
       splitRoutes: false,

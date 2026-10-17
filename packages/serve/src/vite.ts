@@ -1,14 +1,23 @@
 import {
   type ApplicationOptions,
+  deploymentPlugin,
   applicationPlugins as smolterPlugins,
 } from '@kasperrt/smolter/preact/vite';
 import { localAppURL } from '@vibes/shared/navigation';
 import type { Plugin } from 'vite';
 import { browserBundle } from './browserBundle.ts';
 
-export function applicationPlugins(options: ApplicationOptions = {}): Plugin[] {
+interface WebApplicationOptions extends ApplicationOptions {
+  deployment?: boolean;
+}
+
+export function applicationPlugins({
+  deployment = true,
+  ...options
+}: WebApplicationOptions = {}): Plugin[] {
   return [
     browserBundle(),
+    ...(deployment ? [deploymentPlugin()] : []),
     {
       name: 'zoff-development',
       config() {

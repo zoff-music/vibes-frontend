@@ -1,8 +1,10 @@
+import deployment from 'virtual:smolter/deployment';
 import routes from 'virtual:smolter/routes';
 import type { RootModule } from '@kasperrt/smolter/preact';
 import {
   configureApplication,
   mountApplication,
+  watchDeployment,
 } from '@kasperrt/smolter/preact/client';
 import { applicationEnvironment } from '@vibes/shared/navigation';
 import * as root from './root';
@@ -12,4 +14,4 @@ configureApplication(applicationEnvironment);
 mountApplication(routes, {
   ...root,
   loaderPath: '/resources/root',
-} as RootModule);
+} as RootModule).then((router) => watchDeployment(router, deployment));
