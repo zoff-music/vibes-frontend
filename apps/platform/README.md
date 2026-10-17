@@ -561,14 +561,12 @@ send before loaders finish using `103 Early Hints`. The final response also
 includes a `Link` header, and the document retains its font and stylesheet preloads for browsers
 or proxies that do not support informational responses. This uses preload, not
 the retired HTTP/2 server-push mechanism. Only HTML GET requests receive hints.
-The shared server retains matched-route modulepreloads in the final `Link`
-header alongside these document hints. Do not hint all lazy routes, feature
-panels or provider SDKs on every page.
+The shared server also hints the hydration entry and its static imports from
+the build manifest. Framework requests can start in parallel with the server's
+data loading; the SSR document's modulepreloads remain the fallback. Do not
+hint all lazy routes, feature panels or provider SDKs on every page.
 
-The regular and bold Latin fonts already preloaded by the document, and its
-main stylesheet, are hinted before loaders finish. Font URLs come from the
-same shared list as `FontPreloads`, and the stylesheet uses the same Vite URL
-import as the root link. See `packages/serve/README.md` for serving boundaries.
+The regular Latin font and main stylesheet are preloaded before loaders finish.
 The DOM stylesheet excludes native-only components from Tailwind's source scan.
 The header logo uses responsive WebP sizes, and provider marks declare their
 intrinsic dimensions. Keep these dimensions when replacing brand assets.
