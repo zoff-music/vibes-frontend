@@ -21,6 +21,7 @@ import {
 import { RoomConfiguration } from '@/components/room-configuration';
 import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { Toast, ToastViewport } from '@/components/toast';
+import { useAppTheme } from '@/hooks/use-app-theme';
 import { updateRoomCreation } from '@/requests/update-room-creation';
 
 interface CreateRoomSheetProps {
@@ -40,6 +41,7 @@ export function CreateRoomSheet({
   visible,
   roomType = 'MUSIC',
 }: CreateRoomSheetProps) {
+  const theme = useAppTheme();
   const [, submit] = useMutation(updateRoomCreation);
   const [name, setName] = useState(initialName);
   const [password, setPassword] = useState('');
@@ -242,11 +244,12 @@ export function CreateRoomSheet({
   return (
     <Modal
       animationType="slide"
+      backdropColor={theme.background}
       presentationStyle="pageSheet"
       visible={visible}
       onRequestClose={onClose}
     >
-      <Screen>
+      <Screen showGrid={false}>
         <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
           <View className="flex-row items-center justify-between gap-4 px-5 py-4">
             <Heading>
