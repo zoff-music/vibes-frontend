@@ -4,9 +4,8 @@ import {
   createRoomReadRequests,
   getHttpError,
 } from '@vibes/api';
-import type { RoomV2 } from '@vibes/models';
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
-import type { RoomSnapshot } from '@/data-router/room-snapshot';
+import type { RoomSnapshot, RoomV2 } from '@vibes/models';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 import {
   deleteSecureValue,
@@ -38,13 +37,17 @@ export async function action({
   input,
   params,
   signal,
-}: ActionFunctionArgs): Promise<DataResult<RoomSessionActionData>> {
+}: MutationArgs): Promise<RequestResult<RoomSessionActionData>> {
   const roomId = params.id;
+
   if (!roomId) return { data: null, error: 'A room is required.' };
+
   if (!isRoomSessionActionInput(input)) {
     return { data: null, error: 'The room session request was invalid.' };
   }
+
   if (input.intent === 'open') return openRoom(roomId, signal, input.password);
+
   if (input.intent === 'logoutAdmin') return logOut(roomId, signal);
 
   const [error, session] = await lifecycleRequests.joinRoom(
@@ -52,13 +55,16 @@ export async function action({
     input.password,
     { signal },
   );
+
   if (error || !session) {
     return requestFailure(error, 'The admin password was not accepted.');
   }
+
   const [storageError] = await setSecureValue(
     getRoomAdminPasswordStorageKey(roomId),
     input.password,
   );
+
   return {
     data: {
       intent: 'roomUpdated',
@@ -74,15 +80,18 @@ export async function action({
 async function logOut(
   roomId: string,
   signal: AbortSignal,
-): Promise<DataResult<RoomSessionActionData>> {
+): Promise<RequestResult<RoomSessionActionData>> {
   const [error] = await lifecycleRequests.logOutRoomAdmin(roomId, { signal });
   const status = error ? getHttpError(error)?.response.status : null;
+
   if (error && status !== 404 && status !== 405) {
     return requestFailure(error, 'Could not sign out as room admin.');
   }
+
   const [storageError] = await deleteSecureValue(
     getRoomAdminPasswordStorageKey(roomId),
   );
+
   return {
     data: {
       intent: 'success',
@@ -98,28 +107,32 @@ async function openRoom(
   roomId: string,
   signal: AbortSignal,
   password = '',
-): Promise<DataResult<RoomSessionActionData>> {
+): Promise<RequestResult<RoomSessionActionData>> {
   const [, storedPassword] = await getSecureValue(
     getRoomAdminPasswordStorageKey(roomId),
   );
   const adminPassword = password || storedPassword || '';
   let warning = '';
   let authenticated = false;
+
   if (adminPassword) {
     const [error] = await lifecycleRequests.joinRoom(roomId, adminPassword, {
       signal,
     });
+
     if (error && password) {
       return requestFailure(
         error,
         'Could not authenticate with that admin password.',
       );
     }
+
     if (error) {
       warning = 'Room opened, but the saved admin password was not accepted.';
       const [deleteError] = await deleteSecureValue(
         getRoomAdminPasswordStorageKey(roomId),
       );
+
       if (deleteError) {
         warning = 'Room opened, but the rejected saved password remains.';
       }
@@ -129,6 +142,7 @@ async function openRoom(
         getRoomAdminPasswordStorageKey(roomId),
         adminPassword,
       );
+
       if (saveError) {
         warning = 'Room opened, but the admin password could not be saved.';
       }
@@ -141,6 +155,7 @@ async function openRoom(
     playbackRequests.fetchPlayback(roomId, { signal }),
   ]);
   const error = roomResult[0] ?? playlistItemsResult[0] ?? playbackResult[0];
+
   if (
     error ||
     !roomResult[1] ||
@@ -148,6 +163,7 @@ async function openRoom(
     !playbackResult[1]
   ) {
     const status = error ? getHttpError(error)?.response.status : null;
+
     return {
       data: null,
       error:
@@ -159,6 +175,7 @@ async function openRoom(
             ),
     };
   }
+
   const snapshot: RoomSnapshot = {
     playback: playbackResult[1],
     room: roomResult[1],
@@ -168,9 +185,11 @@ async function openRoom(
     deleteSecureValue(remoteStorageKey),
     deleteSecureValue(remoteTokenStorageKey),
   ]);
+
   if (credentialResults[0][0] || credentialResults[1][0]) {
     warning = 'Room opened, but the previous remote session remains saved.';
   }
+
   return {
     data: {
       intent: 'joined',
@@ -190,7 +209,7 @@ async function openRoom(
 async function requestFailure(
   error: Error | null,
   fallback: string,
-): Promise<DataResult<RoomSessionActionData>> {
+): Promise<RequestResult<RoomSessionActionData>> {
   return { data: null, error: await getRequestErrorMessage(error, fallback) };
 }
 
@@ -198,5 +217,6 @@ function isRoomSessionActionInput(
   input: unknown,
 ): input is RoomSessionActionInput {
   if (!input || typeof input !== 'object' || !('intent' in input)) return false;
+
   return ['authenticate', 'logoutAdmin', 'open'].includes(String(input.intent));
 }

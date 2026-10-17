@@ -10,11 +10,15 @@
     "./chatPreferenceStore": "./src/stores/chatPreferenceStore.ts",
     ".": "./src/index.ts",
     "./wrap": "./src/wrap.ts",
-    "./tv-player": "./src/tv-player.ts"
+    "./tv-player": "./src/tv-player.ts",
+    "./navigation": "./src/navigation.ts",
+    "./requests": "./src/requests.ts",
+    "./use-request": "./src/hooks/use-request.ts"
   },
   "scripts": {
     "lint": "biome check src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:navigation": "node --test tests/navigation.test.ts"
   },
   "peerDependencies": {
     "react": "^19.2.8",

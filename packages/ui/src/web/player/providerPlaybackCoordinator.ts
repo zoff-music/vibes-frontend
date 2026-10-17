@@ -14,6 +14,7 @@ export function registerProviderPlayback(
 
   return () => {
     providerCallbacks.delete(silence);
+
     if (providerCallbacks.size === 0) {
       silenceCallbacks.delete(provider);
     }
@@ -23,6 +24,7 @@ export function registerProviderPlayback(
 export function claimProviderPlayback(provider: CoordinatedProvider): void {
   for (const [registeredProvider, callbacks] of silenceCallbacks) {
     if (registeredProvider === provider) continue;
+
     for (const silence of callbacks) {
       silence();
     }

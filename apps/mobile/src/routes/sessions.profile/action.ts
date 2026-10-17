@@ -3,7 +3,7 @@ import {
   type SessionProfile,
   updateSessionProfileRequestSchema,
 } from '@vibes/models';
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 interface SessionProfileActionInput {
@@ -15,11 +15,13 @@ const requests = createSessionProfileRequests(mobileApi);
 export async function action({
   input,
   signal,
-}: ActionFunctionArgs): Promise<DataResult<SessionProfile>> {
+}: MutationArgs): Promise<RequestResult<SessionProfile>> {
   if (!isSessionProfileActionInput(input) || !input.name.trim()) {
     return { data: null, error: 'Enter a name.' };
   }
+
   const parsed = updateSessionProfileRequestSchema.safeParse(input);
+
   if (!parsed.success) {
     return {
       data: null,
@@ -30,6 +32,7 @@ export async function action({
   const [error, profile] = await requests.updateSessionProfile(parsed.data, {
     signal,
   });
+
   if (error || !profile) {
     return {
       data: null,

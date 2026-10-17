@@ -1,16 +1,12 @@
-import { useLoaderData } from 'react-router';
-import { PrivacyPolicyHydrateFallback } from './components/HydrateFallback';
+import { useLoaderData } from '@kasperrt/smolter/preact';
 import { PrivacyPolicyContent } from './components/PrivacyPolicyContent';
-import { type PrivacyPolicyLoaderData, privacyPolicyLoader } from './loader';
-import { privacyPolicyMeta } from './meta';
+import { type PrivacyPolicyLoaderData } from './loader';
+export const id = 'routes/privacy-policy/route';
 
+export { LegalDocumentFallback as HydrateFallback } from '../../components/legal/LegalDocumentFallback';
 export { shouldRevalidate } from '../../components/legal/shouldRevalidate';
 
-export const HydrateFallback = PrivacyPolicyHydrateFallback;
-
-export const loader = privacyPolicyLoader;
-
-export const meta = privacyPolicyMeta;
+export { privacyPolicyMeta as meta } from './meta';
 
 export default function PrivacyPolicy() {
   const loaderData = useLoaderData<PrivacyPolicyLoaderData>();
@@ -22,3 +18,5 @@ export default function PrivacyPolicy() {
     />
   );
 }
+
+export { loader } from './loader';

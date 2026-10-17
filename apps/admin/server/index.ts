@@ -12,9 +12,11 @@ function operationName(req: ServerRequest) {
   if (req.path.startsWith('/admin')) {
     return 'AdminPage';
   }
+
   if (req.path === '/favicon.ico' || req.path.includes('.')) {
     return 'StaticAsset';
   }
+
   return 'AdminRoute';
 }
 

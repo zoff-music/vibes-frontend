@@ -1,9 +1,13 @@
+import { Await, useLoaderData } from '@kasperrt/smolter/preact';
 import type { StatsV2 } from '@vibes/models';
 import { AnimatedNumber } from '@vibes/ui/web';
-import { Suspense } from 'react';
-import { Await, useLoaderData } from 'react-router';
+import { Suspense } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
 import type { HomeLoaderData } from '../loader';
+
+interface CommunityStatsProps {
+  stats: StatsV2 | null;
+}
 
 export function CommunityStats() {
   const { data } = useLoaderData<HomeLoaderData>();
@@ -18,7 +22,7 @@ export function CommunityStats() {
   );
 }
 
-function StatsSummary({ stats }: { stats: StatsV2 | null }) {
+function StatsSummary({ stats }: CommunityStatsProps) {
   const isWatch = useExperience() === 'WATCH';
 
   return (

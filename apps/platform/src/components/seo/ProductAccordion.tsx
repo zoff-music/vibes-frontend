@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { Button, PlusIcon } from '@vibes/ui/web';
-import { useId, useState } from 'react';
+import { useId, useState } from 'preact/compat';
 import type { ProductSection } from '../../seo/productPages';
 
 export function ProductAccordion({ title, body }: ProductSection) {

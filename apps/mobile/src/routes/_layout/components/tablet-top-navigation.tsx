@@ -12,6 +12,7 @@ export function TabletTopNavigation() {
   const router = useRouter();
   const tabletLayout = useTabletLandscapeLayout();
   const { hasRoom } = useRoomNavigation();
+
   if (Platform.OS !== 'android' || !tabletLayout.isTablet) {
     return null;
   }
@@ -42,6 +43,7 @@ export function TabletTopNavigation() {
       <View className="flex-row rounded-full bg-mobile-card/95 p-1 shadow-black/15 shadow-lg dark:bg-mobile-dark-card/95">
         {items.map((item) => {
           const selected = pathname === item.href;
+
           return (
             <Pressable
               accessibilityRole="tab"

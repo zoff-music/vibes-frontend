@@ -1,5 +1,5 @@
 import { createRoomQueueRequests } from '@vibes/api';
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 type RoomQueueActionInput =
@@ -16,17 +16,20 @@ export async function action({
   input,
   params,
   signal,
-}: ActionFunctionArgs): Promise<DataResult<RoomQueueActionData>> {
+}: MutationArgs): Promise<RequestResult<RoomQueueActionData>> {
   const roomId = params.id;
+
   if (!roomId || !isRoomQueueActionInput(input)) {
     return { data: null, error: 'The queue request was invalid.' };
   }
+
   const [error] =
     input.intent === 'vote'
       ? await requests.vote(roomId, input.playlistItemId, { signal })
       : await requests.removePlaylistItem(roomId, input.playlistItemId, {
           signal,
         });
+
   if (error) {
     return {
       data: null,
@@ -38,10 +41,12 @@ export async function action({
       ),
     };
   }
+
   return { data: { intent: 'success' }, error: '' };
 }
 
 function isRoomQueueActionInput(input: unknown): input is RoomQueueActionInput {
   if (!input || typeof input !== 'object' || !('intent' in input)) return false;
+
   return input.intent === 'remove' || input.intent === 'vote';
 }

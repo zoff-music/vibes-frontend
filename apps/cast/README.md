@@ -26,9 +26,9 @@ The cast app uses Vite for local development and production builds.
 - **Node.js Runtime**: Served through Vite preview in the production container
 - **Environment Variables**: Automatic `VITE_*` prefix mapping and defaults for Cast configuration
 
-### React Router data architecture
+### Smolter data architecture
 
-The receiver is a React Router SPA. Room bootstrap REST reads run in its route loader and mutations run in its route action. Receiver components consume loader data, submit mutations through fetchers, and subscribe to room SSE updates through `@vibes/api`.
+The receiver is a Preact SPA using Smolter. Room bootstrap REST reads run in its route loader and mutations run in its route action. Receiver components consume loader data, submit mutations through fetchers, and subscribe to room SSE updates through `@vibes/api`.
 
 ### Development Scripts
 
@@ -75,7 +75,7 @@ The receiver communicates with sender applications (web/mobile) using standard G
 ### Build Pipeline
 1. **CSS Processing**: Tailwind CSS with cascade layers flattened by PostCSS and Vite's `chrome80` CSS target
 2. **Legacy Transpilation**: Uses `@vitejs/plugin-legacy` with `chrome >= 80`, legacy chunks, and runtime polyfills
-3. **Client Bundle**: React Compiler memoizes compatible app/shared DOM components before legacy transpilation. Safe multi-pass Terser minification runs without changing browser targets.
+3. **Client Bundle**: Preact app and shared DOM components are bundled before legacy transpilation. Safe multi-pass Terser minification runs without changing browser targets.
 4. **Asset Copying**: Public files copied to distribution directory
 5. **Compression**: Build-time Brotli quality 11 and gzip level 9 sidecars are served by `@vibes/serve`. Older clients can negotiate gzip or uncompressed assets.
 

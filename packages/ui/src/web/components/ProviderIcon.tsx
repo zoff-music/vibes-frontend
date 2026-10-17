@@ -1,5 +1,5 @@
 import type { SourceType } from '@vibes/shared';
-import type { SVGProps } from 'react';
+import type { SVGProps } from 'preact/compat';
 import { SoundCloudIcon, YouTubeIcon } from '../icons';
 
 interface ProviderIconProps extends SVGProps<SVGSVGElement> {

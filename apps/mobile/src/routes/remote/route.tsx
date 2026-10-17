@@ -1,12 +1,7 @@
-import { Route } from '@vibes/native-router';
 import { RemoteScreen } from './components/remote-screen';
 
-export { ErrorBoundary } from '@/routes/_index/components/route-boundaries';
+export { ErrorBoundary } from '@/components/route-error-boundary';
 
 export default function RemoteRoute() {
-  return (
-    <Route routeId="remote">
-      <RemoteScreen />
-    </Route>
-  );
+  return <RemoteScreen />;
 }

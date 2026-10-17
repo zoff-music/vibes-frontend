@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { deleteSecureValue, setSecureValue } from '@/lib/secure-storage';
 import { remoteStorageKey, remoteTokenStorageKey } from '@/lib/storage-keys';
 
@@ -8,10 +8,11 @@ type RemoteSessionActionInput =
 
 export async function action({
   input,
-}: ActionFunctionArgs): Promise<DataResult<boolean>> {
+}: MutationArgs): Promise<RequestResult<boolean>> {
   if (!isRemoteSessionActionInput(input)) {
     return { data: null, error: 'The remote session was invalid.' };
   }
+
   const results =
     input.intent === 'clear'
       ? await Promise.all([
@@ -22,6 +23,7 @@ export async function action({
           setSecureValue(remoteStorageKey, input.remoteId),
           setSecureValue(remoteTokenStorageKey, input.controllerToken),
         ]);
+
   return results.some(([error]) => Boolean(error))
     ? { data: null, error: 'Could not save the remote session.' }
     : { data: true, error: '' };
@@ -31,5 +33,6 @@ function isRemoteSessionActionInput(
   input: unknown,
 ): input is RemoteSessionActionInput {
   if (!input || typeof input !== 'object' || !('intent' in input)) return false;
+
   return input.intent === 'clear' || input.intent === 'save';
 }

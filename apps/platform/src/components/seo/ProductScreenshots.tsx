@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { MotionConfig, m as motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState } from 'preact/compat';
 import mobileRemotePng from '../../assets/product/mobile-remote.png?url';
 import mobileRemote from '../../assets/product/mobile-remote.webp?url';
 import mobileRemoteSmall from '../../assets/product/mobile-remote-small.webp?url';

@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { setSecureValue } from '@/lib/secure-storage';
 import { themePreferenceStorageKey } from '@/lib/storage-keys';
 import type { ThemePreference } from '@/providers/theme-provider';
@@ -10,11 +10,13 @@ export interface ThemeActionData {
 
 export async function action({
   input,
-}: ActionFunctionArgs): Promise<DataResult<ThemeActionData>> {
+}: MutationArgs): Promise<RequestResult<ThemeActionData>> {
   if (!isThemePreference(input)) {
     return { data: null, error: 'The theme preference was invalid.' };
   }
+
   const [error] = await setSecureValue(themePreferenceStorageKey, input);
+
   return {
     data: {
       preference: input,

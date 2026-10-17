@@ -1,10 +1,10 @@
+import type { RoomSnapshot } from '@vibes/models';
 import {
   synchronizeServerClock,
   usePlaybackStore,
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import type { RoomSnapshot } from '@/data-router/room-snapshot';
 
 export function applyRoomSnapshot(snapshot: RoomSnapshot) {
   useRoomStore.getState().setRoom(snapshot.room);

@@ -1,6 +1,11 @@
 import { Button } from '@vibes/ui/web';
-import { type ChangeEvent, type SubmitEvent, useEffect, useState } from 'react';
-import type { AdminRoomSearch } from '../rooms/loader';
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useEffect,
+  useState,
+} from 'preact/compat';
+import type { AdminRoomSearch } from '../../admin.rooms/loader';
 
 interface AdminRoomFiltersProps {
   disabled: boolean;
@@ -25,16 +30,17 @@ export function AdminRoomFilters({
   }, [search.q]);
 
   const handleQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
+    setQuery(event.currentTarget.value);
   };
 
-  const handleSearch = (event: SubmitEvent) => {
+  const handleSearch = (event: FormEvent) => {
     event.preventDefault();
     onSearch(query.trim());
   };
 
   const handleSort = (event: ChangeEvent<HTMLSelectElement>) => {
-    const [sortBy, order] = event.target.value.split(':');
+    const [sortBy, order] = event.currentTarget.value.split(':');
+
     if (
       (sortBy !== 'listeners' && sortBy !== 'playlistItems') ||
       (order !== 'asc' && order !== 'desc')

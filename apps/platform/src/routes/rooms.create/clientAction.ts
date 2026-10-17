@@ -1,0 +1,158 @@
+import {
+  type ClientActionFunctionArgs,
+  redirect,
+} from '@kasperrt/smolter/preact';
+import {
+  api,
+  getAPIErrorMessage,
+  getHttpError,
+  getRateLimitMessage,
+} from '@vibes/api';
+import {
+  isSourceType,
+  type RoomNameReservation,
+  roomNameInputSchema,
+} from '@vibes/models';
+
+export interface RoomsCreateActionData {
+  checkedName?: string;
+  error?: string;
+  rateLimitMessage?: string;
+  reservation?: RoomNameReservation;
+  roomNameUnavailable?: boolean;
+}
+
+const CONFLICT_STATUS = 409;
+
+function readBoolean(formData: FormData, key: string) {
+  const value = formData.get(key);
+
+  return value === 'on' || value === 'true';
+}
+
+function readEnabledSources(formData: FormData) {
+  return formData
+    .getAll('enabledSources')
+    .map((source) => String(source))
+    .filter(isSourceType);
+}
+
+export async function clientAction({
+  request,
+}: ClientActionFunctionArgs): Promise<RoomsCreateActionData | Response> {
+  const formData = await request.formData();
+  const intent = String(formData.get('intent') ?? 'createRoom');
+
+  if (intent === 'reserveRoomName') {
+    return reserveRoomName(formData, request);
+  }
+
+  const name = String(formData.get('name') ?? '').trim();
+  const parsed = roomNameInputSchema.safeParse(name);
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+    };
+  }
+
+  const password = String(formData.get('password') ?? '');
+  const isPublic = readBoolean(formData, 'public');
+
+  if (isPublic && !password) {
+    return {
+      error: 'Add an admin password before making this room public.',
+    };
+  }
+
+  const reservationToken = String(
+    formData.get('reservationToken') ?? '',
+  ).trim();
+  const mode = formData.get('mode') === 'host' ? 'host' : 'server';
+  const roomType = formData.get('roomType') === 'WATCH' ? 'WATCH' : 'MUSIC';
+  const [err, room] = await api.v2.post(
+    '/rooms',
+    null,
+    {
+      name,
+      password: password || undefined,
+      reservationToken: reservationToken || undefined,
+      mode,
+      roomType,
+      settings: {
+        skipAllowed: readBoolean(formData, 'skipAllowed'),
+        democraticSkip: readBoolean(formData, 'democraticSkip'),
+        removeOnPlay: readBoolean(formData, 'removeOnPlay'),
+        allowDuplicates: readBoolean(formData, 'allowDuplicates'),
+        enabledSources: readEnabledSources(formData).filter(
+          (source) => roomType === 'MUSIC' || source === 'youtube',
+        ),
+        onlyAdminAddPlaylistItems: readBoolean(
+          formData,
+          'onlyAdminAddPlaylistItems',
+        ),
+        public: isPublic,
+        playlistImport: readBoolean(formData, 'playlistImport'),
+      },
+    },
+    { signal: request.signal },
+  );
+
+  if (err || !room) {
+    const rateLimitMessage = err ? getRateLimitMessage(err) : null;
+    const apiErrorMessage = err ? await getAPIErrorMessage(err) : null;
+
+    return {
+      error: rateLimitMessage ?? apiErrorMessage ?? 'Failed to create room',
+      ...(rateLimitMessage && { rateLimitMessage }),
+    };
+  }
+
+  return redirect(`/${room.id}`);
+}
+
+async function reserveRoomName(
+  formData: FormData,
+  request: Request,
+): Promise<RoomsCreateActionData> {
+  const name = String(formData.get('name') ?? '').trim();
+
+  if (name) {
+    const parsed = roomNameInputSchema.safeParse(name);
+
+    if (!parsed.success) {
+      return {
+        checkedName: name,
+        error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
+      };
+    }
+  }
+
+  const [err, reservation] = await api.post(
+    '/rooms/reservations',
+    null,
+    {
+      name: name || undefined,
+    },
+    { signal: request.signal },
+  );
+
+  if (err || !reservation) {
+    const rateLimitMessage = err ? getRateLimitMessage(err) : null;
+    const apiErrorMessage = err ? await getAPIErrorMessage(err) : null;
+    const status = err ? getHttpError(err)?.response.status : null;
+
+    return {
+      checkedName: name,
+      error:
+        rateLimitMessage ?? apiErrorMessage ?? 'Could not reserve this name',
+      ...(rateLimitMessage && { rateLimitMessage }),
+      ...(status === CONFLICT_STATUS && { roomNameUnavailable: true }),
+    };
+  }
+
+  return {
+    checkedName: name,
+    reservation,
+  };
+}

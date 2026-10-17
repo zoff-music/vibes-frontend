@@ -10,6 +10,7 @@ export function ProviderAttribution({ providers }: ProviderAttributionProps) {
   const activeProviders = orderedProviders.filter((provider) =>
     providers.includes(provider),
   );
+
   if (activeProviders.length === 0) {
     return null;
   }

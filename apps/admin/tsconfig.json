@@ -12,6 +12,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
@@ -20,6 +21,8 @@
     "types": ["node"],
     /* Path aliases */
     "paths": {
+      "react": ["../../node_modules/preact/compat"],
+      "react-dom": ["../../node_modules/preact/compat"],
       "*": ["./*"],
       "@/*": ["./src/*"]
     }

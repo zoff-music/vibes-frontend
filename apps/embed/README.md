@@ -1,6 +1,6 @@
 # Zoff embed
 
-The standalone React Router SSR embed serves `/embed/:roomName`. Run it with
+The standalone Preact + Smolter SSR embed serves `/embed/:roomName`. Run it with
 `pnpm --filter @vibes/embed dev` and build it with
 `pnpm --filter @vibes/embed build`.
 
@@ -81,8 +81,8 @@ Before publishing, run `pnpm lint`, `pnpm typecheck`, and the embed build.
 
 ## Loading and compilation
 
-React Compiler processes app components and shared DOM controls, retaining
-existing memoization and reporting unsupported patterns during builds. Font
+Preact renders app components and shared DOM controls, retaining existing
+manual memoization without React Compiler. Font
 preload URLs honor `EMBED_BASE_PATH` in both HTML and early response hints.
 Vite produces safely minified JavaScript plus Brotli/gzip sidecars; the shared
 server negotiates these while preserving MIME types and immutable caching.

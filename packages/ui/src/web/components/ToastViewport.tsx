@@ -1,5 +1,5 @@
 import { TOAST_EVENT_NAME, type ToastEventDetail } from '@vibes/shared';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'preact/compat';
 import { Toast } from './Toast';
 
 interface ActiveToast extends ToastEventDetail {
@@ -14,6 +14,7 @@ export function ToastViewport() {
     const handleToast = (event: Event) => {
       const customEvent = event as CustomEvent<ToastEventDetail>;
       const toast = customEvent.detail;
+
       if (!toast?.message) {
         return;
       }
@@ -23,6 +24,7 @@ export function ToastViewport() {
           const currentToast = currentToasts.find(
             (activeToast) => activeToast.dedupeKey === toast.dedupeKey,
           );
+
           if (
             currentToast &&
             (currentToast.priority ?? 0) >= (toast.priority ?? 0)
@@ -31,6 +33,7 @@ export function ToastViewport() {
           }
 
           nextId.current += 1;
+
           return [
             ...currentToasts
               .filter(
@@ -46,16 +49,19 @@ export function ToastViewport() {
             currentToast.message === toast.message &&
             currentToast.type === toast.type,
         );
+
         if (isDuplicate) {
           return currentToasts;
         }
 
         nextId.current += 1;
+
         return [...currentToasts.slice(-2), { ...toast, id: nextId.current }];
       });
     };
 
     window.addEventListener(TOAST_EVENT_NAME, handleToast);
+
     return () => window.removeEventListener(TOAST_EVENT_NAME, handleToast);
   }, []);
 

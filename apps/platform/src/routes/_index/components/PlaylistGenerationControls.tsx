@@ -1,3 +1,4 @@
+import { useFetcher } from '@kasperrt/smolter/preact';
 import { generatedPlaylistPromptMaxLength } from '@vibes/models/limits';
 import { classNames, showToast } from '@vibes/shared';
 import { Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
@@ -6,10 +7,9 @@ import {
   type KeyboardEvent,
   type RefObject,
   useEffect,
-} from 'react';
-import { useFetcher } from 'react-router';
+} from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
-import type { HomeActionData } from '../action';
+import type { HomeActionData } from '../utils/submitHomeAction';
 
 interface PlaylistGenerationControlsProps {
   inputRef: RefObject<HTMLInputElement | null>;
@@ -37,11 +37,12 @@ export function PlaylistGenerationControls({
   }, [fetcher.data]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onPromptChange(event.target.value);
+    onPromptChange(event.currentTarget.value);
   };
 
   const handleGenerateRoom = () => {
     const normalizedPrompt = prompt.trim();
+
     if (!normalizedPrompt || isGenerating) {
       return;
     }

@@ -1,9 +1,9 @@
+import { useFetcher } from '@kasperrt/smolter/preact';
 import type { CastSession } from '@vibes/models';
 import { safeWrapAsync, showToast, usePlaybackStore } from '@vibes/shared';
-import { useCallback, useEffect, useRef } from 'react';
-import { useFetcher } from 'react-router';
-import type { RoomActionData } from '../routes/rooms.$id/action';
+import { useCallback, useEffect, useRef } from 'preact/compat';
 import { useCastStore } from '../stores/castStore';
+import type { RoomActionData } from '../utils/room-actions/submitRoomAction';
 
 type SyncPlaybackState = ReturnType<
   typeof useCastStore.getState
@@ -30,10 +30,12 @@ export function useCastRoomHandshake({
     if (!isConnected || !currentSession || !roomId) {
       initializedSessionIdRef.current = null;
       requestedHandshakeRef.current = null;
+
       return;
     }
 
     const handshakeId = `${currentSession.id}:${roomId}`;
+
     if (requestedHandshakeRef.current === handshakeId) return;
 
     requestedHandshakeRef.current = handshakeId;
@@ -45,16 +47,21 @@ export function useCastRoomHandshake({
 
   useEffect(() => {
     const data = tokenFetcher.data;
+
     if (data?.intent !== 'castingToken') return;
+
     if (data.error) {
       showToast(data.error, 'error');
+
       return;
     }
 
     const casting = data.casting;
+
     if (!isConnected || !currentSession || !casting) return;
 
     const handshakeId = `${currentSession.id}:${casting.roomId}`;
+
     if (requestedHandshakeRef.current !== handshakeId) return;
 
     let cancelled = false;
@@ -65,14 +72,18 @@ export function useCastRoomHandshake({
       const [joinError] = await safeWrapAsync(
         joinRoom(casting.roomId, casting.token.token),
       );
+
       if (joinError) {
         console.error('Failed to send cast room handshake:', joinError);
+
         return;
       }
+
       if (cancelled) return;
 
       initializedSessionIdRef.current = sessionId;
       const playbackState = usePlaybackStore.getState();
+
       if (!playbackState.currentPlaylistItem) return;
 
       const [syncError] = await safeWrapAsync(
@@ -84,6 +95,7 @@ export function useCastRoomHandshake({
           updatedAt: playbackState.updatedAt,
         }),
       );
+
       if (syncError) {
         console.error('Failed to send initial cast playback state:', syncError);
       }
@@ -91,6 +103,7 @@ export function useCastRoomHandshake({
 
     return () => {
       cancelled = true;
+
       if (initializedSessionIdRef.current === sessionId) {
         initializedSessionIdRef.current = null;
       }

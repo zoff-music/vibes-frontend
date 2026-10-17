@@ -1,8 +1,13 @@
 import type { AdminSearchUsage } from '@vibes/models';
-import { useState } from 'react';
+import { useState } from 'preact/compat';
 import { getProviderDisplayName } from '../../shared';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { RoomUsageChart, type RoomUsageValue } from './RoomUsageChart';
+
+interface SearchUsagePoint {
+  window: string;
+  provider: string;
+}
 
 export function SearchUsageChart({
   generatedAt,
@@ -12,29 +17,34 @@ export function SearchUsageChart({
   const [period, setPeriod] = useState('hour');
   const [provider, setProvider] = useState('all');
   const providers = [...new Set(points.map((point) => point.provider))].sort();
-  const matches = (point: { window: string; provider: string }) =>
+  const matches = (point: SearchUsagePoint) =>
     point.window === period &&
     (provider === 'all' || provider === point.provider);
   const totals = points.filter(matches);
   const attributed = roomPoints.filter(matches);
   const end = new Date(generatedAt || 0);
   end.setUTCMinutes(0, 0, 0);
+
   if (period === 'day') end.setUTCHours(0);
 
   const length = period === 'hour' ? 24 : 30;
   const buckets = Array.from({ length }, (_, index) => {
     const timestamp = new Date(end);
     const offset = length - index - 1;
+
     if (period === 'hour')
       timestamp.setUTCHours(timestamp.getUTCHours() - offset);
+
     if (period === 'day') timestamp.setUTCDate(timestamp.getUTCDate() - offset);
 
     const matching = totals.filter(
       (point) => new Date(point.timestamp).getTime() === timestamp.getTime(),
     );
     const rooms = new Map<string, RoomUsageValue>();
+
     for (const point of attributed) {
       if (new Date(point.timestamp).getTime() !== timestamp.getTime()) continue;
+
       const current = rooms.get(point.roomId);
       rooms.set(point.roomId, {
         roomId: point.roomId,

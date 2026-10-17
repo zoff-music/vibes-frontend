@@ -1,6 +1,6 @@
+import { Link, useURLLocation as useLocation } from '@kasperrt/smolter/preact';
 import type { RoomType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { Link, useLocation } from 'react-router';
 import { useExperience } from '../../hooks/useExperience';
 
 export function ExperienceSwitch() {
@@ -15,6 +15,7 @@ export function ExperienceSwitch() {
     if (!isRoomExplorer) return fallback;
 
     const params = new URLSearchParams(search);
+
     if (type !== experience) params.delete('from');
 
     if (type === 'WATCH') {
@@ -24,6 +25,7 @@ export function ExperienceSwitch() {
     }
 
     const query = params.toString();
+
     return query ? `${path}?${query}` : path;
   };
 

@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'preact/compat';
 import { publicAssetUrl } from '../assets';
 import headerLogo from '../assets/logo-header.webp';
 import headerLogo48 from '../assets/logo-header-48.webp?no-inline';

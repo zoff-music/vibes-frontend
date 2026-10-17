@@ -9,8 +9,13 @@ import type {
   RoomType,
   SourceType,
 } from '@vibes/models';
-import type { ApiClient, ApiRequestOptions, ApiResult } from '../client';
-import { api } from '../client';
+
+import {
+  type ApiClient,
+  type ApiRequestOptions,
+  type ApiResult,
+  api,
+} from '../client';
 import { createPublicRequestCache } from './cache';
 
 export function createProvidersRequest(client: ApiClient) {
@@ -56,6 +61,7 @@ export function createProviderItemRequest(client: ApiClient) {
     if (provider === 'youtube') {
       return client.v2.get('/youtube/videos/{id}', { id: source }, options);
     }
+
     return client.v2.get(
       '/soundcloud/items',
       { $search: { url: source } },
@@ -78,6 +84,7 @@ export function createProviderPlaylistRequest(client: ApiClient) {
         { timeout: 120_000, ...options },
       );
     }
+
     return client.v2.get(
       '/soundcloud/playlists',
       {

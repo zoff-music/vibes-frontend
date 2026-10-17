@@ -1,11 +1,9 @@
-import {
-  createProvidersRequest,
-  getRateLimitMessage,
-  getRequestErrorMessage,
-} from '@vibes/api';
+import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
+import { createProvidersRequest } from '@vibes/api';
 import { type Providers, roomNameInputSchema } from '@vibes/models';
-import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi } from '../../http.server';
+import { getLoaderError } from './utils/getLoaderError';
+import { slugifyRoomName } from './utils/slugifyRoomName';
 
 export interface RoomsCreateLoaderData {
   checkedName?: string;
@@ -23,9 +21,11 @@ export async function loader({
   const url = new URL(request.url);
   const name = url.searchParams.get('name') ?? undefined;
   const intent = url.searchParams.get('intent');
+
   if (intent === 'suggest-room-name') {
     return loadRoomNameSuggestion(request);
   }
+
   if (intent === 'check-room-name') {
     return loadRoomNameExistence(request, name?.trim() ?? '');
   }
@@ -35,6 +35,7 @@ export async function loader({
   const [err, providers] = await getProviders({
     signal: request.signal,
   });
+
   if (err || !providers) {
     return {
       createRoomName: name,
@@ -59,7 +60,9 @@ async function loadRoomNameSuggestion(
   const requestHeaders = getRequestHeaders(request);
   const [err, suggestion] = await serverApi.get('/rooms/suggestions', null, {
     headers: requestHeaders,
+    signal: request.signal,
   });
+
   if (err || !suggestion) {
     return getLoaderError(err, 'Failed to generate a room name');
   }
@@ -74,6 +77,7 @@ async function loadRoomNameExistence(
   name: string,
 ): Promise<RoomsCreateLoaderData> {
   const parsed = roomNameInputSchema.safeParse(name);
+
   if (!parsed.success) {
     return {
       checkedName: name,
@@ -82,6 +86,7 @@ async function loadRoomNameExistence(
   }
 
   const roomID = slugifyRoomName(name);
+
   if (!roomID) {
     return {
       checkedName: name,
@@ -93,7 +98,9 @@ async function loadRoomNameExistence(
   const requestHeaders = getRequestHeaders(request);
   const [err, exists] = await serverApi.roomExists(roomID, {
     headers: requestHeaders,
+    signal: request.signal,
   });
+
   if (err || exists === null) {
     return {
       checkedName: name,
@@ -109,28 +116,10 @@ async function loadRoomNameExistence(
 
 function getRequestHeaders(request: Request): Record<string, string> {
   const cookieHeader = request.headers.get('cookie');
+
   if (!cookieHeader) {
     return {};
   }
 
   return { Cookie: cookieHeader };
-}
-
-async function getLoaderError(
-  err: Error | null,
-  fallbackMessage: string,
-): Promise<RoomsCreateLoaderData> {
-  const rateLimitMessage = err ? getRateLimitMessage(err) : null;
-  return {
-    error: await getRequestErrorMessage(err, fallbackMessage),
-    ...(rateLimitMessage && { rateLimitMessage }),
-  };
-}
-
-function slugifyRoomName(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, '')
-    .replace(/[ -]+/g, '-')
-    .replace(/^-|-$/g, '');
 }

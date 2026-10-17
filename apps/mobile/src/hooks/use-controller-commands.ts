@@ -4,12 +4,11 @@ import type {
   RemoteStatusV2,
   RoomV2,
 } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
-import type { Dispatch, SetStateAction } from 'react';
-import { useState } from 'react';
-import type { ControllerRemoteActionData } from '@/routes/remotes.controller.$id/action';
-import type { ControllerPlaybackActionData } from '@/routes/remotes.controller.$id.playback/action';
-import type { ControllerQueueActionData } from '@/routes/remotes.controller.$id.queue/action';
+import { useMutation } from '@vibes/shared/use-request';
+import { type Dispatch, type SetStateAction, useState } from 'react';
+import { action as mutateRemotesControllerIdRequest } from '@/routes/remotes.controller.$id/action';
+import { action as mutateRemotesControllerIdPlaybackRequest } from '@/routes/remotes.controller.$id.playback/action';
+import { action as mutateRemotesControllerIdQueueRequest } from '@/routes/remotes.controller.$id.queue/action';
 
 interface ControllerCommandsOptions {
   controllerToken: string;
@@ -44,42 +43,50 @@ export function useControllerCommands({
   setRemote,
 }: ControllerCommandsOptions): readonly [string, ControllerCommandActions] {
   const [nextRoomId, setNextRoomId] = useState('');
-  const [, remoteAction] = useFetcher<ControllerRemoteActionData>({
-    params: { controllerToken, id: remoteId },
-    routeId: 'remotes.controller.$id',
+  const [, remoteActionSubmit] = useMutation(mutateRemotesControllerIdRequest, {
+    controllerToken,
+    id: remoteId,
   });
-  const [, playbackAction] = useFetcher<ControllerPlaybackActionData>({
-    params: { controllerToken, id: remoteId },
-    routeId: 'remotes.controller.$id.playback',
-  });
-  const [, queueAction] = useFetcher<ControllerQueueActionData>({
-    params: { controllerToken, id: remoteId },
-    routeId: 'remotes.controller.$id.queue',
-  });
+  const [, playbackActionSubmit] = useMutation(
+    mutateRemotesControllerIdPlaybackRequest,
+    { controllerToken, id: remoteId },
+  );
+  const [, queueActionSubmit] = useMutation(
+    mutateRemotesControllerIdQueueRequest,
+    { controllerToken, id: remoteId },
+  );
 
   const action = async (kind: 'play' | 'pause' | 'skip') => {
     if (!remote?.currentRoomId) return;
+
     if (kind === 'skip') {
-      const result = await playbackAction.submit({
+      const result = await playbackActionSubmit({
         intent: 'skip',
         roomId: remote.currentRoomId,
       });
+
       if (result.error) setError(result.error);
+
       return;
     }
+
     const hasHostAuthority =
       room?.mode === 'host' && (room.isAdmin || room.hostId === room.userId);
+
     if (hasHostAuthority) {
-      const result = await playbackAction.submit({
+      const result = await playbackActionSubmit({
         action: kind,
         intent: 'update',
         roomId: remote.currentRoomId,
       });
+
       if (result.error) setError(result.error);
+
       return;
     }
+
     const isPlaying = kind === 'play';
-    const result = await remoteAction.submit({
+    const result = await remoteActionSubmit({
       intent: 'remoteState',
       request: {
         currentPlaylistItemId: playback?.currentPlaylistItem?.id ?? '',
@@ -87,10 +94,13 @@ export function useControllerCommands({
         playbackPositionMs: livePosition,
       },
     });
+
     if (result.error) {
       setError(result.error);
+
       return;
     }
+
     setRemote((current) =>
       current
         ? {
@@ -106,45 +116,54 @@ export function useControllerCommands({
 
   const vote = async (playlistItem: PlaylistItem) => {
     if (!remote?.currentRoomId) return;
-    const result = await queueAction.submit({
+
+    const result = await queueActionSubmit({
       intent: 'vote',
       roomId: remote.currentRoomId,
       playlistItemId: playlistItem.id,
     });
+
     if (result.error) setError(result.error);
   };
 
   const remove = async (playlistItem: PlaylistItem) => {
     if (!remote?.currentRoomId) return;
-    const result = await queueAction.submit({
+
+    const result = await queueActionSubmit({
       intent: 'remove',
       roomId: remote.currentRoomId,
       playlistItemId: playlistItem.id,
     });
+
     if (result.error) setError(result.error);
   };
 
   const seek = async (positionMs: number) => {
     if (!remote?.currentRoomId) return;
-    const result = await playbackAction.submit({
+
+    const result = await playbackActionSubmit({
       action: 'seek',
       intent: 'update',
       positionMs,
       roomId: remote.currentRoomId,
     });
+
     if (result.error) setError(result.error);
   };
 
   const resetPosition = async () => {
     if (!remote?.currentRoomId || !playback?.currentPlaylistItem) return;
+
     if (room?.mode === 'host' && room.hostId === room.userId) return;
 
-    const result = await remoteAction.submit({
+    const result = await remoteActionSubmit({
       intent: 'resetPosition',
       roomId: remote.currentRoomId,
     });
+
     if (result.error) {
       setError(result.error);
+
       return;
     }
 
@@ -153,31 +172,39 @@ export function useControllerCommands({
 
   const changeRoom = async () => {
     const normalizedRoomId = nextRoomId.trim().toLowerCase();
+
     if (!normalizedRoomId) {
       setError('Enter the room name to control.');
+
       return;
     }
-    const result = await remoteAction.submit({
+
+    const result = await remoteActionSubmit({
       intent: 'changeRoom',
       roomId: normalizedRoomId,
     });
+
     if (result.error) {
       setError(result.error);
+
       return;
     }
+
     setNextRoomId('');
   };
 
   const setPartyMode = async (enabled: boolean) => {
     if (!room || remote?.currentRoomId !== room.id) return;
 
-    const result = await remoteAction.submit({
+    const result = await remoteActionSubmit({
       intent: 'partyMode',
       roomId: room.id,
       enabled,
     });
+
     if (result.error) {
       setError(result.error);
+
       return;
     }
 

@@ -18,16 +18,14 @@
   font-family: "MSW98UI";
   font-style: normal;
   font-weight: 400;
-  src: url("../../../../packages/ui/src/shared/assets/fonts/MSW98UI-Regular.woff2")
-    format("woff2");
+  src: url("@vibes/ui/shared/fonts/MSW98UI-Regular.woff2") format("woff2");
 }
 
 @font-face {
   font-family: "MSW98UI";
   font-style: normal;
   font-weight: 700;
-  src: url("../../../../packages/ui/src/shared/assets/fonts/MSW98UI-Bold.woff2")
-    format("woff2");
+  src: url("@vibes/ui/shared/fonts/MSW98UI-Bold.woff2") format("woff2");
 }
 
 html,

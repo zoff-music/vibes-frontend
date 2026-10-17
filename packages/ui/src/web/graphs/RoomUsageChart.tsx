@@ -1,6 +1,6 @@
 import { classNames } from '@vibes/shared';
 import { area, line, scaleLinear, utcFormat } from 'd3';
-import { useId, useState } from 'react';
+import { useId, useState } from 'preact/compat';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { Tooltip } from '../components/Tooltip';
 
@@ -49,6 +49,7 @@ export function RoomUsageChart({
   for (const bucket of buckets) {
     for (const room of bucket.rooms) {
       if (!room.roomId) continue;
+
       roomTypes.set(room.roomId, room.roomType);
       roomTotals.set(
         room.roomId,
@@ -224,7 +225,7 @@ export function RoomUsageChart({
           <select
             id={id}
             value={activeRoom}
-            onChange={(event) => setSelectedRoom(event.target.value)}
+            onChange={(event) => setSelectedRoom(event.currentTarget.value)}
             className="max-w-64 rounded-lg border border-theme bg-theme-surface px-3 py-2 text-theme focus-visible:outline-2 focus-visible:outline-secondary"
           >
             <option value="*">All rooms</option>
@@ -424,6 +425,7 @@ export function RoomUsageChart({
 
 function roomLabel(room: string) {
   if (room === '*unknown' || room === '') return 'Unattributed';
+
   return room;
 }
 

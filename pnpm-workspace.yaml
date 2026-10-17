@@ -106,6 +106,7 @@ minimumReleaseAgeExclude:
   - expo-glass-effect@57.0.2
   - expo-modules-core@57.0.17
   - expo-modules-jsi@57.1.0
+  - '@kasperrt/smolter@0.3.0'
 patchedDependencies:
   '@expo/cli@57.0.29': patches/@expo__cli@57.0.29.patch
   react-native-screens@4.26.2: patches/react-native-screens@4.26.2.patch

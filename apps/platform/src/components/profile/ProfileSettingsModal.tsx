@@ -1,12 +1,11 @@
-import type { SessionProfile } from '@vibes/models';
+import { useFetcher, useRouteLoaderData } from '@kasperrt/smolter/preact';
 import { showToast } from '@vibes/shared';
+import { useChatPreferenceStore } from '@vibes/shared/chatPreferenceStore';
+import { useThemeStore } from '@vibes/shared/themeStore';
 import { PersonalSettingsModal } from '@vibes/ui/web';
-import { useEffect, useRef, useState } from 'react';
-import { useFetcher, useRouteLoaderData } from 'react-router';
+import { useEffect, useRef, useState } from 'preact/compat';
 import type { RootLoaderData } from '../../root';
-import type { ProfileRouteData } from '../../routes/profile/clientLoader';
-import { useChatPreferenceStore } from '../../stores/chatPreferenceStore';
-import { useThemeStore } from '../../stores/themeStore';
+import type { ProfileRouteData } from '../../routes/resources.profile/clientLoader';
 
 interface ProfileSettingsModalProps {
   isOpen: boolean;
@@ -22,48 +21,26 @@ export function ProfileSettingsModal({
   const fetcher = useFetcher<ProfileRouteData>();
   const rootData = useRouteLoaderData<RootLoaderData>('root');
   const wasSavingRef = useRef(false);
-  const [initialProfile, setInitialProfile] = useState<SessionProfile | null>(
-    null,
-  );
-  const [profilePending, setProfilePending] = useState(
-    Boolean(rootData?.sessionProfile),
-  );
+  const initialProfile = rootData?.sessionProfile ?? null;
   const [name, setName] = useState('');
   const themeId = useThemeStore((state) => state.themeId);
   const setTheme = useThemeStore((state) => state.setTheme);
-
-  useEffect(() => {
-    let active = true;
-    const profile = rootData?.sessionProfile;
-
-    setProfilePending(Boolean(profile));
-
-    void profile?.then((result) => {
-      if (!active) return;
-
-      setInitialProfile(result);
-      setProfilePending(false);
-    });
-
-    return () => {
-      active = false;
-    };
-  }, [rootData?.sessionProfile]);
 
   useEffect(() => {
     if (
       isOpen &&
       fetcher.state === 'idle' &&
       !fetcher.data &&
-      !initialProfile &&
-      !profilePending
+      !fetcher.error &&
+      !initialProfile
     ) {
       void fetcher.load('/resources/profile');
     }
-  }, [fetcher, initialProfile, isOpen, profilePending]);
+  }, [fetcher, initialProfile, isOpen]);
 
   useEffect(() => {
     const profile = fetcher.data?.profile ?? initialProfile;
+
     if (isOpen && profile) {
       setName(profile.name);
     }
@@ -72,6 +49,7 @@ export function ProfileSettingsModal({
   useEffect(() => {
     if (fetcher.state === 'submitting') {
       wasSavingRef.current = true;
+
       return;
     }
 
@@ -80,16 +58,16 @@ export function ProfileSettingsModal({
     }
 
     wasSavingRef.current = false;
+
     if (fetcher.data?.profile && !fetcher.data.error) {
       showToast('Profile saved', 'success');
     }
   }, [fetcher.data, fetcher.state]);
 
   const isLoading =
-    (profilePending || fetcher.state === 'loading') &&
-    !fetcher.data?.profile &&
-    !initialProfile;
+    fetcher.state === 'loading' && !fetcher.data?.profile && !initialProfile;
   const isSaving = fetcher.state === 'submitting';
+  const error = fetcher.data?.error ?? fetcher.error?.message;
 
   return (
     <PersonalSettingsModal
@@ -99,7 +77,7 @@ export function ProfileSettingsModal({
       onNameChange={setName}
       isLoading={isLoading}
       isSaving={isSaving}
-      {...(fetcher.data?.error ? { error: fetcher.data.error } : {})}
+      {...(error ? { error } : {})}
       chatEnabled={chatEnabled}
       onChatChange={setChatEnabled}
       themeId={themeId}

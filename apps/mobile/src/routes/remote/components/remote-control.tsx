@@ -1,5 +1,8 @@
-import type { PlaylistItem, Providers } from '@vibes/models';
-import { roomNameMaxLength } from '@vibes/models';
+import {
+  type PlaylistItem,
+  type Providers,
+  roomNameMaxLength,
+} from '@vibes/models';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
 import { Text, View } from 'react-native';
@@ -36,7 +39,9 @@ export function RemoteControl({
 }: RemoteControlProps) {
   const { playback, remote, room } = controller;
   const currentPlaylistItem = playback?.currentPlaylistItem;
+
   if (!remote) return null;
+
   const displayedIsPlaying =
     room?.mode === 'host'
       ? Boolean(playback?.isPlaying)

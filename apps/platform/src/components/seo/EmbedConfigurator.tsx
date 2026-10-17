@@ -1,5 +1,5 @@
 import { DeferredContent } from '@vibes/ui/web';
-import { lazy } from 'react';
+import { lazy } from 'preact/compat';
 
 const LazyEmbedWidget = lazy(() =>
   import('./EmbedWidget').then((module) => ({ default: module.EmbedWidget })),

@@ -1,6 +1,6 @@
 import { safeWrapAsync } from '@vibes/shared';
 import { Button, CastIcon } from '@vibes/ui/web';
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'preact/compat';
 import { useCastStore } from '../../stores/castStore';
 
 interface CastButtonProps {
@@ -37,8 +37,10 @@ export const CastButton: React.FC<CastButtonProps> = ({ onDeviceSelect }) => {
         const [err] = await safeWrapAsync(
           disconnectFromDevice(currentSession.deviceId),
         );
+
         if (err) console.error('Failed to disconnect:', err);
       }
+
       return;
     }
 
@@ -49,12 +51,15 @@ export const CastButton: React.FC<CastButtonProps> = ({ onDeviceSelect }) => {
         const [err] = await safeWrapAsync(
           connectToDevice(availableDevices[0].id),
         );
+
         if (err) console.error('Failed to connect:', err);
       }
+
       return;
     }
 
     const [err] = await safeWrapAsync(discoverDevices());
+
     if (err) console.error('Cast discovery error:', err);
   };
 
@@ -74,9 +79,11 @@ export const CastButton: React.FC<CastButtonProps> = ({ onDeviceSelect }) => {
     if (isConnected && currentSession) {
       return `Connected`;
     }
+
     if (availableDevices.length > 0) {
       return 'Cast';
     }
+
     return 'No devices';
   };
 

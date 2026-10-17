@@ -33,6 +33,7 @@ export function NowPlayingPlaylistItem({
     playlistItem.sourceId,
     playlistItem.providerUrl,
   );
+
   return (
     <>
       {showStatus && (

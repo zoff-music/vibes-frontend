@@ -6,7 +6,7 @@ import {
   PlayIcon,
   SkipIcon,
 } from '@vibes/ui/web';
-import type { Ref } from 'react';
+import type { Ref } from 'preact/compat';
 
 interface RemoteControlPreviewProps {
   playlistItem: PlaylistItem;

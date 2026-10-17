@@ -24,6 +24,11 @@ interface ProviderPlayerProps {
   synchronizePosition: boolean;
 }
 
+interface PlayerFailure {
+  playlistItemId: string | undefined;
+  message: string;
+}
+
 export function ProviderPlayer({
   availableHeight,
   availableWidth,
@@ -42,7 +47,10 @@ export function ProviderPlayer({
 }: ProviderPlayerProps) {
   const { width: windowWidth } = useWindowDimensions();
   const isPhoneLayout = windowWidth < 600;
-  const [error, setError] = useState('');
+  const [failure, setFailure] = useState<PlayerFailure>({
+    playlistItemId: playlistItem?.id,
+    message: '',
+  });
   const [retainedYouTubePlaylistItem, setRetainedYouTubePlaylistItem] =
     useState<PlaylistItem | null>(
       playlistItem?.sourceType === 'youtube' ? playlistItem : null,
@@ -52,6 +60,15 @@ export function ProviderPlayer({
       playlistItem?.sourceType === 'soundcloud' ? playlistItem : null,
     );
   const playlistItemId = playlistItem?.id;
+  const error =
+    failure.playlistItemId === playlistItemId ? failure.message : '';
+
+  if (failure.playlistItemId !== playlistItemId) {
+    setFailure({ playlistItemId, message: '' });
+  }
+
+  const handleError = (message: string) =>
+    setFailure({ playlistItemId, message });
   const youtubePlaylistItem =
     playlistItem?.sourceType === 'youtube'
       ? playlistItem
@@ -80,14 +97,10 @@ export function ProviderPlayer({
     embeddedPlayerHeight * playerAspectRatio,
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: A song identity change intentionally clears prior provider errors.
-  useEffect(() => {
-    setError('');
-  }, [playlistItemId]);
-
   useEffect(() => {
     if (playlistItem?.sourceType === 'youtube')
       setRetainedYouTubePlaylistItem(playlistItem);
+
     if (playlistItem?.sourceType === 'soundcloud')
       setRetainedSoundCloudPlaylistItem(playlistItem);
   }, [playlistItem]);
@@ -113,7 +126,7 @@ export function ProviderPlayer({
             <NativeYouTubePlayer
               height={embeddedPlayerHeight}
               isPlaying={isYouTubeActive && localIsPlaying}
-              onError={setError}
+              onError={handleError}
               positionMs={isYouTubeActive ? positionMs : 0}
               resetVersion={resetVersion}
               sourceId={youtubePlaylistItem.sourceId}
@@ -125,11 +138,13 @@ export function ProviderPlayer({
                 ? {
                     onLocalPositionObserved: (observedPositionMs) => {
                       if (suppressPlayback) return;
+
                       onLocalPositionObserved(observedPositionMs);
                     },
                     onLocalSeek,
                     onPlayingChange: (isPlaying) => {
                       if (suppressPlayback) return;
+
                       onLocalPlayingChange(isPlaying);
                     },
                   }
@@ -152,7 +167,7 @@ export function ProviderPlayer({
               height={embeddedPlayerHeight}
               interactive={isSoundCloudActive && !suppressPlayback}
               isPlaying={isSoundCloudActive && localIsPlaying}
-              onError={setError}
+              onError={handleError}
               positionMs={isSoundCloudActive ? positionMs : 0}
               resetVersion={resetVersion}
               sourceId={soundCloudPlaylistItem.sourceId}
@@ -164,11 +179,13 @@ export function ProviderPlayer({
                 ? {
                     onLocalPositionObserved: (observedPositionMs) => {
                       if (suppressPlayback) return;
+
                       onLocalPositionObserved(observedPositionMs);
                     },
                     onLocalSeek,
                     onPlayingChange: (isPlaying) => {
                       if (suppressPlayback) return;
+
                       onLocalPlayingChange(isPlaying);
                     },
                   }

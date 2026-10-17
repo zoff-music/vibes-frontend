@@ -2,8 +2,15 @@ import type { PlaylistItem } from '@vibes/models';
 import { classNames, getProviderItemUrl, safeWrapAsync } from '@vibes/shared';
 import { Image } from 'expo-image';
 import { memo, type ReactElement, useCallback } from 'react';
-import type { ListRenderItemInfo } from 'react-native';
-import { FlatList, Linking, Pressable, Text, View } from 'react-native';
+
+import {
+  FlatList,
+  Linking,
+  type ListRenderItemInfo,
+  Pressable,
+  Text,
+  View,
+} from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, {
   FadeInDown,
@@ -46,6 +53,7 @@ const QueueItem = memo(function QueueItem({
   );
   const openExternally = async () => {
     if (!providerUrl) return;
+
     await safeWrapAsync(Linking.openURL(providerUrl));
   };
   const row = (
@@ -227,6 +235,7 @@ export function Queue({
   );
 
   let listHeader: ReactElement | null = null;
+
   if (!contained) {
     listHeader = (
       <>

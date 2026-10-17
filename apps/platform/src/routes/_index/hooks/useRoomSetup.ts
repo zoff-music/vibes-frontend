@@ -1,6 +1,6 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'preact/compat';
 import {
   type RoomSetupId,
   type RoomSetupSettings,
@@ -36,15 +36,18 @@ export function useRoomSetup() {
       const now = performance.now();
       cycleElapsed.current += Math.min(now - previous, 250);
       previous = now;
+
       if (cycleElapsed.current < 6000) return;
 
       cycleElapsed.current = 0;
+
       if (
         ref.current
           ?.querySelector('[data-demo-content]')
           ?.contains(document.activeElement)
       ) {
         setPaused(true);
+
         return;
       }
 
@@ -58,6 +61,7 @@ export function useRoomSetup() {
           removeOnPlay: setupId === 'repeating' || current.removeOnPlay,
         }));
         setRevision((current) => current + 1);
+
         return;
       }
 
@@ -74,6 +78,7 @@ export function useRoomSetup() {
 
   function selectSetup(id: RoomSetupId) {
     const setup = roomSetups.find((item) => item.id === id);
+
     if (!setup) return;
 
     setPaused(true);

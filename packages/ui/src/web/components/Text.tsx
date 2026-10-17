@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'preact/compat';
 
 interface Props
   extends Omit<React.HTMLAttributes<HTMLElement>, 'className' | 'style'> {
@@ -46,9 +46,9 @@ export const Text: React.FC<Props> = ({
 
   const classes = `${sizeClasses[size]} ${colorClasses[color]} ${variantClasses[variant]} ${bold ? 'font-bold' : ''}`;
 
-  return (
-    <Component className={classes} {...props}>
-      {children}
-    </Component>
+  return React.createElement(
+    Component,
+    { className: classes, ...props },
+    children,
   );
 };

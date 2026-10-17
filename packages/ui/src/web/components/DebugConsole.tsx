@@ -1,5 +1,5 @@
 import { classNames, isBrowserDebugEnabled } from '@vibes/shared';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'preact/compat';
 import { Button } from './Button';
 
 type LogLevel = 'log' | 'error' | 'warn' | 'info' | 'debug';
@@ -97,11 +97,10 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
     };
   }, [enabled, envDebugEnabled]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: New logs and visibility changes intentionally trigger imperative scrolling.
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (!isVisible || logs.length === 0 || !scrollRef.current) return;
+
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [logs, isVisible]);
 
   if (!envDebugEnabled || !isVisible) return null;

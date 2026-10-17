@@ -1,9 +1,12 @@
+import {
+  useURLLocation as useLocation,
+  useMatches,
+} from '@kasperrt/smolter/preact';
 import { classNames, usePageVisibility } from '@vibes/shared';
+import { useThemeStore } from '@vibes/shared/themeStore';
 import { SiteBackground } from '@vibes/ui/web';
 import { useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { useLocation, useMatches } from 'react-router';
-import { useThemeStore } from '../../stores/themeStore';
+import { useRef } from 'preact/compat';
 import { RetroSun } from './RetroSun';
 
 export function Background() {
@@ -16,7 +19,7 @@ export function Background() {
   const isHome = matches.some((match) => homeRouteIds.has(match.id));
   const showGrid = matches.some(
     (match) =>
-      gridRouteIds.has(match.id) || match.id.startsWith('routes/discover/'),
+      gridRouteIds.has(match.id) || match.id.startsWith('routes/discovery.'),
   );
 
   // The home hero positions its own sun behind the card.
@@ -52,14 +55,17 @@ export function Background() {
 
 const gridRouteIds = new Set([
   'routes/_index/route',
-  'routes/features/route',
-  'routes/discover/route',
-  'routes/explore.rooms/route',
-  'routes/not-found/route',
+  'routes/features.$experience/route',
+  'routes/discovery.$topic/route',
+  'routes/rooms.explore/route',
+  'routes/$/route',
   'routes/rooms.create/route',
   'routes/security/route',
   'routes/privacy-policy/route',
   'routes/terms-of-service/route',
 ]);
 
-const homeRouteIds = new Set(['routes/_index/route', 'routes/features/route']);
+const homeRouteIds = new Set([
+  'routes/_index/route',
+  'routes/features.$experience/route',
+]);

@@ -26,6 +26,7 @@ function roomCursorKey(
   }
 
   let clientId = CLIENT_IDS.get(client);
+
   if (!clientId) {
     clientId = nextClientId;
     nextClientId += 1;
@@ -84,12 +85,16 @@ export async function subscribeRoomEventsV3(
     },
     (result: [Error | null, RoomSSEV3Message | null]) => {
       const [eventError, message] = result;
+
       if (eventError || !message) {
         callback(result);
+
         return;
       }
+
       if (message.type === 'event_cursor') {
         ROOM_EVENT_CURSORS.set(cursorKey, message.data.id);
+
         return;
       }
 
@@ -99,6 +104,7 @@ export async function subscribeRoomEventsV3(
 
   if (error || !unsubscribe) {
     ROOM_EVENT_CURSORS.delete(cursorKey);
+
     return [error, null];
   }
 
@@ -117,50 +123,74 @@ export function subscribeRoomUpdatesV3(
   callbacks: RoomEventV3Callbacks,
 ): Promise<[Error | null, (() => void) | null]> {
   let connected = false;
+
   return subscribeRoomEventsV3(client, roomId, ([eventError, message]) => {
     if (eventError || !message) return;
+
     if (message.type === 'connected') {
       callbacks.onConnected?.(message.data.time);
+
       if (connected) callbacks.onReconnect?.();
+
       connected = true;
+
       return;
     }
+
     if (message.type === 'playlist_items_snapshot') {
       callbacks.onPlaylistItemsUpdate?.(message.data);
+
       return;
     }
+
     if (message.type === 'playback_update') {
       callbacks.onPlaybackUpdate?.(message.data);
+
       return;
     }
+
     if (message.type === 'playlist_item_added') {
       callbacks.onPlaylistItemAdded?.(message.data);
+
       return;
     }
+
     if (message.type === 'playlist_item_updated') {
       callbacks.onPlaylistItemUpdated?.(message.data);
+
       return;
     }
+
     if (message.type === 'playlist_item_removed') {
       callbacks.onPlaylistItemRemoved?.(message.data);
+
       return;
     }
+
     if (message.type === 'settings_update') {
       callbacks.onRoomUpdate?.(message.data);
+
       return;
     }
+
     if (message.type === 'users_update') {
       callbacks.onUsersUpdate?.(message.data);
+
       return;
     }
+
     if (message.type === 'generation_update') {
       callbacks.onGenerationUpdate?.(message.data);
+
       return;
     }
+
     if (message.type === 'new_host') {
       callbacks.onHostUpdate?.(message.data);
+
       return;
     }
+
     if (message.type === 'skip_vote') {
       callbacks.onSkipVote?.(message.data);
     }

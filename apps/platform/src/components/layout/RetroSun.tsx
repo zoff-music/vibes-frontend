@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { useId } from 'react';
+import { useId } from 'preact/compat';
 
 interface RetroSunProps {
   paused: boolean;

@@ -1,6 +1,6 @@
+import { Link } from '@kasperrt/smolter/preact';
 import { ArrowRightIcon, DeferredContent } from '@vibes/ui/web';
-import { lazy } from 'react';
-import { Link } from 'react-router';
+import { lazy } from 'preact/compat';
 
 const LazyRoomControlPanel = lazy(() =>
   import('./RoomControlPanel').then((module) => ({

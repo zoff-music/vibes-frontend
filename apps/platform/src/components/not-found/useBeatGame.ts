@@ -1,6 +1,6 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useReducer, useRef } from 'preact/compat';
 import {
   beatGameReducer,
   initialBeatGame,
@@ -25,6 +25,7 @@ export function useBeatGame() {
 
     const delay = game.cue === null ? 350 : 700;
     const timer = window.setTimeout(() => dispatch({ type: 'tick' }), delay);
+
     return () => window.clearTimeout(timer);
   }, [active, reducedMotion, game.phase, game.cue]);
 

@@ -1,4 +1,4 @@
-import type { MetaFunction } from 'react-router';
+import type { MetaFunction } from '@kasperrt/smolter/preact';
 import { pageMetadata } from '../../seo/metadata';
 
 export const meta: MetaFunction = ({ location }) => {

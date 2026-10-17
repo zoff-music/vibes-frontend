@@ -1,5 +1,5 @@
 import type { AdminListenerUsage } from '@vibes/models';
-import { useState } from 'react';
+import { useState } from 'preact/compat';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { RoomUsageChart } from './RoomUsageChart';
 
@@ -11,14 +11,20 @@ export function ListenerUsageChart({
   const [period, setPeriod] = useState('day');
   const end = new Date(generatedAt || 0);
   end.setUTCSeconds(0, 0);
+
   if (period !== 'hour') end.setUTCMinutes(0);
+
   if (period === 'week' || period === 'month') end.setUTCHours(0);
 
   const start = new Date(end);
+
   if (period === 'hour') start.setUTCMinutes(0);
+
   if (period === 'day') start.setUTCHours(0);
+
   if (period === 'week')
     start.setUTCDate(start.getUTCDate() - (start.getUTCDay() || 7) + 1);
+
   if (period === 'month') start.setUTCDate(1);
 
   const step =

@@ -7,7 +7,7 @@ import {
   useEffect,
   useRef,
   useState,
-} from 'react';
+} from 'preact/compat';
 import logo from '../assets/logo-header-96.webp?no-inline';
 
 interface DeferredContentProps {

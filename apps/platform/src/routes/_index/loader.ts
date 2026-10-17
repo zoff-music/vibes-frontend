@@ -1,6 +1,6 @@
+import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import { createProvidersRequest } from '@vibes/api';
 import type { Providers, PublicRoomV3, StatsV2 } from '@vibes/models';
-import type { LoaderFunctionArgs } from 'react-router';
 import { getServerApi, getServerApiV3 } from '../../http.server';
 
 export interface HomeLoaderData {

@@ -6,6 +6,7 @@ import {
 
 export const getInitialColorScheme = (): ResolvedColorScheme => {
   const value = new URLSearchParams(window.location.search).get('theme');
+
   return resolveColorScheme(
     parseColorScheme(value),
     window.matchMedia('(prefers-color-scheme: dark)').matches,
@@ -20,5 +21,6 @@ export const applyColorScheme = (colorScheme: ResolvedColorScheme) => {
   const colorSchemeMeta = document.querySelector<HTMLMetaElement>(
     'meta[name="color-scheme"]',
   );
+
   if (colorSchemeMeta) colorSchemeMeta.content = colorScheme;
 };

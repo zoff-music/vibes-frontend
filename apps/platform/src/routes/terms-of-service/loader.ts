@@ -1,18 +1,19 @@
+import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import { createProvidersRequest } from '@vibes/api';
 import type { Providers } from '@vibes/models';
-import type { LoaderFunctionArgs } from 'react-router';
-import { getPublicContactEmails } from '../../config.server';
 import { getServerApi } from '../../http.server';
+import { getPublicContactEmails } from '../../utils/public-config.server';
 
 export interface TermsOfServiceLoaderData {
   contactEmail: string;
   providers: Providers;
 }
 
-export async function termsOfServiceLoader({
+export async function loader({
   request,
 }: LoaderFunctionArgs): Promise<TermsOfServiceLoaderData> {
   const emails = getPublicContactEmails();
+
   if (!emails.contact) {
     throw new Error('CONTACT_EMAIL is required');
   }
@@ -20,6 +21,7 @@ export async function termsOfServiceLoader({
   const serverApi = getServerApi(request);
   const getProviders = createProvidersRequest(serverApi);
   const [err, providers] = await getProviders({ signal: request.signal });
+
   if (err || !providers) {
     return {
       contactEmail: emails.contact,
@@ -32,3 +34,5 @@ export async function termsOfServiceLoader({
     providers,
   };
 }
+
+export { loader as termsOfServiceLoader };

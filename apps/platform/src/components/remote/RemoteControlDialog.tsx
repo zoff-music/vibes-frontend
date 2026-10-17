@@ -1,9 +1,9 @@
+import { type FetcherWithComponents, Link } from '@kasperrt/smolter/preact';
 import type { RemotePairingV2, RemoteStatusV2 } from '@vibes/models';
 import { Button, CloseIcon, Modal, RemoteIcon } from '@vibes/ui/web';
+import { Suspense } from 'preact/compat';
 import { QRCodeSVG } from 'qrcode.react';
-import { Suspense } from 'react';
-import { type FetcherWithComponents, Link } from 'react-router';
-import type { RemoteControlActionData } from '../../routes/remote-control/action';
+import type { RemoteControlActionData } from '../../routes/remote-control/clientAction';
 
 interface RemoteControlDialogProps {
   controlFetcher: FetcherWithComponents<RemoteControlActionData>;

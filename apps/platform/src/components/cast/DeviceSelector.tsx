@@ -15,7 +15,7 @@ import {
   PlayIcon,
   SpinnerIcon,
 } from '@vibes/ui/web';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'preact/compat';
 import { castManager } from '../../services/cast';
 import { CAST_DEVICE_PICKER_ID } from '../../services/cast/constants';
 import { useCastStore } from '../../stores/castStore';
@@ -57,20 +57,25 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
     const refreshOnOpen = async () => {
       browserDebugLog('[Cast] refreshing devices on open');
+
       if (!isInitialized) {
         const [initializeErr] = await safeWrapAsync(initialize());
+
         if (initializeErr) {
           console.error('Failed to initialize casting:', initializeErr);
         }
+
         return;
       }
 
       const [forceErr] = await safeWrapAsync(castManager.forceDiscovery());
+
       if (forceErr) {
         console.error('Failed to force cast discovery:', forceErr);
       }
 
       const [discoverErr] = await safeWrapAsync(discoverDevices());
+
       if (discoverErr) {
         console.error('Failed to discover cast devices:', discoverErr);
       }
@@ -84,8 +89,10 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
     if (device.id === 'local-cast-emulator') {
       const opened = castManager.prepareLocalReceiverWindow();
+
       if (!opened) {
         setIsConnecting(null);
+
         return;
       }
     }
@@ -95,6 +102,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     }
 
     const [err] = await safeWrapAsync(connectToDevice(device.id));
+
     if (err) console.error('Failed to connect to device:', err);
 
     setIsConnecting(null);
@@ -106,15 +114,19 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
     const [err] = await safeWrapAsync(
       disconnectFromDevice(currentSession.deviceId),
     );
+
     if (err) {
       console.error('Failed to disconnect:', err);
+
       return;
     }
+
     onClose();
   };
 
   const handleCastCurrentPlaylistItem = async (media?: PlaylistItem) => {
     const playlistItemToCast = media || currentPlaylistItem;
+
     if (!playlistItemToCast || !isConnected) return;
 
     setIsCasting(true);
@@ -124,6 +136,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
     if (err) {
       console.error('Failed to cast:', err);
+
       if (err.message.includes('YouTube')) {
         browserDebugLog(
           '💡 YouTube casting requires a custom receiver - this is a known limitation',
@@ -146,9 +159,11 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
   const handleOpenDevicePicker = async () => {
     setIsConnecting(CAST_DEVICE_PICKER_ID);
     const [err] = await safeWrapAsync(connectToDevice(CAST_DEVICE_PICKER_ID));
+
     if (err) {
       console.error('Failed to open cast device picker:', err);
     }
+
     setIsConnecting(null);
   };
 

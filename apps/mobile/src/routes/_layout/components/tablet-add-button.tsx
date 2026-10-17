@@ -12,6 +12,7 @@ export function TabletAddPlaylistItemButton() {
   const keyboardVisible = useKeyboardVisible();
   const { addLabel, canAddPlaylistItems } = useRoomNavigation();
   const [addPlaylistItemVisible, setAddPlaylistItemVisible] = useState(false);
+
   if (!tabletLayout.isTablet || !canAddPlaylistItems || keyboardVisible)
     return null;
 

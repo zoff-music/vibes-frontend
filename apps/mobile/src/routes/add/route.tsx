@@ -1,18 +1,13 @@
-import { Route } from '@vibes/native-router';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 
 import { AddPlaylistItemSheet } from '@/components/add-sheet';
 import { useRoomSession } from '@/providers/app-provider';
 
-export { ErrorBoundary } from '@/routes/_index/components/route-boundaries';
+export { ErrorBoundary } from '@/components/route-error-boundary';
 
 export default function AddRoute() {
-  return (
-    <Route routeId="add">
-      <AddPlaylistItemScreen />
-    </Route>
-  );
+  return <AddPlaylistItemScreen />;
 }
 
 function AddPlaylistItemScreen() {
@@ -23,6 +18,7 @@ function AddPlaylistItemScreen() {
   useFocusEffect(
     useCallback(() => {
       setVisible(true);
+
       return () => setVisible(false);
     }, []),
   );

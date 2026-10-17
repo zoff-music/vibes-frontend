@@ -1,7 +1,13 @@
 import { classNames } from '@vibes/shared';
 import { m as motion, useReducedMotion } from 'framer-motion';
-import type { ReactNode, RefObject } from 'react';
-import { useCallback, useEffect, useRef } from 'react';
+
+import {
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'preact/compat';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
 
@@ -13,7 +19,7 @@ interface Props {
   initialFocusRef?: RefObject<HTMLElement | null>;
   isOpen: boolean;
   onClose: () => void;
-  panelRef?: RefObject<HTMLDivElement | null>;
+  panelRef?: { current: HTMLDivElement | null };
   size?: 'lg' | 'md' | 'sm';
 }
 
@@ -46,6 +52,7 @@ export function Modal({
         event.preventDefault();
         event.stopPropagation();
         onCloseRef.current();
+
         return;
       }
 
@@ -61,6 +68,7 @@ export function Modal({
       if (focusableElements.length === 0) {
         event.preventDefault();
         internalPanelRef.current.focus();
+
         return;
       }
 
@@ -89,6 +97,7 @@ export function Modal({
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
+
       if (previousActiveElement instanceof HTMLElement) {
         previousActiveElement.focus();
       }
@@ -98,6 +107,7 @@ export function Modal({
   const setPanelRef = useCallback(
     (element: HTMLDivElement | null) => {
       internalPanelRef.current = element;
+
       if (panelRef) panelRef.current = element;
     },
     [panelRef],

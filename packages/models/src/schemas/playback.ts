@@ -7,6 +7,7 @@ export const roomActionRequestSchema = /* @__PURE__ */ z.compile(
     positionMs: z.optional(z.number()),
   }),
 );
+
 export type RoomActionRequest = z.infer<typeof roomActionRequestSchema>;
 
 export const playbackStateV2Schema = /* @__PURE__ */ z.compile(
@@ -18,6 +19,7 @@ export const playbackStateV2Schema = /* @__PURE__ */ z.compile(
     serverTimeMs: z.number(),
   }),
 );
+
 export type PlaybackStateV2 = z.infer<typeof playbackStateV2Schema>;
 
 export const playbackFailureRequestV2Schema = /* @__PURE__ */ z.compile(
@@ -25,6 +27,7 @@ export const playbackFailureRequestV2Schema = /* @__PURE__ */ z.compile(
     playlistItemId: z.string(),
   }),
 );
+
 export type PlaybackFailureRequestV2 = z.infer<
   typeof playbackFailureRequestV2Schema
 >;
@@ -41,6 +44,7 @@ export const skipPlaylistItemResponseSchema = /* @__PURE__ */ z.compile(
     playback: playbackStateV2Schema,
   }),
 );
+
 export type SkipPlaylistItemResponse = z.infer<
   typeof skipPlaylistItemResponseSchema
 >;
@@ -53,4 +57,5 @@ export const skipVoteUpdateV2Schema = /* @__PURE__ */ z.compile(
     requiredVotes: z.number(),
   }),
 );
+
 export type SkipVoteUpdateV2 = z.infer<typeof skipVoteUpdateV2Schema>;

@@ -12,7 +12,7 @@ import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
-export default function AppTabs() {
+export function AppTabs() {
   const router = useRouter();
   const [{ resolvedScheme }] = useThemePreference();
   const theme = useAppTheme();
@@ -26,6 +26,7 @@ export default function AppTabs() {
 
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
+
     router.prefetch('/remote');
     router.prefetch('/settings');
   }, [router]);

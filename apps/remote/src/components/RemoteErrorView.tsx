@@ -1,5 +1,5 @@
+import { Link, useNavigate } from '@kasperrt/smolter/preact';
 import { Button, RemoteIcon } from '@vibes/ui/web';
-import { Link, useNavigate } from 'react-router';
 
 interface RemoteErrorViewProps {
   message: string;

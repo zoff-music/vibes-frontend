@@ -1,22 +1,27 @@
-import { MotionProvider, publicAssetUrl, SiteBackground } from '@vibes/ui/web';
-import { type ReactNode, useState } from 'react';
-import type { LinksFunction, LoaderFunctionArgs } from 'react-router';
+import { useRootData } from '@kasperrt/smolter/preact';
 import {
+  Document,
   Links,
   Meta,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
-  useRouteError,
-} from 'react-router';
+} from '@kasperrt/smolter/preact/document';
+import {
+  FontPreloads,
+  MotionProvider,
+  publicAssetUrl,
+  ThemeScript,
+} from '@vibes/ui/web';
+import { type ReactNode, useState } from 'preact/compat';
 import { App } from './App';
-import { AdminErrorView } from './components/AdminErrorView';
-import stylesUrl from './index.css?url';
-import { getThemeFromCookies } from './ssr/theme.server';
+import type { loader } from './root/loader';
 
-export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: stylesUrl },
-];
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export { links } from './root/links';
+export { adminMeta as meta } from './root/meta';
 
 export interface RootLoaderData {
   debug: boolean;
@@ -24,21 +29,8 @@ export interface RootLoaderData {
   cspNonce?: string;
 }
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const cookieHeader = request.headers.get('cookie') ?? null;
-  const theme = getThemeFromCookies(cookieHeader);
-  const cspNonce = (context as { cspNonce?: string } | undefined)?.cspNonce;
-  return {
-    debug: process.env.VITE_DEBUG === 'true',
-    theme,
-    cspNonce,
-  } satisfies RootLoaderData;
-}
-
-export function Layout({ children }: { children: ReactNode }) {
-  const loaderData = useLoaderData<typeof loader>() as
-    | RootLoaderData
-    | undefined;
+export function Layout({ children }: LayoutProps) {
+  const loaderData = useRootData<typeof loader>() as RootLoaderData | undefined;
   const themeId = loaderData?.theme ?? 'auto';
   // Nonce is only relevant for the initial document; keep it stable across client navigations.
   const [cspNonce] = useState(() => loaderData?.cspNonce);
@@ -47,13 +39,15 @@ export function Layout({ children }: { children: ReactNode }) {
   const initialDataJson = JSON.stringify(loaderData ?? {});
 
   return (
-    <html
+    <Document
       lang="en"
       className={themeClass}
       data-debug={loaderData?.debug === true}
     >
       <head>
         <meta charSet="UTF-8" />
+        <ThemeScript {...(cspNonce && { nonce: cspNonce })} />
+        <FontPreloads />
         <link
           rel="icon"
           type="image/png"
@@ -92,7 +86,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <ScrollRestoration nonce={cspNonce} />
         <Scripts nonce={cspNonce} />
       </body>
-    </html>
+    </Document>
   );
 }
 
@@ -100,12 +94,4 @@ export default function Root() {
   return <App />;
 }
 
-export function ErrorBoundary() {
-  useRouteError();
-  return (
-    <>
-      <SiteBackground variant="landing" showGrid />
-      <AdminErrorView message="The admin dashboard could not be loaded. Reload the page or return to sign in." />
-    </>
-  );
-}
+export { ErrorBoundary } from './root/ErrorBoundary';

@@ -76,12 +76,15 @@ export function NativeYouTubePlayer({
 
   useEffect(() => {
     desiredPlaying.current = isPlaying;
+
     if (!ready) return;
+
     setPlayerPlaying(isPlaying);
   }, [isPlaying, ready, setPlayerPlaying]);
 
   useEffect(() => {
     if (!ready || loadedSourceId.current === sourceId) return;
+
     loadedSourceId.current = sourceId;
     expectedPosition.current = {
       commandedAt: Date.now(),
@@ -97,22 +100,28 @@ export function NativeYouTubePlayer({
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
       appState.current = nextState;
+
       if (nextState !== 'active' || !desiredPlaying.current) return;
+
       setPlayerPlaying(true);
     });
+
     return () => subscription.remove();
   }, [setPlayerPlaying]);
 
   useEffect(() => {
     const positionChanged = Math.abs(positionMs - previousPosition.current);
     previousPosition.current = positionMs;
+
     if (!ready || !synchronizePosition || positionChanged < seekChangeThreshold)
       return;
+
     seekToPosition(positionMs);
   }, [positionMs, ready, seekToPosition, synchronizePosition]);
 
   useEffect(() => {
     if (!ready || lastResetVersion.current === resetVersion) return;
+
     lastResetVersion.current = resetVersion;
     expectedPosition.current = {
       commandedAt: Date.now(),
@@ -131,11 +140,14 @@ export function NativeYouTubePlayer({
   const handlePlayingChange = useCallback(
     (playing: boolean) => {
       const pendingCommand = pendingPlayingCommand.current;
+
       if (pendingCommand !== null) {
         if (playing !== pendingCommand) {
           setPlayerPlaying(pendingCommand);
+
           return;
         }
+
         pendingPlayingCommand.current = null;
       }
 
@@ -157,23 +169,28 @@ export function NativeYouTubePlayer({
       ) {
         return;
       }
+
       onLocalPositionObserved?.(observedPositionMs);
       const positionSeconds = observedPositionMs / millisecondsPerSecond;
       const previous = previousObservedPosition.current;
       previousObservedPosition.current = { observedAt, positionSeconds };
+
       if (!previous || !onLocalSeek) return;
+
       const elapsedSeconds = desiredPlaying.current
         ? (observedAt - previous.observedAt) / millisecondsPerSecond
         : 0;
       const expectedObservedPosition =
         previous.positionSeconds + elapsedSeconds;
       const seekDistance = Math.abs(positionSeconds - expectedObservedPosition);
+
       if (
         seekDistance < localSeekThresholdSeconds ||
         observedAt - lastReportedSeekAt.current < localSeekDebounceMs
       ) {
         return;
       }
+
       lastReportedSeekAt.current = observedAt;
       onLocalSeek(observedPositionMs);
     },
@@ -185,19 +202,27 @@ export function NativeYouTubePlayer({
       const [messageError, message] = safeWrap<unknown>(() =>
         JSON.parse(event.nativeEvent.data),
       );
+
       if (messageError || !isPlayerMessage(message)) return;
+
       if (message.type === 'ready') {
         handleReady();
+
         return;
       }
+
       if (message.type === 'playing') {
         handlePlayingChange(message.isPlaying);
+
         return;
       }
+
       if (message.type === 'position') {
         handleObservedPosition(message.positionMs, Date.now());
+
         return;
       }
+
       onError?.(`YouTube could not play this video: ${message.code}`);
     },
     [handleObservedPosition, handlePlayingChange, handleReady, onError],
@@ -206,14 +231,18 @@ export function NativeYouTubePlayer({
   const handleNavigationRequest = useCallback(
     (request: WebViewNavigation) => {
       const url = request.mainDocumentURL || request.url;
+
       if (isPlayerNavigation(url)) return true;
+
       const openExternal = async () => {
         const [openError] = await safeWrapAsync(Linking.openURL(url));
+
         if (openError) {
           onError?.('This YouTube link could not be opened on this device.');
         }
       };
       void openExternal();
+
       return false;
     },
     [onError],
@@ -299,16 +328,21 @@ function shouldSuppressExpectedPosition(
   observedAt: number,
 ) {
   const expected = expectedPosition.current;
+
   if (!expected) return false;
+
   const isAligned =
     Math.abs(observedPositionMs - expected.positionMs) <=
     expectedPositionToleranceMs;
   const didTimeOut =
     observedAt - expected.commandedAt >= expectedPositionTimeoutMs;
+
   if (isAligned || didTimeOut) {
     expectedPosition.current = null;
+
     return false;
   }
+
   return true;
 }
 
@@ -316,7 +350,9 @@ function isPlayerMessage(message: unknown): message is PlayerMessage {
   if (!message || typeof message !== 'object' || !('type' in message)) {
     return false;
   }
+
   if (message.type === 'ready') return true;
+
   if (
     message.type === 'playing' &&
     'isPlaying' in message &&
@@ -324,6 +360,7 @@ function isPlayerMessage(message: unknown): message is PlayerMessage {
   ) {
     return true;
   }
+
   if (
     message.type === 'position' &&
     'positionMs' in message &&
@@ -331,6 +368,7 @@ function isPlayerMessage(message: unknown): message is PlayerMessage {
   ) {
     return true;
   }
+
   return (
     message.type === 'error' &&
     'code' in message &&
@@ -354,6 +392,7 @@ const allowedPlayerUrls = [
 function getPlayerHtml(sourceId: string) {
   const serializedSourceId = JSON.stringify(sourceId);
   const serializedOrigin = JSON.stringify(platformUrl);
+
   return `<!doctype html>
 <html>
   <head>

@@ -4,6 +4,38 @@
 
 # Vibes Frontend
 
+## Development runtimes
+
+The DOM apps use Preact and `@kasperrt/smolter/preact`, with flat route modules
+under each app's `src/routes` (Tizen: `src/tizen/routes`). Smolter owns route
+matching, data requests, revalidation, and hydration; `@vibes/serve` supplies
+Express hosting, metrics, and Vite integration.
+
+Mobile uses Expo Router for native tabs, sheets, deep links, and screen navigation.
+Android TV uses Expo's root component and its existing single-screen room flow.
+Neither native bundle contains a second router or route registry. App hooks call
+the existing typed API handlers directly; Tizen keeps Smolter for DOM routing.
+
+| App | Command | Local URL |
+| --- | --- | --- |
+| Platform | `pnpm --filter @vibes/platform dev` | http://127.0.0.1:3001/ |
+| Admin | `pnpm --filter @vibes/admin dev` | http://127.0.0.1:3005/admin |
+| Embed | `pnpm --filter @vibes/embed dev` | http://127.0.0.1:3006/embed/ROOM |
+| Remote | `pnpm --filter @vibes/remote dev` | http://127.0.0.1:3007/remotes/join |
+| Cast | `pnpm --filter @vibes/cast dev` | http://127.0.0.1:3003/casting/receiver/ |
+| Tizen | `pnpm --filter @vibes/tv tizen:dev --port 3008` | http://127.0.0.1:3008/tizen.html |
+| Mobile | `pnpm --filter @vibes/mobile start --port 8081` | Native development client |
+| Android TV | `pnpm --filter @vibes/tv start --port 8082` | Native development client |
+
+Local web requests use each Vite server's `/api` proxy to `https://zoff.me`.
+SSR uses the same backend through `VITE_API_URL_INTERNAL`. Development links
+between web apps select the corresponding local port. Native applications keep
+their existing backend configuration. Cast receiver sessions and native playback
+require their respective devices or development clients.
+
+Run `pnpm lint`, `pnpm typecheck`, `pnpm build`, and
+`pnpm --filter @vibes/shared test:navigation` to check the workspace.
+
 Production images are published by the per-app `*-release.yaml` workflows on
 pushes to `main` in `zoff-music/vibes-frontend`, including PR merges and direct
 commits. Each workflow builds that exact pushed commit, retains its app-specific
@@ -24,11 +56,11 @@ together, vote on songs, chat, and listen on the web, phones, tablets, and TVs.
 
 | Application | Runtime and purpose |
 | --- | --- |
-| [Platform](apps/platform/README.md) | React Router SSR web app: rooms, public-room browsing, shared queues, chat, party view, and product guides |
-| [Admin](apps/admin/README.md) | Separate React Router SSR app for protected global administration and usage views |
-| [Embed](apps/embed/README.md) | React Router SSR room player for embedding on other sites |
-| [Remote](apps/remote/README.md) | React Router SSR paired controller for another Zoff player |
-| [Cast](apps/cast/README.md) | Standalone Vite/React Router receiver running in the Google Cast runtime, not an SSR app |
+| [Platform](apps/platform/README.md) | Preact + Smolter SSR web app: rooms, public-room browsing, shared queues, chat, party view, and product guides |
+| [Admin](apps/admin/README.md) | Separate Preact + Smolter SSR app for protected global administration and usage views |
+| [Embed](apps/embed/README.md) | Preact + Smolter SSR room player for embedding on other sites |
+| [Remote](apps/remote/README.md) | Preact + Smolter SSR paired controller for another Zoff player |
+| [Cast](apps/cast/README.md) | Standalone Vite/Preact + Smolter receiver running in the Google Cast runtime, not an SSR app |
 | [Mobile](apps/mobile/README.md) | Native-only Expo Router app for iOS and Android phones and tablets |
 | [TV](apps/tv/README.md) | One TV product with an Expo Android TV renderer and a DOM-based Samsung Tizen renderer |
 
@@ -59,12 +91,11 @@ subject to browser, device, and provider restrictions.
 | `@vibes/ui/web` | DOM controls and provider players |
 | `@vibes/ui/native` | Shared React Native controls and provider-player wrappers |
 | `@vibes/ui/shared` | Renderer-neutral presentation, icons, and formatting |
-| `@vibes/native-router` | Shared native routing support |
 | `@vibes/serve` | Node/Express serving, compression, metrics, and tracing |
-| Tailwind and iconography packages | Shared styling configuration and generated icon exports |
+| `@vibes/tailwind` | Shared Tailwind configuration, theme tokens, and fonts |
 
 Apps do not import one another's UI. DOM REST reads and mutations belong in
-React Router loaders/client loaders and actions/client actions, including Cast
+Smolter loaders/client loaders and actions/client actions, including Cast
 and Tizen. Native workflows compose the shared API from app-owned hooks.
 Components can trigger fetchers and subscribe to SSE without owning raw HTTP calls.
 

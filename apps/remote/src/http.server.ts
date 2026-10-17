@@ -6,6 +6,7 @@ export function getServerApi() {
     process.env.VITE_API_URL_INTERNAL ??
     process.env.VITE_API_URL ??
     'http://localhost:8080';
+
   return createApiClientWithBaseUrl(baseUrl, {
     fetchLifecycle: createTracedApiFetchLifecycle('vibes-frontend-remote'),
   });

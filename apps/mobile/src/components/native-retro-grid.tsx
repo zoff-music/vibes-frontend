@@ -20,8 +20,10 @@ export function NativeRetroGrid({ paused = false }: NativeRetroGridProps) {
   useEffect(() => {
     if (paused) {
       gridOffset.stopAnimation();
+
       return;
     }
+
     const animation = Animated.loop(
       Animated.timing(gridOffset, {
         duration: gridAnimationDurationMs,
@@ -30,6 +32,7 @@ export function NativeRetroGrid({ paused = false }: NativeRetroGridProps) {
       }),
     );
     animation.start();
+
     return () => animation.stop();
   }, [gridOffset, paused]);
 

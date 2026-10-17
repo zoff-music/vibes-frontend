@@ -4,7 +4,7 @@ import {
   formatPlaybackSeconds,
   getPlaybackPresentation,
 } from '@vibes/ui/shared';
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'preact/compat';
 
 interface TizenPlaybackStatusProps {
   durationSeconds: number;
@@ -18,11 +18,14 @@ export function TizenPlaybackStatus({
   const [positionMs, setPositionMs] = useState(() => getLivePosition(playback));
   useEffect(() => {
     setPositionMs(getLivePosition(playback));
+
     if (!playback.isPlaying) return;
+
     const interval = window.setInterval(
       () => setPositionMs(getLivePosition(playback)),
       playbackPositionIntervalMs,
     );
+
     return () => window.clearInterval(interval);
   }, [playback]);
   const progress = getPlaybackPresentation(
@@ -52,10 +55,13 @@ const playbackPositionIntervalMs = 1000;
 
 function getLivePosition(playback: PlaybackStateV2): number {
   if (!playback.isPlaying) return playback.positionMs;
+
   const referenceTime = getClientReferenceTimeMs(playback.serverTimeMs);
   const positionMs =
     playback.positionMs + Math.max(0, Date.now() - referenceTime);
+
   if (!playback.currentPlaylistItem?.duration) return positionMs;
+
   return Math.min(
     positionMs,
     playback.currentPlaylistItem.duration * millisecondsPerSecond,

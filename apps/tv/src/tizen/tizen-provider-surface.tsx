@@ -47,6 +47,7 @@ export function TizenProviderSurface({
 
   if (playlistItem.sourceType === 'soundcloud' && playlistItem.providerUrl) {
     const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(playlistItem.providerUrl)}&auto_play=${String(playback.isPlaying)}&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true`;
+
     return (
       <iframe
         allow="autoplay"

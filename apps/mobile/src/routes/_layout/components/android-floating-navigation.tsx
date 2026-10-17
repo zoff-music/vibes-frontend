@@ -23,7 +23,9 @@ export function AndroidFloatingNavigation() {
   const { isTablet } = useTabletLandscapeLayout();
   const keyboardVisible = useKeyboardVisible();
   const { addLabel, canAddPlaylistItems, hasRoom } = useRoomNavigation();
+
   if (Platform.OS !== 'android' || isTablet || keyboardVisible) return null;
+
   const items: NavigationItem[] = [
     {
       href: '/',
@@ -41,6 +43,7 @@ export function AndroidFloatingNavigation() {
       label: 'Settings',
     },
   ];
+
   return (
     <View
       className="absolute inset-x-4 z-50 flex-row items-center gap-3"
@@ -52,6 +55,7 @@ export function AndroidFloatingNavigation() {
       <View className="min-w-0 flex-1 flex-row rounded-full border border-mobile-border/70 bg-mobile-card/95 p-1 shadow-black/20 shadow-lg dark:border-mobile-dark-border/70 dark:bg-mobile-dark-card/95">
         {items.map((item) => {
           const selected = pathname === item.href;
+
           return (
             <Pressable
               accessibilityRole="tab"

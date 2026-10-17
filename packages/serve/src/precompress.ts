@@ -36,6 +36,7 @@ export function precompressAssets(): Plugin {
 
           const source = asset.type === 'chunk' ? asset.code : asset.source;
           const bytes = Buffer.from(source);
+
           if (bytes.length < 1024) continue;
 
           const brotli = await compressBrotli(bytes, {

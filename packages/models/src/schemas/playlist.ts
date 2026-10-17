@@ -3,6 +3,7 @@ import * as z from 'zod/mini';
 export const sourceTypeSchema = /* @__PURE__ */ z.compile(
   z.enum(['youtube', 'soundcloud']),
 );
+
 export type SourceType = z.infer<typeof sourceTypeSchema>;
 
 export function isSourceType(value: string): value is SourceType {
@@ -12,6 +13,7 @@ export function isSourceType(value: string): value is SourceType {
 export const playbackRestrictionSchema = /* @__PURE__ */ z.compile(
   z.optional(z.enum(['age', 'region', 'embedding'])),
 );
+
 export type PlaybackRestriction = z.infer<typeof playbackRestrictionSchema>;
 
 export const playlistItemSchema = /* @__PURE__ */ z.compile(
@@ -30,6 +32,7 @@ export const playlistItemSchema = /* @__PURE__ */ z.compile(
     playbackRestriction: playbackRestrictionSchema,
   }),
 );
+
 export type PlaylistItem = z.infer<typeof playlistItemSchema>;
 
 export const itemsQueryV3Schema = /* @__PURE__ */ z.compile(
@@ -54,6 +57,7 @@ export const itemsResultV3Schema = /* @__PURE__ */ z.compile(
 );
 
 export type ItemsQueryV3 = z.infer<typeof itemsQueryV3Schema>;
+
 export type ItemsResultV3 = z.infer<typeof itemsResultV3Schema>;
 
 export const addPlaylistItemRequestSchema = /* @__PURE__ */ z.compile(
@@ -67,6 +71,7 @@ export const addPlaylistItemRequestSchema = /* @__PURE__ */ z.compile(
     duration: z.number(),
   }),
 );
+
 export type AddPlaylistItemRequest = z.infer<
   typeof addPlaylistItemRequestSchema
 >;
@@ -74,6 +79,7 @@ export type AddPlaylistItemRequest = z.infer<
 export const addPlaylistItemOutcomeSchema = /* @__PURE__ */ z.compile(
   z.enum(['added', 'duplicate_voted', 'duplicate_already_voted']),
 );
+
 export type AddPlaylistItemOutcome = z.infer<
   typeof addPlaylistItemOutcomeSchema
 >;
@@ -84,6 +90,7 @@ export const addPlaylistItemResponseSchema = /* @__PURE__ */ z.compile(
     outcome: addPlaylistItemOutcomeSchema,
   }),
 );
+
 export type AddPlaylistItemResponse = z.infer<
   typeof addPlaylistItemResponseSchema
 >;
@@ -93,11 +100,13 @@ export const addPlaylistRequestV2Schema = /* @__PURE__ */ z.compile(
     playlistItems: z.array(addPlaylistItemRequestSchema).check(z.minLength(1)),
   }),
 );
+
 export type AddPlaylistRequestV2 = z.infer<typeof addPlaylistRequestV2Schema>;
 
 export const playlistItemsListSchema = /* @__PURE__ */ z.compile(
   z.array(playlistItemSchema),
 );
+
 export type PlaylistItemsList = z.infer<typeof playlistItemsListSchema>;
 
 export const playlistItemIdUpdateSchema = /* @__PURE__ */ z.compile(
@@ -105,6 +114,7 @@ export const playlistItemIdUpdateSchema = /* @__PURE__ */ z.compile(
     id: z.string(),
   }),
 );
+
 export type PlaylistItemIdUpdate = z.infer<typeof playlistItemIdUpdateSchema>;
 
 export const playlistItemPositionUpdateSchema = /* @__PURE__ */ z.compile(
@@ -113,6 +123,7 @@ export const playlistItemPositionUpdateSchema = /* @__PURE__ */ z.compile(
     position: z.int().check(z.minimum(0)),
   }),
 );
+
 export type PlaylistItemPositionUpdate = z.infer<
   typeof playlistItemPositionUpdateSchema
 >;

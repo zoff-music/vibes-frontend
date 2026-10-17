@@ -1,6 +1,11 @@
+import { NavLink, useNavigate } from '@kasperrt/smolter/preact';
 import { classNames } from '@vibes/shared';
-import { Children, cloneElement, isValidElement, type ReactNode } from 'react';
-import { NavLink, useNavigate } from 'react-router';
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  type ReactNode,
+} from 'preact/compat';
 import { SiteHero } from '../layout/SiteHero';
 import { SitePage } from '../layout/SitePage';
 
@@ -37,13 +42,11 @@ export function LegalDocument({
   const navigate = useNavigate();
 
   const sections = Children.toArray(children).flatMap((child) => {
-    if (
-      !isValidElement<LegalSectionProps>(child) ||
-      child.type !== LegalSection
-    ) {
+    if (!isValidElement(child) || child.type !== LegalSection) {
       return [];
     }
-    return [child];
+
+    return [child as import('preact').VNode<LegalSectionProps>];
   });
   const content = sections.map((section, index) =>
     cloneElement(section, {
@@ -113,6 +116,7 @@ export function LegalDocument({
                       const id =
                         section.props.id ?? sectionId(section.props.title);
                       const target = document.getElementById(id);
+
                       if (!target) return;
 
                       event.preventDefault();

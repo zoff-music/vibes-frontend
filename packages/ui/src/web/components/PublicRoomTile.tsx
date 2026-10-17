@@ -1,6 +1,6 @@
+import { Link } from '@kasperrt/smolter/preact';
 import type { PublicRoomV3 } from '@vibes/models';
-import type { MouseEvent } from 'react';
-import { Link } from 'react-router';
+import type { MouseEvent } from 'preact/compat';
 import { getRoomLabels } from '../../shared/room';
 
 interface PublicRoomTileProps {

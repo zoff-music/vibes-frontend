@@ -9,6 +9,7 @@ export function useAppResume(onResume: () => void) {
         nextState === 'active' &&
         (previousState === 'background' || previousState === 'inactive');
       previousState = nextState;
+
       if (resumed) {
         void onResume();
       }

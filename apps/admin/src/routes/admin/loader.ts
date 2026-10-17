@@ -1,36 +1,115 @@
+import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import { getHttpError } from '@vibes/api';
-import type { AdminSessionResponse } from '@vibes/models';
-import type { LoaderFunctionArgs } from 'react-router';
+import type {
+  AdminListenerUsage,
+  AdminMessageUsage,
+  AdminSearchUsage,
+  StatsV2,
+} from '@vibes/models';
 import { getServerApi } from '../../http.server';
 
-export interface AdminLoaderData {
-  session: AdminSessionResponse;
+export interface AdminOverviewLoaderData {
+  listenerUsage: AdminListenerUsage;
+  messageUsage: AdminMessageUsage;
+  searchUsage: AdminSearchUsage;
+  musicStats: StatsV2;
+  watchStats: StatsV2;
 }
 
 export async function loader({
   request,
-}: LoaderFunctionArgs): Promise<AdminLoaderData> {
+}: LoaderFunctionArgs): Promise<AdminOverviewLoaderData> {
   const serverApi = getServerApi(request);
   const cookieHeader = request.headers.get('cookie');
   const headers = cookieHeader ? { Cookie: cookieHeader } : undefined;
-  const [error, session] = await serverApi.get('/admin/sessions', null, {
-    headers,
-  });
+  const [
+    searchResult,
+    listenerResult,
+    musicResult,
+    watchResult,
+    messageResult,
+  ] = await Promise.all([
+    serverApi.get('/admin/searches/usage', null, {
+      signal: request.signal,
+      headers,
+    }),
+    serverApi.get('/admin/listeners/usage', null, {
+      signal: request.signal,
+      headers,
+    }),
+    serverApi.v2.get(
+      '/stats',
+      { $search: { roomType: 'MUSIC' } },
+      { signal: request.signal },
+    ),
+    serverApi.v2.get(
+      '/stats',
+      { $search: { roomType: 'WATCH' } },
+      { signal: request.signal },
+    ),
+    serverApi.get(
+      '/admin/messages/usage',
+      { $search: {} },
+      { signal: request.signal, headers },
+    ),
+  ]);
+  const [messageError, messageUsage] = messageResult;
+  const [searchError, searchUsage] = searchResult;
+  const [listenerError, listenerUsage] = listenerResult;
+  const [musicError, musicStats] = musicResult;
+  const [watchError, watchStats] = watchResult;
 
-  if (error || !session) {
-    const status = error ? getHttpError(error)?.response.status : null;
-    if (status !== 401 && status !== 403) {
-      throw new Response('Admin session temporarily unavailable', {
-        status: 503,
-        statusText: 'Admin session temporarily unavailable',
-      });
+  if (
+    messageError ||
+    !messageUsage ||
+    searchError ||
+    listenerError ||
+    musicError ||
+    watchError ||
+    !searchUsage ||
+    !listenerUsage ||
+    !musicStats ||
+    !watchStats
+  ) {
+    if (
+      isAuthorizationError(messageError) ||
+      isAuthorizationError(searchError) ||
+      isAuthorizationError(listenerError)
+    ) {
+      return {
+        messageUsage: { roomId: '', total: 0, points: [], generatedAt: '' },
+        listenerUsage: { points: [], generatedAt: '' },
+        searchUsage: { points: [], generatedAt: '' },
+        musicStats: musicStats ?? {
+          totalListeners: 0,
+          totalRooms: 0,
+          totalPlaylistItems: 0,
+        },
+        watchStats: watchStats ?? {
+          totalListeners: 0,
+          totalRooms: 0,
+          totalPlaylistItems: 0,
+        },
+      };
     }
-    return {
-      session: {
-        authorized: false,
-      },
-    };
+
+    throw new Response('Admin overview temporarily unavailable', {
+      status: 503,
+      statusText: 'Admin overview temporarily unavailable',
+    });
   }
 
-  return { session };
+  return {
+    messageUsage,
+    listenerUsage,
+    searchUsage,
+    musicStats,
+    watchStats,
+  };
+}
+
+function isAuthorizationError(error: Error | null) {
+  const status = error ? getHttpError(error)?.response.status : null;
+
+  return status === 401 || status === 403;
 }

@@ -1,7 +1,17 @@
+import type {
+  NavigateFunction,
+  NavigationType,
+} from '@kasperrt/smolter/preact';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
-import { lazy, memo, Suspense, useEffect, useRef, useState } from 'react';
-import type { NavigateFunction, NavigationType } from 'react-router';
+import {
+  lazy,
+  memo,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import { canUseViewTransition } from '../../../utils/viewTransition';
@@ -15,6 +25,7 @@ import { ReturnToRoomPreview } from './ReturnToRoomPreview';
 
 const LazyJoiningRoomState = lazy(async () => {
   const module = await import('./JoiningRoomState');
+
   return {
     default: module.JoiningRoomState,
   };
@@ -69,6 +80,7 @@ export const HomeScreen = memo(function HomeScreen({
     if (!isAIMode) {
       setRoomCode('');
     }
+
     setIsAIMode(true);
     setGenerationEntry((current) => current + 1);
   };
@@ -82,7 +94,9 @@ export const HomeScreen = memo(function HomeScreen({
     Boolean(previousRoomId && !RESERVED_TOP_LEVEL_PATHS.has(previousRoomId));
   const handleJoinRoom = (selectedRoomId?: string) => {
     const requestedRoomId = selectedRoomId ?? roomCode;
+
     if (!requestedRoomId.trim()) return;
+
     const slug = requestedRoomId.trim().toLowerCase().replace(/\s+/g, '-');
     setPendingRoomSlug(slug);
     navigate(`/${slug}${watch ? '?type=watch' : ''}`, {

@@ -19,6 +19,7 @@ export function useRoomMessages(
   }, [callbacks]);
   useEffect(() => {
     if (!roomId) return;
+
     let active = true;
     let cursor = '';
     let stop: (() => void) | null = null;
@@ -42,25 +43,37 @@ export function useRoomMessages(
           ],
         ) => {
           if (!active) return;
+
           const [eventError, event] = result;
+
           if (eventError) {
             callbacksRef.current.onError(eventError);
+
             return;
           }
+
           if (!event) return;
+
           callbacksRef.current.onError(null);
+
           if (event.type === 'event_cursor') {
             cursor = event.data.id;
+
             return;
           }
+
           callbacksRef.current.onMessage(event.data);
         },
       );
+
       if (!active) {
         unsubscribe?.();
+
         return;
       }
+
       stop = unsubscribe;
+
       if (error) {
         callbacksRef.current.onError(error);
         retry = setTimeout(() => {
@@ -69,6 +82,7 @@ export function useRoomMessages(
       }
     };
     void connect();
+
     return () => {
       active = false;
       stop?.();

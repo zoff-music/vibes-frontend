@@ -35,8 +35,10 @@ export function RoomPlayerLayoutProvider({ children }: PropsWithChildren) {
     setLayout((previous) => {
       if (!next) {
         if (!previous.active) return previous;
+
         return { ...previous, active: false };
       }
+
       if (
         previous.active &&
         previous.frame?.x === next.x &&
@@ -45,6 +47,7 @@ export function RoomPlayerLayoutProvider({ children }: PropsWithChildren) {
         previous.frame?.height === next.height
       )
         return previous;
+
       return { active: true, frame: next };
     });
   }, []);
@@ -58,6 +61,8 @@ export function RoomPlayerLayoutProvider({ children }: PropsWithChildren) {
 
 export function useRoomPlayerLayout() {
   const context = useContext(Context);
+
   if (!context) throw new Error('RoomPlayerLayoutProvider is required');
+
   return context;
 }

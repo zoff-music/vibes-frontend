@@ -12,10 +12,12 @@ export function useKeyboardVisible() {
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => setVisible(false),
     );
+
     return () => {
       show.remove();
       hide.remove();
     };
   }, []);
+
   return visible;
 }

@@ -1,8 +1,8 @@
 import path from 'node:path';
-import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { assetBase } from '@vibes/serve/assets';
 import { precompressAssets } from '@vibes/serve/precompress';
+import { applicationPlugins } from '@vibes/serve/vite';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ command, mode }) => {
@@ -13,7 +13,19 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: isBuild ? assetBase(env.ASSET_ORIGIN, '/admin/') : '/',
-    plugins: [tailwindcss(), reactRouter(), precompressAssets()],
+    plugins: [tailwindcss(), ...applicationPlugins(), precompressAssets()],
+    appType: 'custom',
+    build: {
+      manifest: true,
+      rollupOptions: {
+        output: {
+          entryFileNames: (chunk) =>
+            chunk.name === 'entry.server'
+              ? 'index.js'
+              : 'assets/[name]-[hash].js',
+        },
+      },
+    },
     root: '.',
     publicDir: 'public',
     server: {

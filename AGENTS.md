@@ -20,43 +20,20 @@ Non-negotiable conventions. Follow strictly.
 - **Use `@vibes/api`** for ALL API calls / SSE.
 - **Only SSE hooks in `@vibes/api`** - reusable SSE subscription hooks are allowed. REST/request hooks, providers, stores, and application state orchestration are forbidden; REST capabilities remain plain React-free functions.
 - **NEVER use `fetch()` or `new EventSource()`** in app code. Only `@vibes/api` clients; native API construction may inject `expo/fetch`.
-- **React Router REST boundary** - In every DOM app, including Cast and Samsung Tizen, REST calls belong only in `loader`, `clientLoader`, `action`, or `clientAction` modules. Components may submit through fetchers and subscribe to SSE through `@vibes/api`, but must never execute REST requests inline.
+- **Smolter REST boundary** - In every DOM app, including Cast and Samsung Tizen, REST calls belong only in `loader`, `clientLoader`, `action`, or `clientAction` modules. Components may submit through fetchers and subscribe to SSE through `@vibes/api`, but must never execute REST requests inline.
+- **Native navigation** - Mobile uses Expo Router; Android TV keeps Expo’s registered root and single-screen session flow. Do not implement or add a native router or route registry. Native app hooks call typed API handlers directly. Samsung Tizen remains a Smolter DOM app.
 - **Unified Build System** - Apps build through the pnpm workspace
 - **Content Hashing** - All assets use content-based hashing for cache busting
 
 ## File Layout
 
-```
-apps/platform/src/
-├── components/
-│   ├── ui/                # Deprecated; shared UI now lives in @vibes/ui
-│   ├── player/            # Deprecated; shared player UI now lives in @vibes/ui
-│   ├── queue/             # QueueItem, QueueList, AddToQueueModal
-│   ├── cast/              # CastButton, DeviceSelector
-│   └── room/              # UserCount, room components
-├── hooks/                 # Custom React hooks (useRoom, useQueue, usePlayback, useSSE)
-├── stores/                # Zustand stores (roomStore, queueStore, castStore, themeStore)
-├── pages/                 # Route components (Home, CreateRoom, RoomView, Callback)
-├── services/              # castManager, etc.
-├── vite.config.ts         # Vite build
-└── client.tsx             # Client hydration
-
-apps/cast/src/
-├── App.tsx                # Cast receiver entrypoint
-├── components/            # Cast-specific components
-├── vite.config.ts         # Vite build
-└── client.tsx             # Client hydration
-
-packages/
-├── api/                   # API client
-├── models/                # Shared types and compiled Zod 4 schemas
-├── shared/                # Utilities, hooks, stores
-│   ├── src/utils/wrap.ts  # safeWrap utilities
-│   ├── src/stores/        # Shared Zustand stores (playbackStore)
-│   ├── src/hooks/         # Shared hooks (useProviderToken)
-│   └── src/constants.ts   # Shared constants
-└── ui/                    # Shared UI with web, native, and shared subpath boundaries
-```
+- DOM apps keep flat routes in `src/routes`. Each route has `route.tsx`, separate `loader.ts`, `clientLoader.ts`, `action.ts`, `clientAction.ts`, boundaries and revalidation modules as needed.
+- Route-only helpers belong in that route's `utils` directory. Cross-route helpers belong in `src/utils`; constants belong in `src/constants`.
+- Root modules live in `src/root`. Client hydration and server rendering use `entry.client.tsx` and `entry.server.tsx`.
+- Mobile's `src/app` files are Expo Router adapters to `src/routes`; native workflows live in hooks and typed handlers.
+- Android TV has a registered root; Tizen keeps its DOM routes in `src/tizen/routes`.
+- Shared packages are `api`, `models`, `shared`, `ui`, `serve` and `tailwind`. Import other packages through their declared exports, never relative source paths.
+- Do not add forwarding packages or aliases that duplicate existing exports. Keep framework-required entrypoints.
 
 ## Packages
 
@@ -121,164 +98,16 @@ const [error, playbackState] = await api.v2.put('/rooms/{id}/states', { id: room
 });
 ```
 
-## Server-Side Rendering (SSR)
+## Rendering, Data and Navigation
 
-The platform app uses React Router with Node.js serving:
-
-```typescript
-// Production server
-import { renderToString } from 'react-dom/server';
-import { StaticRouter } from 'react-router';
-
-// Asset resolution via manifest
-react-router-serve ./build/server/index.js
-const mainJS = manifest['main.js'] ? `/assets/platform/${manifest['main.js']}` : '/assets/platform/client.js';
-
-// Data injection for hydration
-const initialData = {
-  createRoomName: searchParams.get('name') || '',
-  theme: 'dark'
-};
-
-// client.tsx - Client hydration
-import { hydrateRoot } from 'react-dom/client';
-
-// Extract SSR data
-const initialData = (window as any).__INITIAL_DATA__ || {};
-```
-
-### Build System
-
-Both apps use the pnpm workspace:
-
-```bash
-# Development (with watch mode and SSR)
-pnpm dev
-
-# Production build (with content hashing)
-pnpm build
-```
-
-Build features:
-- Content-based hashing for cache busting (`client-abc123.js`)
-- Manifest generation for asset resolution
-- CSS compilation with Tailwind v4
-- SSR server bundling
-
-### Hydration Pattern
-
-Prevent hydration mismatches:
-
-```typescript
-const [isHydrated, setIsHydrated] = useState(false);
-
-// Initialize with SSR data
-const [name, setName] = useState(() => {
-  if (initialData?.createRoomName) {
-    return initialData.createRoomName;
-  }
-  return '';
-});
-
-useEffect(() => {
-  setIsHydrated(true);
-  // Fix hydration mismatch: ensure client state matches server state
-  if (initialData?.createRoomName) {
-    setName(initialData.createRoomName);
-  }
-}, []);
-
-// Render different content during hydration if needed
-if (!isHydrated) {
-  return <div>Loading...</div>;
-}
-```
-
-## State Management (Zustand)
-
-### Room Store (`useRoomStore`)
-```typescript
-const { room, users, userId, isAdmin, setRoom, setSession } = useRoomStore();
-```
-
-### Queue Store (`useQueueStore`)
-```typescript
-const { songs, setSongs, addSong, removeSong, reorderSongs } = useQueueStore();
-```
-
-### Playback Store (`usePlaybackStore`)
-```typescript
-const { currentSong, isPlaying, positionMs, actualPositionMs, setPlaybackState } = usePlaybackStore();
-```
-
-### Theme Store (`useThemeStore`)
-```typescript
-const { isDarkMode, toggleDarkMode } = useThemeStore();
-```
-
-### Cast Store (`useCastStore`)
-```typescript
-const { isConnected, availableDevices, connectToDevice, castCurrentSong } = useCastStore();
-```
-
-## Custom Hooks
-
-### useRoom(roomId)
-```typescript
-const { room, users, fetchRoom, joinRoom, updateRoomSettings } = useRoom(roomId);
-```
-
-### useQueue(roomId)
-```typescript
-const { songs, fetchQueue, addToQueue, removeFromQueue, moveInQueue } = useQueue(roomId);
-```
-
-### usePlayback(roomId)
-```typescript
-const { currentSong, isPlaying, play, pause, seek, skip, vote } = usePlayback(roomId);
-```
-
-### useSSE(roomId)
-```typescript
-// Automatically manages SSE connection lifecycle
-// Reference counting for multiple subscribers
-// Grace period before cleanup (2 seconds)
-useSSE(roomId);
-```
-
-## Real-time Updates (SSE)
-
-SSE events are handled automatically by `useSSE` hook:
-
-```typescript
-// Event types received:
-// - playback_update: Playback state changed
-// - playlist_item_added: Item added to queue
-// - playlist_item_removed: Item removed from queue
-// - playlist_item_updated: Item updated or reordered
-// - playlist_items_snapshot: Initial queue snapshot
-// - users_update: User count updated
-// - settings_update: Room settings changed
-```
-
-## Music Providers
-
-The app supports multiple music providers:
-
-```typescript
-// Source types
-type SourceType = 'youtube' | 'soundcloud';
-
-// Provider authentication
-const { getToken, isAuthenticated } = useProviderToken('soundcloud');
-
-// Search across providers
-const [error, results] = await api.v2.get('/rooms/{id}/search/{provider}', {
-  id: roomId,
-  provider: 'youtube', // Use 'soundcloud' only in MUSIC rooms.
-  $search: { q: 'never gonna give you up' },
-});
-```
+- DOM apps use Preact and `@kasperrt/smolter/preact`. Build plugins and server APIs use the corresponding `/vite` and `/server` subpaths.
+- Use Vite for client and server builds. Express integration, compression, metrics and tracing live in `@vibes/serve`.
+- Hydrate the server-rendered content with the same route data, theme and asset URLs. Do not replace existing SSR content with a mount-time loading screen.
+- Load styles and font preloads in the document head. Keep browser-only behavior behind client guards.
+- Preserve shared elements during navigation. Hash changes must not start page view transitions.
+- Use `shouldRevalidate` and targeted revalidation instead of refreshing every route after every action.
+- Shared Zustand stores own room, queue and playback state. Subscribe to backend events through the SSE hooks in `@vibes/api`; do not implement parallel transports.
+- SoundCloud is available only for Music rooms. Keep official YouTube and SoundCloud players and Cast SDK behavior.
 
 ## Styling
 
@@ -361,22 +190,7 @@ if (room?.mode === 'host') {
 
 ## Casting Integration
 
-```typescript
-// Initialize casting
-const { initialize, connectToDevice, castCurrentSong } = useCastStore();
-
-useEffect(() => {
-  initialize();
-}, []);
-
-// Cast current song
-const handleCast = async (deviceId: string) => {
-  await connectToDevice(deviceId);
-  if (currentSong) {
-    await castCurrentSong(currentSong);
-  }
-};
-```
+Use the platform Cast store and its SDK service for discovery, connection and playback. Preserve the local receiver emulator used for development. Native apps use the official native Cast SDK. Do not replace either integration with custom media transport.
 
 ## Development Workflow
 

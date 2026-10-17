@@ -1,14 +1,15 @@
-import type { LoaderFunctionArgs } from 'react-router';
-import { getPublicContactEmails } from '../../config.server';
+import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
+import { getPublicContactEmails } from '../../utils/public-config.server';
 
 export interface SecurityLoaderData {
   securityEmail: string;
 }
 
-export async function securityLoader(
+export async function loader(
   _args: LoaderFunctionArgs,
 ): Promise<SecurityLoaderData> {
   const emails = getPublicContactEmails();
+
   if (!emails.security) {
     throw new Error('SECURITY_EMAIL is required');
   }
@@ -16,4 +17,6 @@ export async function securityLoader(
   return { securityEmail: emails.security };
 }
 
-export type SecurityData = Awaited<ReturnType<typeof securityLoader>>;
+export type SecurityData = Awaited<ReturnType<typeof loader>>;
+
+export { loader as securityLoader };

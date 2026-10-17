@@ -48,6 +48,7 @@ export function useLandingPlaceholder(
   useFocusEffect(
     useCallback(() => {
       setFocused(true);
+
       return () => setFocused(false);
     }, []),
   );
@@ -61,7 +62,9 @@ export function useLandingPlaceholder(
       const [error, value] = await safeWrapAsync(
         AccessibilityInfo.isScreenReaderEnabled(),
       );
+
       if (error || value === null || !mounted) return;
+
       setScreenReader(value);
     };
     void readAccessibility();
@@ -69,6 +72,7 @@ export function useLandingPlaceholder(
       'screenReaderChanged',
       setScreenReader,
     );
+
     return () => {
       mounted = false;
       subscription.remove();
@@ -78,6 +82,7 @@ export function useLandingPlaceholder(
 
   useEffect(() => {
     setPlaceholder(examples[0]);
+
     if (!enabled || !focused || !active || reducedMotion || screenReader)
       return;
 
@@ -89,14 +94,18 @@ export function useLandingPlaceholder(
         word = (word + 1) % examples.length;
         letter = 0;
       }
+
       letter += 1;
       setPlaceholder(examples[word].slice(0, letter));
+
       if (examples[word][letter - 1] !== ' ') {
         void triggerSelectionFeedback();
       }
+
       timer = setTimeout(tick, letter === examples[word].length ? 3000 : 110);
     };
     timer = setTimeout(tick, 3000);
+
     return () => clearTimeout(timer);
   }, [examples, enabled, focused, active, reducedMotion, screenReader]);
 

@@ -1,13 +1,14 @@
-import type {
-  CastDevice,
-  CastError,
-  CastSession,
-  CastSessionState,
-  CastManager as ICastManager,
-  MediaInfo,
-  PlaybackStateV2,
-  PlaylistItem,
-  Song,
+import {
+  type CastDevice,
+  type CastError,
+  type CastRoomInfo,
+  type CastSession,
+  type CastSessionState,
+  type CastManager as ICastManager,
+  type MediaInfo,
+  type PlaybackStateV2,
+  type PlaylistItem,
+  type Song,
 } from '@vibes/models';
 import {
   browserDebugLog,
@@ -17,7 +18,7 @@ import {
   safeWrapAsync,
   useRoomStore,
 } from '@vibes/shared';
-import { useThemeStore } from '../../stores/themeStore';
+import { useThemeStore } from '@vibes/shared/themeStore';
 
 import {
   CAST_APPLICATION_ID,
@@ -70,10 +71,12 @@ class GoogleCastManager implements ICastManager {
 
   private async initializeCastSDK(): Promise<void> {
     if (typeof window === 'undefined') return;
+
     browserDebugLog('[Cast] initializeCastSDK:start', {
       sdkAvailable: !!window.chrome?.cast?.isAvailable,
       sdkLoaded: !!window.chrome?.cast,
     });
+
     if (this.initializationPromise) return this.initializationPromise;
 
     this.initializationPromise = (async () => {
@@ -83,6 +86,7 @@ class GoogleCastManager implements ICastManager {
         new Promise<void>((resolve, reject) => {
           if (window.chrome?.cast?.isAvailable) {
             resolve();
+
             return;
           }
 
@@ -90,6 +94,7 @@ class GoogleCastManager implements ICastManager {
             window.__onGCastApiAvailable = (isAvailable) => {
               if (isAvailable) {
                 resolve();
+
                 return;
               }
 
@@ -99,15 +104,20 @@ class GoogleCastManager implements ICastManager {
             const existingScript = document.querySelector<HTMLScriptElement>(
               `script[src="${castSenderScriptUrl}"]`,
             );
+
             if (existingScript) {
               void (async () => {
                 const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
+
                 if (waitErr) {
                   reject(waitErr);
+
                   return;
                 }
+
                 resolve();
               })();
+
               return;
             }
 
@@ -117,10 +127,13 @@ class GoogleCastManager implements ICastManager {
               browserDebugLog('[Cast] sender SDK script loaded');
               void (async () => {
                 const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
+
                 if (waitErr) {
                   reject(waitErr);
+
                   return;
                 }
+
                 resolve();
               })();
             };
@@ -138,10 +151,13 @@ class GoogleCastManager implements ICastManager {
           } else {
             void (async () => {
               const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
+
               if (waitErr) {
                 reject(waitErr);
+
                 return;
               }
+
               resolve();
             })();
           }
@@ -154,6 +170,7 @@ class GoogleCastManager implements ICastManager {
       }
 
       const [setupErr] = await safeWrapAsync(this.setupCastAPI());
+
       if (setupErr) {
         this.initializationPromise = null;
         throw setupErr;
@@ -240,6 +257,7 @@ class GoogleCastManager implements ICastManager {
             if (this.reconnectAttempts < this.maxReconnectAttempts) {
               this.scheduleReconnect();
             }
+
             reject(error);
           },
         );
@@ -270,6 +288,7 @@ class GoogleCastManager implements ICastManager {
       const [err] = safeWrap(() => {
         this.initializeCastSDK();
       });
+
       if (err) console.error('Reconnect attempt failed:', err);
     }, delay);
   }
@@ -341,11 +360,13 @@ class GoogleCastManager implements ICastManager {
         sessionId: media?.sessionId,
         mediaStatus: media?.playerState,
       });
+
       if (this.currentSession) {
         this.currentSession.mediaSessionId = media.sessionId;
         this.currentSession.lastSyncAt = new Date();
         this.notifySessionStateChange(this.currentSession);
       }
+
       media.addUpdateListener(this.onMediaUpdateListener.bind(this));
     });
 
@@ -354,6 +375,7 @@ class GoogleCastManager implements ICastManager {
 
   private onMediaUpdateListener(isAlive: boolean): void {
     browserDebugLog('[Cast] media update listener', { isAlive });
+
     if (!isAlive && this.currentSession) {
       browserDebugLog('Media session ended');
       this.currentSession.mediaSessionId = undefined;
@@ -364,6 +386,7 @@ class GoogleCastManager implements ICastManager {
 
   private onSessionUpdateListener(isAlive: boolean): void {
     browserDebugLog('[Cast] session update listener', { isAlive });
+
     if (!isAlive && this.currentSession) {
       browserDebugLog('Cast session ended');
       this.currentSession.state = 'disconnected';
@@ -385,11 +408,13 @@ class GoogleCastManager implements ICastManager {
       if (!isAvailable) {
         browserDebugLog('No Chromecast devices available');
         this.devices = [];
+
         if (LOCAL_EMULATOR_ENABLED) {
           this.localEmulator.ensureLocalEmulatorDevice();
         } else {
           browserDebugLog('[Cast] cleared device list');
         }
+
         return;
       }
 
@@ -404,9 +429,11 @@ class GoogleCastManager implements ICastManager {
       };
 
       this.devices = [device];
+
       if (LOCAL_EMULATOR_ENABLED) {
         this.localEmulator.ensureLocalEmulatorDevice();
       }
+
       browserDebugLog('[Cast] device available', device);
       this.notifyDeviceAvailable(device);
     });
@@ -428,27 +455,35 @@ class GoogleCastManager implements ICastManager {
   private onCustomMessage(_namespace: string, message: string): void {
     const [err] = safeWrap(() => {
       const data = JSON.parse(message);
+
       if (data.action === 'receiverReady') {
         const roomId = this.localEmulator.getRoomIdFromContext();
+
         if (!roomId) {
           console.warn('[Cast] receiverReady but roomId missing');
+
           return;
         }
 
         const castToken = this.roomCredentials?.castToken;
+
         if (!castToken || this.roomCredentials?.roomId !== roomId) {
           console.warn('[Cast] receiverReady before room credentials loaded');
+
           return;
         }
+
         const [joinErr] = safeWrap(() => {
           void this.joinRoom(roomId, castToken);
         });
+
         if (joinErr) {
           console.error(
             'Failed to send joinRoom after receiverReady:',
             joinErr,
           );
         }
+
         return;
       }
 
@@ -460,6 +495,7 @@ class GoogleCastManager implements ICastManager {
 
         const logArgs = args.map((arg: string) => {
           const [parseErr, parsed] = safeWrap(() => JSON.parse(arg));
+
           return parseErr ? arg : parsed;
         });
 
@@ -494,8 +530,10 @@ class GoogleCastManager implements ICastManager {
     if (LOCAL_EMULATOR_ENABLED) {
       this.localEmulator.ensureLocalEmulatorDevice();
     }
+
     if (!this.isInitialized) {
       const [initErr] = await safeWrapAsync(this.initializeCastSDK());
+
       if (initErr) {
         if (
           typeof initErr === 'object' &&
@@ -506,6 +544,7 @@ class GoogleCastManager implements ICastManager {
           console.warn(
             'Cast initialization timed out - likely unsupported browser. Skipping discovery error.',
           );
+
           return LOCAL_EMULATOR_ENABLED ? [...this.devices] : [];
         }
 
@@ -515,9 +554,11 @@ class GoogleCastManager implements ICastManager {
           description: 'Failed to discover casting devices',
           details: initErr,
         });
+
         return LOCAL_EMULATOR_ENABLED ? [...this.devices] : [];
       }
     }
+
     return [...this.devices];
   }
 
@@ -525,6 +566,7 @@ class GoogleCastManager implements ICastManager {
     if (LOCAL_EMULATOR_ENABLED) {
       this.localEmulator.ensureLocalEmulatorDevice();
     }
+
     return [...this.devices];
   }
 
@@ -534,6 +576,7 @@ class GoogleCastManager implements ICastManager {
     }
 
     const success = this.localEmulator.prepareLocalReceiverWindow();
+
     if (!success) {
       this.notifyError({
         code: 'LOCAL_RECEIVER_BLOCKED',
@@ -541,6 +584,7 @@ class GoogleCastManager implements ICastManager {
         details: new Error('Local cast receiver window could not be opened'),
       });
     }
+
     return success;
   }
 
@@ -554,6 +598,7 @@ class GoogleCastManager implements ICastManager {
       this.localEmulator.isLocalEmulator(deviceId)
     ) {
       const receiverWindow = this.localEmulator.openLocalReceiver();
+
       if (!receiverWindow) {
         const error = new Error(
           'Local cast receiver window could not be opened',
@@ -570,18 +615,21 @@ class GoogleCastManager implements ICastManager {
       this.currentSession = castSession;
       this.actualCastSession = null;
       this.notifySessionStateChange(castSession);
+
       return castSession;
     }
 
     if (!this.isInitialized) throw new Error('Cast SDK not initialized');
 
     const device = this.devices.find((d) => d.id === deviceId);
+
     if (!device && deviceId !== CAST_DEVICE_PICKER_ID) {
       throw new Error(`Device ${deviceId} not found`);
     }
 
     if (this.currentSession && this.currentSession.deviceId === deviceId) {
       browserDebugLog('[Cast] already connected to device', deviceId);
+
       return this.currentSession;
     }
 
@@ -623,6 +671,7 @@ class GoogleCastManager implements ICastManager {
             }
 
             this.notifySessionStateChange(castSession);
+
             return castSession;
           });
 
@@ -655,13 +704,16 @@ class GoogleCastManager implements ICastManager {
       this.notifySessionStateChange(this.currentSession);
       this.currentSession = null;
       this.actualCastSession = null;
+
       return;
     }
 
     const session = this.actualCastSession;
+
     if (!session) {
       this.currentSession = null;
       this.actualCastSession = null;
+
       return;
     }
 
@@ -669,22 +721,26 @@ class GoogleCastManager implements ICastManager {
       session.stop(
         () => {
           browserDebugLog('Session stopped successfully');
+
           if (this.currentSession) {
             this.currentSession.state = 'disconnected';
             this.currentSession.lastSyncAt = new Date();
             this.notifySessionStateChange(this.currentSession);
           }
+
           this.currentSession = null;
           this.actualCastSession = null;
           resolve();
         },
         (error: chrome.cast.Error) => {
           console.error('Failed to stop session:', error);
+
           if (this.currentSession) {
             this.currentSession.state = 'error';
             this.currentSession.lastSyncAt = new Date();
             this.notifySessionStateChange(this.currentSession);
           }
+
           this.currentSession = null;
           this.actualCastSession = null;
 
@@ -705,16 +761,19 @@ class GoogleCastManager implements ICastManager {
 
   async castMedia(mediaInfo: MediaInfo): Promise<void> {
     if (!this.currentSession) throw new Error('No active cast session');
+
     if (this.currentSession.state !== 'connected') {
       throw new Error(`Cast session not ready: ${this.currentSession.state}`);
     }
 
     if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
       this.sendLocalPlaybackState(mediaInfo);
+
       return;
     }
 
     const session = this.actualCastSession;
+
     if (!session) {
       console.error('No actual cast session stored');
       throw new Error('Cast session not found');
@@ -736,7 +795,9 @@ class GoogleCastManager implements ICastManager {
         browserDebugLog('🎵 Preparing custom Zoff receiver session');
 
         const url = new URL(CUSTOM_RECEIVER_URL, window.location.origin);
+
         if (roomId) url.searchParams.set('roomId', roomId);
+
         if (
           new URLSearchParams(window.location.search).get('debug') === 'true'
         ) {
@@ -903,12 +964,14 @@ class GoogleCastManager implements ICastManager {
         request,
         (media: chrome.cast.media.Media) => {
           browserDebugLog('✅ Standard media loaded successfully:', media);
+
           if (this.currentSession) {
             this.currentSession.mediaSessionId = media.sessionId;
             this.currentSession.state = 'connected';
             this.currentSession.lastSyncAt = new Date();
             this.notifySessionStateChange(this.currentSession);
           }
+
           resolve();
         },
         (error: chrome.cast.Error) => {
@@ -953,10 +1016,12 @@ class GoogleCastManager implements ICastManager {
 
     if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
       this.localEmulator.sendLocalMessage(queueMessage as LocalCastMessage);
+
       return;
     }
 
     const session = this.actualCastSession;
+
     if (!session) return;
 
     const [err] = safeWrap(() => {
@@ -983,10 +1048,7 @@ class GoogleCastManager implements ICastManager {
     }
   }
 
-  async updateRoomInfo(roomInfo: {
-    name: string;
-    participantCount: number;
-  }): Promise<void> {
+  async updateRoomInfo(roomInfo: CastRoomInfo): Promise<void> {
     if (this.currentSession?.state !== 'connected') {
       return;
     }
@@ -999,10 +1061,12 @@ class GoogleCastManager implements ICastManager {
 
     if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
       this.localEmulator.sendLocalMessage(message);
+
       return;
     }
 
     const session = this.actualCastSession;
+
     if (!session) return;
 
     const [err] = safeWrap(() => {
@@ -1033,6 +1097,7 @@ class GoogleCastManager implements ICastManager {
 
     // Keep the sender wire contract readable by receivers already running.
     let currentSong: Song | null = null;
+
     if (state.currentPlaylistItem) {
       const { publisher, ...item } = state.currentPlaylistItem;
       currentSong = { ...item, artist: publisher };
@@ -1050,10 +1115,12 @@ class GoogleCastManager implements ICastManager {
 
     if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
       this.localEmulator.sendLocalMessage(message as LocalCastMessage);
+
       return;
     }
 
     const session = this.actualCastSession;
+
     if (!session) return;
 
     const [err] = safeWrap(() => {
@@ -1084,6 +1151,7 @@ class GoogleCastManager implements ICastManager {
 
   async joinRoom(roomId: string, castToken: string): Promise<void> {
     if (!this.currentSession) return;
+
     this.roomCredentials = { castToken, roomId };
 
     const casterId = this.localEmulator.getCasterIdFromContext() || undefined;
@@ -1099,10 +1167,12 @@ class GoogleCastManager implements ICastManager {
 
     if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
       this.localEmulator.sendLocalMessage(message as LocalCastMessage);
+
       return;
     }
 
     const session = this.actualCastSession;
+
     if (!session) return;
 
     return new Promise((resolve, reject) => {
@@ -1138,10 +1208,12 @@ class GoogleCastManager implements ICastManager {
 
     if (this.localEmulator.isLocalEmulator(this.currentSession.deviceId)) {
       this.localEmulator.sendLocalMessage(message);
+
       return;
     }
 
     const session = this.actualCastSession;
+
     if (!session) return;
 
     return new Promise((resolve, reject) => {
@@ -1206,6 +1278,7 @@ class GoogleCastManager implements ICastManager {
     const regex =
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
     const match = url.match(regex);
+
     return match ? match[1] : null;
   }
 
@@ -1250,8 +1323,10 @@ class GoogleCastManager implements ICastManager {
   async forceDiscovery(): Promise<void> {
     browserDebugLog('🔍 Forcing device discovery...');
     const [err] = await safeWrapAsync(this.initializeCastSDK());
+
     if (err) {
       console.error('Failed to initialize SDK during force discovery:', err);
+
       return;
     }
 
@@ -1274,6 +1349,7 @@ class GoogleCastManager implements ICastManager {
             console.error('Error stopping session:', err),
         );
       });
+
       if (err) console.error('Error during session cleanup:', err);
     }
 

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'preact/compat';
 import { SkipLink } from './SkipLink';
 
 interface SiteLayoutProps {

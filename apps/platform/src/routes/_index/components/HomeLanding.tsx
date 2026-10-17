@@ -1,7 +1,10 @@
+import {
+  useURLLocation as useLocation,
+  useNavigationType,
+} from '@kasperrt/smolter/preact';
 import { classNames, usePageVisibility } from '@vibes/shared';
 import { useInView } from 'framer-motion';
-import { type ReactNode, type RefObject, useRef } from 'react';
-import { useLocation, useNavigationType } from 'react-router';
+import { type ReactNode, type RefObject, useRef } from 'preact/compat';
 import { RetroSun } from '../../../components/layout/RetroSun';
 import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';

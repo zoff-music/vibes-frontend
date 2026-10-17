@@ -1,12 +1,12 @@
 import type { PublicRoomResultV3 } from '@vibes/models';
-import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
+import type { RequestArgs, RequestResult } from '@vibes/shared/requests';
 import { mobileRoomPageSize } from '@/constants/public-rooms';
 import { getRequestErrorMessage, mobileApiV3 } from '@/lib/api';
 
 export async function loader({
   params,
   signal,
-}: LoaderFunctionArgs): Promise<DataResult<PublicRoomResultV3>> {
+}: RequestArgs): Promise<RequestResult<PublicRoomResultV3>> {
   const parsedFrom = Number(params.from ?? 0);
   const from =
     Number.isSafeInteger(parsedFrom) && parsedFrom >= 0 ? parsedFrom : 0;
@@ -23,6 +23,7 @@ export async function loader({
     },
     { signal, retry: 0 },
   );
+
   return {
     data,
     error: error

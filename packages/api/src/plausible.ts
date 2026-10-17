@@ -51,7 +51,9 @@ export function createPlausibleClient(
       const headers = new Headers({
         'Content-Type': 'application/json',
       });
+
       if (options.userAgent) headers.set('User-Agent', options.userAgent);
+
       const [requestError, request] = safeWrap(
         () =>
           new Request(plausibleEventUrl, {
@@ -60,7 +62,9 @@ export function createPlausibleClient(
             method: 'POST',
           }),
       );
+
       if (requestError || !request) return;
+
       await safeWrapAsync(fetcher(request));
     },
   };

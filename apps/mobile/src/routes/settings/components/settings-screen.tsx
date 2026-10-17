@@ -1,5 +1,4 @@
 import type { SessionProfile } from '@vibes/models';
-import { useRouteLoaderData } from '@vibes/native-router';
 import { classNames } from '@vibes/shared';
 import Constants from 'expo-constants';
 import { useCallback, useEffect, useState } from 'react';
@@ -35,6 +34,7 @@ import {
   useRoomSession,
 } from '@/providers/app-provider';
 import { useChatPreference } from '@/providers/chat-preference-provider';
+import { useInitialData } from '@/providers/initial-data-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 import { DeviceRemoteSettings } from './device-remote-settings';
 
@@ -47,12 +47,13 @@ export function SettingsScreen() {
     useRoomActions();
   const [roomSettingsVisible, setRoomSettingsVisible] = useState(false);
   const [profileSettingsVisible, setProfileSettingsVisible] = useState(false);
-  const loadedProfile = useRouteLoaderData<SessionProfile>('sessions.profile');
+  const loadedProfile = useInitialData().profile;
   const [profile, setProfile] = useState(loadedProfile);
   const { showToast } = useToast();
 
   useEffect(() => {
     if (!loadedProfile) return;
+
     setProfile(loadedProfile);
   }, [loadedProfile]);
 
@@ -261,6 +262,7 @@ interface ThemeButtonProps {
 
 function ThemeButton({ active, icon, label, onPress }: ThemeButtonProps) {
   const theme = useAppTheme();
+
   return (
     <Pressable
       accessibilityRole="radio"

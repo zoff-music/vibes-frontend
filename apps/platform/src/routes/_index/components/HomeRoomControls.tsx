@@ -1,4 +1,9 @@
-import { type ReactNode, type RefObject, useEffect, useRef } from 'react';
+import {
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useRef,
+} from 'preact/compat';
 import { useAnimatedPlaceholder } from '../hooks/useAnimatedPlaceholder';
 import { RoomJoinControls } from './RoomJoinControls';
 

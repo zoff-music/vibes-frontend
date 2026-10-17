@@ -13,6 +13,17 @@ Shared controls and the native YouTube wrapper come from `@vibes/ui/native`,
 while platform-neutral presentation helpers come from `@vibes/ui/shared`.
 The app deliberately has no Expo web target.
 
+## Navigation and requests
+
+Expo Router owns screen navigation, deep links, system tabs, modal presentation,
+and route error boundaries. Mobile has no second router or route registry.
+
+App hooks call typed request handlers through `@vibes/api`. The small shared
+request hook handles pending state and abort cleanup; it does not match paths,
+cache routes, or implement navigation. Initial preferences, profile, discovery,
+and remote-session data are loaded by the app provider. Mutations update their
+own state or explicitly refresh the affected room.
+
 ## Visual preview
 
 <p>

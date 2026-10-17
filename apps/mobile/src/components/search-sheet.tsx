@@ -1,5 +1,8 @@
-import type { Providers, RoomType } from '@vibes/models';
-import { generatedPlaylistPromptMaxLength } from '@vibes/models';
+import {
+  generatedPlaylistPromptMaxLength,
+  type Providers,
+  type RoomType,
+} from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { getProviderDisplayName, getRoomLabels } from '@vibes/ui/shared';
 import { Pressable, ScrollView, Text, View } from 'react-native';

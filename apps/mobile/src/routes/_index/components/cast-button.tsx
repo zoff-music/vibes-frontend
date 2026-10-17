@@ -1,17 +1,16 @@
-import type { CastingTokenResponse } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
 import { classNames, safeWrapAsync } from '@vibes/shared';
+import { useMutation } from '@vibes/shared/use-request';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import {
   CastButton as NativeCastButton,
   useCastChannel,
 } from 'react-native-google-cast';
-
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useRoomSession } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
+import { action as mutateCastRoomidRequest } from '@/routes/cast.$roomId/action';
 
 const castNamespace = 'urn:x-cast:com.vibez.cast';
 
@@ -19,21 +18,21 @@ export function CastButton() {
   const theme = useAppTheme();
   const [{ resolvedScheme }] = useThemePreference();
   const { roomId } = useRoomSession();
-  const [, { submit }] = useFetcher<CastingTokenResponse>({
-    params: {
-      roomId,
-    },
-    routeId: 'cast.$roomId',
+  const [, submit] = useMutation(mutateCastRoomidRequest, {
+    roomId,
   });
   const channel = useCastChannel(castNamespace);
 
   useEffect(() => {
     if (!channel || !roomId) return;
+
     const joinRoom = async () => {
       const result = await submit({
         intent: 'createToken',
       });
+
       if (!result.data) return;
+
       await safeWrapAsync(
         channel.sendMessage({
           action: 'joinRoom',

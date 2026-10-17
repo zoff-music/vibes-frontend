@@ -1,6 +1,6 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useRef, useState } from 'preact/compat';
 
 export function useShowcaseMotion() {
   const ref = useRef<HTMLElement>(null);

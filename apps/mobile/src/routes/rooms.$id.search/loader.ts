@@ -5,11 +5,11 @@ import {
   createRoomReadRequests,
 } from '@vibes/api';
 import type { ProviderItem, ProviderPlaylist, SourceType } from '@vibes/models';
-import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
 import {
   parseProviderItemLink,
   parseProviderPlaylistLink,
 } from '@vibes/shared';
+import type { RequestArgs, RequestResult } from '@vibes/shared/requests';
 import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { isMobileProvider } from '@/lib/mobile-content';
 
@@ -22,7 +22,7 @@ export interface SearchData {
 export async function loader({
   params,
   signal,
-}: LoaderFunctionArgs): Promise<DataResult<SearchData>> {
+}: RequestArgs): Promise<RequestResult<SearchData>> {
   const provider = getProvider(params.provider);
   const query = params.query?.trim() ?? '';
   const client =
@@ -56,6 +56,7 @@ export async function loader({
     if (!isMobileProvider(playlistLink.provider)) {
       return { data: null, error: 'This provider is not available on mobile.' };
     }
+
     const source = playlistLink.sourceId ?? playlistLink.providerUrl ?? '';
     const [error, playlist] = await createProviderPlaylistRequest(client)(
       playlistLink.provider,
@@ -63,9 +64,11 @@ export async function loader({
       room.roomType,
       { signal },
     );
+
     if (error || !playlist) {
       return failure(error, 'Could not load this playlist.');
     }
+
     return {
       data: {
         playlist,
@@ -75,42 +78,50 @@ export async function loader({
       error: '',
     };
   }
+
   if (itemLink) {
     if (!isMobileProvider(itemLink.provider)) {
       return { data: null, error: 'This provider is not available on mobile.' };
     }
+
     const source = itemLink.sourceId ?? itemLink.providerUrl ?? '';
     const [error, item] = await createProviderItemRequest(client)(
       itemLink.provider,
       source,
       { signal },
     );
+
     if (error || !item) return failure(error, 'Could not load this item.');
+
     return {
       data: { playlist: null, provider: itemLink.provider, results: [item] },
       error: '',
     };
   }
+
   const [error, results] = await createProviderSearchRequest(client)(
     roomId,
     provider,
     query,
     { signal },
   );
+
   if (error || !results) {
     return failure(error, `Could not search ${provider}. Try again.`);
   }
+
   return { data: { playlist: null, provider, results }, error: '' };
 }
 
 async function failure(
   error: Error | null,
   fallback: string,
-): Promise<DataResult<SearchData>> {
+): Promise<RequestResult<SearchData>> {
   return { data: null, error: await getRequestErrorMessage(error, fallback) };
 }
 
 function getProvider(value: string | undefined): SourceType {
   if (value === 'soundcloud') return value;
+
   return 'youtube';
 }

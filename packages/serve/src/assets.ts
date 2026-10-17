@@ -2,6 +2,7 @@ export function assetBase(origin: string | undefined, base: string) {
   if (!origin) return base;
 
   const url = new URL(origin);
+
   if (
     url.protocol !== 'https:' ||
     url.username ||

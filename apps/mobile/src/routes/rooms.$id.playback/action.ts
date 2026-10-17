@@ -1,6 +1,6 @@
 import { createRoomPlaybackRequests } from '@vibes/api';
 import type { PlaybackStateV2, SkipPlaylistItemResponse } from '@vibes/models';
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 type RoomPlaybackActionInput =
@@ -21,31 +21,38 @@ export async function action({
   input,
   params,
   signal,
-}: ActionFunctionArgs): Promise<DataResult<RoomPlaybackActionData>> {
+}: MutationArgs): Promise<RequestResult<RoomPlaybackActionData>> {
   const roomId = params.id;
+
   if (!roomId || !isRoomPlaybackActionInput(input)) {
     return { data: null, error: 'The playback request was invalid.' };
   }
+
   if (input.intent === 'skip') {
     const [error, response] = await requests.skip(roomId, { signal });
+
     if (error || !response)
       return failure(error, 'Failed to skip. Please try again.');
+
     return { data: { intent: 'skip', response }, error: '' };
   }
+
   const [error, playback] = await requests.updatePlayback(
     roomId,
     input.action,
     input.positionMs,
     { signal },
   );
+
   if (error || !playback) return failure(error, 'Could not update playback.');
+
   return { data: { intent: 'updated', playback }, error: '' };
 }
 
 async function failure(
   error: Error | null,
   fallback: string,
-): Promise<DataResult<RoomPlaybackActionData>> {
+): Promise<RequestResult<RoomPlaybackActionData>> {
   return { data: null, error: await getRequestErrorMessage(error, fallback) };
 }
 
@@ -53,5 +60,6 @@ function isRoomPlaybackActionInput(
   input: unknown,
 ): input is RoomPlaybackActionInput {
   if (!input || typeof input !== 'object' || !('intent' in input)) return false;
+
   return input.intent === 'skip' || input.intent === 'update';
 }

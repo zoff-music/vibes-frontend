@@ -34,6 +34,7 @@ export const getProviderItemUrl = (
     url.hostname === 'soundcloud.com' ||
     url.hostname.endsWith('.soundcloud.com');
   const pathSegments = url.pathname.split('/').filter(Boolean);
+
   if (
     url.protocol !== 'https:' ||
     !isSoundCloudHost ||
@@ -51,6 +52,7 @@ export const parseProviderItemLink = (
   value: string,
 ): ProviderItemLink | null => {
   const trimmedValue = value.trim();
+
   if (!URL.canParse(trimmedValue)) {
     return null;
   }
@@ -60,6 +62,7 @@ export const parseProviderItemLink = (
   const pathSegments = url.pathname.split('/').filter(Boolean);
 
   const youtubeId = getYouTubeID(url, hostname, pathSegments);
+
   if (youtubeId) {
     return {
       provider: 'youtube',
@@ -73,9 +76,11 @@ export const parseProviderItemLink = (
     isSoundCloudHost &&
     ((hostname === 'on.soundcloud.com' && pathSegments.length >= 1) ||
       pathSegments.length >= 2);
+
   if (isSoundCloudTrack) {
     url.search = '';
     url.hash = '';
+
     return {
       provider: 'soundcloud',
       providerUrl: url.toString(),
@@ -89,6 +94,7 @@ export const parseProviderPlaylistLink = (
   value: string,
 ): ProviderPlaylistLink | null => {
   const trimmedValue = value.trim();
+
   if (!URL.canParse(trimmedValue)) {
     return null;
   }
@@ -102,6 +108,7 @@ export const parseProviderPlaylistLink = (
     hostname === 'youtu.be' ||
     hostname.endsWith('.youtu.be');
   const youtubePlaylistId = url.searchParams.get('list') ?? '';
+
   if (isYouTubeHost && /^[A-Za-z0-9_-]+$/.test(youtubePlaylistId)) {
     return {
       provider: 'youtube',
@@ -115,9 +122,11 @@ export const parseProviderPlaylistLink = (
     isSoundCloudHost &&
     ((hostname === 'on.soundcloud.com' && pathSegments.length >= 1) ||
       (pathSegments.length >= 3 && pathSegments[1] === 'sets'));
+
   if (isSoundCloudPlaylist) {
     url.search = '';
     url.hash = '';
+
     return {
       provider: 'soundcloud',
       providerUrl: url.toString(),
@@ -129,9 +138,11 @@ export const parseProviderPlaylistLink = (
 
 const getYouTubeID = (url: URL, hostname: string, pathSegments: string[]) => {
   let videoId = '';
+
   if (hostname === 'youtu.be' || hostname.endsWith('.youtu.be')) {
     videoId = pathSegments[0] ?? '';
   }
+
   if (
     hostname === 'youtube.com' ||
     hostname.endsWith('.youtube.com') ||
@@ -141,6 +152,7 @@ const getYouTubeID = (url: URL, hostname: string, pathSegments: string[]) => {
     if (pathSegments[0] === 'watch') {
       videoId = url.searchParams.get('v') ?? '';
     }
+
     if (['embed', 'live', 'shorts'].includes(pathSegments[0] ?? '')) {
       videoId = pathSegments[1] ?? '';
     }

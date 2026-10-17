@@ -1,10 +1,9 @@
-import { useFetcher } from '@vibes/native-router';
 import { classNames } from '@vibes/shared';
+import { useMutation } from '@vibes/shared/use-request';
 import { useKeepAwake } from 'expo-keep-awake';
 import { usePathname } from 'expo-router';
 import { View } from 'react-native';
 import { CastState, useCastState } from 'react-native-google-cast';
-
 import { ProviderPlayer } from '@/components/provider-player';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useLivePosition } from '@/hooks/use-live-position';
@@ -15,7 +14,7 @@ import {
   useRoomSession,
 } from '@/providers/app-provider';
 import { useRoomPlayerLayout } from '@/providers/room-player-layout-provider';
-import type { RoomPlaybackActionData } from '@/routes/rooms.$id.playback/action';
+import { action as mutateRoomsIdPlaybackRequest } from '@/routes/rooms.$id.playback/action';
 
 export function PersistentRoomPlayer() {
   const { playback, playbackResetVersion } = usePlaybackSession();
@@ -26,10 +25,7 @@ export function PersistentRoomPlayer() {
     setLocalPlaying,
   } = usePlaybackActions();
   const { setError } = useRoomActions();
-  const [, { submit }] = useFetcher<RoomPlaybackActionData>({
-    params: { id: roomId },
-    routeId: 'rooms.$id.playback',
-  });
+  const [, submit] = useMutation(mutateRoomsIdPlaybackRequest, { id: roomId });
   const castState = useCastState();
   const pathname = usePathname();
   const [{ active, frame }] = useRoomPlayerLayout();
@@ -81,18 +77,23 @@ export function PersistentRoomPlayer() {
             room.mode === 'server'
           ) {
             setLocalPlaybackPosition(positionMs);
+
             return;
           }
+
           const hasAuthority =
             Boolean(room.isAdmin) ||
             (Boolean(room.userId) && room.hostId === room.userId);
+
           if (!hasAuthority) return;
+
           const update = async () => {
             const result = await submit({
               action: 'seek',
               intent: 'update',
               positionMs,
             });
+
             if (result.error) setError(result.error);
           };
           void update();
@@ -106,17 +107,22 @@ export function PersistentRoomPlayer() {
         onLocalPlayingChange={(isPlaying) => {
           if (room.mode === 'server') {
             setLocalPlaying(isPlaying);
+
             return;
           }
+
           const hasAuthority =
             Boolean(room.isAdmin) ||
             (Boolean(room.userId) && room.hostId === room.userId);
+
           if (!hasAuthority || playback?.isPlaying === isPlaying) return;
+
           const update = async () => {
             const result = await submit({
               action: isPlaying ? 'play' : 'pause',
               intent: 'update',
             });
+
             if (result.error) setError(result.error);
           };
           void update();
@@ -128,5 +134,6 @@ export function PersistentRoomPlayer() {
 
 export function ActiveRoomKeepAwake() {
   useKeepAwake('zoff-active-room');
+
   return null;
 }

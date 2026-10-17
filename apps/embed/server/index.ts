@@ -13,9 +13,11 @@ function operationName(req: ServerRequest) {
   if (req.path === embedBasePath || req.path.startsWith(`${embedBasePath}/`)) {
     return 'EmbedRoomPage';
   }
+
   if (req.path.startsWith(`${embedBasePath}/assets/`)) {
     return 'StaticAsset';
   }
+
   return 'EmbedRoute';
 }
 

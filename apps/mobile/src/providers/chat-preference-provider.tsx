@@ -1,4 +1,4 @@
-import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
+import { useMutation } from '@vibes/shared/use-request';
 import {
   createContext,
   type PropsWithChildren,
@@ -6,8 +6,8 @@ import {
   useEffect,
   useState,
 } from 'react';
-import type { ChatPreferenceActionData } from '@/routes/preferences.chat/action';
-import type { ChatPreferenceData } from '@/routes/preferences.chat/loader';
+import { useInitialData } from '@/providers/initial-data-provider';
+import { action as mutatePreferencesChatRequest } from '@/routes/preferences.chat/action';
 
 interface ChatPreference {
   enabled: boolean;
@@ -16,11 +16,10 @@ interface ChatPreference {
   setEnabled: (enabled: boolean) => Promise<void>;
 }
 const Context = createContext<ChatPreference | null>(null);
+
 export function ChatPreferenceProvider({ children }: PropsWithChildren) {
-  const data = useRouteLoaderData<ChatPreferenceData>('preferences.chat');
-  const [, fetcher] = useFetcher<ChatPreferenceActionData>({
-    routeId: 'preferences.chat',
-  });
+  const data = useInitialData().chat;
+  const [, fetcherSubmit] = useMutation(mutatePreferencesChatRequest);
   const [enabled, setValue] = useState(false);
   const [warning, setWarning] = useState('');
   useEffect(() => {
@@ -28,9 +27,10 @@ export function ChatPreferenceProvider({ children }: PropsWithChildren) {
   }, [data]);
   const setEnabled = async (next: boolean) => {
     setValue(next);
-    const result = await fetcher.submit({ enabled: next });
+    const result = await fetcherSubmit({ enabled: next });
     setWarning(result.error || result.data?.warning || '');
   };
+
   return (
     <Context.Provider
       value={{ enabled, loaded: Boolean(data), warning, setEnabled }}
@@ -39,8 +39,11 @@ export function ChatPreferenceProvider({ children }: PropsWithChildren) {
     </Context.Provider>
   );
 }
+
 export function useChatPreference() {
   const context = useContext(Context);
+
   if (!context) throw new Error('ChatPreferenceProvider is required');
+
   return context;
 }

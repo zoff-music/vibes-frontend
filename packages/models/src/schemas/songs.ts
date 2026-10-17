@@ -32,4 +32,5 @@ export const addPlaylistResponseSchema = /* @__PURE__ */ z.compile(
     queuedCount: z.int().check(z.minimum(1)),
   }),
 );
+
 export type AddPlaylistResponse = z.infer<typeof addPlaylistResponseSchema>;

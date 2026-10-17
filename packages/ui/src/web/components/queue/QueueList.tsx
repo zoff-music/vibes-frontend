@@ -1,6 +1,11 @@
 import { type PlaylistItem } from '@vibes/shared';
-import { AnimatePresence, m as motion, useReducedMotion } from 'framer-motion';
-import React from 'react';
+import {
+  AnimatePresence,
+  LayoutGroup,
+  m as motion,
+  useReducedMotion,
+} from 'framer-motion';
+import React from 'preact/compat';
 import { useProgressiveList } from '../../hooks/useProgressiveList';
 import { QueueEmptyIcon } from '../../icons';
 import { QueueItem } from './QueueItem';
@@ -65,41 +70,43 @@ const QueueListComponent: React.FC<Props> = ({
 
   return (
     <div className="relative space-y-2">
-      <AnimatePresence initial={false} mode="popLayout">
-        {visiblePlaylistItems.map((playlistItem, index) => (
-          <motion.div
-            key={playlistItem.id}
-            layout={reducedMotion ? false : 'position'}
-            initial={{
-              opacity: 0,
-              scale: reducedMotion ? 1 : 0.96,
-              y: reducedMotion ? 0 : 14,
-            }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{
-              opacity: 0,
-              scale: reducedMotion ? 1 : 0.96,
-              y: reducedMotion ? 0 : -14,
-            }}
-            transition={{
-              type: 'spring',
-              stiffness: 420,
-              damping: 34,
-              opacity: { duration: reducedMotion ? 0 : 0.16 },
-              layout: { duration: reducedMotion ? 0 : 0.3, ease: 'easeOut' },
-            }}
-          >
-            <QueueItem
-              playlistItem={playlistItem}
-              position={index + 1}
-              isVoting={votingPlaylistItemId === playlistItem.id}
-              {...(onRemove && { onRemove })}
-              {...(onVote && { onVote })}
-              {...(isAdmin !== undefined && { isAdmin })}
-            />
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      <LayoutGroup>
+        <AnimatePresence initial={false} mode="popLayout">
+          {visiblePlaylistItems.map((playlistItem, index) => (
+            <motion.div
+              key={playlistItem.id}
+              layout={reducedMotion ? false : 'position'}
+              initial={{
+                opacity: 0,
+                scale: reducedMotion ? 1 : 0.96,
+                y: reducedMotion ? 0 : 14,
+              }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{
+                opacity: 0,
+                scale: reducedMotion ? 1 : 0.96,
+                y: reducedMotion ? 0 : -14,
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 420,
+                damping: 34,
+                opacity: { duration: reducedMotion ? 0 : 0.16 },
+                layout: { duration: reducedMotion ? 0 : 0.3, ease: 'easeOut' },
+              }}
+            >
+              <QueueItem
+                playlistItem={playlistItem}
+                position={index + 1}
+                isVoting={votingPlaylistItemId === playlistItem.id}
+                {...(onRemove && { onRemove })}
+                {...(onVote && { onVote })}
+                {...(isAdmin !== undefined && { isAdmin })}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </LayoutGroup>
       {visibleCount < playlistItems.length && (
         <div aria-hidden="true" className="h-12" ref={sentinelRef} />
       )}

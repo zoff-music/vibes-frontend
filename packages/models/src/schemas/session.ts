@@ -11,6 +11,7 @@ export const roomUserSchema = /* @__PURE__ */ z.compile(
     lastSeenAt: z.string(),
   }),
 );
+
 export type RoomUser = z.infer<typeof roomUserSchema>;
 
 export const sessionResponseV2Schema = /* @__PURE__ */ z.compile(
@@ -22,6 +23,7 @@ export const sessionResponseV2Schema = /* @__PURE__ */ z.compile(
     room: roomV2Schema,
   }),
 );
+
 export type SessionResponseV2 = z.infer<typeof sessionResponseV2Schema>;
 
 export const createSessionRequestSchema = /* @__PURE__ */ z.compile(
@@ -30,6 +32,7 @@ export const createSessionRequestSchema = /* @__PURE__ */ z.compile(
     password: z.optional(z.string()),
   }),
 );
+
 export type CreateSessionRequest = z.infer<typeof createSessionRequestSchema>;
 
 export const sessionProfileSchema = /* @__PURE__ */ z.compile(
@@ -37,6 +40,7 @@ export const sessionProfileSchema = /* @__PURE__ */ z.compile(
     name: z.string(),
   }),
 );
+
 export type SessionProfile = z.infer<typeof sessionProfileSchema>;
 
 export const updateSessionProfileRequestSchema = /* @__PURE__ */ z.compile(
@@ -53,6 +57,7 @@ export const updateSessionProfileRequestSchema = /* @__PURE__ */ z.compile(
       ),
   }),
 );
+
 export type UpdateSessionProfileRequest = z.infer<
   typeof updateSessionProfileRequestSchema
 >;

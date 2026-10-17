@@ -1,5 +1,5 @@
+import type { MetaFunction } from '@kasperrt/smolter/preact';
 import { publicAssetUrl } from '@vibes/ui/web';
-import type { MetaFunction } from 'react-router';
 import {
   appStoreUrl,
   pageMetadata,

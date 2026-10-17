@@ -1,9 +1,12 @@
 import { useRoomEventsV3 } from '@vibes/api';
-import type {
-  PlaybackStateV2,
-  PlaylistItem,
-  RoomGenerationUpdate,
-  RoomV2,
+import {
+  type PlaybackStateV2,
+  type PlaylistItem,
+  type PlaylistItemIdUpdate,
+  type PlaylistItemPositionUpdate,
+  type RoomGenerationUpdate,
+  type RoomHostUpdate,
+  type RoomV2,
 } from '@vibes/models';
 import {
   synchronizeServerClock,
@@ -20,7 +23,9 @@ export function useTvRoomEvents(roomId: string) {
       onConnected: synchronizeServerClock,
       onGenerationUpdate: (update: RoomGenerationUpdate) => {
         const room = useRoomStore.getState().room;
+
         if (!room) return;
+
         useRoomStore.getState().setRoom({
           ...room,
           generationError:
@@ -30,7 +35,7 @@ export function useTvRoomEvents(roomId: string) {
           isGenerating: update.status === 'generating',
         });
       },
-      onHostUpdate: ({ userId }: { userId: string }) => {
+      onHostUpdate: ({ userId }: RoomHostUpdate) => {
         useRoomStore.getState().setHost(userId);
       },
       onPlaybackUpdate: (playback: PlaybackStateV2) => {
@@ -44,16 +49,13 @@ export function useTvRoomEvents(roomId: string) {
       onPlaylistItemAdded: (playlistItem: PlaylistItem) => {
         useQueueStore.getState().addPlaylistItem(playlistItem);
       },
-      onPlaylistItemRemoved: ({ id }: { id: string }) => {
+      onPlaylistItemRemoved: ({ id }: PlaylistItemIdUpdate) => {
         useQueueStore.getState().removePlaylistItem(id);
       },
       onPlaylistItemUpdated: ({
         playlistItem,
         position,
-      }: {
-        playlistItem: PlaylistItem;
-        position: number;
-      }) => {
+      }: PlaylistItemPositionUpdate) => {
         useQueueStore.getState().positionPlaylistItem(playlistItem, position);
       },
       onPlaylistItemsUpdate: (playlistItems: PlaylistItem[]) => {

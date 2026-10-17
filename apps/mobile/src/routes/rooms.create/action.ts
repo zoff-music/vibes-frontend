@@ -1,14 +1,12 @@
 import { createRoomLifecycleRequests } from '@vibes/api';
-import type {
-  CreateRoomRequestV2,
-  RoomNameReservation,
-  RoomType,
-} from '@vibes/models';
 import {
+  type CreateRoomRequestV2,
   createRoomRequestV2Schema,
+  type RoomNameReservation,
+  type RoomType,
   roomNameReservationRequestSchema,
 } from '@vibes/models';
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { getRequestErrorMessage, mobileApi } from '@/lib/api';
 
 type CreateRoomActionInput =
@@ -26,23 +24,27 @@ const requests = createRoomLifecycleRequests(mobileApi);
 export async function action({
   input,
   signal,
-}: ActionFunctionArgs): Promise<DataResult<CreateRoomActionData>> {
+}: MutationArgs): Promise<RequestResult<CreateRoomActionData>> {
   if (!isCreateRoomActionInput(input)) {
     return { data: null, error: 'The room request was invalid.' };
   }
+
   if (input.intent === 'reserve') {
     const parsed = roomNameReservationRequestSchema.safeParse({
       name: input.name,
     });
+
     if (!parsed.success) {
       return {
         data: null,
         error: parsed.error.issues[0]?.message ?? 'Enter a valid room name.',
       };
     }
+
     const [error, reservation] = await requests.reserveRoom(parsed.data.name, {
       signal,
     });
+
     if (error || !reservation) {
       return {
         data: null,
@@ -54,13 +56,16 @@ export async function action({
         ),
       };
     }
+
     return { data: { intent: 'reserved', reservation }, error: '' };
   }
+
   if (input.intent === 'generate') {
     const [error, room] = await requests.createGeneratedRoom(
       { prompt: input.prompt, roomType: input.roomType ?? 'MUSIC' },
       { signal },
     );
+
     if (error || !room) {
       return {
         data: null,
@@ -70,22 +75,28 @@ export async function action({
         ),
       };
     }
+
     return { data: { intent: 'generated', roomId: room.id }, error: '' };
   }
+
   const parsed = createRoomRequestV2Schema.safeParse(input.request);
+
   if (!parsed.success) {
     return {
       data: null,
       error: parsed.error.issues[0]?.message ?? 'Check the room settings.',
     };
   }
+
   const [error, room] = await requests.createRoom(parsed.data, { signal });
+
   if (error || !room) {
     return {
       data: null,
       error: await getRequestErrorMessage(error, 'Could not create this room.'),
     };
   }
+
   return { data: { intent: 'created', roomId: room.id }, error: '' };
 }
 
@@ -95,6 +106,7 @@ function isCreateRoomActionInput(
   if (!input || typeof input !== 'object' || !('intent' in input)) {
     return false;
   }
+
   return (
     input.intent === 'reserve' ||
     input.intent === 'generate' ||

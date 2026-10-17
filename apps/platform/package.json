@@ -4,17 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "react-router dev --host 0.0.0.0 --port 3001",
-    "build": "react-router build",
-    "test:tv-player": "node --test --test-force-exit src/routes/tv-player/loader.test.mjs",
+    "dev": "vite --host 127.0.0.1 --port 3001",
+    "build": "vite build --outDir dist/client && vite build --ssr src/entry.server.tsx --outDir dist/server",
+    "test:tv-player": "node --test --test-force-exit src/routes/resources.tv.31378fad7d4621f3d5461e42b371613b/loader.test.mjs",
     "start": "node server/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",
     "preview": "node server/index.ts"
   },
   "dependencies": {
-    "@react-router/express": "8.4.0",
-    "@react-router/serve": "8.4.0",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/serve": "workspace:*",
@@ -22,13 +20,12 @@
     "@vibes/ui": "workspace:*",
     "framer-motion": "14.1.0",
     "qrcode.react": "4.2.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "react-router": "8.4.0",
-    "zustand": "5.0.15"
+    "zustand": "5.0.15",
+    "@kasperrt/smolter": "0.3.0",
+    "preact": "11.0.1",
+    "preact-render-to-string": "6.8.1"
   },
   "devDependencies": {
-    "@react-router/dev": "8.4.0",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "26.6.5",
     "@types/react": "19.2.18",

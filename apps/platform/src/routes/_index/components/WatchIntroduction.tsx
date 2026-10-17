@@ -1,6 +1,6 @@
+import { Link } from '@kasperrt/smolter/preact';
 import { ArrowRightIcon, DeferredContent } from '@vibes/ui/web';
-import { lazy } from 'react';
-import { Link } from 'react-router';
+import { lazy } from 'preact/compat';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { CommunityStats } from './CommunityStats';
 
@@ -10,7 +10,7 @@ const LazyWatchScene = lazy(() =>
   })),
 );
 const LazyChatPreview = lazy(() =>
-  import('../../discover/components/ChatPreview').then((module) => ({
+  import('../../discovery.$topic/components/ChatPreview').then((module) => ({
     default: module.ChatPreview,
   })),
 );

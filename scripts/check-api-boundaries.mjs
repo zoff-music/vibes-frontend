@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 
-const reactRouterSourceDirectories = [
+const webRouteSourceDirectories = [
   'apps/admin/src',
   'apps/cast',
   'apps/embed/src',
@@ -9,6 +9,12 @@ const reactRouterSourceDirectories = [
   'apps/remote/src',
   'apps/tv/src/tizen',
 ];
+// Shared request implementations are invoked only by route data handlers.
+const routeRequestUtilities = new Set([
+  'apps/platform/src/routes/_index/utils/submitHomeAction.ts',
+  'apps/platform/src/utils/room-actions/submitRoomAction.ts',
+  'apps/platform/src/utils/room-actions/submitPlaylistAction.ts',
+]);
 const nativeSourceDirectories = ['apps/mobile/src', 'apps/tv/src'];
 const literalRequestCallPattern =
   /\.[ \t]*(?:delete|get|patch|post|put|roomExists)[ \t]*\([ \t\r\n]*['"]\//;
@@ -22,6 +28,8 @@ const routeDataModulePattern =
 function listSourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
+    if (['node_modules', 'dist', 'build', '.expo'].includes(entry.name))
+      return [];
     if (entry.isDirectory()) return listSourceFiles(path);
     return ['.ts', '.tsx'].includes(extname(entry.name)) ? [path] : [];
   });
@@ -177,21 +185,32 @@ for (const file of listSourceFiles('packages/api/src')) {
   }
 }
 
-for (const sourceDirectory of reactRouterSourceDirectories) {
+for (const sourceDirectory of webRouteSourceDirectories) {
   for (const file of listSourceFiles(sourceDirectory)) {
     const repositoryPath = relative('.', file);
     const source = readFileSync(file, 'utf8');
+    if (
+      /\/(?:route|root)\.tsx?$/.test(repositoryPath) &&
+      /export\s+(?:async\s+)?(?:function|const|let)\s+(?:ErrorBoundary|HydrateFallback|shouldRevalidate|meta|links|loader|clientLoader|action|clientAction)\b/.test(
+        source,
+      )
+    ) {
+      violations.push(
+        `${repositoryPath}: route hooks and boundaries must live in separate files and be re-exported`,
+      );
+    }
     if (
       requestCapabilityPattern.test(source) ||
       requestFactoryPattern.test(source)
     ) {
       if (routeDataModulePattern.test(repositoryPath)) continue;
       violations.push(
-        `${repositoryPath}: request hooks and endpoint helpers are not allowed in React Router apps`,
+        `${repositoryPath}: request hooks and endpoint helpers are not allowed outside Smolter route data modules`,
       );
     }
     if (!hasClientRequestCall(source)) continue;
     if (routeDataModulePattern.test(repositoryPath)) continue;
+    if (routeRequestUtilities.has(repositoryPath)) continue;
     violations.push(
       `${repositoryPath}: REST calls must run in a loader, clientLoader, action, or clientAction`,
     );
@@ -222,31 +241,6 @@ for (const sourceDirectory of nativeSourceDirectories) {
     ) {
       violations.push(
         `${repositoryPath}: native API clients must be constructed in the app API module or route data modules`,
-      );
-    }
-  }
-}
-
-for (const packageDirectory of [
-  'apps/admin',
-  'apps/cast',
-  'apps/embed',
-  'apps/platform',
-  'apps/remote',
-  'packages/api',
-  'packages/models',
-  'packages/serve',
-  'packages/shared',
-  'packages/tailwind',
-  'packages/ui',
-]) {
-  const manifest = JSON.parse(
-    readFileSync(join(packageDirectory, 'package.json'), 'utf8'),
-  );
-  for (const group of ['dependencies', 'devDependencies', 'peerDependencies']) {
-    if (manifest[group]?.['@vibes/native-router']) {
-      violations.push(
-        `${packageDirectory}/package.json: @vibes/native-router is restricted to mobile and TV apps`,
       );
     }
   }

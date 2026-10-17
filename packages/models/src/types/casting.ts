@@ -12,13 +12,31 @@ import type { PlaylistItem } from '../schemas/playlist';
 
 // Inferred Types
 export type CastDeviceType = z.infer<typeof castDeviceTypeSchema>;
+
 export type CastSessionState = z.infer<typeof castSessionStateSchema>;
+
 export type CastDevice = z.infer<typeof castDeviceSchema>;
+
 export type CastSession = z.infer<typeof castSessionSchema>;
+
 export type MediaInfo = z.infer<typeof mediaInfoSchema>;
+
 export type CastError = Omit<z.infer<typeof castErrorSchema>, 'details'> & {
   details?: unknown;
 };
+
+/** Display metadata sent to the receiver. */
+export interface CastRoomInfo {
+  name: string;
+  participantCount: number;
+}
+
+/** Room credentials passed to a Cast receiver. */
+export interface CastRoomConnection {
+  castToken?: string;
+  casterId?: string;
+  roomId: string;
+}
 
 // Interfaces (Non-schema types)
 export interface CastManager {
@@ -33,10 +51,7 @@ export interface CastManager {
   // Playback Control
   castMedia(mediaInfo: MediaInfo): Promise<void>;
   updateQueue(queue: PlaylistItem[]): Promise<void>;
-  updateRoomInfo(roomInfo: {
-    name: string;
-    participantCount: number;
-  }): Promise<void>;
+  updateRoomInfo(roomInfo: CastRoomInfo): Promise<void>;
   syncPlaybackState(state: PlaybackStateV2): Promise<void>;
   joinRoom(roomId: string, castToken: string): Promise<void>;
 

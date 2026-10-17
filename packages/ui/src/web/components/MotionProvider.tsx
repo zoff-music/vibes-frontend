@@ -1,5 +1,5 @@
 import { domAnimation, LazyMotion } from 'framer-motion';
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'preact/compat';
 
 interface MotionProviderProps {
   children: ReactNode;

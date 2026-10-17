@@ -1,19 +1,17 @@
-import { useLoaderData } from 'react-router';
-import { SecurityHydrateFallback } from './components/HydrateFallback';
+import { useLoaderData } from '@kasperrt/smolter/preact';
 import { SecurityContent } from './components/SecurityContent';
-import { type SecurityData, securityLoader } from './loader';
-import { securityMeta } from './meta';
+import { type SecurityData } from './loader';
+export const id = 'routes/security/route';
 
+export { LegalDocumentFallback as HydrateFallback } from '../../components/legal/LegalDocumentFallback';
 export { shouldRevalidate } from '../../components/legal/shouldRevalidate';
 
-export const HydrateFallback = SecurityHydrateFallback;
-
-export const loader = securityLoader;
-
-export const meta = securityMeta;
+export { securityMeta as meta } from './meta';
 
 export default function Security() {
   const loaderData = useLoaderData<SecurityData>();
 
   return <SecurityContent securityEmail={loaderData.securityEmail} />;
 }
+
+export { loader } from './loader';

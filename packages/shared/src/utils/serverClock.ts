@@ -5,6 +5,7 @@ export function synchronizeServerClock(
   clientTimeMs = Date.now(),
 ): void {
   if (!Number.isFinite(serverTimeMs) || !Number.isFinite(clientTimeMs)) return;
+
   serverClockOffsetMs = clientTimeMs - serverTimeMs;
 }
 
@@ -15,6 +16,7 @@ export function getClientReferenceTimeMs(
   if (serverClockOffsetMs === null) {
     synchronizeServerClock(serverTimeMs, receivedAt);
   }
+
   return serverTimeMs + (serverClockOffsetMs ?? 0);
 }
 

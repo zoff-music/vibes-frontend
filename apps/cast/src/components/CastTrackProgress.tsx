@@ -1,10 +1,9 @@
-import type { PlaylistItem } from '@vibes/shared';
-import { usePlaybackStore } from '@vibes/shared';
+import { type PlaylistItem, usePlaybackStore } from '@vibes/shared';
 import {
   formatPlaybackMilliseconds,
   getPlaybackPresentation,
 } from '@vibes/ui/shared';
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'preact/compat';
 
 interface Props {
   playlistItem: PlaylistItem;
@@ -31,13 +30,16 @@ export function CastTrackProgress({ playlistItem }: Props) {
       setAuthoritativePositionMs(getAuthoritativePositionMs());
     };
     updatePosition();
+
     if (!authoritativePlayback.isPlaying) return;
+
     const interval = setInterval(updatePosition, playbackPositionIntervalMs);
+
     return () => clearInterval(interval);
   }, [authoritativePlayback, getAuthoritativePositionMs]);
 
   return (
-    <div className="cast-track-progress mt-4">
+    <div className="cast-short:mt-2 mt-4 max-sm:mt-2.5">
       <div className="mb-2 flex justify-between font-mono text-sm text-white/60">
         <span>{formatPlaybackMilliseconds(boundedPositionMs)}</span>
         <span>{formatPlaybackMilliseconds(durationMs)}</span>

@@ -1,4 +1,4 @@
-import type { MetaDescriptor } from 'react-router';
+import type { MetaDescriptor } from '@kasperrt/smolter/preact';
 import socialCardUrl from '../assets/social-card.png?url';
 
 export const siteUrl = 'https://zoff.me';

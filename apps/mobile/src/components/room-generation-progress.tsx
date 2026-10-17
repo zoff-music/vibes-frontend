@@ -19,6 +19,7 @@ export function RoomGenerationProgress() {
         (current) => (current + 1) % playlistGenerationMessages.length,
       );
     }, playlistGenerationMessageIntervalMs);
+
     return () => clearInterval(interval);
   }, []);
 

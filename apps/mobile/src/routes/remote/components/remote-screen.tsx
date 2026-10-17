@@ -21,15 +21,19 @@ export function RemoteScreen() {
     const remoteId = getSearchParam(searchParams.remoteId);
     const pairingToken = getSearchParam(searchParams.pair);
     const pairingLink = `${remoteId}:${pairingToken}`;
+
     if (!remoteId || consumedPairingLinkRef.current === pairingLink) return;
 
     consumedPairingLinkRef.current = pairingLink;
+
     if (pairingToken) {
       void pairWithToken(remoteId, pairingToken).finally(() =>
         router.replace('/remote'),
       );
+
       return;
     }
+
     setRemoteId(remoteId);
     router.replace('/remote');
   }, [

@@ -1,5 +1,5 @@
 import { createRoomQueueRequests } from '@vibes/api';
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { createRemoteApi, getRemoteRequestErrorMessage } from '@/lib/api';
 
 type ControllerQueueActionInput =
@@ -14,12 +14,14 @@ export async function action({
   input,
   params,
   signal,
-}: ActionFunctionArgs): Promise<DataResult<ControllerQueueActionData>> {
+}: MutationArgs): Promise<RequestResult<ControllerQueueActionData>> {
   const remoteId = params.id;
   const controllerToken = params.controllerToken;
+
   if (!remoteId || !controllerToken || !isControllerQueueActionInput(input)) {
     return { data: null, error: 'The remote queue request was invalid.' };
   }
+
   const requests = createRoomQueueRequests(
     createRemoteApi(remoteId, controllerToken),
   );
@@ -29,6 +31,7 @@ export async function action({
       : await requests.removePlaylistItem(input.roomId, input.playlistItemId, {
           signal,
         });
+
   if (error) {
     return {
       data: null,
@@ -40,6 +43,7 @@ export async function action({
       ),
     };
   }
+
   return { data: { intent: 'success' }, error: '' };
 }
 
@@ -47,5 +51,6 @@ function isControllerQueueActionInput(
   input: unknown,
 ): input is ControllerQueueActionInput {
   if (!input || typeof input !== 'object' || !('intent' in input)) return false;
+
   return input.intent === 'remove' || input.intent === 'vote';
 }

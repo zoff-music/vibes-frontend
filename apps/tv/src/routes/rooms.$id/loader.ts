@@ -4,8 +4,9 @@ import {
   getHttpError,
   getRequestErrorMessage,
 } from '@vibes/api';
-import type { DataResult, LoaderFunctionArgs } from '@vibes/native-router';
-import type { RoomSnapshot } from '@/data-router/room-snapshot';
+import type { RoomSnapshot } from '@vibes/models';
+import type { RequestArgs, RequestResult } from '@vibes/shared/requests';
+import { roomNotFoundError } from '@/constants/room';
 import { tvApi } from '@/lib/api';
 
 const readRequests = createRoomReadRequests(tvApi);
@@ -14,9 +15,11 @@ const playbackRequests = createRoomPlaybackRequests(tvApi);
 export async function loader({
   params,
   signal,
-}: LoaderFunctionArgs): Promise<DataResult<RoomSnapshot>> {
+}: RequestArgs): Promise<RequestResult<RoomSnapshot>> {
   const roomId = params.id?.trim().toLowerCase();
+
   if (!roomId) return { data: null, error: 'Enter a room name.' };
+
   const results = await Promise.all([
     readRequests.fetchRoom(roomId, { signal }),
     readRequests.fetchPlaylistItems(roomId, { signal }),
@@ -30,17 +33,19 @@ export async function loader({
     room && playlistItems && playback
       ? { playback, room, playlistItems }
       : null;
+
   if (error || !snapshot) {
     if (getHttpError(error)?.response.status === notFoundStatus) {
       return { data: null, error: roomNotFoundError };
     }
+
     return {
       data: null,
       error: await getRequestErrorMessage(error, 'Could not find that room.'),
     };
   }
+
   return { data: snapshot, error: '' };
 }
 
-export const roomNotFoundError = 'ROOM_NOT_FOUND';
 const notFoundStatus = 404;

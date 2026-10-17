@@ -1,10 +1,12 @@
-import type { PublicRoomResultV3, PublicRoomV3, RoomType } from '@vibes/models';
 import {
   generatedPlaylistPromptMaxLength,
+  type PublicRoomResultV3,
+  type PublicRoomV3,
+  type RoomType,
   roomNameMaxLength,
 } from '@vibes/models';
-import { useFetcher, useRouteLoaderData } from '@vibes/native-router';
 import { classNames } from '@vibes/shared';
+import { useMutation, useRequest } from '@vibes/shared/use-request';
 import { NativeLandingSun } from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -52,8 +54,10 @@ import { mobileRoomPageSize } from '@/constants/public-rooms';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useLandingPlaceholder } from '@/hooks/use-landing-placeholder';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
-import type { DiscoveryData } from '@/routes/_index/loader';
-import type { CreateRoomActionData } from '@/routes/rooms.create/action';
+import { useInitialData } from '@/providers/initial-data-provider';
+import { loader as loadIndexRequest } from '@/routes/_index/loader';
+import { action as mutateRoomsCreateRequest } from '@/routes/rooms.create/action';
+import { loader as loadRoomsPublicRequest } from '@/routes/rooms.public/loader';
 import { CreateRoomSheet } from './create-room-sheet';
 import { RoomScreen } from './room-screen';
 
@@ -67,14 +71,9 @@ export function RoomsScreen() {
   const { controllerRemote, loading, providers, room, roomId } =
     useRoomSession();
   const { setError, setRoomId, startGeneratedRoom } = useRoomActions();
-  const discovery = useRouteLoaderData<DiscoveryData>('_index');
-  const [, discoveryFetcher] = useFetcher<DiscoveryData>({
-    routeId: '_index',
-  });
-  const [, createRoomFetcher] = useFetcher<CreateRoomActionData>({
-    routeId: 'rooms.create',
-  });
-  const submitCreateRoom = createRoomFetcher.submit;
+  const discovery = useInitialData().discovery;
+  const [, discoveryFetcherLoad] = useRequest(loadIndexRequest);
+  const [, submitCreateRoom] = useMutation(mutateRoomsCreateRequest);
   const [value, setValue] = useState(roomId);
   const [roomType, setRoomType] = useState<RoomType>('MUSIC');
   const watch = roomType === 'WATCH';
@@ -92,9 +91,7 @@ export function RoomsScreen() {
   const [browsing, setBrowsing] = useState(false);
   const browseRequest = useRef(0);
   const landingScroll = useRef<ScrollView>(null);
-  const [, roomBrowser] = useFetcher<PublicRoomResultV3>({
-    routeId: 'rooms.public',
-  });
+  const [, roomBrowserLoad] = useRequest(loadRoomsPublicRequest);
   const publicRooms =
     browseMode === 'live'
       ? (discoveryData?.publicRooms ?? [])
@@ -108,13 +105,16 @@ export function RoomsScreen() {
       animated: false,
     });
     setBrowseQuery(q);
+
     if (mode === 'live') {
       setBrowsing(false);
       setBrowseError('');
+
       return;
     }
+
     setBrowsing(true);
-    const result = await roomBrowser.load({
+    const result = await roomBrowserLoad({
       params: {
         live: String(mode === 'live'),
         from: String(from),
@@ -122,7 +122,9 @@ export function RoomsScreen() {
         roomType,
       },
     });
+
     if (requestId !== browseRequest.current) return;
+
     setBrowseResult(result.data);
     landingScroll.current?.scrollTo({
       y: 0,
@@ -156,13 +158,14 @@ export function RoomsScreen() {
     const requestId = ++browseRequest.current;
     setRefreshing(true);
     const [result] = await Promise.all([
-      discoveryFetcher.load({
+      discoveryFetcherLoad({
         params: {
           roomType,
         },
       }),
       waitForMinimumRefreshSpin(),
     ]);
+
     if (requestId !== browseRequest.current) return;
 
     if (result.data) {
@@ -171,8 +174,9 @@ export function RoomsScreen() {
       setBrowseMode('live');
       setBrowseQuery('');
     }
+
     setRefreshing(false);
-  }, [discoveryFetcher, roomType]);
+  }, [roomType, discoveryFetcherLoad]);
 
   const changeRoomType = async (nextType: RoomType) => {
     if (nextType === roomType) return;
@@ -187,7 +191,7 @@ export function RoomsScreen() {
     setBrowseResult(null);
     setDiscoveryData(null);
     setBrowsing(true);
-    const result = await discoveryFetcher.load({
+    const result = await discoveryFetcherLoad({
       params: {
         roomType: nextType,
       },
@@ -204,6 +208,7 @@ export function RoomsScreen() {
     const hasRoom = Boolean(room && roomId);
     const leftRoom = hadRoomRef.current && !hasRoom;
     hadRoomRef.current = hasRoom;
+
     if (leftRoom) void refreshDiscovery();
   }, [refreshDiscovery, room, roomId]);
 
@@ -222,6 +227,7 @@ export function RoomsScreen() {
         }),
         -1,
       );
+
       return;
     }
 
@@ -278,6 +284,7 @@ export function RoomsScreen() {
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (refreshing) return;
+
     const pullDistance = Math.min(
       Math.max(-event.nativeEvent.contentOffset.y, 0),
       refreshPullDistance,
@@ -295,19 +302,26 @@ export function RoomsScreen() {
     async (roomName: string) => {
       if (!roomName.trim()) {
         setError('Enter a room name.');
+
         return;
       }
+
       if (controllerRemote) {
         setError(
           'Disconnect the active remote before joining a room on this device.',
         );
+
         return;
       }
+
       const result = await setRoomId(roomName);
+
       if (result === 'joined') {
         Keyboard.dismiss();
+
         return;
       }
+
       if (result === 'notFound') {
         setError('');
         setCreateVisible(true);
@@ -320,6 +334,7 @@ export function RoomsScreen() {
     const linkedRoomId = Array.isArray(searchParams.roomId)
       ? searchParams.roomId[0]
       : searchParams.roomId;
+
     if (!linkedRoomId || consumedRoomLinkRef.current === linkedRoomId) return;
 
     consumedRoomLinkRef.current = linkedRoomId;
@@ -332,16 +347,22 @@ export function RoomsScreen() {
       setError(
         'Disconnect the active remote before joining or creating a room.',
       );
+
       return;
     }
+
     if (isAIMode) {
       void generateRoom();
+
       return;
     }
+
     if (!value.trim()) {
       setCreateVisible(true);
+
       return;
     }
+
     void joinRoom(value);
   };
 
@@ -350,13 +371,18 @@ export function RoomsScreen() {
       setError(
         'Disconnect the active remote before generating a room on this device.',
       );
+
       return;
     }
+
     const prompt = value.trim();
+
     if (!prompt) {
       setError('Describe the playlist you want.');
+
       return;
     }
+
     setGenerationLoading(true);
     const result = await submitCreateRoom({
       intent: 'generate',
@@ -364,10 +390,13 @@ export function RoomsScreen() {
       roomType,
     });
     setGenerationLoading(false);
+
     if (result.data?.intent !== 'generated') {
       setError(result.error || 'Could not start playlist generation.');
+
       return;
     }
+
     Keyboard.dismiss();
     await startGeneratedRoom(result.data.roomId);
   };
@@ -380,8 +409,11 @@ export function RoomsScreen() {
 
   const handleCreated = async (roomName: string, roomPassword: string) => {
     const result = await setRoomId(roomName, roomPassword);
+
     if (result !== 'joined') return false;
+
     Keyboard.dismiss();
+
     return true;
   };
 
@@ -424,11 +456,13 @@ export function RoomsScreen() {
   }
 
   let submitLabel = value.trim() ? 'Join room' : 'Create a room';
+
   if (isAIMode) {
     submitLabel = generationLoading
       ? 'Generating playlist…'
       : 'Generate playlist';
   }
+
   if (loading) {
     submitLabel = 'Checking room…';
   }

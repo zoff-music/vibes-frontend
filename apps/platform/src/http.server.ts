@@ -1,10 +1,10 @@
+import type { HandleDataRequestFunction } from '@kasperrt/smolter/preact';
 import {
   createApiClientWithBaseUrl,
   createApiV3ClientWithBaseUrl,
 } from '@vibes/api';
 import { createTracedApiFetchLifecycle } from '@vibes/serve';
 import { safeWrap } from '@vibes/shared';
-import type { HandleDataRequestFunction } from 'react-router';
 
 export const handleDataRequest: HandleDataRequestFunction = (
   response,
@@ -50,12 +50,14 @@ function resolveServerApiBaseUrl(request?: Request) {
     typeof process !== 'undefined'
       ? process.env?.VITE_API_URL_INTERNAL
       : undefined;
+
   if (internalApiUrl) {
     return internalApiUrl;
   }
 
   if (request) {
     const [urlErr, originUrl] = safeWrap(() => new URL(request.url));
+
     if (!urlErr && originUrl) {
       if (
         (originUrl.hostname === 'localhost' ||
@@ -64,12 +66,14 @@ function resolveServerApiBaseUrl(request?: Request) {
       ) {
         return 'http://localhost:8080';
       }
+
       return originUrl.origin;
     }
   }
 
   const runtimeApiUrl =
     typeof process !== 'undefined' ? process.env?.VITE_API_URL : undefined;
+
   if (runtimeApiUrl) {
     return runtimeApiUrl;
   }
@@ -81,6 +85,7 @@ export function getServerApi(request?: Request) {
   if (internalApi) return internalApi;
 
   const baseUrl = resolveServerApiBaseUrl(request);
+
   return createApiClientWithBaseUrl(baseUrl, {
     fetchLifecycle: createTracedApiFetchLifecycle(serviceName),
   });

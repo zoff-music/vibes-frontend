@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { type ChangeEvent, useId } from 'react';
+import { type ChangeEvent, useId } from 'preact/compat';
 
 interface SegmentedControlOption {
   value: string;
@@ -25,7 +25,7 @@ export function SegmentedControl({
 }: SegmentedControlProps) {
   const id = useId();
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.value);
+    onChange(event.currentTarget.value);
   };
 
   return (

@@ -1,6 +1,6 @@
 import { roomNameMaxLength } from '@vibes/models/limits';
 import { ArrowRightIcon, Button, SparklesIcon, Tooltip } from '@vibes/ui/web';
-import type { ChangeEvent, KeyboardEvent, RefObject } from 'react';
+import type { ChangeEvent, KeyboardEvent, RefObject } from 'preact/compat';
 
 interface RoomJoinControlsProps {
   onJoinRoom: () => void;
@@ -25,12 +25,13 @@ export function RoomJoinControls({
   const actionLabel = hasRoomCode ? 'Join room' : 'Start a room';
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onRoomCodeChange(event.target.value.toLowerCase());
+    onRoomCodeChange(event.currentTarget.value.toLowerCase());
   };
 
   const handleSubmit = () => {
     if (hasRoomCode) {
       onJoinRoom();
+
       return;
     }
 
@@ -77,7 +78,7 @@ export function RoomJoinControls({
             maxLength={roomNameMaxLength}
             autoCapitalize="none"
             autoComplete="off"
-            spellCheck={false}
+            spellcheck={false}
           />
           <span className="shrink-0 border-theme border-l px-1">
             <Tooltip

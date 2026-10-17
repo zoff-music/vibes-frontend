@@ -1,18 +1,31 @@
 import { safeWrapAsync } from '@vibes/shared/wrap';
-import type { RequestClientProps, RequestDefinitions } from 'wiretyped';
-import { HTTPError } from 'wiretyped';
+
+import {
+  HTTPError,
+  type RequestClientProps,
+  type RequestDefinitions,
+} from 'wiretyped';
 
 type ApiFetchProvider = NonNullable<
   RequestClientProps<RequestDefinitions>['fetchProvider']
 >;
+
 type ApiFetchClient = InstanceType<ApiFetchProvider>;
+
 type ApiFetchClientOptions = ConstructorParameters<ApiFetchProvider>[1];
+
 type ApiGetOptions = Parameters<ApiFetchClient['get']>[1];
+
 type ApiPutOptions = Parameters<ApiFetchClient['put']>[1];
+
 type ApiPatchOptions = Parameters<ApiFetchClient['patch']>[1];
+
 type ApiPostOptions = Parameters<ApiFetchClient['post']>[1];
+
 type ApiDeleteOptions = Parameters<ApiFetchClient['delete']>[1];
+
 type ApiFetchResult = ReturnType<ApiFetchClient['get']>;
+
 type ApiFetchResponse = NonNullable<Awaited<ApiFetchResult>[1]>;
 
 interface ApiRequestOptions {
@@ -164,10 +177,12 @@ export function createApiFetchProvider(
       const lifecycleRequest = lifecycle.beforeRequest?.(request) ?? request;
 
       const [err, response] = await safeWrapAsync(fetcher(lifecycleRequest));
+
       if (err || !response) {
         const normalizedErr = err ?? new Error('error fetching response');
         lifecycle.afterError?.(lifecycleRequest, normalizedErr);
         lifecycle.afterRequest?.(lifecycleRequest);
+
         return [createFetchError(options.method, normalizedErr), null];
       }
 
@@ -203,10 +218,12 @@ export async function headApiUrl(
   });
   const lifecycleRequest = lifecycle.beforeRequest?.(request) ?? request;
   const [err, response] = await safeWrapAsync(fetcher(lifecycleRequest));
+
   if (err || !response) {
     const normalizedErr = err ?? new Error('error fetching HEAD response');
     lifecycle.afterError?.(lifecycleRequest, normalizedErr);
     lifecycle.afterRequest?.(lifecycleRequest);
+
     return [createFetchError('HEAD', normalizedErr), null];
   }
 

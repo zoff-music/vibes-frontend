@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { browserDebugLog } from '../utils/debug';
-import { safeWrap } from '../utils/wrap';
+import { safeWrap } from '../wrap';
 
 // Theme definitions - easy to add new themes by adding to this object
 export const themes = {
@@ -19,22 +19,10 @@ export const themes = {
     name: 'Auto',
     class: '', // Auto is the baseline (no class)
   },
-  // Add new themes here:
-  // midnight: {
-  //     id: 'midnight',
-  //     name: 'Midnight Blue',
-  //     icon: '🌌',
-  //     class: 'midnight',
-  // },
-  // sunset: {
-  //     id: 'sunset',
-  //     name: 'Sunset',
-  //     icon: '🌅',
-  //     class: 'sunset',
-  // },
 } as const;
 
 export type ThemeId = keyof typeof themes;
+
 export type Theme = (typeof themes)[ThemeId];
 
 interface Preferences {
@@ -80,29 +68,38 @@ function savePreferences(preferences: Preferences) {
   setCookie(COOKIE_NAME, encoded);
 
   if (typeof window === 'undefined') return;
+
   safeWrap(() => window.localStorage.setItem(STORAGE_NAME, json));
 }
 
 // Apply theme class to document
 function applyTheme(themeId: ThemeId) {
   if (typeof document === 'undefined') return;
+
   const html = document.documentElement;
 
-  // Remove all theme classes
-  Object.values(themes).forEach((theme) => {
-    if (theme.class) {
-      html.classList.remove(theme.class);
-    }
-  });
+  html.classList.toggle(themes.light.class, themeId === 'light');
+  html.classList.toggle(themes.dark.class, resolveTheme(themeId) === 'dark');
+}
 
-  if (themeId === 'light') {
-    html.classList.add(themes.light.class);
-    return;
-  }
+function getCookieTheme(): ThemeId | null {
+  if (typeof document === 'undefined') return null;
 
-  if (resolveTheme(themeId) === 'dark') {
-    html.classList.add(themes.dark.class);
-  }
+  const encoded = document.cookie
+    .split(';')
+    .map((value) => value.trim())
+    .find((value) => value.startsWith(`${COOKIE_NAME}=`))
+    ?.slice(COOKIE_NAME.length + 1);
+
+  if (!encoded) return null;
+
+  const [error, preferences] = safeWrap(() =>
+    getStoredPreferences(
+      atob(decodeURIComponent(encoded).replace(/-/g, '+').replace(/_/g, '/')),
+    ),
+  );
+
+  return error ? null : (preferences?.theme ?? null);
 }
 
 // Initialize theme by checking the initial data provided by SSR, then DOM state
@@ -111,8 +108,13 @@ function getInitialThemeSync(): ThemeId {
     return 'auto'; // Server-side fallback
   }
 
+  const cookieTheme = getCookieTheme();
+
+  if (cookieTheme) return cookieTheme;
+
   // 1. Try to get theme from SSR data (most reliable source of truth)
   const dataElement = document.getElementById('ssr-data');
+
   if (dataElement) {
     const [err, data] = safeWrap(() =>
       JSON.parse(dataElement.textContent || '{}'),
@@ -126,6 +128,7 @@ function getInitialThemeSync(): ThemeId {
         data.theme === 'auto'
       ) {
         browserDebugLog('[Theme] Initialized from SSR data:', data.theme);
+
         return data.theme as ThemeId;
       }
     }
@@ -133,7 +136,9 @@ function getInitialThemeSync(): ThemeId {
 
   // 2. Fallback: Check if the HTML element has any theme class
   const classList = document.documentElement.classList;
+
   if (classList.contains('dark')) return 'dark';
+
   if (classList.contains('theme-light')) return 'light';
 
   return 'auto';
@@ -141,7 +146,9 @@ function getInitialThemeSync(): ThemeId {
 
 function resolveTheme(themeId: ThemeId): 'light' | 'dark' {
   if (themeId !== 'auto') return themeId as 'light' | 'dark';
+
   if (typeof window === 'undefined') return 'light';
+
   return window.matchMedia('(prefers-color-scheme: dark)').matches
     ? 'dark'
     : 'light';
@@ -151,10 +158,12 @@ function getStoredPreferences(value: string | null): Preferences | null {
   if (!value) return null;
 
   const [err, preferences] = safeWrap<unknown>(() => JSON.parse(value));
+
   if (err || !preferences || typeof preferences !== 'object') return null;
 
   const theme = Reflect.get(preferences, 'theme');
   const version = Reflect.get(preferences, 'version');
+
   if (
     version !== CURRENT_VERSION ||
     (theme !== 'light' && theme !== 'dark' && theme !== 'auto')
@@ -188,10 +197,17 @@ export const useThemeStore = create<ThemeState>((set, get) => {
         }
       });
 
+    // Cookies share the user's choice across local app ports; storage events do not.
+    window.addEventListener('focus', () => get().syncTheme());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') get().syncTheme();
+    });
+
     window.addEventListener('storage', (event) => {
       if (event.key !== STORAGE_NAME) return;
 
       const preferences = getStoredPreferences(event.newValue);
+
       if (!preferences || preferences.theme === get().themeId) return;
 
       applyTheme(preferences.theme);
@@ -215,10 +231,15 @@ export const useThemeStore = create<ThemeState>((set, get) => {
     currentTheme: themes[INITIAL_THEME],
 
     syncTheme: () => {
-      const themeId = get().themeId;
+      const themeId = getCookieTheme() ?? get().themeId;
       const resolved = resolveTheme(themeId);
+
+      if (themeId === get().themeId && resolved === get().resolvedTheme) return;
+
       applyTheme(themeId);
       set({
+        themeId,
+        currentTheme: themes[themeId],
         resolvedTheme: resolved,
         isDarkMode: resolved === 'dark',
       });
@@ -242,21 +263,12 @@ export const useThemeStore = create<ThemeState>((set, get) => {
       const current = get().themeId;
       // Toggle cycles: light -> dark -> auto -> light
       let newTheme: ThemeId;
+
       if (current === 'light') newTheme = 'dark';
       else if (current === 'dark') newTheme = 'auto';
       else newTheme = 'light';
 
-      browserDebugLog('[Theme] Toggling from', current, 'to', newTheme);
-      applyTheme(newTheme);
-      savePreferences({ theme: newTheme, version: CURRENT_VERSION });
-
-      const resolved = resolveTheme(newTheme);
-      set({
-        themeId: newTheme,
-        resolvedTheme: resolved,
-        isDarkMode: resolved === 'dark',
-        currentTheme: themes[newTheme],
-      });
+      get().setTheme(newTheme);
     },
 
     setIsWarping: (warp: boolean) => {
@@ -264,6 +276,3 @@ export const useThemeStore = create<ThemeState>((set, get) => {
     },
   };
 });
-
-// Export helper to get all available themes (for theme selector UI)
-export const getAvailableThemes = () => Object.values(themes);

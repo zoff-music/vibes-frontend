@@ -4,6 +4,10 @@ import { safeWrap, safeWrapAsync } from '@vibes/shared/wrap';
 import type { RequestHandler } from 'express';
 import Negotiator from 'negotiator';
 
+interface EncodingPreference {
+  preferred: string[];
+}
+
 export async function precompressedAssets(
   root: string,
 ): Promise<RequestHandler> {
@@ -11,6 +15,7 @@ export async function precompressedAssets(
   const [error, files] = await safeWrapAsync(
     readdir(assetRoot, { recursive: true }),
   );
+
   if (error) throw error;
 
   const available = new Set(files);
@@ -19,6 +24,7 @@ export async function precompressedAssets(
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
 
     const [decodeError, decoded] = safeWrap(() => decodeURIComponent(req.path));
+
     if (decodeError || decoded === null) return next();
 
     const filename = decoded.replace(/^\//, '');
@@ -27,8 +33,11 @@ export async function precompressedAssets(
 
     res.vary('Accept-Encoding');
     const encodings: string[] = [];
+
     if (available.has(`${filename}.br`)) encodings.push('br');
+
     if (available.has(`${filename}.gz`)) encodings.push('gzip');
+
     encodings.push('identity');
 
     // Negotiator 1 supports server preference for equal q-values; its older
@@ -36,16 +45,19 @@ export async function precompressedAssets(
     const negotiator = new Negotiator(req) as Negotiator & {
       encoding(
         available: string[],
-        options: { preferred: string[] },
+        options: EncodingPreference,
       ): string | undefined;
     };
     const encoding = negotiator.encoding(encodings, {
       preferred: ['br', 'gzip', 'identity'],
     });
+
     if (!encoding) {
       res.sendStatus(406);
+
       return;
     }
+
     if (encoding === 'identity') return next();
 
     const extension = encoding === 'br' ? 'br' : 'gz';

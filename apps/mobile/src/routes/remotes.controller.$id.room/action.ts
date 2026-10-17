@@ -1,6 +1,6 @@
 import { createRoomLifecycleRequests } from '@vibes/api';
 import type { RoomUpdateV2, RoomV2 } from '@vibes/models';
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { createRemoteApi, getRemoteRequestErrorMessage } from '@/lib/api';
 
 type ControllerRoomActionInput =
@@ -16,42 +16,53 @@ export async function action({
   input,
   params,
   signal,
-}: ActionFunctionArgs): Promise<DataResult<ControllerRoomActionData>> {
+}: MutationArgs): Promise<RequestResult<ControllerRoomActionData>> {
   const remoteId = params.id;
   const controllerToken = params.controllerToken;
+
   if (!remoteId || !controllerToken || !isControllerRoomActionInput(input)) {
     return { data: null, error: 'The controlled-room request was invalid.' };
   }
+
   const requests = createRoomLifecycleRequests(
     createRemoteApi(remoteId, controllerToken),
   );
+
   if (input.intent === 'authenticate') {
     const [error, session] = await requests.joinRoom(
       input.roomId,
       input.password,
       { signal },
     );
+
     if (error || !session) {
       return failure(error, 'The admin password was not accepted.');
     }
+
     return { data: { intent: 'roomUpdated', room: session.room }, error: '' };
   }
+
   if (input.intent === 'logout') {
     const [error] = await requests.logOutRoomAdmin(input.roomId, { signal });
+
     if (error) return failure(error, 'Could not log out of this room.');
+
     return { data: { intent: 'success' }, error: '' };
   }
+
   const [error, room] = await requests.updateRoom(input.roomId, input.update, {
     signal,
   });
+
   if (error || !room) return failure(error, 'Could not update room settings.');
+
   return { data: { intent: 'roomUpdated', room }, error: '' };
 }
 
 async function failure(
   error: Error | null,
   fallback: string,
-): Promise<DataResult<ControllerRoomActionData>> {
+): Promise<RequestResult<ControllerRoomActionData>> {
   return {
     data: null,
     error: await getRemoteRequestErrorMessage(error, fallback),
@@ -62,5 +73,6 @@ function isControllerRoomActionInput(
   input: unknown,
 ): input is ControllerRoomActionInput {
   if (!input || typeof input !== 'object' || !('intent' in input)) return false;
+
   return ['authenticate', 'logout', 'settings'].includes(String(input.intent));
 }

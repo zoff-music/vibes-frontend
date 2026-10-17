@@ -1,7 +1,8 @@
 import { classNames } from '@vibes/shared';
-import type { PropsWithChildren } from 'react';
+
 import {
   createContext,
+  type PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -39,8 +40,10 @@ export function ToastProvider({ children }: PropsWithChildren) {
     (message: string, tone: ToastTone = 'error') => {
       if (!message) {
         setActiveToast(null);
+
         return;
       }
+
       nextId.current += 1;
       setActiveToast({ id: nextId.current, message, tone });
     },
@@ -49,7 +52,9 @@ export function ToastProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (!activeToast) return;
+
     const timeout = setTimeout(() => setActiveToast(null), toastDurationMs);
+
     return () => clearTimeout(timeout);
   }, [activeToast]);
 
@@ -65,7 +70,9 @@ export function ToastProvider({ children }: PropsWithChildren) {
 
 export function ToastViewport() {
   const { activeToast } = useToast();
+
   if (!activeToast) return null;
+
   return (
     <SafeAreaView
       className="items-center px-5 pt-3"
@@ -101,16 +108,20 @@ export function Toast({ message, tone = 'error' }: ToastProps) {
   const { showToast } = useToast();
   useEffect(() => {
     if (!message) return;
+
     showToast(message, tone);
   }, [message, showToast, tone]);
+
   return null;
 }
 
 export function useToast() {
   const context = useContext(ToastContext);
+
   if (!context) {
     throw new Error('useToast must be used inside ToastProvider.');
   }
+
   return context;
 }
 

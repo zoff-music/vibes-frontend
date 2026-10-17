@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs, DataResult } from '@vibes/native-router';
+import type { MutationArgs, RequestResult } from '@vibes/shared/requests';
 import { setSecureValue } from '@/lib/secure-storage';
 import { playerPreferenceStorageKey } from '@/lib/storage-keys';
 
@@ -9,15 +9,17 @@ export interface PlayerPreferenceActionData {
 
 export async function action({
   input,
-}: ActionFunctionArgs): Promise<DataResult<PlayerPreferenceActionData>> {
+}: MutationArgs): Promise<RequestResult<PlayerPreferenceActionData>> {
   if (!input || typeof input !== 'object' || !('enabled' in input)) {
     return { data: null, error: 'The player preference was invalid.' };
   }
+
   const enabled = input.enabled === true;
   const [error] = await setSecureValue(
     playerPreferenceStorageKey,
     enabled ? 'true' : 'false',
   );
+
   return {
     data: {
       enabled,

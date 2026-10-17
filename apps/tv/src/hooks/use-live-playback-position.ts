@@ -9,10 +9,12 @@ export function useLivePlaybackPosition(active: boolean) {
 
   useEffect(() => {
     if (!active) return;
+
     const interval = setInterval(
       updateActualPosition,
       playbackPositionIntervalMs,
     );
+
     return () => clearInterval(interval);
   }, [active, updateActualPosition]);
 

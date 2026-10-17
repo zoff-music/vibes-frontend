@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'preact/compat';
 
 export interface SiteFooterLink {
   href: string;

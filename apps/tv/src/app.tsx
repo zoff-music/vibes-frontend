@@ -1,13 +1,10 @@
-import { Route } from '@vibes/native-router';
 import { TvErrorBoundary } from '@/components/tv-error-boundary';
-import { AppRouterProvider } from '@/data-router/provider';
+import { TvHome } from '@/screens/tv-home';
 
 export function App() {
   return (
     <TvErrorBoundary>
-      <AppRouterProvider>
-        <Route routeId="_index" />
-      </AppRouterProvider>
+      <TvHome />
     </TvErrorBoundary>
   );
 }

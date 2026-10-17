@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import { PauseIcon, PlayIcon } from '@vibes/ui/web';
 import { useReducedMotion } from 'framer-motion';
-import { type ReactNode, type Ref, useEffect, useState } from 'react';
+import { type ReactNode, type Ref, useEffect, useState } from 'preact/compat';
 
 interface MusicDemoProps {
   children: ReactNode;

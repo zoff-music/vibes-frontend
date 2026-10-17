@@ -1,25 +1,25 @@
-import type {
-  ProviderItem,
-  ProviderPlaylist,
-  Providers,
-  RoomType,
-  SourceType,
+import {
+  generatedPlaylistPromptMaxLength,
+  type ProviderItem,
+  type ProviderPlaylist,
+  type Providers,
+  type RoomType,
+  type SourceType,
 } from '@vibes/models';
-import { generatedPlaylistPromptMaxLength } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
 import {
   parseISODuration,
   parseProviderItemLink,
   parseProviderPlaylistLink,
 } from '@vibes/shared';
+import { useMutation, useRequest } from '@vibes/shared/use-request';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useEffect, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { useToast } from '@/components/toast';
 import { mobileProviders } from '@/lib/mobile-content';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
-import type { SearchActionData } from '@/routes/rooms.$id.search/action';
-import type { SearchData } from '@/routes/rooms.$id.search/loader';
+import { action as mutateRoomsIdSearchRequest } from '@/routes/rooms.$id.search/action';
+import { loader as loadRoomsIdSearchRequest } from '@/routes/rooms.$id.search/loader';
 
 interface SearchRemoteCredentials {
   controllerToken: string;
@@ -86,21 +86,15 @@ export function useProviderSearch({
   const [error, setError] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
   const targetRoomId = roomIdOverride ?? roomId;
-  const [, searchLoader] = useFetcher<SearchData>({
-    params: {
-      controllerToken: remoteCredentials?.controllerToken ?? '',
-      remoteId: remoteCredentials?.remoteId ?? '',
-      roomId: targetRoomId,
-    },
-    routeId: 'rooms.$id.search',
+  const [, searchLoaderLoad] = useRequest(loadRoomsIdSearchRequest, {
+    controllerToken: remoteCredentials?.controllerToken ?? '',
+    remoteId: remoteCredentials?.remoteId ?? '',
+    roomId: targetRoomId,
   });
-  const [, searchAction] = useFetcher<SearchActionData>({
-    params: {
-      controllerToken: remoteCredentials?.controllerToken ?? '',
-      remoteId: remoteCredentials?.remoteId ?? '',
-      roomId: targetRoomId,
-    },
-    routeId: 'rooms.$id.search',
+  const [, searchActionSubmit] = useMutation(mutateRoomsIdSearchRequest, {
+    controllerToken: remoteCredentials?.controllerToken ?? '',
+    remoteId: remoteCredentials?.remoteId ?? '',
+    roomId: targetRoomId,
   });
   const roomProviders = providersOverride ?? providers;
   const enabledProviders = mobileProviders.filter(
@@ -114,6 +108,7 @@ export function useProviderSearch({
     if (enabledProviders.length === 0 || enabledProviders.includes(provider)) {
       return;
     }
+
     setProvider(enabledProviders[0]);
   }, [enabledProviders, provider]);
 
@@ -130,8 +125,10 @@ export function useProviderSearch({
   const toggleAIMode = () => {
     if (!canGenerate) {
       showToast(generationUnavailableReason);
+
       return;
     }
+
     setIsAIMode((current) => !current);
     setQuery('');
     setResults([]);
@@ -142,19 +139,26 @@ export function useProviderSearch({
   const generate = async () => {
     if (!targetRoomId) {
       setError('Join a room before generating a playlist.');
+
       return;
     }
+
     if (!canGenerate) {
       setError(generationUnavailableReason);
+
       return;
     }
+
     const prompt = query.trim();
+
     if (!prompt) {
       setError('Describe the playlist you want.');
+
       return;
     }
+
     setLoading(true);
-    const result = await searchAction.submit(
+    const result = await searchActionSubmit(
       {
         intent: 'generate',
         prompt,
@@ -163,10 +167,13 @@ export function useProviderSearch({
       { params: { id: targetRoomId } },
     );
     setLoading(false);
+
     if (!result.data) {
       setError(result.error || 'Could not start playlist generation.');
+
       return;
     }
+
     await onGenerated();
     setQuery('');
     setError('');
@@ -176,35 +183,48 @@ export function useProviderSearch({
   const search = async () => {
     if (isAIMode) {
       await generate();
+
       return;
     }
+
     const trimmedQuery = query.trim();
+
     if (enabledProviders.length === 0) {
       setError('This room has no enabled providers.');
+
       return;
     }
+
     const playlistLink = parseProviderPlaylistLink(trimmedQuery);
     const itemLink = parseProviderItemLink(trimmedQuery);
+
     if (playlistLink && !playlistImportAllowed) {
       setError('Playlist importing is disabled in this room.');
+
       return;
     }
+
     if (!playlistLink && !itemLink && trimmedQuery.length < 3) {
       setError('Search needs at least 3 characters.');
+
       return;
     }
+
     setError('');
     setPlaylist(null);
     setLoading(true);
     Keyboard.dismiss();
 
     const linkedProvider = playlistLink?.provider ?? itemLink?.provider;
+
     if (linkedProvider && !enabledProviders.includes(linkedProvider)) {
       setLoading(false);
       setError(`${linkedProvider} is not enabled in this room.`);
+
       return;
     }
-    const result = await searchLoader.load({
+
+    const result = await searchLoaderLoad({
       params: {
         id: targetRoomId,
         provider,
@@ -213,10 +233,13 @@ export function useProviderSearch({
       },
     });
     setLoading(false);
+
     if (!result.data) {
       setError(result.error || `Could not search for ${labels.items}.`);
+
       return;
     }
+
     setProvider(result.data.provider);
     setPlaylist(result.data.playlist);
     setResults(result.data.results);
@@ -225,9 +248,11 @@ export function useProviderSearch({
   const add = async (result: ProviderItem) => {
     if (!targetRoomId) {
       setError(`Join a room before adding ${labels.items}.`);
+
       return;
     }
-    const actionResult = await searchAction.submit(
+
+    const actionResult = await searchActionSubmit(
       {
         intent: 'addPlaylistItem',
         request: {
@@ -243,27 +268,37 @@ export function useProviderSearch({
       },
       { params: { id: targetRoomId } },
     );
+
     if (actionResult.error) {
       setError(actionResult.error);
+
       return;
     }
+
     if (onAdded) await onAdded();
+
     if (!onAdded) await refresh();
+
     onClose();
   };
 
   const addPlaylist = async () => {
     if (!playlistImportAllowed) {
       setError('Playlist importing is disabled in this room.');
+
       return;
     }
+
     if (!targetRoomId) {
       setError('Join a room before adding a playlist.');
+
       return;
     }
+
     if (!playlist || playlist.items.length === 0) return;
+
     setLoading(true);
-    const result = await searchAction.submit(
+    const result = await searchActionSubmit(
       {
         intent: 'addPlaylist',
         request: {
@@ -282,10 +317,13 @@ export function useProviderSearch({
       { params: { id: targetRoomId } },
     );
     setLoading(false);
+
     if (result.error) {
       setError(result.error);
+
       return;
     }
+
     showToast(
       `Queued ${result.data?.queuedCount ?? playlist.items.length} ${labels.items}. They will appear as the playlist is imported.`,
     );

@@ -1,5 +1,5 @@
 import { useReducedMotion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'preact/compat';
 
 type GenerationPhase =
   | 'typing'
@@ -33,6 +33,7 @@ export function useGeneratedPlaylistPreview(prompt: string, playing: boolean) {
     }
 
     let delay = 450;
+
     if (progress.phase === 'typing' && progress.characters > 0) {
       delay = progress.characters === prompt.length ? 450 : 45;
     } else if (progress.phase === 'searching') {
@@ -59,6 +60,7 @@ export function useGeneratedPlaylistPreview(prompt: string, playing: boolean) {
 
         if (current.phase === 'arriving') {
           const count = current.count + 1;
+
           return {
             ...current,
             count,

@@ -16,9 +16,11 @@ function start() {
 
 function finishPattern(state: BeatGameState) {
   let current = state;
+
   for (const pad of sequence.slice(0, state.round + 1)) {
     current = beatGameReducer(current, { type: 'press', pad });
   }
+
   return current;
 }
 
@@ -44,10 +46,12 @@ test('wrong input ends the round until a new game starts', () => {
 
 test('each cleared round adds a beat and the fifth completes the game', () => {
   let state = start();
+
   for (let round = 1; round <= TOTAL_ROUNDS; round += 1) {
     state = beatGameReducer(state, { type: 'ready' });
     state = finishPattern(state);
     assert.equal(state.answered, round + 1);
+
     if (round < TOTAL_ROUNDS) {
       assert.equal(state.phase, 'cleared');
       state = beatGameReducer(state, { type: 'next' });
@@ -55,6 +59,7 @@ test('each cleared round adds a beat and the fifth completes the game', () => {
       assert.equal(state.answered, 0);
     }
   }
+
   assert.equal(state.phase, 'won');
   assert.equal(beatGameReducer(state, { type: 'next' }), state);
 });

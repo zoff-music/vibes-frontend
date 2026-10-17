@@ -23,6 +23,7 @@ export function subscribeToPlaybackGestureUnlock(
   if (typeof window === 'undefined') return () => {};
 
   window.addEventListener(PLAYBACK_GESTURE_EVENT, listener);
+
   return () => {
     window.removeEventListener(PLAYBACK_GESTURE_EVENT, listener);
   };

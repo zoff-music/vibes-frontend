@@ -1,16 +1,15 @@
-import type {
-  Providers,
-  RoomNameReservation,
-  RoomSettingsV2,
-  RoomType,
+import {
+  type Providers,
+  type RoomNameReservation,
+  type RoomSettingsV2,
+  type RoomType,
+  roomNameMaxLength,
 } from '@vibes/models';
-import { roomNameMaxLength } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
 import { DEFAULT_ROOM_SETTINGS } from '@vibes/shared';
+import { useMutation } from '@vibes/shared/use-request';
 import { useEffect, useState } from 'react';
 import { FlatList, Modal, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import {
   Button,
   Card,
@@ -22,7 +21,7 @@ import {
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
 import { Toast, ToastViewport } from '@/components/toast';
-import type { CreateRoomActionData } from '@/routes/rooms.create/action';
+import { action as mutateRoomsCreateRequest } from '@/routes/rooms.create/action';
 
 interface CreateRoomSheetProps {
   initialName: string;
@@ -41,9 +40,7 @@ export function CreateRoomSheet({
   visible,
   roomType = 'MUSIC',
 }: CreateRoomSheetProps) {
-  const [, { submit }] = useFetcher<CreateRoomActionData>({
-    routeId: 'rooms.create',
-  });
+  const [, submit] = useMutation(mutateRoomsCreateRequest);
   const [name, setName] = useState(initialName);
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'host' | 'server'>('server');
@@ -59,6 +56,7 @@ export function CreateRoomSheet({
 
   useEffect(() => {
     if (!visible) return;
+
     setName(initialName);
     setPassword('');
     setMode('server');
@@ -68,13 +66,18 @@ export function CreateRoomSheet({
     });
     setError('');
     setReservation(null);
+
     if (initialName.trim()) return;
+
     const generateName = async () => {
       const result = await submit({ intent: 'reserve' });
+
       if (result.data?.intent !== 'reserved') {
         setError(result.error || 'Could not generate a room name.');
+
         return;
       }
+
       setName(result.data.reservation.name);
       setReservation(result.data.reservation);
     };
@@ -83,10 +86,13 @@ export function CreateRoomSheet({
 
   const generateName = async () => {
     const result = await submit({ intent: 'reserve' });
+
     if (result.data?.intent !== 'reserved') {
       setError(result.error || 'Could not generate a room name.');
+
       return;
     }
+
     setName(result.data.reservation.name);
     setReservation(result.data.reservation);
     setError('');
@@ -94,40 +100,54 @@ export function CreateRoomSheet({
 
   const createRoom = async () => {
     const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
+
     if (!normalizedName) {
       setError('Room name is required.');
+
       return;
     }
+
     if (settings.public && !password) {
       setError('Add an admin password before making this room public.');
+
       return;
     }
+
     if (providers.length === 0) {
       setError('Providers are still loading. Try again in a moment.');
+
       return;
     }
+
     if (settings.enabledSources.length === 0) {
       setError('Enable at least one provider.');
+
       return;
     }
 
     setLoading(true);
     let roomReservation = reservation;
+
     if (!roomReservation || roomReservation.name !== normalizedName) {
       const result = await submit({
         intent: 'reserve',
         name: normalizedName,
       });
+
       if (result.data?.intent !== 'reserved') {
         setLoading(false);
         setError(result.error || 'Could not reserve this room name.');
+
         return;
       }
+
       roomReservation = result.data.reservation;
     }
+
     if (!roomReservation) {
       setLoading(false);
       setError('Could not reserve this room name.');
+
       return;
     }
 
@@ -143,12 +163,15 @@ export function CreateRoomSheet({
       },
     });
     setLoading(false);
+
     if (result.data?.intent !== 'created') {
       setError(result.error || 'Could not create this room.');
+
       return;
     }
 
     const joined = await onCreated(result.data.roomId, password);
+
     if (joined) onClose();
   };
 
@@ -178,6 +201,7 @@ export function CreateRoomSheet({
           value={password}
           onChangeText={(value) => {
             setPassword(value);
+
             if (!value) {
               setSettings((current) => ({
                 ...current,

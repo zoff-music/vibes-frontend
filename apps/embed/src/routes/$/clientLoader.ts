@@ -1,0 +1,76 @@
+import type { ClientLoaderFunctionArgs } from '@kasperrt/smolter/preact';
+import { api, getHttpError } from '@vibes/api';
+import { parseColorScheme, safeWrap } from '@vibes/shared';
+import type { EmbedLoaderData } from './loader';
+
+export async function embedRoomClientLoader({
+  params,
+  request,
+}: ClientLoaderFunctionArgs): Promise<EmbedLoaderData> {
+  const requestUrl = new URL(request.url);
+  const encodedRoomId = params['*']?.split('/').at(-1);
+  const [decodeError, roomId] = safeWrap(() =>
+    decodeURIComponent(encodedRoomId ?? ''),
+  );
+
+  if (!encodedRoomId || encodedRoomId.includes('/') || decodeError || !roomId) {
+    throw new Response('Room not found', { status: 404 });
+  }
+
+  const [roomResult, playlistItemsResult, playbackResult, providersResult] =
+    await Promise.all([
+      api.v2.get('/rooms/{id}', { id: roomId }, { signal: request.signal }),
+      api.v3.get(
+        '/rooms/{id}/items',
+        { id: roomId, $search: {} },
+        { signal: request.signal },
+      ),
+      api.v2.get(
+        '/rooms/{id}/states',
+        { id: roomId },
+        { signal: request.signal },
+      ),
+      api.get('/providers', null, { signal: request.signal }),
+    ]);
+  const [roomError, room] = roomResult;
+  const [playlistItemsError, playlistItems] = playlistItemsResult;
+  const [playbackError, playback] = playbackResult;
+  const [providersError, providers] = providersResult;
+
+  if (
+    roomError ||
+    playlistItemsError ||
+    playbackError ||
+    providersError ||
+    !room
+  ) {
+    const roomStatus = roomError
+      ? getHttpError(roomError)?.response.status
+      : null;
+
+    if (roomStatus === 404) {
+      throw new Response('Room not found', { status: 404 });
+    }
+
+    throw new Response('Embedded room temporarily unavailable', {
+      status: 503,
+      statusText: 'Embedded room temporarily unavailable',
+    });
+  }
+
+  return {
+    options: {
+      autoplay: requestUrl.searchParams.get('autoplay') === 'true',
+      player: requestUrl.searchParams.get('player') !== 'false',
+      playlist: requestUrl.searchParams.get('playlist') !== 'false',
+      skip: requestUrl.searchParams.get('skip') !== 'false',
+      vote: requestUrl.searchParams.get('vote') !== 'false',
+      theme: parseColorScheme(requestUrl.searchParams.get('theme')),
+    },
+    playback: playback ?? undefined,
+    providers: providers ?? [],
+    room,
+    roomId,
+    playlistItems: playlistItems?.data ?? [],
+  };
+}

@@ -1,16 +1,8 @@
-import type { ShouldRevalidateFunctionArgs } from 'react-router';
+export const id = 'routes/remote-control/route';
 
-export { clientAction } from './action';
+export { clientAction } from './clientAction';
 
-export function shouldRevalidate({
-  defaultShouldRevalidate,
-  formMethod,
-}: ShouldRevalidateFunctionArgs) {
-  if (formMethod) {
-    return false;
-  }
-  return defaultShouldRevalidate;
-}
+export { shouldRevalidate } from './shouldRevalidate';
 
 export default function RemoteControlResource() {
   return null;

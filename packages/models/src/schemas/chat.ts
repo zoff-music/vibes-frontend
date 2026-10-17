@@ -24,6 +24,7 @@ export const roomMessageSchema = /* @__PURE__ */ z.compile(
     createdAt: z.number(),
   }),
 );
+
 export type RoomMessage = z.infer<typeof roomMessageSchema>;
 export const createMessageSchema = /* @__PURE__ */ z.compile(
   z.object({

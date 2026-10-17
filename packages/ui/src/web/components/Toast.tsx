@@ -1,5 +1,5 @@
 import { classNames, type ToastType } from '@vibes/shared';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'preact/compat';
 import { AlertCircleIcon, CheckIcon, InfoIcon } from '../icons';
 
 interface ToastProps {
@@ -33,6 +33,7 @@ export const Toast = ({
 
     return () => {
       clearTimeout(timer);
+
       if (closeTimer) {
         clearTimeout(closeTimer);
       }

@@ -1,9 +1,9 @@
-import { type RefObject, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'preact/compat';
 
 export function useProgressiveList(
   itemCount: number,
   batchSize = defaultBatchSize,
-): readonly [number, RefObject<HTMLDivElement | null>] {
+): readonly [number, { current: HTMLDivElement | null }] {
   const [visibleCount, setVisibleCount] = useState(() =>
     Math.min(itemCount, batchSize),
   );
@@ -17,19 +17,25 @@ export function useProgressiveList(
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
+
     if (!sentinel || visibleCount >= itemCount) return;
+
     if (typeof IntersectionObserver === 'undefined') {
       setVisibleCount(itemCount);
+
       return;
     }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
+
         setVisibleCount((current) => Math.min(itemCount, current + batchSize));
       },
       { rootMargin: '240px 0px' },
     );
     observer.observe(sentinel);
+
     return () => observer.disconnect();
   }, [batchSize, itemCount, visibleCount]);
 

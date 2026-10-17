@@ -1,6 +1,6 @@
 import { usePageVisibility } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'preact/compat';
 import { queueDemoPlaylistItems } from '../../../components/seo/preview';
 
 const durations = [2200, 900, 2400, 1000, 2600, 3400, 1200];
@@ -31,6 +31,7 @@ export function useQueueDemo() {
     const timeout = window.setTimeout(() => {
       if (ref.current?.querySelector('ol')?.contains(document.activeElement)) {
         setPaused(true);
+
         return;
       }
 
@@ -59,8 +60,10 @@ export function useQueueDemo() {
 
   function vote(id: string) {
     setPaused(true);
+
     if (voted.includes(id)) {
       setAnnouncement('Your vote is already counted.');
+
       return;
     }
 

@@ -1,6 +1,6 @@
 import type { PlaylistItem } from '@vibes/models';
-import { useFetcher } from '@vibes/native-router';
 import { classNames, safeWrapAsync } from '@vibes/shared';
+import { useMutation } from '@vibes/shared/use-request';
 import { NativeKeyboardAvoidingView } from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useRouter } from 'expo-router';
@@ -32,8 +32,8 @@ import {
   useRoomActions,
   useRoomSession,
 } from '@/providers/app-provider';
-import type { RoomPlaybackActionData } from '@/routes/rooms.$id.playback/action';
-import type { RoomQueueActionData } from '@/routes/rooms.$id.queue/action';
+import { action as mutateRoomsIdPlaybackRequest } from '@/routes/rooms.$id.playback/action';
+import { action as mutateRoomsIdQueueRequest } from '@/routes/rooms.$id.queue/action';
 import { CastButton } from './cast-button';
 import { RoomChatPanel } from './room-chat-panel';
 
@@ -55,17 +55,11 @@ export function RoomScreen() {
   const compactRoomHeader = width < roomHeaderBreakpoint;
   const [notice, setNotice] = useState('');
   const playerSpaceRef = useRef<RoomPlayerSpaceHandle>(null);
-  const [, { submit: submitPlayback }] = useFetcher<RoomPlaybackActionData>({
-    params: {
-      id: roomId,
-    },
-    routeId: 'rooms.$id.playback',
+  const [, submitPlayback] = useMutation(mutateRoomsIdPlaybackRequest, {
+    id: roomId,
   });
-  const [, { submit: submitQueue }] = useFetcher<RoomQueueActionData>({
-    params: {
-      id: roomId,
-    },
-    routeId: 'rooms.$id.queue',
+  const [, submitQueue] = useMutation(mutateRoomsIdQueueRequest, {
+    id: roomId,
   });
 
   const current = playback?.currentPlaylistItem ?? null;
@@ -111,13 +105,17 @@ export function RoomScreen() {
   const sendAction = async (action: 'play' | 'pause') => {
     if (room.mode === 'server') {
       setLocalPlaying(action === 'play', livePosition);
+
       return;
     }
+
     if (!hasHostPlaybackAuthority) return;
+
     const result = await submitPlayback({
       intent: 'update',
       action,
     });
+
     if (result.error) setError(result.error);
   };
 
@@ -125,11 +123,15 @@ export function RoomScreen() {
     const result = await submitPlayback({
       intent: 'skip',
     });
+
     if (result.data?.intent !== 'skip') {
       setError(result.error || 'Failed to skip. Please try again.');
+
       return;
     }
+
     const { response } = result.data;
+
     if (response?.skipped) {
       setNotice('Song skipped.');
     } else if (response?.alreadyVoted) {
@@ -148,6 +150,7 @@ export function RoomScreen() {
       intent: 'vote',
       playlistItemId: playlistItem.id,
     });
+
     if (result.error) setError(result.error);
   };
 
@@ -156,6 +159,7 @@ export function RoomScreen() {
       intent: 'remove',
       playlistItemId: playlistItem.id,
     });
+
     if (result.error) setError(result.error);
   };
 
@@ -165,6 +169,7 @@ export function RoomScreen() {
       intent: 'update',
       positionMs,
     });
+
     if (result.error) setError(result.error);
   };
 
@@ -182,21 +187,25 @@ export function RoomScreen() {
         url: shareUrl,
       }),
     );
+
     if (shareError) {
       setError('Could not open the share menu.');
     }
   };
 
   let playerSpacer = null;
+
   if (playerPreferenceLoaded && playerEnabled && !keyboardVisible) {
     let playerWidth = tabletLayout.isTabletPortrait
       ? tabletLayout.portraitPlayerWidth
       : width - 32;
     let height = Math.max(200, playerWidth / (16 / 9));
+
     if (tabletLayout.isTabletLandscape) {
       height = tabletLayout.playerHeight;
       playerWidth = tabletLayout.playerPaneWidth;
     }
+
     playerSpacer = (
       <RoomPlayerSpace
         ref={playerSpaceRef}
@@ -207,6 +216,7 @@ export function RoomScreen() {
   }
 
   let roomDetails = null;
+
   if (room.isGenerating && !playerEnabled) {
     roomDetails = (
       <View
@@ -219,6 +229,7 @@ export function RoomScreen() {
       </View>
     );
   }
+
   if (!room.isGenerating) {
     roomDetails = (
       <Card>
@@ -336,6 +347,7 @@ export function RoomScreen() {
       />
     </>
   );
+
   if (tabletLayout.isTabletLandscape) {
     content = (
       <View className="min-h-0 flex-1 flex-row gap-4 px-4 pb-4">
@@ -378,6 +390,7 @@ export function RoomScreen() {
       </View>
     );
   }
+
   if (tabletLayout.isTabletPortrait) {
     content = (
       <View
@@ -432,6 +445,7 @@ export function RoomScreen() {
       </View>
     </View>
   );
+
   if (compactRoomHeader) {
     roomHeader = (
       <View className="h-[76px] w-full flex-row items-center gap-3 px-4">

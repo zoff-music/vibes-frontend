@@ -1,7 +1,7 @@
+import { Await, Link } from '@kasperrt/smolter/preact';
 import type { PublicRoomV3 } from '@vibes/models';
 import { PublicRoomTile } from '@vibes/ui/web';
-import { Suspense } from 'react';
-import { Await, Link } from 'react-router';
+import { Suspense } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
 
 interface PublicRoomDiscoveryProps {

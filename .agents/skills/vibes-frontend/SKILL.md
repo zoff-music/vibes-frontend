@@ -1,6 +1,6 @@
 ---
 name: vibes-frontend
-description: Build, refactor, review, or debug the Vibes TypeScript frontend monorepo, including React Router SSR web apps, Expo mobile and Android TV apps, Samsung Tizen TV, Chromecast, shared UI platform boundaries, API integration, Biome, Tailwind, and NativeWind.
+description: Build, refactor, review, or debug the Vibes TypeScript frontend monorepo, including Preact + Smolter SSR web apps, Expo mobile and Android TV apps, Samsung Tizen TV, Chromecast, shared UI platform boundaries, API integration, Biome, Tailwind, and NativeWind.
 ---
 
 # Vibes Frontend
@@ -22,10 +22,10 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 ## Workspace Map
 
-- `apps/platform`: primary React Router SSR room application.
-- `apps/admin`: React Router SSR administration application.
-- `apps/embed`: standalone React Router SSR embed player.
-- `apps/remote`: lightweight React Router SSR paired-controller web app.
+- `apps/platform`: primary Preact + Smolter SSR room application.
+- `apps/admin`: Preact + Smolter SSR administration application.
+- `apps/embed`: standalone Preact + Smolter SSR embed player.
+- `apps/remote`: lightweight Preact + Smolter SSR paired-controller web app.
 - `apps/cast`: Chromecast receiver.
 - `apps/mobile`: native-only Expo Router app for iOS and Android phones/tablets.
 - `apps/tv`: one TV product with a shared session layer, delivered through an Expo Android TV renderer and a Samsung TV DOM renderer.
@@ -49,6 +49,7 @@ Apply these repository-specific rules together with `AGENTS.md`.
 ## Mobile
 
 - Treat `apps/mobile` as Android/iOS only. Do not add Expo web config, `react-dom`, `react-native-web`, a web script, or favicon assets.
+- Expo Router is the only navigation router in mobile. Do not add a custom native router, a route registry, or a Smolter data-router layer. Keep API orchestration in app hooks and typed request handlers; shared request helpers may manage abort/pending state but must not implement routing.
 - Keep Expo Router files under `apps/mobile/src/app` as small adapters. Default exports are allowed where Expo Router requires them.
 - Put screen fragments in `src/components`, stateful workflows in `src/hooks`, API construction in `src/lib`, and room-wide state in providers.
 - Split independent workflows out of `AppProvider`; do not turn the provider into a collection of unrelated API state machines.
@@ -59,8 +60,9 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 ## TV
 
+- Android TV retains Expo’s registered root component and its single-screen room flow; do not add a custom router or route registry.
 - Android TV uses Expo, `react-native-tvos`, NativeWind, directional focus, and `@vibes/ui/native`.
-- Samsung TVs require a DOM runtime with its own React Router data route, entrypoint, CSS, spatial navigation, `config.xml`, and store packaging under `apps/tv`; this is a delivery boundary within the same TV app, not a separate product.
+- Samsung TVs require a DOM runtime with its own Smolter data route, entrypoint, CSS, spatial navigation, `config.xml`, and store packaging under `apps/tv`; this is a delivery boundary within the same TV app, not a separate product.
 - Share app-owned domain hooks between the TV renderers, not UI trees. Keep REST capabilities in `@vibes/api` React-free; reusable SSE lifecycle hooks may also live there.
 - Keep the cross-renderer room lifecycle in `useTvSession` with an exported `TvSession` contract. Keep provider surfaces, queue measurement, and focus/navigation in renderer-specific components.
 - Design TV screens for ten-foot viewing: large type, strong focus feedback, bounded queues, and no touch-only interaction.
@@ -68,9 +70,9 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 ## Web and SSR
 
-- Use React Router data APIs in every DOM app, including the Cast receiver and Samsung Tizen. REST reads belong in `loader` or `clientLoader` modules and mutations belong in `action` or `clientAction` modules.
+- Use Smolter data APIs in every DOM app, including the Cast receiver and Samsung Tizen. REST reads belong in `loader` or `clientLoader` modules and mutations belong in `action` or `clientAction` modules.
 - Components may trigger route data APIs through fetchers and may subscribe to SSE through `@vibes/api`; they must not execute REST calls inline.
-- Keep React Router route files thin and colocate route-specific components, `loader.ts`, and `action.ts` files.
+- Keep flat routes in `src/routes`. Put each loader, client loader, action, client action, boundary and revalidation hook in its own file; re-export it from `route.tsx`. Route-local helpers go in `utils`; cross-route helpers go outside routes.
 - Use `getServerApi()` in server loaders/actions and `useFetcher` or `fetcher.Form` for route mutations.
 - Keep browser-only APIs behind client guards and prevent hydration mismatches.
 - Preserve content-hashed assets and the pnpm workspace build system.
@@ -88,7 +90,8 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 ## TypeScript and Components
 
-- Use Biome, single quotes, 2-space indentation, explicit types, and early returns.
+- Use Biome, single quotes, 2-space indentation, explicit types, and early returns. Group related hook declarations together; separate logical phases with a blank line.
+- Import other workspace packages through their declared aliases. Remove unused code and redundant forwarding wrappers after checking framework entrypoints and runtime references.
 - Do not use `any`, `@ts-ignore`, `@ts-nocheck`, broad suppressions, or more than two return values.
 - Define props above components and use named exports, except framework-required route/entrypoint defaults.
 - Do not render JSX branches with ternaries. Ternaries are allowed for scalar labels, props, and computed values.
@@ -104,6 +107,8 @@ Apply these repository-specific rules together with `AGENTS.md`.
 - Preserve dark mode, accessible names/roles, visible focus, loading states, safe areas, and target-specific interaction behavior.
 
 ## Validation
+
+- After native testing, shut down every simulator or emulator started for the task. Stop temporary baseline build/dev processes too; preserve the user’s requested development servers.
 
 Run from the repository root:
 

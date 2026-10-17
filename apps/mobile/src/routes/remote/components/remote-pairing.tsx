@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
@@ -10,7 +10,6 @@ import {
   Heading,
   Screen,
 } from '@/components/native';
-import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import type {
@@ -92,7 +91,15 @@ export function RemotePairingV2({
                   onPress={() => void controllerActions.pair()}
                 />
 
-                <Toast message={controller.error} />
+                {controller.error && (
+                  <Text
+                    accessibilityRole="alert"
+                    accessibilityLiveRegion="polite"
+                    className="font-body text-error"
+                  >
+                    {controller.error}
+                  </Text>
+                )}
               </Card>
             </View>
           </ContentColumn>

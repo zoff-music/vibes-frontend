@@ -71,7 +71,9 @@ export function RemoteScanner({
   let status = cameraReady ? 'Looking for a QR code…' : 'Starting camera…';
 
   if (controller.scanDetected) status = 'QR code found';
+
   if (controller.pairing) status = 'QR code found. Pairing…';
+
   if (error) status = error;
 
   return (

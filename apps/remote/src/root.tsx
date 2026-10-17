@@ -1,61 +1,39 @@
-import regularFontUrl from '@vibes/ui/shared/fonts/MSW98UI-Regular-latin.woff2?url';
-import { MotionProvider } from '@vibes/ui/web';
-import type { ReactNode } from 'react';
-import type {
-  LoaderFunctionArgs,
-  ShouldRevalidateFunctionArgs,
-} from 'react-router';
+import { useRootData } from '@kasperrt/smolter/preact';
 import {
+  Document,
   Links,
   Meta,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
-  useRouteError,
-} from 'react-router';
+} from '@kasperrt/smolter/preact/document';
+import { FontPreloads, MotionProvider, ThemeScript } from '@vibes/ui/web';
+import type { ReactNode } from 'preact/compat';
 import { App } from './App';
-import { RemoteErrorView } from './components/RemoteErrorView';
 import stylesUrl from './index.css?url';
-import { getPublicRouteErrorMessage } from './routeError';
-import { getThemeClass } from './theme.server';
+import type { loader } from './root/loader';
 
-export { remoteMeta as meta } from './meta';
-
-export function loader({ request }: LoaderFunctionArgs) {
-  return {
-    debug: process.env.VITE_DEBUG === 'true',
-    themeClass: getThemeClass(request.headers.get('cookie')),
-  };
+interface LayoutProps {
+  children: ReactNode;
 }
 
-export function shouldRevalidate({
-  currentUrl,
-  defaultShouldRevalidate,
-  nextUrl,
-}: ShouldRevalidateFunctionArgs) {
-  if (currentUrl.pathname === nextUrl.pathname) return false;
-  return defaultShouldRevalidate;
-}
+export { remoteMeta as meta } from './root/meta';
 
-export function Layout({ children }: { children: ReactNode }) {
-  const loaderData = useLoaderData<typeof loader>();
+export { shouldRevalidate } from './root/shouldRevalidate';
+
+export function Layout({ children }: LayoutProps) {
+  const loaderData = useRootData<typeof loader>();
 
   return (
-    <html
+    <Document
       lang="en"
       className={loaderData?.themeClass}
       data-debug={loaderData?.debug === true}
     >
       <head>
         <meta charSet="UTF-8" />
+        <ThemeScript />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-          rel="preload"
-          href={regularFontUrl}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        <FontPreloads />
         <link rel="stylesheet" href={stylesUrl} />
         <Meta />
         <Links />
@@ -67,19 +45,11 @@ export function Layout({ children }: { children: ReactNode }) {
         <ScrollRestoration />
         <Scripts />
       </body>
-    </html>
+    </Document>
   );
 }
 
-export function ErrorBoundary() {
-  const error = useRouteError();
-  return (
-    <RemoteErrorView
-      message={getPublicRouteErrorMessage(error)}
-      title="Remote unavailable"
-    />
-  );
-}
+export { ErrorBoundary } from './root/ErrorBoundary';
 
 export default function Root() {
   return <App />;

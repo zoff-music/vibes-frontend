@@ -10,5 +10,6 @@
     },
     "strict": true
   },
+  "exclude": ["src/tizen"],
   "include": ["src/**/*.ts", "src/**/*.tsx", "nativewind-env.d.ts"]
 }

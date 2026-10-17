@@ -10,6 +10,7 @@ export function DeviceOrientationLock() {
 
   useEffect(() => {
     if (Platform.OS !== 'android') return;
+
     const applyOrientationLock = async () => {
       const orientationLock = isTablet
         ? ScreenOrientation.OrientationLock.DEFAULT

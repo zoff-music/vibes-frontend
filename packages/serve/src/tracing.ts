@@ -43,6 +43,7 @@ function normalizeOtelEndpoint(endpoint: string | undefined) {
 
 function parseRatio(raw: string | undefined) {
   const parsed = Number.parseFloat(raw ?? '');
+
   if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 1) {
     return parsed;
   }
@@ -69,6 +70,7 @@ export function initTracing(serviceName: string) {
   });
 
   sdk.start();
+
   return sdk;
 }
 
@@ -83,10 +85,12 @@ export function createTracedApiFetchLifecycle(serviceName: string) {
       propagation.inject(spanContext, headers, headersSetter);
       const tracedRequest = new Request(request, { headers });
       requestState.set(tracedRequest, state);
+
       return tracedRequest;
     },
     afterResponse(request: Request, response: Response) {
       const state = requestState.get(request);
+
       if (!state) {
         return;
       }
@@ -98,12 +102,14 @@ export function createTracedApiFetchLifecycle(serviceName: string) {
       state.span.setAttribute('http.method', request.method);
       state.span.setAttribute('http.url', request.url);
       state.span.setAttribute('http.status_code', response.status);
+
       if (response.status >= 500) {
         state.span.setStatus({ code: SpanStatusCode.ERROR });
       }
     },
     afterError(request: Request, err: Error) {
       const state = requestState.get(request);
+
       if (!state) {
         return;
       }
@@ -117,6 +123,7 @@ export function createTracedApiFetchLifecycle(serviceName: string) {
     },
     afterRequest(request: Request) {
       const state = requestState.get(request);
+
       if (!state) {
         return;
       }

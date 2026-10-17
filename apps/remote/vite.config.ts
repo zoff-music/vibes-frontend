@@ -1,9 +1,8 @@
 import path from 'node:path';
-import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { assetBase } from '@vibes/serve/assets';
 import { precompressAssets } from '@vibes/serve/precompress';
-import { reactCompiler } from '@vibes/serve/react-compiler';
+import { applicationPlugins } from '@vibes/serve/vite';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ command, mode }) => {
@@ -17,10 +16,22 @@ export default defineConfig(({ command, mode }) => {
     base: command === 'build' ? assetBase(env.ASSET_ORIGIN, '/remotes/') : '/',
     plugins: [
       tailwindcss(),
-      reactRouter(),
-      reactCompiler(),
+      ...applicationPlugins(),
+
       precompressAssets(),
     ],
+    appType: 'custom',
+    build: {
+      manifest: true,
+      rollupOptions: {
+        output: {
+          entryFileNames: (chunk) =>
+            chunk.name === 'entry.server'
+              ? 'index.js'
+              : 'assets/[name]-[hash].js',
+        },
+      },
+    },
     root: '.',
     server: {
       port: 3007,
@@ -32,13 +43,16 @@ export default defineConfig(({ command, mode }) => {
           secure: false,
           configure: (proxy) => {
             if (!proxiesRemoteApi) return;
+
             proxy.on('proxyReq', (proxyRequest) => {
               proxyRequest.setHeader('origin', apiProxyTarget);
               proxyRequest.setHeader('referer', `${apiProxyTarget}/`);
             });
             proxy.on('proxyRes', (proxyResponse) => {
               const cookies = proxyResponse.headers['set-cookie'];
+
               if (!cookies) return;
+
               proxyResponse.headers['set-cookie'] = cookies.map((cookie) =>
                 cookie.replace(/; Secure/gi, ''),
               );

@@ -1,13 +1,21 @@
-import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import React, {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from 'preact/compat';
 import { useCast } from './CastProvider';
 
 const LazySoundCloudPlayer = lazy(async () => {
   const module = await import('@vibes/ui/web/player/SoundCloudPlayer');
+
   return { default: module.SoundCloudPlayer };
 });
 
 const LazyVideoPlayer = lazy(async () => {
   const module = await import('@vibes/ui/web/player/VideoPlayer');
+
   return { default: module.VideoPlayer };
 });
 
@@ -37,6 +45,7 @@ export const PlayerLayer: React.FC = () => {
 
   useEffect(() => {
     if (shouldMountYouTube) setHasMountedYouTube(true);
+
     if (shouldMountSoundCloud) setHasMountedSoundCloud(true);
   }, [shouldMountSoundCloud, shouldMountYouTube]);
   const handlePlaybackError = useCallback(

@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import React from 'react';
+import React from 'preact/compat';
 
 interface SegmentedToggleProps {
   checked: boolean;
@@ -30,7 +30,7 @@ export function SegmentedToggle({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (disabled) return;
 
-    onChange(event.target.checked);
+    onChange(event.currentTarget.checked);
   };
 
   const control = (

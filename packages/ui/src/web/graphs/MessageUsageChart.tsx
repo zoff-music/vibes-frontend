@@ -1,5 +1,5 @@
 import type { AdminMessageUsage } from '@vibes/models';
-import { useState } from 'react';
+import { useState } from 'preact/compat';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { RoomUsageChart } from './RoomUsageChart';
 
@@ -11,7 +11,9 @@ export function MessageUsageChart({ usage }: MessageUsageChartProps) {
   const [period, setPeriod] = useState('hour');
   const end = new Date(usage.generatedAt || 0);
   end.setUTCMinutes(0, 0, 0);
+
   if (period !== 'hour') end.setUTCHours(0);
+
   if (period === 'month') end.setUTCDate(1);
 
   const length = period === 'hour' ? 24 : period === 'day' ? 30 : 12;
@@ -26,9 +28,12 @@ export function MessageUsageChart({ usage }: MessageUsageChartProps) {
   const buckets = Array.from({ length }, (_, index) => {
     const timestamp = new Date(end);
     const offset = length - index - 1;
+
     if (period === 'hour')
       timestamp.setUTCHours(timestamp.getUTCHours() - offset);
+
     if (period === 'day') timestamp.setUTCDate(timestamp.getUTCDate() - offset);
+
     if (period === 'month')
       timestamp.setUTCMonth(timestamp.getUTCMonth() - offset);
 

@@ -1,6 +1,6 @@
+import { useMatches } from '@kasperrt/smolter/preact';
 import { SiteLayout as SharedSiteLayout } from '@vibes/ui/web';
-import { memo, type ReactNode } from 'react';
-import { useMatches } from 'react-router';
+import { memo, type ReactNode } from 'preact/compat';
 import { SiteFooter } from '../legal/SiteFooter';
 import { SiteHeader } from '../seo/SiteHeader';
 
@@ -11,6 +11,7 @@ interface SiteLayoutProps {
 export function SiteLayout({ children }: SiteLayoutProps) {
   const matches = useMatches();
   const isRoomPage = matches.some((match) => roomRouteIds.has(match.id));
+
   return (
     <SiteLayoutContent isRoomPage={isRoomPage}>{children}</SiteLayoutContent>
   );
@@ -33,7 +34,4 @@ const SiteLayoutContent = memo(function SiteLayoutContent({
   );
 });
 
-const roomRouteIds = new Set([
-  'routes/rooms.$id/route',
-  'routes/rooms.alias/route',
-]);
+const roomRouteIds = new Set(['routes/$id/route', 'routes/rooms.$id/route']);
