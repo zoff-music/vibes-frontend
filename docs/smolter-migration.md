@@ -1,5 +1,23 @@
 # Smolter 0.4.2 integration review
 
+## Live rooms SSR follow-up
+
+Live rooms now resolves in the server loader and renders cards directly in the
+initial HTML; only optional statistics remains deferred. Requests still start
+in parallel. The existing public-request cache retains successful room lists for
+10 seconds per API origin and Music/Watch mode, in each server process. It shares
+concurrent reads, isolates reader cancellation and does not cache errors. No
+cookies, private room details or complete documents are cached by this change.
+Cold requests wait for the rooms API; warm requests may show counts up to ten
+seconds old. Empty-room filtering and unavailable/empty states remain intact.
+
+Validation: workspace lint/typechecking, Platform production build and three
+cache regressions pass. Production HTML contains the fixture room card without
+running JavaScript. Consecutive Music requests reused one rooms read; Watch
+issued its own read and did not display the Music fixture. With optional stats
+delayed 1,500 ms, one local request had 7.7 ms TTFB and 1,510 ms completion;
+this confirms stats remains deferred, not a general performance benchmark.
+
 ## Resource routes, shared headers and native structure
 
 - `resources.recents` now owns `/resources/recents`; remembered-room storage,

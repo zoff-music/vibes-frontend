@@ -1,11 +1,11 @@
-import { Await, Link } from '@kasperrt/smolter/preact';
+import { Link } from '@kasperrt/smolter/preact';
 import type { PublicRoomV3 } from '@vibes/models';
 import { PublicRoomTile } from '@vibes/ui/web';
 import { useExperience } from '../../../hooks/useExperience';
 
 interface PublicRoomDiscoveryProps {
   onJoinRoom: (roomId: string) => void;
-  rooms: Promise<PublicRoomV3[] | null>;
+  rooms: PublicRoomV3[] | null;
 }
 
 export function PublicRoomDiscovery({
@@ -14,6 +14,9 @@ export function PublicRoomDiscovery({
 }: PublicRoomDiscoveryProps) {
   const roomType = useExperience();
   const watch = roomType === 'WATCH';
+  const visibleRooms = rooms?.filter(
+    (room) => room.roomType === roomType && room.playlistItemCount > 0,
+  );
 
   return (
     <section aria-labelledby="live-rooms-heading" className="mt-6">
@@ -41,50 +44,22 @@ export function PublicRoomDiscovery({
         </Link>
       </div>
       <div className="h-56 sm:h-20">
-        <Await
-          key={roomType}
-          resolve={rooms}
-          fallback={
-            <p role="status" className="text-sm text-theme-muted">
-              Loading live rooms…
+        <div className="grid h-full grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-1">
+          {visibleRooms?.map((room) => (
+            <PublicRoomTile key={room.id} room={room} onJoin={onJoinRoom} />
+          ))}
+          {visibleRooms?.length === 0 && (
+            <p className="text-sm text-theme-muted sm:col-span-3">
+              No rooms are live right now. Browse public rooms or start your
+              own.
             </p>
-          }
-          errorElement={
-            <p className="text-sm text-theme-muted">
+          )}
+          {rooms === null && (
+            <p className="text-sm text-theme-muted sm:col-span-3">
               Live rooms are temporarily unavailable.
             </p>
-          }
-        >
-          {(result: PublicRoomV3[] | null) => {
-            const visibleRooms = result?.filter(
-              (room) =>
-                room.roomType === roomType && room.playlistItemCount > 0,
-            );
-
-            return (
-              <div className="grid h-full grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-1">
-                {visibleRooms?.map((room) => (
-                  <PublicRoomTile
-                    key={room.id}
-                    room={room}
-                    onJoin={onJoinRoom}
-                  />
-                ))}
-                {visibleRooms?.length === 0 && (
-                  <p className="text-sm text-theme-muted sm:col-span-3">
-                    No rooms are live right now. Browse public rooms or start
-                    your own.
-                  </p>
-                )}
-                {result === null && (
-                  <p className="text-sm text-theme-muted sm:col-span-3">
-                    Live rooms are temporarily unavailable.
-                  </p>
-                )}
-              </div>
-            );
-          }}
-        </Await>
+          )}
+        </div>
       </div>
     </section>
   );

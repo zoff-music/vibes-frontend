@@ -8,6 +8,7 @@ export * from './hooks/useRoomMessages';
 export * from './plausible';
 export * from './rateLimit';
 export * from './remoteEvents';
+export { createPublicRequestCache } from './requests/cache';
 export * from './requests/providerRequests';
 export * from './requests/remoteRequests';
 export * from './requests/roomRequests';
