@@ -600,8 +600,8 @@ delayed. Reduced-motion and page-visibility behavior still apply.
 
 Measure production builds with both Brotli and gzip, not Vite's dev server.
 Shared API models use tree-shakeable Valibot schemas for runtime validation,
-defaults and input limits. Preserve the explicit user-facing validation messages
-and the model compatibility tests; do not replace validation with type assertions.
+defaults and input limits. Preserve the explicit user-facing validation messages;
+do not replace validation with type assertions.
 Schema modules and the models entry are side-effect-free.
 Admin endpoint definitions live in their own typed client so public
 apps do not retain admin schemas. All clients share the same transport options,
