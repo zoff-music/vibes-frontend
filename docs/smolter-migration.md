@@ -1,8 +1,8 @@
-# Smolter 0.3.5 integration review
+# Smolter 0.4.0 integration review
 
 This supplements draft PR #413. It is not a ten-pass or physical-device sign-off.
-The integration uses the published [0.3.5 release](https://github.com/kasperrt/smolter/releases/tag/v0.3.5)
-containing [upstream PR #15](https://github.com/kasperrt/smolter/pull/15), retaining
+The integration uses the published [0.4.0 release](https://github.com/kasperrt/smolter/releases/tag/v0.4.0)
+including [early hydration and asset hints](https://github.com/kasperrt/smolter/pull/16), retaining
 the 0.3.2 integration from [upstream PR #12](https://github.com/kasperrt/smolter/pull/12).
 
 ## Runtime boundaries
@@ -14,7 +14,7 @@ the 0.3.2 integration from [upstream PR #12](https://github.com/kasperrt/smolter
 
 ## Changes
 
-- All nine Smolter dependency declarations and the lockfile resolve published 0.3.5. The temporary 0.3.1 patch and patch registration are removed; unrelated native patches remain. There are no Smolter local-source links, aliases or monkey patches.
+- All nine Smolter dependency declarations and the lockfile resolve published 0.4.0. The temporary 0.3.1 patch and patch registration are removed; unrelated native patches remain. There are no Smolter local-source links, aliases or monkey patches.
 - Removed temporary `dataPath` configuration and environment patching. Official `dataEndpoint` options connect generated routes, development middleware and production handlers. Admin uses `/admin/_smolter`, Remote `/remotes/_smolter`, Embed its configured base plus `/_smolter`; Platform retains `/_smolter`.
 - Removed the post-mount deployment watcher. Platform, Admin, Remote, Embed and Cast pass deployment options directly to mounting. Packaged Tizen has `{ hash: true }` and no deployment watcher.
 - Removed the copied data-cache middleware and obsolete React Router data-response hook. The released adapter owns private/no-store policy.
@@ -204,6 +204,115 @@ Same Node 26 gzip-level-9 all-emitted-JS methodology as the 0.3.4 comparison:
 | Tizen | 155,883 | 156,002 | +119 |
 
 Values are bytes, including lazy/legacy output rather than initial transfer.
+
+## 0.4.0: Platform early hydration
+
+Platform opts into `renderApplication(..., { earlyHydration: true })`. Its optional
+homepage statistics/public rooms already return promises; no loader workaround
+was needed. Transport endpoints, deployment options, asset bases and root setup
+are unchanged. There was no nonce in the existing render options: the root can
+read one from context, but the checked-in entry does not supply that context and
+the application middleware only sets a frame-ancestors policy. This change does
+not invent a nonce, weaken CSP or establish nonce-enforced consumer coverage.
+
+Admin, Remote and Embed were evaluated separately: their current route loaders
+await their data rather than returning nested deferred values. Early hydration
+remains off for those apps, avoiding an unverified opt-in with no demonstrated
+deferred-shell benefit. Their fixture document requests returned HTTP 200.
+Cast and packaged Tizen have no SSR option added.
+
+### New validation
+
+All six production builds, browser-boundary checks, frozen installation,
+workspace lint/typechecking and eighteen focused tests passed on Node 26.8.1 /
+pnpm 12.3.4. Published npm integrity matches the lockfile:
+`sha512-jhuqTKtAQ1aCK8IAt9kCJRrTnOMYJsFQcanuUWbEgP4k2eWo60dDvURb4h2VUzWFav3GUl6Vwxwo79qmfIvNZw==`.
+No package patches, local aliases or copied router were added.
+
+Local production browser checks used the real Settings UI, a fixture API and a
+stream-preserving proxy. Marked external script/style nodes were inserted before
+hydration. A MutationObserver measured successful Settings rendering; input
+events and document load were recorded separately. Browser automation has
+interaction overhead: these are observed successful times, not the earliest
+possible hydration-readiness times.
+
+| Scenario | Observed result |
+| --- | --- |
+| Stats delayed 4,000 ms | Settings appeared at 3,084.9 ms; input was entered at 3,317.9 ms, both while the document was loading. Load completed at 4,037.9 ms. Input survived completion. |
+| Stats delayed 6,000 ms then HTTP 503 | Settings appeared at 3,079.3 ms; input at 3,308.3 ms. One profile PATCH succeeded around 3.45 s, followed by one root session/remote refresh, before load completed at 6,028.8 ms. Name and dialog survived. |
+| Navigate to Security before six-second stats settle | Security rendered before completion and remained after the late stream finished; the homepage did not return. Settings still worked. The first attempt lacked a fixture SECURITY_EMAIL and correctly showed the route error; it passed after correcting fixture configuration. |
+| Marked external head nodes | One script execution was recorded, and one script/style node remained after hydration, profile revalidation and navigation. Computed-style retention and frame-by-frame flash detection were not independently measured. |
+| 0.3.5 baseline, same six-second delay | The pre-completion Settings click did nothing; the dialog was still absent after completion. A second click after load worked. |
+
+Fixture logs showed one initial stats/public-rooms request per tested document,
+not a duplicate hydration loader request. The profile test issued one PATCH, not
+a replay. Vibes converts provider errors to null, so the HTTP 503 case validates
+its unavailable-data path, not an arbitrary rejected-promise boundary. Broader
+concurrent fetcher and bootstrap-recovery mutation combinations remain untested.
+
+### Fresh performance comparison: 0.3.5 versus 0.4.0
+
+Baseline commit `39144cf3e01f8b7707436fbca13bb9a8aeaf7fce` was built in an isolated
+checkout using the same Node 26.8.1 runtime, production configuration and fixture
+API. Thirty alternating samples per route after five warmups, direct app ports,
+gzip, keep-alive, concurrency one. TTFB is first body byte, excluding Early Hints.
+
+| Route | 0.3.5 median / p95 TTFB ms | 0.4.0 median / p95 TTFB ms | Median completion ms, before / after | Document gzip bytes, before / after |
+| --- | ---: | ---: | ---: | ---: |
+| `/` | 3.27 / 4.34 | 3.19 / 5.40 | 4.34 / 4.34 | 9,844 / 10,006 |
+| `/privacy-policy` | 1.96 / 2.51 | 1.93 / 3.34 | 2.09 / 2.07 | 7,816 / 7,597 |
+| Empty fixture room | 4.68 / 6.03 | 4.70 / 5.65 | 4.85 / 4.75 | 4,494 / 4,313 |
+
+With stats delayed 1,500 ms, six samples each: median shell TTFB was 5.20 → 7.41 ms,
+completion 1,509.97 → 1,510.54 ms. No TTFB improvement is established. The important
+new benefit is the observed pre-completion interaction, not faster HTTP completion.
+
+Three unthrottled local homepage browser samples per build, no-store proxy,
+observed through one second after load without scrolling:
+
+| Metric | 0.3.5 | 0.4.0 |
+| --- | ---: | ---: |
+| JS requests / encoded body bytes | 41 / 87,886 | 41 / 88,171 |
+| Stylesheet requests / encoded body bytes | 1 / 17,336 | 1 / 17,336 |
+| Median DOMContentLoaded end | 121.8 ms | 138.9 ms |
+| Median LCP (range) | 184 ms (152–284) | 228 ms (192–336) |
+| Observed layout shift total | 0 | 0 |
+
+Compression was browser-negotiated, not uniformly gzip. Instrumentation was added
+to the existing analytics asset for these samples. No console errors were captured
+in the candidate measurement tab. These small samples do not establish a reliable
+LCP regression or improvement. There is no demonstrated request-count reduction.
+Cold/warm HTTP-cache comparisons, realistic latency/CPU throttling and causal
+dependency-chain analysis remain outstanding; resource timing alone does not prove
+the longest serial chain or required-code readiness.
+
+### CSS hints and build inventories
+
+Every generated JS/CSS route-manifest target exists. All four current SSR route
+manifests have zero `styles` entries: Vibes uses root-level stylesheet URL imports.
+Consequently no new route-CSS preload benefit was observed. Existing homepage CSS
+downloaded once in each sample. Separate-origin CSS preload reuse/CORS matching
+was not freshly exercised; do not transfer upstream fixture results to Vibes.
+
+Platform's fresh baseline/candidate all-JS gzip-level-9 inventories were
+284,481 → 284,811 bytes, 126 files each; CSS remained 21,618 bytes in one file.
+The fresh baseline differs slightly from the prior saved inventory due to build
+identity/compression effects. Against the saved 0.3.5 inventories, all-app JS totals:
+
+| App | 0.3.5 saved | 0.4.0 | Delta |
+| --- | ---: | ---: | ---: |
+| Platform | 284,463 | 284,811 | +348 |
+| Admin | 120,489 | 120,825 | +336 |
+| Embed | 113,425 | 113,763 | +338 |
+| Remote | 155,489 | 155,814 | +325 |
+| Cast | 193,476 | 194,127 | +651 |
+| Tizen | 156,002 | 156,339 | +337 |
+
+All-emitted totals include lazy/legacy output, not initial transfers. Earlier
+0.3.4/main benchmarks and recovery browser checks remain historical evidence.
+The nonce-enforced, separate-CDN, full recovery/browser, Admin auth and Tizen
+hash-flow matrices have not all been freshly repeated on 0.4.0. No physical or
+native parity sign-off is implied. Keep this PR draft.
 
 ## Remaining blockers and limitations
 

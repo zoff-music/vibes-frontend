@@ -27,5 +27,6 @@ export default function handleRequest(request: Request, entry: string) {
     routes,
     { ...root, loader } as RootModule,
     entry,
+    { earlyHydration: true },
   );
 }
