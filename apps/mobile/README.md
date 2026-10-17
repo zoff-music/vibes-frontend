@@ -134,8 +134,12 @@ Native tab screens own their safe-area padding and scroll-content spacing.
 Keep `disableAutomaticContentInsets` on their native tab triggers and
 `contentInsetAdjustmentBehavior="never"` on their scroll views, so iOS does not
 apply a second inset adjustment after presenting a tab. The root safe-area
-provider starts with `initialWindowMetrics`; do not hide layout corrections
-behind delayed rendering or entrance animations.
+provider starts with `initialWindowMetrics`. Screens and sheets use
+`ScreenSafeArea`, which applies the context insets in the first React render,
+rather than waiting for a native safe-area view to attach and update its padding.
+Expo's per-tab providers inherit these initial context metrics. Do not hide
+layout corrections behind delayed rendering or entrance animations. Queue
+reordering still animates, but initial queue/search rows render in place.
 
 Install and authenticate the EAS CLI, then associate the project with the Zoff
 Expo organization on the first run:

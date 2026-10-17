@@ -6,8 +6,6 @@ import {
 import { getRoomLabels } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
 import { Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import {
   Button,
   Card,
@@ -21,6 +19,7 @@ import {
 import { PlaybackProgress } from '@/components/playback-progress';
 import { Queue } from '@/components/queue';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import type {
   ControllerRemoteActions,
   ControllerRemoteState,

@@ -1,4 +1,30 @@
-# Smolter 0.4.2 integration review
+# Smolter integration review
+
+## Published 0.4.4 pre-merge validation
+
+All nine Smolter declarations and the lockfile now resolve published 0.4.4.
+The version-specific release-age exception was updated; native patches remain
+unchanged. Frozen installation passes and lockfile integrity matches npm.
+No local Smolter patch, copied router or source alias was introduced. Vibes
+does not use the removed React resource-router or public safeWrapAsync exports.
+Scoped transports, deployment bootstrap, streaming and existing Preact entries
+remain unchanged.
+
+Fresh validation: six production builds (Platform, Admin, Remote, Embed, Cast,
+Tizen), workspace lint/typechecking, 20 transport/recovery tests, three theme
+tests, one framing test, one packaged-Tizen test and 12 repository regressions.
+The Cast sender now delegates session lifecycle to Google's CastContext, uses
+the CAF sender types, preserves its injected SDK script and retries failed
+owned script loads. A mocked SDK regression covers discovery, connect, resume,
+disconnect and listener cleanup; it does not establish physical Cast playback.
+
+The mobile landing redesign and shared first-render safe-area handling are
+included, alongside passwordless-room saved-credential cleanup. iOS 0.7.0 (94)
+was uploaded to TestFlight before this web dependency upgrade. No Android build
+was published. Device verification of the layout fix remains outstanding.
+Earlier browser timings and recovery scenarios below are historical evidence,
+not new 0.4.4 measurements. Physical devices, paired playback and live queue
+reconnects have not received a fresh sign-off in this pass.
 
 ## Live rooms SSR follow-up
 

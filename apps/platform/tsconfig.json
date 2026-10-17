@@ -18,7 +18,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["node"],
+    "types": ["node", "chromecast-caf-sender"],
     /* Path aliases */
     "paths": {
       "react": ["../../node_modules/preact/compat"],

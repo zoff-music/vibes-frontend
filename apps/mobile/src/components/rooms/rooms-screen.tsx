@@ -7,7 +7,7 @@ import {
 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useMutation, useRequest } from '@vibes/shared/use-request';
-import { NativeLandingSun } from '@vibes/ui/native';
+import { NativeButton, NativeLandingSun } from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -25,26 +25,15 @@ import {
 import Animated, {
   cancelAnimation,
   Easing,
-  FadeIn,
-  FadeInDown,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import zoffLogo from '@/assets/images/splash-icon.png';
-import {
-  Button,
-  Card,
-  Copy,
-  Field,
-  Heading,
-  Screen,
-} from '@/components/native';
+import { Button, Copy, Field, Screen } from '@/components/native';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import {
   ScrollEdgeFades,
   useScrollEdgeFades,
@@ -417,13 +406,9 @@ export function RoomsScreen() {
     return true;
   };
 
-  const renderPublicRoom = (item: PublicRoomV3, index: number) => {
+  const renderPublicRoom = (item: PublicRoomV3) => {
     return (
-      <Animated.View
-        className="w-full min-w-0"
-        entering={FadeInDown.duration(180).delay(index * 35)}
-        key={item.id}
-      >
+      <View className="w-full min-w-0" key={item.id}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Join ${item.name}`}
@@ -436,18 +421,20 @@ export function RoomsScreen() {
           <View className="min-w-0 flex-1 gap-1">
             <Text
               numberOfLines={1}
-              className="font-heading text-lg text-mobile-text dark:text-mobile-dark-text"
+              className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
             >
               {item.name}
             </Text>
-            <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+            <Text className="font-heading text-base text-mobile-muted dark:text-mobile-dark-muted">
               {item.listenerCount} {getRoomLabels(item.roomType).activity} ·{' '}
               {item.playlistItemCount} {getRoomLabels(item.roomType).items}
             </Text>
           </View>
-          <Text className="font-heading text-accent text-xl">→</Text>
+          <Text className="shrink-0 font-heading text-accent text-lg">
+            Join →
+          </Text>
         </Pressable>
-      </Animated.View>
+      </View>
     );
   };
 
@@ -476,7 +463,7 @@ export function RoomsScreen() {
             contentInsetAdjustmentBehavior="never"
             ref={landingScroll}
             contentContainerClassName={classNames(
-              'grow px-5 pt-5 pb-32 md:py-12',
+              'grow px-6 pt-4 pb-32 md:py-12',
               browseMode === 'live' && 'md:justify-center',
             )}
             keyboardShouldPersistTaps="handled"
@@ -486,13 +473,13 @@ export function RoomsScreen() {
             refreshControl={refreshControl}
             scrollEventThrottle={16}
           >
-            <View className="mx-auto w-full max-w-3xl">
-              <Animated.View className="gap-8" entering={FadeIn.duration(180)}>
+            <View className="mx-auto w-full max-w-xl">
+              <View className="gap-7">
                 <View className="flex-row items-center gap-4 py-2">
                   <Image
                     source={zoffLogo}
                     accessibilityLabel="Zoff"
-                    className="size-20"
+                    className="size-16"
                   />
 
                   <View className="gap-1">
@@ -500,9 +487,7 @@ export function RoomsScreen() {
                       Zoff
                     </Text>
                     <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                      {watch
-                        ? 'Your rooms. Your front row.'
-                        : 'Your rooms. Your music.'}
+                      Shared rooms
                     </Text>
                   </View>
                 </View>
@@ -520,12 +505,15 @@ export function RoomsScreen() {
                       disabled={generationLoading}
                       onPress={() => void changeRoomType(type)}
                       className={classNames(
-                        'min-h-12 min-w-28 items-center justify-center rounded-full border px-5',
+                        'min-h-12 min-w-32 flex-row items-center justify-center gap-2 rounded-full border px-5',
                         roomType === type
                           ? 'border-accent bg-mobile-background dark:bg-mobile-dark-background'
                           : 'border-transparent',
                       )}
                     >
+                      {roomType === type && (
+                        <View className="size-2 rounded-full bg-accent" />
+                      )}
                       <Text className="font-heading text-lg text-mobile-text dark:text-mobile-dark-text">
                         {type === 'WATCH' ? 'Watch' : 'Music'}
                       </Text>
@@ -535,9 +523,12 @@ export function RoomsScreen() {
                 <View className="gap-8">
                   <View className="w-full">
                     <NativeLandingSun watch={watch} />
-                    <Card className="gap-6 rounded-3xl p-6">
-                      <View className="gap-1">
-                        <Heading>
+                    <View className="gap-6">
+                      <View className="gap-3">
+                        <Text
+                          accessibilityRole="header"
+                          className="text-center font-heading text-4xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
+                        >
                           {isAIMode
                             ? watch
                               ? 'Follow your '
@@ -545,6 +536,7 @@ export function RoomsScreen() {
                             : watch
                               ? 'Watch '
                               : 'Listen to music '}
+                          {'\n'}
                           <Text className="text-primary">
                             {isAIMode
                               ? watch
@@ -552,10 +544,18 @@ export function RoomsScreen() {
                                 : 'mood.'
                               : 'together.'}
                           </Text>
-                        </Heading>
+                        </Text>
+                        <Text className="text-center font-heading text-base text-mobile-muted dark:text-mobile-dark-muted">
+                          {isAIMode
+                            ? 'Describe a mood. Start something together.'
+                            : watch
+                              ? 'One room. Everyone’s front row.'
+                              : 'One room. Everyone’s favourites.'}
+                        </Text>
                       </View>
                       <View className="gap-2">
                         <Field
+                          inputClassName="min-h-14 rounded-2xl border text-lg"
                           accessibilityLabel={
                             isAIMode ? 'Playlist prompt' : 'Room name'
                           }
@@ -602,17 +602,27 @@ export function RoomsScreen() {
                           }
                         />
                       </View>
-                      <Button
+                      <NativeButton
+                        accessibilityLabel={submitLabel}
+                        className="min-h-14 rounded-2xl"
                         disabled={loading || generationLoading}
-                        label={submitLabel}
                         onPress={submitRoom}
-                      />
-                    </Card>
+                      >
+                        <Text className="text-center font-heading text-mobile-dark-background text-xl">
+                          {submitLabel}
+                        </Text>
+                      </NativeButton>
+                      {!isAIMode && (
+                        <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                          Enter a room name to join, or create your own.
+                        </Text>
+                      )}
+                    </View>
                   </View>
                   <View className="w-full gap-4">
                     <View
                       accessibilityRole="tablist"
-                      className="flex-row gap-2 border-mobile-border border-b pb-3 dark:border-mobile-dark-border"
+                      className="flex-row items-center justify-between gap-3"
                     >
                       {['live', 'public'].map((mode) => (
                         <Pressable
@@ -623,17 +633,25 @@ export function RoomsScreen() {
                           }}
                           onPress={() => void loadRooms(mode, 0, '')}
                           className={classNames(
-                            'min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-xl border bg-mobile-card dark:bg-mobile-dark-card',
-                            browseMode === mode
-                              ? 'border-accent'
-                              : 'border-transparent',
+                            'min-h-11 flex-row items-center gap-2 rounded-xl active:opacity-70',
+                            mode === 'public' && 'px-2',
                           )}
                         >
                           {mode === 'live' && (
                             <View className="size-2 rounded-full bg-accent" />
                           )}
-                          <Text className="font-heading text-mobile-text dark:text-mobile-dark-text">
-                            {mode === 'live' ? 'Live rooms' : 'Browse'}
+                          <Text
+                            className={classNames(
+                              'font-heading',
+                              mode === 'live' &&
+                                'text-mobile-text text-xl dark:text-mobile-dark-text',
+                              mode === 'public' && 'text-accent text-base',
+                              browseMode === mode &&
+                                mode === 'public' &&
+                                'underline',
+                            )}
+                          >
+                            {mode === 'live' ? 'Live rooms' : 'Browse all →'}
                           </Text>
                         </Pressable>
                       ))}
@@ -714,7 +732,7 @@ export function RoomsScreen() {
                       )}
                   </View>
                 </View>
-              </Animated.View>
+              </View>
             </View>
           </ScrollView>
           <ScrollEdgeFades

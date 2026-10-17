@@ -12,10 +12,7 @@ import {
   View,
 } from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Animated, {
-  FadeInDown,
-  LinearTransition,
-} from 'react-native-reanimated';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 
 import { Copy, Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
@@ -216,7 +213,6 @@ export function Queue({
     ({ item, index }: ListRenderItemInfo<PlaylistItem>) => (
       <Animated.View
         className={classNames(!contained && 'px-4')}
-        entering={FadeInDown.duration(180).delay(Math.min(index, 8) * 24)}
         layout={LinearTransition.duration(180)}
       >
         <QueueItem

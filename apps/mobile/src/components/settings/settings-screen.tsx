@@ -10,7 +10,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Card,
   ContentColumn,
@@ -20,6 +19,7 @@ import {
 } from '@/components/native';
 import { ProfileSettingsSheet } from '@/components/profile-settings-sheet';
 import { RoomSettingsSheet } from '@/components/room-settings-sheet';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import {
   ScrollEdgeFades,
   useScrollEdgeFades,

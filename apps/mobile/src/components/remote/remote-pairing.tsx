@@ -1,6 +1,5 @@
 import { classNames } from '@vibes/shared';
 import { ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
   Card,
@@ -10,6 +9,7 @@ import {
   Heading,
   Screen,
 } from '@/components/native';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import type {

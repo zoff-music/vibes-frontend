@@ -2,7 +2,6 @@ import type { Providers, RoomSettingsV2, RoomV2 } from '@vibes/models';
 import { useMutation } from '@vibes/shared/use-request';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, Modal, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
   Card,
@@ -13,6 +12,7 @@ import {
   Screen,
 } from '@/components/native';
 import { RoomConfiguration } from '@/components/room-configuration';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { Toast, ToastViewport } from '@/components/toast';
 import { updateControllerRoom } from '@/requests/update-controller-room';
 import { updateRoomSession } from '@/requests/update-room-session';

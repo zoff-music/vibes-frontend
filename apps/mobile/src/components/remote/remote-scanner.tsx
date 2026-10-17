@@ -15,8 +15,8 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, ContentColumn } from '@/components/native';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import type {
   ControllerRemoteActions,
   ControllerRemoteState,
@@ -86,6 +86,7 @@ export function RemoteScanner({
       <GestureHandlerRootView className="flex-1 bg-mobile-background dark:bg-mobile-dark-background">
         <SafeAreaView style={safeAreaStyle}>
           <ScrollView
+            contentInsetAdjustmentBehavior="never"
             contentContainerClassName="flex-grow justify-center p-6"
             bounces={false}
           >

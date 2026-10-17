@@ -108,6 +108,21 @@ async function openRoom(
   signal: AbortSignal,
   password = '',
 ): Promise<RequestResult<RoomSessionActionData>> {
+  const [roomError, existingRoom] = await readRequests.fetchRoom(roomId, {
+    signal,
+  });
+
+  if (roomError || !existingRoom) {
+    if (
+      roomError &&
+      getHttpError(roomError)?.response.status === notFoundStatus
+    ) {
+      return { data: null, error: 'ROOM_NOT_FOUND' };
+    }
+
+    return requestFailure(roomError, 'Could not open that room.');
+  }
+
   const [, storedPassword] = await getSecureValue(
     getRoomAdminPasswordStorageKey(roomId),
   );
@@ -115,7 +130,18 @@ async function openRoom(
   let warning = '';
   let authenticated = false;
 
-  if (adminPassword) {
+  if (!existingRoom.hasPassword && storedPassword) {
+    const [deleteError] = await deleteSecureValue(
+      getRoomAdminPasswordStorageKey(roomId),
+    );
+
+    if (deleteError) {
+      warning =
+        'Room opened, but its old saved admin password could not be removed.';
+    }
+  }
+
+  if (existingRoom.hasPassword && adminPassword) {
     const [error] = await lifecycleRequests.joinRoom(roomId, adminPassword, {
       signal,
     });
@@ -127,7 +153,16 @@ async function openRoom(
       );
     }
 
-    if (error) {
+    const status = error ? getHttpError(error)?.response.status : null;
+    const rejected = status === 401 || status === 403;
+
+    if (error && !rejected) {
+      if (signal.aborted)
+        return requestFailure(error, 'Room opening was cancelled.');
+
+      warning =
+        'Room opened, but admin access could not be restored. Try again in room settings.';
+    } else if (error) {
       warning = 'Room opened, but the saved admin password was not accepted.';
       const [deleteError] = await deleteSecureValue(
         getRoomAdminPasswordStorageKey(roomId),
@@ -150,7 +185,9 @@ async function openRoom(
   }
 
   const [roomResult, playlistItemsResult, playbackResult] = await Promise.all([
-    readRequests.fetchRoom(roomId, { signal }),
+    authenticated
+      ? readRequests.fetchRoom(roomId, { signal })
+      : Promise.resolve([null, existingRoom] as const),
     readRequests.fetchPlaylistItems(roomId, { signal }),
     playbackRequests.fetchPlayback(roomId, { signal }),
   ]);

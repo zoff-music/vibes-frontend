@@ -2,7 +2,6 @@ import { displayNameMaxLength, type SessionProfile } from '@vibes/models';
 import { useMutation, useRequest } from '@vibes/shared/use-request';
 import { useEffect, useRef, useState } from 'react';
 import { Modal, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
   Card,
@@ -12,6 +11,7 @@ import {
   IconButton,
   Screen,
 } from '@/components/native';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { loadProfile } from '@/requests/load-profile';
 import { updateProfile } from '@/requests/update-profile';
 

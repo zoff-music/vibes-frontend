@@ -6,7 +6,6 @@ import { getRoomLabels } from '@vibes/ui/shared';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Share, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
   Card,
@@ -22,6 +21,7 @@ import {
   RoomPlayerSpace,
   type RoomPlayerSpaceHandle,
 } from '@/components/room-player-space';
+import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { Toast } from '@/components/toast';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useLivePosition } from '@/hooks/use-live-position';

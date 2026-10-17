@@ -13,20 +13,21 @@
     "preview": "node server/index.ts"
   },
   "dependencies": {
+    "@kasperrt/smolter": "0.4.4",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "framer-motion": "14.1.0",
-    "qrcode.react": "4.2.0",
-    "zustand": "5.0.15",
-    "@kasperrt/smolter": "0.4.2",
     "preact": "11.0.1",
-    "preact-render-to-string": "6.8.1"
+    "preact-render-to-string": "6.8.1",
+    "qrcode.react": "4.2.0",
+    "zustand": "5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",
+    "@types/chromecast-caf-sender": "1.0.11",
     "@types/node": "26.6.5",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",

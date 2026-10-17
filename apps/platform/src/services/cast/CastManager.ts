@@ -31,7 +31,6 @@ import { LocalEmulator } from './LocalEmulator';
 import type { LocalCastMessage } from './types';
 
 const CUSTOM_NAMESPACE = 'urn:x-cast:com.vibez.cast';
-const MEDIA_NAMESPACE = 'urn:x-cast:com.google.cast.media';
 
 /**
  * Google Cast SDK Manager - orchestrates all casting functionality.
@@ -44,9 +43,7 @@ class GoogleCastManager implements ICastManager {
 
   private isInitialized = false;
   private initializationPromise: Promise<void> | null = null;
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3;
-  private reconnectDelay = 1000;
+  private castContext: cast.framework.CastContext | null = null;
   private roomCredentials: { castToken: string; roomId: string } | null = null;
 
   private eventBus: CastEventBus;
@@ -69,331 +66,166 @@ class GoogleCastManager implements ICastManager {
   // ============================================================
 
   private async initializeCastSDK(): Promise<void> {
-    if (typeof window === 'undefined') return;
-
-    browserDebugLog('[Cast] initializeCastSDK:start', {
-      sdkAvailable: !!window.chrome?.cast?.isAvailable,
-      sdkLoaded: !!window.chrome?.cast,
-    });
-
+    if (typeof window === 'undefined' || this.isInitialized) return;
     if (this.initializationPromise) return this.initializationPromise;
 
     this.initializationPromise = (async () => {
-      if (this.isInitialized) return;
-
-      const [loadErr] = await safeWrapAsync(
+      const [error] = await safeWrapAsync(
         new Promise<void>((resolve, reject) => {
-          if (window.chrome?.cast?.isAvailable) {
+          if (typeof cast !== 'undefined' && cast.framework?.CastContext) {
             resolve();
-
             return;
           }
 
-          if (!window.chrome?.cast) {
-            window.__onGCastApiAvailable = (isAvailable) => {
-              if (isAvailable) {
-                resolve();
+          const previousCallback = window.__onGCastApiAvailable;
+          const existing = document.querySelector<HTMLScriptElement>(
+            `script[src="${castSenderScriptUrl}"]`,
+          );
+          const script = existing ?? document.createElement('script');
+          const finish = (error?: Error) => {
+            clearTimeout(timeout);
+            script.removeEventListener('error', onError);
+            window.__onGCastApiAvailable = previousCallback;
 
-                return;
-              }
+            if (error && !existing) script.remove();
 
-              reject(new Error('Google Cast API is unavailable'));
-            };
+            if (error) reject(error);
+            else resolve();
+          };
+          const onError = () =>
+            finish(new Error('Failed to load Google Cast SDK'));
+          const timeout = setTimeout(
+            () => finish(new Error('Google Cast SDK availability timed out')),
+            10000,
+          );
 
-            const existingScript = document.querySelector<HTMLScriptElement>(
-              `script[src="${castSenderScriptUrl}"]`,
-            );
-
-            if (existingScript) {
-              void (async () => {
-                const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
-
-                if (waitErr) {
-                  reject(waitErr);
-
-                  return;
-                }
-
-                resolve();
-              })();
-
+          window.__onGCastApiAvailable = (available, reason) => {
+            previousCallback?.(available, reason);
+            if (!available) {
+              finish(new Error(reason || 'Google Cast SDK unavailable'));
               return;
             }
-
-            const script = document.createElement('script');
+            finish();
+          };
+          script.addEventListener('error', onError, { once: true });
+          if (!existing) {
+            script.dataset.smolterPreserve = '';
             script.src = castSenderScriptUrl;
-            script.onload = () => {
-              browserDebugLog('[Cast] sender SDK script loaded');
-              void (async () => {
-                const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
-
-                if (waitErr) {
-                  reject(waitErr);
-
-                  return;
-                }
-
-                resolve();
-              })();
-            };
-            script.onerror = () => {
-              const error = new Error('Failed to load Google Cast SDK');
-              console.error('[Cast] sender SDK script failed to load');
-              this.notifyError({
-                code: 'SDK_LOAD_FAILED',
-                description: 'Failed to load Google Cast SDK',
-                details: error,
-              });
-              reject(error);
-            };
             document.head.appendChild(script);
-          } else {
-            void (async () => {
-              const [waitErr] = await safeWrapAsync(this.waitForCastAPI());
-
-              if (waitErr) {
-                reject(waitErr);
-
-                return;
-              }
-
-              resolve();
-            })();
           }
         }),
       );
 
-      if (loadErr) {
+      if (error) {
         this.initializationPromise = null;
-        throw loadErr;
+        throw error;
       }
 
-      const [setupErr] = await safeWrapAsync(this.setupCastAPI());
-
-      if (setupErr) {
+      const [setupError] = await safeWrapAsync(this.setupCastAPI());
+      if (setupError) {
         this.initializationPromise = null;
-        throw setupErr;
+        throw setupError;
       }
-
       this.isInitialized = true;
-      this.reconnectAttempts = 0;
-      browserDebugLog('✅ Google Cast initialized successfully');
-      browserDebugLog('[Cast] Cast API version:', window.chrome.cast.VERSION);
     })();
 
     return this.initializationPromise;
   }
 
-  private waitForCastAPI(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxAttempts = 100;
-
-      browserDebugLog('[Cast] waiting for Cast API availability...');
-      const checkInterval = setInterval(() => {
-        attempts++;
-
-        if (window.chrome?.cast?.isAvailable) {
-          clearInterval(checkInterval);
-          browserDebugLog('[Cast] Cast API available', { attempts });
-          resolve();
-        } else if (attempts >= maxAttempts) {
-          clearInterval(checkInterval);
-          const error = {
-            message: 'Google Cast API not available after timeout',
-            code: 'API_TIMEOUT_INTERNAL',
-          };
-          console.warn(
-            '[Cast] API timeout - Cast likely not supported or extension missing',
-          );
-          reject(error);
-        }
-      }, 100);
-    });
-  }
-
   private setupCastAPI(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const [err] = safeWrap(() => {
-        browserDebugLog('Setting up Google Cast API...');
-        browserDebugLog('[Cast] setup config', {
-          appId: CAST_APPLICATION_ID,
-          receiverUrl: CUSTOM_RECEIVER_URL,
-          developmentMode: DEVELOPMENT_MODE,
-        });
-
-        const sessionRequest = new window.chrome.cast.SessionRequest(
-          CAST_APPLICATION_ID,
-        );
-        browserDebugLog(
-          'Created session request for app ID:',
-          CAST_APPLICATION_ID,
-        );
-
-        const apiConfig = new window.chrome.cast.ApiConfig(
-          sessionRequest,
-          this.onSessionListener.bind(this),
-          this.onReceiverListener.bind(this),
-          window.chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED,
-          window.chrome.cast.DefaultActionPolicy.CREATE_SESSION,
-        );
-        browserDebugLog('Created API config');
-
-        window.chrome.cast.initialize(
-          apiConfig,
-          () => {
-            browserDebugLog('Google Cast API `initialize` call successful.');
-            resolve();
-          },
-          (error: chrome.cast.Error) => {
-            console.error('❌ Google Cast initialization failed:', error);
-            this.notifyError({
-              code: 'INITIALIZATION_FAILED',
-              description: 'Failed to initialize Google Cast',
-              details: error,
-            });
-
-            if (this.reconnectAttempts < this.maxReconnectAttempts) {
-              this.scheduleReconnect();
-            }
-
-            reject(error);
-          },
-        );
+    const [error] = safeWrap(() => {
+      const context = cast.framework.CastContext.getInstance();
+      this.castContext = context;
+      context.addEventListener(
+        cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+        this.handleCastState,
+      );
+      context.addEventListener(
+        cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+        this.handleSessionState,
+      );
+      context.setOptions({
+        receiverApplicationId: CAST_APPLICATION_ID,
+        autoJoinPolicy: chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED,
+        resumeSavedSession: true,
       });
-
-      if (!err) return;
-
-      console.error('Error setting up Cast API:', err);
-      this.notifyError({
-        code: 'SETUP_FAILED',
-        description: 'Failed to set up Google Cast API',
-        details: err,
-      });
-      reject(err);
+      this.refreshCastState();
+      const session = context.getCurrentSession();
+      if (session) this.onSessionListener(session.getSessionObj());
     });
+
+    if (error) return Promise.reject(error);
+
+    return Promise.resolve();
   }
 
-  private scheduleReconnect(): void {
-    this.reconnectAttempts++;
-    const delay = this.reconnectDelay * 2 ** (this.reconnectAttempts - 1);
+  private handleCastState = (): void => {
+    this.refreshCastState();
+  };
 
-    browserDebugLog(
-      `Scheduling Cast SDK reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`,
+  private refreshCastState(): void {
+    const state = this.castContext?.getCastState();
+    this.onReceiverListener(
+      state && state !== cast.framework.CastState.NO_DEVICES_AVAILABLE
+        ? 'available'
+        : 'unavailable',
     );
-
-    setTimeout(() => {
-      this.initializationPromise = null;
-      const [err] = safeWrap(() => {
-        this.initializeCastSDK();
-      });
-
-      if (err) console.error('Reconnect attempt failed:', err);
-    }, delay);
   }
 
-  // ============================================================
-  // Session Listeners
-  // ============================================================
+  private handleSessionState = (
+    event: cast.framework.SessionStateEventData,
+  ): void => {
+    if (
+      event.sessionState === cast.framework.SessionState.SESSION_STARTED ||
+      event.sessionState === cast.framework.SessionState.SESSION_RESUMED
+    ) {
+      const session = this.castContext?.getCurrentSession();
+      if (session) this.onSessionListener(session.getSessionObj());
+
+      return;
+    }
+
+    if (event.sessionState !== cast.framework.SessionState.SESSION_ENDED)
+      return;
+
+    this.detachSessionMessages();
+    if (this.currentSession) {
+      this.notifySessionStateChange({
+        ...this.currentSession,
+        state: 'disconnected',
+      });
+    }
+    this.currentSession = null;
+  };
+
+  private handleCustomMessage = (namespace: string, message: string): void => {
+    this.onCustomMessage(namespace, message);
+  };
+
+  private detachSessionMessages(): void {
+    this.actualCastSession?.removeMessageListener(
+      CUSTOM_NAMESPACE,
+      this.handleCustomMessage,
+    );
+    this.actualCastSession = null;
+  }
 
   private onSessionListener(session: chrome.cast.Session): void {
-    browserDebugLog('🎯 Cast session established:', session);
-    browserDebugLog('[Cast] session details', {
-      sessionId: session?.sessionId,
-      receiverName: session?.receiver?.friendlyName,
-      mediaCount: session?.media?.length || 0,
-    });
+    if (this.actualCastSession === session) return;
 
-    const [err] = safeWrap(() => {
-      const castSession: CastSession = {
-        id: session.sessionId,
-        deviceId: session.receiver?.friendlyName || 'unknown-device',
-        deviceName: session.receiver?.friendlyName || 'Unknown Device',
-        deviceType: 'chromecast',
-        state: 'connected',
-        startedAt: new Date(),
-        lastSyncAt: new Date(),
-        mediaSessionId: session.media?.[0]?.sessionId,
-      };
-
-      browserDebugLog('📱 Created cast session object:', castSession);
-
-      this.currentSession = castSession;
-      this.actualCastSession = session;
-      this.reconnectAttempts = 0;
-      this.notifySessionStateChange(castSession);
-
-      if (session.addUpdateListener) {
-        session.addUpdateListener(this.onSessionUpdateListener.bind(this));
-      }
-
-      if (session.addMessageListener) {
-        session.addMessageListener(
-          MEDIA_NAMESPACE,
-          this.onMediaMessage.bind(this),
-        );
-        session.addMessageListener(
-          CUSTOM_NAMESPACE,
-          this.onCustomMessage.bind(this),
-        );
-      }
-
-      if (session.media?.[0]) {
-        this.handleExistingMediaSession(session.media[0]);
-      }
-    });
-
-    if (err) {
-      console.error('❌ Error handling session listener:', err);
-      this.notifyError({
-        code: 'SESSION_HANDLER_ERROR',
-        description: 'Error processing cast session',
-        details: err,
-      });
-    }
-  }
-
-  private handleExistingMediaSession(media: chrome.cast.media.Media): void {
-    const [err] = safeWrap(() => {
-      browserDebugLog('[Cast] existing media session detected', {
-        sessionId: media?.sessionId,
-        mediaStatus: media?.playerState,
-      });
-
-      if (this.currentSession) {
-        this.currentSession.mediaSessionId = media.sessionId;
-        this.currentSession.lastSyncAt = new Date();
-        this.notifySessionStateChange(this.currentSession);
-      }
-
-      media.addUpdateListener(this.onMediaUpdateListener.bind(this));
-    });
-
-    if (err) console.error('Error handling existing media session:', err);
-  }
-
-  private onMediaUpdateListener(isAlive: boolean): void {
-    browserDebugLog('[Cast] media update listener', { isAlive });
-
-    if (!isAlive && this.currentSession) {
-      browserDebugLog('Media session ended');
-      this.currentSession.mediaSessionId = undefined;
-      this.currentSession.lastSyncAt = new Date();
-      this.notifySessionStateChange(this.currentSession);
-    }
-  }
-
-  private onSessionUpdateListener(isAlive: boolean): void {
-    browserDebugLog('[Cast] session update listener', { isAlive });
-
-    if (!isAlive && this.currentSession) {
-      browserDebugLog('Cast session ended');
-      this.currentSession.state = 'disconnected';
-      this.currentSession.lastSyncAt = new Date();
-      this.notifySessionStateChange(this.currentSession);
-      this.currentSession = null;
-      this.actualCastSession = null;
-    }
+    this.detachSessionMessages();
+    this.actualCastSession = session;
+    this.currentSession = {
+      id: session.sessionId,
+      deviceId: session.receiver.label,
+      deviceName: session.receiver.friendlyName,
+      deviceType: 'chromecast',
+      state: 'connected',
+      startedAt: new Date(),
+      lastSyncAt: new Date(),
+    };
+    session.addMessageListener(CUSTOM_NAMESPACE, this.handleCustomMessage);
+    this.notifySessionStateChange(this.currentSession);
   }
 
   private onReceiverListener(availability: string): void {
@@ -445,10 +277,6 @@ class GoogleCastManager implements ICastManager {
         details: err,
       });
     }
-  }
-
-  private onMediaMessage(namespace: string, message: string): void {
-    browserDebugLog('Media message received:', namespace, message);
   }
 
   private onCustomMessage(_namespace: string, message: string): void {
@@ -632,63 +460,21 @@ class GoogleCastManager implements ICastManager {
       return this.currentSession;
     }
 
-    browserDebugLog('🔗 Requesting cast session for device:', deviceId);
+    const context = this.castContext;
+    if (!context) throw new Error('Cast SDK not initialized');
 
-    return new Promise((resolve, reject) => {
-      window.chrome.cast.requestSession(
-        (session: chrome.cast.Session) => {
-          const [err, res] = safeWrap(() => {
-            browserDebugLog('✅ Session created successfully:', session);
-            const castSession: CastSession = {
-              id: session.sessionId,
-              deviceId: deviceId,
-              deviceName: session.receiver?.friendlyName || 'Unknown Device',
-              deviceType: 'chromecast',
-              state: 'connected',
-              startedAt: new Date(),
-              lastSyncAt: new Date(),
-            };
+    await context.requestSession();
+    const session = context.getCurrentSession();
+    if (!session) throw new Error('No Cast session selected');
 
-            this.currentSession = castSession;
-            this.actualCastSession = session;
-            this.reconnectAttempts = 0;
-            session.setReceiverMuted(
-              false,
-              () => browserDebugLog('[Cast] receiver output unmuted'),
-              (error: chrome.cast.Error) =>
-                console.error('Failed to unmute Cast receiver output:', error),
-            );
-            browserDebugLog('[Cast] stored session', {
-              sessionId: castSession.id,
-              deviceName: castSession.deviceName,
-            });
+    this.onSessionListener(session.getSessionObj());
+    const [muteError] = await safeWrapAsync(session.setMute(false));
+    if (muteError)
+      console.error('Failed to unmute Cast receiver output:', muteError);
 
-            if (session.addUpdateListener) {
-              session.addUpdateListener(
-                this.onSessionUpdateListener.bind(this),
-              );
-            }
+    if (!this.currentSession) throw new Error('Cast session not available');
 
-            this.notifySessionStateChange(castSession);
-
-            return castSession;
-          });
-
-          if (err) reject(err);
-          else resolve(res!);
-        },
-        (error: chrome.cast.Error) => {
-          const errMsg = error?.description || 'Unknown error';
-          console.error('Failed to connect to device:', error);
-          this.notifyError({
-            code: error?.code || 'CONNECTION_FAILED',
-            description: `Failed to connect to device: ${errMsg}`,
-            details: error,
-          });
-          reject(new Error(`Failed to connect to device: ${errMsg}`));
-        },
-      );
-    });
+    return this.currentSession;
   }
 
   async disconnectFromDevice(deviceId: string): Promise<void> {
@@ -707,51 +493,7 @@ class GoogleCastManager implements ICastManager {
       return;
     }
 
-    const session = this.actualCastSession;
-
-    if (!session) {
-      this.currentSession = null;
-      this.actualCastSession = null;
-
-      return;
-    }
-
-    return new Promise((resolve) => {
-      session.stop(
-        () => {
-          browserDebugLog('Session stopped successfully');
-
-          if (this.currentSession) {
-            this.currentSession.state = 'disconnected';
-            this.currentSession.lastSyncAt = new Date();
-            this.notifySessionStateChange(this.currentSession);
-          }
-
-          this.currentSession = null;
-          this.actualCastSession = null;
-          resolve();
-        },
-        (error: chrome.cast.Error) => {
-          console.error('Failed to stop session:', error);
-
-          if (this.currentSession) {
-            this.currentSession.state = 'error';
-            this.currentSession.lastSyncAt = new Date();
-            this.notifySessionStateChange(this.currentSession);
-          }
-
-          this.currentSession = null;
-          this.actualCastSession = null;
-
-          this.notifyError({
-            code: 'DISCONNECT_FAILED',
-            description: 'Failed to properly disconnect from device',
-            details: error,
-          });
-          resolve();
-        },
-      );
-    });
+    this.castContext?.endCurrentSession(true);
   }
 
   // ============================================================
@@ -1239,20 +981,6 @@ class GoogleCastManager implements ICastManager {
     return url.includes('youtube.com') || url.includes('youtu.be');
   }
 
-  getStatus(): {
-    isInitialized: boolean;
-    deviceCount: number;
-    currentSession: CastSession | null;
-    reconnectAttempts: number;
-  } {
-    return {
-      isInitialized: this.isInitialized,
-      deviceCount: this.devices.length,
-      currentSession: this.currentSession,
-      reconnectAttempts: this.reconnectAttempts,
-    };
-  }
-
   getDebugInfo(): {
     sdkLoaded: boolean;
     sdkAvailable: boolean;
@@ -1265,7 +993,7 @@ class GoogleCastManager implements ICastManager {
     return {
       sdkLoaded: !!window.chrome?.cast,
       sdkAvailable: !!window.chrome?.cast?.isAvailable,
-      apiVersion: window.chrome?.cast?.VERSION,
+      apiVersion: window.chrome?.cast?.VERSION?.join('.'),
       receiverAvailability: undefined,
       devices: this.devices,
       currentSession: this.currentSession,
@@ -1294,17 +1022,19 @@ class GoogleCastManager implements ICastManager {
     this.localEmulator.destroy();
     this.eventBus.removeAllListeners();
 
-    if (this.currentSession && this.actualCastSession) {
-      const [err] = safeWrap(() => {
-        this.actualCastSession?.stop(
-          () => browserDebugLog('Session stopped during destroy'),
-          (err: chrome.cast.Error) =>
-            console.error('Error stopping session:', err),
-        );
-      });
-
-      if (err) console.error('Error during session cleanup:', err);
+    if (this.castContext) {
+      this.castContext.endCurrentSession(true);
+      this.castContext.removeEventListener(
+        cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+        this.handleCastState,
+      );
+      this.castContext.removeEventListener(
+        cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+        this.handleSessionState,
+      );
+      this.castContext = null;
     }
+    this.detachSessionMessages();
 
     this.currentSession = null;
     this.actualCastSession = null;
