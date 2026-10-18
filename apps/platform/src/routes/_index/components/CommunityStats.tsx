@@ -1,7 +1,9 @@
-import { Await, useLoaderData } from '@kasperrt/smolter/preact';
+import { Await, useFetcher, useLoaderData } from '@kasperrt/smolter/preact';
 import type { StatsV2 } from '@vibes/models';
 import { AnimatedNumber } from '@vibes/ui/web';
+import { useEffect } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
+import type { clientLoader } from '../../resources.statistics/clientLoader';
 import type { HomeLoaderData } from '../loader';
 
 interface CommunityStatsProps {
@@ -11,10 +13,22 @@ interface CommunityStatsProps {
 export function CommunityStats() {
   const { data } = useLoaderData<HomeLoaderData>();
   const { stats } = data;
+  const roomType = useExperience();
+  const fetcher = useFetcher<typeof clientLoader>();
+  const load = fetcher.load;
+
+  useEffect(() => {
+    if (stats !== null) return;
+
+    void load(`/resources/statistics?type=${roomType.toLowerCase()}`);
+  }, [stats, roomType, load]);
+
+  const resolved =
+    stats ?? (fetcher.data?.roomType === roomType ? fetcher.data.stats : null);
 
   return (
     <Await
-      resolve={stats}
+      resolve={resolved}
       fallback={<StatsSummary stats={null} />}
       errorElement={<StatsSummary stats={null} />}
     >
