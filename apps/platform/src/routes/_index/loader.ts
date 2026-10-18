@@ -9,7 +9,7 @@ export interface HomeLoaderData {
   data: {
     providers: Providers | null;
     publicRooms: PublicRoomV3[] | null;
-    stats: Promise<StatsV2 | null>;
+    stats: Promise<StatsV2 | null> | null;
   };
 }
 

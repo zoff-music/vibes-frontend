@@ -37,7 +37,7 @@ export function ExperienceSwitch() {
       <span
         aria-hidden="true"
         className={classNames(
-          'experience-pill pointer-events-none absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-full border border-secondary bg-theme transition-transform duration-500 ease-out motion-reduce:transition-none',
+          'experience-pill pointer-events-none absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-full border border-secondary bg-theme transition-transform duration-200 ease-out motion-reduce:transition-none',
           experience === 'WATCH' && 'translate-x-full',
         )}
       />
