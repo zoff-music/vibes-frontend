@@ -35,7 +35,7 @@ export function App() {
             brand={
               <a
                 href="/"
-                aria-label="Zoff home"
+                aria-label="Zoff home — ゾフ Shared rooms"
                 className={siteBrandLinkClassName}
               >
                 <SiteBrand />

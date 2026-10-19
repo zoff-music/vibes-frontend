@@ -15,14 +15,14 @@ export function SiteFooter({ renderLocalLink }: SiteFooterProps) {
     <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 [view-transition-name:site-footer] sm:px-6 sm:pb-6">
       <nav
         aria-label="Site links"
-        className="panel-surface mx-auto flex w-fit max-w-full items-center rounded-2xl border border-theme p-1 sm:px-2"
+        className="panel-surface mx-auto grid w-fit max-w-full grid-cols-3 items-center rounded-2xl border border-theme p-1 sm:flex sm:px-2"
       >
         {links.map((link, index) => (
           <Fragment key={link.href}>
             {index > 0 && (
               <span
                 aria-hidden="true"
-                className="h-4 shrink-0 border-theme border-l"
+                className="hidden h-4 shrink-0 border-theme border-l sm:block"
               />
             )}
             {renderLocalLink &&
@@ -56,4 +56,4 @@ const links: SiteFooterLink[] = [
 ];
 
 const footerLinkClassName =
-  'flex min-h-11 min-w-0 shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-1 font-pixel text-xs text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:text-theme sm:px-5 sm:text-sm';
+  'flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-2 font-pixel text-xs text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:text-theme sm:px-5 sm:text-sm';

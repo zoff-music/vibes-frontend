@@ -33,7 +33,7 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
         brand={
           <Link
             to={watch ? '/features/watch' : '/'}
-            aria-label="Zoff home"
+            aria-label="Zoff home — ゾフ Shared rooms"
             prefetch="intent"
             className={siteBrandLinkClassName}
           >

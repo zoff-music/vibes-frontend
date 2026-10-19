@@ -2,7 +2,7 @@ import {
   useURLLocation as useLocation,
   useNavigationType,
 } from '@kasperrt/smolter/preact';
-import { classNames, usePageVisibility } from '@vibes/shared';
+import { usePageVisibility } from '@vibes/shared';
 import { useInView } from 'framer-motion';
 import { type ReactNode, type RefObject, useRef } from 'preact/compat';
 import { RetroSun } from '../../../components/layout/RetroSun';
@@ -85,14 +85,7 @@ export function HomeLanding({
                       {watch ? 'Watch' : 'Listen to music'}
                     </span>
                   </span>{' '}
-                  <span
-                    className={classNames(
-                      'block',
-                      watch
-                        ? 'text-primary'
-                        : 'text-pink-800 dark:text-primary',
-                    )}
-                  >
+                  <span className="block text-pink-800 dark:text-primary">
                     together.
                   </span>
                 </>

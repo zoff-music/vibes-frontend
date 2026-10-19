@@ -31,7 +31,7 @@ export function PrivacyPolicyContent({
           rooms, operated by its developer. Questions, privacy requests, and
           deletion requests can be sent to{' '}
           <a
-            className="text-secondary underline decoration-secondary/40 underline-offset-4 transition-colors hover:text-theme"
+            className="text-cyan-800 underline decoration-current/40 underline-offset-4 transition-colors hover:text-theme dark:text-secondary"
             href={`mailto:${privacyEmail}`}
           >
             {privacyEmail}
