@@ -11,6 +11,7 @@ interface ChatConversationProps {
   error?: string;
   sending?: boolean;
   active: boolean;
+  loading?: boolean;
 }
 
 export function ChatConversation({
@@ -19,6 +20,7 @@ export function ChatConversation({
   active,
   error,
   sending = false,
+  loading = false,
 }: ChatConversationProps) {
   const [draft, setDraft] = useState('');
   const nearBottom = useRef(true);
@@ -63,14 +65,21 @@ export function ChatConversation({
         className="min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-3 [scrollbar-gutter:stable]"
       >
         <div className="flex min-h-full flex-col justify-end [&>p]:shrink-0">
-          {messages.length === 0 && (
+          {messages.length === 0 && loading && (
             <div className="space-y-3 py-3">
               <div aria-hidden="true" className="space-y-2">
                 <div className="h-3 w-40 max-w-full rounded-full bg-theme-surface" />
                 <div className="h-3 w-24 rounded-full bg-theme-surface" />
               </div>
-              <p className="text-sm text-theme-muted">Waiting for messages…</p>
+              <p role="status" className="text-sm text-theme-muted">
+                Connecting to chat…
+              </p>
             </div>
+          )}
+          {messages.length === 0 && !loading && !error && (
+            <p className="py-3 text-sm text-theme-muted">
+              No recent messages. Say hi to the room!
+            </p>
           )}
           {messages.map((message) => (
             <ChatMessageLine key={message.id} message={message} />

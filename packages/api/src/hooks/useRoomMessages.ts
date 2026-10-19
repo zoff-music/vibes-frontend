@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 import { type ApiClient, api } from '../client';
 
 interface MessageCallbacks {
+  onConnecting?: () => void;
+  onConnected?: () => void;
   onMessage: (message: RoomMessage) => void;
   onError: (error: Error | null) => void;
 }
@@ -25,6 +27,7 @@ export function useRoomMessages(
     let stop: (() => void) | null = null;
     let retry: ReturnType<typeof setTimeout> | undefined;
     const connect = async () => {
+      callbacksRef.current.onConnecting?.();
       const [error, unsubscribe] = await client.sse(
         '/rooms/{id}/messages',
         {
@@ -38,6 +41,7 @@ export function useRoomMessages(
               | { type: 'message'; data: RoomMessage }
               | { type: 'settings_activity'; data: RoomMessage }
               | { type: 'event_cursor'; data: EventCursor }
+              | { type: 'connected'; data: { time: number } }
               | null
             ),
           ],
@@ -55,6 +59,12 @@ export function useRoomMessages(
           if (!event) return;
 
           callbacksRef.current.onError(null);
+
+          if (event.type === 'connected') {
+            callbacksRef.current.onConnected?.();
+
+            return;
+          }
 
           if (event.type === 'event_cursor') {
             cursor = event.data.id;

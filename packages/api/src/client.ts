@@ -177,6 +177,7 @@ const endpoints = {
     sse: {
       $search: optionalSseQuerySchema,
       events: {
+        connected: connectedSchema,
         message: roomMessageSchema,
         settings_activity: roomMessageSchema,
         event_cursor: eventCursorSchema,
