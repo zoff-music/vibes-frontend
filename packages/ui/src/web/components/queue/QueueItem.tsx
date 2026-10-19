@@ -2,6 +2,7 @@ import {
   classNames,
   getProviderItemUrl,
   type PlaylistItem,
+  playlistItemWebpThumbnail,
   resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
 import { m as motion } from 'framer-motion';
@@ -65,19 +66,27 @@ const QueueItemComponent: React.FC<Props> = ({
           <span className="text-theme-muted text-xs">{position}</span>
         </div>
 
-        <img
-          src={resolvePlaylistItemThumbnail(playlistItem.thumbnailUrl, true)}
-          alt=""
-          className={classNames(
-            'shrink-0 rounded-xl border border-theme bg-theme-surface object-cover',
-            density === 'compact' ? 'h-10 w-10' : 'h-12 w-12 sm:h-14 sm:w-14',
+        <picture className="shrink-0">
+          {playlistItemWebpThumbnail(playlistItem.thumbnailUrl) && (
+            <source
+              type="image/webp"
+              srcSet={playlistItemWebpThumbnail(playlistItem.thumbnailUrl)}
+            />
           )}
-          decoding="async"
-          fetchPriority={position === 1 ? 'high' : 'auto'}
-          loading={position <= 3 ? 'eager' : 'lazy'}
-          width={56}
-          height={56}
-        />
+          <img
+            src={resolvePlaylistItemThumbnail(playlistItem.thumbnailUrl, true)}
+            alt=""
+            className={classNames(
+              'shrink-0 rounded-xl border border-theme bg-theme-surface object-cover',
+              density === 'compact' ? 'h-10 w-10' : 'h-12 w-12 sm:h-14 sm:w-14',
+            )}
+            decoding="async"
+            fetchPriority={position <= 3 ? 'auto' : 'low'}
+            loading={position <= 3 ? 'eager' : 'lazy'}
+            width={56}
+            height={56}
+          />
+        </picture>
 
         <div className="min-w-0 flex-1 overflow-hidden">
           <h3 className="block max-w-full truncate text-left text-theme text-xs">

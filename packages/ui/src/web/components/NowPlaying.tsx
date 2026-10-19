@@ -2,8 +2,10 @@ import {
   classNames,
   getProviderItemUrl,
   type PlaylistItem,
+  playlistItemWebpThumbnail,
   resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
+import { useState } from 'preact/compat';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../shared';
 import { RemoteIcon } from '../icons';
 import { ProviderIcon } from './ProviderIcon';
@@ -17,6 +19,7 @@ interface NowPlayingPlaylistItemProps {
   density?: 'normal' | 'compact';
   showStatus?: boolean;
   isHost?: boolean;
+  priority?: boolean;
 }
 
 export function NowPlayingPlaylistItem({
@@ -27,7 +30,17 @@ export function NowPlayingPlaylistItem({
   density = 'normal',
   showStatus = true,
   isHost = false,
+  priority = false,
 }: NowPlayingPlaylistItemProps) {
+  const [entrance, setEntrance] = useState({
+    id: playlistItem.id,
+    changed: false,
+  });
+
+  if (entrance.id !== playlistItem.id) {
+    setEntrance({ id: playlistItem.id, changed: true });
+  }
+
   const providerUrl = getProviderItemUrl(
     playlistItem.sourceType,
     playlistItem.sourceId,
@@ -62,7 +75,7 @@ export function NowPlayingPlaylistItem({
         key={playlistItem.id}
         className={classNames(
           'overflow-hidden',
-          animate && 'motion-safe:animate-slide-up',
+          animate && entrance.changed && 'motion-safe:animate-slide-up',
         )}
       >
         <div
@@ -73,19 +86,29 @@ export function NowPlayingPlaylistItem({
         >
           <div className="vhs-scanlines pointer-events-none absolute inset-0" />
           <div className="relative z-10 shrink-0">
-            <img
-              src={resolvePlaylistItemThumbnail(
-                playlistItem.thumbnailUrl,
-                true,
+            <picture>
+              {playlistItemWebpThumbnail(playlistItem.thumbnailUrl) && (
+                <source
+                  type="image/webp"
+                  srcSet={playlistItemWebpThumbnail(playlistItem.thumbnailUrl)}
+                />
               )}
-              alt=""
-              width={64}
-              height={64}
-              className={classNames(
-                'rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105',
-                density === 'compact' ? 'h-12 w-12' : 'h-16 w-16',
-              )}
-            />
+              <img
+                src={resolvePlaylistItemThumbnail(
+                  playlistItem.thumbnailUrl,
+                  true,
+                )}
+                alt=""
+                width={64}
+                height={64}
+                decoding="async"
+                fetchPriority={priority ? 'high' : 'auto'}
+                className={classNames(
+                  'rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105',
+                  density === 'compact' ? 'h-12 w-12' : 'h-16 w-16',
+                )}
+              />
+            </picture>
           </div>
           <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
             <h2 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
