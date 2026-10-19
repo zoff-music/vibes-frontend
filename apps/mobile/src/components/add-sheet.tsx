@@ -3,6 +3,7 @@ import { useRequest } from '@vibes/shared/use-request';
 import { useEffect, useState } from 'react';
 import { Modal } from 'react-native';
 import { SearchSheet } from '@/components/search-sheet';
+import { useAppTheme } from '@/hooks/use-app-theme';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
 import { loadController } from '@/requests/load-controller';
 
@@ -15,6 +16,7 @@ export function AddPlaylistItemSheet({
   onClose,
   visible,
 }: AddPlaylistItemSheetProps) {
+  const theme = useAppTheme();
   const { controllerRemote, room, playlistItems } = useRoomSession();
   const { refresh } = useRoomActions();
   const roomId = controllerRemote?.roomId ?? room?.id ?? '';
@@ -113,6 +115,7 @@ export function AddPlaylistItemSheet({
   return (
     <Modal
       animationType="slide"
+      backdropColor={theme.background}
       presentationStyle="pageSheet"
       supportedOrientations={[
         'portrait',
@@ -139,7 +142,6 @@ export function AddPlaylistItemSheet({
               },
             }
           : {})}
-        visible={visible}
         onAdded={refreshSession}
         onClose={onClose}
         onGenerated={refreshSession}
