@@ -46,6 +46,7 @@ export function ExperienceSwitch() {
           key={item.type}
           to={experienceHref(item.type, item.href)}
           prefetch="intent"
+          prefetchData
           preventScrollReset={isRoomExplorer}
           state={{ experienceTransition: isLandingPage }}
           aria-current={experience === item.type ? 'page' : false}
