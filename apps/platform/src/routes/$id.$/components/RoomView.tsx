@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { Button, PlusIcon } from '@vibes/ui/web';
+import { LinkButton, PlusIcon } from '@vibes/ui/web';
 import { AnimatePresence, m as motion } from 'framer-motion';
 import { lazy, Suspense } from 'preact/compat';
 import { DeferredModalLoading } from '../components/DeferredModalLoading';
@@ -10,10 +10,8 @@ import { RoomPlayer } from '../components/RoomPlayer';
 import { RoomQueue } from '../components/RoomQueue';
 import { roomEntryTransition, roomEntryVisibleState } from '../constants';
 import { useRoomView } from '../hooks/useRoomView';
-import {
-  loadAddToQueueModal,
-  preloadAddToQueueModal,
-} from '../utils/preloadQueueModal';
+import { loadAddToQueueModal } from '../utils/preloadQueueModal';
+import { RoomOverlayPanels } from './RoomOverlayPanels';
 
 const LazyPartyScreenJoinCard = lazy(async () => {
   const module = await import('../components/PartyScreenJoinCard');
@@ -36,6 +34,7 @@ const LazyAddToQueueModal = lazy(loadAddToQueueModal);
 export function RoomView() {
   const {
     loaderData,
+    panelHref,
     id,
     headerRef,
     shareButtonRef,
@@ -65,12 +64,8 @@ export function RoomView() {
     showGenerationProgress,
     isPartyScreen,
     chatOpen,
-    setChatOpen,
-    handleAddPlaylistItem,
     handleCloseAddPlaylistItem,
-    handleOpenCast,
     handleCloseCast,
-    handleToggleShare,
     handleOpenPartyScreen,
     handleExitPartyScreen,
     handleToggleSettings,
@@ -104,13 +99,11 @@ export function RoomView() {
               displayRoom={displayRoom}
               roomId={id}
               showShare={showShare}
-              onToggleShare={handleToggleShare}
               shareButtonRef={shareButtonRef}
               sharePanelRef={sharePanelRef}
               shareUrl={shareUrl}
               onShareRoom={handleShareRoom}
               onOpenPartyScreen={handleOpenPartyScreen}
-              onOpenCast={handleOpenCast}
               showCast={isCastInitialized}
               isCasting={isCasting}
               castDeviceName={castDeviceName}
@@ -151,9 +144,8 @@ export function RoomView() {
                   <RoomPlayer
                     roomId={id}
                     displayRoom={displayRoom}
-                    onAddPlaylistItem={handleAddPlaylistItem}
-                    onAddPlaylistItemIntent={preloadAddToQueueModal}
-                    onOpenCast={handleOpenCast}
+                    addPlaylistItemHref={panelHref('add')}
+                    castHref={panelHref('cast')}
                     initialPlayback={loaderData.playback}
                     providers={loaderData.providers}
                     {...playerPreloadProps}
@@ -161,10 +153,10 @@ export function RoomView() {
 
                   {!isPartyScreen && (
                     <RoomQueue
-                      onChatVisibilityChange={setChatOpen}
+                      chatOpen={chatOpen}
                       roomId={id}
                       isSSR={isSSR}
-                      onAddPlaylistItem={handleAddPlaylistItem}
+                      addPlaylistItemHref={panelHref('add')}
                       isAdmin={isAdmin}
                       initialPlayback={loaderData.playback}
                       initialPlaylistItems={loaderData.playlistItems}
@@ -175,10 +167,10 @@ export function RoomView() {
                     <div className="min-h-0 min-w-0 lg:col-span-2 lg:flex lg:h-full lg:flex-col">
                       <div className="min-h-0 lg:flex-1 lg:overflow-hidden">
                         <RoomQueue
-                          onChatVisibilityChange={setChatOpen}
+                          chatOpen={chatOpen}
                           roomId={id}
                           isSSR={isSSR}
-                          onAddPlaylistItem={handleAddPlaylistItem}
+                          addPlaylistItemHref={panelHref('add')}
                           isAdmin={isAdmin}
                           initialPlayback={loaderData.playback}
                           initialPlaylistItems={loaderData.playlistItems}
@@ -203,67 +195,65 @@ export function RoomView() {
               </>
             )}
           </div>
-
-          <AnimatePresence>
-            {showDeviceSelector && (
-              <Suspense
-                key="cast-modal"
-                fallback={
-                  <DeferredModalLoading label="Loading cast devices..." />
-                }
-              >
-                <LazyDeviceSelector
-                  isOpen={showDeviceSelector}
-                  onClose={handleCloseCast}
-                />
-              </Suspense>
-            )}
-            {isAddModalVisible && (
-              <Suspense
-                key="add-modal"
-                fallback={
-                  <DeferredModalLoading label="Loading song search..." />
-                }
-              >
-                <LazyAddToQueueModal
-                  room={displayRoom}
-                  providers={loaderData.providers}
-                  isVisible={isAddModalVisible}
-                  onClose={handleCloseAddPlaylistItem}
-                  onOpenAdminLogin={handleOpenAdminLogin}
-                  generationCount={displayRoom.generationCount}
-                  roomGenerationMaxDailyCount={
-                    displayRoom.roomGenerationMaxDailyCount
-                  }
-                  roomGenerationMaxExistingPlaylistItems={
-                    displayRoom.roomGenerationMaxExistingPlaylistItems
-                  }
-                  hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
-                  isGenerating={isGenerating}
-                  onGenerationStarted={handleGenerationStarted}
-                />
-              </Suspense>
-            )}
-          </AnimatePresence>
         </main>
       </motion.div>
+      <RoomOverlayPanels roomId={id} url={shareUrl} />
+      <AnimatePresence>
+        {showDeviceSelector && (
+          <Suspense
+            key="cast-modal"
+            fallback={<DeferredModalLoading label="Loading cast devices..." />}
+          >
+            <LazyDeviceSelector
+              isOpen={showDeviceSelector}
+              onClose={handleCloseCast}
+            />
+          </Suspense>
+        )}
+        {isAddModalVisible && (
+          <Suspense
+            key="add-modal"
+            fallback={<DeferredModalLoading label="Loading song search..." />}
+          >
+            <LazyAddToQueueModal
+              room={displayRoom}
+              providers={loaderData.providers}
+              isVisible={isAddModalVisible}
+              onClose={handleCloseAddPlaylistItem}
+              onOpenAdminLogin={handleOpenAdminLogin}
+              generationCount={displayRoom.generationCount}
+              roomGenerationMaxDailyCount={
+                displayRoom.roomGenerationMaxDailyCount
+              }
+              roomGenerationMaxExistingPlaylistItems={
+                displayRoom.roomGenerationMaxExistingPlaylistItems
+              }
+              hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
+              isGenerating={isGenerating}
+              onGenerationStarted={handleGenerationStarted}
+            />
+          </Suspense>
+        )}
+      </AnimatePresence>
       {!isAddModalVisible && !chatOpen && (
         <div className="sm:hidden">
-          <Button
+          <LinkButton
             aria-label={
               displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'
             }
             className="fixed right-5 bottom-5 z-40 h-14 w-14 rounded-full p-0 shadow-primary-popover"
-            onClick={handleAddPlaylistItem}
-            onPointerEnter={preloadAddToQueueModal}
-            onFocus={preloadAddToQueueModal}
-            onTouchStart={preloadAddToQueueModal}
+            to={panelHref('add')}
+            replace
+            preventScrollReset
+            viewTransition={false}
+            prefetch="intent"
+            prefetchData
             size="none"
             title={displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'}
             variant="primary"
           >
             <PlusIcon className="h-6 w-6" />
-          </Button>
+          </LinkButton>
         </div>
       )}
     </>

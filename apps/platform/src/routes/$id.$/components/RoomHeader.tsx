@@ -10,6 +10,7 @@ import {
   ArrowLeftIcon,
   Button,
   CastIcon,
+  LinkButton,
   SettingsIcon,
   ShareIcon,
   Tooltip,
@@ -23,7 +24,8 @@ import React, {
   useEffect,
 } from 'preact/compat';
 import { RemoteControlButton } from '../../../components/remote/RemoteControlProvider';
-import type { RoomActionData } from '../../../utils/room-actions/submitRoomAction';
+import { useRoomPanel } from '../hooks/useRoomPanel';
+import type { RoomActionData } from '../utils/actions/clientAction';
 import { UserCount } from './UserCount';
 
 const LazyRoomSettingsMenu = lazy(async () => {
@@ -73,20 +75,18 @@ interface RoomHeaderProps {
   displayRoom: RoomV2 | null;
   roomId: string;
   showShare: boolean;
-  onToggleShare: () => void;
-  shareButtonRef: RefObject<HTMLButtonElement | null>;
+  shareButtonRef: RefObject<HTMLAnchorElement | null>;
   sharePanelRef: RefObject<HTMLDivElement | null>;
   shareUrl: string;
   onShareRoom: () => void;
   onOpenPartyScreen: () => void;
-  onOpenCast: () => void;
   showCast: boolean;
   isCasting: boolean;
   castDeviceName?: string | null;
   showSettings: boolean;
   onToggleSettings: () => void;
   onCloseSettings: () => void;
-  settingsButtonRef: RefObject<HTMLButtonElement | null>;
+  settingsButtonRef: RefObject<HTMLAnchorElement | null>;
   settingsMenuRef: RefObject<HTMLDivElement | null>;
   adminError: string | null;
   adminPassword: string;
@@ -104,13 +104,11 @@ export const RoomHeader = React.memo(
     displayRoom,
     roomId,
     showShare,
-    onToggleShare,
     shareButtonRef,
     sharePanelRef,
     shareUrl,
     onShareRoom,
     onOpenPartyScreen,
-    onOpenCast,
     showCast,
     isCasting,
     castDeviceName,
@@ -128,6 +126,7 @@ export const RoomHeader = React.memo(
     onLeave,
     providers,
   }: RoomHeaderProps) => {
+    const { href } = useRoomPanel();
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = useRoomStore((state) => state.isAdmin);
     const setRoom = useRoomStore((state) => state.setRoom);
@@ -227,18 +226,23 @@ export const RoomHeader = React.memo(
                   content="Share Room"
                   side="bottom"
                 >
-                  <Button
+                  <LinkButton
                     ref={shareButtonRef}
-                    onClick={onToggleShare}
+                    to={href(showShare ? '' : 'share')}
+                    replace
+                    preventScrollReset
+                    viewTransition={false}
+                    prefetch="intent"
+                    prefetchData
                     variant={showShare ? 'tertiary-active' : 'tertiary'}
                     size="icon"
                     aria-label="Share Room"
                   >
                     <ShareIcon className="h-5 w-5" />
-                  </Button>
+                  </LinkButton>
                 </Tooltip>
 
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                   {showShare && (
                     <motion.div
                       key="share-panel"
@@ -298,8 +302,13 @@ export const RoomHeader = React.memo(
                     }
                     side="bottom"
                   >
-                    <Button
-                      onClick={onOpenCast}
+                    <LinkButton
+                      to={href('cast')}
+                      replace
+                      preventScrollReset
+                      viewTransition={false}
+                      prefetch="intent"
+                      prefetchData
                       variant={isCasting ? 'secondary' : 'tertiary'}
                       size="icon"
                       aria-label={
@@ -317,7 +326,7 @@ export const RoomHeader = React.memo(
                         )}
                         showDot={isCasting}
                       />
-                    </Button>
+                    </LinkButton>
                   </Tooltip>
                 </div>
               )}
@@ -328,18 +337,24 @@ export const RoomHeader = React.memo(
                   content="Room Settings"
                   side="bottom"
                 >
-                  <Button
+                  <LinkButton
                     ref={settingsButtonRef}
+                    to={href(showSettings ? '' : 'settings')}
+                    replace
+                    preventScrollReset
+                    viewTransition={false}
+                    prefetch="intent"
+                    prefetchData
                     onClick={onToggleSettings}
                     variant={showSettings ? 'tertiary-active' : 'tertiary'}
                     size="icon"
                     aria-label="Room Settings"
                   >
                     <SettingsIcon className="h-5 w-5" />
-                  </Button>
+                  </LinkButton>
                 </Tooltip>
 
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                   {showSettings && (
                     <Suspense fallback={<DeferredSettingsLoading />}>
                       <LazyRoomSettingsMenu

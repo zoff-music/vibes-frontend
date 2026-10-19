@@ -7,6 +7,7 @@ import type {
 } from '@vibes/models';
 import type { PlaybackStateV2 } from '@vibes/shared';
 import { getServerApi } from '../../http.server';
+import { roomPanel } from './utils/roomPanel';
 import { createRoomPageUrl } from './utils/share';
 
 export interface RoomLoaderData {
@@ -23,6 +24,7 @@ export async function loader({
   request,
   params,
 }: LoaderFunctionArgs): Promise<RoomLoaderData | Response> {
+  roomPanel(params['*']);
   const roomId = params.id;
 
   if (!roomId) {

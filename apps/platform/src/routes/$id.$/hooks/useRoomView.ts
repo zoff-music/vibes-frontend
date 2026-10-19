@@ -34,7 +34,6 @@ import {
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import { useRememberRoom } from '../../../hooks/useRememberRoom';
 import { useCastStore } from '../../../stores/castStore';
-import type { RoomActionData } from '../../../utils/room-actions/submitRoomAction';
 import { canUseViewTransition } from '../../../utils/viewTransition';
 import type { clientLoader } from '../clientLoader';
 import {
@@ -42,16 +41,21 @@ import {
   roomEntryInitialState,
 } from '../constants';
 import type { RoomLoaderData } from '../loader';
+import type { RoomActionData } from '../utils/actions/clientAction';
+import { retainRoomData } from '../utils/roomPanel';
 import {
   createRoomShareDescription,
   createRoomShareTitle,
   createRoomShareUrl,
 } from '../utils/share';
+import { useRoomPanel } from './useRoomPanel';
 
 export function useRoomView() {
   const loaderData = useLoaderData<typeof clientLoader>();
 
   useRememberRoom(loaderData.room.id);
+  const { panel, open, href, chatOpen } = useRoomPanel();
+  useEffect(() => retainRoomData(loaderData), [loaderData]);
 
   const { id = '' } = useParams<{
     id: string;
@@ -63,9 +67,9 @@ export function useRoomView() {
   const adminFetcher = useFetcher<RoomActionData>();
   const { setMachineRoomId } = useRemoteControl();
   const headerRef = useRef<HTMLDivElement>(null);
-  const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const shareButtonRef = useRef<HTMLAnchorElement>(null);
   const sharePanelRef = useRef<HTMLDivElement>(null);
-  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const settingsButtonRef = useRef<HTMLAnchorElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
   const room = useRoomStore((state) => state.room);
   const isAdmin = useRoomStore((state) => state.isAdmin);
@@ -110,11 +114,11 @@ export function useRoomView() {
         }
       : {};
   const shouldReduceMotion = useReducedMotion();
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [showShare, setShowShare] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
+  const isAddModalVisible = panel === 'add';
+  const showShare = panel === 'share' || panel === 'share/embed';
+  const showSettings = panel === 'settings' || panel === 'settings/device';
   const [focusAdminLogin, setFocusAdminLogin] = useState(false);
-  const [showDeviceSelector, setShowDeviceSelector] = useState(false);
+  const showDeviceSelector = panel === 'cast';
   const [adminPassword, setAdminPassword] = useState('');
   const [isGenerating, setIsGenerating] = useState(
     loaderData.room.isGenerating,
@@ -255,55 +259,34 @@ export function useRoomView() {
 
   useRoomEventsV3(isSSR ? undefined : id, sseCallbacks);
 
-  const [chatOpen, setChatOpen] = useState(false);
-  const handleAddPlaylistItem = useCallback(() => {
-    setIsAddModalVisible(true);
-  }, []);
-  const handleCloseAddPlaylistItem = useCallback(() => {
-    setIsAddModalVisible(false);
-  }, []);
-  const handleOpenCast = useCallback(() => {
-    setShowDeviceSelector(true);
-  }, []);
-  const handleCloseCast = useCallback(() => {
-    setShowDeviceSelector(false);
-  }, []);
-  const handleToggleShare = useCallback(() => {
-    setShowShare((current) => !current);
-  }, []);
+  const handleCloseAddPlaylistItem = useCallback(() => open(''), [open]);
+  const handleCloseCast = useCallback(() => open(''), [open]);
   const handleOpenPartyScreen = useCallback(() => {
     const nextSearchParams = new URLSearchParams(searchParams);
     nextSearchParams.set('view', 'party');
-    setSearchParams(nextSearchParams, {
+    navigate(`/${encodeURIComponent(id)}?${nextSearchParams}`, {
       replace: true,
+      preventScrollReset: true,
     });
-    setShowShare(false);
-  }, [searchParams, setSearchParams]);
+  }, [id, navigate, searchParams]);
   const handleExitPartyScreen = useCallback(() => {
     const nextSearchParams = new URLSearchParams(searchParams);
     nextSearchParams.delete('view');
-    setSearchParams(nextSearchParams, {
-      replace: true,
-    });
+    setSearchParams(nextSearchParams, { replace: true });
   }, [searchParams, setSearchParams]);
   const handleToggleSettings = useCallback(() => {
     setFocusAdminLogin(false);
-    setShowSettings((current) => !current);
   }, []);
   const handleOpenAdminLogin = useCallback(() => {
-    setIsAddModalVisible(false);
-    setShowShare(false);
     setFocusAdminLogin(true);
-    setShowSettings(true);
-  }, []);
-  const handleCloseSettings = useCallback(() => {
-    setShowSettings(false);
-  }, []);
+    open('settings');
+  }, [open]);
+  const handleCloseSettings = useCallback(() => open(''), [open]);
   const handleGenerationStarted = useCallback(() => {
     setGenerationError(undefined);
     setIsGenerating(true);
     setIsGenerationProgressVisible(false);
-    setShowSettings(false);
+    if (showSettings) open('');
 
     if (displayRoom) {
       setRoom({
@@ -311,7 +294,7 @@ export function useRoomView() {
         generationCount: displayRoom.generationCount + 1,
       });
     }
-  }, [displayRoom, setRoom]);
+  }, [displayRoom, setRoom, showSettings, open]);
   const handleShareRoom = useCallback(async () => {
     if (!shareUrl) return;
 
@@ -325,8 +308,7 @@ export function useRoomView() {
       );
 
       if (!err) {
-        setShowShare(false);
-        setShowSettings(false);
+        open('');
 
         return;
       }
@@ -345,9 +327,8 @@ export function useRoomView() {
     }
 
     showToast('Share link copied!', 'success');
-    setShowShare(false);
-    setShowSettings(false);
-  }, [shareText, shareTitle, shareUrl]);
+    open('');
+  }, [shareText, shareTitle, shareUrl, open]);
   const handleJoinAdmin = useCallback(() => {
     if (!adminPassword) return;
 
@@ -456,7 +437,12 @@ export function useRoomView() {
 
       if (settingsMenuRef.current?.contains(target)) return;
 
-      setShowShare(false);
+      if (settingsButtonRef.current?.contains(target)) return;
+
+      if (window.location.pathname !== `/${encodeURIComponent(id)}/share`)
+        return;
+
+      open('');
     };
     const timeout = window.setTimeout(
       () => document.addEventListener('click', handleOutsideClick),
@@ -467,7 +453,7 @@ export function useRoomView() {
       window.clearTimeout(timeout);
       document.removeEventListener('click', handleOutsideClick);
     };
-  }, [showShare]);
+  }, [showShare, open, id]);
 
   useEffect(() => {
     if (!showSettings) return;
@@ -484,8 +470,12 @@ export function useRoomView() {
 
       if (settingsButtonRef.current?.contains(target)) return;
 
-      setShowSettings(false);
-      setShowShare(false);
+      if (shareButtonRef.current?.contains(target)) return;
+
+      if (window.location.pathname !== `/${encodeURIComponent(id)}/settings`)
+        return;
+
+      open('');
     };
     const timeout = window.setTimeout(
       () => document.addEventListener('click', handleOutsideClick),
@@ -496,7 +486,7 @@ export function useRoomView() {
       window.clearTimeout(timeout);
       document.removeEventListener('click', handleOutsideClick);
     };
-  }, [showSettings]);
+  }, [showSettings, open, id]);
 
   const roomEntryInitial =
     navigationType === 'PUSH' && !shouldReduceMotion
@@ -505,6 +495,7 @@ export function useRoomView() {
 
   return {
     loaderData,
+    panelHref: href,
     id,
     headerRef,
     shareButtonRef,
@@ -536,12 +527,8 @@ export function useRoomView() {
     showGenerationProgress,
     isPartyScreen,
     chatOpen,
-    setChatOpen,
-    handleAddPlaylistItem,
     handleCloseAddPlaylistItem,
-    handleOpenCast,
     handleCloseCast,
-    handleToggleShare,
     handleOpenPartyScreen,
     handleExitPartyScreen,
     handleToggleSettings,

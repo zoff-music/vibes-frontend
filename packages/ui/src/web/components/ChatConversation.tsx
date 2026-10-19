@@ -64,9 +64,13 @@ export function ChatConversation({
       >
         <div className="flex min-h-full flex-col justify-end [&>p]:shrink-0">
           {messages.length === 0 && (
-            <p className="py-3 text-sm text-theme-muted">
-              Say hello to the room.
-            </p>
+            <div className="space-y-3 py-3">
+              <div aria-hidden="true" className="space-y-2">
+                <div className="h-3 w-40 max-w-full rounded-full bg-theme-surface" />
+                <div className="h-3 w-24 rounded-full bg-theme-surface" />
+              </div>
+              <p className="text-sm text-theme-muted">Waiting for messages…</p>
+            </div>
           )}
           {messages.map((message) => (
             <ChatMessageLine key={message.id} message={message} />

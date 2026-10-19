@@ -11,7 +11,7 @@ export interface HomeActionData {
   roomExists?: boolean;
 }
 
-export async function submitHomeAction({
+export async function clientAction({
   request,
 }: ClientActionFunctionArgs): Promise<HomeActionData | Response> {
   const formData = await request.formData();

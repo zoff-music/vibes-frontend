@@ -5,6 +5,11 @@ import {
 import { api, getHttpError, getProviders } from '@vibes/api';
 import type { PlaybackStateV2 } from '@vibes/shared';
 import type { RoomLoaderData } from './loader';
+import {
+  getRetainedRoomData,
+  loadRoomPanel,
+  roomPanel,
+} from './utils/roomPanel';
 import { createRoomPageUrl } from './utils/share';
 
 export async function clientLoader({
@@ -17,6 +22,12 @@ export async function clientLoader({
   if (!roomId) {
     return redirect('/rooms/create');
   }
+
+  await loadRoomPanel(roomPanel(params['*']));
+  const retained = getRetainedRoomData(roomId);
+
+  if (retained && (reason === 'navigation' || reason === 'prefetch'))
+    return retained;
 
   const options = { signal: request.signal };
   // Reconnects still recover the full queue, including missed removal events.

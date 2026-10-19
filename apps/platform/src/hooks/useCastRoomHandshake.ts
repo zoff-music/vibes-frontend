@@ -2,8 +2,8 @@ import { useFetcher } from '@kasperrt/smolter/preact';
 import type { CastSession } from '@vibes/models';
 import { safeWrapAsync, showToast, usePlaybackStore } from '@vibes/shared';
 import { useCallback, useEffect, useRef } from 'preact/compat';
+import type { RoomActionData } from '../routes/$id.$/utils/actions/clientAction';
 import { useCastStore } from '../stores/castStore';
-import type { RoomActionData } from '../utils/room-actions/submitRoomAction';
 
 type SyncPlaybackState = ReturnType<
   typeof useCastStore.getState

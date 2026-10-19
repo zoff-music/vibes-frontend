@@ -1,3 +1,4 @@
+import { Link } from '@kasperrt/smolter/preact';
 import { type PlaylistItem } from '@vibes/shared';
 import {
   AnimatePresence,
@@ -15,7 +16,7 @@ interface Props {
   roomId?: string;
   onRemove?: (id: string) => void;
   onVote?: (id: string) => void;
-  onEmptyClick?: () => void;
+  emptyHref?: string;
   isAdmin?: boolean;
   votingPlaylistItemId?: string | null;
 }
@@ -38,7 +39,7 @@ const QueueListComponent: React.FC<Props> = ({
   roomId: _roomId,
   onRemove,
   onVote,
-  onEmptyClick,
+  emptyHref,
   isAdmin,
   votingPlaylistItemId,
 }) => {
@@ -46,16 +47,20 @@ const QueueListComponent: React.FC<Props> = ({
   const reducedMotion = useReducedMotion();
 
   if (playlistItems.length === 0) {
-    if (onEmptyClick) {
+    if (emptyHref) {
       return (
-        <button
+        <Link
           aria-label="Add a song"
-          className="panel-surface w-full animate-fade-in cursor-pointer rounded-3xl px-4 py-20 text-center transition-[border-color,background-color,transform] hover:border-secondary/50 hover:bg-theme-surface focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-secondary/60 active:scale-press sm:px-12"
-          onClick={onEmptyClick}
-          type="button"
+          className="panel-surface block w-full animate-fade-in cursor-pointer rounded-3xl px-4 py-20 text-center transition-[border-color,background-color,transform] hover:border-secondary/50 hover:bg-theme-surface focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-secondary/60 active:scale-press sm:px-12"
+          to={emptyHref}
+          replace
+          preventScrollReset
+          viewTransition={false}
+          prefetch="intent"
+          prefetchData
         >
           <EmptyQueueContent />
-        </button>
+        </Link>
       );
     }
 

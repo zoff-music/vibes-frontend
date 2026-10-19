@@ -1,8 +1,6 @@
-import { useRouteLoaderData } from '@kasperrt/smolter/preact';
-import { Button, CastIcon, ShareIcon } from '@vibes/ui/web';
+import { Button, CastIcon, LinkButton, ShareIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
-import type { RootLoaderData } from '../../../root';
-import { EmbedSharePanel } from './EmbedSharePanel';
+import { useRoomPanel } from '../hooks/useRoomPanel';
 
 interface Props {
   url: string;
@@ -19,9 +17,7 @@ export const RoomSharePanel = ({
   onShare,
   onOpenPartyScreen,
 }: Props) => {
-  const rootLoaderData = useRouteLoaderData('root') as
-    | RootLoaderData
-    | undefined;
+  const { href } = useRoomPanel();
 
   return (
     <div className="space-y-6 text-center">
@@ -53,11 +49,18 @@ export const RoomSharePanel = ({
           Share Room
         </Button>
 
-        <EmbedSharePanel
-          url={url}
-          roomId={roomId}
-          embedBasePath={rootLoaderData?.embedBasePath ?? '/embed'}
-        />
+        <LinkButton
+          className="hidden w-full sm:flex"
+          to={href('share/embed')}
+          replace
+          preventScrollReset
+          viewTransition={false}
+          prefetch="intent"
+          prefetchData
+          variant="primary"
+        >
+          Embed player
+        </LinkButton>
         <Button
           className="col-span-2 w-full gap-2 font-pixel text-xs"
           onClick={onOpenPartyScreen}

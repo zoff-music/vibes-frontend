@@ -9,12 +9,6 @@ const webRouteSourceDirectories = [
   'apps/remote/src',
   'apps/tv/src/tizen',
 ];
-// Shared request implementations are invoked only by route data handlers.
-const routeRequestUtilities = new Set([
-  'apps/platform/src/routes/_index/utils/submitHomeAction.ts',
-  'apps/platform/src/utils/room-actions/submitRoomAction.ts',
-  'apps/platform/src/utils/room-actions/submitPlaylistAction.ts',
-]);
 const nativeSourceDirectories = ['apps/mobile/src', 'apps/tv/src'];
 const literalRequestCallPattern =
   /\.[ \t]*(?:delete|get|patch|post|put|roomExists)[ \t]*\([ \t\r\n]*['"]\//;
@@ -179,7 +173,6 @@ for (const sourceDirectory of webRouteSourceDirectories) {
     }
     if (!hasClientRequestCall(source)) continue;
     if (routeDataModulePattern.test(repositoryPath)) continue;
-    if (routeRequestUtilities.has(repositoryPath)) continue;
     violations.push(
       `${repositoryPath}: REST calls must run in a loader, clientLoader, action, or clientAction`,
     );

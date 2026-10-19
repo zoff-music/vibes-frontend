@@ -1,4 +1,4 @@
-import { useFetcher } from '@kasperrt/smolter/preact';
+import { Link, useFetcher } from '@kasperrt/smolter/preact';
 import { useRoomMessages } from '@vibes/api';
 import { type PlaybackStateV2, type PlaylistItem } from '@vibes/models';
 import {
@@ -19,8 +19,9 @@ import React, {
   useRef,
   useState,
 } from 'preact/compat';
+import { useRoomPanel } from '../hooks/useRoomPanel';
 
-import type { RoomActionData } from '../../../utils/room-actions/submitRoomAction';
+import type { RoomActionData } from '../utils/actions/clientAction';
 import { PlaybackProgress } from './PlaybackProgress';
 
 const LazyChatConversation = lazy(async () => {
@@ -33,9 +34,9 @@ const LazyChatConversation = lazy(async () => {
 
 interface RoomQueueProps {
   roomId: string;
+  chatOpen: boolean;
   isSSR: boolean;
-  onAddPlaylistItem?: () => void;
-  onChatVisibilityChange?: (open: boolean) => void;
+  addPlaylistItemHref: string;
   isAdmin?: boolean;
   initialPlayback?: PlaybackStateV2;
   initialPlaylistItems?: PlaylistItem[];
@@ -45,22 +46,23 @@ interface RoomQueueProps {
 export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
   ({
     roomId,
+    chatOpen,
     isSSR,
-    onAddPlaylistItem,
-    onChatVisibilityChange,
+    addPlaylistItemHref,
     isAdmin,
     initialPlayback,
     initialPlaylistItems,
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
+    const { href } = useRoomPanel();
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
-    const chatEnabled = !isSSR && chatPreference;
+    // An explicit chat URL selects its surface during SSR and the first render.
+    // The stored preference controls discovery, not an already-selected route.
+    const chatEnabled = chatOpen || chatPreference;
     const chat = useChatTimeline(roomId, chatEnabled);
     useEffect(() => {
-      onChatVisibilityChange?.(chat.open);
-
-      return () => onChatVisibilityChange?.(false);
-    }, [chat.open, onChatVisibilityChange]);
+      chat.selectChat(chatOpen && chatEnabled);
+    }, [chatOpen, chat.selectChat, chatEnabled]);
     const [chatError, setChatError] = useState('');
     const chatFetcher = useFetcher<RoomActionData>();
     const pendingSend = useRef<((sent: boolean) => void) | null>(null);
@@ -217,43 +219,51 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 )}
                 {chatEnabled && <h2 className="sr-only">Queue and chat</h2>}
                 {chatEnabled && (
-                  <button
-                    type="button"
-                    aria-pressed={!chat.open}
-                    onClick={() => chat.selectChat(false)}
+                  <Link
+                    {...(!chatOpen && { 'aria-current': 'page' })}
+                    to={href('', false)}
+                    replace
+                    preventScrollReset
+                    viewTransition={false}
+                    prefetch="intent"
+                    prefetchData
                     className={classNames(
-                      'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                      !chat.open
+                      'inline-flex min-h-12 cursor-pointer items-center border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                      !chatOpen
                         ? 'border-secondary text-theme'
                         : 'border-transparent text-theme-muted',
                     )}
                   >
                     Up next ({queuedPlaylistItemCount})
-                  </button>
+                  </Link>
                 )}
                 {chatEnabled && (
-                  <button
-                    type="button"
-                    aria-pressed={chat.open}
-                    onClick={() => chat.selectChat(true)}
+                  <Link
+                    {...(chatOpen && { 'aria-current': 'page' })}
+                    to={href('chat')}
+                    replace
+                    preventScrollReset
+                    viewTransition={false}
+                    prefetch="intent"
+                    prefetchData
                     className={classNames(
-                      'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                      chat.open
+                      'inline-flex min-h-12 cursor-pointer items-center border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                      chatOpen
                         ? 'border-secondary text-theme'
                         : 'border-transparent text-theme-muted',
                     )}
                   >
                     {chat.unread > 0 ? `Chat (${chat.unread})` : 'Chat'}
-                  </button>
+                  </Link>
                 )}
               </div>
               <div
                 className={classNames(
                   'min-h-0 lg:flex lg:flex-1 lg:flex-col',
-                  chat.open && 'flex h-96 flex-col lg:h-auto lg:flex-1',
+                  chatOpen && 'flex h-96 flex-col lg:h-auto lg:flex-1',
                 )}
               >
-                {chat.open && (
+                {chatOpen && (
                   <div className="flex min-h-0 flex-1 flex-col">
                     <Suspense
                       fallback={
@@ -267,7 +277,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     >
                       <LazyChatConversation
                         messages={chat.messages}
-                        active={chat.open}
+                        active={chatOpen && !isSSR}
                         onSend={sendMessage}
                         sending={chatFetcher.state !== 'idle'}
                         error={chatFetcher.data?.error || chatError}
@@ -275,7 +285,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     </Suspense>
                   </div>
                 )}
-                {!chat.open && (
+                {!chatOpen && (
                   <motion.div
                     layoutScroll
                     className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[scrollbar-gutter:stable]"
@@ -287,7 +297,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                       roomId={roomId}
                       onVote={handleVote}
                       onRemove={handleRemove}
-                      onEmptyClick={onAddPlaylistItem}
+                      emptyHref={addPlaylistItemHref}
                       isAdmin={isAdmin}
                       votingPlaylistItemId={votingPlaylistItemId}
                     />

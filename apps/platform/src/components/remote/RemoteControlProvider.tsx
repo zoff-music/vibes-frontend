@@ -2,6 +2,7 @@ import {
   useFetcher,
   useURLLocation as useLocation,
   useNavigate,
+  useParams,
 } from '@kasperrt/smolter/preact';
 import { useRemoteEvents } from '@vibes/api';
 import type {
@@ -11,12 +12,11 @@ import type {
 } from '@vibes/models';
 import {
   classNames,
-  safeWrapAsync,
   showToast,
   usePlaybackStore,
   useRoomStore,
 } from '@vibes/shared';
-import { Button, RemoteIcon, Tooltip } from '@vibes/ui/web';
+import { LinkButton, RemoteIcon, Tooltip } from '@vibes/ui/web';
 import { AnimatePresence } from 'framer-motion';
 import {
   createContext,
@@ -41,10 +41,6 @@ interface RemoteRoomUpdate {
 
 const loadRemoteControlDialog = () => import('./RemoteControlDialog');
 
-function preloadRemoteControlDialog() {
-  void safeWrapAsync(loadRemoteControlDialog());
-}
-
 const LazyRemoteControlDialog = lazy(async () => {
   const module = await loadRemoteControlDialog();
 
@@ -54,7 +50,7 @@ const LazyRemoteControlDialog = lazy(async () => {
 });
 
 interface RemoteControlContextValue {
-  openRemoteControl: () => void;
+  remoteHref: string;
   setMachineRoomId: (roomId: string) => void;
 }
 
@@ -70,9 +66,21 @@ interface Props {
 export function RemoteControlProvider({ children, initialRemote }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
   const controlFetcher = useFetcher<RemoteControlActionData>();
   const reportFetcher = useFetcher<RemoteControlActionData>();
-  const [isOpen, setIsOpen] = useState(false);
+  const roomId = params.id;
+  const chatOpen =
+    params['*'] === 'chat' || Boolean(params['*']?.startsWith('chat/'));
+  const isOpen =
+    Boolean(roomId) &&
+    (params['*'] === 'remote' || params['*'] === 'chat/remote');
+  const panelUrl = new URL(
+    typeof window === 'undefined' ? location.href : window.location.href,
+  );
+  const panelSuffix = `${panelUrl.search}${panelUrl.hash}`;
+  const roomPath = `/${encodeURIComponent(roomId ?? '')}${chatOpen ? '/chat' : ''}`;
+  const remotePath = `${roomPath}/remote${panelSuffix}`;
   const [machineRoomId, setMachineRoomId] = useState('');
   const partyMode =
     Boolean(machineRoomId) &&
@@ -234,20 +242,23 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     },
   });
 
-  const openRemoteControl = useCallback(() => {
-    setIsOpen(true);
-  }, []);
-
   const closeRemoteControl = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+    if (roomId) {
+      void navigate(`${roomPath}${panelSuffix}`, {
+        replace: true,
+        preventScrollReset: true,
+        viewTransition: false,
+      });
+      return;
+    }
+  }, [roomId, roomPath, navigate, panelSuffix]);
 
   const value = useMemo(
     () => ({
-      openRemoteControl,
+      remoteHref: remotePath,
       setMachineRoomId,
     }),
-    [openRemoteControl],
+    [remotePath],
   );
 
   return (
@@ -267,7 +278,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
               controlFetcher={controlFetcher}
               remote={remote}
               pairing={pairing}
-              machineRoomId={machineRoomId}
+              machineRoomId={roomId ?? machineRoomId}
               isOpen={isOpen}
               closeRemoteControl={closeRemoteControl}
             />
@@ -299,7 +310,7 @@ export function RemoteControlButton({
   className,
   showLabel = false,
 }: RemoteControlButtonProps) {
-  const { openRemoteControl } = useRemoteControl();
+  const { remoteHref } = useRemoteControl();
   const tooltipClassName = classNames(
     showLabel ? 'flex w-full' : 'inline-flex',
   );
@@ -311,11 +322,13 @@ export function RemoteControlButton({
       content="Remote control"
       side="bottom"
     >
-      <Button
-        type="button"
-        onClick={openRemoteControl}
-        onFocus={preloadRemoteControlDialog}
-        onPointerEnter={preloadRemoteControlDialog}
+      <LinkButton
+        to={remoteHref}
+        replace
+        preventScrollReset
+        viewTransition={false}
+        prefetch="intent"
+        prefetchData
         variant="tertiary"
         size={showLabel ? 'medium' : 'icon'}
         className={className}
@@ -323,7 +336,7 @@ export function RemoteControlButton({
       >
         <RemoteIcon className="h-5 w-5" />
         {showLabel && 'Remote control'}
-      </Button>
+      </LinkButton>
     </Tooltip>
   );
 }
