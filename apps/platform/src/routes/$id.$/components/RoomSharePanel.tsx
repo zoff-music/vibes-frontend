@@ -1,4 +1,4 @@
-import { Button, CastIcon, ShareIcon } from '@vibes/ui/web';
+import { Button, CastIcon, LinkButton, ShareIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
 import { useRoomPanel } from '../hooks/useRoomPanel';
 
@@ -17,7 +17,7 @@ export const RoomSharePanel = ({
   onShare,
   onOpenPartyScreen,
 }: Props) => {
-  const { open, prefetch } = useRoomPanel();
+  const { href } = useRoomPanel();
 
   return (
     <div className="space-y-6 text-center">
@@ -49,16 +49,18 @@ export const RoomSharePanel = ({
           Share Room
         </Button>
 
-        <Button
+        <LinkButton
           className="hidden w-full sm:flex"
-          onClick={() => open('share/embed')}
-          onFocus={() => prefetch('share/embed')}
-          onPointerEnter={() => prefetch('share/embed')}
-          onTouchStart={() => prefetch('share/embed')}
+          to={href('share/embed')}
+          replace
+          preventScrollReset
+          viewTransition={false}
+          prefetch="intent"
+          prefetchData
           variant="primary"
         >
           Embed player
-        </Button>
+        </LinkButton>
         <Button
           className="col-span-2 w-full gap-2 font-pixel text-xs"
           onClick={onOpenPartyScreen}

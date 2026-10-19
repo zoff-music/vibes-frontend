@@ -33,7 +33,7 @@ import {
   YouTubeIcon,
 } from '@vibes/ui/web';
 import React, { useEffect, useRef, useState } from 'preact/compat';
-import type { RoomActionData } from '../../utils/room-actions/submitRoomAction';
+import type { RoomActionData } from '../../routes/$id.$/utils/actions/clientAction';
 
 interface Props {
   room: RoomV2;

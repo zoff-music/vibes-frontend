@@ -1,6 +1,7 @@
 import { Link, NavLink } from '@kasperrt/smolter/preact';
 import {
   Button,
+  LinkButton,
   SettingsIcon,
   SiteHeader as SharedSiteHeader,
   SiteBrand,
@@ -28,7 +29,7 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
   const {
     isOpen: showSettings,
     setOpen: setShowSettings,
-    prefetch,
+    settingsHref,
   } = useDeviceSettings();
   const settingsLoaded = useRef(showSettings);
   if (showSettings) settingsLoaded.current = true;
@@ -84,17 +85,31 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
               content="Settings"
               side="bottom"
             >
-              <Button
-                aria-label="Open settings"
-                onClick={() => setShowSettings(true)}
-                onPointerEnter={prefetch}
-                onFocus={prefetch}
-                onTouchStart={prefetch}
-                size="icon"
-                variant="tertiary"
-              >
-                <SettingsIcon className="h-5 w-5" />
-              </Button>
+              {settingsHref && (
+                <LinkButton
+                  aria-label="Open settings"
+                  to={settingsHref}
+                  replace
+                  preventScrollReset
+                  viewTransition={false}
+                  prefetch="intent"
+                  prefetchData
+                  size="icon"
+                  variant="tertiary"
+                >
+                  <SettingsIcon className="h-5 w-5" />
+                </LinkButton>
+              )}
+              {!settingsHref && (
+                <Button
+                  aria-label="Open settings"
+                  onClick={() => setShowSettings(true)}
+                  size="icon"
+                  variant="tertiary"
+                >
+                  <SettingsIcon className="h-5 w-5" />
+                </Button>
+              )}
             </Tooltip>
           </>
         }

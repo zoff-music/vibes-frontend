@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { Button, PlusIcon } from '@vibes/ui/web';
+import { LinkButton, PlusIcon } from '@vibes/ui/web';
 import { AnimatePresence, m as motion } from 'framer-motion';
 import { lazy, Suspense } from 'preact/compat';
 import { DeferredModalLoading } from '../components/DeferredModalLoading';
@@ -34,7 +34,7 @@ const LazyAddToQueueModal = lazy(loadAddToQueueModal);
 export function RoomView() {
   const {
     loaderData,
-    prefetchPanel,
+    panelHref,
     id,
     headerRef,
     shareButtonRef,
@@ -64,12 +64,8 @@ export function RoomView() {
     showGenerationProgress,
     isPartyScreen,
     chatOpen,
-    setChatOpen,
-    handleAddPlaylistItem,
     handleCloseAddPlaylistItem,
-    handleOpenCast,
     handleCloseCast,
-    handleToggleShare,
     handleOpenPartyScreen,
     handleExitPartyScreen,
     handleToggleSettings,
@@ -102,15 +98,12 @@ export function RoomView() {
               headerRef={headerRef}
               displayRoom={displayRoom}
               roomId={id}
-              prefetchPanel={prefetchPanel}
               showShare={showShare}
-              onToggleShare={handleToggleShare}
               shareButtonRef={shareButtonRef}
               sharePanelRef={sharePanelRef}
               shareUrl={shareUrl}
               onShareRoom={handleShareRoom}
               onOpenPartyScreen={handleOpenPartyScreen}
-              onOpenCast={handleOpenCast}
               showCast={isCastInitialized}
               isCasting={isCasting}
               castDeviceName={castDeviceName}
@@ -151,9 +144,8 @@ export function RoomView() {
                   <RoomPlayer
                     roomId={id}
                     displayRoom={displayRoom}
-                    onAddPlaylistItem={handleAddPlaylistItem}
-                    onAddPlaylistItemIntent={() => prefetchPanel('add')}
-                    onOpenCast={handleOpenCast}
+                    addPlaylistItemHref={panelHref('add')}
+                    castHref={panelHref('cast')}
                     initialPlayback={loaderData.playback}
                     providers={loaderData.providers}
                     {...playerPreloadProps}
@@ -162,11 +154,9 @@ export function RoomView() {
                   {!isPartyScreen && (
                     <RoomQueue
                       chatOpen={chatOpen}
-                      onChatVisibilityChange={setChatOpen}
-                      onChatIntent={() => prefetchPanel('chat')}
                       roomId={id}
                       isSSR={isSSR}
-                      onAddPlaylistItem={handleAddPlaylistItem}
+                      addPlaylistItemHref={panelHref('add')}
                       isAdmin={isAdmin}
                       initialPlayback={loaderData.playback}
                       initialPlaylistItems={loaderData.playlistItems}
@@ -178,11 +168,9 @@ export function RoomView() {
                       <div className="min-h-0 lg:flex-1 lg:overflow-hidden">
                         <RoomQueue
                           chatOpen={chatOpen}
-                          onChatVisibilityChange={setChatOpen}
-                          onChatIntent={() => prefetchPanel('chat')}
                           roomId={id}
                           isSSR={isSSR}
-                          onAddPlaylistItem={handleAddPlaylistItem}
+                          addPlaylistItemHref={panelHref('add')}
                           isAdmin={isAdmin}
                           initialPlayback={loaderData.playback}
                           initialPlaylistItems={loaderData.playlistItems}
@@ -249,21 +237,23 @@ export function RoomView() {
       </AnimatePresence>
       {!isAddModalVisible && !chatOpen && (
         <div className="sm:hidden">
-          <Button
+          <LinkButton
             aria-label={
               displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'
             }
             className="fixed right-5 bottom-5 z-40 h-14 w-14 rounded-full p-0 shadow-primary-popover"
-            onClick={handleAddPlaylistItem}
-            onPointerEnter={() => prefetchPanel('add')}
-            onFocus={() => prefetchPanel('add')}
-            onTouchStart={() => prefetchPanel('add')}
+            to={panelHref('add')}
+            replace
+            preventScrollReset
+            viewTransition={false}
+            prefetch="intent"
+            prefetchData
             size="none"
             title={displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'}
             variant="primary"
           >
             <PlusIcon className="h-6 w-6" />
-          </Button>
+          </LinkButton>
         </div>
       )}
     </>

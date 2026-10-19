@@ -1,10 +1,8 @@
 import {
-  type createDataRouter,
   useFetcher,
   useURLLocation as useLocation,
   useNavigate,
   useParams,
-  useRouter,
 } from '@kasperrt/smolter/preact';
 import { useRemoteEvents } from '@vibes/api';
 import type {
@@ -14,12 +12,11 @@ import type {
 } from '@vibes/models';
 import {
   classNames,
-  safeWrapAsync,
   showToast,
   usePlaybackStore,
   useRoomStore,
 } from '@vibes/shared';
-import { Button, RemoteIcon, Tooltip } from '@vibes/ui/web';
+import { LinkButton, RemoteIcon, Tooltip } from '@vibes/ui/web';
 import { AnimatePresence } from 'framer-motion';
 import {
   createContext,
@@ -53,8 +50,7 @@ const LazyRemoteControlDialog = lazy(async () => {
 });
 
 interface RemoteControlContextValue {
-  openRemoteControl: () => void;
-  prefetchRemoteControl: () => void;
+  remoteHref: string;
   setMachineRoomId: (roomId: string) => void;
 }
 
@@ -71,12 +67,10 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const router = useRouter<ReturnType<typeof createDataRouter>>();
   const controlFetcher = useFetcher<RemoteControlActionData>();
   const reportFetcher = useFetcher<RemoteControlActionData>();
-  const [localOpen, setLocalOpen] = useState(false);
   const roomId = params.id;
-  const isOpen = roomId ? params['*'] === 'settings/remote' : localOpen;
+  const isOpen = Boolean(roomId) && params['*'] === 'settings/remote';
   const panelUrl = new URL(
     typeof window === 'undefined' ? location.href : window.location.href,
   );
@@ -243,44 +237,23 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     },
   });
 
-  const openRemoteControl = useCallback(() => {
+  const closeRemoteControl = useCallback(() => {
     if (roomId) {
-      void navigate(remotePath, {
+      void navigate(`/${encodeURIComponent(roomId)}/settings${panelSuffix}`, {
         replace: true,
         preventScrollReset: true,
         viewTransition: false,
       });
       return;
     }
-    setLocalOpen(true);
-  }, [navigate, remotePath, roomId]);
-
-  const prefetchRemoteControl = useCallback(() => {
-    if (roomId) {
-      void router.prefetch(remotePath);
-      return;
-    }
-    void safeWrapAsync(loadRemoteControlDialog());
-  }, [roomId, router, remotePath]);
-
-  const closeRemoteControl = useCallback(() => {
-    if (roomId) {
-      void navigate(
-        `/${encodeURIComponent(roomId)}/settings${panelSuffix}`,
-        { replace: true, preventScrollReset: true, viewTransition: false },
-      );
-      return;
-    }
-    setLocalOpen(false);
   }, [roomId, navigate, panelSuffix]);
 
   const value = useMemo(
     () => ({
-      openRemoteControl,
-      prefetchRemoteControl,
+      remoteHref: remotePath,
       setMachineRoomId,
     }),
-    [openRemoteControl, prefetchRemoteControl],
+    [remotePath],
   );
 
   return (
@@ -332,7 +305,7 @@ export function RemoteControlButton({
   className,
   showLabel = false,
 }: RemoteControlButtonProps) {
-  const { openRemoteControl, prefetchRemoteControl } = useRemoteControl();
+  const { remoteHref } = useRemoteControl();
   const tooltipClassName = classNames(
     showLabel ? 'flex w-full' : 'inline-flex',
   );
@@ -344,12 +317,13 @@ export function RemoteControlButton({
       content="Remote control"
       side="bottom"
     >
-      <Button
-        type="button"
-        onClick={openRemoteControl}
-        onFocus={prefetchRemoteControl}
-        onPointerEnter={prefetchRemoteControl}
-        onTouchStart={prefetchRemoteControl}
+      <LinkButton
+        to={remoteHref}
+        replace
+        preventScrollReset
+        viewTransition={false}
+        prefetch="intent"
+        prefetchData
         variant="tertiary"
         size={showLabel ? 'medium' : 'icon'}
         className={className}
@@ -357,7 +331,7 @@ export function RemoteControlButton({
       >
         <RemoteIcon className="h-5 w-5" />
         {showLabel && 'Remote control'}
-      </Button>
+      </LinkButton>
     </Tooltip>
   );
 }

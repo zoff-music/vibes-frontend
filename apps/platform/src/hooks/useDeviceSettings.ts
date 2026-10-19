@@ -1,17 +1,10 @@
-import {
-  type createDataRouter,
-  useNavigate,
-  useRouter,
-  useURLLocation,
-} from '@kasperrt/smolter/preact';
-import { safeWrapAsync } from '@vibes/shared';
+import { useNavigate, useURLLocation } from '@kasperrt/smolter/preact';
 import { useState } from 'preact/hooks';
-import { homePanelBase, loadDeviceSettings } from '../utils/homePanel';
+import { homePanelBase } from '../utils/homePanel';
 
 export function useDeviceSettings() {
   const location = useURLLocation();
   const navigate = useNavigate();
-  const router = useRouter<ReturnType<typeof createDataRouter>>();
   const [localOpen, setLocalOpen] = useState(false);
   const base = homePanelBase(location.pathname);
   const isOpen = base
@@ -40,15 +33,5 @@ export function useDeviceSettings() {
       viewTransition: false,
     });
   };
-  const prefetch = () => {
-    if (base) {
-      void router.prefetch(href(true));
-
-      return;
-    }
-
-    void safeWrapAsync(loadDeviceSettings());
-  };
-
-  return { isOpen, setOpen, prefetch };
+  return { isOpen, setOpen, settingsHref: base ? href(true) : undefined };
 }

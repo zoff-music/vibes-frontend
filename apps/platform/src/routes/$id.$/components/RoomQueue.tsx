@@ -1,4 +1,4 @@
-import { useFetcher } from '@kasperrt/smolter/preact';
+import { Link, useFetcher } from '@kasperrt/smolter/preact';
 import { useRoomMessages } from '@vibes/api';
 import { type PlaybackStateV2, type PlaylistItem } from '@vibes/models';
 import {
@@ -19,8 +19,9 @@ import React, {
   useRef,
   useState,
 } from 'preact/compat';
+import { useRoomPanel } from '../hooks/useRoomPanel';
 
-import type { RoomActionData } from '../../../utils/room-actions/submitRoomAction';
+import type { RoomActionData } from '../utils/actions/clientAction';
 import { PlaybackProgress } from './PlaybackProgress';
 
 const LazyChatConversation = lazy(async () => {
@@ -34,10 +35,8 @@ const LazyChatConversation = lazy(async () => {
 interface RoomQueueProps {
   roomId: string;
   chatOpen: boolean;
-  onChatIntent: () => void;
   isSSR: boolean;
-  onAddPlaylistItem?: () => void;
-  onChatVisibilityChange?: (open: boolean) => void;
+  addPlaylistItemHref: string;
   isAdmin?: boolean;
   initialPlayback?: PlaybackStateV2;
   initialPlaylistItems?: PlaylistItem[];
@@ -48,15 +47,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
   ({
     roomId,
     chatOpen,
-    onChatIntent,
     isSSR,
-    onAddPlaylistItem,
-    onChatVisibilityChange,
+    addPlaylistItemHref,
     isAdmin,
     initialPlayback,
     initialPlaylistItems,
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
+    const { href } = useRoomPanel();
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
     // An explicit chat URL selects its surface during SSR and the first render.
     // The stored preference controls discovery, not an already-selected route.
@@ -221,10 +219,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 )}
                 {chatEnabled && <h2 className="sr-only">Queue and chat</h2>}
                 {chatEnabled && (
-                  <button
-                    type="button"
-                    aria-pressed={!chatOpen}
-                    onClick={() => onChatVisibilityChange?.(false)}
+                  <Link
+                    {...(!chatOpen && { 'aria-current': 'page' })}
+                    to={href('')}
+                    replace
+                    preventScrollReset
+                    viewTransition={false}
+                    prefetch="intent"
+                    prefetchData
                     className={classNames(
                       'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
                       !chatOpen
@@ -233,16 +235,17 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     )}
                   >
                     Up next ({queuedPlaylistItemCount})
-                  </button>
+                  </Link>
                 )}
                 {chatEnabled && (
-                  <button
-                    type="button"
-                    aria-pressed={chatOpen}
-                    onClick={() => onChatVisibilityChange?.(true)}
-                    onPointerEnter={onChatIntent}
-                    onFocus={onChatIntent}
-                    onTouchStart={onChatIntent}
+                  <Link
+                    {...(chatOpen && { 'aria-current': 'page' })}
+                    to={href('chat')}
+                    replace
+                    preventScrollReset
+                    viewTransition={false}
+                    prefetch="intent"
+                    prefetchData
                     className={classNames(
                       'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
                       chatOpen
@@ -251,7 +254,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     )}
                   >
                     {chat.unread > 0 ? `Chat (${chat.unread})` : 'Chat'}
-                  </button>
+                  </Link>
                 )}
               </div>
               <div
@@ -294,7 +297,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                       roomId={roomId}
                       onVote={handleVote}
                       onRemove={handleRemove}
-                      onEmptyClick={onAddPlaylistItem}
+                      emptyHref={addPlaylistItemHref}
                       isAdmin={isAdmin}
                       votingPlaylistItemId={votingPlaylistItemId}
                     />

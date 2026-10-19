@@ -9,7 +9,7 @@ import {
   useEffect,
 } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
-import type { HomeActionData } from '../utils/submitHomeAction';
+import type { HomeActionData } from '../utils/actions/clientAction';
 
 interface PlaylistGenerationControlsProps {
   inputRef: RefObject<HTMLInputElement | null>;

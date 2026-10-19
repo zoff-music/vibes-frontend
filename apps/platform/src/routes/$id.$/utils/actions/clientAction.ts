@@ -19,7 +19,7 @@ import type {
   SessionResponseV2,
   SkipPlaylistItemResponse,
 } from '@vibes/models';
-import { createErrorData } from './error';
+import { createErrorData } from '../../../../utils/room-actions/error';
 
 export type RoomActionIntent =
   | 'sendMessage'
@@ -76,7 +76,7 @@ export interface RoomActionRequest {
   playlist?: AddPlaylistRequestV2;
 }
 
-export async function submitRoomAction({
+export async function clientAction({
   request,
   params,
 }: ClientActionFunctionArgs): Promise<RoomActionData> {
@@ -264,5 +264,5 @@ export async function submitRoomAction({
 }
 
 export function preloadPlaylistAction() {
-  return import('./submitPlaylistAction');
+  return import('./playlist/clientAction');
 }

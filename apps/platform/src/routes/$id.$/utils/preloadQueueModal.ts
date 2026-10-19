@@ -1,7 +1,7 @@
 export async function loadAddToQueueModal() {
   const [module] = await Promise.all([
     import('../../../components/queue/AddToQueueModal'),
-    import('../../../utils/room-actions/submitPlaylistAction'),
+    import('./actions/playlist/clientAction'),
   ]);
 
   return {

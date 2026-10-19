@@ -26,7 +26,7 @@ import React, {
 import { useCasting } from '../../../hooks/useCasting';
 import { usePersistentPlayerVolume } from '../../../hooks/usePersistentPlayerVolume';
 import { useCastStore } from '../../../stores/castStore';
-import type { RoomActionData } from '../../../utils/room-actions/submitRoomAction';
+import type { RoomActionData } from '../utils/actions/clientAction';
 import { UserCount } from './UserCount';
 
 const importSoundCloudPlayer = () =>
@@ -36,9 +36,8 @@ const importVideoPlayer = () => import('@vibes/ui/web/player/VideoPlayer');
 interface RoomPlayerProps {
   roomId: string;
   displayRoom: RoomV2 | null;
-  onAddPlaylistItem: () => void;
-  onAddPlaylistItemIntent: () => void;
-  onOpenCast: () => void;
+  addPlaylistItemHref: string;
+  castHref: string;
   initialPlayback?: PlaybackStateV2;
   initialPreloadPlaylistItems?: PlaylistItem[];
   providers: Providers;
@@ -117,9 +116,8 @@ export const RoomPlayer = React.memo(
   ({
     roomId,
     displayRoom,
-    onAddPlaylistItem,
-    onAddPlaylistItemIntent,
-    onOpenCast,
+    addPlaylistItemHref,
+    castHref,
     initialPlayback,
     initialPreloadPlaylistItems = [],
     providers,
@@ -724,9 +722,8 @@ export const RoomPlayer = React.memo(
           onPause={pause}
           onSkip={skip}
           onReset={reset}
-          onAddPlaylistItem={onAddPlaylistItem}
-          onAddPlaylistItemIntent={onAddPlaylistItemIntent}
-          onOpenCast={onOpenCast}
+          addPlaylistItemHref={addPlaylistItemHref}
+          castHref={castHref}
           showCast={showCast}
           isCasting={isConnected}
           castDeviceName={castDeviceName}

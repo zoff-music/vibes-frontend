@@ -9,6 +9,7 @@ export * from './components/DeferredContent';
 export { FontPreloads, fontPreloadUrls } from './components/FontPreloads';
 export * from './components/GenerationSparkles';
 export * from './components/Input';
+export * from './components/LinkButton';
 export * from './components/ListenerCount';
 export * from './components/Modal';
 export * from './components/MotionProvider';

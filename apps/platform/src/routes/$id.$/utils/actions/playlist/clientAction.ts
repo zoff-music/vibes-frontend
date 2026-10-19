@@ -1,6 +1,6 @@
 import { api } from '@vibes/api';
-import { createErrorData } from './error';
-import type { RoomActionData, RoomActionRequest } from './submitRoomAction';
+import { createErrorData } from '../../../../../utils/room-actions/error';
+import type { RoomActionData, RoomActionRequest } from '../clientAction';
 
 export async function playlistAction(
   roomId: string,

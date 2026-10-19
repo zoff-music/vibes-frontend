@@ -34,7 +34,6 @@ import {
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import { useRememberRoom } from '../../../hooks/useRememberRoom';
 import { useCastStore } from '../../../stores/castStore';
-import type { RoomActionData } from '../../../utils/room-actions/submitRoomAction';
 import { canUseViewTransition } from '../../../utils/viewTransition';
 import type { clientLoader } from '../clientLoader';
 import {
@@ -42,6 +41,7 @@ import {
   roomEntryInitialState,
 } from '../constants';
 import type { RoomLoaderData } from '../loader';
+import type { RoomActionData } from '../utils/actions/clientAction';
 import { retainRoomData } from '../utils/roomPanel';
 import {
   createRoomShareDescription,
@@ -54,7 +54,7 @@ export function useRoomView() {
   const loaderData = useLoaderData<typeof clientLoader>();
 
   useRememberRoom(loaderData.room.id);
-  const { panel, open, prefetch } = useRoomPanel();
+  const { panel, open, href } = useRoomPanel();
   useEffect(() => retainRoomData(loaderData), [loaderData]);
 
   const { id = '' } = useParams<{
@@ -67,9 +67,9 @@ export function useRoomView() {
   const adminFetcher = useFetcher<RoomActionData>();
   const { setMachineRoomId } = useRemoteControl();
   const headerRef = useRef<HTMLDivElement>(null);
-  const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const shareButtonRef = useRef<HTMLAnchorElement>(null);
   const sharePanelRef = useRef<HTMLDivElement>(null);
-  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const settingsButtonRef = useRef<HTMLAnchorElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
   const room = useRoomStore((state) => state.room);
   const isAdmin = useRoomStore((state) => state.isAdmin);
@@ -260,18 +260,8 @@ export function useRoomView() {
   useRoomEventsV3(isSSR ? undefined : id, sseCallbacks);
 
   const chatOpen = panel === 'chat';
-  const setChatOpen = useCallback(
-    (visible: boolean) => open(visible ? 'chat' : ''),
-    [open],
-  );
-  const handleAddPlaylistItem = useCallback(() => open('add'), [open]);
   const handleCloseAddPlaylistItem = useCallback(() => open(''), [open]);
-  const handleOpenCast = useCallback(() => open('cast'), [open]);
   const handleCloseCast = useCallback(() => open(''), [open]);
-  const handleToggleShare = useCallback(
-    () => open(showShare ? '' : 'share'),
-    [open, showShare],
-  );
   const handleOpenPartyScreen = useCallback(() => {
     const nextSearchParams = new URLSearchParams(searchParams);
     nextSearchParams.set('view', 'party');
@@ -287,8 +277,7 @@ export function useRoomView() {
   }, [searchParams, setSearchParams]);
   const handleToggleSettings = useCallback(() => {
     setFocusAdminLogin(false);
-    open(showSettings ? '' : 'settings');
-  }, [open, showSettings]);
+  }, []);
   const handleOpenAdminLogin = useCallback(() => {
     setFocusAdminLogin(true);
     open('settings');
@@ -507,7 +496,7 @@ export function useRoomView() {
 
   return {
     loaderData,
-    prefetchPanel: prefetch,
+    panelHref: href,
     id,
     headerRef,
     shareButtonRef,
@@ -539,12 +528,8 @@ export function useRoomView() {
     showGenerationProgress,
     isPartyScreen,
     chatOpen,
-    setChatOpen,
-    handleAddPlaylistItem,
     handleCloseAddPlaylistItem,
-    handleOpenCast,
     handleCloseCast,
-    handleToggleShare,
     handleOpenPartyScreen,
     handleExitPartyScreen,
     handleToggleSettings,

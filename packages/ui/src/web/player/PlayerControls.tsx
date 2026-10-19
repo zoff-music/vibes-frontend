@@ -2,6 +2,7 @@ import { classNames } from '@vibes/shared';
 import React from 'preact/compat';
 import { getRoomLabels } from '../../shared/room';
 import { Button } from '../components/Button';
+import { LinkButton } from '../components/LinkButton';
 import { Tooltip } from '../components/Tooltip';
 import {
   CastIcon,
@@ -25,9 +26,8 @@ interface Props {
   onPause: () => void;
   onReset: () => void;
   onSkip: () => void;
-  onAddPlaylistItem: () => void;
-  onAddPlaylistItemIntent?: () => void;
-  onOpenCast: () => void;
+  addPlaylistItemHref: string;
+  castHref: string;
   showCast: boolean;
   isCasting: boolean;
   castDeviceName?: string | null;
@@ -135,9 +135,8 @@ const PlayerControlsComponent: React.FC<Props> = ({
   onPause,
   onReset,
   onSkip,
-  onAddPlaylistItem,
-  onAddPlaylistItemIntent,
-  onOpenCast,
+  addPlaylistItemHref,
+  castHref,
   showCast,
   isCasting,
   castDeviceName,
@@ -190,8 +189,13 @@ const PlayerControlsComponent: React.FC<Props> = ({
                 : 'Cast'
             }
           >
-            <Button
-              onClick={onOpenCast}
+            <LinkButton
+              to={castHref}
+              replace
+              preventScrollReset
+              viewTransition={false}
+              prefetch="intent"
+              prefetchData
               variant={isCasting ? 'secondary' : 'tertiary'}
               size="icon"
               aria-label={
@@ -208,7 +212,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
                 )}
                 showDot={isCasting}
               />
-            </Button>
+            </LinkButton>
           </Tooltip>
         </div>
 
@@ -239,13 +243,13 @@ const PlayerControlsComponent: React.FC<Props> = ({
             />
           </div>
           <div className="hidden sm:block">
-            <Button
-              onClick={onAddPlaylistItem}
-              {...(onAddPlaylistItemIntent && {
-                onPointerEnter: onAddPlaylistItemIntent,
-                onFocus: onAddPlaylistItemIntent,
-                onTouchStart: onAddPlaylistItemIntent,
-              })}
+            <LinkButton
+              to={addPlaylistItemHref}
+              replace
+              preventScrollReset
+              viewTransition={false}
+              prefetch="intent"
+              prefetchData
               variant="primary"
               className="h-12 min-w-0 gap-3 px-4 sm:px-6"
               title={labels.add}
@@ -254,7 +258,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
               <span className="whitespace-nowrap font-display text-xs tracking-display">
                 {labels.add}
               </span>
-            </Button>
+            </LinkButton>
           </div>
         </div>
       </div>

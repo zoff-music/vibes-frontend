@@ -10,6 +10,7 @@ import { classNames } from '@vibes/shared';
 import {
   Button,
   ChevronDownIcon,
+  LinkButton,
   RemoteIcon,
   SegmentedToggle,
   SettingsIcon,
@@ -27,7 +28,6 @@ import {
   useRef,
   useState,
 } from 'preact/compat';
-import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import { useAdminLoginFocus } from '../../../hooks/useAdminLoginFocus';
 import { useRoomPanel } from '../hooks/useRoomPanel';
 
@@ -68,11 +68,10 @@ export const RoomSettingsMenu = ({
   settingsMenuRef,
   providers,
 }: RoomSettingsMenuProps) => {
-  const { openRemoteControl, prefetchRemoteControl } = useRemoteControl();
   const adminPasswordRef = useAdminLoginFocus(focusAdminLogin);
   const [wobblePassword, setWobblePassword] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
-  const { open, prefetch } = useRoomPanel();
+  const { href } = useRoomPanel();
   const adminSectionRef = useRef<HTMLDivElement>(null);
   const scrollPanelRef = useRef<HTMLDivElement>(null);
   const canChangePublicRoom = Boolean(room?.hasPassword && isAdmin);
@@ -123,10 +122,6 @@ export const RoomSettingsMenu = ({
   const handleShareRoom = () => {
     onClose();
     onShareRoom();
-  };
-
-  const handleOpenRemoteControl = () => {
-    openRemoteControl();
   };
 
   const updateScrollCue = useCallback(() => {
@@ -252,31 +247,35 @@ export const RoomSettingsMenu = ({
         >
           <div className="space-y-4">
             <div className="hidden sm:block">
-              <Button
+              <LinkButton
                 className="w-full gap-2 font-pixel text-xs"
-                onClick={() => open('settings/device')}
-                onPointerEnter={() => prefetch('settings/device')}
-                onFocus={() => prefetch('settings/device')}
-                onTouchStart={() => prefetch('settings/device')}
+                to={href('settings/device')}
+                replace
+                preventScrollReset
+                viewTransition={false}
+                prefetch="intent"
+                prefetchData
                 variant="tertiary"
               >
                 <SettingsIcon className="h-4 w-4" />
                 Device
-              </Button>
+              </LinkButton>
             </div>
             <div className="space-y-3 sm:hidden">
               <div className="grid grid-cols-2 gap-2">
-                <Button
-                  onClick={() => open('settings/device')}
-                  onPointerEnter={() => prefetch('settings/device')}
-                  onFocus={() => prefetch('settings/device')}
-                  onTouchStart={() => prefetch('settings/device')}
+                <LinkButton
+                  to={href('settings/device')}
+                  replace
+                  preventScrollReset
+                  viewTransition={false}
+                  prefetch="intent"
+                  prefetchData
                   variant="tertiary"
                   className="w-full gap-2 font-pixel text-xs"
                 >
                   <SettingsIcon className="h-4 w-4" />
                   Device
-                </Button>
+                </LinkButton>
                 <Button
                   onClick={handleShareRoom}
                   variant="tertiary"
@@ -285,17 +284,19 @@ export const RoomSettingsMenu = ({
                   <ShareIcon className="h-4 w-4" />
                   Share room
                 </Button>
-                <Button
-                  onClick={handleOpenRemoteControl}
-                  onFocus={prefetchRemoteControl}
-                  onPointerEnter={prefetchRemoteControl}
-                  onTouchStart={prefetchRemoteControl}
+                <LinkButton
+                  to={href('settings/remote')}
+                  replace
+                  preventScrollReset
+                  viewTransition={false}
+                  prefetch="intent"
+                  prefetchData
                   variant="tertiary"
                   className="col-span-2 w-full gap-2 font-pixel text-xs"
                 >
                   <RemoteIcon className="h-4 w-4" />
                   Remote control
-                </Button>
+                </LinkButton>
               </div>
             </div>
 
