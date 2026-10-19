@@ -1,7 +1,14 @@
 import type { RoomLoaderData } from '../loader';
 import { loadAddToQueueModal } from './preloadQueueModal';
 
-export type RoomPanel = '' | 'add' | 'settings' | 'chat' | 'share' | 'cast';
+export type RoomPanel =
+  | ''
+  | 'add'
+  | 'settings'
+  | 'settings/device'
+  | 'chat'
+  | 'share'
+  | 'cast';
 
 let activeRoomData: RoomLoaderData | undefined;
 
@@ -23,6 +30,7 @@ export function roomPanel(value = ''): RoomPanel {
     value === '' ||
     value === 'add' ||
     value === 'settings' ||
+    value === 'settings/device' ||
     value === 'chat' ||
     value === 'share' ||
     value === 'cast'
@@ -39,6 +47,10 @@ export async function loadRoomPanel(panel: RoomPanel) {
       break;
     case 'settings':
       await import('../components/RoomSettingsMenu');
+      break;
+    case 'settings/device':
+      await import('../components/RoomSettingsMenu');
+      await import('../../../components/profile/ProfileSettingsModal');
       break;
     case 'share':
       await import('../components/RoomSharePanel');

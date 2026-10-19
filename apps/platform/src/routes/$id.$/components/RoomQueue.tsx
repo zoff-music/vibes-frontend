@@ -58,7 +58,9 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
-    const chatEnabled = !isSSR && chatPreference;
+    // An explicit chat URL selects its surface during SSR and the first render.
+    // The stored preference controls discovery, not an already-selected route.
+    const chatEnabled = chatOpen || (!isSSR && chatPreference);
     const chat = useChatTimeline(roomId, chatEnabled);
     useEffect(() => {
       chat.selectChat(chatOpen && chatEnabled);
@@ -221,11 +223,11 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 {chatEnabled && (
                   <button
                     type="button"
-                    aria-pressed={!chat.open}
+                    aria-pressed={!chatOpen}
                     onClick={() => onChatVisibilityChange?.(false)}
                     className={classNames(
                       'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                      !chat.open
+                      !chatOpen
                         ? 'border-secondary text-theme'
                         : 'border-transparent text-theme-muted',
                     )}
@@ -236,14 +238,14 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 {chatEnabled && (
                   <button
                     type="button"
-                    aria-pressed={chat.open}
+                    aria-pressed={chatOpen}
                     onClick={() => onChatVisibilityChange?.(true)}
                     onPointerEnter={onChatIntent}
                     onFocus={onChatIntent}
                     onTouchStart={onChatIntent}
                     className={classNames(
                       'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                      chat.open
+                      chatOpen
                         ? 'border-secondary text-theme'
                         : 'border-transparent text-theme-muted',
                     )}
@@ -255,10 +257,10 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               <div
                 className={classNames(
                   'min-h-0 lg:flex lg:flex-1 lg:flex-col',
-                  chat.open && 'flex h-96 flex-col lg:h-auto lg:flex-1',
+                  chatOpen && 'flex h-96 flex-col lg:h-auto lg:flex-1',
                 )}
               >
-                {chat.open && (
+                {chatOpen && (
                   <div className="flex min-h-0 flex-1 flex-col">
                     <Suspense
                       fallback={
@@ -272,7 +274,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     >
                       <LazyChatConversation
                         messages={chat.messages}
-                        active={chat.open}
+                        active={chatOpen && !isSSR}
                         onSend={sendMessage}
                         sending={chatFetcher.state !== 'idle'}
                         error={chatFetcher.data?.error || chatError}
@@ -280,7 +282,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     </Suspense>
                   </div>
                 )}
-                {!chat.open && (
+                {!chatOpen && (
                   <motion.div
                     layoutScroll
                     className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[scrollbar-gutter:stable]"

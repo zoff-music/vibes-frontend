@@ -9,12 +9,14 @@ import {
   Tooltip,
 } from '@vibes/ui/web';
 import { AnimatePresence } from 'framer-motion';
-import { lazy, Suspense, useState } from 'preact/compat';
+import { lazy, Suspense } from 'preact/compat';
+import { useDeviceSettings } from '../../hooks/useDeviceSettings';
 import { useExperience } from '../../hooks/useExperience';
+import { loadDeviceSettings } from '../../utils/homePanel';
 import { ExperienceSwitch } from '../layout/ExperienceSwitch';
 
 const LazyProfileSettingsModal = lazy(async () => {
-  const module = await import('../profile/ProfileSettingsModal');
+  const module = await loadDeviceSettings();
 
   return { default: module.ProfileSettingsModal };
 });
@@ -24,7 +26,11 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
-  const [showSettings, setShowSettings] = useState(false);
+  const {
+    isOpen: showSettings,
+    setOpen: setShowSettings,
+    prefetch,
+  } = useDeviceSettings();
   const watch = useExperience() === 'WATCH';
 
   return (
@@ -80,6 +86,9 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
               <Button
                 aria-label="Open settings"
                 onClick={() => setShowSettings(true)}
+                onPointerEnter={prefetch}
+                onFocus={prefetch}
+                onTouchStart={prefetch}
                 size="icon"
                 variant="tertiary"
               >

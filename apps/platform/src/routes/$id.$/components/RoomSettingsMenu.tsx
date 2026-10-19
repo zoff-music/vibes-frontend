@@ -30,6 +30,7 @@ import {
 import { ProfileSettingsModal } from '../../../components/profile/ProfileSettingsModal';
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import { useAdminLoginFocus } from '../../../hooks/useAdminLoginFocus';
+import { useRoomPanel } from '../hooks/useRoomPanel';
 
 interface RoomSettingsMenuProps {
   adminError: string | null;
@@ -72,7 +73,8 @@ export const RoomSettingsMenu = ({
   const adminPasswordRef = useAdminLoginFocus(focusAdminLogin);
   const [wobblePassword, setWobblePassword] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
-  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const { panel, open, prefetch } = useRoomPanel();
+  const showProfileSettings = panel === 'settings/device';
   const adminSectionRef = useRef<HTMLDivElement>(null);
   const scrollPanelRef = useRef<HTMLDivElement>(null);
   const canChangePublicRoom = Boolean(room?.hasPassword && isAdmin);
@@ -255,7 +257,10 @@ export const RoomSettingsMenu = ({
             <div className="hidden sm:block">
               <Button
                 className="w-full gap-2 font-pixel text-xs"
-                onClick={() => setShowProfileSettings(true)}
+                onClick={() => open('settings/device')}
+                onPointerEnter={() => prefetch('settings/device')}
+                onFocus={() => prefetch('settings/device')}
+                onTouchStart={() => prefetch('settings/device')}
                 variant="tertiary"
               >
                 <SettingsIcon className="h-4 w-4" />
@@ -264,12 +269,15 @@ export const RoomSettingsMenu = ({
             </div>
             <ProfileSettingsModal
               isOpen={showProfileSettings}
-              onClose={() => setShowProfileSettings(false)}
+              onClose={() => open('settings')}
             />
             <div className="space-y-3 sm:hidden">
               <div className="grid grid-cols-2 gap-2">
                 <Button
-                  onClick={() => setShowProfileSettings(true)}
+                  onClick={() => open('settings/device')}
+                  onPointerEnter={() => prefetch('settings/device')}
+                  onFocus={() => prefetch('settings/device')}
+                  onTouchStart={() => prefetch('settings/device')}
                   variant="tertiary"
                   className="w-full gap-2 font-pixel text-xs"
                 >

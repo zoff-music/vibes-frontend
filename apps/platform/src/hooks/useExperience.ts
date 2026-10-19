@@ -3,7 +3,8 @@ import { watchNavigation } from '../seo/productNavigation';
 
 export function useExperience() {
   const { pathname, search } = useLocation();
-  const path = pathname.replace(/\/+$/, '') || '/';
+  const path =
+    pathname.replace(/\/settings\/device\/?$/, '').replace(/\/+$/, '') || '/';
 
   if (path === '/' || path === '/features/music') {
     return 'MUSIC';
