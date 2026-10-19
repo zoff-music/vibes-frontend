@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/compat';
 
 const positions = [
+  'left-[9%]',
   'left-[18%]',
   'left-[27%]',
   'left-[36%]',
@@ -9,7 +10,6 @@ const positions = [
   'left-[63%]',
   'left-[72%]',
   'left-[81%]',
-  'left-[90%]',
 ];
 const sizes = ['size-3', 'size-3.5', 'size-4', 'size-5'];
 const speeds = [

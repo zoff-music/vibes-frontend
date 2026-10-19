@@ -11,7 +11,7 @@ export function GenerativeParticles({ enabled }: GenerativeParticlesProps) {
   return (
     <span
       aria-hidden="true"
-      className="generative-particles pointer-events-none absolute inset-x-0 bottom-full mb-px h-8 overflow-hidden motion-reduce:hidden"
+      className="generative-particles pointer-events-none absolute inset-x-0 bottom-full mb-px h-10 overflow-hidden motion-reduce:hidden"
     >
       {particles.map((particle) => (
         <span
