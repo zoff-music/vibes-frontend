@@ -1,5 +1,3 @@
-import { safeWrapAsync } from '@vibes/shared';
-
 export async function loadAddToQueueModal() {
   const [module] = await Promise.all([
     import('../../../components/queue/AddToQueueModal'),
@@ -9,8 +7,4 @@ export async function loadAddToQueueModal() {
   return {
     default: module.AddToQueueModal,
   };
-}
-
-export function preloadAddToQueueModal() {
-  void safeWrapAsync(loadAddToQueueModal());
 }

@@ -74,6 +74,7 @@ interface RoomHeaderProps {
   roomId: string;
   showShare: boolean;
   onToggleShare: () => void;
+  prefetchPanel: (panel: 'share' | 'settings') => void;
   shareButtonRef: RefObject<HTMLButtonElement | null>;
   sharePanelRef: RefObject<HTMLDivElement | null>;
   shareUrl: string;
@@ -105,6 +106,7 @@ export const RoomHeader = React.memo(
     roomId,
     showShare,
     onToggleShare,
+    prefetchPanel,
     shareButtonRef,
     sharePanelRef,
     shareUrl,
@@ -230,6 +232,9 @@ export const RoomHeader = React.memo(
                   <Button
                     ref={shareButtonRef}
                     onClick={onToggleShare}
+                    onPointerEnter={() => prefetchPanel('share')}
+                    onFocus={() => prefetchPanel('share')}
+                    onTouchStart={() => prefetchPanel('share')}
                     variant={showShare ? 'tertiary-active' : 'tertiary'}
                     size="icon"
                     aria-label="Share Room"
@@ -331,6 +336,9 @@ export const RoomHeader = React.memo(
                   <Button
                     ref={settingsButtonRef}
                     onClick={onToggleSettings}
+                    onPointerEnter={() => prefetchPanel('settings')}
+                    onFocus={() => prefetchPanel('settings')}
+                    onTouchStart={() => prefetchPanel('settings')}
                     variant={showSettings ? 'tertiary-active' : 'tertiary'}
                     size="icon"
                     aria-label="Room Settings"

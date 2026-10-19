@@ -33,6 +33,8 @@ const LazyChatConversation = lazy(async () => {
 
 interface RoomQueueProps {
   roomId: string;
+  chatOpen: boolean;
+  onChatIntent: () => void;
   isSSR: boolean;
   onAddPlaylistItem?: () => void;
   onChatVisibilityChange?: (open: boolean) => void;
@@ -45,6 +47,8 @@ interface RoomQueueProps {
 export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
   ({
     roomId,
+    chatOpen,
+    onChatIntent,
     isSSR,
     onAddPlaylistItem,
     onChatVisibilityChange,
@@ -57,10 +61,8 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const chatEnabled = !isSSR && chatPreference;
     const chat = useChatTimeline(roomId, chatEnabled);
     useEffect(() => {
-      onChatVisibilityChange?.(chat.open);
-
-      return () => onChatVisibilityChange?.(false);
-    }, [chat.open, onChatVisibilityChange]);
+      chat.selectChat(chatOpen && chatEnabled);
+    }, [chatOpen, chat.selectChat, chatEnabled]);
     const [chatError, setChatError] = useState('');
     const chatFetcher = useFetcher<RoomActionData>();
     const pendingSend = useRef<((sent: boolean) => void) | null>(null);
@@ -220,7 +222,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   <button
                     type="button"
                     aria-pressed={!chat.open}
-                    onClick={() => chat.selectChat(false)}
+                    onClick={() => onChatVisibilityChange?.(false)}
                     className={classNames(
                       'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
                       !chat.open
@@ -235,7 +237,10 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   <button
                     type="button"
                     aria-pressed={chat.open}
-                    onClick={() => chat.selectChat(true)}
+                    onClick={() => onChatVisibilityChange?.(true)}
+                    onPointerEnter={onChatIntent}
+                    onFocus={onChatIntent}
+                    onTouchStart={onChatIntent}
                     className={classNames(
                       'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
                       chat.open

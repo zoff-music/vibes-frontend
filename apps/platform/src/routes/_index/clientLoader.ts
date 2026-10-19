@@ -26,13 +26,13 @@ export async function clientLoader({
     },
     request.signal,
   );
-  const [[providersError, providers], [roomsError, publicRooms]] =
-    await Promise.all([getProviders(options), rooms]);
+  const publicRooms = rooms.then(([error, result]) => (error ? null : result));
+  const [providersError, providers] = await getProviders(options);
 
   return {
     data: {
       providers: providersError ? null : providers,
-      publicRooms: roomsError ? null : publicRooms,
+      publicRooms,
       stats: null,
     },
   };

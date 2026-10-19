@@ -10,10 +10,7 @@ import { RoomPlayer } from '../components/RoomPlayer';
 import { RoomQueue } from '../components/RoomQueue';
 import { roomEntryTransition, roomEntryVisibleState } from '../constants';
 import { useRoomView } from '../hooks/useRoomView';
-import {
-  loadAddToQueueModal,
-  preloadAddToQueueModal,
-} from '../utils/preloadQueueModal';
+import { loadAddToQueueModal } from '../utils/preloadQueueModal';
 
 const LazyPartyScreenJoinCard = lazy(async () => {
   const module = await import('../components/PartyScreenJoinCard');
@@ -36,6 +33,7 @@ const LazyAddToQueueModal = lazy(loadAddToQueueModal);
 export function RoomView() {
   const {
     loaderData,
+    prefetchPanel,
     id,
     headerRef,
     shareButtonRef,
@@ -103,6 +101,7 @@ export function RoomView() {
               headerRef={headerRef}
               displayRoom={displayRoom}
               roomId={id}
+              prefetchPanel={prefetchPanel}
               showShare={showShare}
               onToggleShare={handleToggleShare}
               shareButtonRef={shareButtonRef}
@@ -152,7 +151,7 @@ export function RoomView() {
                     roomId={id}
                     displayRoom={displayRoom}
                     onAddPlaylistItem={handleAddPlaylistItem}
-                    onAddPlaylistItemIntent={preloadAddToQueueModal}
+                    onAddPlaylistItemIntent={() => prefetchPanel('add')}
                     onOpenCast={handleOpenCast}
                     initialPlayback={loaderData.playback}
                     providers={loaderData.providers}
@@ -161,7 +160,9 @@ export function RoomView() {
 
                   {!isPartyScreen && (
                     <RoomQueue
+                      chatOpen={chatOpen}
                       onChatVisibilityChange={setChatOpen}
+                      onChatIntent={() => prefetchPanel('chat')}
                       roomId={id}
                       isSSR={isSSR}
                       onAddPlaylistItem={handleAddPlaylistItem}
@@ -175,7 +176,9 @@ export function RoomView() {
                     <div className="min-h-0 min-w-0 lg:col-span-2 lg:flex lg:h-full lg:flex-col">
                       <div className="min-h-0 lg:flex-1 lg:overflow-hidden">
                         <RoomQueue
+                          chatOpen={chatOpen}
                           onChatVisibilityChange={setChatOpen}
+                          onChatIntent={() => prefetchPanel('chat')}
                           roomId={id}
                           isSSR={isSSR}
                           onAddPlaylistItem={handleAddPlaylistItem}
@@ -255,9 +258,9 @@ export function RoomView() {
             }
             className="fixed right-5 bottom-5 z-40 h-14 w-14 rounded-full p-0 shadow-primary-popover"
             onClick={handleAddPlaylistItem}
-            onPointerEnter={preloadAddToQueueModal}
-            onFocus={preloadAddToQueueModal}
-            onTouchStart={preloadAddToQueueModal}
+            onPointerEnter={() => prefetchPanel('add')}
+            onFocus={() => prefetchPanel('add')}
+            onTouchStart={() => prefetchPanel('add')}
             size="none"
             title={displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'}
             variant="primary"

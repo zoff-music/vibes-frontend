@@ -47,7 +47,7 @@ const SiteLayoutContent = memo(function SiteLayoutContent({
   );
 });
 
-const roomPaths = new Set(['/:id', '/rooms/:id']);
+const roomPaths = new Set(['/:id/*', '/rooms/:id']);
 const policyPaths = new Set([
   '/security',
   '/privacy-policy',
