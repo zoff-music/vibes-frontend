@@ -18,7 +18,7 @@ export function GenerativeParticles({ enabled }: GenerativeParticlesProps) {
           key={particle.id}
           onAnimationEnd={() => remove(particle.id)}
           className={classNames(
-            'absolute -bottom-4 opacity-0 [animation-fill-mode:both]',
+            'absolute -bottom-4 opacity-0 will-change-transform [animation-fill-mode:both]',
             particle.position,
             particle.size,
             particle.speed,
