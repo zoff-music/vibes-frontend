@@ -578,7 +578,7 @@ export const RoomPlayer = React.memo(
         />
 
         {/* Player - Reserve height to prevent CLS */}
-        <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0">
+        <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black backdrop-blur-none! sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0">
           {VideoPlayerComponent && !isConnected && (
             <div
               className={classNames(
@@ -623,7 +623,7 @@ export const RoomPlayer = React.memo(
               <div className="absolute inset-0 flex items-center justify-center bg-black">
                 {/* SIGNAL CRT */}
                 <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
-                  <div className="vhs-scanlines h-full w-full opacity-20 mix-blend-overlay" />
+                  <div className="vhs-scanlines h-full w-full animate-none! opacity-20 mix-blend-overlay" />
                   <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
                 </div>
                 <div role="status" className="relative z-10 text-center">
@@ -668,7 +668,7 @@ export const RoomPlayer = React.memo(
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               {/* SIGNAL CRT */}
               <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
-                <div className="vhs-scanlines h-full w-full opacity-20 mix-blend-overlay" />
+                <div className="vhs-scanlines h-full w-full animate-none! opacity-20 mix-blend-overlay" />
                 <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
               </div>
               <div className="relative z-10 text-center">
@@ -683,7 +683,7 @@ export const RoomPlayer = React.memo(
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-black">
               {/* SIGNAL CRT */}
               <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
-                <div className="vhs-scanlines h-full w-full opacity-20 mix-blend-overlay" />
+                <div className="vhs-scanlines h-full w-full animate-none! opacity-20 mix-blend-overlay" />
                 <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
               </div>
               <div className="relative z-10 text-center">

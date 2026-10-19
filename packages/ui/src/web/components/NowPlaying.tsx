@@ -79,11 +79,11 @@ export function NowPlayingPlaylistItem({
       >
         <div
           className={classNames(
-            'group/card panel-surface no-box relative flex min-w-0 items-center overflow-hidden rounded-2xl',
+            'group/card panel-surface no-box relative flex min-w-0 items-center overflow-hidden rounded-2xl backdrop-blur-none!',
             density === 'compact' ? 'gap-3 p-3' : 'gap-4 p-4',
           )}
         >
-          <div className="vhs-scanlines pointer-events-none absolute inset-0" />
+          <div className="vhs-scanlines pointer-events-none absolute inset-0 animate-none!" />
           <div className="relative z-10 shrink-0">
             <PlaylistItemArtwork
               thumbnailUrl={playlistItem.thumbnailUrl}
