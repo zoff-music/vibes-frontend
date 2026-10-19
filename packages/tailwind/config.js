@@ -48,15 +48,28 @@ export default {
       fontFamily: {
         body: [
           '"MSW98UI"',
+          '"MSW98UI Fallback"',
           '"MS Sans Serif"',
           'Tahoma',
           '"Zen Maru Gothic"',
           'system-ui',
           'sans-serif',
         ],
-        heading: ['"MSW98UI"', '"MS Sans Serif"', 'Tahoma', 'sans-serif'],
+        heading: [
+          '"MSW98UI"',
+          '"MSW98UI Fallback"',
+          '"MS Sans Serif"',
+          'Tahoma',
+          'sans-serif',
+        ],
         mono: ['"MSW98UI"', '"Lucida Console"', '"Courier New"', 'monospace'],
-        pixel: ['"MSW98UI"', '"MS Sans Serif"', 'Tahoma', 'sans-serif'],
+        pixel: [
+          '"MSW98UI"',
+          '"MSW98UI Fallback"',
+          '"MS Sans Serif"',
+          'Tahoma',
+          'sans-serif',
+        ],
         japanese: ['"Zen Maru Gothic"', '"Hiragino Sans"', 'sans-serif'],
       },
       fontSize: {

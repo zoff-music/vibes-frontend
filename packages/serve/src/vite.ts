@@ -16,7 +16,7 @@ export function applicationPlugins({
   ...options
 }: WebApplicationOptions = {}): Plugin[] {
   return [
-    browserBundle(),
+    browserBundle(options.splitRoutes !== false),
     ...(deployment ? [deploymentPlugin()] : []),
     {
       name: 'zoff-development',

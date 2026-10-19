@@ -6,12 +6,39 @@ const serverModule =
   /(?:\.server\.[cm]?[jt]sx?(?:\?|$)|\/smolter\/dist\/server\/)/;
 
 /** Verify actual emitted browser modules, not dependency declarations. */
-export function browserBundle(): Plugin {
+export function browserBundle(splitRoutes = true): Plugin {
   let server = false;
 
   return {
     name: 'zoff-browser-bundle',
     apply: 'build',
+    config(_config, { isSsrBuild }) {
+      if (isSsrBuild || !splitRoutes) return;
+
+      // Group only the static entry graph; route and feature imports stay lazy.
+      return {
+        build: {
+          rollupOptions: {
+            output: {
+              codeSplitting: {
+                groups: [
+                  {
+                    name: 'startup',
+                    test: /\/node_modules\//,
+                    tags: ['$initial'],
+                  },
+                  {
+                    name: 'shell',
+                    test: /\/packages\//,
+                    tags: ['$initial'],
+                  },
+                ],
+              },
+            },
+          },
+        },
+      };
+    },
     configResolved(config) {
       server = Boolean(config.build.ssr);
     },
