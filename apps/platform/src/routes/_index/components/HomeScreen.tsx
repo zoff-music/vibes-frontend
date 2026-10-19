@@ -17,9 +17,9 @@ import { getPreviousPath } from '../../../utils/navigationHistory';
 import { canUseViewTransition } from '../../../utils/viewTransition';
 import { preloadHomeAction } from '../clientAction';
 import type { HomeLoaderData } from '../loader';
+import { HomeEntryControls } from './HomeEntryControls';
 import { HomeLanding } from './HomeLanding';
-import { HomePlaceholder, HomeRoomControls } from './HomeRoomControls';
-import { PlaylistGenerationControls } from './PlaylistGenerationControls';
+import { HomePlaceholder } from './HomePlaceholder';
 import { ReturnToRoom } from './ReturnToRoom';
 import { ReturnToRoomPreview } from './ReturnToRoomPreview';
 
@@ -45,13 +45,13 @@ export const HomeScreen = memo(function HomeScreen({
   searchParams,
 }: HomeScreenProps) {
   const [roomCode, setRoomCode] = useState('');
+  const [prompt, setPrompt] = useState('');
   const watch = useExperience() === 'WATCH';
   const previewReturn =
     import.meta.env.DEV && searchParams.get('preview') === 'return-to-room';
   const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
   const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const playlistPromptRef = useRef<HTMLInputElement>(null);
   const roomNameRef = useRef<HTMLInputElement>(null);
   const [generationEntry, setGenerationEntry] = useState(0);
   const reducedMotion = useReducedMotion();
@@ -65,7 +65,7 @@ export const HomeScreen = memo(function HomeScreen({
   useEffect(() => {
     if (generationEntry === 0) return;
 
-    const input = isAIMode ? playlistPromptRef.current : roomNameRef.current;
+    const input = roomNameRef.current;
     input?.focus({
       preventScroll: true,
     });
@@ -74,13 +74,9 @@ export const HomeScreen = memo(function HomeScreen({
       behavior: reducedMotion ? 'instant' : 'smooth',
       block: 'center',
     });
-  }, [generationEntry, reducedMotion, isAIMode]);
+  }, [generationEntry, reducedMotion]);
 
   const handleGeneratePlaylist = () => {
-    if (!isAIMode) {
-      setRoomCode('');
-    }
-
     setIsAIMode(true);
     setGenerationEntry((current) => current + 1);
   };
@@ -112,8 +108,7 @@ export const HomeScreen = memo(function HomeScreen({
 
   const handleToggleAIMode = () => {
     setIsAIMode((current) => !current);
-    setGenerationEntry((current) => current + 1);
-    setRoomCode('');
+    roomNameRef.current?.focus({ preventScroll: true });
   };
 
   const handleRoomCodeChange = (value: string) => {
@@ -136,32 +131,21 @@ export const HomeScreen = memo(function HomeScreen({
       >
         <HomePlaceholder
           isAIMode={isAIMode}
-          enabled={heroVisible && roomCode.length === 0}
+          enabled={heroVisible && (isAIMode ? prompt : roomCode).length === 0}
           watch={watch}
         >
           {(placeholder) => (
-            <>
-              {!isAIMode && (
-                <HomeRoomControls
-                  inputRef={roomNameRef}
-                  onJoinRoom={handleJoinRoom}
-                  onRoomCodeChange={handleRoomCodeChange}
-                  onStartSession={handleStartSession}
-                  onToggleAIMode={handleToggleAIMode}
-                  placeholder={placeholder}
-                  roomCode={roomCode}
-                />
-              )}
-              {isAIMode && (
-                <PlaylistGenerationControls
-                  inputRef={playlistPromptRef}
-                  onPromptChange={handleRoomCodeChange}
-                  onToggleAIMode={handleToggleAIMode}
-                  placeholder={placeholder}
-                  prompt={roomCode}
-                />
-              )}
-            </>
+            <HomeEntryControls
+              active={isAIMode}
+              enabled={heroVisible}
+              inputRef={roomNameRef}
+              onJoinRoom={handleJoinRoom}
+              onChange={isAIMode ? setPrompt : handleRoomCodeChange}
+              onStartSession={handleStartSession}
+              onToggle={handleToggleAIMode}
+              placeholder={placeholder}
+              value={isAIMode ? prompt : roomCode}
+            />
           )}
         </HomePlaceholder>
       </HomeLanding>

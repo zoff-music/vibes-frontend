@@ -8,6 +8,7 @@ export * from './components/DebugConsole';
 export * from './components/DeferredContent';
 export { FontPreloads, fontPreloadUrls } from './components/FontPreloads';
 export * from './components/GenerationSparkles';
+export * from './components/GenerativeInput';
 export * from './components/Input';
 export * from './components/LinkButton';
 export * from './components/ListenerCount';
