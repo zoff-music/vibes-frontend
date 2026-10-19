@@ -35,7 +35,7 @@ export default defineConfig(({ command, mode }) => {
     base: isBuild ? assetBase(env.ASSET_ORIGIN, '/') : '/',
     plugins: [
       tailwindcss(),
-      ...applicationPlugins(),
+      ...applicationPlugins({ dataEndpoint: '/_smolter' }),
 
       precompressAssets(),
     ],
@@ -44,6 +44,15 @@ export default defineConfig(({ command, mode }) => {
       manifest: true,
       rollupOptions: {
         output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'navigation',
+                test: /\/apps\/platform\/src\/(?:hooks|utils|components)\//,
+                tags: ['$initial'],
+              },
+            ],
+          },
           entryFileNames: (chunk) =>
             chunk.name === 'entry.server'
               ? 'index.js'

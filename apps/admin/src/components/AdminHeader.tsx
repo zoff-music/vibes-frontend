@@ -25,7 +25,11 @@ export function AdminHeader() {
     <>
       <SiteHeader
         brand={
-          <a href="/" aria-label="Zoff home" className={siteBrandLinkClassName}>
+          <a
+            href="/"
+            aria-label="Zoff home — ゾフ Shared rooms"
+            className={siteBrandLinkClassName}
+          >
             <SiteBrand />
           </a>
         }

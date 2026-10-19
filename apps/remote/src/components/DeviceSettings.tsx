@@ -1,4 +1,5 @@
 import { useFetcher } from '@kasperrt/smolter/preact';
+import type { SessionProfile } from '@vibes/models';
 import { showToast } from '@vibes/shared';
 import { useChatPreferenceStore } from '@vibes/shared/chatPreferenceStore';
 import { useThemeStore } from '@vibes/shared/themeStore';
@@ -8,22 +9,34 @@ import type { ProfileRouteData } from '../routes/remotes.resources.profile/clien
 
 interface DeviceSettingsProps {
   onClose: () => void;
+  isOpen: boolean;
+  initialProfile: SessionProfile | null;
 }
 
-export function DeviceSettings({ onClose }: DeviceSettingsProps) {
+export function DeviceSettings({
+  onClose,
+  isOpen,
+  initialProfile,
+}: DeviceSettingsProps) {
   const chatEnabled = useChatPreferenceStore((state) => state.enabled);
   const setChatEnabled = useChatPreferenceStore((state) => state.setEnabled);
   const fetcher = useFetcher<ProfileRouteData>();
   const wasSavingRef = useRef(false);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(initialProfile?.name ?? '');
   const themeId = useThemeStore((state) => state.themeId);
   const setTheme = useThemeStore((state) => state.setTheme);
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && !fetcher.data && !fetcher.error) {
+    if (
+      isOpen &&
+      !initialProfile &&
+      fetcher.state === 'idle' &&
+      !fetcher.data &&
+      !fetcher.error
+    ) {
       void fetcher.load('/remotes/resources/profile');
     }
-  }, [fetcher]);
+  }, [fetcher, isOpen, initialProfile]);
 
   useEffect(() => {
     const profile = fetcher.data?.profile;
@@ -51,13 +64,17 @@ export function DeviceSettings({ onClose }: DeviceSettingsProps) {
     }
   }, [fetcher.data, fetcher.state]);
 
-  const isLoading = fetcher.state === 'loading' && !fetcher.data?.profile;
+  const isLoading =
+    !initialProfile &&
+    !fetcher.data?.profile &&
+    !fetcher.data?.error &&
+    !fetcher.error;
   const isSaving = fetcher.state === 'submitting';
   const error = fetcher.data?.error ?? fetcher.error?.message;
 
   return (
     <PersonalSettingsModal
-      isOpen
+      isOpen={isOpen}
       onClose={onClose}
       name={name}
       onNameChange={setName}

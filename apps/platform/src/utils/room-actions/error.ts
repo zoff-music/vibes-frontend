@@ -3,7 +3,10 @@ import {
   getHttpError,
   getRateLimitMessage,
 } from '@vibes/api';
-import type { RoomActionData, RoomActionIntent } from './submitRoomAction';
+import type {
+  RoomActionData,
+  RoomActionIntent,
+} from '../../routes/$id.$/utils/actions/clientAction';
 
 export async function createErrorData(
   intent: RoomActionIntent,

@@ -1,4 +1,34 @@
 import type { Request, Response } from 'express';
+import type { Manifest, ManifestChunk } from 'vite';
+
+export function clientEntryPreloads(
+  manifest: Manifest,
+  entry: ManifestChunk,
+  assetBase: string,
+) {
+  const pending = [entry];
+  const visited = new Set<string>();
+  const links: string[] = [];
+  const base = assetBase.replace(/\/$/, '');
+
+  while (pending.length > 0) {
+    const chunk = pending.pop();
+
+    if (!chunk || visited.has(chunk.file)) continue;
+
+    visited.add(chunk.file);
+    links.push(`<${base}/${chunk.file}>; rel=modulepreload`);
+
+    // Static imports are required for hydration. Dynamic imports stay lazy.
+    for (const key of chunk.imports ?? []) {
+      const dependency = manifest[key];
+
+      if (dependency) pending.push(dependency);
+    }
+  }
+
+  return links;
+}
 
 export function sendDocumentPreloads(
   req: Request,
@@ -28,7 +58,7 @@ export function sendDocumentPreloads(
     .split(/,\s*(?=<)/)
     .filter(Boolean);
 
-  res.set('Link', [...new Set([...existingLinks, ...uniqueLinks])].join(', '));
+  res.set('Link', [...new Set([...uniqueLinks, ...existingLinks])].join(', '));
   res.writeEarlyHints({ link: uniqueLinks });
 }
 

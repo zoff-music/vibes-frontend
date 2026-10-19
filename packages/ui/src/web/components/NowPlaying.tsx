@@ -2,10 +2,11 @@ import {
   classNames,
   getProviderItemUrl,
   type PlaylistItem,
-  resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
+import { useState } from 'preact/compat';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../shared';
 import { RemoteIcon } from '../icons';
+import { PlaylistItemArtwork } from './PlaylistItemArtwork';
 import { ProviderIcon } from './ProviderIcon';
 import { Tooltip } from './Tooltip';
 
@@ -17,6 +18,7 @@ interface NowPlayingPlaylistItemProps {
   density?: 'normal' | 'compact';
   showStatus?: boolean;
   isHost?: boolean;
+  priority?: boolean;
 }
 
 export function NowPlayingPlaylistItem({
@@ -27,7 +29,17 @@ export function NowPlayingPlaylistItem({
   density = 'normal',
   showStatus = true,
   isHost = false,
+  priority = false,
 }: NowPlayingPlaylistItemProps) {
+  const [entrance, setEntrance] = useState({
+    id: playlistItem.id,
+    changed: false,
+  });
+
+  if (entrance.id !== playlistItem.id) {
+    setEntrance({ id: playlistItem.id, changed: true });
+  }
+
   const providerUrl = getProviderItemUrl(
     playlistItem.sourceType,
     playlistItem.sourceId,
@@ -62,25 +74,22 @@ export function NowPlayingPlaylistItem({
         key={playlistItem.id}
         className={classNames(
           'overflow-hidden',
-          animate && 'motion-safe:animate-slide-up',
+          animate && entrance.changed && 'motion-safe:animate-slide-up',
         )}
       >
         <div
           className={classNames(
-            'group/card panel-surface no-box relative flex min-w-0 items-center overflow-hidden rounded-2xl',
+            'group/card panel-surface no-box relative flex min-w-0 items-center overflow-hidden rounded-2xl backdrop-blur-none!',
             density === 'compact' ? 'gap-3 p-3' : 'gap-4 p-4',
           )}
         >
-          <div className="vhs-scanlines pointer-events-none absolute inset-0" />
+          <div className="vhs-scanlines pointer-events-none absolute inset-0 animate-none!" />
           <div className="relative z-10 shrink-0">
-            <img
-              src={resolvePlaylistItemThumbnail(
-                playlistItem.thumbnailUrl,
-                true,
-              )}
-              alt=""
+            <PlaylistItemArtwork
+              thumbnailUrl={playlistItem.thumbnailUrl}
               width={64}
               height={64}
+              fetchPriority={priority ? 'high' : 'auto'}
               className={classNames(
                 'rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105',
                 density === 'compact' ? 'h-12 w-12' : 'h-16 w-16',

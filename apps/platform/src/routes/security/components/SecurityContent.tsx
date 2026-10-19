@@ -18,7 +18,7 @@ export function SecurityContent({ securityEmail }: SecurityContentProps) {
         <p>
           If you believe you have found a security vulnerability in Zoff, email{' '}
           <a
-            className="text-secondary underline decoration-secondary/40 underline-offset-4 transition-colors hover:text-theme"
+            className="text-cyan-800 underline decoration-current/40 underline-offset-4 transition-colors hover:text-theme dark:text-secondary"
             href={`mailto:${securityEmail}`}
           >
             {securityEmail}

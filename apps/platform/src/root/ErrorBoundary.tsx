@@ -43,13 +43,13 @@ export function ErrorBoundary() {
       <PlatformErrorView
         message={
           requiresReload
-            ? 'This page changed while Zoff was open. Load the latest version to continue.'
+            ? 'A connection problem or an update interrupted this page. Reload to try again.'
             : 'Something went wrong. Try again or return home.'
         }
         requiresReload={requiresReload}
         title={
           requiresReload
-            ? 'A newer page is available'
+            ? 'This page could not load'
             : 'Zoff is temporarily unavailable'
         }
       />

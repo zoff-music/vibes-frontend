@@ -6,6 +6,273 @@ import {
   watchDeployment,
 } from '@kasperrt/smolter/preact/client';
 
+for (const timing of [
+  'fast',
+  'delayed',
+  'overlapping-errors',
+  'navigation',
+  'mutation',
+  'history',
+  'cleanup',
+  'reinstall',
+  'fetcher',
+  'fetcher-fail',
+]) {
+  test(`redirect recovery after protected work: ${timing}`, async (t) => {
+    let dispose = () => {};
+    t.after(() => dispose());
+    const events = new EventTarget();
+    const markers = new Map<string, string>();
+    const reloads: string[] = [];
+    const globals = {
+      window: events,
+      location: new URL('http://localhost/admin'),
+      sessionStorage: {
+        getItem: (key: string) => markers.get(key) ?? null,
+        setItem: (key: string, value: string) => markers.set(key, value),
+      },
+    };
+    for (const [key, value] of Object.entries(globals)) {
+      const previous = Object.getOwnPropertyDescriptor(globalThis, key);
+      Object.defineProperty(globalThis, key, { configurable: true, value });
+      t.after(() => {
+        if (previous) Object.defineProperty(globalThis, key, previous);
+        else Reflect.deleteProperty(globalThis, key);
+      });
+    }
+
+    let releaseRoot = () => {};
+    let releaseManifest = () => {};
+    let releaseFetcher = () => {};
+    const rootGate = new Promise<void>((resolve) => {
+      releaseRoot = resolve;
+    });
+    const manifestGate = new Promise<void>((resolve) => {
+      releaseManifest = resolve;
+    });
+    const fetcherGate = new Promise<void>((resolve) => {
+      releaseFetcher = resolve;
+    });
+    let mutations = 0;
+    let roots = 0;
+    let failed = false;
+    t.mock.method(globalThis, 'fetch', async () => {
+      if (timing === 'delayed') await manifestGate;
+      return Response.json({ version: 'new' });
+    });
+    const router = createDataRouter(
+      [
+        {
+          path: '/admin',
+          action: () => {
+            mutations++;
+            return new Response(null, {
+              status: 303,
+              headers: { Location: '/admin/users?created=1#user' },
+            });
+          },
+        },
+        {
+          path: '/admin/users',
+          loader: () => {
+            // Isolate invalidation of the original failure, not a new failure
+            // caused by the newer mutation's route revalidation.
+            if (failed && timing === 'mutation') return { ready: true };
+            failed = true;
+            events.dispatchEvent(new Event('vite:preloadError'));
+            if (timing === 'overlapping-errors')
+              events.dispatchEvent(new Event('vite:preloadError'));
+            return Promise.reject(new TypeError('Missing redirect chunk'));
+          },
+        },
+        { path: '/other', action: () => ({ saved: true }) },
+        {
+          path: '/pending',
+          action: () =>
+            fetcherGate.then(() => {
+              if (timing === 'fetcher-fail')
+                throw new Error('Fixture mutation failure');
+              return { saved: true };
+            }),
+        },
+      ],
+      { url: globals.location.href },
+    );
+    router.registerRevalidator('root', async () => {
+      roots++;
+      await rootGate;
+    });
+    const options = {
+      version: 'old',
+      manifestURL: '/smolter-manifest.json',
+      reload: (url: URL) => reloads.push(url.href),
+    };
+    const cleanup = watchDeployment(router, options);
+    dispose = () => {
+      cleanup();
+      router.dispose();
+    };
+    const pending = timing.startsWith('fetcher')
+      ? router.createFetcher().submit('/pending', new FormData())
+      : null;
+    const submission = router.submit('/admin', new FormData());
+    for (let attempt = 0; attempt < 20 && !failed; attempt++)
+      await new Promise(setImmediate);
+    assert.equal(failed, true);
+    await new Promise(setImmediate);
+    assert.equal(markers.size, 0);
+    assert.deepEqual(reloads, []);
+
+    if (timing === 'navigation') await router.navigate('/other?new=1#intent');
+    if (timing === 'history') {
+      globals.location.href = 'http://localhost/other?back=1#history';
+      events.dispatchEvent(new Event('popstate'));
+    }
+    if (timing === 'cleanup') cleanup();
+    if (timing === 'reinstall') {
+      cleanup();
+      watchDeployment(router, options);
+    }
+    const newerMutation =
+      timing === 'mutation'
+        ? router.createFetcher().submit('/other', new FormData())
+        : null;
+    releaseRoot();
+    await submission;
+    if (newerMutation) await newerMutation;
+    if (timing === 'delayed') {
+      assert.deepEqual(reloads, []);
+      releaseManifest();
+    }
+    if (pending) {
+      assert.equal(markers.size, 0);
+      assert.deepEqual(reloads, []);
+      releaseFetcher();
+      await pending;
+    }
+    await new Promise(setImmediate);
+    assert.equal(mutations, 1);
+    if (
+      timing === 'fast' ||
+      timing === 'delayed' ||
+      timing === 'overlapping-errors' ||
+      timing.startsWith('fetcher')
+    ) {
+      assert.deepEqual(reloads, [
+        'http://localhost/admin/users?created=1#user',
+      ]);
+      assert.equal(markers.size, 1);
+      if (!timing.startsWith('fetcher')) assert.equal(roots, 1);
+    } else {
+      assert.deepEqual(reloads, []);
+      assert.equal(markers.size, 0);
+    }
+  });
+}
+
+for (const change of [
+  'unrelated',
+  'destination',
+  'shared',
+  'missing',
+  'legacy',
+  'chunk',
+]) {
+  test(`granular manifest recovery: ${change}`, async (t) => {
+    let dispose = () => {};
+    t.after(() => dispose());
+    const events = new EventTarget();
+    const storage = new Map<string, string>();
+    const reloads: string[] = [];
+    const globals = {
+      window: events,
+      location: new URL('http://localhost/privacy-policy'),
+      sessionStorage: {
+        getItem: (key: string) => storage.get(key) ?? null,
+        setItem: (key: string, value: string) => storage.set(key, value),
+      },
+    };
+    for (const [key, value] of Object.entries(globals)) {
+      const descriptor = Object.getOwnPropertyDescriptor(globalThis, key);
+      Object.defineProperty(globalThis, key, { configurable: true, value });
+      t.after(() => {
+        if (descriptor) Object.defineProperty(globalThis, key, descriptor);
+        else Reflect.deleteProperty(globalThis, key);
+      });
+    }
+    const fetch = t.mock.method(globalThis, 'fetch', async () =>
+      Response.json({
+        version: 'new',
+        ...(change !== 'legacy' && {
+          shared: change === 'shared' ? 'changed' : 'same',
+          routes:
+            change === 'missing'
+              ? []
+              : [
+                  {
+                    path: '/security',
+                    fingerprint:
+                      change === 'destination' ? 'changed' : 'security',
+                  },
+                  { path: '/terms-of-service', fingerprint: 'new-terms' },
+                ],
+        }),
+      }),
+    );
+    const router = createDataRouter(
+      [
+        {
+          path: '/security',
+          loader: () => {
+            if (change === 'chunk') {
+              events.dispatchEvent(new Event('vite:preloadError'));
+              return Promise.reject(new TypeError('Fixture missing chunk'));
+            }
+            return 'ready';
+          },
+        },
+      ],
+      { url: globals.location.href },
+    );
+    watchDeployment(router, {
+      version: 'old',
+      shared: 'same',
+      routes: [
+        { path: '/security', fingerprint: 'security' },
+        { path: '/terms-of-service', fingerprint: 'old-terms' },
+      ],
+      manifestURL: '/smolter-manifest.json',
+      reload: (destination) => {
+        reloads.push(destination.href);
+      },
+    });
+    dispose = () => router.dispose();
+    await router.navigate('/security?test=first#scope');
+    await new Promise(setImmediate);
+    if (change === 'unrelated') {
+      assert.deepEqual(reloads, []);
+      assert.equal(storage.size, 0);
+      await router.navigate('/security?test=second#scope');
+      assert.equal(fetch.mock.callCount(), 1);
+      assert.equal(
+        router.getSnapshot().url,
+        'http://localhost/security?test=second#scope',
+      );
+      return;
+    }
+    if (change !== 'chunk') {
+      assert.deepEqual(reloads, []);
+      assert.equal(storage.size, 0);
+      await router.navigate('/security?test=next#scope');
+    }
+    assert.deepEqual(reloads, [
+      `http://localhost/security?test=${change === 'chunk' ? 'first' : 'next'}#scope`,
+    ]);
+    assert.equal(storage.size, 1);
+    assert.equal(fetch.mock.callCount(), 1);
+  });
+}
+
 test('published deployment recovery preserves committed intent without replaying actions', async (t) => {
   let events = new EventTarget();
   const storage = new Map<string, string>();
@@ -65,14 +332,22 @@ test('published deployment recovery preserves committed intent without replaying
 
       const first = router.navigate('/security?audit=first#reporting');
       const second = router.navigate('/terms-of-service?audit=latest#terms');
-      completeManifest(Response.json({ version: 'next-build' }));
       await Promise.all([first, second]);
-
-      assert.deepEqual(reloads, [
+      assert.equal(
+        router.getSnapshot().url,
         'http://localhost/terms-of-service?audit=latest#terms',
+      );
+      assert.deepEqual(reloads, []);
+      completeManifest(Response.json({ version: 'next-build' }));
+      await new Promise(setImmediate);
+      assert.deepEqual(reloads, []);
+      await router.navigate('/terms-of-service?audit=recover#terms');
+      assert.deepEqual(reloads, [
+        'http://localhost/terms-of-service?audit=recover#terms',
       ]);
       assert.equal(fetch.mock.callCount(), 1);
       await router.navigate('/security');
+      await new Promise(setImmediate);
       assert.equal(reloads.length, 1);
       router.dispose();
     },
@@ -83,7 +358,7 @@ test('published deployment recovery preserves committed intent without replaying
       storage.clear();
       reloads.length = 0;
       let restored = false;
-      t.mock.method(globalThis, 'fetch', () => {
+      const fetch = t.mock.method(globalThis, 'fetch', () => {
         if (restored) return Promise.resolve(Response.json({ version: 'new' }));
         if (mode === 'offline') return Promise.reject(new TypeError('offline'));
         if (mode === 'unavailable') {
@@ -104,9 +379,10 @@ test('published deployment recovery preserves committed intent without replaying
       assert.equal(router.getSnapshot().url, 'http://localhost/security');
       restored = true;
       await router.navigate('/security?restored=true#reporting');
-      assert.deepEqual(reloads, [
-        'http://localhost/security?restored=true#reporting',
-      ]);
+      await new Promise(setImmediate);
+      assert.deepEqual(reloads, []);
+      assert.equal(storage.size, 0);
+      assert.equal(fetch.mock.callCount(), 1);
       router.dispose();
     });
   }
@@ -509,6 +785,40 @@ test('published deployment recovery preserves committed intent without replaying
       },
     );
   }
+
+  await t.test(
+    'routine navigation finishes before a gated manifest and only later navigation recovers',
+    { timeout: 1000 },
+    async (t) => {
+      storage.clear();
+      reloads.length = 0;
+      let release: (response: Response) => void = () =>
+        assert.fail('Gate not initialized');
+      const gate = new Promise<Response>((resolve) => {
+        release = resolve;
+      });
+      let loads = 0;
+      const fetch = t.mock.method(globalThis, 'fetch', () => gate);
+      const router = createDataRouter(
+        [{ path: '/security', loader: () => ++loads }],
+        { url: location.href },
+      );
+      watchDeployment(router, { ...options, timeout: 60000 });
+      t.after(() => router.dispose());
+
+      await router.navigate('/security?pending=1#scope');
+      assert.equal(loads, 1);
+      assert.equal(router.getSnapshot().state, 'idle');
+      assert.equal(fetch.mock.callCount(), 1);
+      assert.equal(storage.size, 0);
+      release(Response.json({ version: 'new' }));
+      await new Promise(setImmediate);
+      assert.deepEqual(reloads, []);
+      await router.navigate('/security?next=1#scope');
+      assert.deepEqual(reloads, ['http://localhost/security?next=1#scope']);
+      assert.equal(loads, 1);
+    },
+  );
 
   await t.test(
     'redirect chunk recovery uses the committed action destination',

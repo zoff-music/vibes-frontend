@@ -1,5 +1,10 @@
 import { classNames } from '@vibes/shared';
-import { AnimatePresence, m as motion, useReducedMotion } from 'framer-motion';
+import {
+  AnimatePresence,
+  m as motion,
+  useIsPresent,
+  useReducedMotion,
+} from 'framer-motion';
 
 import {
   type ReactNode,
@@ -7,6 +12,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useSyncExternalStore,
 } from 'preact/compat';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
@@ -37,13 +43,21 @@ export function Modal({
   const internalPanelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const shouldReduceMotion = useReducedMotion();
+  const isPresent = useIsPresent();
+  const visible = isOpen && isPresent;
+  const portalReady = useSyncExternalStore(
+    subscribeHydration,
+    clientSnapshot,
+    serverSnapshot,
+  );
+  const initiallyServerRendered = useRef(!portalReady && isOpen);
 
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!visible || !portalReady) return;
 
     const previousOverflow = document.body.style.overflow;
     const previousActiveElement = document.activeElement;
@@ -102,7 +116,7 @@ export function Modal({
         previousActiveElement.focus();
       }
     };
-  }, [initialFocusRef, isOpen]);
+  }, [initialFocusRef, visible, portalReady]);
 
   const setPanelRef = useCallback(
     (element: HTMLDivElement | null) => {
@@ -113,11 +127,9 @@ export function Modal({
     [panelRef],
   );
 
-  if (typeof document === 'undefined') return null;
-
-  return createPortal(
-    <AnimatePresence propagate>
-      {isOpen && (
+  const content = (
+    <AnimatePresence propagate initial={!initiallyServerRendered.current}>
+      {visible && (
         <motion.div
           key="modal"
           initial={{ opacity: 0 }}
@@ -175,7 +187,24 @@ export function Modal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
   );
+
+  // Render the same inline dialog on the server and during hydration. Moving
+  // it to the document layer afterward must not replay its entrance animation.
+  if (!portalReady) return content;
+
+  return createPortal(content, document.body);
+}
+
+function subscribeHydration() {
+  return () => {};
+}
+
+function clientSnapshot() {
+  return true;
+}
+
+function serverSnapshot() {
+  return false;
 }

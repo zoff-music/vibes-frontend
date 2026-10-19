@@ -236,9 +236,11 @@ these core features; the full generation preview belongs on the queue guide.
 App screenshots stay on the apps
 guide, and the embed configurator stays on the rooms guide. The homepage's
 server loader fetches community totals, public rooms and providers in parallel
-and awaits only providers before rendering the hero. Initial requests and client
-navigation both use this server loader; there is no homepage `clientLoader`
-or browser retry. The API client's normal timeout and request cancellation
+and awaits only providers before rendering the hero. Initial requests use the
+server loader. Client navigation uses the homepage `clientLoader`, which awaits
+providers but returns the optional live-room promise for `Await` to render.
+Music/Watch intent prefetch includes route data; consuming that prefetch retains
+ownership of pending optional work. The API client's normal timeout and request cancellation
 still apply. Real totals are visible in the server-rendered HTML, including
 without JavaScript. They sit above the queue section and count up when visible,
 respecting reduced motion. Screen readers receive the full values without
@@ -254,7 +256,7 @@ selected type, not just the public live-room preview. The backend keeps each
 type's short-lived cache separate; requests without a type retain combined
 totals for older clients.
 
-The Music/Watch selector keeps intent prefetching and uses a shared sliding
+The Music/Watch selector keeps intent and data prefetching and uses a shared sliding
 selection pill using a live CSS transform. Supporting browsers animate named
 local SVG layers for the hero's sun/moon, with the orbit behind the solid hero surface.
 The orb stays centered in both modes. A slow circular eclipse reveals the moon
@@ -458,7 +460,9 @@ Homepage reads also run on the server without retries.
 Homepage statistics and live rooms stream independently after the hero. Their
 fallbacks reserve the same space as the resolved content, including three room
 slots on phones and one row on larger screens. Empty and failed responses retain
-that space. Music and Watch requests remain isolated by room type.
+that space. Live-room reads retain their ten-second, per-mode server cache, but
+do not block the initial document while pending. Client navigation still awaits
+the cached room read. Music and Watch requests remain isolated by room type.
 
 Room creation navigation requests providers directly, without a second server
 loader round trip. Public provider configuration uses Wiretyped's

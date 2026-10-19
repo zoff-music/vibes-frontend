@@ -1,6 +1,7 @@
 import { Link, NavLink } from '@kasperrt/smolter/preact';
 import {
   Button,
+  LinkButton,
   SettingsIcon,
   SiteHeader as SharedSiteHeader,
   SiteBrand,
@@ -8,13 +9,14 @@ import {
   siteNavigationClassName,
   Tooltip,
 } from '@vibes/ui/web';
-import { AnimatePresence } from 'framer-motion';
-import { lazy, Suspense, useState } from 'preact/compat';
+import { lazy, Suspense, useRef } from 'preact/compat';
+import { useDeviceSettings } from '../../hooks/useDeviceSettings';
 import { useExperience } from '../../hooks/useExperience';
+import { loadDeviceSettings } from '../../utils/homePanel';
 import { ExperienceSwitch } from '../layout/ExperienceSwitch';
 
 const LazyProfileSettingsModal = lazy(async () => {
-  const module = await import('../profile/ProfileSettingsModal');
+  const module = await loadDeviceSettings();
 
   return { default: module.ProfileSettingsModal };
 });
@@ -24,7 +26,13 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
-  const [showSettings, setShowSettings] = useState(false);
+  const {
+    isOpen: showSettings,
+    setOpen: setShowSettings,
+    settingsHref,
+  } = useDeviceSettings();
+  const settingsLoaded = useRef(showSettings);
+  if (showSettings) settingsLoaded.current = true;
   const watch = useExperience() === 'WATCH';
 
   return (
@@ -33,7 +41,7 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
         brand={
           <Link
             to={watch ? '/features/watch' : '/'}
-            aria-label="Zoff home"
+            aria-label="Zoff home — ゾフ Shared rooms"
             prefetch="intent"
             className={siteBrandLinkClassName}
           >
@@ -77,34 +85,49 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
               content="Settings"
               side="bottom"
             >
-              <Button
-                aria-label="Open settings"
-                onClick={() => setShowSettings(true)}
-                size="icon"
-                variant="tertiary"
-              >
-                <SettingsIcon className="h-5 w-5" />
-              </Button>
+              {settingsHref && (
+                <LinkButton
+                  aria-label="Open settings"
+                  to={settingsHref}
+                  replace
+                  preventScrollReset
+                  viewTransition={false}
+                  prefetch="intent"
+                  prefetchData
+                  size="icon"
+                  variant="tertiary"
+                >
+                  <SettingsIcon className="h-5 w-5" />
+                </LinkButton>
+              )}
+              {!settingsHref && (
+                <Button
+                  aria-label="Open settings"
+                  onClick={() => setShowSettings(true)}
+                  size="icon"
+                  variant="tertiary"
+                >
+                  <SettingsIcon className="h-5 w-5" />
+                </Button>
+              )}
             </Tooltip>
           </>
         }
       />
-      <AnimatePresence>
-        {showSettings && (
-          <Suspense
-            fallback={
-              <p role="status" className="sr-only">
-                Loading settings...
-              </p>
-            }
-          >
-            <LazyProfileSettingsModal
-              isOpen
-              onClose={() => setShowSettings(false)}
-            />
-          </Suspense>
-        )}
-      </AnimatePresence>
+      {settingsLoaded.current && (
+        <Suspense
+          fallback={
+            <p role="status" className="sr-only">
+              Loading settings...
+            </p>
+          }
+        >
+          <LazyProfileSettingsModal
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

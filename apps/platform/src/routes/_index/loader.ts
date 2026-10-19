@@ -8,8 +8,8 @@ const readPublicRooms = createPublicRequestCache<PublicRoomV3[]>(10_000);
 export interface HomeLoaderData {
   data: {
     providers: Providers | null;
-    publicRooms: PublicRoomV3[] | null;
-    stats: Promise<StatsV2 | null>;
+    publicRooms: Promise<PublicRoomV3[] | null> | PublicRoomV3[] | null;
+    stats: Promise<StatsV2 | null> | null;
   };
 }
 
@@ -43,11 +43,13 @@ export async function loader({
   );
   const getProviders = createProvidersRequest(serverApi);
   const [providersError, providers] = await getProviders(options);
-  const [roomsError, publicRooms] = await publicRoomsRequest;
+  const publicRooms = publicRoomsRequest.then(([error, rooms]) =>
+    error ? null : rooms,
+  );
 
   const data = {
     providers: providersError ? null : providers,
-    publicRooms: roomsError ? null : publicRooms,
+    publicRooms,
     stats,
   };
 

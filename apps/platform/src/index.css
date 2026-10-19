@@ -99,7 +99,7 @@
 }
 
 .experience-orbit-outgoing {
-  animation: eclipse-cover 2400ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
+  animation: eclipse-cover 600ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
   mask-image: radial-gradient(
     circle at 50% 0%,
     transparent var(--experience-eclipse-radius),
@@ -108,7 +108,7 @@
 }
 
 .experience-orbit-incoming {
-  animation: eclipse-cover 2400ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
+  animation: eclipse-cover 600ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
   mask-image: radial-gradient(
     circle at 50% 0%,
     #000 var(--experience-eclipse-radius),

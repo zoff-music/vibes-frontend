@@ -36,10 +36,15 @@ import {
 } from 'preact/compat';
 import { type ControllerActionData } from '../clientAction';
 import type { ControllerLoaderData } from '../utils/createControllerRoomData';
+import { retainController } from '../utils/retainedController';
 
 export function useRemoteController() {
   const loaderData = useLoaderData<ControllerLoaderData>();
   const { id: remoteId = '' } = useParams<{ id: string }>();
+  useEffect(
+    () => retainController(remoteId, loaderData),
+    [remoteId, loaderData],
+  );
   const revalidator = useRevalidator();
   const actionFetcher = useFetcher<ControllerActionData>();
   const roomFetcher = useFetcher<ControllerActionData>();

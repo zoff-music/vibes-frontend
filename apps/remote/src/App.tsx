@@ -1,6 +1,6 @@
-import { Outlet } from '@kasperrt/smolter/preact';
+import { Outlet, useRootData } from '@kasperrt/smolter/preact';
 import {
-  Button,
+  LinkButton,
   SettingsIcon,
   SiteBackground,
   SiteBrand,
@@ -12,8 +12,10 @@ import {
   ToastViewport,
   Tooltip,
 } from '@vibes/ui/web';
-import { lazy, Suspense, useState } from 'preact/compat';
+import { lazy, Suspense, useRef } from 'preact/compat';
+import { useDeviceSettings } from './hooks/useDeviceSettings';
 import { useThemeSync } from './hooks/useThemeSync';
+import type { loader } from './root/loader';
 
 const LazyDeviceSettings = lazy(async () => {
   const module = await import('./components/DeviceSettings');
@@ -23,7 +25,10 @@ const LazyDeviceSettings = lazy(async () => {
 
 export function App() {
   useThemeSync();
-  const [showSettings, setShowSettings] = useState(false);
+  const { isOpen, settingsHref, close } = useDeviceSettings();
+  const rootData = useRootData<typeof loader>();
+  const settingsLoaded = useRef(isOpen);
+  if (isOpen) settingsLoaded.current = true;
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-theme text-theme">
@@ -35,7 +40,7 @@ export function App() {
             brand={
               <a
                 href="/"
-                aria-label="Zoff home"
+                aria-label="Zoff home — ゾフ Shared rooms"
                 className={siteBrandLinkClassName}
               >
                 <SiteBrand />
@@ -68,14 +73,19 @@ export function App() {
                   content="Settings"
                   side="bottom"
                 >
-                  <Button
+                  <LinkButton
                     aria-label="Open settings"
-                    onClick={() => setShowSettings(true)}
+                    to={settingsHref}
+                    replace
+                    preventScrollReset
+                    viewTransition={false}
+                    prefetch="intent"
+                    prefetchData
                     size="icon"
                     variant="tertiary"
                   >
                     <SettingsIcon className="h-5 w-5" />
-                  </Button>
+                  </LinkButton>
                 </Tooltip>
               </>
             }
@@ -85,7 +95,7 @@ export function App() {
       >
         <Outlet />
       </SiteLayout>
-      {showSettings && (
+      {settingsLoaded.current && (
         <Suspense
           fallback={
             <p role="status" className="sr-only">
@@ -93,7 +103,11 @@ export function App() {
             </p>
           }
         >
-          <LazyDeviceSettings onClose={() => setShowSettings(false)} />
+          <LazyDeviceSettings
+            isOpen={isOpen}
+            onClose={close}
+            initialProfile={rootData?.profile ?? null}
+          />
         </Suspense>
       )}
     </div>

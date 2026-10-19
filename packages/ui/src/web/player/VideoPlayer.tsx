@@ -1223,6 +1223,9 @@ const VideoPlayerComponent = ({
   // All hooks must be called unconditionally, so define these before early return
   const opts: YouTubeProps['opts'] = useMemo(
     () => ({
+      host: isCastReceiver
+        ? 'https://www.youtube.com'
+        : 'https://www.youtube-nocookie.com',
       height: castPlayerSize?.height ?? '100%',
       width: castPlayerSize?.width ?? '100%',
       playerVars: {

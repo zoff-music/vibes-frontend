@@ -1,7 +1,6 @@
-import boldFontUrl from '../../shared/assets/fonts/MSW98UI-Bold-latin.woff2?url';
 import regularFontUrl from '../../shared/assets/fonts/MSW98UI-Regular-latin.woff2?url';
 
-export const fontPreloadUrls = [regularFontUrl, boldFontUrl];
+export const fontPreloadUrls = [regularFontUrl];
 
 export function FontPreloads() {
   return (

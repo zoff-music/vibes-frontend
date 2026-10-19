@@ -2,13 +2,13 @@ import {
   classNames,
   getProviderItemUrl,
   type PlaylistItem,
-  resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
 import { m as motion } from 'framer-motion';
 import React from 'preact/compat';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../../shared';
 import { TrashIcon, VoteIcon } from '../../icons';
 import { Button } from '../Button';
+import { PlaylistItemArtwork } from '../PlaylistItemArtwork';
 import { ProviderIcon } from '../ProviderIcon';
 import { Tooltip } from '../Tooltip';
 
@@ -65,15 +65,13 @@ const QueueItemComponent: React.FC<Props> = ({
           <span className="text-theme-muted text-xs">{position}</span>
         </div>
 
-        <img
-          src={resolvePlaylistItemThumbnail(playlistItem.thumbnailUrl, true)}
-          alt=""
+        <PlaylistItemArtwork
+          thumbnailUrl={playlistItem.thumbnailUrl}
           className={classNames(
             'shrink-0 rounded-xl border border-theme bg-theme-surface object-cover',
             density === 'compact' ? 'h-10 w-10' : 'h-12 w-12 sm:h-14 sm:w-14',
           )}
-          decoding="async"
-          fetchPriority={position === 1 ? 'high' : 'auto'}
+          fetchPriority={position <= 3 ? 'auto' : 'low'}
           loading={position <= 3 ? 'eager' : 'lazy'}
           width={56}
           height={56}
