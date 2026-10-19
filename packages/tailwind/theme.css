@@ -3,7 +3,9 @@
   --animate-generative-invitation: generative-invitation 2.6s ease-in-out
     infinite;
   --animate-generative-wiggle: generative-wiggle 7s ease-in-out infinite;
-  --animate-generative-particle: generative-particle 3.6s linear infinite;
+  --animate-generative-particle-left: generative-particle-left 2.1s ease-out;
+  --animate-generative-particle-right: generative-particle-right 2.1s ease-out;
+  --animate-generative-particle-rise: generative-particle-rise 2.1s ease-out;
   --shadow-generative-field:
     -7px 0 20px rgba(255, 46, 151, 0.35), 7px 0 22px rgba(0, 217, 255, 0.35),
     inset 0 0 14px rgba(0, 217, 255, 0.1);
@@ -43,19 +45,55 @@
       transform: rotate(3deg);
     }
   }
-  @keyframes generative-particle {
+  @keyframes generative-particle-left {
     0% {
       opacity: 0;
-      transform: translateY(0);
+      transform: translate(0, 0) rotate(8deg) scale(0.65);
     }
-    15%,
-    35% {
-      opacity: 0.65;
+    25% {
+      opacity: 0.7;
     }
-    65%,
+    55% {
+      opacity: 0.5;
+      transform: translate(-9px, -29px) rotate(-8deg) scale(1);
+    }
     100% {
       opacity: 0;
-      transform: translateY(-46px);
+      transform: translate(-22px, -48px) rotate(-20deg) scale(0.8);
+    }
+  }
+  @keyframes generative-particle-right {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) rotate(-12deg) scale(0.8);
+    }
+    20% {
+      opacity: 0.65;
+    }
+    60% {
+      opacity: 0.4;
+      transform: translate(12px, -32px) rotate(9deg) scale(1.1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(26px, -50px) rotate(22deg) scale(0.7);
+    }
+  }
+  @keyframes generative-particle-rise {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) rotate(-4deg) scale(0.6);
+    }
+    30% {
+      opacity: 0.75;
+      transform: translate(4px, -20px) rotate(6deg) scale(1);
+    }
+    65% {
+      opacity: 0.45;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-5px, -46px) rotate(-9deg) scale(0.85);
     }
   }
   --text-3xs: 0.5625rem;
