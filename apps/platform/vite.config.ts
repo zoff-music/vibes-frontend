@@ -35,7 +35,7 @@ export default defineConfig(({ command, mode }) => {
     base: isBuild ? assetBase(env.ASSET_ORIGIN, '/') : '/',
     plugins: [
       tailwindcss(),
-      ...applicationPlugins(),
+      ...applicationPlugins({ dataEndpoint: '/_smolter' }),
 
       precompressAssets(),
     ],
