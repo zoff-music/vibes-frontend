@@ -11,14 +11,14 @@ export function GenerativeParticles({ enabled }: GenerativeParticlesProps) {
   return (
     <span
       aria-hidden="true"
-      className="generative-particles pointer-events-none absolute inset-x-0 bottom-full mb-px h-8 overflow-hidden motion-reduce:hidden"
+      className="generative-particles pointer-events-none absolute inset-x-0 bottom-full mb-px h-10 overflow-hidden motion-reduce:hidden"
     >
       {particles.map((particle) => (
         <span
           key={particle.id}
           onAnimationEnd={() => remove(particle.id)}
           className={classNames(
-            'absolute -bottom-4 opacity-0 [animation-fill-mode:both]',
+            'absolute -bottom-4 opacity-0 will-change-transform [animation-fill-mode:both]',
             particle.position,
             particle.size,
             particle.speed,
