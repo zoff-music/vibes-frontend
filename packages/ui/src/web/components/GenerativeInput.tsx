@@ -46,7 +46,7 @@ export function GenerativeInput({
     <div className="min-w-0">
       <div className="mb-2 flex h-5 items-center justify-between gap-3">
         <label htmlFor={id} className="font-pixel text-sm text-theme-muted">
-          {active ? 'AI playlist prompt' : 'Room name'}
+          {active ? 'What’s the vibe?' : 'Room name'}
         </label>
         {active && (
           <span className="text-theme-subtle text-xs tabular-nums">
