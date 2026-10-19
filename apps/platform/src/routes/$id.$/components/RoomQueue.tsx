@@ -64,9 +64,15 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
       chat.selectChat(chatOpen && chatEnabled);
     }, [chatOpen, chat.selectChat, chatEnabled]);
     const [chatError, setChatError] = useState('');
+    const [chatConnected, setChatConnected] = useState(false);
     const chatFetcher = useFetcher<RoomActionData>();
     const pendingSend = useRef<((sent: boolean) => void) | null>(null);
     useRoomMessages(!isSSR && chatEnabled ? roomId : undefined, {
+      onConnecting: () => {
+        setChatConnected(false);
+        setChatError('');
+      },
+      onConnected: () => setChatConnected(true),
       onMessage: chat.receive,
       onError: (error) => setChatError(error ? 'Chat is reconnecting…' : ''),
     });
@@ -277,6 +283,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                       }
                     >
                       <LazyChatConversation
+                        loading={!chatConnected && !chatError}
                         messages={chat.messages}
                         active={chatOpen && !isSSR}
                         onSend={sendMessage}
