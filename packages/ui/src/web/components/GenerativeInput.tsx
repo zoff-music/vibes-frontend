@@ -3,6 +3,7 @@ import { type RefObject, useId } from 'preact/compat';
 import { useGenerativeDiscovery } from '../hooks/useGenerativeDiscovery';
 import { SparklesIcon } from '../icons';
 import { Button } from './Button';
+import { GenerativeParticles } from './GenerativeParticles';
 
 interface GenerativeInputProps {
   active: boolean;
@@ -38,10 +39,6 @@ export function GenerativeInput({
       : '[animation-play-state:paused]';
   const orbitClass = classNames(
     'fill-none stroke-3 [stroke-dasharray:15_85] [stroke-linecap:round] [vector-effect:non-scaling-stroke] motion-safe:animate-generative-orbit',
-    animationState,
-  );
-  const particleClass = classNames(
-    'absolute -bottom-4 size-4 opacity-0 motion-safe:animate-generative-particle',
     animationState,
   );
 
@@ -165,50 +162,7 @@ export function GenerativeInput({
             )}
           />
         </svg>
-        <span
-          aria-hidden="true"
-          className={classNames(
-            'generative-particles pointer-events-none absolute inset-x-0 bottom-full mb-px h-8 overflow-hidden transition-opacity duration-300 motion-reduce:transition-none',
-            active ? 'opacity-100' : 'opacity-0',
-          )}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className={classNames(
-              particleClass,
-              'left-[36%] text-primary [animation-delay:-0.3s]',
-            )}
-          >
-            <path d="M10 2h4v5h3v3h5v4h-5v3h-3v5h-4v-5H7v-3H2v-4h5V7h3z" />
-          </svg>
-          <svg
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className={classNames(
-              particleClass,
-              'left-[53%] text-secondary [animation-delay:-1.2s]',
-            )}
-          >
-            <path d="M12 2h4v2h4v4h-4v10h-2v2H8v-2H6v-4h2v-2h4z" />
-          </svg>
-          <SparklesIcon
-            className={classNames(
-              particleClass,
-              'left-[70%] text-primary [animation-delay:-2.1s]',
-            )}
-          />
-          <svg
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className={classNames(
-              particleClass,
-              'left-[87%] text-secondary [animation-delay:-3s]',
-            )}
-          >
-            <path d="M8 4h12v14h-2v2h-4v-2h-2v-4h2v-2h2V8h-4v12h-2v2H6v-2H4v-4h2v-2h2z" />
-          </svg>
-        </span>
+        <GenerativeParticles enabled={active && discovery.animate} />
       </div>
     </div>
   );
