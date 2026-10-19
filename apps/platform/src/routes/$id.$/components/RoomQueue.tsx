@@ -228,7 +228,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     prefetch="intent"
                     prefetchData
                     className={classNames(
-                      'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                      'inline-flex min-h-12 cursor-pointer items-center border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
                       !chatOpen
                         ? 'border-secondary text-theme'
                         : 'border-transparent text-theme-muted',
@@ -247,7 +247,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     prefetch="intent"
                     prefetchData
                     className={classNames(
-                      'min-h-12 cursor-pointer border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                      'inline-flex min-h-12 cursor-pointer items-center border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
                       chatOpen
                         ? 'border-secondary text-theme'
                         : 'border-transparent text-theme-muted',
