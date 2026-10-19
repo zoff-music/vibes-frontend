@@ -43,14 +43,14 @@ export const RoomSharePanel = ({
         <Button
           onClick={onShare}
           variant="secondary"
-          className="w-full gap-2 font-pixel text-xs"
+          className="h-12 w-full gap-2"
         >
           <ShareIcon className="h-4 w-4" />
           Share Room
         </Button>
 
         <LinkButton
-          className="hidden w-full sm:flex"
+          className="hidden h-12 w-full gap-2 sm:flex"
           to={href('share/embed')}
           replace
           preventScrollReset
@@ -62,7 +62,7 @@ export const RoomSharePanel = ({
           Embed player
         </LinkButton>
         <Button
-          className="col-span-2 w-full gap-2 font-pixel text-xs"
+          className="col-span-2 h-12 w-full gap-2"
           onClick={onOpenPartyScreen}
           variant="tertiary"
         >
