@@ -44,6 +44,15 @@ export default defineConfig(({ command, mode }) => {
       manifest: true,
       rollupOptions: {
         output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'navigation',
+                test: /\/apps\/platform\/src\/(?:hooks|utils|components)\//,
+                tags: ['$initial'],
+              },
+            ],
+          },
           entryFileNames: (chunk) =>
             chunk.name === 'entry.server'
               ? 'index.js'

@@ -17,3 +17,19 @@ export function resolvePlaylistItemThumbnail(
 }
 
 export const PUBLIC_ROOM_PAGE_SIZE = 12;
+
+export function playlistItemWebpThumbnail(value?: string): string | undefined {
+  const thumbnail = resolvePlaylistItemThumbnail(value, true);
+
+  if (
+    !/^https:\/\/i\.ytimg\.com\/vi\/[\w-]+\/mqdefault\.jpg(?:\?|$)/.test(
+      thumbnail,
+    )
+  ) {
+    return;
+  }
+
+  return thumbnail
+    .replace('/vi/', '/vi_webp/')
+    .replace('mqdefault.jpg', 'mqdefault.webp');
+}

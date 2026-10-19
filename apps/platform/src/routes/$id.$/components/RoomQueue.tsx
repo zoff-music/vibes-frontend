@@ -197,6 +197,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             {currentPlaylistItemData && (
               <div className="mb-2 shrink-0">
                 <NowPlayingPlaylistItem
+                  priority
                   isHost={isHost}
                   playlistItem={currentPlaylistItemData}
                   isPlaying={isPlaying}

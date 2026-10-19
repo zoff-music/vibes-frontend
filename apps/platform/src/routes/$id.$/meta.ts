@@ -1,4 +1,5 @@
 import type { MetaFunction } from '@kasperrt/smolter/preact';
+import { playlistItemWebpThumbnail } from '@vibes/shared';
 import { publicAssetUrl } from '@vibes/ui/web';
 import type { loader } from './loader';
 import {
@@ -29,8 +30,23 @@ export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
   const imageAlt = currentPlaylistItem
     ? `${currentPlaylistItem.title} artwork`
     : 'Zoff shared rooms';
+  const thumbnail = playlistItemWebpThumbnail(
+    currentPlaylistItem?.thumbnailUrl,
+  );
 
   return [
+    ...(thumbnail
+      ? [
+          {
+            tagName: 'link',
+            rel: 'preload',
+            as: 'image',
+            type: 'image/webp',
+            href: thumbnail,
+            fetchPriority: 'high',
+          },
+        ]
+      : []),
     { title },
     { name: 'robots', content: 'noindex, follow' },
     {
