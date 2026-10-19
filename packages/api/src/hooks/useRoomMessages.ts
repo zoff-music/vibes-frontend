@@ -74,6 +74,7 @@ export function useRoomMessages(
 
           callbacksRef.current.onMessage(event.data);
         },
+        { errorConnect: true },
       );
 
       if (!active) {
