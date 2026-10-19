@@ -2,12 +2,11 @@ import {
   classNames,
   getProviderItemUrl,
   type PlaylistItem,
-  playlistItemWebpThumbnail,
-  resolvePlaylistItemThumbnail,
 } from '@vibes/shared';
 import { useState } from 'preact/compat';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../shared';
 import { RemoteIcon } from '../icons';
+import { PlaylistItemArtwork } from './PlaylistItemArtwork';
 import { ProviderIcon } from './ProviderIcon';
 import { Tooltip } from './Tooltip';
 
@@ -86,29 +85,16 @@ export function NowPlayingPlaylistItem({
         >
           <div className="vhs-scanlines pointer-events-none absolute inset-0" />
           <div className="relative z-10 shrink-0">
-            <picture>
-              {playlistItemWebpThumbnail(playlistItem.thumbnailUrl) && (
-                <source
-                  type="image/webp"
-                  srcSet={playlistItemWebpThumbnail(playlistItem.thumbnailUrl)}
-                />
+            <PlaylistItemArtwork
+              thumbnailUrl={playlistItem.thumbnailUrl}
+              width={64}
+              height={64}
+              fetchPriority={priority ? 'high' : 'auto'}
+              className={classNames(
+                'rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105',
+                density === 'compact' ? 'h-12 w-12' : 'h-16 w-16',
               )}
-              <img
-                src={resolvePlaylistItemThumbnail(
-                  playlistItem.thumbnailUrl,
-                  true,
-                )}
-                alt=""
-                width={64}
-                height={64}
-                decoding="async"
-                fetchPriority={priority ? 'high' : 'auto'}
-                className={classNames(
-                  'rounded-xl border border-theme object-cover shadow-xs transition-transform group-hover/card:scale-105',
-                  density === 'compact' ? 'h-12 w-12' : 'h-16 w-16',
-                )}
-              />
-            </picture>
+            />
           </div>
           <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
             <h2 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
