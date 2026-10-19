@@ -27,7 +27,6 @@ import {
   useRef,
   useState,
 } from 'preact/compat';
-import { ProfileSettingsModal } from '../../../components/profile/ProfileSettingsModal';
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import { useAdminLoginFocus } from '../../../hooks/useAdminLoginFocus';
 import { useRoomPanel } from '../hooks/useRoomPanel';
@@ -69,12 +68,11 @@ export const RoomSettingsMenu = ({
   settingsMenuRef,
   providers,
 }: RoomSettingsMenuProps) => {
-  const { openRemoteControl } = useRemoteControl();
+  const { openRemoteControl, prefetchRemoteControl } = useRemoteControl();
   const adminPasswordRef = useAdminLoginFocus(focusAdminLogin);
   const [wobblePassword, setWobblePassword] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
-  const { panel, open, prefetch } = useRoomPanel();
-  const showProfileSettings = panel === 'settings/device';
+  const { open, prefetch } = useRoomPanel();
   const adminSectionRef = useRef<HTMLDivElement>(null);
   const scrollPanelRef = useRef<HTMLDivElement>(null);
   const canChangePublicRoom = Boolean(room?.hasPassword && isAdmin);
@@ -128,7 +126,6 @@ export const RoomSettingsMenu = ({
   };
 
   const handleOpenRemoteControl = () => {
-    onClose();
     openRemoteControl();
   };
 
@@ -267,10 +264,6 @@ export const RoomSettingsMenu = ({
                 Device
               </Button>
             </div>
-            <ProfileSettingsModal
-              isOpen={showProfileSettings}
-              onClose={() => open('settings')}
-            />
             <div className="space-y-3 sm:hidden">
               <div className="grid grid-cols-2 gap-2">
                 <Button
@@ -294,6 +287,9 @@ export const RoomSettingsMenu = ({
                 </Button>
                 <Button
                   onClick={handleOpenRemoteControl}
+                  onFocus={prefetchRemoteControl}
+                  onPointerEnter={prefetchRemoteControl}
+                  onTouchStart={prefetchRemoteControl}
                   variant="tertiary"
                   className="col-span-2 w-full gap-2 font-pixel text-xs"
                 >

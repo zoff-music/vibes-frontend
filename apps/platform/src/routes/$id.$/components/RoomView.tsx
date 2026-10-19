@@ -11,6 +11,7 @@ import { RoomQueue } from '../components/RoomQueue';
 import { roomEntryTransition, roomEntryVisibleState } from '../constants';
 import { useRoomView } from '../hooks/useRoomView';
 import { loadAddToQueueModal } from '../utils/preloadQueueModal';
+import { RoomOverlayPanels } from './RoomOverlayPanels';
 
 const LazyPartyScreenJoinCard = lazy(async () => {
   const module = await import('../components/PartyScreenJoinCard');
@@ -206,50 +207,46 @@ export function RoomView() {
               </>
             )}
           </div>
-
-          <AnimatePresence>
-            {showDeviceSelector && (
-              <Suspense
-                key="cast-modal"
-                fallback={
-                  <DeferredModalLoading label="Loading cast devices..." />
-                }
-              >
-                <LazyDeviceSelector
-                  isOpen={showDeviceSelector}
-                  onClose={handleCloseCast}
-                />
-              </Suspense>
-            )}
-            {isAddModalVisible && (
-              <Suspense
-                key="add-modal"
-                fallback={
-                  <DeferredModalLoading label="Loading song search..." />
-                }
-              >
-                <LazyAddToQueueModal
-                  room={displayRoom}
-                  providers={loaderData.providers}
-                  isVisible={isAddModalVisible}
-                  onClose={handleCloseAddPlaylistItem}
-                  onOpenAdminLogin={handleOpenAdminLogin}
-                  generationCount={displayRoom.generationCount}
-                  roomGenerationMaxDailyCount={
-                    displayRoom.roomGenerationMaxDailyCount
-                  }
-                  roomGenerationMaxExistingPlaylistItems={
-                    displayRoom.roomGenerationMaxExistingPlaylistItems
-                  }
-                  hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
-                  isGenerating={isGenerating}
-                  onGenerationStarted={handleGenerationStarted}
-                />
-              </Suspense>
-            )}
-          </AnimatePresence>
         </main>
       </motion.div>
+      <RoomOverlayPanels roomId={id} url={shareUrl} />
+      <AnimatePresence>
+        {showDeviceSelector && (
+          <Suspense
+            key="cast-modal"
+            fallback={<DeferredModalLoading label="Loading cast devices..." />}
+          >
+            <LazyDeviceSelector
+              isOpen={showDeviceSelector}
+              onClose={handleCloseCast}
+            />
+          </Suspense>
+        )}
+        {isAddModalVisible && (
+          <Suspense
+            key="add-modal"
+            fallback={<DeferredModalLoading label="Loading song search..." />}
+          >
+            <LazyAddToQueueModal
+              room={displayRoom}
+              providers={loaderData.providers}
+              isVisible={isAddModalVisible}
+              onClose={handleCloseAddPlaylistItem}
+              onOpenAdminLogin={handleOpenAdminLogin}
+              generationCount={displayRoom.generationCount}
+              roomGenerationMaxDailyCount={
+                displayRoom.roomGenerationMaxDailyCount
+              }
+              roomGenerationMaxExistingPlaylistItems={
+                displayRoom.roomGenerationMaxExistingPlaylistItems
+              }
+              hasGenerationPermission={!displayRoom.hasPassword || isAdmin}
+              isGenerating={isGenerating}
+              onGenerationStarted={handleGenerationStarted}
+            />
+          </Suspense>
+        )}
+      </AnimatePresence>
       {!isAddModalVisible && !chatOpen && (
         <div className="sm:hidden">
           <Button

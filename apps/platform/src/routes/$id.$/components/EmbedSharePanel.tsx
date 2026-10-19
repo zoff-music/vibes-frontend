@@ -21,10 +21,17 @@ interface Props {
   url: string;
   roomId: string;
   embedBasePath: string;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
+export function EmbedSharePanel({
+  url,
+  roomId,
+  embedBasePath,
+  isOpen,
+  onClose,
+}: Props) {
   const [player, setPlayer] = useState(true);
   const [autoplay, setAutoplay] = useState(false);
   const [playlist, setPlaylist] = useState(true);
@@ -91,220 +98,206 @@ export function EmbedSharePanel({ url, roomId, embedBasePath }: Props) {
     setCopied(true);
   };
 
-  const handleOpen = () => {
-    setCopied(false);
-    setIsOpen(true);
-  };
-
   return (
-    <>
-      <div className="hidden sm:block">
-        <Button className="w-full" onClick={handleOpen} variant="primary">
-          Embed player
+    <Modal
+      alignment="center"
+      ariaLabelledBy="embed-player-title"
+      isOpen={isOpen}
+      onClose={onClose}
+      size="md"
+    >
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h2 id="embed-player-title" className="text-base text-theme">
+            Embed player
+          </h2>
+          <p className="mt-1 text-sm text-theme-muted">
+            Choose what the embed displays and which actions visitors can take.
+          </p>
+        </div>
+        <Button
+          onClick={onClose}
+          variant="tertiary"
+          size="icon"
+          aria-label="Close embed settings"
+        >
+          <CloseIcon className="h-5 w-5 text-theme-muted" />
         </Button>
       </div>
 
-      <Modal
-        alignment="center"
-        ariaLabelledBy="embed-player-title"
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        size="md"
-      >
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <h2 id="embed-player-title" className="text-base text-theme">
-              Embed player
-            </h2>
-            <p className="mt-1 text-sm text-theme-muted">
-              Choose what the embed displays and which actions visitors can
-              take.
+      <div className="mb-6 space-y-6">
+        <section aria-labelledby="embed-layout-title">
+          <div className="mb-3">
+            <h3
+              id="embed-layout-title"
+              className="font-pixel text-2xs text-theme tracking-display"
+            >
+              Layout
+            </h3>
+            <p className="mt-1 text-theme-muted text-xs">
+              Choose which room content appears inside the iframe.
             </p>
           </div>
-          <Button
-            onClick={() => setIsOpen(false)}
-            variant="tertiary"
-            size="icon"
-            aria-label="Close embed settings"
-          >
-            <CloseIcon className="h-5 w-5 text-theme-muted" />
-          </Button>
-        </div>
-
-        <div className="mb-6 space-y-6">
-          <section aria-labelledby="embed-layout-title">
-            <div className="mb-3">
-              <h3
-                id="embed-layout-title"
-                className="font-pixel text-2xs text-theme tracking-display"
-              >
-                Layout
-              </h3>
-              <p className="mt-1 text-theme-muted text-xs">
-                Choose which room content appears inside the iframe.
-              </p>
-            </div>
-            <div className="grid gap-3">
-              <SegmentedToggle
-                checked={player}
-                onChange={(enabled) => {
-                  setPlayer(enabled);
-                  setCopied(false);
-                }}
-                label="Player"
-                description="Show the current track, artwork, and playback progress."
-              />
-              <SegmentedToggle
-                checked={playlist}
-                onChange={(enabled) => {
-                  setPlaylist(enabled);
-                  setCopied(false);
-                }}
-                label="Playlist"
-                description="Show upcoming songs from the room queue."
-              />
-            </div>
-          </section>
-
-          <section aria-labelledby="embed-playback-title">
-            <h3
-              id="embed-playback-title"
-              className="mb-3 font-pixel text-2xs text-theme tracking-display"
-            >
-              Playback
-            </h3>
+          <div className="grid gap-3">
             <SegmentedToggle
-              checked={player && autoplay}
-              disabled={!player}
+              checked={player}
               onChange={(enabled) => {
-                setAutoplay(enabled);
+                setPlayer(enabled);
                 setCopied(false);
               }}
-              label="Autoplay"
-              description="Start playing with sound when the page loads. Off by default."
+              label="Player"
+              description="Show the current track, artwork, and playback progress."
             />
-            <p className="mt-2 text-theme-muted text-xs">
-              Requires the player. Some browsers still require a click before
-              playing sound.
-            </p>
-          </section>
+            <SegmentedToggle
+              checked={playlist}
+              onChange={(enabled) => {
+                setPlaylist(enabled);
+                setCopied(false);
+              }}
+              label="Playlist"
+              description="Show upcoming songs from the room queue."
+            />
+          </div>
+        </section>
 
-          <section aria-labelledby="embed-controls-title">
-            <div className="mb-3">
-              <h3
-                id="embed-controls-title"
-                className="font-pixel text-2xs text-theme tracking-display"
-              >
-                Visitor controls
-              </h3>
-              <p className="mt-1 text-theme-muted text-xs">
-                Room permissions still decide whether each action is allowed.
-              </p>
-            </div>
-            <div className="grid gap-3">
-              <SegmentedToggle
-                checked={vote}
-                onChange={(enabled) => {
-                  setVote(enabled);
-                  setCopied(false);
-                }}
-                label="Voting"
-                description="Show vote controls for songs in the playlist."
-              />
-              <SegmentedToggle
-                checked={skip}
-                onChange={(enabled) => {
-                  setSkip(enabled);
-                  setCopied(false);
-                }}
-                label="Skipping"
-                description="Show the skip control when the room allows skipping."
-              />
-            </div>
-          </section>
-
-          <section aria-labelledby="embed-appearance-title">
-            <div className="mb-3">
-              <h3
-                id="embed-appearance-title"
-                className="font-pixel text-2xs text-theme tracking-display"
-              >
-                Appearance
-              </h3>
-              <p className="mt-1 text-theme-muted text-xs">
-                Auto follows the visitor&apos;s device theme.
-              </p>
-            </div>
-            <div
-              className="grid grid-cols-3 gap-2"
-              role="radiogroup"
-              aria-label="Embed color scheme"
-            >
-              <Button
-                aria-checked={theme === 'auto'}
-                onClick={handleThemeChange}
-                role="radio"
-                size="small"
-                value="auto"
-                className="gap-2"
-                variant={theme === 'auto' ? 'tertiary-active' : 'tertiary'}
-              >
-                <CircleHalfIcon className="h-4 w-4" />
-                Auto
-              </Button>
-              <Button
-                aria-checked={theme === 'light'}
-                onClick={handleThemeChange}
-                role="radio"
-                size="small"
-                value="light"
-                className="gap-2"
-                variant={theme === 'light' ? 'tertiary-active' : 'tertiary'}
-              >
-                <SunIcon className="h-4 w-4" />
-                Light
-              </Button>
-              <Button
-                aria-checked={theme === 'dark'}
-                onClick={handleThemeChange}
-                role="radio"
-                size="small"
-                value="dark"
-                className="gap-2"
-                variant={theme === 'dark' ? 'tertiary-active' : 'tertiary'}
-              >
-                <MoonIcon className="h-4 w-4" />
-                Dark
-              </Button>
-            </div>
-          </section>
-        </div>
-
-        <div className="mb-2">
-          <p className="text-2xs text-theme tracking-display">Embed code</p>
-          <p className="mt-1 text-theme-muted text-xs">
-            This code updates automatically as you change the settings.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleCopyEmbedScript}
-          className="group w-full cursor-copy rounded-2xl border border-theme bg-theme-surface p-5 text-left transition-colors hover:border-theme-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
-          aria-label="Select and copy embed code"
-        >
-          <code
-            ref={codeRef}
-            className="block max-h-32 overflow-auto whitespace-pre-wrap break-all font-mono text-theme-muted text-xs selection:bg-primary/40"
+        <section aria-labelledby="embed-playback-title">
+          <h3
+            id="embed-playback-title"
+            className="mb-3 font-pixel text-2xs text-theme tracking-display"
           >
-            {embedScript}
-          </code>
-          <span className="mt-3 flex items-center justify-end gap-1.5 text-2xs text-theme-muted group-hover:text-theme">
-            {copied && <CheckIcon className="h-3.5 w-3.5" />}
-            {!copied && <CopyIcon className="h-3.5 w-3.5" />}
-            {copied ? 'Copied' : 'Click to select and copy'}
-          </span>
-        </button>
-      </Modal>
-    </>
+            Playback
+          </h3>
+          <SegmentedToggle
+            checked={player && autoplay}
+            disabled={!player}
+            onChange={(enabled) => {
+              setAutoplay(enabled);
+              setCopied(false);
+            }}
+            label="Autoplay"
+            description="Start playing with sound when the page loads. Off by default."
+          />
+          <p className="mt-2 text-theme-muted text-xs">
+            Requires the player. Some browsers still require a click before
+            playing sound.
+          </p>
+        </section>
+
+        <section aria-labelledby="embed-controls-title">
+          <div className="mb-3">
+            <h3
+              id="embed-controls-title"
+              className="font-pixel text-2xs text-theme tracking-display"
+            >
+              Visitor controls
+            </h3>
+            <p className="mt-1 text-theme-muted text-xs">
+              Room permissions still decide whether each action is allowed.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            <SegmentedToggle
+              checked={vote}
+              onChange={(enabled) => {
+                setVote(enabled);
+                setCopied(false);
+              }}
+              label="Voting"
+              description="Show vote controls for songs in the playlist."
+            />
+            <SegmentedToggle
+              checked={skip}
+              onChange={(enabled) => {
+                setSkip(enabled);
+                setCopied(false);
+              }}
+              label="Skipping"
+              description="Show the skip control when the room allows skipping."
+            />
+          </div>
+        </section>
+
+        <section aria-labelledby="embed-appearance-title">
+          <div className="mb-3">
+            <h3
+              id="embed-appearance-title"
+              className="font-pixel text-2xs text-theme tracking-display"
+            >
+              Appearance
+            </h3>
+            <p className="mt-1 text-theme-muted text-xs">
+              Auto follows the visitor&apos;s device theme.
+            </p>
+          </div>
+          <div
+            className="grid grid-cols-3 gap-2"
+            role="radiogroup"
+            aria-label="Embed color scheme"
+          >
+            <Button
+              aria-checked={theme === 'auto'}
+              onClick={handleThemeChange}
+              role="radio"
+              size="small"
+              value="auto"
+              className="gap-2"
+              variant={theme === 'auto' ? 'tertiary-active' : 'tertiary'}
+            >
+              <CircleHalfIcon className="h-4 w-4" />
+              Auto
+            </Button>
+            <Button
+              aria-checked={theme === 'light'}
+              onClick={handleThemeChange}
+              role="radio"
+              size="small"
+              value="light"
+              className="gap-2"
+              variant={theme === 'light' ? 'tertiary-active' : 'tertiary'}
+            >
+              <SunIcon className="h-4 w-4" />
+              Light
+            </Button>
+            <Button
+              aria-checked={theme === 'dark'}
+              onClick={handleThemeChange}
+              role="radio"
+              size="small"
+              value="dark"
+              className="gap-2"
+              variant={theme === 'dark' ? 'tertiary-active' : 'tertiary'}
+            >
+              <MoonIcon className="h-4 w-4" />
+              Dark
+            </Button>
+          </div>
+        </section>
+      </div>
+
+      <div className="mb-2">
+        <p className="text-2xs text-theme tracking-display">Embed code</p>
+        <p className="mt-1 text-theme-muted text-xs">
+          This code updates automatically as you change the settings.
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={handleCopyEmbedScript}
+        className="group w-full cursor-copy rounded-2xl border border-theme bg-theme-surface p-5 text-left transition-colors hover:border-theme-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
+        aria-label="Select and copy embed code"
+      >
+        <code
+          ref={codeRef}
+          className="block max-h-32 overflow-auto whitespace-pre-wrap break-all font-mono text-theme-muted text-xs selection:bg-primary/40"
+        >
+          {embedScript}
+        </code>
+        <span className="mt-3 flex items-center justify-end gap-1.5 text-2xs text-theme-muted group-hover:text-theme">
+          {copied && <CheckIcon className="h-3.5 w-3.5" />}
+          {!copied && <CopyIcon className="h-3.5 w-3.5" />}
+          {copied ? 'Copied' : 'Click to select and copy'}
+        </span>
+      </button>
+    </Modal>
   );
 }

@@ -22,7 +22,7 @@ export function ProfileSettingsModal({
   const rootData = useRouteLoaderData<RootLoaderData>('root');
   const wasSavingRef = useRef(false);
   const initialProfile = rootData?.sessionProfile ?? null;
-  const [name, setName] = useState('');
+  const [name, setName] = useState(initialProfile?.name ?? '');
   const themeId = useThemeStore((state) => state.themeId);
   const setTheme = useThemeStore((state) => state.setTheme);
 

@@ -1,7 +1,10 @@
 import {
+  type createDataRouter,
   useFetcher,
   useURLLocation as useLocation,
   useNavigate,
+  useParams,
+  useRouter,
 } from '@kasperrt/smolter/preact';
 import { useRemoteEvents } from '@vibes/api';
 import type {
@@ -41,10 +44,6 @@ interface RemoteRoomUpdate {
 
 const loadRemoteControlDialog = () => import('./RemoteControlDialog');
 
-function preloadRemoteControlDialog() {
-  void safeWrapAsync(loadRemoteControlDialog());
-}
-
 const LazyRemoteControlDialog = lazy(async () => {
   const module = await loadRemoteControlDialog();
 
@@ -55,6 +54,7 @@ const LazyRemoteControlDialog = lazy(async () => {
 
 interface RemoteControlContextValue {
   openRemoteControl: () => void;
+  prefetchRemoteControl: () => void;
   setMachineRoomId: (roomId: string) => void;
 }
 
@@ -70,9 +70,18 @@ interface Props {
 export function RemoteControlProvider({ children, initialRemote }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
+  const router = useRouter<ReturnType<typeof createDataRouter>>();
   const controlFetcher = useFetcher<RemoteControlActionData>();
   const reportFetcher = useFetcher<RemoteControlActionData>();
-  const [isOpen, setIsOpen] = useState(false);
+  const [localOpen, setLocalOpen] = useState(false);
+  const roomId = params.id;
+  const isOpen = roomId ? params['*'] === 'settings/remote' : localOpen;
+  const panelUrl = new URL(
+    typeof window === 'undefined' ? location.href : window.location.href,
+  );
+  const panelSuffix = `${panelUrl.search}${panelUrl.hash}`;
+  const remotePath = `/${encodeURIComponent(roomId ?? '')}/settings/remote${panelSuffix}`;
   const [machineRoomId, setMachineRoomId] = useState('');
   const partyMode =
     Boolean(machineRoomId) &&
@@ -235,19 +244,43 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   });
 
   const openRemoteControl = useCallback(() => {
-    setIsOpen(true);
-  }, []);
+    if (roomId) {
+      void navigate(remotePath, {
+        replace: true,
+        preventScrollReset: true,
+        viewTransition: false,
+      });
+      return;
+    }
+    setLocalOpen(true);
+  }, [navigate, remotePath, roomId]);
+
+  const prefetchRemoteControl = useCallback(() => {
+    if (roomId) {
+      void router.prefetch(remotePath);
+      return;
+    }
+    void safeWrapAsync(loadRemoteControlDialog());
+  }, [roomId, router, remotePath]);
 
   const closeRemoteControl = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+    if (roomId) {
+      void navigate(
+        `/${encodeURIComponent(roomId)}/settings${panelSuffix}`,
+        { replace: true, preventScrollReset: true, viewTransition: false },
+      );
+      return;
+    }
+    setLocalOpen(false);
+  }, [roomId, navigate, panelSuffix]);
 
   const value = useMemo(
     () => ({
       openRemoteControl,
+      prefetchRemoteControl,
       setMachineRoomId,
     }),
-    [openRemoteControl],
+    [openRemoteControl, prefetchRemoteControl],
   );
 
   return (
@@ -267,7 +300,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
               controlFetcher={controlFetcher}
               remote={remote}
               pairing={pairing}
-              machineRoomId={machineRoomId}
+              machineRoomId={roomId ?? machineRoomId}
               isOpen={isOpen}
               closeRemoteControl={closeRemoteControl}
             />
@@ -299,7 +332,7 @@ export function RemoteControlButton({
   className,
   showLabel = false,
 }: RemoteControlButtonProps) {
-  const { openRemoteControl } = useRemoteControl();
+  const { openRemoteControl, prefetchRemoteControl } = useRemoteControl();
   const tooltipClassName = classNames(
     showLabel ? 'flex w-full' : 'inline-flex',
   );
@@ -314,8 +347,9 @@ export function RemoteControlButton({
       <Button
         type="button"
         onClick={openRemoteControl}
-        onFocus={preloadRemoteControlDialog}
-        onPointerEnter={preloadRemoteControlDialog}
+        onFocus={prefetchRemoteControl}
+        onPointerEnter={prefetchRemoteControl}
+        onTouchStart={prefetchRemoteControl}
         variant="tertiary"
         size={showLabel ? 'medium' : 'icon'}
         className={className}

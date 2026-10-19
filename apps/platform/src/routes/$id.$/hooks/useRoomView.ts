@@ -115,7 +115,7 @@ export function useRoomView() {
       : {};
   const shouldReduceMotion = useReducedMotion();
   const isAddModalVisible = panel === 'add';
-  const showShare = panel === 'share';
+  const showShare = panel === 'share' || panel === 'share/embed';
   const showSettings = panel === 'settings' || panel === 'settings/device';
   const [focusAdminLogin, setFocusAdminLogin] = useState(false);
   const showDeviceSelector = panel === 'cast';

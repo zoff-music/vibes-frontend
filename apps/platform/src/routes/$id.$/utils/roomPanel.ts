@@ -6,8 +6,10 @@ export type RoomPanel =
   | 'add'
   | 'settings'
   | 'settings/device'
+  | 'settings/remote'
   | 'chat'
   | 'share'
+  | 'share/embed'
   | 'cast';
 
 let activeRoomData: RoomLoaderData | undefined;
@@ -31,8 +33,10 @@ export function roomPanel(value = ''): RoomPanel {
     value === 'add' ||
     value === 'settings' ||
     value === 'settings/device' ||
+    value === 'settings/remote' ||
     value === 'chat' ||
     value === 'share' ||
+    value === 'share/embed' ||
     value === 'cast'
   )
     return value;
@@ -51,6 +55,13 @@ export async function loadRoomPanel(panel: RoomPanel) {
     case 'settings/device':
       await import('../components/RoomSettingsMenu');
       await import('../../../components/profile/ProfileSettingsModal');
+      break;
+    case 'settings/remote':
+      await import('../../../components/remote/RemoteControlDialog');
+      break;
+    case 'share/embed':
+      await import('../components/RoomSharePanel');
+      await import('../components/EmbedSharePanel');
       break;
     case 'share':
       await import('../components/RoomSharePanel');
