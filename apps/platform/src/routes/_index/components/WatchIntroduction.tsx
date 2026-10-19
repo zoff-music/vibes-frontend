@@ -42,7 +42,9 @@ export function WatchIntroduction() {
             <br />
             be there.
             <br />
-            <span className="text-primary">Now you can.</span>
+            <span className="text-pink-800 dark:text-primary">
+              Now you can.
+            </span>
           </h2>
           <p className="mt-5 max-w-xl text-lg text-theme-muted leading-relaxed">
             The same video. The same moment. A room for the people you wish were
@@ -112,7 +114,9 @@ export function WatchIntroduction() {
           >
             One small idea.
             <br />
-            <span className="text-primary">A whole evening.</span>
+            <span className="text-pink-800 dark:text-primary">
+              A whole evening.
+            </span>
           </h2>
           <p className="mt-5 text-lg text-theme-muted leading-relaxed">
             Night walks through distant cities. A detour into space. Short films

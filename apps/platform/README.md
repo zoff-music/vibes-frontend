@@ -458,7 +458,9 @@ Homepage reads also run on the server without retries.
 Homepage statistics and live rooms stream independently after the hero. Their
 fallbacks reserve the same space as the resolved content, including three room
 slots on phones and one row on larger screens. Empty and failed responses retain
-that space. Music and Watch requests remain isolated by room type.
+that space. Live-room reads retain their ten-second, per-mode server cache, but
+do not block the initial document while pending. Client navigation still awaits
+the cached room read. Music and Watch requests remain isolated by room type.
 
 Room creation navigation requests providers directly, without a second server
 loader round trip. Public provider configuration uses Wiretyped's
