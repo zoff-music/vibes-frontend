@@ -8,8 +8,7 @@ import {
   siteNavigationClassName,
   Tooltip,
 } from '@vibes/ui/web';
-import { AnimatePresence } from 'framer-motion';
-import { lazy, Suspense } from 'preact/compat';
+import { lazy, Suspense, useRef } from 'preact/compat';
 import { useDeviceSettings } from '../../hooks/useDeviceSettings';
 import { useExperience } from '../../hooks/useExperience';
 import { loadDeviceSettings } from '../../utils/homePanel';
@@ -31,6 +30,8 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
     setOpen: setShowSettings,
     prefetch,
   } = useDeviceSettings();
+  const settingsLoaded = useRef(showSettings);
+  if (showSettings) settingsLoaded.current = true;
   const watch = useExperience() === 'WATCH';
 
   return (
@@ -98,22 +99,20 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
           </>
         }
       />
-      <AnimatePresence>
-        {showSettings && (
-          <Suspense
-            fallback={
-              <p role="status" className="sr-only">
-                Loading settings...
-              </p>
-            }
-          >
-            <LazyProfileSettingsModal
-              isOpen
-              onClose={() => setShowSettings(false)}
-            />
-          </Suspense>
-        )}
-      </AnimatePresence>
+      {settingsLoaded.current && (
+        <Suspense
+          fallback={
+            <p role="status" className="sr-only">
+              Loading settings...
+            </p>
+          }
+        >
+          <LazyProfileSettingsModal
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

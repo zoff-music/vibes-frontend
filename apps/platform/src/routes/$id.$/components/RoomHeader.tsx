@@ -243,7 +243,7 @@ export const RoomHeader = React.memo(
                   </Button>
                 </Tooltip>
 
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                   {showShare && (
                     <motion.div
                       key="share-panel"
@@ -347,7 +347,7 @@ export const RoomHeader = React.memo(
                   </Button>
                 </Tooltip>
 
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                   {showSettings && (
                     <Suspense fallback={<DeferredSettingsLoading />}>
                       <LazyRoomSettingsMenu
