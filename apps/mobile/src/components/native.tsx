@@ -25,16 +25,21 @@ import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 
 interface ScreenProps extends PropsWithChildren {
   gridPaused?: boolean;
+  showGrid?: boolean;
 }
 
-export function Screen({ children, gridPaused = false }: ScreenProps) {
+export function Screen({
+  children,
+  gridPaused = false,
+  showGrid = true,
+}: ScreenProps) {
   const tabletLayout = useTabletLandscapeLayout();
   const reservesTabletNavigation =
     Platform.OS === 'android' && tabletLayout.isTablet;
 
   return (
     <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
-      <NativeRetroGrid paused={gridPaused} />
+      {showGrid && <NativeRetroGrid paused={gridPaused} />}
 
       <View
         className="z-20 flex-1"
