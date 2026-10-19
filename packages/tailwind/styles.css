@@ -6,6 +6,13 @@
 @source "../ui/src";
 @source not "../ui/src/native";
 
+/* Match the Latin web font's advance width while its preload is pending. */
+@font-face {
+  font-family: "MSW98UI Fallback";
+  src: local("Arial");
+  size-adjust: 95.5%;
+}
+
 @layer base {
   :root,
   body {
