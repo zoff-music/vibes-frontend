@@ -58,7 +58,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
     // An explicit chat URL selects its surface during SSR and the first render.
     // The stored preference controls discovery, not an already-selected route.
-    const chatEnabled = chatOpen || (!isSSR && chatPreference);
+    const chatEnabled = chatOpen || chatPreference;
     const chat = useChatTimeline(roomId, chatEnabled);
     useEffect(() => {
       chat.selectChat(chatOpen && chatEnabled);
@@ -221,7 +221,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 {chatEnabled && (
                   <Link
                     {...(!chatOpen && { 'aria-current': 'page' })}
-                    to={href('')}
+                    to={href('', false)}
                     replace
                     preventScrollReset
                     viewTransition={false}

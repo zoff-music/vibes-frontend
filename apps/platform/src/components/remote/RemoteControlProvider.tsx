@@ -70,12 +70,17 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   const controlFetcher = useFetcher<RemoteControlActionData>();
   const reportFetcher = useFetcher<RemoteControlActionData>();
   const roomId = params.id;
-  const isOpen = Boolean(roomId) && params['*'] === 'settings/remote';
+  const chatOpen =
+    params['*'] === 'chat' || Boolean(params['*']?.startsWith('chat/'));
+  const isOpen =
+    Boolean(roomId) &&
+    (params['*'] === 'remote' || params['*'] === 'chat/remote');
   const panelUrl = new URL(
     typeof window === 'undefined' ? location.href : window.location.href,
   );
   const panelSuffix = `${panelUrl.search}${panelUrl.hash}`;
-  const remotePath = `/${encodeURIComponent(roomId ?? '')}/settings/remote${panelSuffix}`;
+  const roomPath = `/${encodeURIComponent(roomId ?? '')}${chatOpen ? '/chat' : ''}`;
+  const remotePath = `${roomPath}/remote${panelSuffix}`;
   const [machineRoomId, setMachineRoomId] = useState('');
   const partyMode =
     Boolean(machineRoomId) &&
@@ -239,14 +244,14 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
 
   const closeRemoteControl = useCallback(() => {
     if (roomId) {
-      void navigate(`/${encodeURIComponent(roomId)}/settings${panelSuffix}`, {
+      void navigate(`${roomPath}${panelSuffix}`, {
         replace: true,
         preventScrollReset: true,
         viewTransition: false,
       });
       return;
     }
-  }, [roomId, navigate, panelSuffix]);
+  }, [roomId, roomPath, navigate, panelSuffix]);
 
   const value = useMemo(
     () => ({

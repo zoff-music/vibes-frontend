@@ -6,7 +6,7 @@ export type RoomPanel =
   | 'add'
   | 'settings'
   | 'settings/device'
-  | 'settings/remote'
+  | 'remote'
   | 'chat'
   | 'share'
   | 'share/embed'
@@ -28,12 +28,13 @@ export function getRetainedRoomData(id: string) {
 }
 
 export function roomPanel(value = ''): RoomPanel {
+  if (value.startsWith('chat/')) value = value.slice(5);
   if (
     value === '' ||
     value === 'add' ||
     value === 'settings' ||
     value === 'settings/device' ||
-    value === 'settings/remote' ||
+    value === 'remote' ||
     value === 'chat' ||
     value === 'share' ||
     value === 'share/embed' ||
@@ -56,7 +57,7 @@ export async function loadRoomPanel(panel: RoomPanel) {
       await import('../components/RoomSettingsMenu');
       await import('../../../components/profile/ProfileSettingsModal');
       break;
-    case 'settings/remote':
+    case 'remote':
       await import('../../../components/remote/RemoteControlDialog');
       break;
     case 'share/embed':

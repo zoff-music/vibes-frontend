@@ -54,7 +54,7 @@ export function useRoomView() {
   const loaderData = useLoaderData<typeof clientLoader>();
 
   useRememberRoom(loaderData.room.id);
-  const { panel, open, href } = useRoomPanel();
+  const { panel, open, href, chatOpen } = useRoomPanel();
   useEffect(() => retainRoomData(loaderData), [loaderData]);
 
   const { id = '' } = useParams<{
@@ -259,7 +259,6 @@ export function useRoomView() {
 
   useRoomEventsV3(isSSR ? undefined : id, sseCallbacks);
 
-  const chatOpen = panel === 'chat';
   const handleCloseAddPlaylistItem = useCallback(() => open(''), [open]);
   const handleCloseCast = useCallback(() => open(''), [open]);
   const handleOpenPartyScreen = useCallback(() => {

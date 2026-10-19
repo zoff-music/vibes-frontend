@@ -1,12 +1,20 @@
 import type { ClientLoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import { createApiClient } from '@vibes/api';
 import { createControllerRoomData } from './utils/createControllerRoomData';
+import { retainedController } from './utils/retainedController';
 
 export async function clientLoader({
   params,
   request,
+  reason,
 }: ClientLoaderFunctionArgs) {
   const remoteId = params.id ?? '';
+  if (new URL(request.url).pathname.endsWith('/settings/device')) {
+    await import('../../components/DeviceSettings');
+  }
+  const retained = retainedController(remoteId);
+  if (retained && (reason === 'navigation' || reason === 'prefetch'))
+    return retained;
   const client = createApiClient({ 'X-Zoff-Remote-ID': remoteId });
 
   if (!remoteId) {

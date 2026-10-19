@@ -285,7 +285,7 @@ export const RoomSettingsMenu = ({
                   Share room
                 </Button>
                 <LinkButton
-                  to={href('settings/remote')}
+                  to={href('remote')}
                   replace
                   preventScrollReset
                   viewTransition={false}

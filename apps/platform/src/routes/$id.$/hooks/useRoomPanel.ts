@@ -11,16 +11,19 @@ export function useRoomPanel() {
   const location = useURLLocation();
   const navigate = useNavigate();
   const panel = roomPanel(params['*']);
+  const chatOpen =
+    params['*'] === 'chat' || Boolean(params['*']?.startsWith('chat/'));
   const href = useCallback(
-    (next: RoomPanel) => {
+    (next: RoomPanel, preserveChat = true) => {
       const url = new URL(
         typeof window === 'undefined' ? location.href : window.location.href,
       );
-      url.pathname = `/${encodeURIComponent(params.id ?? '')}${next ? `/${next}` : ''}`;
+      const prefix = chatOpen && preserveChat && next !== 'chat' ? '/chat' : '';
+      url.pathname = `/${encodeURIComponent(params.id ?? '')}${prefix}${next ? `/${next}` : ''}`;
 
       return `${url.pathname}${url.search}${url.hash}`;
     },
-    [location.href, params.id],
+    [location.href, params.id, chatOpen],
   );
   const open = useCallback(
     (next: RoomPanel) => {
@@ -32,5 +35,5 @@ export function useRoomPanel() {
     },
     [href, navigate],
   );
-  return { panel, open, href };
+  return { panel, open, href, chatOpen };
 }
