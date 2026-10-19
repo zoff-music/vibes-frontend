@@ -1,4 +1,63 @@
 @theme {
+  --animate-generative-orbit: generative-orbit 3.8s linear infinite;
+  --animate-generative-invitation: generative-invitation 2.6s ease-in-out
+    infinite;
+  --animate-generative-wiggle: generative-wiggle 7s ease-in-out infinite;
+  --animate-generative-particle: generative-particle 3.6s linear infinite;
+  --shadow-generative-field:
+    -7px 0 20px rgba(255, 46, 151, 0.35), 7px 0 22px rgba(0, 217, 255, 0.35),
+    inset 0 0 14px rgba(0, 217, 255, 0.1);
+
+  @keyframes generative-orbit {
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+  @keyframes generative-invitation {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+  @keyframes generative-wiggle {
+    0%,
+    76%,
+    100% {
+      transform: rotate(0);
+    }
+    80% {
+      transform: rotate(-9deg);
+    }
+    84% {
+      transform: rotate(8deg);
+    }
+    88% {
+      transform: rotate(-5deg);
+    }
+    92% {
+      transform: rotate(3deg);
+    }
+  }
+  @keyframes generative-particle {
+    0% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    15%,
+    35% {
+      opacity: 0.65;
+    }
+    65%,
+    100% {
+      opacity: 0;
+      transform: translateY(-46px);
+    }
+  }
   --text-3xs: 0.5625rem;
   --text-3xs--line-height: 0.75rem;
   --text-2xs: 0.625rem;
