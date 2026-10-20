@@ -4,6 +4,15 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 import { build } from 'esbuild';
 
+test('mobile Cast SDK stays compatible with the supported Android build toolchain', () => {
+  const config = JSON.parse(readFileSync('apps/mobile/app.json', 'utf8'));
+  const cast = config.expo.plugins.find(
+    (plugin) =>
+      Array.isArray(plugin) && plugin[0] === 'react-native-google-cast',
+  );
+  assert.equal(cast?.[1].androidPlayServicesCastFrameworkVersion, '22.3.1');
+});
+
 test('phone add action sits beside navigation, with floating action only on tablets', () => {
   const tabs = readFileSync(
     'apps/mobile/src/components/layout/app-tabs.tsx',
