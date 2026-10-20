@@ -230,7 +230,7 @@ function ModeButton({
       accessibilityRole="radio"
       accessibilityState={{ checked: active, disabled }}
       className={classNames(
-        'min-h-24 flex-1 gap-2 rounded-2xl border p-4',
+        'min-h-24 flex-1 gap-2 rounded-3xl border p-4',
         !active &&
           'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
         active && mode === 'server' && 'border-accent bg-accent',

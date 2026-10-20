@@ -222,7 +222,7 @@ export function RoomScreen() {
       <View
         className={classNames(
           'h-56 overflow-hidden border',
-          'rounded-2xl border-accent/60 bg-mobile-card dark:bg-mobile-dark-card',
+          'rounded-3xl border-accent/60 bg-mobile-card dark:bg-mobile-dark-card',
         )}
       >
         <RoomGenerationProgress />

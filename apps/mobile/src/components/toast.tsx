@@ -84,7 +84,7 @@ export function ToastViewport() {
         entering={FadeInDown.duration(180)}
         exiting={FadeOutUp.duration(180)}
         className={classNames(
-          'max-w-80 self-center rounded-xl border-2 px-4 py-3 shadow-black/30 shadow-lg',
+          'max-w-80 self-center rounded-3xl border-2 px-4 py-3 shadow-black/30 shadow-lg',
           activeToast.tone === 'error' && 'border-error bg-error',
           activeToast.tone === 'info' && 'border-accent bg-accent',
           activeToast.tone === 'success' && 'border-success bg-success',

@@ -31,7 +31,7 @@ export function DeviceRemoteSettings({
           listener.
         </Copy>
         {machineRemote?.paired && (
-          <View className="rounded-xl border border-accent/40 bg-accent/10 p-4">
+          <View className="rounded-3xl border border-accent/40 bg-accent/10 p-4">
             <Text className="font-heading text-accent text-base">
               Remote connected
             </Text>

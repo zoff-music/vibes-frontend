@@ -152,6 +152,42 @@ test('glass controls preserve accessibility fallback and native interaction', ()
   assert.equal(mobile.match(/pressFeedback=\{feedback && !glass\}/g).length, 2);
 });
 
+test('mobile panels consistently use the large radius and thumbnails stay compact', () => {
+  const mobile = readFileSync('apps/mobile/src/components/native.tsx', 'utf8');
+  assert.match(mobile, /<NativeCard \{\.\.\.props\} radius="large"/);
+  for (const file of [
+    'queue',
+    'search-results',
+    'rooms/room-screen',
+    'rooms/room-chat-panel',
+    'rooms/rooms-screen',
+    'provider-player',
+    'room-configuration',
+    'settings/device-remote-settings',
+    'toast',
+  ]) {
+    const source = readFileSync(
+      `apps/mobile/src/components/${file}.tsx`,
+      'utf8',
+    );
+    assert.match(source, /rounded-3xl/);
+    assert.doesNotMatch(source, /rounded-2xl/);
+  }
+  for (const file of ['queue', 'search-results', 'remote/remote-control']) {
+    assert.match(
+      readFileSync(`apps/mobile/src/components/${file}.tsx`, 'utf8'),
+      /overflow-hidden rounded-xl bg-black/,
+    );
+  }
+  assert.match(
+    readFileSync(
+      'apps/mobile/src/components/rooms/room-chat-panel.tsx',
+      'utf8',
+    ),
+    /controlShape="pill"/,
+  );
+});
+
 test('native tabs leave content insets to the screens safe-area layout', () => {
   const tabs = readFileSync(
     'apps/mobile/src/components/layout/app-tabs.tsx',

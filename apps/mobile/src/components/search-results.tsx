@@ -32,7 +32,7 @@ export function SearchResults({
             accessibilityLabel={`Add ${result.title}`}
             className={classNames(
               'min-h-19 flex-row items-center gap-4 border p-4',
-              'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
+              'rounded-3xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
             )}
             onPress={() => void onAdd(result)}
           >

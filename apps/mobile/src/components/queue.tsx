@@ -56,7 +56,7 @@ const QueueItem = memo(function QueueItem({
       accessibilityLabel={`Vote for ${playlistItem.title}`}
       className={classNames(
         'h-18 flex-row items-center gap-3 border p-3',
-        'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
+        'rounded-3xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
       )}
       onPress={() => {
         onVote(playlistItem);
@@ -102,7 +102,7 @@ const QueueItem = memo(function QueueItem({
       <View
         className={classNames(
           'flex-row items-center gap-1.5 px-2.5 py-2',
-          'rounded-xl bg-accent/10',
+          'rounded-full bg-accent/10',
         )}
       >
         <ZoffIcon color={theme.accent} name="vote" size={16} />
@@ -127,7 +127,7 @@ const QueueItem = memo(function QueueItem({
             <View
               className={classNames(
                 'h-full w-28 items-center justify-center gap-0.5 overflow-hidden border-2 px-2',
-                'rounded-2xl border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
+                'rounded-3xl border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
               )}
             >
               <Text
@@ -153,7 +153,7 @@ const QueueItem = memo(function QueueItem({
           {onDelete && (
             <Pressable
               accessibilityLabel={`Delete ${playlistItem.title}`}
-              className="w-20 items-center justify-center rounded-2xl border-2 border-error bg-error active:opacity-70"
+              className="w-20 items-center justify-center rounded-3xl border-2 border-error bg-error active:opacity-70"
               onPress={() => {
                 swipeable.close();
                 onDelete(playlistItem);
@@ -170,7 +170,7 @@ const QueueItem = memo(function QueueItem({
               accessibilityLabel={`Open ${playlistItem.title} externally`}
               className={classNames(
                 'w-20 items-center justify-center border-2 active:opacity-70',
-                'rounded-2xl border-accent bg-accent',
+                'rounded-3xl border-accent bg-accent',
               )}
               onPress={() => {
                 swipeable.close();

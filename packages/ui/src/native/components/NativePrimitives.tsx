@@ -20,12 +20,14 @@ export type NativeControlTone = 'primary' | 'secondary' | 'danger';
 
 interface NativeCardProps extends PropsWithChildren {
   className?: string;
+  radius?: 'default' | 'large';
   size?: NativeControlSize;
 }
 
 export function NativeCard({
   children,
   className,
+  radius = 'default',
   size = 'default',
 }: NativeCardProps) {
   return (
@@ -33,9 +35,9 @@ export function NativeCard({
       className={classNames(
         'border-native-border bg-native-card/95 dark:border-native-dark-border dark:bg-native-dark-card/95',
         size === 'default' && 'gap-4 border p-4',
-        size === 'default' && 'rounded-2xl',
+        size === 'default' && radius === 'default' && 'rounded-2xl',
         size === 'large' && 'gap-8 border-2 p-10',
-        size === 'large' && 'rounded-3xl',
+        (size === 'large' || radius === 'large') && 'rounded-3xl',
         className,
       )}
     >

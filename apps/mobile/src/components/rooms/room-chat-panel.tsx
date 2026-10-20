@@ -131,10 +131,11 @@ export function RoomChatPanel({
         className={classNames(
           'min-h-0 flex-1 overflow-hidden border',
           !isTabletLandscape && 'mx-4',
-          'rounded-2xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+          'rounded-3xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
         )}
       >
         <NativeChatConversation
+          controlShape="pill"
           messages={chat.messages}
           onSend={send}
           error={error}

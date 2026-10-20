@@ -62,7 +62,9 @@ export function Screen({
   );
 }
 
-export const Card = NativeCard;
+export function Card(props: ComponentProps<typeof NativeCard>) {
+  return <NativeCard {...props} radius="large" />;
+}
 
 export function ContentColumn({ children }: PropsWithChildren) {
   const { width } = useWindowDimensions();

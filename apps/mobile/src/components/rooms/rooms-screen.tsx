@@ -434,7 +434,7 @@ export function RoomsScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Join ${item.name}`}
-          className="w-full flex-row items-center gap-4 rounded-2xl border border-mobile-border bg-mobile-card p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
+          className="w-full flex-row items-center gap-4 rounded-3xl border border-mobile-border bg-mobile-card p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
           onPress={() => {
             setValue(item.id);
             void joinRoom(item.id);
@@ -682,7 +682,7 @@ export function RoomsScreen() {
                           }}
                           onPress={() => void loadRooms(mode, 0, '')}
                           className={classNames(
-                            'min-h-11 flex-row items-center gap-2 rounded-xl active:opacity-70',
+                            'min-h-11 flex-row items-center gap-2 rounded-full active:opacity-70',
                             mode === 'public' && 'px-2',
                           )}
                         >
