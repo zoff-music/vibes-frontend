@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import { View } from 'react-native';
 import Svg, {
   Circle,
@@ -10,18 +11,25 @@ import Svg, {
 
 interface NativeLandingSunProps {
   watch?: boolean;
+  compact?: boolean;
 }
 
-export function NativeLandingSun({ watch = false }: NativeLandingSunProps) {
+export function NativeLandingSun({
+  watch = false,
+  compact = false,
+}: NativeLandingSunProps) {
   return (
     <View
       accessible={false}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
       pointerEvents="none"
-      className="h-24 items-center overflow-hidden"
+      className={classNames(
+        'items-center overflow-hidden',
+        compact ? 'h-40' : 'h-24',
+      )}
     >
-      <View className="size-56">
+      <View className={compact ? 'size-40' : 'size-56'}>
         {watch && (
           <View className="absolute inset-0 rounded-full bg-native-background dark:bg-native-dark-background" />
         )}

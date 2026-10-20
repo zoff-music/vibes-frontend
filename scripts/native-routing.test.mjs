@@ -73,7 +73,23 @@ test('AI toggle keeps landing copy and label slots mounted', () => {
     'utf8',
   );
   assert.match(frame, /cancelAnimation\(ignition\)/);
-  assert.match(frame, /translateX: -ignition.value \* size.width/);
+  assert.match(frame, /duration: 1400/);
+  assert.match(frame, /translateX: \(\(1 - spread\) \* size.width\) \/ 2/);
+  assert.match(frame, /style=\{ready\}/);
+  assert.match(frame, /id="charge-rail"/);
+  assert.match(frame, /id="charge-sweep"/);
+});
+
+test('mobile landing artwork peeks behind a compact opaque form card', () => {
+  const screen = readFileSync(
+    'apps/mobile/src/components/rooms/rooms-screen.tsx',
+    'utf8',
+  );
+  assert.match(screen, /relative w-full pt-8/);
+  assert.match(screen, /absolute inset-x-0 top-0/);
+  assert.match(screen, /<NativeLandingSun watch=\{watch\} compact/);
+  assert.match(screen, /bg-mobile-card px-5 py-6/);
+  assert.doesNotMatch(screen, /<NativeLandingSun watch=\{watch\} \/>/);
 });
 
 test('native tabs leave content insets to the screens safe-area layout', () => {

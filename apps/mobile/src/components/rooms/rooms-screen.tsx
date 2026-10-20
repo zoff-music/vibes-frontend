@@ -511,16 +511,16 @@ export function RoomsScreen() {
               className="mx-auto w-full max-w-xl"
               style={landingPosition}
             >
-              <View className="gap-7">
+              <View className="gap-5">
                 <View className="flex-row items-center gap-4 py-2">
                   <Image
                     source={zoffLogo}
                     accessibilityLabel="Zoff"
-                    className="size-16"
+                    className="size-12"
                   />
 
                   <View className="gap-1">
-                    <Text className="font-heading text-4xl text-mobile-text dark:text-mobile-dark-text">
+                    <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
                       Zoff
                     </Text>
                     <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
@@ -558,13 +558,18 @@ export function RoomsScreen() {
                   ))}
                 </View>
                 <View className="gap-8">
-                  <View className="w-full">
-                    <NativeLandingSun watch={watch} />
-                    <View className="gap-6">
+                  <View className="relative w-full pt-8">
+                    <View
+                      pointerEvents="none"
+                      className="absolute inset-x-0 top-0"
+                    >
+                      <NativeLandingSun watch={watch} compact />
+                    </View>
+                    <View className="gap-5 rounded-3xl border border-mobile-border bg-mobile-card px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
                       <View className="gap-3">
                         <Text
                           accessibilityRole="header"
-                          className="text-center font-heading text-4xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
+                          className="text-center font-heading text-3xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
                         >
                           {watch ? 'Watch ' : 'Listen to music '}
                           {'\n'}

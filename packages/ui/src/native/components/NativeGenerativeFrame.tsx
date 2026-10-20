@@ -10,7 +10,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Rect } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { NativeGenerativeParticles } from './NativeGenerativeParticles';
 
 interface Props {
@@ -40,8 +40,8 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
     if (active && animate) {
       ignition.value = 0;
       ignition.value = withTiming(1, {
-        duration: 1100,
-        easing: Easing.out(Easing.cubic),
+        duration: 1400,
+        easing: Easing.linear,
       });
       orbit.value = 0;
       orbit.value = withRepeat(
@@ -58,19 +58,56 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
   }, [active, animate, orbit, power, ignition]);
 
   const glow = useAnimatedStyle(() => ({ opacity: power.value }));
-  const flare = useAnimatedStyle(() => ({
-    opacity:
-      power.value * interpolate(ignition.value, [0, 0.2, 1], [0.2, 1, 0.45]),
-    transform: [
-      { scaleX: interpolate(ignition.value, [0, 1], [0.88, 1]) },
-      { scaleY: interpolate(ignition.value, [0, 0.25, 1], [1, 1.18, 1]) },
-    ],
+  const flare = useAnimatedStyle(() => {
+    const spread = interpolate(
+      ignition.value,
+      [0, 0.12, 0.55, 1],
+      [0, 0.12, 1, 1],
+    );
+    return {
+      opacity:
+        power.value *
+        interpolate(ignition.value, [0, 0.12, 0.55, 1], [0, 1, 1, 0.25]),
+      transform: [
+        { translateX: ((1 - spread) * size.width) / 2 },
+        { scaleX: spread },
+      ],
+    };
+  });
+  const ready = useAnimatedStyle(() => ({
+    opacity: power.value * interpolate(ignition.value, [0, 0.5, 1], [0, 0, 1]),
   }));
+  const rail = useAnimatedProps(() => {
+    const spread = interpolate(
+      ignition.value,
+      [0, 0.09, 0.65, 1],
+      [0, 0, 1, 1],
+    );
+    return {
+      x: size.width * (1 - spread),
+      width: size.width * spread,
+      opacity:
+        power.value *
+        interpolate(ignition.value, [0, 0.09, 0.65, 1], [0, 1, 1, 0]),
+    };
+  });
   const sweep = useAnimatedStyle(() => ({
     opacity:
       power.value *
-      interpolate(ignition.value, [0, 0.15, 0.8, 1], [0, 0.8, 0.5, 0]),
-    transform: [{ translateX: -ignition.value * size.width }],
+      interpolate(
+        ignition.value,
+        [0, 0.12, 0.28, 0.6, 0.9, 1],
+        [0, 0, 1, 1, 0, 0],
+      ),
+    transform: [
+      {
+        translateX: interpolate(
+          ignition.value,
+          [0, 0.12, 0.9, 1],
+          [size.width / 6, size.width / 6, -size.width, -size.width],
+        ),
+      },
+    ],
   }));
   const cyan = useAnimatedProps(() => ({
     strokeDashoffset: -orbit.value * perimeter,
@@ -94,13 +131,13 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
       <Animated.View
         pointerEvents="none"
         accessible={false}
-        className="absolute -inset-2 rounded-3xl border-4 border-primary/30 bg-primary/20"
+        className="absolute -inset-2 rounded-3xl border-4 border-primary/20 bg-primary/20"
         style={flare}
       />
       <Animated.View
         pointerEvents="none"
         accessible={false}
-        className="absolute -inset-1 rounded-3xl border-4 border-accent/50 bg-accent/20"
+        className="absolute -inset-1 rounded-3xl border-2 border-accent/40 bg-accent/10"
         style={glow}
       />
       {children}
@@ -111,16 +148,50 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
         className="absolute inset-0 overflow-hidden rounded-2xl"
       >
         <Animated.View
-          className="absolute inset-y-0 -right-16 w-16 border-accent/70 border-x-4 bg-accent/30"
+          className="absolute inset-y-0 right-0 w-1/3"
           style={sweep}
-        />
+        >
+          <Svg width="100%" height="100%">
+            <Defs>
+              <LinearGradient id="charge-sweep" x1="0" y1="0" x2="1" y2="0">
+                <Stop offset="0" stopColor="#00cdea" stopOpacity={0} />
+                <Stop offset="0.5" stopColor="#00cdea" stopOpacity={0.35} />
+                <Stop offset="1" stopColor="#00cdea" stopOpacity={0} />
+              </LinearGradient>
+            </Defs>
+            <Rect width="100%" height="100%" fill="url(#charge-sweep)" />
+          </Svg>
+        </Animated.View>
+        {size.width > 0 && (
+          <Svg width={size.width} height={size.height}>
+            <Defs>
+              <LinearGradient id="charge-rail" x1="0" y1="0" x2="1" y2="0">
+                <Stop offset="0" stopColor="#ff28a0" />
+                <Stop offset="0.5" stopColor="#ffffff" />
+                <Stop offset="1" stopColor="#00cdea" />
+              </LinearGradient>
+            </Defs>
+            <AnimatedRect
+              animatedProps={rail}
+              y={1}
+              height={2}
+              fill="url(#charge-rail)"
+            />
+            <AnimatedRect
+              animatedProps={rail}
+              y={size.height - 3}
+              height={2}
+              fill="url(#charge-rail)"
+            />
+          </Svg>
+        )}
       </Animated.View>
       <Animated.View
         pointerEvents="none"
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
         className="absolute inset-0"
-        style={glow}
+        style={ready}
       >
         {size.width > 0 && (
           <Svg width={size.width} height={size.height}>
@@ -175,6 +246,19 @@ export function NativeGenerativeInvitation({
   children,
 }: Props) {
   const pulse = useSharedValue(0);
+  const activation = useSharedValue(1);
+  useEffect(() => {
+    cancelAnimation(activation);
+    activation.value = 1;
+    if (active && animate) {
+      activation.value = 0;
+      activation.value = withTiming(1, {
+        duration: 800,
+        easing: Easing.linear,
+      });
+    }
+    return () => cancelAnimation(activation);
+  }, [active, animate, activation]);
   useEffect(() => {
     cancelAnimation(pulse);
     pulse.value = 0;
@@ -188,12 +272,25 @@ export function NativeGenerativeInvitation({
     return () => cancelAnimation(pulse);
   }, [animate, pulse]);
   const halo = useAnimatedStyle(() => ({
-    opacity: active ? 0.7 : 0.2 + pulse.value * 0.5,
-    transform: [{ scale: 1 + pulse.value * 0.12 }],
+    opacity: active
+      ? interpolate(activation.value, [0, 0.25, 1], [0.3, 1, 0.7])
+      : 0.2 + pulse.value * 0.5,
+    transform: [
+      {
+        scale: active
+          ? interpolate(activation.value, [0, 0.25, 1], [1, 1.3, 1])
+          : 1 + pulse.value * 0.12,
+      },
+    ],
   }));
   const invitation = useAnimatedStyle(() => ({
     transform: [
       { rotate: `${active || !animate ? 0 : (pulse.value - 0.5) * 5}deg` },
+      {
+        scale: active
+          ? interpolate(activation.value, [0, 0.25, 1], [0.9, 1.12, 1])
+          : 1,
+      },
     ],
   }));
   return (
