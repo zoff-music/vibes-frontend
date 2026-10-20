@@ -25,8 +25,9 @@ viewport reserves at least 200 by 200 pixels, excluding borders and controls,
 to satisfy YouTube's minimum embedded-player dimensions on supported screens.
 
 The application-level room session owns the mounted view, both prepared
-provider players, room SSE and chat SSE. Minimizing changes presentation, not
-DOM ownership; do not move iframes into a portal or mount a second player.
+provider players and room SSE. Chat SSE disconnects while minimized and
+reconnects when the room is reopened. Minimizing preserves player DOM ownership;
+do not move iframes into a portal or mount a second player.
 Room actions always target the retained room's URL. Reconnecting while
 minimized refreshes that room through `resources.players`, not the currently
 visible page. Entering a different room replaces the one active session.

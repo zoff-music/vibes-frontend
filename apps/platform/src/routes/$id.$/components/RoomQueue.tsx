@@ -69,7 +69,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const [chatConnected, setChatConnected] = useState(false);
     const chatFetcher = useFetcher<RoomActionData>();
     const pendingSend = useRef<((sent: boolean) => void) | null>(null);
-    useRoomMessages(!isSSR && chatEnabled ? roomId : undefined, {
+    useRoomMessages(!isSSR && !minimized && chatEnabled ? roomId : undefined, {
       onConnecting: () => {
         setChatConnected(false);
         setChatError('');
