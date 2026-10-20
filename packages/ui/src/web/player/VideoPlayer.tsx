@@ -425,12 +425,6 @@ const VideoPlayerComponent = ({
           loadedVideoID !== playbackStore.currentPlaylistItem?.sourceId ||
           (state !== YOUTUBE_STATE_PLAYING && state !== YOUTUBE_STATE_PAUSED)
         ) {
-          if (
-            pendingVideoIdRef.current === loadedVideoID &&
-            (state === YOUTUBE_STATE_PLAYING || state === YOUTUBE_STATE_PAUSED)
-          ) {
-            pendingVideoIdRef.current = null;
-          }
           observedPlaybackRef.current = null;
           return;
         }
@@ -891,6 +885,34 @@ const VideoPlayerComponent = ({
       }
 
       if (state === YOUTUBE_STATE_PLAYING) {
+        const player = playerRef.current;
+        if (
+          player &&
+          pendingVideoIdRef.current === player.getVideoData().video_id &&
+          pendingVideoIdRef.current ===
+            playbackState.currentPlaylistItem?.sourceId
+        ) {
+          // Loading a new video is asynchronous. Buffering can report the new
+          // ID before its start offset has been applied; acknowledge the handoff
+          // only once playback starts, and reconcile against the live clock.
+          playbackState.updateActualPosition();
+          const targetTime =
+            usePlaybackStore.getState().actualPositionMs / 1000;
+          const [seekError] = safeWrap(() => {
+            if (
+              Math.abs(player.getCurrentTime() - targetTime) >
+              AUTHORITATIVE_SEEK_THRESHOLD_SECONDS
+            ) {
+              player.seekTo(targetTime, true);
+            }
+          });
+          if (seekError) {
+            debugLog('start-position-error', { error: seekError.message });
+            return;
+          }
+          pendingVideoIdRef.current = null;
+          observedPlaybackRef.current = null;
+        }
         setSlowStartupVideoId(null);
         claimProviderPlayback('youtube');
 
@@ -936,13 +958,6 @@ const VideoPlayerComponent = ({
       }
 
       if (state === 1 || state === 3) {
-        if (
-          playerRef.current?.getVideoData().video_id ===
-          pendingVideoIdRef.current
-        ) {
-          pendingVideoIdRef.current = null;
-        }
-
         if (autoPlayRetryRef.current) {
           clearInterval(autoPlayRetryRef.current);
           autoPlayRetryRef.current = null;
