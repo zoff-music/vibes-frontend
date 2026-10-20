@@ -13,26 +13,6 @@ Shared controls and the native YouTube wrapper come from `@vibes/ui/native`,
 while platform-neutral presentation helpers come from `@vibes/ui/shared`.
 The app deliberately has no Expo web target.
 
-The landing-page AI toggle powers up a pink/cyan moving input border and a
-bounded set of varied pixel stars and notes above the field. Native Reanimated
-worklets drive each frame; particles fade before leaving the field area.
-Motion stops when backgrounded or leaving the screen and respects reduced
-motion. The toggle retains its sparkle icon and the active label is
-“What’s the vibe?”.
-The ignition sweep and layered pink/cyan halo animate only overlays, not layout.
-The heading, description, label slot and helper stay mounted in both modes so
-switching AI on or off does not move the form or room list.
-
-On iPhone, the bottom navigation pill and a separate circular add action share
-one row, using native Liquid Glass on supported iOS versions and an opaque
-fallback elsewhere. Expo Router still owns the tabs and add sheet. The floating add
-action above navigation is tablet-only. App buttons and native tab presses provide short
-selection haptics without waiting for the haptic engine before acting.
-iOS page sheets omit the full-screen top inset while retaining bottom padding.
-Pull-to-refresh holds landing content in place and animates only the logo;
-Browse all aligns the room browser to the top. The background grid uses bounded
-2D perspective geometry and pauses when inactive or reduced motion is enabled.
-
 ## Navigation and requests
 
 Expo Router owns screen navigation, deep links, system tabs, modal presentation,
@@ -72,8 +52,8 @@ own state or explicitly refresh the affected room.
 - Pair a remote by QR code or one-time code and control the paired machine.
 - Authenticate as a room admin and update room mode, queue behavior, public
   visibility, and enabled providers from native room-settings sheets.
-- Expo Router tabs: iPhone uses a glass navigation pill with a separate add
-  action; iPad retains system tabs. Android uses a standard tab navigator with the floating phone
+- Native system tabs: iOS uses the system tab bar and Liquid Glass where the OS
+  supports it; Android uses a standard tab navigator with the floating phone
   menu or tablet navigation. Search,
   creation, and other transient tasks use native page-sheet/modal presentation
   instead of web-style popovers.
@@ -154,12 +134,10 @@ Native tab screens own their safe-area padding and scroll-content spacing.
 Keep `disableAutomaticContentInsets` on their native tab triggers and
 `contentInsetAdjustmentBehavior="never"` on their scroll views, so iOS does not
 apply a second inset adjustment after presenting a tab. The root safe-area
-provider starts with `initialWindowMetrics` before font/startup loading. Full-screen
-pages use its window insets rather than transient per-tab measurements. Screens and sheets use
+provider starts with `initialWindowMetrics`. Screens and sheets use
 `ScreenSafeArea`, which applies the context insets in the first React render,
 rather than waiting for a native safe-area view to attach and update its padding.
-Sheets continue using their local insets. Scroll views also explicitly disable
-automatic content and indicator inset adjustment. Do not hide
+Expo's per-tab providers inherit these initial context metrics. Do not hide
 layout corrections behind delayed rendering or entrance animations. Queue
 reordering still animates, but initial queue/search rows render in place.
 
