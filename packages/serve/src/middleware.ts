@@ -114,7 +114,14 @@ export function createMetricsMiddleware(options: MiddlewareOptions) {
 
     res.on('finish', () => {
       if (res.statusCode === 404) {
-        console.info(`404 Not Found: ${req.method} ${req.path}`);
+        console.info(
+          '404 Not Found:',
+          JSON.stringify({
+            method: req.method,
+            hostname: req.hostname,
+            path: req.originalUrl.split('?')[0],
+          }),
+        );
       }
 
       endTimer();
