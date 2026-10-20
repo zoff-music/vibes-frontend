@@ -86,7 +86,8 @@
           "iosStartDiscoveryAfterFirstTapOnCastButton": false,
           "iosSuspendSessionsWhenBackgrounded": false,
           "receiverAppId": "1FAF5D9F",
-          "expandedController": true
+          "expandedController": true,
+          "androidPlayServicesCastFrameworkVersion": "22.3.1"
         }
       ],
       [
