@@ -33,6 +33,7 @@ const LazyChatConversation = lazy(async () => {
 });
 
 interface RoomQueueProps {
+  minimized?: boolean;
   roomId: string;
   chatOpen: boolean;
   isSSR: boolean;
@@ -45,6 +46,7 @@ interface RoomQueueProps {
 
 export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
   ({
+    minimized = false,
     roomId,
     chatOpen,
     isSSR,
@@ -54,7 +56,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialPlaylistItems,
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
-    const { href } = useRoomPanel();
+    const { href } = useRoomPanel(roomId, minimized);
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
     // An explicit chat URL selects its surface during SSR and the first render.
     // The stored preference controls discovery, not an already-selected route.
@@ -67,7 +69,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     const [chatConnected, setChatConnected] = useState(false);
     const chatFetcher = useFetcher<RoomActionData>();
     const pendingSend = useRef<((sent: boolean) => void) | null>(null);
-    useRoomMessages(!isSSR && chatEnabled ? roomId : undefined, {
+    useRoomMessages(!isSSR && !minimized && chatEnabled ? roomId : undefined, {
       onConnecting: () => {
         setChatConnected(false);
         setChatError('');
@@ -92,6 +94,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             text,
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
@@ -114,19 +117,21 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
     // Granular store subscriptions
     const isPlayingFromStore = usePlaybackStore((state) => state.isPlaying);
+    const roomMatches = useRoomStore((state) => state.room?.id === roomId);
+    const useInitialSnapshot = isSSR || !roomMatches;
 
     /* 2. State & Computed */
-    const isPlaying = isSSR
+    const isPlaying = useInitialSnapshot
       ? (initialPlayback?.isPlaying ?? false)
       : isPlayingFromStore;
-    const displayPlaylistItems = isSSR
+    const displayPlaylistItems = useInitialSnapshot
       ? (initialPlaylistItems ?? [])
       : playlistItems;
 
     const currentPlaylistItemFromStore = usePlaybackStore(
       (state) => state.currentPlaylistItem,
     );
-    const currentPlaylistItemData = isSSR
+    const currentPlaylistItemData = useInitialSnapshot
       ? initialPlayback?.currentPlaylistItem
       : currentPlaylistItemFromStore;
     const visibleQueuedPlaylistItemCount = displayPlaylistItems.reduce(
@@ -151,12 +156,13 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             playlistItemId,
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
         );
       },
-      [voteFetcher, votingPlaylistItemId],
+      [voteFetcher, votingPlaylistItemId, roomId],
     );
 
     const handleRemove = React.useCallback(
@@ -167,12 +173,13 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             playlistItemId,
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
         );
       },
-      [removeFetcher],
+      [removeFetcher, roomId],
     );
 
     useEffect(() => {

@@ -16,6 +16,7 @@ import {
 import { SkipButton } from './SkipButton';
 
 interface Props {
+  compact?: boolean;
   roomType?: RoomType;
   isPlaying: boolean;
   canPlay: boolean;
@@ -125,6 +126,7 @@ const MAX_VOLUME = 100;
 const VOLUME_WHEEL_STEP = 5;
 
 const PlayerControlsComponent: React.FC<Props> = ({
+  compact = false,
   roomType = 'MUSIC',
   isPlaying,
   canPlay,
@@ -149,7 +151,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
   const labels = getRoomLabels(roomType);
 
   return (
-    <div className="w-full">
+    <div className={classNames('w-full', compact && 'p-3')}>
       <div className="flex flex-wrap items-center justify-start gap-1.5 sm:flex-nowrap sm:gap-4">
         <Tooltip className="inline-flex" content={playbackLabel}>
           <Button
@@ -167,7 +169,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
 
         <SkipButton canSkip={canSkip} isSkipping={isSkipping} onSkip={onSkip} />
 
-        {showReset && (
+        {!compact && showReset && (
           <Tooltip className="inline-flex" content="Reset playback">
             <Button
               onClick={onReset}
@@ -180,7 +182,9 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Tooltip>
         )}
 
-        <div className={classNames('hidden', showCast && 'sm:block')}>
+        <div
+          className={classNames('hidden', !compact && showCast && 'sm:block')}
+        >
           <Tooltip
             className="inline-flex"
             content={
@@ -216,7 +220,12 @@ const PlayerControlsComponent: React.FC<Props> = ({
           </Tooltip>
         </div>
 
-        <div className="min-w-24 max-w-52 flex-1 sm:hidden">
+        <div
+          className={classNames(
+            'min-w-24 max-w-52 flex-1',
+            !compact && 'sm:hidden',
+          )}
+        >
           <VolumeControl
             className="w-full"
             volume={volume}
@@ -225,13 +234,14 @@ const PlayerControlsComponent: React.FC<Props> = ({
           />
         </div>
 
-        {mobileTrailingContent && (
+        {!compact && mobileTrailingContent && (
           <div className="ml-auto sm:hidden">{mobileTrailingContent}</div>
         )}
 
         <div
           className={classNames(
-            'hidden min-w-0 items-center gap-4 sm:ml-auto sm:flex sm:w-auto',
+            'hidden min-w-0 items-center gap-4',
+            !compact && 'sm:ml-auto sm:flex sm:w-auto',
           )}
         >
           <div className="hidden sm:block">

@@ -41,7 +41,11 @@ export function useCastRoomHandshake({
     requestedHandshakeRef.current = handshakeId;
     tokenFetcher.submit(
       { intent: 'castingToken' },
-      { encType: 'application/json', method: 'post' },
+      {
+        action: `/${encodeURIComponent(roomId)}`,
+        encType: 'application/json',
+        method: 'post',
+      },
     );
   }, [currentSession, isConnected, roomId, tokenFetcher.submit]);
 

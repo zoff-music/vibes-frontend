@@ -1,5 +1,6 @@
 import { useFetcher } from '@kasperrt/smolter/preact';
 import { useEffect, useState } from 'preact/compat';
+import { usePersistentPlayerStore } from '../../../stores/persistentPlayerStore';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import {
   clearRoomReminder,
@@ -15,11 +16,15 @@ interface ReturnToRoomProps {
 export function ReturnToRoom({ onJoinRoom }: ReturnToRoomProps) {
   const { data, load } = useFetcher<typeof clientLoader>();
   const [dismissed, setDismissed] = useState(false);
+  const activeRoomId = usePersistentPlayerStore((state) => state.activeRoomId);
 
   useEffect(() => {
     // Only a fresh document can offer a return. In-app navigation never does.
     const eligible =
-      !dismissed && !getPreviousPath() && Boolean(readRoomReminder());
+      !activeRoomId &&
+      !dismissed &&
+      !getPreviousPath() &&
+      Boolean(readRoomReminder());
     const refresh = () => {
       if (
         !eligible ||
@@ -49,11 +54,11 @@ export function ReturnToRoom({ onJoinRoom }: ReturnToRoomProps) {
       window.removeEventListener('pageshow', handlePageShow);
       document.removeEventListener('visibilitychange', refresh);
     };
-  }, [dismissed, load]);
+  }, [activeRoomId, dismissed, load]);
 
   const room = data?.room;
 
-  if (!room || dismissed) return null;
+  if (!room || dismissed || activeRoomId) return null;
 
   return (
     <ReturnToRoomCard

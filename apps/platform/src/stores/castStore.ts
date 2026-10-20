@@ -419,6 +419,7 @@ export const useCastStore = create<CastState>((set, get) => ({
     }
 
     loadedCastManager = null;
+    isCastInitializationStarted = false;
 
     set({
       isInitialized: false,

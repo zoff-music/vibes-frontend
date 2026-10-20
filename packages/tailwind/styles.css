@@ -316,6 +316,19 @@
     animation: page-fade-in 180ms ease-out both;
   }
 
+  &::view-transition-group(persistent-player) {
+    z-index: 40;
+    animation: none;
+  }
+
+  &::view-transition-old(persistent-player) {
+    display: none;
+  }
+
+  &::view-transition-new(persistent-player) {
+    animation: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     &::view-transition-group(*),
     &::view-transition-old(*),

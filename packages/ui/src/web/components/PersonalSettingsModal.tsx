@@ -18,6 +18,8 @@ interface PersonalSettingsModalProps {
   error?: string;
   chatEnabled: boolean;
   onChatChange: (enabled: boolean) => void;
+  persistentPlayer?: boolean;
+  onPersistentPlayerChange?: (enabled: boolean) => void;
   themeId: ThemeId;
   onThemeChange: (theme: ThemeId) => void;
 }
@@ -33,6 +35,8 @@ export function PersonalSettingsModal({
   error,
   chatEnabled,
   onChatChange,
+  persistentPlayer = false,
+  onPersistentPlayerChange,
   themeId,
   onThemeChange,
 }: PersonalSettingsModalProps) {
@@ -89,13 +93,6 @@ export function PersonalSettingsModal({
                 {error}
               </p>
             )}
-            <SegmentedToggle
-              label="Chat"
-              variant="plain-full"
-              size="comfortable"
-              checked={chatEnabled}
-              onChange={onChatChange}
-            />
             <Button
               className="w-full"
               disabled={isLoading || isSaving || !name.trim()}
@@ -106,6 +103,24 @@ export function PersonalSettingsModal({
             </Button>
           </form>
         </section>
+
+        <SegmentedToggle
+          label="Chat"
+          variant="plain-full"
+          size="comfortable"
+          checked={chatEnabled}
+          onChange={onChatChange}
+        />
+
+        {onPersistentPlayerChange && (
+          <SegmentedToggle
+            label="Persistent player"
+            variant="plain-full"
+            size="comfortable"
+            checked={persistentPlayer}
+            onChange={onPersistentPlayerChange}
+          />
+        )}
 
         <section
           aria-labelledby="profile-appearance-title"

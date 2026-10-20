@@ -15,6 +15,34 @@ can still require a click; keep that limitation visible beside the toggle.
 
 ## Room playback
 
+Device settings include **Persistent player**, off by default and saved only
+on the current device. When enabled, leaving a room within Platform minimizes
+its existing player into a bottom-right frame. The room name and video reopen
+the room; Play/Pause, Skip and volume remain usable below the video. X ends
+the local session and closes its room streams and provider surfaces.
+The compact frame stays inside the site's content-width alignment. Its video
+viewport reserves at least 200 by 200 pixels, excluding borders and controls,
+to satisfy YouTube's minimum embedded-player dimensions on supported screens.
+
+The application-level room session owns the mounted view, both prepared
+provider players and room SSE. Chat SSE disconnects while minimized and
+reconnects when the room is reopened. The queue and chat UI unmount while
+minimized, rather than remaining hidden and reacting to every playback update.
+Returning mounts the queue without entrance animations for existing items.
+Minimizing preserves player DOM ownership;
+do not move iframes into a portal or mount a second player.
+Room actions always target the retained room's URL. Reconnecting while
+minimized refreshes that room through `resources.players`, not the currently
+visible page. Entering a different room switches the active room subscription
+and playback content in the existing player surface; queue/chat state is
+room-scoped. Responses from previous-room player mutations are ignored.
+The return-to-room reminder is suppressed while a session is active.
+
+Persistence applies to same-document Platform navigation. Reloading, closing
+the tab or following a document-level link to another application still ends
+the document's players; this is not browser picture-in-picture or background
+audio permission. Existing autoplay restrictions and host permissions apply.
+
 Joining a room automatically requests playback with sound through the existing
 YouTube and SoundCloud players, following the room's current playback state.
 Keep saved volume and mute preferences, local pauses, and paused host rooms

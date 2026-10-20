@@ -1,5 +1,5 @@
 import { classNames } from '@vibes/shared';
-import { LinkButton, PlusIcon } from '@vibes/ui/web';
+import { LinkButton, PersistentPlayerFrame, PlusIcon } from '@vibes/ui/web';
 import { AnimatePresence, m as motion } from 'framer-motion';
 import { lazy, Suspense } from 'preact/compat';
 import { DeferredModalLoading } from '../components/DeferredModalLoading';
@@ -10,6 +10,7 @@ import { RoomPlayer } from '../components/RoomPlayer';
 import { RoomQueue } from '../components/RoomQueue';
 import { roomEntryTransition, roomEntryVisibleState } from '../constants';
 import { useRoomView } from '../hooks/useRoomView';
+import type { RoomLoaderData } from '../loader';
 import { loadAddToQueueModal } from '../utils/preloadQueueModal';
 import { RoomOverlayPanels } from './RoomOverlayPanels';
 
@@ -31,7 +32,17 @@ const LazyDeviceSelector = lazy(async () => {
 
 const LazyAddToQueueModal = lazy(loadAddToQueueModal);
 
-export function RoomView() {
+interface RoomViewProps {
+  loaderData: RoomLoaderData;
+  minimized: boolean;
+  onClose: () => void;
+}
+
+export function RoomView({
+  loaderData: initialData,
+  minimized,
+  onClose,
+}: RoomViewProps) {
   const {
     loaderData,
     panelHref,
@@ -76,22 +87,35 @@ export function RoomView() {
     handleJoinAdmin,
     handleLeave,
     roomEntryInitial,
-  } = useRoomView();
+  } = useRoomView(initialData, minimized);
 
   return (
-    <>
+    <PersistentPlayerFrame
+      minimized={minimized}
+      roomName={displayRoom.name}
+      roomHref={`/${encodeURIComponent(id)}`}
+      onClose={onClose}
+    >
       <RoomConnections providers={loaderData.providers} />
       <motion.div
         animate={roomEntryVisibleState}
         className={classNames(
           'room-entry relative min-h-screen w-full min-w-0 overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden',
           isPartyScreen && 'bg-theme',
+          minimized && '!min-h-0 !h-auto !overflow-visible',
         )}
         initial={roomEntryInitial}
         transition={roomEntryTransition}
       >
-        <main className="relative z-10 flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden">
-          {!isPartyScreen && (
+        <section
+          role={minimized ? 'region' : 'main'}
+          aria-label={`Room ${displayRoom.name}`}
+          className={classNames(
+            'relative z-10 flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden',
+            minimized && '!min-h-0 !h-auto',
+          )}
+        >
+          {!isPartyScreen && !minimized && (
             <RoomHeader
               adminError={adminError}
               key="room-header"
@@ -139,9 +163,11 @@ export function RoomView() {
                     'mx-auto w-full min-w-0 items-start gap-8 px-4 lg:grid lg:h-full lg:min-h-0 lg:grid-cols-5 lg:grid-rows-[minmax(0,1fr)]',
                     !isPartyScreen && 'max-w-7xl py-8 lg:py-6',
                     isPartyScreen && 'max-w-none py-4 lg:p-6',
+                    minimized && '!block !p-0',
                   )}
                 >
                   <RoomPlayer
+                    minimized={minimized}
                     roomId={id}
                     displayRoom={displayRoom}
                     addPlaylistItemHref={panelHref('add')}
@@ -151,22 +177,26 @@ export function RoomView() {
                     {...playerPreloadProps}
                   />
 
-                  {!isPartyScreen && (
-                    <RoomQueue
-                      chatOpen={chatOpen}
-                      roomId={id}
-                      isSSR={isSSR}
-                      addPlaylistItemHref={panelHref('add')}
-                      isAdmin={isAdmin}
-                      initialPlayback={loaderData.playback}
-                      initialPlaylistItems={loaderData.playlistItems}
-                      {...queuePreviewProps}
-                    />
+                  {!isPartyScreen && !minimized && (
+                    <div className="min-h-0 min-w-0 lg:col-span-2 lg:h-full">
+                      <RoomQueue
+                        key={id}
+                        chatOpen={chatOpen}
+                        roomId={id}
+                        isSSR={isSSR}
+                        addPlaylistItemHref={panelHref('add')}
+                        isAdmin={isAdmin}
+                        initialPlayback={loaderData.playback}
+                        initialPlaylistItems={loaderData.playlistItems}
+                        {...queuePreviewProps}
+                      />
+                    </div>
                   )}
                   {isPartyScreen && (
                     <div className="min-h-0 min-w-0 lg:col-span-2 lg:flex lg:h-full lg:flex-col">
                       <div className="min-h-0 lg:flex-1 lg:overflow-hidden">
                         <RoomQueue
+                          key={id}
                           chatOpen={chatOpen}
                           roomId={id}
                           isSSR={isSSR}
@@ -195,9 +225,9 @@ export function RoomView() {
               </>
             )}
           </div>
-        </main>
+        </section>
       </motion.div>
-      <RoomOverlayPanels roomId={id} url={shareUrl} />
+      {!minimized && <RoomOverlayPanels roomId={id} url={shareUrl} />}
       <AnimatePresence>
         {showDeviceSelector && (
           <Suspense
@@ -235,7 +265,7 @@ export function RoomView() {
           </Suspense>
         )}
       </AnimatePresence>
-      {!isAddModalVisible && !chatOpen && (
+      {!minimized && !isAddModalVisible && !chatOpen && (
         <div className="sm:hidden">
           <LinkButton
             aria-label={
@@ -256,6 +286,6 @@ export function RoomView() {
           </LinkButton>
         </div>
       )}
-    </>
+    </PersistentPlayerFrame>
   );
 }

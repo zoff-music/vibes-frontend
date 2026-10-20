@@ -6,6 +6,7 @@ import { PersonalSettingsModal } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'preact/compat';
 import type { RootLoaderData } from '../../root';
 import type { ProfileRouteData } from '../../routes/resources.profile/clientLoader';
+import { usePersistentPlayerStore } from '../../stores/persistentPlayerStore';
 
 interface ProfileSettingsModalProps {
   isOpen: boolean;
@@ -18,6 +19,10 @@ export function ProfileSettingsModal({
 }: ProfileSettingsModalProps) {
   const chatEnabled = useChatPreferenceStore((state) => state.enabled);
   const setChatEnabled = useChatPreferenceStore((state) => state.setEnabled);
+  const persistentPlayer = usePersistentPlayerStore((state) => state.enabled);
+  const setPersistentPlayer = usePersistentPlayerStore(
+    (state) => state.setEnabled,
+  );
   const fetcher = useFetcher<ProfileRouteData>();
   const rootData = useRouteLoaderData<RootLoaderData>('root');
   const wasSavingRef = useRef(false);
@@ -80,6 +85,8 @@ export function ProfileSettingsModal({
       {...(error ? { error } : {})}
       chatEnabled={chatEnabled}
       onChatChange={setChatEnabled}
+      persistentPlayer={persistentPlayer}
+      onPersistentPlayerChange={setPersistentPlayer}
       themeId={themeId}
       onThemeChange={setTheme}
       onSubmit={(event) => {

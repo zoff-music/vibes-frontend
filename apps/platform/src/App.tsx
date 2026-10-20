@@ -16,6 +16,7 @@ import {
 } from 'preact/compat';
 import { Background } from './components/layout/Background';
 import { SiteLayout } from './components/layout/SiteLayout';
+import { RoomSession } from './components/player/RoomSession';
 import { RemoteControlProvider } from './components/remote/RemoteControlProvider';
 import type { RootLoaderData } from './root/loader';
 import { updateNavigationHistory } from './utils/navigationHistory';
@@ -90,6 +91,7 @@ const AppContent = memo(function AppContent({ rootData }: AppContentProps) {
       <Background />
 
       <RemoteControlProvider initialRemote={rootData?.remoteStatus}>
+        <RoomSession />
         <SiteLayout>
           <Outlet />
         </SiteLayout>
