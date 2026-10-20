@@ -30,7 +30,7 @@ export function AppTabs() {
     router.prefetch('/settings');
   }, [router]);
 
-  if (Platform.OS === 'android') {
+  if (Platform.OS === 'android' || !tabletLayout.isTablet) {
     return (
       <Tabs
         tabBar={() => null}

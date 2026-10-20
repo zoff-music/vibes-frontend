@@ -1,5 +1,17 @@
+import { createContext, type PropsWithChildren, useContext } from 'react';
 import { Platform, View, type ViewProps } from 'react-native';
-import { type Edge, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  type Edge,
+  type EdgeInsets,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+
+const WindowInsetsContext = createContext<EdgeInsets | null>(null);
+
+export function ScreenInsetsProvider({ children }: PropsWithChildren) {
+  const insets = useSafeAreaInsets();
+  return <WindowInsetsContext value={insets}>{children}</WindowInsetsContext>;
+}
 
 interface ScreenSafeAreaProps extends ViewProps {
   edges?: readonly Edge[];
@@ -12,10 +24,12 @@ export function ScreenSafeArea({
   style,
   ...props
 }: ScreenSafeAreaProps) {
-  const insets = useSafeAreaInsets();
+  const localInsets = useSafeAreaInsets();
+  const windowInsets = useContext(WindowInsetsContext);
+  const insets = pageSheet ? localInsets : (windowInsets ?? localInsets);
 
-  // Context starts with the root metrics, including preloaded native tabs.
-  // Native SafeAreaView instead starts with zero padding until it attaches.
+  // Full-screen tabs use the window inset, not a per-tab provider which may
+  // briefly report zero while its native screen attaches. Sheets stay local.
   return (
     <View
       {...props}

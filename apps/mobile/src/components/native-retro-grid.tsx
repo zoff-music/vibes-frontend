@@ -21,12 +21,12 @@ interface GridRowProps {
 }
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 const rows = Array.from({ length: 16 }, (_, index) => index);
-const columns = Array.from({ length: 21 }, (_, index) => index);
+const columns = Array.from({ length: 41 }, (_, index) => index);
 
 function GridRow({ index, phase }: GridRowProps) {
   const animatedProps = useAnimatedProps(() => {
     const depth = ((index + phase.value) % rows.length) / rows.length;
-    const y = 250 + 750 * depth * depth;
+    const y = 1000 * depth * depth;
     return {
       y1: y,
       y2: y,
@@ -77,9 +77,9 @@ export function NativeRetroGrid({ paused = false }: NativeRetroGridProps) {
         {columns.map((index) => (
           <Line
             key={index}
-            x1={500 + (index - 10) * 6}
-            y1={250}
-            x2={500 + (index - 10) * 150}
+            x1={500 + (index - 20) * 40}
+            y1={0}
+            x2={500 + (index - 20) * 150}
             y2={1000}
             stroke="#ff28a0"
             strokeWidth={1}

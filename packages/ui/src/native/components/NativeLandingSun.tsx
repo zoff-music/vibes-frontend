@@ -21,7 +21,10 @@ export function NativeLandingSun({ watch = false }: NativeLandingSunProps) {
       pointerEvents="none"
       className="h-24 items-center overflow-hidden"
     >
-      <View className="size-56 opacity-80">
+      <View className="size-56">
+        {watch && (
+          <View className="absolute inset-0 rounded-full bg-native-background dark:bg-native-dark-background" />
+        )}
         <Svg width="100%" height="100%" viewBox="0 0 100 100">
           <Defs>
             <LinearGradient id="landing-eclipse" x1="0" y1="0" x2="1" y2="1">

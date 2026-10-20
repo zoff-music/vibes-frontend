@@ -78,3 +78,29 @@ test('landing refresh and browser alignment do not reset the whole page', () => 
   assert.match(grid, /cancelAnimation\(phase\)/);
   assert.match(grid, /overflow-hidden/);
 });
+
+test('landing artwork is opaque and grid rays cover both edges', () => {
+  const artwork = readFileSync(
+    'packages/ui/src/native/components/NativeLandingSun.tsx',
+    'utf8',
+  );
+  assert.match(
+    artwork,
+    /rounded-full bg-native-background dark:bg-native-dark-background/,
+  );
+  assert.doesNotMatch(artwork, /opacity-80/);
+  const grid = readFileSync(
+    'apps/mobile/src/components/native-retro-grid.tsx',
+    'utf8',
+  );
+  assert.match(grid, /length: 41/);
+  assert.match(grid, /x1=\{500 \+ \(index - 20\) \* 40\}/);
+  assert.match(grid, /y1=\{0\}/);
+  const root = readFileSync('apps/mobile/src/app/_layout.tsx', 'utf8');
+  assert.match(
+    root,
+    /<SafeAreaProvider initialMetrics=\{initialWindowMetrics\}>/,
+  );
+  assert.match(root, /<ScreenInsetsProvider>/);
+  assert.doesNotMatch(root, /if \(!fontsLoaded\)/);
+});

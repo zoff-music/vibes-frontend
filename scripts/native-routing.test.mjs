@@ -4,16 +4,21 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 import { build } from 'esbuild';
 
-test('iPhone add action uses the native search role, with floating action only on tablets', () => {
+test('phone add action sits beside navigation, with floating action only on tablets', () => {
   const tabs = readFileSync(
     'apps/mobile/src/components/layout/app-tabs.tsx',
     'utf8',
   );
-  assert.match(tabs, /role="search"/);
-  assert.match(
-    tabs,
-    /hidden=\{!canAddPlaylistItems \|\| tabletLayout.isTablet\}/,
+  assert.match(tabs, /Platform.OS === 'android' \|\| !tabletLayout.isTablet/);
+  const phone = readFileSync(
+    'apps/mobile/src/components/layout/phone-navigation.tsx',
+    'utf8',
   );
+  assert.match(phone, /isLiquidGlassAvailable/);
+  assert.match(phone, /flex-row items-center gap-3/);
+  assert.match(phone, /router.push\('\/add'\)/);
+  assert.match(phone, /accessibilityRole="button"/);
+  assert.match(phone, /pathname === '\/add'/);
   const action = readFileSync(
     'apps/mobile/src/components/layout/floating-add-button.tsx',
     'utf8',
@@ -85,7 +90,7 @@ test('native tabs leave content insets to the screens safe-area layout', () => {
   }
 
   assert.match(
-    readFileSync('apps/mobile/src/components/layout/root-content.tsx', 'utf8'),
+    readFileSync('apps/mobile/src/app/_layout.tsx', 'utf8'),
     /<SafeAreaProvider initialMetrics=\{initialWindowMetrics\}>/,
   );
 
@@ -154,16 +159,25 @@ test('all mobile screens use context insets before their first native layout', a
         name: 'native-insets-fixture',
         setup(builder) {
           builder.onResolve(
-            { filter: /^(react-native|react-native-safe-area-context)$/ },
+            {
+              filter:
+                /^(react|react\/jsx-runtime|react-native|react-native-safe-area-context)$/,
+            },
             ({ path }) => ({ path, namespace: 'fixture' }),
           );
           builder.onLoad(
             { filter: /.*/, namespace: 'fixture' },
             ({ path }) => ({
-              contents:
-                path === 'react-native'
-                  ? 'export const View = "View"; export const Platform = { OS: "ios" };'
-                  : 'export const useSafeAreaInsets = () => ({ top: 62, bottom: 34, left: 0, right: 0 });',
+              contents: {
+                react:
+                  'export const createContext = value => ({ value }); export const useContext = context => context.value;',
+                'react/jsx-runtime':
+                  'export const jsx = (type, props) => ({ type, props });',
+                'react-native':
+                  'export const View = "View"; export const Platform = { OS: "ios" };',
+                'react-native-safe-area-context':
+                  'export const useSafeAreaInsets = () => ({ top: 62, bottom: 34, left: 0, right: 0 });',
+              }[path],
             }),
           );
         },
@@ -171,7 +185,7 @@ test('all mobile screens use context insets before their first native layout', a
     ],
   });
   const source = Buffer.from(result.outputFiles[0].contents).toString('base64');
-  const { ScreenSafeArea } = await import(
+  const { ScreenSafeArea, ScreenInsetsProvider } = await import(
     `data:text/javascript;base64,${source}`
   );
   const screen = ScreenSafeArea({
@@ -191,6 +205,10 @@ test('all mobile screens use context insets before their first native layout', a
     },
   ]);
   assert.equal(ScreenSafeArea({}).props.style[1].paddingBottom, 34);
+  const provider = ScreenInsetsProvider({ children: null });
+  provider.type.value = { top: 70, bottom: 36, left: 0, right: 0 };
+  assert.equal(ScreenSafeArea({}).props.style[1].paddingTop, 70);
+  assert.equal(ScreenSafeArea({}).props.style[1].paddingBottom, 36);
   assert.equal(
     ScreenSafeArea({ pageSheet: true }).props.style[1].paddingTop,
     0,

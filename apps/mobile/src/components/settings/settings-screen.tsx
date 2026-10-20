@@ -69,6 +69,8 @@ export function SettingsScreen() {
       <SafeAreaView edges={['top']} style={safeAreaStyle}>
         <View className="flex-1">
           <ScrollView
+            automaticallyAdjustContentInsets={false}
+            automaticallyAdjustsScrollIndicatorInsets={false}
             contentInsetAdjustmentBehavior="never"
             contentContainerClassName="gap-4 p-4 pb-28"
             onContentSizeChange={scrollEdgeFades.onContentSizeChange}

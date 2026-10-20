@@ -483,6 +483,8 @@ export function RoomsScreen() {
         {refreshLogo}
         <View className="flex-1">
           <Animated.ScrollView
+            automaticallyAdjustContentInsets={false}
+            automaticallyAdjustsScrollIndicatorInsets={false}
             contentInsetAdjustmentBehavior="never"
             ref={landingScroll}
             contentContainerClassName={classNames(
