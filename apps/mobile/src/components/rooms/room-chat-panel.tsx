@@ -68,7 +68,7 @@ export function RoomChatPanel({
         onPress={() => chat.selectChat(false)}
         className={classNames(
           'min-h-13 flex-1 flex-row items-center justify-center gap-2 border px-4 py-3',
-          'rounded-xl',
+          'rounded-full',
           !chat.open && 'border-accent/40 bg-accent/10',
           chat.open &&
             'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
@@ -89,7 +89,7 @@ export function RoomChatPanel({
         onPress={() => chat.selectChat(true)}
         className={classNames(
           'min-h-13 flex-1 flex-row items-center justify-center gap-2 border px-4 py-3',
-          'rounded-xl',
+          'rounded-full',
           chat.open && 'border-accent/40 bg-accent/10',
           !chat.open &&
             'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',

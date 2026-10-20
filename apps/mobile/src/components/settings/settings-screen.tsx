@@ -267,7 +267,7 @@ function ThemeButton({ active, icon, label, onPress }: ThemeButtonProps) {
         checked: active,
       }}
       className={classNames(
-        'min-h-12 flex-row items-center justify-center gap-2 rounded-xl border px-2',
+        'min-h-12 flex-row items-center justify-center gap-2 rounded-full border px-3',
         active && 'border-accent bg-accent/15',
         !active &&
           'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',

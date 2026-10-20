@@ -92,6 +92,7 @@ export function NativeHeading({
 }
 
 interface NativeButtonProps extends PropsWithChildren {
+  shape?: 'rounded' | 'pill';
   accessibilityLabel?: string;
   className?: string;
   disabled?: boolean;
@@ -107,6 +108,7 @@ interface NativeButtonProps extends PropsWithChildren {
 }
 
 export function NativeButton({
+  shape = 'rounded',
   accessibilityLabel,
   children,
   className,
@@ -125,7 +127,8 @@ export function NativeButton({
   const resolvedAccessibilityLabel = accessibilityLabel ?? label;
   let resolvedIconColor = iconColor ?? '#e8dff5';
 
-  if (tone === 'primary') resolvedIconColor = '#ffffff';
+  if (tone === 'primary' && !iconColor)
+    resolvedIconColor = shape === 'pill' ? '#120b1e' : '#ffffff';
 
   if (tone === 'danger') resolvedIconColor = '#d91465';
 
@@ -143,9 +146,10 @@ export function NativeButton({
         'flex-row items-center justify-center border active:opacity-70',
         pressFeedback && 'active:scale-95',
         size === 'default' && 'min-h-13 gap-2 px-4',
-        size === 'default' && 'rounded-xl',
+        shape === 'pill' && 'rounded-full px-6',
+        shape === 'rounded' && size === 'default' && 'rounded-xl',
         size === 'large' && 'min-h-24 gap-5 border-2 px-10 py-5',
-        size === 'large' && 'rounded-2xl',
+        shape === 'rounded' && size === 'large' && 'rounded-2xl',
         tone === 'primary' && 'border-primary bg-primary',
         tone === 'danger' &&
           'border-error bg-native-surface dark:bg-native-dark-surface',
@@ -180,9 +184,10 @@ export function NativeButton({
         <Text
           className={classNames(
             'font-heading',
-            size === 'default' && 'text-base',
+            size === 'default' && (shape === 'pill' ? 'text-lg' : 'text-base'),
             size === 'large' && 'text-2xl',
-            tone === 'primary' && 'text-white',
+            tone === 'primary' &&
+              (shape === 'pill' ? 'text-native-dark-background' : 'text-white'),
             tone === 'danger' && 'text-error',
             tone === 'secondary' &&
               'text-native-text dark:text-native-dark-text',
@@ -218,6 +223,7 @@ interface NativeFieldProps {
 }
 
 interface NativeIconButtonProps {
+  shape?: 'rounded' | 'circle';
   accessibilityLabel: string;
   disabled?: boolean;
   icon: ZoffIconName;
@@ -228,6 +234,7 @@ interface NativeIconButtonProps {
 }
 
 export function NativeIconButton({
+  shape = 'rounded',
   accessibilityLabel,
   disabled = false,
   icon,
@@ -247,9 +254,10 @@ export function NativeIconButton({
         'border-native-border bg-native-surface dark:border-native-dark-border dark:bg-native-dark-surface',
         pressFeedback && 'active:scale-90',
         size === 'default' && 'size-13',
-        size === 'default' && 'rounded-xl',
+        shape === 'circle' && 'rounded-full',
+        shape === 'rounded' && size === 'default' && 'rounded-xl',
         size === 'large' && 'size-24 border-2',
-        size === 'large' && 'rounded-2xl',
+        shape === 'rounded' && size === 'large' && 'rounded-2xl',
         focused && 'border-accent bg-accent',
         disabled && 'opacity-40',
       )}

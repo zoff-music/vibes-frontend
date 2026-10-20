@@ -92,6 +92,22 @@ test('mobile landing artwork peeks behind a compact opaque form card', () => {
   assert.doesNotMatch(screen, /<NativeLandingSun watch=\{watch\} \/>/);
 });
 
+test('mobile actions use capsules and circles without changing TV defaults', () => {
+  const mobile = readFileSync('apps/mobile/src/components/native.tsx', 'utf8');
+  assert.match(mobile, /shape="pill"/);
+  assert.match(mobile, /shape="circle"/);
+  const controls = readFileSync(
+    'packages/ui/src/native/components/NativePrimitives.tsx',
+    'utf8',
+  );
+  assert.equal(controls.match(/shape = 'rounded'/g).length, 2);
+  assert.match(controls, /shape === 'pill' && 'rounded-full px-6'/);
+  assert.match(controls, /shape === 'circle' && 'rounded-full'/);
+  assert.match(controls, /min-h-13/);
+  assert.match(controls, /size-13/);
+  assert.match(controls, /text-native-dark-background/);
+});
+
 test('native tabs leave content insets to the screens safe-area layout', () => {
   const tabs = readFileSync(
     'apps/mobile/src/components/layout/app-tabs.tsx',

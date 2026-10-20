@@ -126,7 +126,7 @@ export function SearchSheet({
             <View
               className={classNames(
                 'mb-4 flex-row border p-1',
-                'rounded-2xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                'rounded-full border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
               )}
             >
               {enabledProviders.map((source) => (
@@ -138,7 +138,7 @@ export function SearchSheet({
                   key={source}
                   className={classNames(
                     'min-h-11 flex-1 items-center justify-center px-3',
-                    'rounded-xl',
+                    'rounded-full',
                     provider === source && 'bg-accent',
                     provider !== source && 'bg-transparent',
                   )}
@@ -186,7 +186,7 @@ export function SearchSheet({
                 }}
                 className={classNames(
                   'size-13 items-center justify-center border active:opacity-70',
-                  'rounded-xl',
+                  'rounded-full',
                   isAIMode && 'border-accent bg-accent',
                   !isAIMode &&
                     'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',

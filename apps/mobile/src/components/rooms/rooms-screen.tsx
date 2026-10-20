@@ -628,7 +628,7 @@ export function RoomsScreen() {
                                     checked: isAIMode,
                                   }}
                                   className={classNames(
-                                    'size-11 items-center justify-center rounded-xl border active:opacity-70',
+                                    'size-11 items-center justify-center rounded-full border active:opacity-70',
                                     isAIMode && 'border-accent bg-accent',
                                     !isAIMode &&
                                       'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
@@ -650,12 +650,12 @@ export function RoomsScreen() {
                         </NativeGenerativeFrame>
                       </View>
                       <NativeButton
+                        shape="pill"
                         accessibilityLabel={submitLabel}
-                        className="min-h-14 rounded-2xl"
                         disabled={loading || generationLoading}
                         onPress={submitRoom}
                       >
-                        <Text className="text-center font-heading text-mobile-dark-background text-xl">
+                        <Text className="text-center font-heading text-lg text-mobile-dark-background">
                           {submitLabel}
                         </Text>
                       </NativeButton>

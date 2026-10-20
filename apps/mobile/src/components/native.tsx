@@ -106,6 +106,7 @@ export function IconButton({
 
   return (
     <NativeIconButton
+      shape="circle"
       accessibilityLabel={accessibilityLabel}
       disabled={disabled}
       icon={icon}
@@ -130,7 +131,7 @@ export function Button({
   let iconColor: string = theme.text;
 
   if (tone === 'primary') {
-    iconColor = '#ffffff';
+    iconColor = '#120b1e';
   }
 
   if (tone === 'danger') {
@@ -139,6 +140,7 @@ export function Button({
 
   return (
     <NativeButton
+      shape="pill"
       accessibilityLabel={accessibilityLabel ?? label}
       disabled={disabled}
       icon={icon}

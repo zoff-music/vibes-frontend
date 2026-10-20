@@ -66,7 +66,7 @@ export function SearchResults({
             <View
               className={classNames(
                 'size-10 items-center justify-center',
-                'rounded-xl bg-primary',
+                'rounded-full bg-primary',
               )}
             >
               <ZoffIcon color="#ffffff" name="add" size={16} />
