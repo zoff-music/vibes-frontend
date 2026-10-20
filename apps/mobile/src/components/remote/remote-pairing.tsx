@@ -35,7 +35,7 @@ export function RemotePairingV2({
           automaticallyAdjustContentInsets={false}
           automaticallyAdjustsScrollIndicatorInsets={false}
           contentInsetAdjustmentBehavior="never"
-          contentContainerClassName="flex-grow justify-center gap-5 p-4 pb-28"
+          contentContainerClassName="flex-grow justify-center gap-5 p-4 pb-30"
           keyboardShouldPersistTaps="handled"
         >
           <ContentColumn>

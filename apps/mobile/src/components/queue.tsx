@@ -286,7 +286,7 @@ function QueueSeparator() {
   return <View className="h-3" />;
 }
 const queueStyle = {
-  paddingBottom: 112,
+  paddingBottom: 120,
 };
 const thumbnailImageStyle = {
   height: '100%' as const,

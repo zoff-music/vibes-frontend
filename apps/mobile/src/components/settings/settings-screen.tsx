@@ -72,7 +72,7 @@ export function SettingsScreen() {
             automaticallyAdjustContentInsets={false}
             automaticallyAdjustsScrollIndicatorInsets={false}
             contentInsetAdjustmentBehavior="never"
-            contentContainerClassName="gap-4 p-4 pb-28"
+            contentContainerClassName="gap-4 p-4 pb-30"
             onContentSizeChange={scrollEdgeFades.onContentSizeChange}
             onLayout={scrollEdgeFades.onLayout}
             onScroll={scrollEdgeFades.onScroll}

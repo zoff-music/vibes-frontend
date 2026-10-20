@@ -188,6 +188,33 @@ test('mobile panels consistently use the large radius and thumbnails stay compac
   );
 });
 
+test('floating phone menu leaves extra clearance below the final content', () => {
+  for (const file of [
+    'settings/settings-screen',
+    'remote/remote-pairing',
+    'rooms/room-chat-panel',
+  ]) {
+    assert.match(
+      readFileSync(`apps/mobile/src/components/${file}.tsx`, 'utf8'),
+      /pb-30/,
+    );
+  }
+  assert.match(
+    readFileSync('apps/mobile/src/components/queue.tsx', 'utf8'),
+    /paddingBottom: 120/,
+  );
+});
+
+test('TV landing keeps decorative artwork behind the card and preserves focus', () => {
+  const source = readFileSync('apps/tv/src/screens/landing-screen.tsx', 'utf8');
+  assert.match(source, /absolute inset-x-0 top-0/);
+  assert.match(source, /<NativeLandingSun watch=\{watch\} compact/);
+  assert.match(source, /border-2 bg-tv-card/);
+  assert.match(source, /shape="pill"/);
+  assert.match(source, /preferred/);
+  assert.doesNotMatch(source, /mt-24/);
+});
+
 test('native tabs leave content insets to the screens safe-area layout', () => {
   const tabs = readFileSync(
     'apps/mobile/src/components/layout/app-tabs.tsx',

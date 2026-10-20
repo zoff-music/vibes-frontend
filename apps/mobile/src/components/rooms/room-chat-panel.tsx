@@ -87,7 +87,7 @@ export function RoomChatPanel({
     <View
       className={classNames(
         'min-h-0 flex-1',
-        !keyboardVisible && !isTablet && 'pb-28',
+        !keyboardVisible && !isTablet && 'pb-30',
         !keyboardVisible && isTablet && 'pb-16',
       )}
     >
