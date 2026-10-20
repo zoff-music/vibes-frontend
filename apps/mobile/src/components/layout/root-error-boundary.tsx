@@ -1,5 +1,6 @@
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import type { ErrorBoundaryProps } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
   return (

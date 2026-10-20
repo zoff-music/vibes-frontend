@@ -6,6 +6,10 @@ export {
   NativeGenerativeInvitation,
 } from './components/NativeGenerativeFrame';
 export { NativeLandingSun } from './components/NativeLandingSun';
+export {
+  NativePressable,
+  NativePressFeedbackContext,
+} from './components/NativePressable';
 export type {
   NativeControlSize,
   NativeControlTone,

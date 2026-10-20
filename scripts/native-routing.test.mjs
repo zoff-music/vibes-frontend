@@ -4,21 +4,21 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 import { build } from 'esbuild';
 
-test('iOS add action is independent of system tab grouping', () => {
+test('iPhone add action uses the native search role, with floating action only on tablets', () => {
   const tabs = readFileSync(
     'apps/mobile/src/components/layout/app-tabs.tsx',
     'utf8',
   );
-  assert.doesNotMatch(tabs, /role:\s*'search'/);
+  assert.match(tabs, /role="search"/);
   assert.match(
     tabs,
-    /hidden=\{!canAddPlaylistItems \|\| Platform.OS === 'ios'\}/,
+    /hidden=\{!canAddPlaylistItems \|\| tabletLayout.isTablet\}/,
   );
   const action = readFileSync(
     'apps/mobile/src/components/layout/floating-add-button.tsx',
     'utf8',
   );
-  assert.match(action, /Platform.OS !== 'ios'/);
+  assert.match(action, /!tabletLayout.isTablet \|\| !canAddPlaylistItems/);
   assert.match(action, /!canAddPlaylistItems/);
   assert.match(action, /keyboardVisible/);
   assert.match(action, /<AddPlaylistItemSheet/);
@@ -162,7 +162,7 @@ test('all mobile screens use context insets before their first native layout', a
             ({ path }) => ({
               contents:
                 path === 'react-native'
-                  ? 'export const View = "View";'
+                  ? 'export const View = "View"; export const Platform = { OS: "ios" };'
                   : 'export const useSafeAreaInsets = () => ({ top: 62, bottom: 34, left: 0, right: 0 });',
             }),
           );
@@ -191,6 +191,14 @@ test('all mobile screens use context insets before their first native layout', a
     },
   ]);
   assert.equal(ScreenSafeArea({}).props.style[1].paddingBottom, 34);
+  assert.equal(
+    ScreenSafeArea({ pageSheet: true }).props.style[1].paddingTop,
+    0,
+  );
+  assert.equal(
+    ScreenSafeArea({ pageSheet: true }).props.style[1].paddingBottom,
+    34,
+  );
 
   for (const file of ['rooms/rooms-screen', 'queue', 'search-results']) {
     assert.doesNotMatch(

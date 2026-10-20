@@ -23,10 +23,13 @@ The ignition sweep and layered pink/cyan halo animate only overlays, not layout.
 The heading, description, label slot and helper stay mounted in both modes so
 switching AI on or off does not move the form or room list.
 
-On iPhone, adding a track is a separate floating action above the native tab
-bar, not a search-role tab that iOS can merge into the navigation pill.
-The existing native add sheet, keyboard hiding, permissions and tablet action
-remain intact.
+On iPhone, adding a track uses the native search-role tab. The floating add
+action is tablet-only. App buttons and native tab presses provide short
+selection haptics without waiting for the haptic engine before acting.
+iOS page sheets omit the full-screen top inset while retaining bottom padding.
+Pull-to-refresh holds landing content in place and animates only the logo;
+Browse all aligns the room browser to the top. The background grid uses bounded
+2D perspective geometry and pauses when inactive or reduced motion is enabled.
 
 ## Navigation and requests
 

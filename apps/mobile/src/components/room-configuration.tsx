@@ -5,8 +5,9 @@ import type {
   SourceType,
 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
-import { Pressable, Switch, Text, View } from 'react-native';
+import { Switch, Text, View } from 'react-native';
 
 import { Card, Copy } from '@/components/native';
 import { useAppTheme } from '@/hooks/use-app-theme';

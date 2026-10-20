@@ -21,7 +21,6 @@ import {
   tabletNavigationHeight,
   useTabletLandscapeLayout,
 } from '@/hooks/use-tablet-landscape-layout';
-import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 
 interface ScreenProps extends PropsWithChildren {
   gridPaused?: boolean;
@@ -111,11 +110,7 @@ export function IconButton({
       disabled={disabled}
       icon={icon}
       iconColor={theme.text}
-      onPress={() => {
-        if (feedback) void triggerSelectionFeedback();
-
-        onPress();
-      }}
+      onPress={onPress}
       pressFeedback={feedback}
       size={size}
     />
@@ -149,11 +144,7 @@ export function Button({
       icon={icon}
       iconColor={iconColor}
       label={label}
-      onPress={() => {
-        if (feedback) void triggerSelectionFeedback();
-
-        onPress();
-      }}
+      onPress={onPress}
       pressFeedback={feedback}
       tone={tone}
     />

@@ -1,12 +1,14 @@
-import { View, type ViewProps } from 'react-native';
+import { Platform, View, type ViewProps } from 'react-native';
 import { type Edge, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ScreenSafeAreaProps extends ViewProps {
   edges?: readonly Edge[];
+  pageSheet?: boolean;
 }
 
 export function ScreenSafeArea({
   edges = allEdges,
+  pageSheet = false,
   style,
   ...props
 }: ScreenSafeAreaProps) {
@@ -20,7 +22,10 @@ export function ScreenSafeArea({
       style={[
         style,
         {
-          paddingTop: edges.includes('top') ? insets.top : 0,
+          paddingTop:
+            edges.includes('top') && !(pageSheet && Platform.OS === 'ios')
+              ? insets.top
+              : 0,
           paddingBottom: edges.includes('bottom') ? insets.bottom : 0,
           paddingLeft: edges.includes('left') ? insets.left : 0,
           paddingRight: edges.includes('right') ? insets.right : 0,

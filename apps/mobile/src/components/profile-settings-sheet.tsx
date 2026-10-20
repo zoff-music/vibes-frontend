@@ -101,7 +101,7 @@ export function ProfileSettingsSheet({
       onRequestClose={onClose}
     >
       <Screen showGrid={false}>
-        <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
+        <SafeAreaView pageSheet edges={['top', 'bottom']} style={safeAreaStyle}>
           <View className="flex-row items-center justify-between gap-4 px-5 py-4">
             <Heading>Profile</Heading>
             <IconButton

@@ -1,8 +1,9 @@
 import type { ProviderItem, SourceType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import { getProviderDisplayName } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';

@@ -12,6 +12,7 @@ import {
   NativeGenerativeFrame,
   NativeGenerativeInvitation,
   NativeLandingSun,
+  NativePressable as Pressable,
 } from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -21,16 +22,18 @@ import {
   Keyboard,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
-  Pressable,
   RefreshControl,
   ScrollView,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
+  useAnimatedRef,
   useAnimatedStyle,
+  useScrollOffset,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -63,6 +66,7 @@ export function RoomsScreen() {
   const router = useRouter();
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const { controllerRemote, loading, providers, room, roomId } =
     useRoomSession();
   const { setError, setRoomId, startGeneratedRoom } = useRoomActions();
@@ -85,7 +89,25 @@ export function RoomsScreen() {
   const [browseError, setBrowseError] = useState('');
   const [browsing, setBrowsing] = useState(false);
   const browseRequest = useRef(0);
-  const landingScroll = useRef<ScrollView>(null);
+  const landingScroll = useAnimatedRef<ScrollView>();
+  const landingContent = useRef<View>(null);
+  const landingContentTop = useRef(0);
+  const browseSection = useRef<View>(null);
+  const browseScrollPending = useRef(false);
+  const alignBrowser = () => {
+    if (!browseScrollPending.current || !landingContent.current) return;
+    browseSection.current?.measureLayout(landingContent.current, (_x, y) => {
+      browseScrollPending.current = false;
+      landingScroll.current?.scrollTo({
+        y: y + landingContentTop.current,
+        animated: true,
+      });
+    });
+  };
+  const landingOffset = useScrollOffset(landingScroll);
+  const landingPosition = useAnimatedStyle(() => ({
+    transform: [{ translateY: Math.min(landingOffset.value, 0) }],
+  }));
   const [, roomBrowserLoad] = useRequest(loadPublicRooms);
   const publicRooms =
     browseMode === 'live'
@@ -95,10 +117,7 @@ export function RoomsScreen() {
     Keyboard.dismiss();
     const requestId = ++browseRequest.current;
     setBrowseMode(mode);
-    landingScroll.current?.scrollTo({
-      y: 0,
-      animated: false,
-    });
+    browseScrollPending.current = mode === 'public';
     setBrowseQuery(q);
 
     if (mode === 'live') {
@@ -121,10 +140,6 @@ export function RoomsScreen() {
     if (requestId !== browseRequest.current) return;
 
     setBrowseResult(result.data);
-    landingScroll.current?.scrollTo({
-      y: 0,
-      animated: false,
-    });
     setBrowseError(result.error);
     setBrowsing(false);
   };
@@ -467,7 +482,7 @@ export function RoomsScreen() {
       <SafeAreaView edges={['top']} style={safeAreaStyle}>
         {refreshLogo}
         <View className="flex-1">
-          <ScrollView
+          <Animated.ScrollView
             contentInsetAdjustmentBehavior="never"
             ref={landingScroll}
             contentContainerClassName={classNames(
@@ -475,13 +490,25 @@ export function RoomsScreen() {
               browseMode === 'live' && 'md:justify-center',
             )}
             keyboardShouldPersistTaps="handled"
-            onContentSizeChange={scrollEdgeFades.onContentSizeChange}
+            onContentSizeChange={(width, contentHeight) => {
+              scrollEdgeFades.onContentSizeChange(width, contentHeight);
+              alignBrowser();
+            }}
             onLayout={scrollEdgeFades.onLayout}
             onScroll={scrollEdgeFades.onScroll}
             refreshControl={refreshControl}
             scrollEventThrottle={16}
           >
-            <View className="mx-auto w-full max-w-xl">
+            <Animated.View
+              ref={landingContent}
+              onLayout={(event) => {
+                landingContentTop.current = event.nativeEvent.layout.y;
+                alignBrowser();
+              }}
+              collapsable={false}
+              className="mx-auto w-full max-w-xl"
+              style={landingPosition}
+            >
               <View className="gap-7">
                 <View className="flex-row items-center gap-4 py-2">
                   <Image
@@ -630,7 +657,15 @@ export function RoomsScreen() {
                       </Text>
                     </View>
                   </View>
-                  <View className="w-full gap-4">
+                  <View
+                    ref={browseSection}
+                    collapsable={false}
+                    onLayout={alignBrowser}
+                    className="w-full gap-4"
+                    {...(browseMode === 'public' && {
+                      style: { minHeight: height - insets.top },
+                    })}
+                  >
                     <View
                       accessibilityRole="tablist"
                       className="flex-row items-center justify-between gap-3"
@@ -744,8 +779,8 @@ export function RoomsScreen() {
                   </View>
                 </View>
               </View>
-            </View>
-          </ScrollView>
+            </Animated.View>
+          </Animated.ScrollView>
           <ScrollEdgeFades
             backgroundColor={theme.background}
             bottomVisible={scrollEdgeFades.bottomVisible}

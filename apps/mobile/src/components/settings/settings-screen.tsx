@@ -1,15 +1,9 @@
 import type { SessionProfile } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import Constants from 'expo-constants';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  Linking,
-  Pressable,
-  ScrollView,
-  Switch,
-  Text,
-  View,
-} from 'react-native';
+import { Linking, ScrollView, Switch, Text, View } from 'react-native';
 import {
   Card,
   ContentColumn,

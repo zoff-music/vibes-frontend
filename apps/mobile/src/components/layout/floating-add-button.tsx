@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AddPlaylistItemSheet } from '@/components/add-sheet';
@@ -15,8 +15,7 @@ export function FloatingAddPlaylistItemButton() {
   const { addLabel, canAddPlaylistItems } = useRoomNavigation();
   const [addPlaylistItemVisible, setAddPlaylistItemVisible] = useState(false);
 
-  if ((!tabletLayout.isTablet && Platform.OS !== 'ios') || !canAddPlaylistItems)
-    return null;
+  if (!tabletLayout.isTablet || !canAddPlaylistItems) return null;
 
   return (
     <>
@@ -24,9 +23,7 @@ export function FloatingAddPlaylistItemButton() {
         <View
           className="absolute right-6 z-50"
           style={{
-            bottom: tabletLayout.isTablet
-              ? insets.bottom + 24
-              : insets.bottom + 76,
+            bottom: insets.bottom + 24,
           }}
         >
           <IconButton

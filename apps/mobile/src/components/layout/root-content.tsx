@@ -1,3 +1,4 @@
+import { NativePressFeedbackContext } from '@vibes/ui/native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
@@ -9,6 +10,7 @@ import {
 } from 'react-native-safe-area-context';
 import { ToastProvider } from '@/components/toast';
 import { palette } from '@/constants/theme';
+import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 import { AppProvider } from '@/providers/app-provider';
 import { RoomPlayerLayoutProvider } from '@/providers/room-player-layout-provider';
 import { useThemePreference } from '@/providers/theme-provider';
@@ -28,14 +30,18 @@ export function RootContent() {
         <ThemeProvider
           value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
         >
-          <ToastProvider>
-            <AppProvider>
-              <StatusBar style={resolvedScheme === 'dark' ? 'light' : 'dark'} />
-              <RoomPlayerLayoutProvider>
-                <RoomRuntime />
-              </RoomPlayerLayoutProvider>
-            </AppProvider>
-          </ToastProvider>
+          <NativePressFeedbackContext value={triggerSelectionFeedback}>
+            <ToastProvider>
+              <AppProvider>
+                <StatusBar
+                  style={resolvedScheme === 'dark' ? 'light' : 'dark'}
+                />
+                <RoomPlayerLayoutProvider>
+                  <RoomRuntime />
+                </RoomPlayerLayoutProvider>
+              </AppProvider>
+            </ToastProvider>
+          </NativePressFeedbackContext>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

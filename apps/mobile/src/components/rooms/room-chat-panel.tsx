@@ -1,9 +1,12 @@
 import { useRoomMessages } from '@vibes/api';
 import { classNames, useChatTimeline } from '@vibes/shared';
 import { useMutation } from '@vibes/shared/use-request';
-import { NativeChatConversation } from '@vibes/ui/native';
+import {
+  NativeChatConversation,
+  NativePressable as Pressable,
+} from '@vibes/ui/native';
 import { type ReactElement, type ReactNode, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { mobileApi } from '@/lib/api';

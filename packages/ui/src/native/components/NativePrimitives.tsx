@@ -7,17 +7,12 @@ import {
   useState,
 } from 'react';
 
-import {
-  type ImageSourcePropType,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { type ImageSourcePropType, Text, TextInput, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { type ZoffIconName, zoffIconDefinitions } from '../../shared';
 import { NativeIcon } from '../icons/NativeIcon';
+import { NativePressable as Pressable } from './NativePressable';
 
 export type NativeControlSize = 'default' | 'large';
 

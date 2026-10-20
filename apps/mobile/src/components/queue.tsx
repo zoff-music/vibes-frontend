@@ -1,13 +1,12 @@
 import type { PlaylistItem } from '@vibes/models';
 import { classNames, getProviderItemUrl, safeWrapAsync } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import { Image } from 'expo-image';
 import { memo, type ReactElement, useCallback } from 'react';
-
 import {
   FlatList,
   Linking,
   type ListRenderItemInfo,
-  Pressable,
   Text,
   View,
 } from 'react-native';
@@ -17,7 +16,6 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { Copy, Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 
 interface QueueProps {
   contained?: boolean;
@@ -61,7 +59,6 @@ const QueueItem = memo(function QueueItem({
         'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
       )}
       onPress={() => {
-        void triggerSelectionFeedback();
         onVote(playlistItem);
       }}
     >
@@ -158,7 +155,6 @@ const QueueItem = memo(function QueueItem({
               accessibilityLabel={`Delete ${playlistItem.title}`}
               className="w-20 items-center justify-center rounded-2xl border-2 border-error bg-error active:opacity-70"
               onPress={() => {
-                void triggerSelectionFeedback();
                 swipeable.close();
                 onDelete(playlistItem);
               }}

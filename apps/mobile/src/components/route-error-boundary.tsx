@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from 'react-native';
+import { NativePressable as Pressable } from '@vibes/ui/native';
+import { Text, View } from 'react-native';
 
 interface RecoveryProps {
   retry: () => void;
