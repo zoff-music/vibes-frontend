@@ -57,11 +57,27 @@ export function GenerativeInput({
       <div
         className={classNames(
           'generative-field relative isolate flex h-14 min-w-0 items-center rounded-2xl border bg-theme-surface transition-[box-shadow,border-color] duration-500 focus-within:ring-2 focus-within:ring-secondary/30 motion-reduce:transition-none',
-          active ? 'border-primary shadow-generative-field' : 'border-theme',
+          active
+            ? 'border-primary shadow-generative-field motion-safe:animate-generative-ignition'
+            : 'border-theme',
         )}
         data-powered={active}
         data-animate={discovery.animate}
       >
+        {active && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-2xl"
+          >
+            <span className="absolute -inset-2 origin-right rounded-3xl bg-radial-[at_100%_50%] from-secondary/45 via-primary/20 to-transparent opacity-0 blur-lg motion-safe:animate-generative-charge" />
+            <span className="absolute inset-0 overflow-hidden rounded-2xl">
+              <span className="absolute inset-0 origin-right bg-radial-[at_100%_50%] from-secondary/35 via-primary/15 to-transparent opacity-0 [mask-image:linear-gradient(to_left,black_40%,transparent)] motion-safe:animate-generative-charge" />
+              <span className="absolute inset-x-0 top-0 h-px origin-right bg-linear-to-l from-secondary via-white to-primary opacity-0 shadow-secondary-strong motion-safe:animate-generative-rail" />
+              <span className="absolute inset-x-0 bottom-0 h-px origin-right bg-linear-to-l from-secondary via-white to-primary opacity-0 shadow-secondary-strong motion-safe:animate-generative-rail" />
+              <span className="absolute inset-y-0 right-0 w-1/3 bg-linear-to-r from-transparent via-secondary/35 to-transparent opacity-0 motion-safe:animate-generative-sweep" />
+            </span>
+          </span>
+        )}
         <span
           aria-hidden="true"
           hidden={active}
@@ -103,7 +119,8 @@ export function GenerativeInput({
             variant={active ? 'secondary' : 'ghost'}
             className={classNames(
               'relative before:pointer-events-none before:absolute before:inset-0.5 before:rounded-full before:bg-radial before:from-primary/40 before:via-secondary/20 before:to-transparent before:opacity-0',
-              active && 'shadow-secondary-strong',
+              active &&
+                'shadow-secondary-strong motion-safe:animate-generative-switch',
               discovery.inviting &&
                 discovery.animate &&
                 'motion-safe:before:animate-generative-invitation motion-reduce:before:opacity-50',
@@ -121,6 +138,7 @@ export function GenerativeInput({
               aria-hidden="true"
               className={classNames(
                 'relative h-5 w-5',
+                active && 'motion-safe:animate-generative-spark',
                 discovery.inviting &&
                   discovery.animate &&
                   'motion-safe:animate-generative-wiggle',
@@ -141,7 +159,9 @@ export function GenerativeInput({
           aria-hidden="true"
           className={classNames(
             'pointer-events-none absolute inset-0 h-full w-full overflow-visible transition-opacity duration-500 motion-reduce:transition-none',
-            active ? 'opacity-100' : 'opacity-0',
+            active
+              ? 'opacity-100 motion-safe:animate-generative-ready'
+              : 'opacity-0',
           )}
         >
           <rect

@@ -1,4 +1,14 @@
 @theme {
+  --animate-generative-ignition: generative-ignition 1400ms ease-out both;
+  --animate-generative-charge: generative-charge 1400ms ease-out both;
+  --animate-generative-rail: generative-rail 1200ms 120ms ease-out both;
+  --animate-generative-sweep: generative-sweep 1100ms 160ms ease-out both;
+  --animate-generative-switch: generative-switch 1000ms ease-out both;
+  --animate-generative-spark: generative-spark 800ms ease-out both;
+  --animate-generative-ready: generative-ready 1400ms ease-out both;
+  --animate-generative-action: generative-action 850ms ease-out;
+  --animate-generative-action-sweep: generative-action-sweep 1000ms 150ms
+    ease-out both;
   --animate-generative-orbit: generative-orbit 3.8s linear infinite;
   --animate-generative-invitation: generative-invitation 2.6s ease-in-out
     infinite;
@@ -10,6 +20,129 @@
     -7px 0 20px rgba(255, 46, 151, 0.35), 7px 0 22px rgba(0, 217, 255, 0.35),
     inset 0 0 14px rgba(0, 217, 255, 0.1);
 
+  @keyframes generative-action {
+    0% {
+      transform: perspective(600px) rotateX(0) scale(1);
+    }
+    22% {
+      transform: perspective(600px) rotateX(-12deg) scale(0.96);
+    }
+    55% {
+      transform: perspective(600px) rotateX(5deg) scale(1.025);
+    }
+    78% {
+      transform: perspective(600px) rotateX(-2deg) scale(0.995);
+    }
+    100% {
+      transform: perspective(600px) rotateX(0) scale(1);
+    }
+  }
+  @keyframes generative-action-sweep {
+    0% {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(250%);
+    }
+  }
+  @keyframes generative-ready {
+    0%,
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes generative-ignition {
+    0% {
+      border-color: var(--color-secondary);
+      box-shadow: 16px 0 28px rgba(0, 217, 255, 0.5);
+    }
+    45% {
+      border-color: var(--color-secondary);
+      box-shadow:
+        -12px 0 32px rgba(255, 46, 151, 0.45),
+        12px 0 32px rgba(0, 217, 255, 0.5),
+        inset 0 0 24px rgba(0, 217, 255, 0.18);
+    }
+    100% {
+      box-shadow: var(--shadow-generative-field);
+    }
+  }
+  @keyframes generative-charge {
+    0% {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    12% {
+      opacity: 1;
+      transform: scaleX(0.12);
+    }
+    55% {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+    100% {
+      opacity: 0.25;
+      transform: scaleX(1);
+    }
+  }
+  @keyframes generative-rail {
+    0% {
+      opacity: 1;
+      transform: scaleX(0);
+    }
+    65% {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scaleX(1);
+    }
+  }
+  @keyframes generative-sweep {
+    0% {
+      opacity: 0;
+      transform: translateX(50%);
+    }
+    20%,
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-300%);
+    }
+  }
+  @keyframes generative-switch {
+    0% {
+      box-shadow: 0 0 0 rgba(0, 217, 255, 0);
+    }
+    20% {
+      box-shadow: 0 0 24px 6px rgba(0, 217, 255, 0.65);
+    }
+    100% {
+      box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
+    }
+  }
+  @keyframes generative-spark {
+    0% {
+      transform: scale(0.75);
+    }
+    25% {
+      transform: scale(1.25);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
   @keyframes generative-orbit {
     to {
       stroke-dashoffset: -100;

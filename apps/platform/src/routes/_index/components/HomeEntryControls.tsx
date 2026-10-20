@@ -58,11 +58,8 @@ export function HomeEntryControls({
       { method: 'post' },
     );
   };
-  const label = active
-    ? 'Generate room'
-    : value.trim()
-      ? 'Join room'
-      : 'Start a room';
+  const roomLabel = value.trim() ? 'Join room' : 'Start a room';
+  const label = active ? 'Generate room' : roomLabel;
 
   return (
     <section
@@ -84,6 +81,7 @@ export function HomeEntryControls({
         onSubmit={submit}
       />
       <Button
+        aria-label={generating ? 'Generating…' : label}
         onClick={submit}
         disabled={generating || (active && !value.trim())}
         variant="primary"
@@ -91,28 +89,65 @@ export function HomeEntryControls({
         contentAlignment="between"
         className={classNames(
           'relative h-14 w-full gap-3 overflow-hidden font-pixel',
+          active && !generating && 'motion-safe:animate-generative-action',
           generating &&
             'disabled:opacity-100 motion-safe:animate-ai-button-glow',
         )}
       >
+        {active && !generating && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-linear-to-r from-transparent via-white/40 to-transparent opacity-0 motion-safe:animate-generative-action-sweep"
+          />
+        )}
         {generating && (
           <span
             aria-hidden="true"
             className="absolute inset-y-0 w-1/3 bg-linear-to-r from-transparent via-white/35 to-transparent motion-safe:animate-ai-button-shimmer"
           />
         )}
-        <span className="relative" aria-live="polite">
+        <span className="sr-only" aria-live="polite">
           {generating ? 'Generating…' : label}
         </span>
-        {active && (
+        <span
+          aria-hidden="true"
+          className="relative block h-5 min-w-0 flex-1 whitespace-nowrap text-left leading-5"
+        >
+          <span
+            className={classNames(
+              'absolute inset-0 transition-opacity duration-150 motion-reduce:transition-none',
+              active ? 'opacity-0' : 'opacity-100 delay-150',
+            )}
+          >
+            {roomLabel}
+          </span>
+          <span
+            className={classNames(
+              'absolute inset-0 transition-opacity duration-200 motion-reduce:transition-none',
+              active ? 'opacity-100 delay-150' : 'opacity-0',
+            )}
+          >
+            {generating ? 'Generating…' : 'Generate room'}
+          </span>
+        </span>
+        <span aria-hidden="true" className="relative grid size-5 shrink-0">
           <SparklesIcon
-            aria-hidden="true"
-            className="relative h-5 w-5 shrink-0"
+            className={classNames(
+              'col-start-1 row-start-1 size-5 transition-[opacity,transform] duration-700 motion-reduce:transition-none',
+              active
+                ? 'rotate-0 scale-100 opacity-100 delay-150'
+                : '-rotate-90 scale-50 opacity-0',
+            )}
           />
-        )}
-        {!active && (
-          <ArrowRightIcon aria-hidden="true" className="h-5 w-5 shrink-0" />
-        )}
+          <ArrowRightIcon
+            className={classNames(
+              'col-start-1 row-start-1 size-5 transition-[opacity,transform] duration-300 motion-reduce:transition-none',
+              active
+                ? 'translate-x-3 scale-75 opacity-0'
+                : 'translate-x-0 scale-100 opacity-100',
+            )}
+          />
+        </span>
       </Button>
     </section>
   );

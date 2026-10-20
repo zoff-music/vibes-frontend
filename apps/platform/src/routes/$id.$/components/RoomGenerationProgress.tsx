@@ -50,12 +50,17 @@ export function RoomGenerationProgress({
     <div className="mx-auto flex h-full max-w-3xl items-center justify-center px-4 py-12">
       <div
         className={classNames(
-          'panel-surface w-full rounded-3xl border p-8 text-center shadow-2xl sm:p-12',
+          'relative isolate w-full rounded-3xl border bg-theme-surface p-8 text-center shadow-2xl sm:p-12',
           isFailed && 'border-error/60',
-          !isFailed &&
-            'animate-pulse border-secondary/60 shadow-secondary-progress',
+          !isFailed && 'border-secondary/60',
         )}
       >
+        {!isFailed && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 rounded-3xl shadow-secondary-progress motion-safe:animate-pulse"
+          />
+        )}
         {!isFailed && <GenerationSparkles className="mx-auto mb-6" />}
         {isFailed && (
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-error/10 text-error">
