@@ -160,6 +160,52 @@ test('glass action tones keep palette fills instead of neutral system grey', asy
   }
 });
 
+test('room and provider tabs share visible press feedback and action typography', async () => {
+  const { TabButton } = await loadComponent('tab-button', {
+    '@vibes/shared':
+      'export const classNames = (...values) => values.filter(Boolean).join(" ");',
+    '@vibes/ui/native': 'export const NativePressable = "Pressable";',
+    'react-native': 'export const Text = "Text";',
+  });
+  let presses = 0;
+  for (const selected of [false, true]) {
+    const tab = TabButton({
+      label: 'Chat',
+      selected,
+      count: 3,
+      onPress: () => {
+        presses += 1;
+      },
+    });
+    assert.equal(tab.props.accessibilityRole, 'tab');
+    assert.equal(tab.props.accessibilityState.selected, selected);
+    assert.match(tab.props.className, /active:scale-95/);
+    assert.match(tab.props.className, /active:opacity-80/);
+    assert.match(tab.props.children[0].props.className, /text-lg/);
+    assert.match(tab.props.children[1].props.className, /text-lg/);
+    if (selected) {
+      assert.match(tab.props.className, /border-accent bg-accent/);
+      assert.match(
+        tab.props.children[0].props.className,
+        /text-mobile-dark-background/,
+      );
+    }
+    tab.props.onPress();
+  }
+  assert.equal(presses, 2);
+  for (const file of ['rooms/room-chat-panel', 'search-sheet']) {
+    assert.match(
+      readFileSync(`apps/mobile/src/components/${file}.tsx`, 'utf8'),
+      /<TabButton/,
+    );
+  }
+  const primitives = readFileSync(
+    'packages/ui/src/native/components/NativePrimitives.tsx',
+    'utf8',
+  );
+  assert.match(primitives, /shape === 'pill' \? 'text-lg' : 'text-base'/);
+});
+
 test('every mobile page sheet uses a solid surface and theme-matched native backdrop', () => {
   for (const file of [
     'profile-settings-sheet',

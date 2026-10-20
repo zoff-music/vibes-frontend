@@ -315,7 +315,8 @@ export const NativeField = forwardRef<TextInput, NativeFieldProps>(
           className={classNames(
             'font-heading',
             'border-native-border bg-native-surface text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text',
-            size === 'default' && 'min-h-13 px-4 text-base',
+            size === 'default' && 'min-h-13 px-4',
+            size === 'default' && (shape === 'pill' ? 'text-lg' : 'text-base'),
             shape === 'pill' &&
               !props.multiline &&
               'rounded-full border px-5 focus:border-accent',

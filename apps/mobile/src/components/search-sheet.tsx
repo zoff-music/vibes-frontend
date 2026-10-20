@@ -10,6 +10,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { Button, Copy, Field, IconButton, Screen } from '@/components/native';
 import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { SearchResults } from '@/components/search-results';
+import { TabButton } from '@/components/tab-button';
 import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -130,29 +131,12 @@ export function SearchSheet({
               )}
             >
               {enabledProviders.map((source) => (
-                <Pressable
-                  accessibilityRole="tab"
-                  accessibilityState={{
-                    selected: provider === source,
-                  }}
+                <TabButton
+                  label={getProviderDisplayName(source)}
+                  selected={provider === source}
                   key={source}
-                  className={classNames(
-                    'min-h-11 flex-1 items-center justify-center px-3',
-                    'rounded-full',
-                    provider === source && 'bg-accent',
-                    provider !== source && 'bg-transparent',
-                  )}
                   onPress={() => setProvider(source)}
-                >
-                  <Text
-                    className={classNames(
-                      'font-heading text-sm',
-                      'text-mobile-text dark:text-mobile-dark-text',
-                    )}
-                  >
-                    {getProviderDisplayName(source)}
-                  </Text>
-                </Pressable>
+                />
               ))}
             </View>
           )}
