@@ -1,5 +1,5 @@
 import { Link } from '@kasperrt/smolter/preact';
-import { type PlaylistItem } from '@vibes/shared';
+import { type PlaylistItem, usePageVisibility } from '@vibes/shared';
 import {
   AnimatePresence,
   LayoutGroup,
@@ -48,6 +48,8 @@ const QueueListComponent: React.FC<Props> = ({
     () => new Set(playlistItems.map((item) => item.id)),
   );
   const reducedMotion = useReducedMotion();
+  const pageVisible = usePageVisibility();
+  const instant = reducedMotion || !pageVisible;
 
   if (playlistItems.length === 0) {
     if (emptyHref) {
@@ -78,35 +80,37 @@ const QueueListComponent: React.FC<Props> = ({
 
   return (
     <div className="relative space-y-2">
-      <LayoutGroup>
+      {/* Drop stale projections and pending exits on either visibility edge.
+          Only queue rows remount; the room session and players stay mounted. */}
+      <LayoutGroup key={String(pageVisible)}>
         {/* Keep exits in flow until removed, so survivors have one layout change. */}
         <AnimatePresence initial={false}>
           {visiblePlaylistItems.map((playlistItem, index) => (
             <motion.div
               key={playlistItem.id}
-              layout={reducedMotion ? false : 'position'}
+              layout={instant ? false : 'position'}
               initial={
-                initialItemIds.has(playlistItem.id)
+                instant || initialItemIds.has(playlistItem.id)
                   ? false
                   : {
                       opacity: 0,
-                      scale: reducedMotion ? 1 : 0.96,
-                      y: reducedMotion ? 0 : 14,
+                      scale: 0.96,
+                      y: 14,
                     }
               }
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{
                 opacity: 0,
-                scale: reducedMotion ? 1 : 0.96,
-                y: reducedMotion ? 0 : -14,
-                transition: { duration: reducedMotion ? 0 : 0.16 },
+                scale: instant ? 1 : 0.96,
+                y: instant ? 0 : -14,
+                transition: { duration: instant ? 0 : 0.16 },
               }}
               transition={{
                 type: 'spring',
                 stiffness: 420,
                 damping: 34,
-                opacity: { duration: reducedMotion ? 0 : 0.16 },
-                layout: { duration: reducedMotion ? 0 : 0.3, ease: 'easeOut' },
+                opacity: { duration: instant ? 0 : 0.16 },
+                layout: { duration: instant ? 0 : 0.3, ease: 'easeOut' },
               }}
             >
               <QueueItem
