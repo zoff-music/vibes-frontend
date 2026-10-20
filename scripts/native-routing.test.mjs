@@ -100,12 +100,56 @@ test('mobile actions use capsules and circles without changing TV defaults', () 
     'packages/ui/src/native/components/NativePrimitives.tsx',
     'utf8',
   );
-  assert.equal(controls.match(/shape = 'rounded'/g).length, 2);
+  assert.equal(controls.match(/shape = 'rounded'/g).length, 3);
   assert.match(controls, /shape === 'pill' && 'rounded-full px-6'/);
   assert.match(controls, /shape === 'circle' && 'rounded-full'/);
   assert.match(controls, /min-h-13/);
   assert.match(controls, /size-13/);
   assert.match(controls, /text-native-dark-background/);
+});
+
+test('mobile fields and their generative outline share the capsule geometry', () => {
+  const mobile = readFileSync('apps/mobile/src/components/native.tsx', 'utf8');
+  assert.match(mobile, /<NativeField \{\.\.\.props\} shape="pill" ref=\{ref\}/);
+  const frame = readFileSync(
+    'packages/ui/src/native/components/NativeGenerativeFrame.tsx',
+    'utf8',
+  );
+  assert.match(frame, /\(size.height - 4\) \/ 2/);
+  assert.equal(frame.match(/rx=\{radius\}/g).length, 3);
+  const field = readFileSync(
+    'packages/ui/src/native/components/NativePrimitives.tsx',
+    'utf8',
+  );
+  assert.match(
+    field,
+    /!props.multiline &&\s*'rounded-full border px-5 focus:border-accent'/,
+  );
+  assert.match(
+    field,
+    /props.multiline &&\s*'rounded-3xl border px-5 focus:border-accent'/,
+  );
+});
+
+test('glass controls preserve accessibility fallback and native interaction', () => {
+  const provider = readFileSync(
+    'apps/mobile/src/providers/control-material-provider.tsx',
+    'utf8',
+  );
+  assert.match(provider, /useState\(true\)/);
+  assert.match(provider, /reduceTransparencyChanged/);
+  assert.match(provider, /subscription.remove\(\)/);
+  assert.match(provider, /revision === 0/);
+  assert.match(provider, /!reducedTransparency && isLiquidGlassAvailable\(\)/);
+  const surface = readFileSync(
+    'apps/mobile/src/components/mobile-control-surface.tsx',
+    'utf8',
+  );
+  assert.match(surface, /glassEffectStyle="regular" isInteractive/);
+  assert.doesNotMatch(surface, /pointerEvents="none"|opacity-/);
+  const mobile = readFileSync('apps/mobile/src/components/native.tsx', 'utf8');
+  assert.equal(mobile.match(/useControlMaterial\(\) && !disabled/g).length, 2);
+  assert.equal(mobile.match(/pressFeedback=\{feedback && !glass\}/g).length, 2);
 });
 
 test('native tabs leave content insets to the screens safe-area layout', () => {

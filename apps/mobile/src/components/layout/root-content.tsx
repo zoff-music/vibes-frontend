@@ -8,6 +8,7 @@ import { ToastProvider } from '@/components/toast';
 import { palette } from '@/constants/theme';
 import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 import { AppProvider } from '@/providers/app-provider';
+import { ControlMaterialProvider } from '@/providers/control-material-provider';
 import { RoomPlayerLayoutProvider } from '@/providers/room-player-layout-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 import { RoomRuntime } from './room-runtime';
@@ -29,9 +30,11 @@ export function RootContent() {
           <ToastProvider>
             <AppProvider>
               <StatusBar style={resolvedScheme === 'dark' ? 'light' : 'dark'} />
-              <RoomPlayerLayoutProvider>
-                <RoomRuntime />
-              </RoomPlayerLayoutProvider>
+              <ControlMaterialProvider>
+                <RoomPlayerLayoutProvider>
+                  <RoomRuntime />
+                </RoomPlayerLayoutProvider>
+              </ControlMaterialProvider>
             </AppProvider>
           </ToastProvider>
         </NativePressFeedbackContext>

@@ -85,6 +85,10 @@ test('solid sheets do not remove the grid from normal screens or change their la
     'react-native':
       'export const View = "View", ActivityIndicator = "ActivityIndicator", Platform = { OS: "android" }; export const useWindowDimensions = () => ({ width: 1024 });',
     '@/components/native-retro-grid': 'export const NativeRetroGrid = "Grid";',
+    '@/components/mobile-control-surface':
+      'export const MobileControlSurface = "GlassSurface";',
+    '@/providers/control-material-provider':
+      'export const useControlMaterial = () => false;',
     '@/hooks/use-app-theme': 'export const useAppTheme = () => ({});',
     '@/hooks/use-tablet-landscape-layout':
       'export const tabletNavigationHeight = 80; export const useTabletLandscapeLayout = () => ({ isTablet: true });',

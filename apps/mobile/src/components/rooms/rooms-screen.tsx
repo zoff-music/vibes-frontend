@@ -8,7 +8,6 @@ import {
 import { classNames } from '@vibes/shared';
 import { useMutation, useRequest } from '@vibes/shared/use-request';
 import {
-  NativeButton,
   NativeGenerativeFrame,
   NativeGenerativeInvitation,
   NativeLandingSun,
@@ -586,11 +585,12 @@ export function RoomsScreen() {
                           {isAIMode ? 'What’s the vibe?' : 'Room name'}
                         </Text>
                         <NativeGenerativeFrame
+                          shape="pill"
                           active={isAIMode}
                           animate={generativeMotion}
                         >
                           <Field
-                            inputClassName="min-h-14 rounded-2xl border text-lg"
+                            inputClassName="min-h-14 text-lg"
                             accessibilityLabel={
                               isAIMode ? 'What’s the vibe?' : 'Room name'
                             }
@@ -649,16 +649,12 @@ export function RoomsScreen() {
                           />
                         </NativeGenerativeFrame>
                       </View>
-                      <NativeButton
-                        shape="pill"
+                      <Button
+                        label={submitLabel}
                         accessibilityLabel={submitLabel}
                         disabled={loading || generationLoading}
                         onPress={submitRoom}
-                      >
-                        <Text className="text-center font-heading text-lg text-mobile-dark-background">
-                          {submitLabel}
-                        </Text>
-                      </NativeButton>
+                      />
                       <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
                         Start a room. Make it yours.
                       </Text>

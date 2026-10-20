@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import { type ReactNode, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import Animated, {
@@ -17,16 +18,24 @@ interface Props {
   active: boolean;
   animate: boolean;
   children: ReactNode;
+  shape?: 'rounded' | 'pill';
 }
 
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
-export function NativeGenerativeFrame({ active, animate, children }: Props) {
+export function NativeGenerativeFrame({
+  active,
+  animate,
+  children,
+  shape = 'rounded',
+}: Props) {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const power = useSharedValue(0);
   const orbit = useSharedValue(0);
   const ignition = useSharedValue(1);
-  const perimeter = 2 * (size.width + size.height - 8) - 27;
+  const radius = shape === 'pill' ? Math.max(0, (size.height - 4) / 2) : 14;
+  const perimeter =
+    2 * (size.width + size.height - 8) - 8 * radius + 2 * Math.PI * radius;
 
   useEffect(() => {
     power.value = animate
@@ -131,13 +140,19 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
       <Animated.View
         pointerEvents="none"
         accessible={false}
-        className="absolute -inset-2 rounded-3xl border-4 border-primary/20 bg-primary/20"
+        className={classNames(
+          'absolute -inset-2 border-4 border-primary/20 bg-primary/20',
+          shape === 'pill' ? 'rounded-full' : 'rounded-3xl',
+        )}
         style={flare}
       />
       <Animated.View
         pointerEvents="none"
         accessible={false}
-        className="absolute -inset-1 rounded-3xl border-2 border-accent/40 bg-accent/10"
+        className={classNames(
+          'absolute -inset-1 border-2 border-accent/40 bg-accent/10',
+          shape === 'pill' ? 'rounded-full' : 'rounded-3xl',
+        )}
         style={glow}
       />
       {children}
@@ -145,7 +160,10 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
         pointerEvents="none"
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
-        className="absolute inset-0 overflow-hidden rounded-2xl"
+        className={classNames(
+          'absolute inset-0 overflow-hidden',
+          shape === 'pill' ? 'rounded-full' : 'rounded-2xl',
+        )}
       >
         <Animated.View
           className="absolute inset-y-0 right-0 w-1/3"
@@ -200,7 +218,7 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
               y={2}
               width={size.width - 4}
               height={size.height - 4}
-              rx={14}
+              rx={radius}
               fill="none"
               stroke="#ff28a0"
               strokeWidth={2}
@@ -212,7 +230,7 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
               y={2}
               width={size.width - 4}
               height={size.height - 4}
-              rx={14}
+              rx={radius}
               fill="none"
               stroke="#00cdea"
               strokeWidth={4}
@@ -225,7 +243,7 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
               y={2}
               width={size.width - 4}
               height={size.height - 4}
-              rx={14}
+              rx={radius}
               fill="none"
               stroke="#ff28a0"
               strokeWidth={4}
