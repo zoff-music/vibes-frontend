@@ -80,6 +80,7 @@ interface PlayerSize {
 }
 
 interface ObservedPlayback {
+  videoId: string;
   observedAt: number;
   positionSeconds: number;
   state: number;
@@ -417,33 +418,39 @@ const VideoPlayerComponent = ({
           String(Math.round(positionSeconds * 1000)),
         );
         const state = player.getPlayerState();
+        const loadedVideoID = player.getVideoData().video_id;
+        const playbackStore = usePlaybackStore.getState();
+        if (
+          pendingVideoIdRef.current ||
+          loadedVideoID !== playbackStore.currentPlaylistItem?.sourceId ||
+          (state !== YOUTUBE_STATE_PLAYING && state !== YOUTUBE_STATE_PAUSED)
+        ) {
+          if (
+            pendingVideoIdRef.current === loadedVideoID &&
+            (state === YOUTUBE_STATE_PLAYING || state === YOUTUBE_STATE_PAUSED)
+          ) {
+            pendingVideoIdRef.current = null;
+          }
+          observedPlaybackRef.current = null;
+          return;
+        }
         const previous = observedPlaybackRef.current;
         observedPlaybackRef.current = {
+          videoId: loadedVideoID,
           observedAt: now,
           positionSeconds,
           state,
         };
 
-        if (!previous || !canPlayAudio) {
+        if (!previous || previous.videoId !== loadedVideoID || !canPlayAudio) {
           return;
         }
 
-        const playbackStore = usePlaybackStore.getState();
         const authoritativePlayback = playbackStore.authoritativePlayback;
-        const loadedVideoID = player.getVideoData().video_id;
-
-        if (pendingVideoIdRef.current) {
-          if (loadedVideoID !== pendingVideoIdRef.current) {
-            return;
-          }
-
-          pendingVideoIdRef.current = null;
-        }
 
         const authoritativePositionMs =
           playbackStore.getAuthoritativePositionMs();
-        const isLocallyPlaying =
-          state === YOUTUBE_STATE_PLAYING || state === YOUTUBE_STATE_BUFFERING;
+        const isLocallyPlaying = state === YOUTUBE_STATE_PLAYING;
         const isAligned =
           loadedVideoID ===
             authoritativePlayback.currentPlaylistItem?.sourceId &&

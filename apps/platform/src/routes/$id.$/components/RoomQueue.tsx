@@ -117,19 +117,21 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
     // Granular store subscriptions
     const isPlayingFromStore = usePlaybackStore((state) => state.isPlaying);
+    const roomMatches = useRoomStore((state) => state.room?.id === roomId);
+    const useInitialSnapshot = isSSR || !roomMatches;
 
     /* 2. State & Computed */
-    const isPlaying = isSSR
+    const isPlaying = useInitialSnapshot
       ? (initialPlayback?.isPlaying ?? false)
       : isPlayingFromStore;
-    const displayPlaylistItems = isSSR
+    const displayPlaylistItems = useInitialSnapshot
       ? (initialPlaylistItems ?? [])
       : playlistItems;
 
     const currentPlaylistItemFromStore = usePlaybackStore(
       (state) => state.currentPlaylistItem,
     );
-    const currentPlaylistItemData = isSSR
+    const currentPlaylistItemData = useInitialSnapshot
       ? initialPlayback?.currentPlaylistItem
       : currentPlaylistItemFromStore;
     const visibleQueuedPlaylistItemCount = displayPlaylistItems.reduce(

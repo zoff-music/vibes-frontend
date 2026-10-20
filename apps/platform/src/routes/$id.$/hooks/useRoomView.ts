@@ -25,6 +25,7 @@ import { useReducedMotion } from 'framer-motion';
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -179,7 +180,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
     isGenerating && isGenerationProgressVisible && playlistItems.length <= 2;
   const isPartyScreen = !minimized && searchParams.get('view') === 'party';
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setMachineRoomId(loaderData.room.id);
 
     return () => {
@@ -377,7 +378,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
     );
   }, [navigate, displayRoom.roomType]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setIsSSR(false);
     setRoom(loaderData.room);
     setPlaylistItems(loaderData.playlistItems);
