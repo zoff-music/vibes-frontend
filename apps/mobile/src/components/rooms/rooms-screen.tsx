@@ -7,7 +7,12 @@ import {
 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useMutation, useRequest } from '@vibes/shared/use-request';
-import { NativeButton, NativeLandingSun } from '@vibes/ui/native';
+import {
+  NativeButton,
+  NativeGenerativeFrame,
+  NativeGenerativeInvitation,
+  NativeLandingSun,
+} from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -41,6 +46,7 @@ import {
 import { ZoffIcon } from '@/components/zoff-icon';
 import { mobileRoomPageSize } from '@/constants/public-rooms';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useGenerativeMotion } from '@/hooks/use-generative-motion';
 import { useLandingPlaceholder } from '@/hooks/use-landing-placeholder';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
 import { useInitialData } from '@/providers/initial-data-provider';
@@ -124,6 +130,8 @@ export function RoomsScreen() {
   };
   const [createVisible, setCreateVisible] = useState(false);
   const [isAIMode, setIsAIMode] = useState(false);
+  const [generationDiscovered, setGenerationDiscovered] = useState(false);
+  const generativeMotion = useGenerativeMotion();
   const [inputFocused, setInputFocused] = useState(false);
   const placeholder = useLandingPlaceholder(
     isAIMode,
@@ -554,53 +562,74 @@ export function RoomsScreen() {
                         </Text>
                       </View>
                       <View className="gap-2">
-                        <Field
-                          inputClassName="min-h-14 rounded-2xl border text-lg"
-                          accessibilityLabel={
-                            isAIMode ? 'Playlist prompt' : 'Room name'
-                          }
-                          autoCapitalize="none"
-                          onFocus={() => setInputFocused(true)}
-                          onBlur={() => setInputFocused(false)}
-                          value={value}
-                          onChangeText={(nextValue) => {
-                            setValue(nextValue);
-                            setError('');
-                          }}
-                          onSubmitEditing={submitRoom}
-                          maxLength={
-                            isAIMode
-                              ? generatedPlaylistPromptMaxLength
-                              : roomNameMaxLength
-                          }
-                          placeholder={placeholder}
-                          trailingAction={
-                            <Pressable
-                              accessibilityLabel={
-                                isAIMode
-                                  ? 'Turn off AI mode'
-                                  : 'Generate with AI'
-                              }
-                              accessibilityRole="switch"
-                              accessibilityState={{
-                                checked: isAIMode,
-                              }}
-                              className={classNames(
-                                'size-11 items-center justify-center rounded-xl border active:opacity-70',
-                                isAIMode && 'border-accent bg-accent',
-                                !isAIMode &&
-                                  'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-                              )}
-                              onPress={toggleAIMode}
-                            >
-                              <ZoffIcon
-                                color={isAIMode ? '#ffffff' : theme.text}
-                                name="sparkles"
-                                size={22}
-                              />
-                            </Pressable>
-                          }
-                        />
+                        {isAIMode && (
+                          <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                            What’s the vibe?
+                          </Text>
+                        )}
+                        <NativeGenerativeFrame
+                          active={isAIMode}
+                          animate={generativeMotion}
+                        >
+                          <Field
+                            inputClassName="min-h-14 rounded-2xl border text-lg"
+                            accessibilityLabel={
+                              isAIMode ? 'What’s the vibe?' : 'Room name'
+                            }
+                            autoCapitalize="none"
+                            onFocus={() => setInputFocused(true)}
+                            onBlur={() => setInputFocused(false)}
+                            value={value}
+                            onChangeText={(nextValue) => {
+                              setValue(nextValue);
+                              setError('');
+                            }}
+                            onSubmitEditing={submitRoom}
+                            maxLength={
+                              isAIMode
+                                ? generatedPlaylistPromptMaxLength
+                                : roomNameMaxLength
+                            }
+                            placeholder={placeholder}
+                            trailingAction={
+                              <NativeGenerativeInvitation
+                                active={isAIMode}
+                                animate={
+                                  generativeMotion &&
+                                  (isAIMode || !generationDiscovered)
+                                }
+                              >
+                                <Pressable
+                                  accessibilityLabel={
+                                    isAIMode
+                                      ? 'Turn off AI mode'
+                                      : 'Generate with AI'
+                                  }
+                                  accessibilityRole="switch"
+                                  accessibilityState={{
+                                    checked: isAIMode,
+                                  }}
+                                  className={classNames(
+                                    'size-11 items-center justify-center rounded-xl border active:opacity-70',
+                                    isAIMode && 'border-accent bg-accent',
+                                    !isAIMode &&
+                                      'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                                  )}
+                                  onPress={() => {
+                                    setGenerationDiscovered(true);
+                                    toggleAIMode();
+                                  }}
+                                >
+                                  <ZoffIcon
+                                    color={isAIMode ? '#ffffff' : theme.text}
+                                    name="sparkles"
+                                    size={22}
+                                  />
+                                </Pressable>
+                              </NativeGenerativeInvitation>
+                            }
+                          />
+                        </NativeGenerativeFrame>
                       </View>
                       <NativeButton
                         accessibilityLabel={submitLabel}

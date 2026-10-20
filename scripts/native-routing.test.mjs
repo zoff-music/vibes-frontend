@@ -4,6 +4,52 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 import { build } from 'esbuild';
 
+test('iOS add action is independent of system tab grouping', () => {
+  const tabs = readFileSync(
+    'apps/mobile/src/components/layout/app-tabs.tsx',
+    'utf8',
+  );
+  assert.doesNotMatch(tabs, /role:\s*'search'/);
+  assert.match(
+    tabs,
+    /hidden=\{!canAddPlaylistItems \|\| Platform.OS === 'ios'\}/,
+  );
+  const action = readFileSync(
+    'apps/mobile/src/components/layout/floating-add-button.tsx',
+    'utf8',
+  );
+  assert.match(action, /Platform.OS !== 'ios'/);
+  assert.match(action, /!canAddPlaylistItems/);
+  assert.match(action, /keyboardVisible/);
+  assert.match(action, /<AddPlaylistItemSheet/);
+});
+
+test('native generative motion is bounded and lifecycle-aware', () => {
+  const hook = readFileSync(
+    'apps/mobile/src/hooks/use-generative-motion.ts',
+    'utf8',
+  );
+  assert.match(hook, /useFocusEffect/);
+  assert.match(hook, /AppState.addEventListener/);
+  assert.match(hook, /reduceMotionChanged/);
+  assert.match(hook, /focused && active && !reducedMotion/);
+  const particles = readFileSync(
+    'packages/ui/src/native/components/NativeGenerativeParticles.tsx',
+    'utf8',
+  );
+  assert.match(particles, /current.slice\(-2\)/);
+  assert.match(particles, /clearTimeout\(timer\)/);
+  assert.match(particles, /Easing.linear/);
+  assert.match(particles, /bottom-full/);
+  const frame = readFileSync(
+    'packages/ui/src/native/components/NativeGenerativeFrame.tsx',
+    'utf8',
+  );
+  assert.match(frame, /useAnimatedProps/);
+  assert.match(frame, /strokeDashoffset/);
+  assert.match(frame, /cancelAnimation\(orbit\)/);
+});
+
 test('native tabs leave content insets to the screens safe-area layout', () => {
   const tabs = readFileSync(
     'apps/mobile/src/components/layout/app-tabs.tsx',

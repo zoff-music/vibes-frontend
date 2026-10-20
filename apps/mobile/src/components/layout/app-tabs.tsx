@@ -8,7 +8,6 @@ import {
   zoffIconSources,
 } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
@@ -16,10 +15,7 @@ export function AppTabs() {
   const router = useRouter();
   const [{ resolvedScheme }] = useThemePreference();
   const theme = useAppTheme();
-  const tabletLayout = useTabletLandscapeLayout();
   const { addLabel, canAddPlaylistItems, hasRoom } = useRoomNavigation();
-  const showsFloatingAddButton = tabletLayout.isTablet;
-  const hidesAddTab = Platform.OS === 'ios' && showsFloatingAddButton;
   const hidesNativeTabs = Platform.OS === 'android';
   const iconSources =
     Platform.OS === 'android' ? zoffAndroidIconSources : zoffIconSources;
@@ -101,13 +97,8 @@ export function AppTabs() {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         disableAutomaticContentInsets
-        hidden={!canAddPlaylistItems || hidesAddTab}
+        hidden={!canAddPlaylistItems || Platform.OS === 'ios'}
         name="add"
-        {...(Platform.OS === 'ios'
-          ? {
-              role: 'search' as const,
-            }
-          : {})}
       >
         <NativeTabs.Trigger.Label>{addLabel}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

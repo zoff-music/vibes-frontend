@@ -13,6 +13,18 @@ Shared controls and the native YouTube wrapper come from `@vibes/ui/native`,
 while platform-neutral presentation helpers come from `@vibes/ui/shared`.
 The app deliberately has no Expo web target.
 
+The landing-page AI toggle powers up a pink/cyan moving input border and a
+bounded set of varied pixel stars and notes above the field. Native Reanimated
+worklets drive each frame; particles fade before leaving the field area.
+Motion stops when backgrounded or leaving the screen and respects reduced
+motion. The toggle retains its sparkle icon and the active label is
+“What’s the vibe?”.
+
+On iPhone, adding a track is a separate floating action above the native tab
+bar, not a search-role tab that iOS can merge into the navigation pill.
+The existing native add sheet, keyboard hiding, permissions and tablet action
+remain intact.
+
 ## Navigation and requests
 
 Expo Router owns screen navigation, deep links, system tabs, modal presentation,

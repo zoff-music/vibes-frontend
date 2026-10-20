@@ -6,8 +6,8 @@ import { usePlaybackSession, useRoomSession } from '@/providers/app-provider';
 import { AndroidFloatingNavigation } from './android-floating-navigation';
 import { AppTabs } from './app-tabs';
 import { DeviceOrientationLock } from './device-orientation-lock';
+import { FloatingAddPlaylistItemButton } from './floating-add-button';
 import { MobileAnalytics } from './mobile-analytics';
-import { TabletAddPlaylistItemButton } from './tablet-add-button';
 import { TabletTopNavigation } from './tablet-top-navigation';
 
 export function RoomRuntime() {
@@ -28,7 +28,7 @@ export function RoomRuntime() {
       <AppTabs />
       <AndroidFloatingNavigation />
       <TabletTopNavigation />
-      <TabletAddPlaylistItemButton />
+      <FloatingAddPlaylistItemButton />
     </>
   );
 }
