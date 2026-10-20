@@ -109,6 +109,57 @@ test('solid sheets do not remove the grid from normal screens or change their la
   assert.deepEqual(sheet.props.children[1].props.style, { paddingTop: 80 });
 });
 
+test('glass action tones keep palette fills instead of neutral system grey', async () => {
+  for (const scheme of ['light', 'dark']) {
+    const palette = {
+      pink: '#ff2e97',
+      surface: scheme === 'dark' ? '#1e1330' : '#f2ddff',
+    };
+    const { MobileControlSurface } = await loadComponent(
+      'mobile-control-surface',
+      {
+        '@vibes/shared':
+          'export const classNames = (...values) => values.filter(Boolean).join(" ");',
+        'expo-glass-effect': 'export const GlassView = "GlassView";',
+        nativewind: 'export const styled = component => component;',
+        'react-native': 'export const View = "View";',
+        '@/hooks/use-app-theme': `export const useAppTheme = () => (${JSON.stringify(palette)});`,
+        '@/providers/theme-provider': `export const useThemePreference = () => [{ resolvedScheme: '${scheme}' }];`,
+      },
+    );
+    for (const tone of ['primary', 'secondary', 'danger']) {
+      const surface = MobileControlSurface({
+        enabled: true,
+        tone,
+        children: 'action',
+      });
+      assert.match(surface.props.className, /rounded-full/);
+      assert.match(
+        surface.props.className,
+        tone === 'primary'
+          ? /bg-mobile-primary/
+          : /bg-mobile-surface dark:bg-mobile-dark-surface/,
+      );
+      const glass = surface.props.children;
+      assert.equal(glass.props.colorScheme, scheme);
+      assert.equal(
+        glass.props.tintColor,
+        tone === 'primary' ? palette.pink : palette.surface,
+      );
+      assert.equal(glass.type(glass.props).props.isInteractive, true);
+      assert.equal(glass.props.children, 'action');
+      assert.equal(
+        MobileControlSurface({
+          enabled: false,
+          tone,
+          children: 'solid action',
+        }),
+        'solid action',
+      );
+    }
+  }
+});
+
 test('every mobile page sheet uses a solid surface and theme-matched native backdrop', () => {
   for (const file of [
     'profile-settings-sheet',

@@ -1,12 +1,14 @@
+import { classNames } from '@vibes/shared';
 import { GlassView } from 'expo-glass-effect';
 import { styled } from 'nativewind';
 import type { PropsWithChildren } from 'react';
+import { View } from 'react-native';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useThemePreference } from '@/providers/theme-provider';
 
 interface GlassSurfaceProps extends PropsWithChildren {
   colorScheme: 'light' | 'dark';
-  tintColor?: string;
+  tintColor: string;
   style?: { borderRadius?: number };
 }
 
@@ -34,12 +36,20 @@ export function MobileControlSurface({
   const theme = useAppTheme();
   if (!enabled) return children;
   return (
-    <ControlGlass
-      className="rounded-full"
-      colorScheme={resolvedScheme}
-      {...(tone === 'primary' && { tintColor: theme.pink })}
+    <View
+      className={classNames(
+        'rounded-full',
+        tone === 'primary' && 'bg-mobile-primary',
+        tone !== 'primary' && 'bg-mobile-surface dark:bg-mobile-dark-surface',
+      )}
     >
-      {children}
-    </ControlGlass>
+      <ControlGlass
+        className="rounded-full"
+        colorScheme={resolvedScheme}
+        tintColor={tone === 'primary' ? theme.pink : theme.surface}
+      >
+        {children}
+      </ControlGlass>
+    </View>
   );
 }
