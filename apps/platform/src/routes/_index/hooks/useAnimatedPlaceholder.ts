@@ -79,7 +79,7 @@ export function useAnimatedPlaceholder(
     ? isPaused && !isBlinkerVisible
       ? `${placeholderText.slice(0, -1)} `
       : placeholderText
-    : initialPlaceholder;
+    : '';
 
   useEffect(() => {
     if (!active) {
