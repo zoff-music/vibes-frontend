@@ -9,6 +9,7 @@ import {
 } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
+import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 import { useRoomNavigation } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
@@ -18,8 +19,6 @@ export function AppTabs() {
   const theme = useAppTheme();
   const tabletLayout = useTabletLandscapeLayout();
   const { addLabel, canAddPlaylistItems, hasRoom } = useRoomNavigation();
-  const showsFloatingAddButton = tabletLayout.isTablet;
-  const hidesAddTab = Platform.OS === 'ios' && showsFloatingAddButton;
   const hidesNativeTabs = Platform.OS === 'android';
   const iconSources =
     Platform.OS === 'android' ? zoffAndroidIconSources : zoffIconSources;
@@ -31,7 +30,7 @@ export function AppTabs() {
     router.prefetch('/settings');
   }, [router]);
 
-  if (Platform.OS === 'android') {
+  if (Platform.OS === 'android' || !tabletLayout.isTablet) {
     return (
       <Tabs
         tabBar={() => null}
@@ -50,6 +49,11 @@ export function AppTabs() {
 
   return (
     <NativeTabs
+      screenListeners={{
+        tabPress: (event) => {
+          if (!event.data.isPrevented) void triggerSelectionFeedback();
+        },
+      }}
       hidden={hidesNativeTabs}
       blurEffect={
         resolvedScheme === 'light'
@@ -101,13 +105,9 @@ export function AppTabs() {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         disableAutomaticContentInsets
-        hidden={!canAddPlaylistItems || hidesAddTab}
+        hidden={!canAddPlaylistItems || tabletLayout.isTablet}
         name="add"
-        {...(Platform.OS === 'ios'
-          ? {
-              role: 'search' as const,
-            }
-          : {})}
+        role="search"
       >
         <NativeTabs.Trigger.Label>{addLabel}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

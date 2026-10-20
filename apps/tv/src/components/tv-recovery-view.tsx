@@ -20,6 +20,7 @@ export function TvRecoveryView({ title, message, retry }: Props) {
         {message}
       </Text>
       <NativeButton
+        shape="pill"
         label="Try again"
         onPress={retry}
         tone="primary"

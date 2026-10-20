@@ -1,6 +1,7 @@
 import { classNames } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import { usePathname, useRouter } from 'expo-router';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';

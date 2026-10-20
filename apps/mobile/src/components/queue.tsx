@@ -1,13 +1,12 @@
 import type { PlaylistItem } from '@vibes/models';
 import { classNames, getProviderItemUrl, safeWrapAsync } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import { Image } from 'expo-image';
 import { memo, type ReactElement, useCallback } from 'react';
-
 import {
   FlatList,
   Linking,
   type ListRenderItemInfo,
-  Pressable,
   Text,
   View,
 } from 'react-native';
@@ -17,7 +16,6 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { Copy, Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 
 interface QueueProps {
   contained?: boolean;
@@ -58,10 +56,9 @@ const QueueItem = memo(function QueueItem({
       accessibilityLabel={`Vote for ${playlistItem.title}`}
       className={classNames(
         'h-18 flex-row items-center gap-3 border p-3',
-        'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
+        'rounded-3xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
       )}
       onPress={() => {
-        void triggerSelectionFeedback();
         onVote(playlistItem);
       }}
     >
@@ -105,7 +102,7 @@ const QueueItem = memo(function QueueItem({
       <View
         className={classNames(
           'flex-row items-center gap-1.5 px-2.5 py-2',
-          'rounded-xl bg-accent/10',
+          'rounded-full bg-accent/10',
         )}
       >
         <ZoffIcon color={theme.accent} name="vote" size={16} />
@@ -130,7 +127,7 @@ const QueueItem = memo(function QueueItem({
             <View
               className={classNames(
                 'h-full w-28 items-center justify-center gap-0.5 overflow-hidden border-2 px-2',
-                'rounded-2xl border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
+                'rounded-3xl border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',
               )}
             >
               <Text
@@ -156,9 +153,8 @@ const QueueItem = memo(function QueueItem({
           {onDelete && (
             <Pressable
               accessibilityLabel={`Delete ${playlistItem.title}`}
-              className="w-20 items-center justify-center rounded-2xl border-2 border-error bg-error active:opacity-70"
+              className="w-20 items-center justify-center rounded-3xl border-2 border-error bg-error active:opacity-70"
               onPress={() => {
-                void triggerSelectionFeedback();
                 swipeable.close();
                 onDelete(playlistItem);
               }}
@@ -174,7 +170,7 @@ const QueueItem = memo(function QueueItem({
               accessibilityLabel={`Open ${playlistItem.title} externally`}
               className={classNames(
                 'w-20 items-center justify-center border-2 active:opacity-70',
-                'rounded-2xl border-accent bg-accent',
+                'rounded-3xl border-accent bg-accent',
               )}
               onPress={() => {
                 swipeable.close();
@@ -290,7 +286,7 @@ function QueueSeparator() {
   return <View className="h-3" />;
 }
 const queueStyle = {
-  paddingBottom: 112,
+  paddingBottom: 120,
 };
 const thumbnailImageStyle = {
   height: '100%' as const,

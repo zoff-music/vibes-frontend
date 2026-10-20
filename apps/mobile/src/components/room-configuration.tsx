@@ -5,8 +5,9 @@ import type {
   SourceType,
 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
-import { Pressable, Switch, Text, View } from 'react-native';
+import { Switch, Text, View } from 'react-native';
 
 import { Card, Copy } from '@/components/native';
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -229,7 +230,7 @@ function ModeButton({
       accessibilityRole="radio"
       accessibilityState={{ checked: active, disabled }}
       className={classNames(
-        'min-h-24 flex-1 gap-2 rounded-2xl border p-4',
+        'min-h-24 flex-1 gap-2 rounded-3xl border p-4',
         !active &&
           'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
         active && mode === 'server' && 'border-accent bg-accent',

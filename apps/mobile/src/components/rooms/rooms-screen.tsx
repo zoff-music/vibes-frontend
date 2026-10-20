@@ -7,7 +7,12 @@ import {
 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
 import { useMutation, useRequest } from '@vibes/shared/use-request';
-import { NativeButton, NativeLandingSun } from '@vibes/ui/native';
+import {
+  NativeGenerativeFrame,
+  NativeGenerativeInvitation,
+  NativeLandingSun,
+  NativePressable as Pressable,
+} from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -16,16 +21,18 @@ import {
   Keyboard,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
-  Pressable,
   RefreshControl,
   ScrollView,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
+  useAnimatedRef,
   useAnimatedStyle,
+  useScrollOffset,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -41,6 +48,7 @@ import {
 import { ZoffIcon } from '@/components/zoff-icon';
 import { mobileRoomPageSize } from '@/constants/public-rooms';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useGenerativeMotion } from '@/hooks/use-generative-motion';
 import { useLandingPlaceholder } from '@/hooks/use-landing-placeholder';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
 import { useInitialData } from '@/providers/initial-data-provider';
@@ -57,6 +65,7 @@ export function RoomsScreen() {
   const router = useRouter();
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const { controllerRemote, loading, providers, room, roomId } =
     useRoomSession();
   const { setError, setRoomId, startGeneratedRoom } = useRoomActions();
@@ -79,7 +88,25 @@ export function RoomsScreen() {
   const [browseError, setBrowseError] = useState('');
   const [browsing, setBrowsing] = useState(false);
   const browseRequest = useRef(0);
-  const landingScroll = useRef<ScrollView>(null);
+  const landingScroll = useAnimatedRef<ScrollView>();
+  const landingContent = useRef<View>(null);
+  const landingContentTop = useRef(0);
+  const browseSection = useRef<View>(null);
+  const browseScrollPending = useRef(false);
+  const alignBrowser = () => {
+    if (!browseScrollPending.current || !landingContent.current) return;
+    browseSection.current?.measureLayout(landingContent.current, (_x, y) => {
+      browseScrollPending.current = false;
+      landingScroll.current?.scrollTo({
+        y: y + landingContentTop.current,
+        animated: true,
+      });
+    });
+  };
+  const landingOffset = useScrollOffset(landingScroll);
+  const landingPosition = useAnimatedStyle(() => ({
+    transform: [{ translateY: Math.min(landingOffset.value, 0) }],
+  }));
   const [, roomBrowserLoad] = useRequest(loadPublicRooms);
   const publicRooms =
     browseMode === 'live'
@@ -89,10 +116,7 @@ export function RoomsScreen() {
     Keyboard.dismiss();
     const requestId = ++browseRequest.current;
     setBrowseMode(mode);
-    landingScroll.current?.scrollTo({
-      y: 0,
-      animated: false,
-    });
+    browseScrollPending.current = mode === 'public';
     setBrowseQuery(q);
 
     if (mode === 'live') {
@@ -115,15 +139,13 @@ export function RoomsScreen() {
     if (requestId !== browseRequest.current) return;
 
     setBrowseResult(result.data);
-    landingScroll.current?.scrollTo({
-      y: 0,
-      animated: false,
-    });
     setBrowseError(result.error);
     setBrowsing(false);
   };
   const [createVisible, setCreateVisible] = useState(false);
   const [isAIMode, setIsAIMode] = useState(false);
+  const [generationDiscovered, setGenerationDiscovered] = useState(false);
+  const generativeMotion = useGenerativeMotion();
   const [inputFocused, setInputFocused] = useState(false);
   const placeholder = useLandingPlaceholder(
     isAIMode,
@@ -412,7 +434,7 @@ export function RoomsScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Join ${item.name}`}
-          className="w-full flex-row items-center gap-4 rounded-2xl border border-mobile-border bg-mobile-card p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
+          className="w-full flex-row items-center gap-4 rounded-3xl border border-mobile-border bg-mobile-card p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
           onPress={() => {
             setValue(item.id);
             void joinRoom(item.id);
@@ -459,7 +481,9 @@ export function RoomsScreen() {
       <SafeAreaView edges={['top']} style={safeAreaStyle}>
         {refreshLogo}
         <View className="flex-1">
-          <ScrollView
+          <Animated.ScrollView
+            automaticallyAdjustContentInsets={false}
+            automaticallyAdjustsScrollIndicatorInsets={false}
             contentInsetAdjustmentBehavior="never"
             ref={landingScroll}
             contentContainerClassName={classNames(
@@ -467,23 +491,35 @@ export function RoomsScreen() {
               browseMode === 'live' && 'md:justify-center',
             )}
             keyboardShouldPersistTaps="handled"
-            onContentSizeChange={scrollEdgeFades.onContentSizeChange}
+            onContentSizeChange={(width, contentHeight) => {
+              scrollEdgeFades.onContentSizeChange(width, contentHeight);
+              alignBrowser();
+            }}
             onLayout={scrollEdgeFades.onLayout}
             onScroll={scrollEdgeFades.onScroll}
             refreshControl={refreshControl}
             scrollEventThrottle={16}
           >
-            <View className="mx-auto w-full max-w-xl">
-              <View className="gap-7">
+            <Animated.View
+              ref={landingContent}
+              onLayout={(event) => {
+                landingContentTop.current = event.nativeEvent.layout.y;
+                alignBrowser();
+              }}
+              collapsable={false}
+              className="mx-auto w-full max-w-xl"
+              style={landingPosition}
+            >
+              <View className="gap-5">
                 <View className="flex-row items-center gap-4 py-2">
                   <Image
                     source={zoffLogo}
                     accessibilityLabel="Zoff"
-                    className="size-16"
+                    className="size-12"
                   />
 
                   <View className="gap-1">
-                    <Text className="font-heading text-4xl text-mobile-text dark:text-mobile-dark-text">
+                    <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
                       Zoff
                     </Text>
                     <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
@@ -521,105 +557,118 @@ export function RoomsScreen() {
                   ))}
                 </View>
                 <View className="gap-8">
-                  <View className="w-full">
-                    <NativeLandingSun watch={watch} />
-                    <View className="gap-6">
+                  <View className="relative w-full pt-8">
+                    <View
+                      pointerEvents="none"
+                      className="absolute inset-x-0 top-0"
+                    >
+                      <NativeLandingSun watch={watch} compact />
+                    </View>
+                    <View className="gap-5 rounded-3xl border border-mobile-border bg-mobile-card px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
                       <View className="gap-3">
                         <Text
                           accessibilityRole="header"
-                          className="text-center font-heading text-4xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
+                          className="text-center font-heading text-3xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
                         >
-                          {isAIMode
-                            ? watch
-                              ? 'Follow your '
-                              : 'Set the '
-                            : watch
-                              ? 'Watch '
-                              : 'Listen to music '}
+                          {watch ? 'Watch ' : 'Listen to music '}
                           {'\n'}
-                          <Text className="text-primary">
-                            {isAIMode
-                              ? watch
-                                ? 'curiosity.'
-                                : 'mood.'
-                              : 'together.'}
-                          </Text>
+                          <Text className="text-primary">together.</Text>
                         </Text>
                         <Text className="text-center font-heading text-base text-mobile-muted dark:text-mobile-dark-muted">
-                          {isAIMode
-                            ? 'Describe a mood. Start something together.'
-                            : watch
-                              ? 'One room. Everyone’s front row.'
-                              : 'One room. Everyone’s favourites.'}
+                          {watch
+                            ? 'One room. Everyone’s front row.'
+                            : 'One room. Everyone’s favourites.'}
                         </Text>
                       </View>
                       <View className="gap-2">
-                        <Field
-                          inputClassName="min-h-14 rounded-2xl border text-lg"
-                          accessibilityLabel={
-                            isAIMode ? 'Playlist prompt' : 'Room name'
-                          }
-                          autoCapitalize="none"
-                          onFocus={() => setInputFocused(true)}
-                          onBlur={() => setInputFocused(false)}
-                          value={value}
-                          onChangeText={(nextValue) => {
-                            setValue(nextValue);
-                            setError('');
-                          }}
-                          onSubmitEditing={submitRoom}
-                          maxLength={
-                            isAIMode
-                              ? generatedPlaylistPromptMaxLength
-                              : roomNameMaxLength
-                          }
-                          placeholder={placeholder}
-                          trailingAction={
-                            <Pressable
-                              accessibilityLabel={
-                                isAIMode
-                                  ? 'Turn off AI mode'
-                                  : 'Generate with AI'
-                              }
-                              accessibilityRole="switch"
-                              accessibilityState={{
-                                checked: isAIMode,
-                              }}
-                              className={classNames(
-                                'size-11 items-center justify-center rounded-xl border active:opacity-70',
-                                isAIMode && 'border-accent bg-accent',
-                                !isAIMode &&
-                                  'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-                              )}
-                              onPress={toggleAIMode}
-                            >
-                              <ZoffIcon
-                                color={isAIMode ? '#ffffff' : theme.text}
-                                name="sparkles"
-                                size={22}
-                              />
-                            </Pressable>
-                          }
-                        />
+                        <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                          {isAIMode ? 'What’s the vibe?' : 'Room name'}
+                        </Text>
+                        <NativeGenerativeFrame
+                          shape="pill"
+                          active={isAIMode}
+                          animate={generativeMotion}
+                        >
+                          <Field
+                            inputClassName="min-h-14 text-lg"
+                            accessibilityLabel={
+                              isAIMode ? 'What’s the vibe?' : 'Room name'
+                            }
+                            autoCapitalize="none"
+                            onFocus={() => setInputFocused(true)}
+                            onBlur={() => setInputFocused(false)}
+                            value={value}
+                            onChangeText={(nextValue) => {
+                              setValue(nextValue);
+                              setError('');
+                            }}
+                            onSubmitEditing={submitRoom}
+                            maxLength={
+                              isAIMode
+                                ? generatedPlaylistPromptMaxLength
+                                : roomNameMaxLength
+                            }
+                            placeholder={placeholder}
+                            trailingAction={
+                              <NativeGenerativeInvitation
+                                active={isAIMode}
+                                animate={
+                                  generativeMotion &&
+                                  (isAIMode || !generationDiscovered)
+                                }
+                              >
+                                <Pressable
+                                  accessibilityLabel={
+                                    isAIMode
+                                      ? 'Turn off AI mode'
+                                      : 'Generate with AI'
+                                  }
+                                  accessibilityRole="switch"
+                                  accessibilityState={{
+                                    checked: isAIMode,
+                                  }}
+                                  className={classNames(
+                                    'size-11 items-center justify-center rounded-full border active:opacity-70',
+                                    isAIMode && 'border-accent bg-accent',
+                                    !isAIMode &&
+                                      'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                                  )}
+                                  onPress={() => {
+                                    setGenerationDiscovered(true);
+                                    toggleAIMode();
+                                  }}
+                                >
+                                  <ZoffIcon
+                                    color={isAIMode ? '#ffffff' : theme.text}
+                                    name="sparkles"
+                                    size={22}
+                                  />
+                                </Pressable>
+                              </NativeGenerativeInvitation>
+                            }
+                          />
+                        </NativeGenerativeFrame>
                       </View>
-                      <NativeButton
+                      <Button
+                        label={submitLabel}
                         accessibilityLabel={submitLabel}
-                        className="min-h-14 rounded-2xl"
                         disabled={loading || generationLoading}
                         onPress={submitRoom}
-                      >
-                        <Text className="text-center font-heading text-mobile-dark-background text-xl">
-                          {submitLabel}
-                        </Text>
-                      </NativeButton>
-                      {!isAIMode && (
-                        <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                          Enter a room name to join, or create your own.
-                        </Text>
-                      )}
+                      />
+                      <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                        Start a room. Make it yours.
+                      </Text>
                     </View>
                   </View>
-                  <View className="w-full gap-4">
+                  <View
+                    ref={browseSection}
+                    collapsable={false}
+                    onLayout={alignBrowser}
+                    className="w-full gap-4"
+                    {...(browseMode === 'public' && {
+                      style: { minHeight: height - insets.top },
+                    })}
+                  >
                     <View
                       accessibilityRole="tablist"
                       className="flex-row items-center justify-between gap-3"
@@ -633,7 +682,7 @@ export function RoomsScreen() {
                           }}
                           onPress={() => void loadRooms(mode, 0, '')}
                           className={classNames(
-                            'min-h-11 flex-row items-center gap-2 rounded-xl active:opacity-70',
+                            'min-h-11 flex-row items-center gap-2 rounded-full active:opacity-70',
                             mode === 'public' && 'px-2',
                           )}
                         >
@@ -733,8 +782,8 @@ export function RoomsScreen() {
                   </View>
                 </View>
               </View>
-            </View>
-          </ScrollView>
+            </Animated.View>
+          </Animated.ScrollView>
           <ScrollEdgeFades
             backgroundColor={theme.background}
             bottomVisible={scrollEdgeFades.bottomVisible}

@@ -1,8 +1,9 @@
 import type { ProviderItem, SourceType } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import { getProviderDisplayName } from '@vibes/ui/shared';
 import { Image } from 'expo-image';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
@@ -31,7 +32,7 @@ export function SearchResults({
             accessibilityLabel={`Add ${result.title}`}
             className={classNames(
               'min-h-19 flex-row items-center gap-4 border p-4',
-              'rounded-2xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
+              'rounded-3xl border-mobile-border bg-mobile-card active:border-accent active:bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-card dark:active:bg-mobile-dark-surface',
             )}
             onPress={() => void onAdd(result)}
           >
@@ -65,7 +66,7 @@ export function SearchResults({
             <View
               className={classNames(
                 'size-10 items-center justify-center',
-                'rounded-xl bg-primary',
+                'rounded-full bg-primary',
               )}
             >
               <ZoffIcon color="#ffffff" name="add" size={16} />

@@ -50,7 +50,7 @@ export function CastButton() {
     <View
       className={classNames(
         'size-13 items-center justify-center border active:opacity-65',
-        'rounded-xl border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
+        'rounded-full border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
       )}
     >
       <NativeCastButton
@@ -61,7 +61,7 @@ export function CastButton() {
       <View
         className={classNames(
           'absolute inset-0 items-center justify-center',
-          'rounded-xl bg-mobile-card dark:bg-mobile-dark-card',
+          'rounded-full bg-mobile-card dark:bg-mobile-dark-card',
         )}
         pointerEvents="none"
       >

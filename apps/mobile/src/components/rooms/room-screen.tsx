@@ -222,7 +222,7 @@ export function RoomScreen() {
       <View
         className={classNames(
           'h-56 overflow-hidden border',
-          'rounded-2xl border-accent/60 bg-mobile-card dark:bg-mobile-dark-card',
+          'rounded-3xl border-accent/60 bg-mobile-card dark:bg-mobile-dark-card',
         )}
       >
         <RoomGenerationProgress />
@@ -429,7 +429,7 @@ export function RoomScreen() {
         <View
           className={classNames(
             'h-13 flex-row items-center gap-2 border px-4',
-            'rounded-xl border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
+            'rounded-full border-mobile-border bg-mobile-card/90 dark:border-mobile-dark-border dark:bg-mobile-dark-card/90',
           )}
         >
           <View className={classNames('size-2', 'rounded-full bg-accent')} />

@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from 'react-native';
+import { NativePressable as Pressable } from '@vibes/ui/native';
+import { Text, View } from 'react-native';
 
 interface RecoveryProps {
   retry: () => void;
@@ -15,10 +16,12 @@ export function ErrorBoundary({ retry }: RecoveryProps) {
       </Text>
       <Pressable
         accessibilityRole="button"
-        className="rounded-xl bg-mobile-primary px-6 py-4 active:opacity-80"
+        className="min-h-13 rounded-full bg-mobile-primary px-6 py-4 active:opacity-80"
         onPress={retry}
       >
-        <Text className="font-heading text-lg text-white">Try again</Text>
+        <Text className="font-heading text-lg text-mobile-dark-background">
+          Try again
+        </Text>
       </Pressable>
     </View>
   );

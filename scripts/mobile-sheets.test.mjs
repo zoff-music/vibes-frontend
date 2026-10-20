@@ -85,6 +85,10 @@ test('solid sheets do not remove the grid from normal screens or change their la
     'react-native':
       'export const View = "View", ActivityIndicator = "ActivityIndicator", Platform = { OS: "android" }; export const useWindowDimensions = () => ({ width: 1024 });',
     '@/components/native-retro-grid': 'export const NativeRetroGrid = "Grid";',
+    '@/components/mobile-control-surface':
+      'export const MobileControlSurface = "GlassSurface";',
+    '@/providers/control-material-provider':
+      'export const useControlMaterial = () => false;',
     '@/hooks/use-app-theme': 'export const useAppTheme = () => ({});',
     '@/hooks/use-tablet-landscape-layout':
       'export const tabletNavigationHeight = 80; export const useTabletLandscapeLayout = () => ({ isTablet: true });',
@@ -103,6 +107,103 @@ test('solid sheets do not remove the grid from normal screens or change their la
   );
   assert.equal(sheet.props.children[1].props.children, 'content');
   assert.deepEqual(sheet.props.children[1].props.style, { paddingTop: 80 });
+});
+
+test('glass action tones keep palette fills instead of neutral system grey', async () => {
+  for (const scheme of ['light', 'dark']) {
+    const palette = {
+      pink: '#ff2e97',
+      surface: scheme === 'dark' ? '#1e1330' : '#f2ddff',
+    };
+    const { MobileControlSurface } = await loadComponent(
+      'mobile-control-surface',
+      {
+        '@vibes/shared':
+          'export const classNames = (...values) => values.filter(Boolean).join(" ");',
+        'expo-glass-effect': 'export const GlassView = "GlassView";',
+        nativewind: 'export const styled = component => component;',
+        'react-native': 'export const View = "View";',
+        '@/hooks/use-app-theme': `export const useAppTheme = () => (${JSON.stringify(palette)});`,
+        '@/providers/theme-provider': `export const useThemePreference = () => [{ resolvedScheme: '${scheme}' }];`,
+      },
+    );
+    for (const tone of ['primary', 'secondary', 'danger']) {
+      const surface = MobileControlSurface({
+        enabled: true,
+        tone,
+        children: 'action',
+      });
+      assert.match(surface.props.className, /rounded-full/);
+      assert.match(
+        surface.props.className,
+        tone === 'primary'
+          ? /bg-mobile-primary/
+          : /bg-mobile-surface dark:bg-mobile-dark-surface/,
+      );
+      const glass = surface.props.children;
+      assert.equal(glass.props.colorScheme, scheme);
+      assert.equal(
+        glass.props.tintColor,
+        tone === 'primary' ? palette.pink : palette.surface,
+      );
+      assert.equal(glass.type(glass.props).props.isInteractive, true);
+      assert.equal(glass.props.children, 'action');
+      assert.equal(
+        MobileControlSurface({
+          enabled: false,
+          tone,
+          children: 'solid action',
+        }),
+        'solid action',
+      );
+    }
+  }
+});
+
+test('room and provider tabs share visible press feedback and action typography', async () => {
+  const { TabButton } = await loadComponent('tab-button', {
+    '@vibes/shared':
+      'export const classNames = (...values) => values.filter(Boolean).join(" ");',
+    '@vibes/ui/native': 'export const NativePressable = "Pressable";',
+    'react-native': 'export const Text = "Text";',
+  });
+  let presses = 0;
+  for (const selected of [false, true]) {
+    const tab = TabButton({
+      label: 'Chat',
+      selected,
+      count: 3,
+      onPress: () => {
+        presses += 1;
+      },
+    });
+    assert.equal(tab.props.accessibilityRole, 'tab');
+    assert.equal(tab.props.accessibilityState.selected, selected);
+    assert.match(tab.props.className, /active:scale-95/);
+    assert.match(tab.props.className, /active:opacity-80/);
+    assert.match(tab.props.children[0].props.className, /text-lg/);
+    assert.match(tab.props.children[1].props.className, /text-lg/);
+    if (selected) {
+      assert.match(tab.props.className, /border-accent bg-accent/);
+      assert.match(
+        tab.props.children[0].props.className,
+        /text-mobile-dark-background/,
+      );
+    }
+    tab.props.onPress();
+  }
+  assert.equal(presses, 2);
+  for (const file of ['rooms/room-chat-panel', 'search-sheet']) {
+    assert.match(
+      readFileSync(`apps/mobile/src/components/${file}.tsx`, 'utf8'),
+      /<TabButton/,
+    );
+  }
+  const primitives = readFileSync(
+    'packages/ui/src/native/components/NativePrimitives.tsx',
+    'utf8',
+  );
+  assert.match(primitives, /shape === 'pill' \? 'text-lg' : 'text-base'/);
 });
 
 test('every mobile page sheet uses a solid surface and theme-matched native backdrop', () => {

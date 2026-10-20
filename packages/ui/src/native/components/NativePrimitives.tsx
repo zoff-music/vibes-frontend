@@ -7,17 +7,12 @@ import {
   useState,
 } from 'react';
 
-import {
-  type ImageSourcePropType,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { type ImageSourcePropType, Text, TextInput, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { type ZoffIconName, zoffIconDefinitions } from '../../shared';
 import { NativeIcon } from '../icons/NativeIcon';
+import { NativePressable as Pressable } from './NativePressable';
 
 export type NativeControlSize = 'default' | 'large';
 
@@ -25,12 +20,14 @@ export type NativeControlTone = 'primary' | 'secondary' | 'danger';
 
 interface NativeCardProps extends PropsWithChildren {
   className?: string;
+  radius?: 'default' | 'large';
   size?: NativeControlSize;
 }
 
 export function NativeCard({
   children,
   className,
+  radius = 'default',
   size = 'default',
 }: NativeCardProps) {
   return (
@@ -38,9 +35,9 @@ export function NativeCard({
       className={classNames(
         'border-native-border bg-native-card/95 dark:border-native-dark-border dark:bg-native-dark-card/95',
         size === 'default' && 'gap-4 border p-4',
-        size === 'default' && 'rounded-2xl',
+        size === 'default' && radius === 'default' && 'rounded-2xl',
         size === 'large' && 'gap-8 border-2 p-10',
-        size === 'large' && 'rounded-3xl',
+        (size === 'large' || radius === 'large') && 'rounded-3xl',
         className,
       )}
     >
@@ -97,6 +94,8 @@ export function NativeHeading({
 }
 
 interface NativeButtonProps extends PropsWithChildren {
+  surface?: 'solid' | 'glass';
+  shape?: 'rounded' | 'pill';
   accessibilityLabel?: string;
   className?: string;
   disabled?: boolean;
@@ -112,6 +111,8 @@ interface NativeButtonProps extends PropsWithChildren {
 }
 
 export function NativeButton({
+  surface = 'solid',
+  shape = 'rounded',
   accessibilityLabel,
   children,
   className,
@@ -130,7 +131,8 @@ export function NativeButton({
   const resolvedAccessibilityLabel = accessibilityLabel ?? label;
   let resolvedIconColor = iconColor ?? '#e8dff5';
 
-  if (tone === 'primary') resolvedIconColor = '#ffffff';
+  if (tone === 'primary' && !iconColor)
+    resolvedIconColor = shape === 'pill' ? '#120b1e' : '#ffffff';
 
   if (tone === 'danger') resolvedIconColor = '#d91465';
 
@@ -145,19 +147,27 @@ export function NativeButton({
         disabled,
       }}
       className={classNames(
-        'flex-row items-center justify-center border active:opacity-70',
+        'flex-row items-center justify-center border',
+        surface === 'solid' && 'active:opacity-70',
+        surface === 'glass' && 'border-transparent bg-transparent',
         pressFeedback && 'active:scale-95',
         size === 'default' && 'min-h-13 gap-2 px-4',
-        size === 'default' && 'rounded-xl',
+        shape === 'pill' && 'rounded-full px-6',
+        shape === 'rounded' && size === 'default' && 'rounded-xl',
         size === 'large' && 'min-h-24 gap-5 border-2 px-10 py-5',
-        size === 'large' && 'rounded-2xl',
-        tone === 'primary' && 'border-primary bg-primary',
-        tone === 'danger' &&
+        shape === 'rounded' && size === 'large' && 'rounded-2xl',
+        surface === 'solid' &&
+          tone === 'primary' &&
+          'border-primary bg-primary',
+        surface === 'solid' &&
+          tone === 'danger' &&
           'border-error bg-native-surface dark:bg-native-dark-surface',
-        tone === 'secondary' &&
+        surface === 'solid' &&
+          tone === 'secondary' &&
           !selected &&
           'border-native-border bg-native-surface dark:border-native-dark-border dark:bg-native-dark-surface',
-        tone === 'secondary' &&
+        surface === 'solid' &&
+          tone === 'secondary' &&
           selected &&
           'border-accent bg-native-surface dark:bg-native-dark-surface',
         focused && 'border-accent bg-accent',
@@ -185,9 +195,10 @@ export function NativeButton({
         <Text
           className={classNames(
             'font-heading',
-            size === 'default' && 'text-base',
+            size === 'default' && (shape === 'pill' ? 'text-lg' : 'text-base'),
             size === 'large' && 'text-2xl',
-            tone === 'primary' && 'text-white',
+            tone === 'primary' &&
+              (shape === 'pill' ? 'text-native-dark-background' : 'text-white'),
             tone === 'danger' && 'text-error',
             tone === 'secondary' &&
               'text-native-text dark:text-native-dark-text',
@@ -202,6 +213,7 @@ export function NativeButton({
 }
 
 interface NativeFieldProps {
+  shape?: 'rounded' | 'pill';
   accessibilityLabel?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words';
   editable?: boolean;
@@ -223,6 +235,8 @@ interface NativeFieldProps {
 }
 
 interface NativeIconButtonProps {
+  surface?: 'solid' | 'glass';
+  shape?: 'rounded' | 'circle';
   accessibilityLabel: string;
   disabled?: boolean;
   icon: ZoffIconName;
@@ -233,6 +247,8 @@ interface NativeIconButtonProps {
 }
 
 export function NativeIconButton({
+  surface = 'solid',
+  shape = 'rounded',
   accessibilityLabel,
   disabled = false,
   icon,
@@ -248,13 +264,16 @@ export function NativeIconButton({
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
       className={classNames(
-        'items-center justify-center border active:opacity-70',
-        'border-native-border bg-native-surface dark:border-native-dark-border dark:bg-native-dark-surface',
+        'items-center justify-center border',
+        surface === 'solid' &&
+          'border-native-border bg-native-surface active:opacity-70 dark:border-native-dark-border dark:bg-native-dark-surface',
+        surface === 'glass' && 'border-transparent bg-transparent',
         pressFeedback && 'active:scale-90',
         size === 'default' && 'size-13',
-        size === 'default' && 'rounded-xl',
+        shape === 'circle' && 'rounded-full',
+        shape === 'rounded' && size === 'default' && 'rounded-xl',
         size === 'large' && 'size-24 border-2',
-        size === 'large' && 'rounded-2xl',
+        shape === 'rounded' && size === 'large' && 'rounded-2xl',
         focused && 'border-accent bg-accent',
         disabled && 'opacity-40',
       )}
@@ -278,6 +297,7 @@ export function NativeIconButton({
 export const NativeField = forwardRef<TextInput, NativeFieldProps>(
   function NativeField(
     {
+      shape = 'rounded',
       inputClassName,
       size = 'default',
       trailingAction,
@@ -295,10 +315,17 @@ export const NativeField = forwardRef<TextInput, NativeFieldProps>(
           className={classNames(
             'font-heading',
             'border-native-border bg-native-surface text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text',
-            size === 'default' && 'min-h-13 px-4 text-base',
-            size === 'default' && 'rounded-xl',
+            size === 'default' && 'min-h-13 px-4',
+            size === 'default' && (shape === 'pill' ? 'text-lg' : 'text-base'),
+            shape === 'pill' &&
+              !props.multiline &&
+              'rounded-full border px-5 focus:border-accent',
+            shape === 'pill' &&
+              props.multiline &&
+              'rounded-3xl border px-5 focus:border-accent',
+            shape === 'rounded' && size === 'default' && 'rounded-xl',
             size === 'large' && 'min-h-24 border-2 px-8 text-3xl',
-            size === 'large' && 'rounded-2xl',
+            shape === 'rounded' && size === 'large' && 'rounded-2xl',
             Boolean(trailingAction) && (size === 'large' ? 'pr-24' : 'pr-16'),
             inputClassName,
           )}

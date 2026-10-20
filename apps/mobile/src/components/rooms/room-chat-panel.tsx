@@ -3,7 +3,8 @@ import { classNames, useChatTimeline } from '@vibes/shared';
 import { useMutation } from '@vibes/shared/use-request';
 import { NativeChatConversation } from '@vibes/ui/native';
 import { type ReactElement, type ReactNode, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { View } from 'react-native';
+import { TabButton } from '@/components/tab-button';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { mobileApi } from '@/lib/api';
@@ -57,50 +58,18 @@ export function RoomChatPanel({
         !isTabletLandscape && 'mx-4',
       )}
     >
-      <Pressable
-        accessibilityRole="tab"
-        accessibilityState={{
-          selected: !chat.open,
-        }}
+      <TabButton
+        label="Up next"
+        count={count}
+        selected={!chat.open}
         onPress={() => chat.selectChat(false)}
-        className={classNames(
-          'min-h-13 flex-1 flex-row items-center justify-center gap-2 border px-4 py-3',
-          'rounded-xl',
-          !chat.open && 'border-accent/40 bg-accent/10',
-          chat.open &&
-            'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-        )}
-      >
-        <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
-          Up next
-        </Text>
-        <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-          {count}
-        </Text>
-      </Pressable>
-      <Pressable
-        accessibilityRole="tab"
-        accessibilityState={{
-          selected: chat.open,
-        }}
+      />
+      <TabButton
+        label="Chat"
+        selected={chat.open}
+        {...(chat.unread > 0 && { count: chat.unread })}
         onPress={() => chat.selectChat(true)}
-        className={classNames(
-          'min-h-13 flex-1 flex-row items-center justify-center gap-2 border px-4 py-3',
-          'rounded-xl',
-          chat.open && 'border-accent/40 bg-accent/10',
-          !chat.open &&
-            'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-        )}
-      >
-        <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
-          Chat
-        </Text>
-        {chat.unread > 0 && (
-          <Text className="font-heading text-accent text-sm">
-            {chat.unread}
-          </Text>
-        )}
-      </Pressable>
+      />
     </View>
   );
 
@@ -118,7 +87,7 @@ export function RoomChatPanel({
     <View
       className={classNames(
         'min-h-0 flex-1',
-        !keyboardVisible && !isTablet && 'pb-28',
+        !keyboardVisible && !isTablet && 'pb-30',
         !keyboardVisible && isTablet && 'pb-16',
       )}
     >
@@ -128,10 +97,11 @@ export function RoomChatPanel({
         className={classNames(
           'min-h-0 flex-1 overflow-hidden border',
           !isTabletLandscape && 'mx-4',
-          'rounded-2xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+          'rounded-3xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
         )}
       >
         <NativeChatConversation
+          controlShape="pill"
           messages={chat.messages}
           onSend={send}
           error={error}

@@ -82,7 +82,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
 
   return (
     <View className="flex-1 flex-row gap-3 p-3">
-      <View className="min-w-0 flex-[1.85] overflow-hidden rounded-2xl border border-tv-border bg-tv-card">
+      <View className="min-w-0 flex-[1.85] overflow-hidden rounded-3xl border border-tv-border bg-tv-card">
         <View className="min-h-0 flex-1 bg-black">{player}</View>
         <View className="border-tv-border border-t bg-black px-5 py-3">
           <View className="flex-row items-end gap-3">
@@ -126,7 +126,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
         </View>
       </View>
 
-      <View className="min-w-0 flex-1 rounded-2xl border border-tv-border bg-tv-card p-3">
+      <View className="min-w-0 flex-1 rounded-3xl border border-tv-border bg-tv-card p-3">
         <View className="mb-3 flex-row items-center justify-between gap-2 border-tv-border border-b pb-3">
           <Text className="font-heading text-sm text-tv-muted">
             UP NEXT ({queuedPlaylistItems.length})
@@ -142,6 +142,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
               </Text>
             </View>
             <NativeButton
+              shape="pill"
               className="h-12 min-h-0 px-4"
               label="Leave"
               onPress={sessionActions.leaveRoom}
@@ -155,7 +156,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
           onLayout={handleQueueLayout}
         >
           {queuedPlaylistItems.length === 0 && (
-            <View className="h-full items-center justify-center rounded-xl border border-tv-border">
+            <View className="h-full items-center justify-center rounded-3xl border border-tv-border">
               <Text className="font-heading text-sm text-tv-muted">
                 The queue is empty
               </Text>
@@ -174,7 +175,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
                   .map((playlistItem, index) => (
                     <View
                       className={classNames(
-                        'flex-row items-center gap-3 rounded-xl border border-tv-border bg-tv-surface px-3',
+                        'flex-row items-center gap-3 rounded-3xl border border-tv-border bg-tv-surface px-3',
                         compact && 'h-16',
                         !compact && 'h-24',
                       )}
@@ -183,7 +184,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
                       <Text className="w-6 text-center font-heading text-tv-muted text-xs">
                         {index + 1}
                       </Text>
-                      <View className="size-12 overflow-hidden rounded-lg border border-tv-border bg-black">
+                      <View className="size-12 overflow-hidden rounded-xl border border-tv-border bg-black">
                         <Image
                           cachePolicy="memory-disk"
                           contentFit="cover"
@@ -236,7 +237,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
           )}
         </View>
 
-        <View className="mt-3 flex-row items-center gap-3 rounded-xl border border-primary/30 bg-tv-surface p-3">
+        <View className="mt-3 flex-row items-center gap-3 rounded-3xl border border-primary/30 bg-tv-surface p-3">
           <NativeQrCode
             logo={require('../../assets/icon.png')}
             size={compact ? 56 : 80}

@@ -28,7 +28,7 @@ export function RoomGenerationProgress() {
       className="flex-1 items-center justify-center gap-4 px-8"
       entering={FadeIn.duration(250)}
     >
-      <View className="size-16 items-center justify-center rounded-2xl bg-accent/10">
+      <View className="size-16 items-center justify-center rounded-full bg-accent/10">
         <ActivityIndicator color={theme.accent} size="large" />
       </View>
       <View className="items-center gap-2">

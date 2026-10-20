@@ -1,15 +1,9 @@
 import type { SessionProfile } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import Constants from 'expo-constants';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  Linking,
-  Pressable,
-  ScrollView,
-  Switch,
-  Text,
-  View,
-} from 'react-native';
+import { Linking, ScrollView, Switch, Text, View } from 'react-native';
 import {
   Card,
   ContentColumn,
@@ -75,8 +69,10 @@ export function SettingsScreen() {
       <SafeAreaView edges={['top']} style={safeAreaStyle}>
         <View className="flex-1">
           <ScrollView
+            automaticallyAdjustContentInsets={false}
+            automaticallyAdjustsScrollIndicatorInsets={false}
             contentInsetAdjustmentBehavior="never"
-            contentContainerClassName="gap-4 p-4 pb-28"
+            contentContainerClassName="gap-4 p-4 pb-30"
             onContentSizeChange={scrollEdgeFades.onContentSizeChange}
             onLayout={scrollEdgeFades.onLayout}
             onScroll={scrollEdgeFades.onScroll}
@@ -271,7 +267,7 @@ function ThemeButton({ active, icon, label, onPress }: ThemeButtonProps) {
         checked: active,
       }}
       className={classNames(
-        'min-h-12 flex-row items-center justify-center gap-2 rounded-xl border px-2',
+        'min-h-12 flex-row items-center justify-center gap-2 rounded-full border px-3',
         active && 'border-accent bg-accent/15',
         !active &&
           'border-mobile-border bg-mobile-surface dark:border-mobile-dark-border dark:bg-mobile-dark-surface',

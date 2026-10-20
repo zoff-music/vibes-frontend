@@ -4,11 +4,13 @@ import {
   type RoomType,
 } from '@vibes/models';
 import { classNames } from '@vibes/shared';
+import { NativePressable as Pressable } from '@vibes/ui/native';
 import { getProviderDisplayName, getRoomLabels } from '@vibes/ui/shared';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { Button, Copy, Field, IconButton, Screen } from '@/components/native';
 import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { SearchResults } from '@/components/search-results';
+import { TabButton } from '@/components/tab-button';
 import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -89,7 +91,7 @@ export function SearchSheet({
 
   return (
     <Screen showGrid={false}>
-      <SafeAreaView edges={['top', 'bottom']} style={safeAreaStyle}>
+      <SafeAreaView pageSheet edges={['top', 'bottom']} style={safeAreaStyle}>
         <ScrollView
           contentInsetAdjustmentBehavior="never"
           contentContainerClassName="w-full max-w-3xl self-center px-5 pt-4 pb-32"
@@ -125,33 +127,16 @@ export function SearchSheet({
             <View
               className={classNames(
                 'mb-4 flex-row border p-1',
-                'rounded-2xl border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                'rounded-full border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
               )}
             >
               {enabledProviders.map((source) => (
-                <Pressable
-                  accessibilityRole="tab"
-                  accessibilityState={{
-                    selected: provider === source,
-                  }}
+                <TabButton
+                  label={getProviderDisplayName(source)}
+                  selected={provider === source}
                   key={source}
-                  className={classNames(
-                    'min-h-11 flex-1 items-center justify-center px-3',
-                    'rounded-xl',
-                    provider === source && 'bg-accent',
-                    provider !== source && 'bg-transparent',
-                  )}
                   onPress={() => setProvider(source)}
-                >
-                  <Text
-                    className={classNames(
-                      'font-heading text-sm',
-                      'text-mobile-text dark:text-mobile-dark-text',
-                    )}
-                  >
-                    {getProviderDisplayName(source)}
-                  </Text>
-                </Pressable>
+                />
               ))}
             </View>
           )}
@@ -185,7 +170,7 @@ export function SearchSheet({
                 }}
                 className={classNames(
                   'size-13 items-center justify-center border active:opacity-70',
-                  'rounded-xl',
+                  'rounded-full',
                   isAIMode && 'border-accent bg-accent',
                   !isAIMode &&
                     'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',

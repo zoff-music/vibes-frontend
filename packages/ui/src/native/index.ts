@@ -1,7 +1,15 @@
 export { KeyboardAvoidingView as NativeKeyboardAvoidingView } from 'react-native-css/components/KeyboardAvoidingView';
 export { NativeAnimatedLogo } from './components/NativeAnimatedLogo';
 export { NativeChatConversation } from './components/NativeChatConversation';
+export {
+  NativeGenerativeFrame,
+  NativeGenerativeInvitation,
+} from './components/NativeGenerativeFrame';
 export { NativeLandingSun } from './components/NativeLandingSun';
+export {
+  NativePressable,
+  NativePressFeedbackContext,
+} from './components/NativePressable';
 export type {
   NativeControlSize,
   NativeControlTone,

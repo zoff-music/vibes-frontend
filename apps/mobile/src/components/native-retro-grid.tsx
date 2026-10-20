@@ -1,103 +1,94 @@
-import { useEffect, useState } from 'react';
-import { Animated, useWindowDimensions, View } from 'react-native';
+import { useEffect } from 'react';
+import { View } from 'react-native';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  type SharedValue,
+  useAnimatedProps,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
+import Svg, { Line } from 'react-native-svg';
+import { useGenerativeMotion } from '@/hooks/use-generative-motion';
 
 interface NativeRetroGridProps {
   paused?: boolean;
 }
+interface GridRowProps {
+  index: number;
+  phase: SharedValue<number>;
+}
+const AnimatedLine = Animated.createAnimatedComponent(Line);
+const rows = Array.from({ length: 16 }, (_, index) => index);
+const columns = Array.from({ length: 41 }, (_, index) => index);
+
+function GridRow({ index, phase }: GridRowProps) {
+  const animatedProps = useAnimatedProps(() => {
+    const depth = ((index + phase.value) % rows.length) / rows.length;
+    const y = 1000 * depth * depth;
+    return {
+      y1: y,
+      y2: y,
+      opacity: Math.min(depth * 4, 1) * Math.min((1 - depth) * 16, 1),
+    };
+  });
+  return (
+    <AnimatedLine
+      x1={0}
+      x2={1000}
+      stroke="#00cdea"
+      strokeWidth={1}
+      animatedProps={animatedProps}
+    />
+  );
+}
 
 export function NativeRetroGrid({ paused = false }: NativeRetroGridProps) {
-  const { height, width } = useWindowDimensions();
-  const [gridOffset] = useState(() => new Animated.Value(0));
-  const gridHeight = Math.max(height * 1.3, minimumGridHeight);
-  const rowCount = Math.ceil(gridHeight / gridCellSize) + gridLoopCellCount + 1;
-  const gridRows = Array.from(
-    {
-      length: rowCount,
-    },
-    (_, index) => index * gridCellSize,
-  );
-
+  const motion = useGenerativeMotion();
+  const phase = useSharedValue(0);
   useEffect(() => {
-    if (paused) {
-      gridOffset.stopAnimation();
-
-      return;
+    cancelAnimation(phase);
+    if (!paused && motion) {
+      phase.value = withRepeat(
+        withTiming(phase.value + 16, {
+          duration: 32000,
+          easing: Easing.linear,
+        }),
+        -1,
+        false,
+      );
     }
-
-    const animation = Animated.loop(
-      Animated.timing(gridOffset, {
-        duration: gridAnimationDurationMs,
-        toValue: gridLoopDistance,
-        useNativeDriver: true,
-      }),
-    );
-    animation.start();
-
-    return () => animation.stop();
-  }, [gridOffset, paused]);
-
+    return () => cancelAnimation(phase);
+  }, [motion, paused, phase]);
   return (
-    <View className="absolute inset-0 overflow-hidden" pointerEvents="none">
-      <View
-        className="absolute opacity-45"
-        style={{
-          bottom: -height * 0.3,
-          height: gridHeight,
-          left: -width * 0.5,
-          transform: [
-            {
-              perspective: 600,
-            },
-            {
-              rotateX: '58deg',
-            },
-          ],
-          width: width * 2,
-        }}
+    <View
+      className="absolute inset-0 overflow-hidden opacity-15"
+      pointerEvents="none"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <Svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 1000 1000"
+        preserveAspectRatio="none"
       >
-        {gridColumns.map((position) => (
-          <View
-            className="absolute inset-y-0 w-px bg-primary/25 dark:bg-primary/30"
-            key={`column-${position}`}
-            style={{
-              left: `${position}%`,
-            }}
+        {columns.map((index) => (
+          <Line
+            key={index}
+            x1={500 + (index - 20) * 40}
+            y1={0}
+            x2={500 + (index - 20) * 150}
+            y2={1000}
+            stroke="#ff28a0"
+            strokeWidth={1}
           />
         ))}
-        <Animated.View
-          className="absolute inset-x-0"
-          style={{
-            height: gridHeight + gridLoopDistance,
-            top: -gridLoopDistance,
-            transform: [
-              {
-                translateY: gridOffset,
-              },
-            ],
-          }}
-        >
-          {gridRows.map((position) => (
-            <View
-              className="absolute inset-x-0 h-px bg-accent/25 dark:bg-accent/30"
-              key={`row-${position}`}
-              style={{
-                top: position,
-              }}
-            />
-          ))}
-        </Animated.View>
-      </View>
+        {rows.map((index) => (
+          <GridRow key={index} index={index} phase={phase} />
+        ))}
+      </Svg>
     </View>
   );
 }
-const gridColumns = Array.from(
-  {
-    length: 21,
-  },
-  (_, index) => index * 5,
-);
-const gridCellSize = 64;
-const gridLoopCellCount = 24;
-const gridLoopDistance = gridCellSize * gridLoopCellCount;
-const gridAnimationDurationMs = 2_000 * gridLoopCellCount;
-const minimumGridHeight = 900;

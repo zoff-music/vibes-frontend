@@ -7,13 +7,20 @@ import {
   NativeHeading,
   NativeIconButton,
 } from '@vibes/ui/native';
-import type { PropsWithChildren, ReactNode } from 'react';
+import {
+  type ComponentProps,
+  forwardRef,
+  type PropsWithChildren,
+  type ReactNode,
+} from 'react';
 import {
   ActivityIndicator,
   Platform,
+  type TextInput,
   useWindowDimensions,
   View,
 } from 'react-native';
+import { MobileControlSurface } from '@/components/mobile-control-surface';
 import { NativeRetroGrid } from '@/components/native-retro-grid';
 import type { ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -21,7 +28,7 @@ import {
   tabletNavigationHeight,
   useTabletLandscapeLayout,
 } from '@/hooks/use-tablet-landscape-layout';
-import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
+import { useControlMaterial } from '@/providers/control-material-provider';
 
 interface ScreenProps extends PropsWithChildren {
   gridPaused?: boolean;
@@ -55,7 +62,9 @@ export function Screen({
   );
 }
 
-export const Card = NativeCard;
+export function Card(props: ComponentProps<typeof NativeCard>) {
+  return <NativeCard {...props} radius="large" />;
+}
 
 export function ContentColumn({ children }: PropsWithChildren) {
   const { width } = useWindowDimensions();
@@ -98,44 +107,46 @@ interface IconButtonProps {
 export function IconButton({
   accessibilityLabel,
   disabled,
-  feedback = false,
+  feedback = true,
   icon,
   size = 'default',
   onPress,
 }: IconButtonProps) {
   const theme = useAppTheme();
+  const glass = useControlMaterial() && !disabled;
 
   return (
-    <NativeIconButton
-      accessibilityLabel={accessibilityLabel}
-      disabled={disabled}
-      icon={icon}
-      iconColor={theme.text}
-      onPress={() => {
-        if (feedback) void triggerSelectionFeedback();
-
-        onPress();
-      }}
-      pressFeedback={feedback}
-      size={size}
-    />
+    <MobileControlSurface enabled={glass}>
+      <NativeIconButton
+        surface={glass ? 'glass' : 'solid'}
+        shape="circle"
+        accessibilityLabel={accessibilityLabel}
+        disabled={disabled}
+        icon={icon}
+        iconColor={theme.text}
+        onPress={onPress}
+        pressFeedback={feedback && !glass}
+        size={size}
+      />
+    </MobileControlSurface>
   );
 }
 
 export function Button({
   accessibilityLabel,
   disabled,
-  feedback = false,
+  feedback = true,
   icon,
   label,
   onPress,
   tone = 'primary',
 }: ButtonProps) {
   const theme = useAppTheme();
+  const glass = useControlMaterial() && !disabled;
   let iconColor: string = theme.text;
 
   if (tone === 'primary') {
-    iconColor = '#ffffff';
+    iconColor = '#120b1e';
   }
 
   if (tone === 'danger') {
@@ -143,24 +154,28 @@ export function Button({
   }
 
   return (
-    <NativeButton
-      accessibilityLabel={accessibilityLabel ?? label}
-      disabled={disabled}
-      icon={icon}
-      iconColor={iconColor}
-      label={label}
-      onPress={() => {
-        if (feedback) void triggerSelectionFeedback();
-
-        onPress();
-      }}
-      pressFeedback={feedback}
-      tone={tone}
-    />
+    <MobileControlSurface enabled={glass} tone={tone}>
+      <NativeButton
+        surface={glass ? 'glass' : 'solid'}
+        shape="pill"
+        accessibilityLabel={accessibilityLabel ?? label}
+        disabled={disabled}
+        icon={icon}
+        iconColor={iconColor}
+        label={label}
+        onPress={onPress}
+        pressFeedback={feedback && !glass}
+        tone={tone}
+      />
+    </MobileControlSurface>
   );
 }
 
-export const Field = NativeField;
+export const Field = forwardRef<TextInput, ComponentProps<typeof NativeField>>(
+  function Field(props, ref) {
+    return <NativeField {...props} shape="pill" ref={ref} />;
+  },
+);
 
 interface EmptyProps {
   children: ReactNode;

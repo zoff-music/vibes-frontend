@@ -13,6 +13,7 @@ import { NativeIcon } from '../icons/NativeIcon';
 import { NativeButton } from './NativePrimitives';
 
 interface Props {
+  controlShape?: 'rounded' | 'pill';
   messages: RoomMessage[];
   onSend: (text: string) => Promise<boolean>;
   error: string;
@@ -25,7 +26,12 @@ const nameColors = [
   'text-pink-700 dark:text-pink-300',
 ];
 
-export function NativeChatConversation({ messages, onSend, error }: Props) {
+export function NativeChatConversation({
+  messages,
+  onSend,
+  error,
+  controlShape = 'rounded',
+}: Props) {
   const isDark = useColorScheme() === 'dark';
   const moderatorColor = isDark ? '#fcd34d' : '#b45309';
   const [draft, setDraft] = useState('');
@@ -128,9 +134,16 @@ export function NativeChatConversation({ messages, onSend, error }: Props) {
           onSubmitEditing={() => void send()}
           returnKeyType="send"
           maxLength={chatMessageMaxLength}
-          className="h-12 min-w-0 flex-1 rounded-xl border border-native-border bg-native-surface px-4 font-heading text-base text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text"
+          className={classNames(
+            'min-w-0 flex-1 border border-native-border bg-native-surface px-4 font-heading text-base text-native-text dark:border-native-dark-border dark:bg-native-dark-surface dark:text-native-dark-text',
+            controlShape === 'pill'
+              ? 'h-13 rounded-full focus:border-accent'
+              : 'h-12 rounded-xl',
+          )}
         />
         <NativeButton
+          shape={controlShape}
+          pressFeedback={controlShape === 'pill'}
           accessibilityLabel="Send message"
           label="Send"
           disabled={sending || !draft.trim()}

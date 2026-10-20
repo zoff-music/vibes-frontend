@@ -120,6 +120,7 @@ export function LandingScreen({
           </View>
           <View className="ml-auto flex-row gap-3">
             <NativeButton
+              shape="pill"
               label="Music"
               disabled={session.loading}
               tone="secondary"
@@ -131,6 +132,7 @@ export function LandingScreen({
               }}
             />
             <NativeButton
+              shape="pill"
               label="Watch"
               disabled={session.loading}
               tone="secondary"
@@ -144,11 +146,16 @@ export function LandingScreen({
           </View>
         </View>
         <View className="flex-row items-start gap-8">
-          <View className="min-w-0 flex-1">
-            <NativeLandingSun watch={watch} />
+          <View className="relative min-w-0 flex-1 pt-8">
+            <View
+              pointerEvents="none"
+              className="absolute inset-x-0 top-0 items-center"
+            >
+              <NativeLandingSun watch={watch} compact />
+            </View>
             <NativeCard
               className={classNames(
-                'rounded-3xl border-2',
+                'rounded-3xl border-2 bg-tv-card',
                 compact ? 'gap-5 p-6' : 'gap-8 p-10',
               )}
             >
@@ -173,6 +180,7 @@ export function LandingScreen({
                 )}
               >
                 <NativeField
+                  shape="pill"
                   accessibilityLabel={
                     isAIMode ? 'Playlist prompt' : 'Room name'
                   }
@@ -190,6 +198,7 @@ export function LandingScreen({
                   wrapperClassName="min-w-0 flex-1"
                 />
                 <NativeButton
+                  shape="pill"
                   accessibilityLabel={
                     isAIMode ? 'Disable AI mode' : 'Enable AI mode'
                   }
@@ -200,6 +209,7 @@ export function LandingScreen({
                 />
               </View>
               <NativeButton
+                shape="pill"
                 disabled={session.loading || !value.trim()}
                 className="h-16 min-h-0 px-6"
                 label={buttonLabel}
@@ -234,13 +244,14 @@ export function LandingScreen({
           </View>
           <View
             className={classNames(
-              'mt-24 min-w-0 flex-1 rounded-3xl border-2 border-tv-border bg-tv-card p-6',
+              'mt-8 min-w-0 flex-1 rounded-3xl border-2 border-tv-border bg-tv-card p-6',
               compact && 'gap-3',
               !compact && 'gap-5',
             )}
           >
             <View className="flex-row gap-3">
               <NativeButton
+                shape="pill"
                 label="Live rooms"
                 className="min-h-12 flex-1 px-4"
                 selected={!browser.browsing}
@@ -248,6 +259,7 @@ export function LandingScreen({
                 onPress={browser.showLive}
               />
               <NativeButton
+                shape="pill"
                 label="Browse"
                 className="min-h-12 flex-1 px-4"
                 selected={browser.browsing}
@@ -258,6 +270,7 @@ export function LandingScreen({
             {browser.browsing && (
               <View className="flex-row gap-3">
                 <NativeField
+                  shape="pill"
                   accessibilityLabel="Search public rooms"
                   placeholder="Search rooms"
                   value={browser.query}
@@ -267,6 +280,7 @@ export function LandingScreen({
                   wrapperClassName="min-w-0 flex-1"
                 />
                 <NativeButton
+                  shape="pill"
                   label="Search"
                   onPress={() => void browser.load()}
                   disabled={browser.loading}
@@ -277,7 +291,7 @@ export function LandingScreen({
             {browser.loading && <NativeCopy muted>Loading rooms…</NativeCopy>}
             {browser.error && <NativeCopy>{browser.error}</NativeCopy>}
             {!browser.loading && !browser.error && rooms.length === 0 && (
-              <View className="rounded-2xl border-2 border-tv-border bg-tv-card p-8">
+              <View className="rounded-3xl border-2 border-tv-border bg-tv-card p-8">
                 <Text className="font-heading text-2xl text-tv-muted">
                   {browser.browsing
                     ? 'No rooms match your search.'
@@ -300,6 +314,7 @@ export function LandingScreen({
                   {rooms.map((room) => (
                     <View className="min-w-0 flex-1" key={room.id}>
                       <NativeButton
+                        shape="pill"
                         className={classNames(
                           compact && 'px-5 py-4',
                           !compact && 'px-12 py-8',
@@ -350,6 +365,7 @@ export function LandingScreen({
             {browser.browsing && browser.result && browser.result.total > 0 && (
               <View className="flex-row items-center justify-between gap-3">
                 <NativeButton
+                  shape="pill"
                   label="Previous"
                   tone="secondary"
                   className="min-h-12 px-4"
@@ -365,6 +381,7 @@ export function LandingScreen({
                   {Math.ceil(browser.result.total / 12)}
                 </NativeCopy>
                 <NativeButton
+                  shape="pill"
                   label="Next"
                   tone="secondary"
                   className="min-h-12 px-4"
