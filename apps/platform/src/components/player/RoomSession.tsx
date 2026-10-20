@@ -48,7 +48,6 @@ export function RoomSession() {
     <Suspense fallback={null}>
       {current && (
         <RoomView
-          key={current.room.id}
           loaderData={current}
           minimized={!active}
           onClose={() => {

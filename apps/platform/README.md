@@ -33,7 +33,9 @@ Minimizing preserves player DOM ownership;
 do not move iframes into a portal or mount a second player.
 Room actions always target the retained room's URL. Reconnecting while
 minimized refreshes that room through `resources.players`, not the currently
-visible page. Entering a different room replaces the one active session.
+visible page. Entering a different room switches the active room subscription
+and playback content in the existing player surface; queue/chat state is
+room-scoped. Responses from previous-room player mutations are ignored.
 The return-to-room reminder is suppressed while a session is active.
 
 Persistence applies to same-document Platform navigation. Reloading, closing

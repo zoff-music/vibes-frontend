@@ -180,6 +180,7 @@ export function RoomView({
                   {!isPartyScreen && !minimized && (
                     <div className="min-h-0 min-w-0 lg:col-span-2 lg:h-full">
                       <RoomQueue
+                        key={id}
                         chatOpen={chatOpen}
                         roomId={id}
                         isSSR={isSSR}
@@ -195,6 +196,7 @@ export function RoomView({
                     <div className="min-h-0 min-w-0 lg:col-span-2 lg:flex lg:h-full lg:flex-col">
                       <div className="min-h-0 lg:flex-1 lg:overflow-hidden">
                         <RoomQueue
+                          key={id}
                           chatOpen={chatOpen}
                           roomId={id}
                           isSSR={isSSR}

@@ -24,6 +24,7 @@ import React, {
   type ComponentType,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'preact/compat';
@@ -130,6 +131,7 @@ export const RoomPlayer = React.memo(
   }: RoomPlayerProps) => {
     /* 1. Hooks */
     const playbackFetcher = useFetcher<RoomActionData>();
+    const submittedRoom = useRef<string | null>(null);
     const playlistItems = useQueueStore((state) => state.playlistItems);
     const { isConnected, castDeviceName } = useCasting(roomId);
     const showCast = useCastStore((state) => state.isInitialized);
@@ -214,6 +216,11 @@ export const RoomPlayer = React.memo(
       useState<PlayerComponent | null>(null);
     const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
     const [isSkipPending, setIsSkipPending] = useState(false);
+    useLayoutEffect(() => {
+      if (submittedRoom.current === roomId) return;
+      submittedRoom.current = null;
+      setIsSkipPending(false);
+    }, [roomId]);
     const [playerLoadErrors, setPlayerLoadErrors] = useState<PlayerLoadErrors>({
       soundcloud: null,
       video: null,
@@ -230,6 +237,7 @@ export const RoomPlayer = React.memo(
 
         if (roomMode === 'server') return;
 
+        submittedRoom.current = roomId;
         playbackFetcher.submit(
           {
             action,
@@ -334,6 +342,7 @@ export const RoomPlayer = React.memo(
 
     const seek = useCallback(
       (positionMs: number) => {
+        submittedRoom.current = roomId;
         playbackFetcher.submit(
           {
             action: 'seek',
@@ -369,6 +378,7 @@ export const RoomPlayer = React.memo(
           setIsSkipPending(true);
         }
 
+        submittedRoom.current = roomId;
         playbackFetcher.submit(
           {
             intent: 'skip',
@@ -388,6 +398,7 @@ export const RoomPlayer = React.memo(
     }, [skip]);
 
     const reset = useCallback(() => {
+      submittedRoom.current = roomId;
       playbackFetcher.submit(
         {
           intent: 'resetPlayback',
@@ -429,6 +440,7 @@ export const RoomPlayer = React.memo(
 
     useEffect(() => {
       if (playbackFetcher.state !== 'idle' || !playbackFetcher.data) return;
+      if (submittedRoom.current !== roomId) return;
 
       const response = playbackFetcher.data;
 
@@ -469,6 +481,7 @@ export const RoomPlayer = React.memo(
       displayRoom?.mode,
       playbackFetcher.data,
       playbackFetcher.state,
+      roomId,
       resetPlaybackState,
       setPlaybackState,
     ]);

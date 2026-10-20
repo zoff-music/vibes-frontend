@@ -414,6 +414,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
     }
 
     const session = adminFetcher.data.session;
+    if (session.room.id !== id) return;
     setSession(
       session.sessionId || session.userId,
       session.isAdmin,
@@ -430,6 +431,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
   }, [
     adminFetcher.data,
     adminFetcher.state,
+    id,
     displayRoom.hasPassword,
     setRoom,
     setSession,
