@@ -15,7 +15,11 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { markPlaybackGestureUnlocked, PlayerControls } from '@vibes/ui/web';
+import {
+  LinkButton,
+  markPlaybackGestureUnlocked,
+  PlayerControls,
+} from '@vibes/ui/web';
 import React, {
   type ComponentType,
   useCallback,
@@ -34,6 +38,7 @@ const importSoundCloudPlayer = () =>
 const importVideoPlayer = () => import('@vibes/ui/web/player/VideoPlayer');
 
 interface RoomPlayerProps {
+  minimized?: boolean;
   roomId: string;
   displayRoom: RoomV2 | null;
   addPlaylistItemHref: string;
@@ -114,6 +119,7 @@ const AutoSkipHandler = ({
 
 export const RoomPlayer = React.memo(
   ({
+    minimized = false,
     roomId,
     displayRoom,
     addPlaylistItemHref,
@@ -230,12 +236,13 @@ export const RoomPlayer = React.memo(
             intent: 'playback',
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
         );
       },
-      [roomMode, playbackFetcher, setLocalPlayingState],
+      [roomMode, roomId, playbackFetcher, setLocalPlayingState],
     );
 
     const play = useCallback(() => {
@@ -334,12 +341,13 @@ export const RoomPlayer = React.memo(
             positionMs,
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
         );
       },
-      [playbackFetcher],
+      [playbackFetcher, roomId],
     );
 
     const handleLocalSeek = useCallback(
@@ -366,12 +374,13 @@ export const RoomPlayer = React.memo(
             intent: 'skip',
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
         );
       },
-      [playbackFetcher],
+      [playbackFetcher, roomId],
     );
 
     const handleEnded = useCallback(() => {
@@ -384,11 +393,12 @@ export const RoomPlayer = React.memo(
           intent: 'resetPlayback',
         },
         {
+          action: `/${encodeURIComponent(roomId)}`,
           encType: 'application/json',
           method: 'post',
         },
       );
-    }, [playbackFetcher]);
+    }, [playbackFetcher, roomId]);
 
     useMediaSession({
       canPlay:
@@ -567,7 +577,12 @@ export const RoomPlayer = React.memo(
         : null;
 
     return (
-      <div className="min-w-0 space-y-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-6 lg:space-y-0">
+      <div
+        className={classNames(
+          'min-w-0 space-y-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-6 lg:space-y-0',
+          minimized && '!block !space-y-0',
+        )}
+      >
         <AutoSkipHandler
           currentPlaylistItem={currentPlaylistItem}
           isPlaying={isPlaying}
@@ -578,7 +593,25 @@ export const RoomPlayer = React.memo(
         />
 
         {/* Player - Reserve height to prevent CLS */}
-        <div className="crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black backdrop-blur-none! sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0">
+        <div
+          className={classNames(
+            'crt-frame relative flex min-h-player-min w-full overflow-hidden rounded-player bg-black backdrop-blur-none! sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
+            minimized && '!aspect-video !min-h-[202px] !rounded-none',
+          )}
+        >
+          {minimized && (
+            <LinkButton
+              aria-label={`Return to ${displayRoom?.name ?? 'room'}`}
+              className="absolute inset-0 z-40 rounded-none focus-visible:ring-inset"
+              to={`/${encodeURIComponent(roomId)}`}
+              prefetch="intent"
+              viewTransition={false}
+              variant="ghost"
+              size="none"
+            >
+              <span className="sr-only">Return to room</span>
+            </LinkButton>
+          )}
           {VideoPlayerComponent && !isConnected && (
             <div
               className={classNames(
@@ -707,6 +740,7 @@ export const RoomPlayer = React.memo(
         {/* Controls (always below video) */}
 
         <PlayerControls
+          compact={minimized}
           roomType={displayRoom?.roomType ?? 'MUSIC'}
           isPlaying={isPlaying && !isPlaybackBlocked}
           canPlay={

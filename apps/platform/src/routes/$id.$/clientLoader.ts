@@ -23,6 +23,9 @@ export async function clientLoader({
     return redirect('/rooms/create');
   }
 
+  // Load the root-owned session through the route's normal failure/recovery
+  // boundary before committing navigation.
+  await import('./components/RoomView');
   await loadRoomPanel(roomPanel(params['*']));
   const retained = getRetainedRoomData(roomId);
 

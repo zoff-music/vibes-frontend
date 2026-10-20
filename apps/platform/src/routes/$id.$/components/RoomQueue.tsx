@@ -33,6 +33,7 @@ const LazyChatConversation = lazy(async () => {
 });
 
 interface RoomQueueProps {
+  minimized?: boolean;
   roomId: string;
   chatOpen: boolean;
   isSSR: boolean;
@@ -45,6 +46,7 @@ interface RoomQueueProps {
 
 export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
   ({
+    minimized = false,
     roomId,
     chatOpen,
     isSSR,
@@ -54,7 +56,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialPlaylistItems,
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
-    const { href } = useRoomPanel();
+    const { href } = useRoomPanel(roomId, minimized);
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
     // An explicit chat URL selects its surface during SSR and the first render.
     // The stored preference controls discovery, not an already-selected route.
@@ -92,6 +94,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             text,
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
@@ -151,12 +154,13 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             playlistItemId,
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
         );
       },
-      [voteFetcher, votingPlaylistItemId],
+      [voteFetcher, votingPlaylistItemId, roomId],
     );
 
     const handleRemove = React.useCallback(
@@ -167,12 +171,13 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             playlistItemId,
           },
           {
+            action: `/${encodeURIComponent(roomId)}`,
             encType: 'application/json',
             method: 'post',
           },
         );
       },
-      [removeFetcher],
+      [removeFetcher, roomId],
     );
 
     useEffect(() => {

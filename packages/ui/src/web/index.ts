@@ -16,6 +16,7 @@ export * from './components/Modal';
 export * from './components/MotionProvider';
 export * from './components/NotFoundView';
 export * from './components/NowPlaying';
+export { PersistentPlayerFrame } from './components/PersistentPlayerFrame';
 export * from './components/PersonalSettingsModal';
 export * from './components/PlaybackProgress';
 export * from './components/ProviderIcon';

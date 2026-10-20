@@ -1,9 +1,7 @@
 import {
   useFetcher,
-  useLoaderData,
   useNavigate,
   useNavigationType,
-  useParams,
   useRevalidator,
   useSearchParams,
 } from '@kasperrt/smolter/preact';
@@ -34,8 +32,8 @@ import {
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import { useRememberRoom } from '../../../hooks/useRememberRoom';
 import { useCastStore } from '../../../stores/castStore';
+import { usePersistentPlayerStore } from '../../../stores/persistentPlayerStore';
 import { canUseViewTransition } from '../../../utils/viewTransition';
-import type { clientLoader } from '../clientLoader';
 import {
   GENERATION_REFRESH_DELAY_MS,
   roomEntryInitialState,
@@ -50,20 +48,36 @@ import {
 } from '../utils/share';
 import { useRoomPanel } from './useRoomPanel';
 
-export function useRoomView() {
-  const loaderData = useLoaderData<typeof clientLoader>();
-
+export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
   useRememberRoom(loaderData.room.id);
-  const { panel, open, href, chatOpen } = useRoomPanel();
+  const { panel, open, href, chatOpen } = useRoomPanel(
+    loaderData.room.id,
+    minimized,
+  );
   useEffect(() => retainRoomData(loaderData), [loaderData]);
 
-  const { id = '' } = useParams<{
-    id: string;
-  }>();
+  const id = loaderData.room.id;
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const [searchParams, setSearchParams] = useSearchParams();
-  const revalidate = useRevalidator();
+  const revalidateRoute = useRevalidator();
+  const sessionFetcher = useFetcher<RoomLoaderData>();
+  const revalidate = useCallback(() => {
+    if (!minimized) return revalidateRoute();
+    return sessionFetcher.load(
+      `/resources/players?room=${encodeURIComponent(id)}`,
+    );
+  }, [id, minimized, revalidateRoute, sessionFetcher]);
+  useEffect(() => {
+    const fresh = sessionFetcher.data;
+    if (!fresh || fresh.room.id !== id) return;
+    useRoomStore.getState().setRoom(fresh.room);
+    useQueueStore.getState().setPlaylistItems(fresh.playlistItems);
+    if (fresh.playback)
+      usePlaybackStore
+        .getState()
+        .setPlaybackState(fresh.playback, fresh.room.mode);
+  }, [id, sessionFetcher.data]);
   const adminFetcher = useFetcher<RoomActionData>();
   const { setMachineRoomId } = useRemoteControl();
   const headerRef = useRef<HTMLDivElement>(null);
@@ -131,7 +145,7 @@ export function useRoomView() {
     loaderData.room.generationError,
   );
   const displayRoom = useMemo(
-    () => room ?? loaderData.room,
+    () => (room?.id === loaderData.room.id ? room : loaderData.room),
     [loaderData.room, room],
   );
   const shareUrl = useMemo(
@@ -163,12 +177,17 @@ export function useRoomView() {
       : null;
   const showGenerationProgress =
     isGenerating && isGenerationProgressVisible && playlistItems.length <= 2;
-  const isPartyScreen = searchParams.get('view') === 'party';
+  const isPartyScreen = !minimized && searchParams.get('view') === 'party';
 
   useEffect(() => {
     setMachineRoomId(loaderData.room.id);
 
-    return () => setMachineRoomId('');
+    return () => {
+      setMachineRoomId('');
+      usePlaybackStore.getState().stopAutoUpdate();
+      useRoomStore.getState().reset();
+      useQueueStore.getState().setPlaylistItems([]);
+    };
   }, [loaderData.room.id, setMachineRoomId]);
 
   useEffect(() => {
@@ -338,11 +357,12 @@ export function useRoomView() {
         password: adminPassword,
       },
       {
+        action: `/${encodeURIComponent(id)}`,
         encType: 'application/json',
         method: 'post',
       },
     );
-  }, [adminFetcher, adminPassword]);
+  }, [adminFetcher, adminPassword, id]);
   const handleLeave = useCallback(() => {
     navigate(
       displayRoom.roomType === 'WATCH' ? '/features/watch' : '/features/music',
@@ -350,7 +370,9 @@ export function useRoomView() {
         state: {
           fromRoom: true,
         },
-        viewTransition: canUseViewTransition(),
+        viewTransition:
+          !usePersistentPlayerStore.getState().enabled &&
+          canUseViewTransition(),
       },
     );
   }, [navigate, displayRoom.roomType]);
@@ -414,11 +436,12 @@ export function useRoomView() {
   ]);
 
   useEffect(() => {
+    if (minimized) return;
     document.title = createRoomShareTitle(
       displayRoom.name,
       currentPlaylistItem,
     );
-  }, [currentPlaylistItem, displayRoom.name]);
+  }, [currentPlaylistItem, displayRoom.name, minimized]);
 
   useEffect(() => {
     if (!showShare) return;
