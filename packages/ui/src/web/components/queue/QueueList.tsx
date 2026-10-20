@@ -44,6 +44,9 @@ const QueueListComponent: React.FC<Props> = ({
   votingPlaylistItemId,
 }) => {
   const [visibleCount, sentinelRef] = useProgressiveList(playlistItems.length);
+  const [initialItemIds] = React.useState(
+    () => new Set(playlistItems.map((item) => item.id)),
+  );
   const reducedMotion = useReducedMotion();
 
   if (playlistItems.length === 0) {
@@ -82,11 +85,15 @@ const QueueListComponent: React.FC<Props> = ({
             <motion.div
               key={playlistItem.id}
               layout={reducedMotion ? false : 'position'}
-              initial={{
-                opacity: 0,
-                scale: reducedMotion ? 1 : 0.96,
-                y: reducedMotion ? 0 : 14,
-              }}
+              initial={
+                initialItemIds.has(playlistItem.id)
+                  ? false
+                  : {
+                      opacity: 0,
+                      scale: reducedMotion ? 1 : 0.96,
+                      y: reducedMotion ? 0 : 14,
+                    }
+              }
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{
                 opacity: 0,

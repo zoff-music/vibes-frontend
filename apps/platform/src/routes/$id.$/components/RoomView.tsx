@@ -177,16 +177,9 @@ export function RoomView({
                     {...playerPreloadProps}
                   />
 
-                  {!isPartyScreen && (
-                    <div
-                      className={classNames(
-                        'min-h-0 min-w-0 lg:col-span-2 lg:h-full',
-                        minimized && 'hidden',
-                      )}
-                      inert={minimized}
-                    >
+                  {!isPartyScreen && !minimized && (
+                    <div className="min-h-0 min-w-0 lg:col-span-2 lg:h-full">
                       <RoomQueue
-                        minimized={minimized}
                         chatOpen={chatOpen}
                         roomId={id}
                         isSSR={isSSR}

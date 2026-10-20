@@ -26,7 +26,10 @@ to satisfy YouTube's minimum embedded-player dimensions on supported screens.
 
 The application-level room session owns the mounted view, both prepared
 provider players and room SSE. Chat SSE disconnects while minimized and
-reconnects when the room is reopened. Minimizing preserves player DOM ownership;
+reconnects when the room is reopened. The queue and chat UI unmount while
+minimized, rather than remaining hidden and reacting to every playback update.
+Returning mounts the queue without entrance animations for existing items.
+Minimizing preserves player DOM ownership;
 do not move iframes into a portal or mount a second player.
 Room actions always target the retained room's URL. Reconnecting while
 minimized refreshes that room through `resources.players`, not the currently

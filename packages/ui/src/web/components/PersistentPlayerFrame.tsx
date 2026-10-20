@@ -24,7 +24,9 @@ export function PersistentPlayerFrame({
   const previousMode = useRef(minimized);
 
   useLayoutEffect(() => {
-    const element = frame.current;
+    const element = frame.current?.querySelector<HTMLElement>(
+      '[data-room-player-surface]',
+    );
     if (!element) return;
     const next = element.getBoundingClientRect();
     const last = previous.current;
@@ -41,10 +43,13 @@ export function PersistentPlayerFrame({
       return;
     // Runtime geometry only; all presentation remains in Tailwind. Animate
     // the existing surface without moving or cloning the provider DOM.
-    const animation = element.animate(
+    const target = minimized ? frame.current : element;
+    if (!target) return;
+    const targetBounds = target.getBoundingClientRect();
+    const animation = target.animate(
       [
         {
-          transform: `translate(${last.x - next.x}px, ${last.y - next.y}px) scale(${last.width / next.width}, ${last.height / next.height})`,
+          transform: `translate(${last.x - targetBounds.x}px, ${last.y - targetBounds.y}px) scale(${last.width / targetBounds.width}, ${last.height / targetBounds.height})`,
         },
         { transform: 'none' },
       ],
@@ -59,7 +64,7 @@ export function PersistentPlayerFrame({
       className={classNames(
         'group/player origin-top-left',
         minimized &&
-          'fixed right-[max(1rem,calc((100vw-80rem)/2+1rem))] bottom-4 z-40 w-96 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-theme bg-theme shadow-xl [view-transition-name:persistent-player]',
+          'fixed right-5 bottom-4 z-40 w-96 max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-2xl border border-theme bg-theme shadow-xl [view-transition-name:persistent-player] sm:right-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]',
       )}
       data-minimized={minimized}
     >
