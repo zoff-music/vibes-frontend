@@ -133,6 +133,14 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     res.set('Timing-Allow-Origin', '*');
     next();
   });
+  assetRouter.get('/robots.txt', (_req, res) => {
+    // Crawlers must be able to fetch CDN assets when rendering public pages.
+    // This host never serves application documents or API responses.
+    res
+      .set('Cache-Control', 'public, max-age=3600')
+      .type('text/plain')
+      .send('User-agent: *\nAllow: /\n');
+  });
   assetRouter.use(
     config.assets.path,
     await precompressedAssets(config.assets.staticDir),
