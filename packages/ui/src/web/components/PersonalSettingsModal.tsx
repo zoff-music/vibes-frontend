@@ -93,13 +93,6 @@ export function PersonalSettingsModal({
                 {error}
               </p>
             )}
-            <SegmentedToggle
-              label="Chat"
-              variant="plain-full"
-              size="comfortable"
-              checked={chatEnabled}
-              onChange={onChatChange}
-            />
             <Button
               className="w-full"
               disabled={isLoading || isSaving || !name.trim()}
@@ -110,6 +103,14 @@ export function PersonalSettingsModal({
             </Button>
           </form>
         </section>
+
+        <SegmentedToggle
+          label="Chat"
+          variant="plain-full"
+          size="comfortable"
+          checked={chatEnabled}
+          onChange={onChatChange}
+        />
 
         {onPersistentPlayerChange && (
           <SegmentedToggle
