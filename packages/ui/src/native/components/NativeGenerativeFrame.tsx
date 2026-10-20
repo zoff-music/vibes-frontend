@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
+  interpolate,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
@@ -24,6 +25,7 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const power = useSharedValue(0);
   const orbit = useSharedValue(0);
+  const ignition = useSharedValue(1);
   const perimeter = 2 * (size.width + size.height - 8) - 27;
 
   useEffect(() => {
@@ -33,7 +35,14 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
         ? 1
         : 0;
     cancelAnimation(orbit);
+    cancelAnimation(ignition);
+    ignition.value = 1;
     if (active && animate) {
+      ignition.value = 0;
+      ignition.value = withTiming(1, {
+        duration: 1100,
+        easing: Easing.out(Easing.cubic),
+      });
       orbit.value = 0;
       orbit.value = withRepeat(
         withTiming(1, { duration: 3800, easing: Easing.linear }),
@@ -44,10 +53,25 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
     return () => {
       cancelAnimation(power);
       cancelAnimation(orbit);
+      cancelAnimation(ignition);
     };
-  }, [active, animate, orbit, power]);
+  }, [active, animate, orbit, power, ignition]);
 
   const glow = useAnimatedStyle(() => ({ opacity: power.value }));
+  const flare = useAnimatedStyle(() => ({
+    opacity:
+      power.value * interpolate(ignition.value, [0, 0.2, 1], [0.2, 1, 0.45]),
+    transform: [
+      { scaleX: interpolate(ignition.value, [0, 1], [0.88, 1]) },
+      { scaleY: interpolate(ignition.value, [0, 0.25, 1], [1, 1.18, 1]) },
+    ],
+  }));
+  const sweep = useAnimatedStyle(() => ({
+    opacity:
+      power.value *
+      interpolate(ignition.value, [0, 0.15, 0.8, 1], [0, 0.8, 0.5, 0]),
+    transform: [{ translateX: -ignition.value * size.width }],
+  }));
   const cyan = useAnimatedProps(() => ({
     strokeDashoffset: -orbit.value * perimeter,
   }));
@@ -70,10 +94,27 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
       <Animated.View
         pointerEvents="none"
         accessible={false}
-        className="absolute -inset-1 rounded-3xl border-4 border-primary/30 bg-primary/10"
+        className="absolute -inset-2 rounded-3xl border-4 border-primary/30 bg-primary/20"
+        style={flare}
+      />
+      <Animated.View
+        pointerEvents="none"
+        accessible={false}
+        className="absolute -inset-1 rounded-3xl border-4 border-accent/50 bg-accent/20"
         style={glow}
       />
       {children}
+      <Animated.View
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        className="absolute inset-0 overflow-hidden rounded-2xl"
+      >
+        <Animated.View
+          className="absolute inset-y-0 -right-16 w-16 border-accent/70 border-x-4 bg-accent/30"
+          style={sweep}
+        />
+      </Animated.View>
       <Animated.View
         pointerEvents="none"
         accessibilityElementsHidden
@@ -91,8 +132,8 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
               rx={14}
               fill="none"
               stroke="#ff28a0"
-              strokeWidth={1.5}
-              opacity={0.5}
+              strokeWidth={2}
+              opacity={0.8}
             />
             <AnimatedRect
               animatedProps={cyan}
@@ -103,7 +144,7 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
               rx={14}
               fill="none"
               stroke="#00cdea"
-              strokeWidth={3}
+              strokeWidth={4}
               strokeLinecap="round"
               strokeDasharray={[perimeter * 0.16, perimeter * 0.84]}
             />
@@ -116,7 +157,7 @@ export function NativeGenerativeFrame({ active, animate, children }: Props) {
               rx={14}
               fill="none"
               stroke="#ff28a0"
-              strokeWidth={3}
+              strokeWidth={4}
               strokeLinecap="round"
               strokeDasharray={[perimeter * 0.12, perimeter * 0.88]}
             />

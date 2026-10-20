@@ -19,6 +19,9 @@ worklets drive each frame; particles fade before leaving the field area.
 Motion stops when backgrounded or leaving the screen and respects reduced
 motion. The toggle retains its sparkle icon and the active label is
 “What’s the vibe?”.
+The ignition sweep and layered pink/cyan halo animate only overlays, not layout.
+The heading, description, label slot and helper stay mounted in both modes so
+switching AI on or off does not move the form or room list.
 
 On iPhone, adding a track is a separate floating action above the native tab
 bar, not a search-role tab that iOS can merge into the navigation pill.

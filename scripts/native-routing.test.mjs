@@ -50,6 +50,27 @@ test('native generative motion is bounded and lifecycle-aware', () => {
   assert.match(frame, /cancelAnimation\(orbit\)/);
 });
 
+test('AI toggle keeps landing copy and label slots mounted', () => {
+  const screen = readFileSync(
+    'apps/mobile/src/components/rooms/rooms-screen.tsx',
+    'utf8',
+  );
+  const hero = screen.slice(
+    screen.indexOf('<NativeLandingSun'),
+    screen.indexOf('accessibilityLabel={submitLabel}'),
+  );
+  assert.doesNotMatch(hero, /isAIMode && \(\s*<Text/);
+  assert.match(hero, /isAIMode \? 'What’s the vibe\?' : 'Room name'/);
+  assert.doesNotMatch(hero, /Follow your|Set the |Describe a mood/);
+  assert.doesNotMatch(screen, /!isAIMode && \(\s*<Text/);
+  const frame = readFileSync(
+    'packages/ui/src/native/components/NativeGenerativeFrame.tsx',
+    'utf8',
+  );
+  assert.match(frame, /cancelAnimation\(ignition\)/);
+  assert.match(frame, /translateX: -ignition.value \* size.width/);
+});
+
 test('native tabs leave content insets to the screens safe-area layout', () => {
   const tabs = readFileSync(
     'apps/mobile/src/components/layout/app-tabs.tsx',

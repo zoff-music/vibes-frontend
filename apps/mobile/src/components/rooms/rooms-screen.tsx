@@ -537,36 +537,20 @@ export function RoomsScreen() {
                           accessibilityRole="header"
                           className="text-center font-heading text-4xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
                         >
-                          {isAIMode
-                            ? watch
-                              ? 'Follow your '
-                              : 'Set the '
-                            : watch
-                              ? 'Watch '
-                              : 'Listen to music '}
+                          {watch ? 'Watch ' : 'Listen to music '}
                           {'\n'}
-                          <Text className="text-primary">
-                            {isAIMode
-                              ? watch
-                                ? 'curiosity.'
-                                : 'mood.'
-                              : 'together.'}
-                          </Text>
+                          <Text className="text-primary">together.</Text>
                         </Text>
                         <Text className="text-center font-heading text-base text-mobile-muted dark:text-mobile-dark-muted">
-                          {isAIMode
-                            ? 'Describe a mood. Start something together.'
-                            : watch
-                              ? 'One room. Everyone’s front row.'
-                              : 'One room. Everyone’s favourites.'}
+                          {watch
+                            ? 'One room. Everyone’s front row.'
+                            : 'One room. Everyone’s favourites.'}
                         </Text>
                       </View>
                       <View className="gap-2">
-                        {isAIMode && (
-                          <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                            What’s the vibe?
-                          </Text>
-                        )}
+                        <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                          {isAIMode ? 'What’s the vibe?' : 'Room name'}
+                        </Text>
                         <NativeGenerativeFrame
                           active={isAIMode}
                           animate={generativeMotion}
@@ -641,11 +625,9 @@ export function RoomsScreen() {
                           {submitLabel}
                         </Text>
                       </NativeButton>
-                      {!isAIMode && (
-                        <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                          Enter a room name to join, or create your own.
-                        </Text>
-                      )}
+                      <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                        Start a room. Make it yours.
+                      </Text>
                     </View>
                   </View>
                   <View className="w-full gap-4">
