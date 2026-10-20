@@ -130,6 +130,14 @@ test('queue exits move surviving rows once, including rapid updates and reduced 
         samples.at(-1) < samples[0] - 70,
         'survivor reaches the first row',
       );
+      if (reducedMotion === 'no-preference') {
+        assert.ok(
+          samples.some(
+            (top) => top < samples[0] - 5 && top > samples.at(-1) + 5,
+          ),
+          'visible queue changes still animate through intermediate positions',
+        );
+      }
       for (let index = 1; index < samples.length; index++) {
         assert.ok(
           samples[index] <= samples[index - 1] + 1,
@@ -144,6 +152,85 @@ test('queue exits move surviving rows once, including rapid updates and reduced 
       .locator('article')
       .evaluateAll((rows) => rows.map((row) => row.dataset.id));
     assert.deepEqual(order.slice(0, 2), ['4', '3']);
+
+    // Exercise hidden updates and an exit interrupted by hiding. A controlled
+    // visibility event lets this run deterministically in headless Chromium.
+    for (const interruptExit of [false, true]) {
+      await page.goto(origin);
+      await page.getByText('Next', { exact: true }).waitFor();
+      await page.waitForTimeout(200);
+      await page.evaluate(async (interruptExit) => {
+        const next = [...document.querySelectorAll('button')].find(
+          (button) => button.textContent === 'Next',
+        );
+        if (interruptExit) {
+          next.click();
+          await new Promise((done) => requestAnimationFrame(done));
+        }
+        Object.defineProperty(document, 'visibilityState', {
+          configurable: true,
+          value: 'hidden',
+        });
+        document.dispatchEvent(new Event('visibilitychange'));
+      }, interruptExit);
+      await page.waitForTimeout(50);
+      await page.evaluate(() => {
+        const next = [...document.querySelectorAll('button')].find(
+          (button) => button.textContent === 'Next',
+        );
+        for (let count = 0; count < 4; count++) next.click();
+      });
+      await page.waitForTimeout(50);
+      const target = interruptExit ? '5' : '4';
+      const samples = await page.evaluate(async (target) => {
+        Object.defineProperty(document, 'visibilityState', {
+          configurable: true,
+          value: 'visible',
+        });
+        document.dispatchEvent(new Event('visibilitychange'));
+        const samples = [];
+        for (let frame = 0; frame < 30; frame++) {
+          await new Promise((done) => requestAnimationFrame(done));
+          const rows = [...document.querySelectorAll('article')];
+          samples.push({
+            ids: rows.map((row) => row.dataset.id),
+            top: document
+              .querySelector(`[data-id="${target}"]`)
+              .getBoundingClientRect().top,
+          });
+        }
+        return samples;
+      }, target);
+      for (const sample of samples) {
+        assert.equal(sample.ids[0], target, 'no stale exiting rows on resume');
+        assert.ok(
+          Math.abs(sample.top - samples.at(-1).top) < 1,
+          'resume snaps to current queue',
+        );
+      }
+
+      // Resuming must not disable the next genuine visible update.
+      const positions = await page.evaluate(async () => {
+        const row = document.querySelectorAll('article')[1];
+        const positions = [row.getBoundingClientRect().top];
+        [...document.querySelectorAll('button')]
+          .find((button) => button.textContent === 'Next')
+          .click();
+        for (let frame = 0; frame < 45; frame++) {
+          await new Promise((done) => requestAnimationFrame(done));
+          positions.push(row.getBoundingClientRect().top);
+        }
+        return positions;
+      });
+      assert.ok(positions.at(-1) < positions[0] - 70);
+      if (reducedMotion === 'no-preference') {
+        assert.ok(
+          positions.some(
+            (top) => top < positions[0] - 5 && top > positions.at(-1) + 5,
+          ),
+        );
+      }
+    }
   }
 
   assert.deepEqual(errors, []);

@@ -655,6 +655,10 @@ movement. `scripts/queue-animation.browser.mjs` exercises the production-mode
 component with fixed-height fixture rows, rapid removals, voting reorders and
 reduced motion. Run it with an external Playwright installation via
 `PLAYWRIGHT_MODULE` (optionally `CHROMIUM_PATH`); neither is a product dependency.
+Hidden-tab updates skip queue motion. Visibility changes reset only the queue's
+layout/presence boundary so stale projections and unfinished exits cannot replay
+when returning. The current rows appear immediately; subsequent visible updates
+retain normal animations. Players, playback stores and SSE remain mounted.
 
 Platform client builds separate the React runtime, DOM renderer and Router's
 core/React modules from the hydration entry. Chunk boundaries follow framework
