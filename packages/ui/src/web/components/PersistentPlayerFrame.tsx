@@ -1,8 +1,8 @@
+import { Link } from '@kasperrt/smolter/preact';
 import { classNames } from '@vibes/shared';
 import { type ReactNode, useLayoutEffect, useRef } from 'react';
 import { CloseIcon } from '../icons';
 import { IconButton } from './IconButton';
-import { LinkButton } from './LinkButton';
 
 interface PersistentPlayerFrameProps {
   children: ReactNode;
@@ -70,16 +70,14 @@ export function PersistentPlayerFrame({
     >
       {minimized && (
         <div className="flex items-center gap-2 border-theme border-b px-3 py-2">
-          <LinkButton
-            className="min-w-0 flex-1 truncate text-left text-sm"
+          <Link
+            className="min-w-0 flex-1 truncate text-left text-sm text-theme-muted transition-colors hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
             to={roomHref}
             prefetch="intent"
             viewTransition={false}
-            size="none"
-            variant="ghost"
           >
             {roomName}
-          </LinkButton>
+          </Link>
           <IconButton
             aria-label="Close persistent player and leave room"
             onClick={onClose}

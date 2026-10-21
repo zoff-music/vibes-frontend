@@ -280,7 +280,8 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               <div
                 className={classNames(
                   'min-h-0 lg:flex lg:flex-1 lg:flex-col',
-                  chatOpen && 'flex min-h-64 flex-1 flex-col lg:min-h-0',
+                  (chatOpen || queuedPlaylistItemCount === 0) &&
+                    'flex min-h-64 flex-1 flex-col lg:min-h-0',
                 )}
               >
                 {chatOpen && (
@@ -310,7 +311,10 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   <motion.div
                     layoutScroll
                     ref={queueScrollRef}
-                    className="rounded-2xl lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]"
+                    className={classNames(
+                      'rounded-2xl lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]',
+                      queuedPlaylistItemCount === 0 && 'flex flex-1 flex-col',
+                    )}
                   >
                     <QueueList
                       playlistItems={displayPlaylistItems.filter(
