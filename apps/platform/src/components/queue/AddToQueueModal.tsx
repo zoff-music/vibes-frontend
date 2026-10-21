@@ -7,6 +7,7 @@ import {
 } from '@vibes/models';
 import {
   type AddPlaylistItemOutcome,
+  classNames,
   formatDuration,
   getProviderItemUrl,
   parseISODuration,
@@ -22,6 +23,7 @@ import {
   Button,
   CheckIcon,
   CloseIcon,
+  GenerativeInput,
   IconButton,
   InfoIcon,
   Modal,
@@ -514,20 +516,6 @@ export const AddToQueueModal: React.FC<Props> = ({
     );
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-
-      if (isAIMode) {
-        handleGenerate();
-
-        return;
-      }
-
-      performSearch(searchQuery);
-    }
-  };
-
   const handleToggleAIMode = () => {
     if (!isAIMode && !canGenerate) {
       setError(generationUnavailableReason);
@@ -613,12 +601,6 @@ export const AddToQueueModal: React.FC<Props> = ({
     );
   };
 
-  const handleSearchInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    handleSearchChange(event.currentTarget.value);
-  };
-
   const handleSearch = () => {
     performSearch(searchQuery);
   };
@@ -700,66 +682,45 @@ export const AddToQueueModal: React.FC<Props> = ({
         </div>
 
         {/* Provider Tabs */}
-        {!isAIMode && (
-          <div className="scrollbar-none flex gap-2 overflow-x-auto">
-            {providerList.map((p) => (
-              <Button
-                key={p}
-                className="shrink-0 gap-2"
-                aria-pressed={selectedProvider === p}
-                onClick={() => {
-                  setSelectedProvider(p);
-                  setSearchResults([]);
-                  setSearchQuery('');
-                  setPreviewItem(null);
-                  setPreviewPlaylist(null);
-                }}
-                variant={selectedProvider === p ? 'tertiary' : 'ghost'}
-              >
-                <ProviderIcon className="h-5 w-5" provider={p} />
-                {p.charAt(0).toUpperCase() + p.slice(1)}
-              </Button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* SoundCloud Disclaimer */}
-      {!isAIMode && selectedProvider === 'soundcloud' && (
-        <div className="mb-6 animate-slide-down rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 transition-all">
-          <div className="flex gap-3">
-            <div className="mt-0.5 text-orange-400">
-              <InfoIcon className="h-5 w-5" />
-            </div>
-            <p className="text-sm text-theme-muted leading-relaxed">
-              <span className="text-2xs text-orange-400">Note:</span> Some
-              SoundCloud searches may return empty results due to rights or
-              copyright restrictions on certain items.
-            </p>
-          </div>
+        <div className="scrollbar-none flex gap-2 overflow-x-auto">
+          {providerList.map((p) => (
+            <Button
+              key={p}
+              disabled={isAIMode}
+              className="shrink-0 gap-2"
+              aria-pressed={selectedProvider === p}
+              onClick={() => {
+                setSelectedProvider(p);
+                setSearchResults([]);
+                setSearchQuery('');
+                setPreviewItem(null);
+                setPreviewPlaylist(null);
+              }}
+              variant={selectedProvider === p ? 'tertiary' : 'ghost'}
+            >
+              <ProviderIcon className="h-5 w-5" provider={p} />
+              {p.charAt(0).toUpperCase() + p.slice(1)}
+            </Button>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Search Input */}
       <div className="relative mb-6">
         <div className="flex gap-2">
-          <div className="relative min-w-0 flex-1">
-            {/* Auth Check Logic Removed: searching allowed without prior active source check */}
-
-            <div className="absolute top-1/2 left-4 -translate-y-1/2 text-theme-muted">
-              {isPrimaryActionBusy && (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              )}
-              {!isPrimaryActionBusy && !isAIMode && (
-                <SearchIcon className="h-5 w-5" />
-              )}
-              {!isPrimaryActionBusy && isAIMode && (
-                <SparklesIcon className="h-5 w-5" />
-              )}
-            </div>
-            <input
-              ref={searchInputRef}
-              type="text"
+          <div className="min-w-0 flex-1">
+            <GenerativeInput
+              active={isAIMode}
+              enabled={canGenerate}
+              showToggle={canGenerate}
+              disabled={isGenerationSubmitting}
+              hideLabel
+              label={
+                isAIMode ? 'Playlist description' : `Search ${selectedProvider}`
+              }
+              prefix={<SearchIcon className="h-5 w-5" />}
+              inputRef={searchInputRef}
+              value={searchQuery}
               placeholder={
                 isAIMode
                   ? room.roomType === 'WATCH'
@@ -767,47 +728,78 @@ export const AddToQueueModal: React.FC<Props> = ({
                     : 'Late-night synthwave for a rainy drive'
                   : `Search ${selectedProvider}...`
               }
-              value={searchQuery}
-              onChange={handleSearchInputChange}
-              onKeyDown={handleKeyDown}
-              {...(isAIMode && {
-                maxLength: generatedPlaylistPromptMaxLength,
-              })}
-              className="h-14 w-full rounded-full border border-theme bg-theme-surface pr-14 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
-            />
-
-            {searchQuery && (
-              <IconButton
-                onClick={() => handleSearchChange('')}
-                variant="ghost"
-                aria-label="Clear search"
-                className="absolute top-1/2 right-1 -translate-y-1/2"
-              >
-                <CloseIcon className="h-5 w-5" strokeWidth={2} />
-              </IconButton>
-            )}
-          </div>
-          {canGenerate && (
-            <IconButton
-              aria-checked={isAIMode}
-              aria-label={
-                isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'
+              {...(isAIMode && { maxLength: generatedPlaylistPromptMaxLength })}
+              onChange={handleSearchChange}
+              onToggle={handleToggleAIMode}
+              onSubmit={handlePrimaryAction}
+              trailingContent={
+                searchQuery && (
+                  <IconButton
+                    onClick={() => handleSearchChange('')}
+                    variant="ghost"
+                    aria-label="Clear search"
+                    className="relative z-20 mr-1"
+                  >
+                    <CloseIcon className="h-5 w-5" strokeWidth={2} />
+                  </IconButton>
+                )
               }
-              className="h-14! w-14!"
-              onClick={handleToggleAIMode}
-              role="switch"
-              title={isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'}
-              variant={isAIMode ? 'tertiary-active' : 'ghost'}
-            >
+            />
+          </div>
+          <Button
+            className="h-14 w-14 shrink-0 gap-2 px-0! sm:w-48 sm:px-5!"
+            aria-busy={isPrimaryActionBusy}
+            disabled={!canSubmitPrimaryAction || isPrimaryActionBusy}
+            onClick={handlePrimaryAction}
+            variant="primary"
+          >
+            {!isPrimaryActionBusy && !isAIMode && (
+              <SearchIcon className="h-5 w-5" />
+            )}
+            {!isPrimaryActionBusy && isAIMode && (
               <SparklesIcon className="h-5 w-5" />
-            </IconButton>
-          )}
+            )}
+            {isPrimaryActionBusy && (
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            )}
+            <span className="sr-only whitespace-nowrap sm:not-sr-only">
+              {isPrimaryActionBusy
+                ? isAIMode
+                  ? 'Generating…'
+                  : 'Searching…'
+                : isAIMode
+                  ? 'Generate'
+                  : 'Search'}
+            </span>
+          </Button>
         </div>
 
-        {isAIMode && (
-          <p className="mt-2 text-right text-theme-subtle text-xs tabular-nums">
+        {canGenerate && (
+          <p
+            aria-hidden={!isAIMode}
+            className={classNames(
+              'mt-2 text-right text-theme-subtle text-xs tabular-nums',
+              !isAIMode && 'invisible',
+            )}
+          >
             {searchQuery.length}/{generatedPlaylistPromptMaxLength}
           </p>
+        )}
+
+        {/* SoundCloud Disclaimer */}
+        {selectedProvider === 'soundcloud' && (
+          <div className="mt-3 rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 motion-safe:animate-slide-down">
+            <div className="flex gap-3">
+              <div className="mt-0.5 text-orange-400">
+                <InfoIcon className="h-5 w-5" />
+              </div>
+              <p className="text-sm text-theme-muted leading-relaxed">
+                <span className="text-2xs text-orange-400">Note:</span> Some
+                SoundCloud searches may return empty results due to rights or
+                copyright restrictions on certain items.
+              </p>
+            </div>
+          </div>
         )}
 
         {!canGenerate && !isAbovePlaylistItemLimit && (
@@ -815,30 +807,6 @@ export const AddToQueueModal: React.FC<Props> = ({
             {generationUnavailableReason}
           </p>
         )}
-
-        <Button
-          className="mt-3 w-full gap-2"
-          disabled={!canSubmitPrimaryAction || isPrimaryActionBusy}
-          onClick={handlePrimaryAction}
-          variant="primary"
-        >
-          {!isPrimaryActionBusy && !isAIMode && (
-            <SearchIcon className="h-5 w-5" />
-          )}
-          {!isPrimaryActionBusy && isAIMode && (
-            <SparklesIcon className="h-5 w-5" />
-          )}
-          {isPrimaryActionBusy && (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-          )}
-          {isPrimaryActionBusy
-            ? isAIMode
-              ? 'Starting generation…'
-              : 'Searching…'
-            : isAIMode
-              ? 'Generate playlist'
-              : 'Search'}
-        </Button>
 
         {error && (
           <div className="mt-3 flex animate-slide-down items-start gap-2 text-error text-sm">
