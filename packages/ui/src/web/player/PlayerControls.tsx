@@ -148,7 +148,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
 
   return (
     <div className={classNames('w-full', compact && 'p-3')}>
-      <div className="flex flex-wrap items-center justify-start gap-1.5 sm:flex-nowrap sm:gap-4">
+      <div className="flex flex-wrap items-center justify-start gap-1.5 sm:flex-nowrap sm:items-stretch sm:gap-4">
         <ControlGroup aria-label="Playback controls" className="min-w-0 flex-1">
           <Tooltip className="inline-flex" content={playbackLabel}>
             <IconButton
@@ -223,11 +223,11 @@ const PlayerControlsComponent: React.FC<Props> = ({
 
         <div
           className={classNames(
-            'hidden min-w-0 items-center gap-4',
+            'hidden min-w-0 items-stretch gap-4',
             !compact && 'sm:ml-auto sm:flex sm:w-auto',
           )}
         >
-          <div className="hidden sm:block">
+          <div className="hidden sm:flex">
             <LinkButton
               to={addPlaylistItemHref}
               replace
@@ -236,7 +236,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
               prefetch="intent"
               prefetchData
               variant="primary"
-              className="h-14 min-w-0 gap-3 px-4 sm:px-6"
+              className="min-w-0 gap-3 px-4 sm:px-6"
               title={labels.add}
             >
               <PlusIcon className="h-5 w-5 shrink-0" />
