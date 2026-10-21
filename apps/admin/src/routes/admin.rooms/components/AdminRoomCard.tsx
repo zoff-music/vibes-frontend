@@ -1,7 +1,11 @@
 import type { AdminRoomSummaryV2 } from '@vibes/models';
-import { classNames } from '@vibes/shared';
 import { getRoomLabels } from '@vibes/ui/shared';
-import { Button, SoundCloudIcon, YouTubeIcon } from '@vibes/ui/web';
+import {
+  Button,
+  ExplicitBadge,
+  SoundCloudIcon,
+  YouTubeIcon,
+} from '@vibes/ui/web';
 import type {
   ChangeEvent,
   JSX,
@@ -16,6 +20,7 @@ interface AdminRoomCardProps {
   onCancelRename: () => void;
   onClearPassword: (event: MouseEvent<HTMLButtonElement>) => void;
   onDelete: (event: MouseEvent<HTMLButtonElement>) => void;
+  onFlag: (event: MouseEvent<HTMLButtonElement>) => void;
   onEditingNameChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onEditingNameKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
   onSaveRename: () => void;
@@ -30,6 +35,7 @@ export function AdminRoomCard({
   onCancelRename,
   onClearPassword,
   onDelete,
+  onFlag,
   onEditingNameChange,
   onEditingNameKeyDown,
   onSaveRename,
@@ -40,133 +46,119 @@ export function AdminRoomCard({
   const labels = getRoomLabels(room.roomType);
 
   return (
-    <div className="panel-surface flex min-w-0 flex-col gap-5 overflow-hidden rounded-2xl border border-theme p-5 transition-all hover:border-primary/40">
-      <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 space-y-3">
-          <div className="flex min-w-0 flex-col items-start gap-2 sm:flex-row sm:items-center">
-            <h2 className="max-w-full break-words font-bold text-theme text-xl">
+    <article className="panel-surface min-w-0 rounded-xl border border-theme px-4 py-3">
+      <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <div className="min-w-0 space-y-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h2 className="break-words font-bold text-base text-theme">
               {room.name}
             </h2>
-            <span
-              className={classNames(
-                'shrink-0 rounded-full border px-3 py-1 font-semibold text-xs',
-                room.roomType === 'WATCH'
-                  ? 'border-secondary/50 bg-secondary/10 text-theme'
-                  : 'border-primary/50 bg-primary/10 text-theme',
-              )}
-            >
-              {room.roomType === 'WATCH' ? 'Watch room' : 'Music room'}
+            {room.flagged && <ExplicitBadge />}
+            <span className="text-theme-muted text-xs">
+              {room.roomType === 'WATCH' ? 'Watch' : 'Music'}
             </span>
-            <span className="max-w-full truncate rounded-full border border-theme bg-theme-surface px-3 py-1 font-mono text-theme-muted text-xs uppercase tracking-wider">
-              {room.id}
-            </span>
+            {room.activeSources.map((source) => (
+              <span key={source} title={source}>
+                {sourceIcons[source]}
+              </span>
+            ))}
           </div>
-
-          <div className="flex flex-wrap items-center gap-3 text-sm text-theme-muted">
-            <span
-              className={classNames(
-                'rounded-lg px-2 py-1 font-semibold',
-                room.isPublic
-                  ? 'bg-primary/10 text-primary'
-                  : 'bg-theme-surface text-theme-muted',
-              )}
-            >
-              {room.isPublic ? 'Public' : 'Private'}
-            </span>
-            <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-theme-muted text-xs">
+            <span>{room.isPublic ? 'Public' : 'Private'}</span>
+            <span>
               {room.userCount}{' '}
               {room.userCount === 1 ? labels.participant : labels.participants}
             </span>
-            <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
+            <span>
               {room.playlistItemCount}{' '}
               {room.playlistItemCount === 1 ? labels.item : labels.items}
             </span>
-            <span className="rounded-lg bg-theme-surface px-2 py-1 font-semibold">
-              {room.hasAdminPassword ? 'password set' : 'no password'}
+            <span>
+              {room.hasAdminPassword ? 'Password set' : 'No password'}
             </span>
+            <span>{room.checkedAt ? 'Checked' : 'Not checked'}</span>
+            {room.flaggedAt && (
+              <time dateTime={room.flaggedAt}>
+                Flagged {room.flaggedAt.slice(0, 16).replace('T', ' ')} UTC
+              </time>
+            )}
           </div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          {room.activeSources.length === 0 && (
-            <span className="text-theme-subtle text-xs uppercase tracking-widest">
-              No sources
-            </span>
-          )}
-          {room.activeSources.map((source) => (
-            <span
-              className="rounded-lg border border-theme bg-theme-surface p-2"
-              key={source}
-              title={source}
-            >
-              {sourceIcons[source]}
-            </span>
-          ))}
+        <div className="flex shrink-0 flex-wrap items-center gap-1">
+          <a
+            className="inline-flex min-h-9 items-center rounded-full px-3 text-primary text-sm transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-secondary"
+            href={`/${encodeURIComponent(room.id)}`}
+          >
+            Open
+          </a>
+          <Button
+            disabled={isLoading || isEditing}
+            onClick={onStartRename}
+            size="small"
+            value={room.id}
+            variant="ghost"
+          >
+            Rename
+          </Button>
+          <Button
+            disabled={!room.hasAdminPassword || isLoading}
+            onClick={onClearPassword}
+            size="small"
+            value={room.id}
+            variant="ghost"
+          >
+            Clear password
+          </Button>
+          <Button
+            disabled={isLoading}
+            onClick={onFlag}
+            size="small"
+            value={room.id}
+            variant={room.flagged ? 'tertiary-active' : 'tertiary'}
+          >
+            {room.flagged ? 'Unflag' : 'Flag'}
+          </Button>
+          <Button
+            disabled={isLoading}
+            onClick={onDelete}
+            size="small"
+            value={room.id}
+            variant="destructive"
+          >
+            Delete
+          </Button>
         </div>
       </div>
-
       {isEditing && (
-        <div className="flex min-w-0 flex-col gap-3 rounded-xl border border-theme bg-theme-surface p-3 sm:flex-row sm:items-center">
+        <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 border-theme border-t pt-3">
           <input
-            className="min-w-0 flex-1 rounded-xl border border-theme bg-theme px-3 py-2 text-base text-theme outline-hidden transition-all focus:border-primary"
+            aria-label="Room name"
+            className="min-w-0 flex-1 rounded-full border border-theme bg-theme px-3 py-2 text-base text-theme outline-hidden focus:border-primary"
             disabled={isLoading}
             onChange={onEditingNameChange}
             onKeyDown={onEditingNameKeyDown}
             type="text"
             value={editingName}
           />
-          <div className="flex flex-wrap gap-2">
-            <Button
-              disabled={!editingName.trim() || isLoading}
-              onClick={onSaveRename}
-              variant="tertiary"
-            >
-              Save
-            </Button>
-            <Button
-              disabled={isLoading}
-              onClick={onCancelRename}
-              variant="secondary"
-            >
-              Cancel
-            </Button>
-          </div>
+          <Button
+            disabled={!editingName.trim() || isLoading}
+            onClick={onSaveRename}
+            size="small"
+            variant="tertiary"
+          >
+            Save
+          </Button>
+          <Button
+            disabled={isLoading}
+            onClick={onCancelRename}
+            size="small"
+            variant="ghost"
+          >
+            Cancel
+          </Button>
         </div>
       )}
-
-      <div className="flex flex-wrap items-center gap-3">
-        <a
-          className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-primary/40 px-4 py-2 font-semibold text-primary text-sm transition-all hover:border-primary hover:bg-primary/10"
-          href={`/${encodeURIComponent(room.id)}`}
-        >
-          Open Room
-        </a>
-        <Button
-          disabled={isLoading || isEditing}
-          onClick={onStartRename}
-          value={room.id}
-          variant="tertiary"
-        >
-          Rename
-        </Button>
-        <Button
-          disabled={!room.hasAdminPassword || isLoading}
-          onClick={onClearPassword}
-          value={room.id}
-          variant="secondary"
-        >
-          Clear Password
-        </Button>
-        <Button
-          disabled={isLoading}
-          onClick={onDelete}
-          value={room.id}
-          variant="destructive"
-        >
-          Delete
-        </Button>
-      </div>
-    </div>
+    </article>
   );
 }
 

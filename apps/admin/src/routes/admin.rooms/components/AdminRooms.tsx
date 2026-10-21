@@ -22,6 +22,8 @@ export function AdminRooms() {
     handleEditingNameKeyDown,
     handleClearPassword,
     handleDeleteRoom,
+    handleFlagRoom,
+    filterFlaggedRooms,
     searchRooms,
     sortRooms,
     loadPreviousRooms,
@@ -63,7 +65,17 @@ export function AdminRooms() {
         search={roomSearch}
       />
 
-      <div className="grid gap-4">
+      <Button
+        aria-pressed={roomSearch.flagged}
+        disabled={isLoading}
+        onClick={filterFlaggedRooms}
+        size="small"
+        variant={roomSearch.flagged ? 'tertiary-active' : 'tertiary'}
+      >
+        Flagged rooms
+      </Button>
+
+      <div className="grid gap-2">
         {rooms.map((room) => (
           <AdminRoomCard
             editingName={editingName}
@@ -73,6 +85,7 @@ export function AdminRooms() {
             onCancelRename={cancelRename}
             onClearPassword={handleClearPassword}
             onDelete={handleDeleteRoom}
+            onFlag={handleFlagRoom}
             onEditingNameChange={handleEditingNameChange}
             onEditingNameKeyDown={handleEditingNameKeyDown}
             onSaveRename={saveRename}

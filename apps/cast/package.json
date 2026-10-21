@@ -12,22 +12,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@kasperrt/smolter": "0.4.6",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
-    "framer-motion": "14.1.0",
-    "qrcode.react": "4.2.0",
-    "@kasperrt/smolter": "0.4.6",
+    "framer-motion": "14.4.0",
     "preact": "11.0.1",
-    "preact-render-to-string": "6.8.1"
+    "preact-render-to-string": "6.8.1",
+    "qrcode.react": "4.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@csstools/postcss-cascade-layers": "6.0.2",
     "@tailwindcss/vite": "catalog:",
-    "@types/chromecast-caf-receiver": "6.0.26",
+    "@types/chromecast-caf-receiver": "6.0.27",
     "@types/node": "26.6.5",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",

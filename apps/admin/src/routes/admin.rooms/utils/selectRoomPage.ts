@@ -6,13 +6,14 @@ export function selectRoomPage(
   search: AdminRoomSearch,
 ): AdminRoomResultV2 {
   const query = search.q.toLowerCase();
+  const visibleRooms = rooms.filter((room) => !search.flagged || room.flagged);
   const matchingRooms = query
-    ? rooms.filter(
+    ? visibleRooms.filter(
         (room) =>
           room.id.toLowerCase().includes(query) ||
           room.name.toLowerCase().includes(query),
       )
-    : [...rooms];
+    : visibleRooms;
   matchingRooms.sort((left, right) => {
     const leftValue =
       search.sortBy === 'playlistItems'

@@ -18,6 +18,29 @@ export async function action({ request }: ActionFunctionArgs) {
   const cookieHeader = request.headers.get('cookie');
   const headers = cookieHeader ? { Cookie: cookieHeader } : undefined;
 
+  if (intent === 'flagRoom' || intent === 'unflagRoom') {
+    const [error, rooms] = await serverApi.v2.patch(
+      '/admin/rooms/{id}',
+      { id: roomID },
+      { flagged: intent === 'flagRoom' },
+      { headers, signal: request.signal },
+    );
+
+    if (error) {
+      const rateLimitMessage = getRateLimitMessage(error);
+
+      return {
+        error: await getRequestErrorMessage(
+          error,
+          'Failed to update room flag.',
+        ),
+        ...(rateLimitMessage && { rateLimitMessage }),
+      };
+    }
+
+    return { rooms: rooms ?? [], success: true };
+  }
+
   if (intent === 'renameRoom') {
     const name = String(formData.get('name') ?? '').trim();
     const [error, rooms] = await serverApi.v2.patch(

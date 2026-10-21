@@ -74,12 +74,17 @@ export const RoomSettingsMenu = ({
   const { href } = useRoomPanel();
   const adminSectionRef = useRef<HTMLDivElement>(null);
   const scrollPanelRef = useRef<HTMLDivElement>(null);
-  const canChangePublicRoom = Boolean(room?.hasPassword && isAdmin);
+  const canChangePublicRoom = Boolean(
+    room?.hasPassword && isAdmin && !room.flagged,
+  );
   const watch = (room ?? displayRoom)?.roomType === 'WATCH';
 
   let publicRoomDescription = 'Let anyone find this room in Browse';
 
-  if (!room?.hasPassword) {
+  if (room?.flagged) {
+    publicRoomDescription =
+      "This list has been marked for profanity and won't be possible to mark public";
+  } else if (!room?.hasPassword) {
     publicRoomDescription = 'Add a password before making this room public';
   } else if (!isAdmin) {
     publicRoomDescription = 'Admin access is required to change visibility';

@@ -105,6 +105,7 @@ export const roomSettingsV2Schema = /* @__PURE__ */ v.object(
 export type RoomSettingsV2 = v.InferOutput<typeof roomSettingsV2Schema>;
 
 export const roomV2Schema = /* @__PURE__ */ v.object({
+  flagged: v.optional(v.boolean()),
   id: v.string(),
   name: v.string(),
   mode: v.optional(roomModeSchema, 'server'),
