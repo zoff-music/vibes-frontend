@@ -1,15 +1,10 @@
 import { Link } from '@kasperrt/smolter/preact';
 import { type PlaylistItem, usePageVisibility } from '@vibes/shared';
-import {
-  AnimatePresence,
-  LayoutGroup,
-  m as motion,
-  useReducedMotion,
-} from 'framer-motion';
+import { LayoutGroup, useReducedMotion } from 'framer-motion';
 import React from 'preact/compat';
-import { useProgressiveList } from '../../hooks/useProgressiveList';
+import { useQueueWindow } from '../../hooks/useQueueWindow';
 import { QueueEmptyIcon } from '../../icons';
-import { QueueItem } from './QueueItem';
+import { QueueBlock } from './QueueBlock';
 
 interface Props {
   playlistItems: PlaylistItem[];
@@ -19,6 +14,11 @@ interface Props {
   emptyHref?: string;
   isAdmin?: boolean;
   votingPlaylistItemId?: string | null;
+}
+
+interface WindowBlock {
+  start: number;
+  items: PlaylistItem[];
 }
 
 const EmptyQueueContent = () => (
@@ -43,13 +43,63 @@ const QueueListComponent: React.FC<Props> = ({
   isAdmin,
   votingPlaylistItemId,
 }) => {
-  const [visibleCount, sentinelRef] = useProgressiveList(playlistItems.length);
+  const blocks = React.useMemo(() => {
+    const result: WindowBlock[] = [];
+    for (let start = 0; start < playlistItems.length; start += blockSize) {
+      result.push({
+        start,
+        items: playlistItems.slice(start, start + blockSize),
+      });
+    }
+    return result;
+  }, [playlistItems]);
+  const [focusedItemId, setFocusedItemId] = React.useState<string | null>(null);
+  const focusedControl = React.useRef(0);
+  const focusedIndex = playlistItems.findIndex(
+    (item) => item.id === focusedItemId,
+  );
+  const focusedBlock =
+    focusedIndex >= 0 ? Math.floor(focusedIndex / blockSize) : null;
   const [initialItemIds] = React.useState(
     () => new Set(playlistItems.map((item) => item.id)),
   );
+  const currentItemIds = React.useMemo(
+    () => new Set(playlistItems.map((item) => item.id)),
+    [playlistItems],
+  );
   const reducedMotion = useReducedMotion();
   const pageVisible = usePageVisibility();
+  const { ref, visibleBlocks } = useQueueWindow(blocks.length, pageVisible);
   const instant = reducedMotion || !pageVisible;
+
+  React.useLayoutEffect(() => {
+    const list = ref.current;
+    if (
+      !list ||
+      !pageVisible ||
+      focusedItemId === null ||
+      focusedBlock === null
+    )
+      return;
+
+    const active = document.activeElement;
+    const activeRow = active?.closest<HTMLElement>('[data-queue-row]');
+    if (
+      active !== document.body &&
+      activeRow?.dataset.queueRow !== focusedItemId
+    )
+      return;
+
+    // Reordering across a window boundary remounts that row. Restore the same
+    // control without scrolling or stealing focus from somewhere else.
+    const block = list.querySelector(`[data-queue-block="${focusedBlock}"]`);
+    const row = [
+      ...(block?.querySelectorAll<HTMLElement>('[data-queue-row]') ?? []),
+    ].find((item) => item.dataset.queueRow === focusedItemId);
+    const control =
+      row?.querySelectorAll<HTMLElement>('a,button')[focusedControl.current];
+    if (control && control !== active) control.focus({ preventScroll: true });
+  }, [focusedBlock, focusedItemId, pageVisible, ref]);
 
   if (playlistItems.length === 0) {
     if (emptyHref) {
@@ -76,60 +126,58 @@ const QueueListComponent: React.FC<Props> = ({
     );
   }
 
-  const visiblePlaylistItems = playlistItems.slice(0, visibleCount);
-
   return (
-    <div className="relative space-y-2">
+    <ol
+      ref={ref}
+      aria-label="Upcoming songs"
+      className="relative [--queue-row-size:5.125rem] sm:[--queue-row-size:5.625rem]"
+      onFocusCapture={(event) => {
+        const target = event.target as HTMLElement;
+        const row = target.closest<HTMLElement>('[data-queue-row]');
+        focusedControl.current = row
+          ? [...row.querySelectorAll('a,button')].indexOf(target)
+          : 0;
+        setFocusedItemId(row?.dataset.queueRow ?? null);
+      }}
+      onBlurCapture={(event) => {
+        const target = event.relatedTarget;
+        const row =
+          target instanceof HTMLElement && ref.current?.contains(target)
+            ? target.closest<HTMLElement>('[data-queue-row]')
+            : null;
+        setFocusedItemId(row?.dataset.queueRow ?? null);
+      }}
+    >
       {/* Drop stale projections and pending exits on either visibility edge.
           Only queue rows remount; the room session and players stay mounted. */}
       <LayoutGroup key={String(pageVisible)}>
-        {/* Keep exits in flow until removed, so survivors have one layout change. */}
-        <AnimatePresence initial={false}>
-          {visiblePlaylistItems.map((playlistItem, index) => (
-            <motion.div
-              key={playlistItem.id}
-              layout={instant ? false : 'position'}
-              initial={
-                instant || initialItemIds.has(playlistItem.id)
-                  ? false
-                  : {
-                      opacity: 0,
-                      scale: 0.96,
-                      y: 14,
-                    }
-              }
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{
-                opacity: 0,
-                scale: instant ? 1 : 0.96,
-                y: instant ? 0 : -14,
-                transition: { duration: instant ? 0 : 0.16 },
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 420,
-                damping: 34,
-                opacity: { duration: instant ? 0 : 0.16 },
-                layout: { duration: instant ? 0 : 0.3, ease: 'easeOut' },
-              }}
-            >
-              <QueueItem
-                playlistItem={playlistItem}
-                position={index + 1}
-                isVoting={votingPlaylistItemId === playlistItem.id}
-                {...(onRemove && { onRemove })}
-                {...(onVote && { onVote })}
-                {...(isAdmin !== undefined && { isAdmin })}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+        {blocks.map(({ items, start }, index) => (
+          <QueueBlock
+            key={start}
+            index={index}
+            start={start}
+            total={playlistItems.length}
+            items={items}
+            visible={
+              visibleBlocks.has(index) ||
+              (focusedBlock !== null && Math.abs(index - focusedBlock) <= 1)
+            }
+            instant={instant}
+            initialItemIds={initialItemIds}
+            currentItemIds={currentItemIds}
+            {...(onRemove && { onRemove })}
+            {...(onVote && { onVote })}
+            {...(isAdmin !== undefined && { isAdmin })}
+            {...(votingPlaylistItemId !== undefined && {
+              votingPlaylistItemId,
+            })}
+          />
+        ))}
       </LayoutGroup>
-      {visibleCount < playlistItems.length && (
-        <div aria-hidden="true" className="h-12" ref={sentinelRef} />
-      )}
-    </div>
+    </ol>
   );
 };
 
 export const QueueList = React.memo(QueueListComponent);
+
+const blockSize = 12;
