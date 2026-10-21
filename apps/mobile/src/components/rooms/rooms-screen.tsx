@@ -52,6 +52,7 @@ import { useGenerativeMotion } from '@/hooks/use-generative-motion';
 import { useLandingPlaceholder } from '@/hooks/use-landing-placeholder';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
 import { useInitialData } from '@/providers/initial-data-provider';
+import { usePhoneNavigationGeometry } from '@/providers/phone-navigation-provider';
 import { loadDiscovery } from '@/requests/load-discovery';
 import { loadPublicRooms } from '@/requests/load-public-rooms';
 import { updateRoomCreation } from '@/requests/update-room-creation';
@@ -59,6 +60,7 @@ import { CreateRoomSheet } from './create-room-sheet';
 import { RoomScreen } from './room-screen';
 
 export function RoomsScreen() {
+  const { clearance } = usePhoneNavigationGeometry();
   const searchParams = useLocalSearchParams<{
     roomId?: string | string[];
   }>();
@@ -486,6 +488,9 @@ export function RoomsScreen() {
             automaticallyAdjustsScrollIndicatorInsets={false}
             contentInsetAdjustmentBehavior="never"
             ref={landingScroll}
+            {...(clearance !== null && {
+              contentContainerStyle: { paddingBottom: clearance },
+            })}
             contentContainerClassName={classNames(
               'grow px-6 pt-4 pb-32 md:py-12',
               browseMode === 'live' && 'md:justify-center',
