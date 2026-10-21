@@ -64,7 +64,7 @@ export function PersistentPlayerFrame({
       className={classNames(
         'group/player origin-top-left',
         minimized &&
-          'fixed right-5 bottom-4 z-40 w-96 max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-2xl border border-theme bg-theme shadow-xl [view-transition-name:persistent-player] sm:right-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]',
+          'fixed right-4 bottom-4 z-40 w-96 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-theme bg-theme shadow-xl [view-transition-name:persistent-player] sm:right-6 sm:bottom-6',
       )}
       data-minimized={minimized}
     >
