@@ -1,7 +1,10 @@
 import type { PlaylistItem } from '@vibes/models';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useMutation } from '@vibes/shared/use-request';
-import { NativeKeyboardAvoidingView } from '@vibes/ui/native';
+import {
+  NativeExplicitBadge,
+  NativeKeyboardAvoidingView,
+} from '@vibes/ui/native';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -412,7 +415,10 @@ export function RoomScreen() {
       )}
     >
       <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">
-        <Copy muted>NOW IN</Copy>
+        <View className="flex-row items-center gap-2">
+          <Copy muted>NOW IN</Copy>
+          {room.flagged && <NativeExplicitBadge />}
+        </View>
         <Text
           className={classNames(
             'min-w-0 font-heading text-3xl',
@@ -452,6 +458,7 @@ export function RoomScreen() {
         <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">
           <View className="shrink-0 flex-row items-center gap-2">
             <Copy muted>NOW IN</Copy>
+            {room.flagged && <NativeExplicitBadge />}
             <View className={classNames('size-2', 'rounded-full bg-accent')} />
             <Copy muted>{room.userCount ?? 0}</Copy>
           </View>

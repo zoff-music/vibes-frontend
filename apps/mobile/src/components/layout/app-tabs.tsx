@@ -1,6 +1,6 @@
 import { msw98uiFontFamily } from '@vibes/ui/shared';
 import { Tabs, useRouter } from 'expo-router';
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { NativeTabs } from 'expo-router/native-tabs';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import {

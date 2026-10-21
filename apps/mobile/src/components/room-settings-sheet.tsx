@@ -265,6 +265,7 @@ export function RoomSettingsSheet({
       <RoomConfiguration
         roomType={activeRoom.roomType}
         disabled={!canEdit || loading}
+        flagged={activeRoom.flagged}
         hasPassword={activeRoom.hasPassword}
         mode={mode}
         providers={providers}

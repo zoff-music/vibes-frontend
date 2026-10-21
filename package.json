@@ -16,20 +16,20 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.7",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "esbuild": "0.28.2"
   },
   "resolutions": {
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.7"
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
   },
   "engines": {
     "node": ">=26.8.1"
   },
   "dependencies": {
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "@kasperrt/smolter": "0.4.6",
     "preact": "11.0.1",
     "preact-render-to-string": "6.8.1"
