@@ -15,4 +15,21 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   return context.resolveRequest(origin, moduleName, platform);
 };
 
-module.exports = withNativewind(config);
+const nativewindConfig = withNativewind(config);
+const resolveNativewind = nativewindConfig.resolver.resolveRequest;
+
+nativewindConfig.resolver.resolveRequest = (context, moduleName, platform) => {
+  // Expo needs React Native's complete native-view and asset registry exports.
+  if (
+    moduleName === 'react-native' &&
+    /\/node_modules\/(?:expo|expo-[^/]+|@expo\/[^/]+)\//.test(
+      context.originModulePath,
+    )
+  ) {
+    return context.resolveRequest(context, moduleName, platform);
+  }
+
+  return resolveNativewind(context, moduleName, platform);
+};
+
+module.exports = nativewindConfig;
