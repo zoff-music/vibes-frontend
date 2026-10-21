@@ -56,14 +56,6 @@
     "plugins": [
       "./plugins/with-react-native-svg-node-modules.cjs",
       "./plugins/with-react-native-build-properties.cjs",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "enableSceneSupport": true
-          }
-        }
-      ],
       "expo-router",
       [
         "expo-audio",

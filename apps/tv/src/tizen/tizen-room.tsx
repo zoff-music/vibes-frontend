@@ -5,7 +5,7 @@ import {
   getQueueRemainderLabel,
   getRoomLabels,
 } from '@vibes/ui/shared';
-import { ProviderIcon, VoteIcon } from '@vibes/ui/web';
+import { ExplicitBadge, ProviderIcon, VoteIcon } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'preact/compat';
 import { QrCode } from '@/tizen/qr-code';
 import { TizenPlaybackStatus } from '@/tizen/tizen-playback-status';
@@ -192,6 +192,7 @@ export function TizenRoom({
                 Scan to join
               </p>
               <p className="mt-3 truncate text-2xl">{room.name}</p>
+              {room.flagged && <ExplicitBadge />}
               <p className="mt-2 text-sm text-tv-muted">
                 Add {labels.items} and vote from your phone
               </p>

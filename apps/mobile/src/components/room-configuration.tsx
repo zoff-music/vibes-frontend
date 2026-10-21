@@ -15,6 +15,7 @@ import { useAppTheme } from '@/hooks/use-app-theme';
 interface RoomConfigurationProps {
   roomType: RoomType;
   disabled?: boolean;
+  flagged?: boolean;
   hasPassword: boolean;
   mode: 'host' | 'server';
   onModeChange: (mode: 'host' | 'server') => void;
@@ -62,6 +63,7 @@ function SettingsSwitch({
 export function RoomConfiguration({
   roomType,
   disabled = false,
+  flagged = false,
   hasPassword,
   mode,
   onModeChange,
@@ -95,6 +97,11 @@ export function RoomConfiguration({
 
   if (hasPassword) {
     publicDescription = 'Let anyone find this room in Browse.';
+  }
+
+  if (flagged) {
+    publicDescription =
+      "This list has been marked for profanity and won't be possible to mark public";
   }
 
   return (
@@ -176,9 +183,9 @@ export function RoomConfiguration({
           <Divider />
           <SettingsSwitch
             description={publicDescription}
-            disabled={disabled || !hasPassword}
+            disabled={disabled || !hasPassword || flagged}
             label="Public"
-            value={settings.public}
+            value={settings.public && !flagged}
             onValueChange={(value) => updateSetting('public', value)}
           />
         </Card>

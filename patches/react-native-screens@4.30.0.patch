@@ -30,10 +30,7 @@ index 481a9e6d5367ff6cad083b001d8b1dd780918b47..4b45ac537a26682de5a3e3f544aca296
  @interface RNSTabBarController ()
  
  /// Consulted by the ISA-swizzled `pushViewController:animated:` on `moreNavigationController`
-@@ -194,6 +215,13 @@ static void rns_pushViewController(__unsafe_unretained id self,
-   RNSLog(@"TabBar: %@ didSelectItem: %@", tabBar, item);
- }
- 
+@@ -254,3 +275,10 @@
 +- (nullable id<UIViewControllerAnimatedTransitioning>)tabBarController:(UITabBarController *)tabBarController
 +            animationControllerForTransitionFromViewController:(UIViewController *)fromVC
 +                                              toViewController:(UIViewController *)toVC

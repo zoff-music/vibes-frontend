@@ -1,6 +1,7 @@
 export { KeyboardAvoidingView as NativeKeyboardAvoidingView } from 'react-native-css/components/KeyboardAvoidingView';
 export { NativeAnimatedLogo } from './components/NativeAnimatedLogo';
 export { NativeChatConversation } from './components/NativeChatConversation';
+export { NativeExplicitBadge } from './components/NativeExplicitBadge';
 export {
   NativeGenerativeFrame,
   NativeGenerativeInvitation,

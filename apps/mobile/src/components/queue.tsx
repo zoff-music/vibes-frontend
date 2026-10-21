@@ -5,8 +5,8 @@ import { Image } from 'expo-image';
 import { memo, type ReactElement, useCallback } from 'react';
 import {
   FlatList,
+  type FlatListProps,
   Linking,
-  type ListRenderItemInfo,
   Text,
   View,
 } from 'react-native';
@@ -208,7 +208,12 @@ export function Queue({
 }: QueueProps) {
   const { clearance } = usePhoneNavigationGeometry();
   const renderPlaylistItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<PlaylistItem>) => (
+    ({
+      item,
+      index,
+    }: Parameters<
+      NonNullable<FlatListProps<PlaylistItem>['renderItem']>
+    >[0]) => (
       <Animated.View
         className={classNames(!contained && 'px-4')}
         layout={LinearTransition.duration(180)}

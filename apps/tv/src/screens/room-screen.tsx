@@ -1,5 +1,10 @@
 import { classNames } from '@vibes/shared';
-import { NativeButton, NativeIcon, NativeQrCode } from '@vibes/ui/native';
+import {
+  NativeButton,
+  NativeExplicitBadge,
+  NativeIcon,
+  NativeQrCode,
+} from '@vibes/ui/native';
 import {
   formatPlaybackSeconds,
   getQueueRemainderLabel,
@@ -253,6 +258,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
             >
               {session.room?.name}
             </Text>
+            {session.room?.flagged && <NativeExplicitBadge />}
             {!compact && (
               <Text className="mt-1 font-heading text-tv-muted text-xs">
                 Add {labels.items} and vote from your phone

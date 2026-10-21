@@ -26,18 +26,17 @@ index b6a0247275857b0cc1f5234040558709a8570294..69cfb70eb8e63525d032222a7f7f407d
 +    return new x509.X509Certificate(pem);
  }
  async function findIdentitiesAsync() {
-     var _stdout_trim, _stdout;
-@@ -99,13 +94,12 @@ async function resolveIdentitiesAsync(identities) {
+     await _SecurityBinPrerequisite.SecurityBinPrerequisite.instance.assertAsync();
+@@ -99,12 +94,12 @@ async function resolveIdentitiesAsync(identities) {
      return Promise.all(values.map(resolveCertificateSigningInfoAsync));
  }
  async function resolveCertificateSigningInfoAsync(signingCertificateId) {
--    var _certificate_subject_getField, _certificate_subject_getField1, _certificate_subject_getField2;
      const certificate = await getCertificateForSigningIdAsync(signingCertificateId);
      return {
          signingCertificateId,
--        codeSigningInfo: (_certificate_subject_getField = certificate.subject.getField('CN')) == null ? void 0 : _certificate_subject_getField.value,
--        appleTeamName: (_certificate_subject_getField1 = certificate.subject.getField('O')) == null ? void 0 : _certificate_subject_getField1.value,
--        appleTeamId: (_certificate_subject_getField2 = certificate.subject.getField('OU')) == null ? void 0 : _certificate_subject_getField2.value
+-        codeSigningInfo: certificate.subject.getField('CN')?.value,
+-        appleTeamName: certificate.subject.getField('O')?.value,
+-        appleTeamId: certificate.subject.getField('OU')?.value
 +        codeSigningInfo: certificate.subjectName.getField('CN')[0],
 +        appleTeamName: certificate.subjectName.getField('O')[0],
 +        appleTeamId: certificate.subjectName.getField('OU')[0]
@@ -105,7 +104,7 @@ index 38730e4bcc94209fef296afe3166b8b391888e0d..58ffe6aabc73e2b3c3db72765f45b401
          privateKeyPEM,
          certificatePEM: codeSigningCertificatePEM
 @@ -325,12 +341,11 @@ async function getProjectPrivateKeyAndCertificateFromFilePathsAsync({ codeSignin
-     if (!privateKeyPEM || !(certificatePEMs == null ? void 0 : certificatePEMs.length)) {
+     if (!privateKeyPEM || !certificatePEMs?.length) {
          return null;
      }
 -    const certificateChain = certificatePEMs.map((certificatePEM)=>(0, _codesigningcertificates().convertCertificatePEMToCertificate)(certificatePEM));
