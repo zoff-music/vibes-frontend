@@ -108,6 +108,12 @@ export function AppTabs() {
         hidden={!canAddPlaylistItems || tabletLayout.isTablet}
         name="add"
         role="search"
+        unstable_nativeProps={{
+          ios: {
+            role: 'search',
+            automaticallyActivatesSearch: true,
+          },
+        }}
       >
         <NativeTabs.Trigger.Label>{addLabel}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
