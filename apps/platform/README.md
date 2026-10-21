@@ -20,7 +20,8 @@ on the current device. When enabled, leaving a room within Platform minimizes
 its existing player into a bottom-right frame. The room name and video reopen
 the room; Play/Pause, Skip and volume remain usable below the video. X ends
 the local session and closes its room streams and provider surfaces.
-The compact frame stays inside the site's content-width alignment. Its video
+The compact frame sits at the viewport's bottom-right corner, using the same
+edge spacing as the return-to-room reminder. Its video
 viewport reserves at least 200 by 200 pixels, excluding borders and controls,
 to satisfy YouTube's minimum embedded-player dimensions on supported screens.
 

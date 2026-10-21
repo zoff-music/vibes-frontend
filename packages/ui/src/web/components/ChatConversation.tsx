@@ -24,6 +24,7 @@ export function ChatConversation({
 }: ChatConversationProps) {
   const [draft, setDraft] = useState('');
   const nearBottom = useRef(true);
+  const inputRef = useRef<HTMLInputElement>(null);
   const conversationRef = useRef<HTMLDivElement>(null);
   const latestMessageId = messages[messages.length - 1]?.id;
 
@@ -38,6 +39,10 @@ export function ChatConversation({
 
     conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
   }, [latestMessageId, active]);
+
+  useEffect(() => {
+    if (active) inputRef.current?.focus({ preventScroll: true });
+  }, [active]);
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -99,6 +104,7 @@ export function ChatConversation({
         <label className="min-w-0 flex-1">
           <span className="sr-only">Room message</span>
           <input
+            ref={inputRef}
             value={draft}
             onChange={(event) => setDraft(event.currentTarget.value)}
             placeholder="Send a message…"
