@@ -1,6 +1,7 @@
 import { classNames } from '@vibes/shared';
 import type {
   ButtonContentAlignment,
+  ButtonShape,
   ButtonSize,
   ButtonVariant,
 } from './Button';
@@ -8,17 +9,19 @@ import type {
 interface Options {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  shape?: ButtonShape;
   contentAlignment?: ButtonContentAlignment;
   className?: string;
 }
 export function buttonClassName({
   variant = 'primary',
   size = 'medium',
+  shape = 'pill',
   contentAlignment = 'center',
   className = '',
 }: Options) {
   const baseClasses =
-    'inline-flex cursor-pointer items-center font-normal transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme disabled:cursor-not-allowed disabled:opacity-50';
+    'inline-flex cursor-pointer items-center border font-display text-xs font-normal tracking-display transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme disabled:cursor-not-allowed disabled:opacity-50';
 
   const contentAlignmentClasses: Record<ButtonContentAlignment, string> = {
     center: 'justify-center',
@@ -27,14 +30,17 @@ export function buttonClassName({
 
   const variantClasses: Record<ButtonVariant, string> = {
     primary:
-      'bg-primary text-on-primary hover:brightness-110 active:scale-press',
+      'border-transparent bg-primary text-on-primary hover:brightness-110 active:scale-press',
     secondary:
-      'bg-secondary text-on-secondary hover:opacity-90 active:scale-press',
+      'border-transparent bg-secondary text-on-secondary hover:opacity-90 active:scale-press',
     tertiary:
       'border border-theme bg-theme-surface text-theme hover:border-theme-strong',
     'tertiary-active':
       'border border-secondary/60 bg-secondary/20 text-theme shadow-secondary-soft hover:bg-secondary/30',
-    ghost: 'bg-transparent text-theme-muted hover:text-theme',
+    ghost: classNames(
+      'border-transparent bg-transparent text-theme-muted hover:border-theme-strong hover:bg-theme-hover active:bg-secondary/20',
+      size !== 'icon' && 'hover:text-theme',
+    ),
     destructive:
       'border border-error/40 bg-transparent text-error hover:bg-error/10',
     red: 'border border-red-400 bg-youtube text-white shadow-youtube hover:bg-red-500',
@@ -49,17 +55,23 @@ export function buttonClassName({
 
   const sizeClasses: Record<ButtonSize, string> = {
     none: '',
-    small: 'rounded-lg px-3 py-1.5 text-xs',
-    medium: 'rounded-xl px-5 py-2.5 text-base',
-    large: 'rounded-2xl px-6 py-4 text-sm',
-    icon: 'h-11 w-11 shrink-0 rounded-xl p-0',
+    small: 'px-3 py-1.5',
+    medium: 'px-5 py-2.5',
+    large: 'px-6 py-4',
+    icon: 'h-11 w-11 shrink-0 p-0',
   };
 
   return classNames(
     baseClasses,
+    shape === 'pill' ? 'rounded-full' : 'rounded-2xl',
     contentAlignmentClasses[contentAlignment],
     variantClasses[variant],
     sizeClasses[size],
+    size === 'icon' &&
+      (variant === 'ghost' ||
+        variant === 'tertiary' ||
+        variant === 'tertiary-active') &&
+      'hover:text-primary active:text-primary',
     String(className ?? ''),
   );
 }

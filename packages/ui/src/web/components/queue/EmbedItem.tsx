@@ -55,7 +55,8 @@ export function EmbedQueuePlaylistItem({
     <Button
       variant="tertiary"
       size="none"
-      className="w-full justify-start gap-3 rounded-2xl p-3 text-left transition-shadow hover:shadow-primary-soft"
+      shape="rounded"
+      className="w-full justify-start gap-3 p-3 text-left transition-shadow hover:shadow-primary-soft"
       onClick={() => onVote(playlistItem.id)}
       aria-label={`Vote for ${playlistItem.title} by ${playlistItem.publisher || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
       title={`Vote for ${playlistItem.title} (${voteCount} votes)`}

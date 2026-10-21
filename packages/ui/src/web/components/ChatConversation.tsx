@@ -111,7 +111,7 @@ export function ChatConversation({
           disabled={sending || !draft.trim()}
           size="icon"
           aria-label="Send message"
-          className="h-12! w-12! rounded-xl"
+          className="h-12! w-12!"
         >
           <ArrowRightIcon className="h-5 w-5" />
         </Button>

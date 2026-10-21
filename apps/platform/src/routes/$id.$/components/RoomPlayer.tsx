@@ -1,4 +1,4 @@
-import { useFetcher } from '@kasperrt/smolter/preact';
+import { Link, useFetcher } from '@kasperrt/smolter/preact';
 import {
   type PlaybackStateV2,
   type PlaylistItem,
@@ -15,11 +15,7 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import {
-  LinkButton,
-  markPlaybackGestureUnlocked,
-  PlayerControls,
-} from '@vibes/ui/web';
+import { markPlaybackGestureUnlocked, PlayerControls } from '@vibes/ui/web';
 import React, {
   type ComponentType,
   useCallback,
@@ -32,7 +28,6 @@ import { useCasting } from '../../../hooks/useCasting';
 import { usePersistentPlayerVolume } from '../../../hooks/usePersistentPlayerVolume';
 import { useCastStore } from '../../../stores/castStore';
 import type { RoomActionData } from '../utils/actions/clientAction';
-import { UserCount } from './UserCount';
 
 const importSoundCloudPlayer = () =>
   import('@vibes/ui/web/player/SoundCloudPlayer');
@@ -614,17 +609,15 @@ export const RoomPlayer = React.memo(
           )}
         >
           {minimized && (
-            <LinkButton
+            <Link
               aria-label={`Return to ${displayRoom?.name ?? 'room'}`}
-              className="absolute inset-0 z-40 rounded-none focus-visible:ring-inset"
+              className="absolute inset-0 z-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-inset"
               to={`/${encodeURIComponent(roomId)}`}
               prefetch="intent"
               viewTransition={false}
-              variant="ghost"
-              size="none"
             >
               <span className="sr-only">Return to room</span>
-            </LinkButton>
+            </Link>
           )}
           {VideoPlayerComponent && !isConnected && (
             <div
@@ -775,13 +768,6 @@ export const RoomPlayer = React.memo(
           showCast={showCast}
           isCasting={isConnected}
           castDeviceName={castDeviceName}
-          mobileTrailingContent={
-            <UserCount
-              initialCount={displayRoom?.userCount ?? 0}
-              roomType={displayRoom?.roomType ?? 'MUSIC'}
-              roomId={roomId}
-            />
-          }
           volume={volume}
           onVolumeChange={setVolume}
           onToggleMuted={toggleMuted}

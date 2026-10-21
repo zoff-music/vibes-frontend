@@ -785,7 +785,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           <Button
             aria-checked={isAIMode}
             aria-label={isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'}
-            className="h-14 w-14 shrink-0 rounded-2xl p-0"
+            className="h-14 w-14 shrink-0 p-0"
             onClick={handleToggleAIMode}
             role="switch"
             size="none"

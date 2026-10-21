@@ -20,6 +20,7 @@ import React, {
   useState,
 } from 'preact/compat';
 import { useRoomPanel } from '../hooks/useRoomPanel';
+import { useRoomQueueScroll } from '../hooks/useRoomQueueScroll';
 
 import type { RoomActionData } from '../utils/actions/clientAction';
 import { PlaybackProgress } from './PlaybackProgress';
@@ -33,6 +34,7 @@ const LazyChatConversation = lazy(async () => {
 });
 
 interface RoomQueueProps {
+  listenerCount?: React.ReactNode;
   minimized?: boolean;
   roomId: string;
   chatOpen: boolean;
@@ -46,6 +48,7 @@ interface RoomQueueProps {
 
 export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
   ({
+    listenerCount,
     minimized = false,
     roomId,
     chatOpen,
@@ -57,6 +60,8 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
     const { href } = useRoomPanel(roomId, minimized);
+    const queueScrollRef = useRef<HTMLDivElement>(null);
+    useRoomQueueScroll(queueScrollRef, !minimized && !chatOpen);
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
     // An explicit chat URL selects its surface during SSR and the first render.
     // The stored preference controls discovery, not an already-selected route.
@@ -211,6 +216,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               <div className="mb-2 shrink-0">
                 <NowPlayingPlaylistItem
                   priority
+                  {...(listenerCount != null && { statusAside: listenerCount })}
                   isHost={isHost}
                   playlistItem={currentPlaylistItemData}
                   isPlaying={isPlaying}
@@ -303,7 +309,8 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 {!chatOpen && (
                   <motion.div
                     layoutScroll
-                    className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[scrollbar-gutter:stable]"
+                    ref={queueScrollRef}
+                    className="rounded-2xl lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]"
                   >
                     <QueueList
                       playlistItems={displayPlaylistItems.filter(

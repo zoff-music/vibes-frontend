@@ -21,7 +21,9 @@ export const UserCount = ({
     return state.usersCount;
   });
 
-  return <ListenerCount count={usersCount} roomType={roomType} />;
+  return (
+    <ListenerCount count={usersCount} roomType={roomType} variant="inline" />
+  );
 };
 
 import type { RoomType } from '@vibes/models';

@@ -14,26 +14,30 @@ export type ButtonVariant =
   | 'cyan'
   | 'magenta';
 
+export type ButtonShape = 'pill' | 'rounded';
+
 export type ButtonSize = 'none' | 'small' | 'medium' | 'large' | 'icon';
 
 export type ButtonContentAlignment = 'center' | 'between';
 
-interface Props
+export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
   title?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
+  shape?: ButtonShape;
   loading?: boolean;
   contentAlignment?: ButtonContentAlignment;
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, Props>(
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       title,
       children,
       variant = 'primary',
       size = 'medium',
+      shape = 'pill',
       loading = false,
       contentAlignment = 'center',
       disabled = false,
@@ -46,6 +50,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
     const classes = buttonClassName({
       variant,
       size,
+      shape,
       contentAlignment,
       className: String(className ?? ''),
     });

@@ -16,7 +16,7 @@ import {
   usePlaybackStore,
   useRoomStore,
 } from '@vibes/shared';
-import { LinkButton, RemoteIcon, Tooltip } from '@vibes/ui/web';
+import { IconLinkButton, LinkButton, RemoteIcon, Tooltip } from '@vibes/ui/web';
 import { AnimatePresence } from 'framer-motion';
 import {
   createContext,
@@ -304,13 +304,16 @@ export function useRemoteControl() {
 interface RemoteControlButtonProps {
   className?: string;
   showLabel?: boolean;
+  variant?: 'tertiary' | 'ghost';
 }
 
 export function RemoteControlButton({
   className,
   showLabel = false,
+  variant = 'tertiary',
 }: RemoteControlButtonProps) {
   const { remoteHref } = useRemoteControl();
+  const Control = showLabel ? LinkButton : IconLinkButton;
   const tooltipClassName = classNames(
     showLabel ? 'flex w-full' : 'inline-flex',
   );
@@ -322,21 +325,20 @@ export function RemoteControlButton({
       content="Remote control"
       side="bottom"
     >
-      <LinkButton
+      <Control
         to={remoteHref}
         replace
         preventScrollReset
         viewTransition={false}
         prefetch="intent"
         prefetchData
-        variant="tertiary"
-        size={showLabel ? 'medium' : 'icon'}
-        className={className}
+        variant={variant}
+        {...(className && { className })}
         aria-label="Remote control"
       >
         <RemoteIcon className="h-5 w-5" />
         {showLabel && 'Remote control'}
-      </LinkButton>
+      </Control>
     </Tooltip>
   );
 }

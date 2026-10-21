@@ -3,7 +3,7 @@ import {
   getProviderItemUrl,
   type PlaylistItem,
 } from '@vibes/shared';
-import { useState } from 'preact/compat';
+import { type ReactNode, useState } from 'preact/compat';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../shared';
 import { RemoteIcon } from '../icons';
 import { PlaylistItemArtwork } from './PlaylistItemArtwork';
@@ -19,6 +19,7 @@ interface NowPlayingPlaylistItemProps {
   showStatus?: boolean;
   isHost?: boolean;
   priority?: boolean;
+  statusAside?: ReactNode;
 }
 
 export function NowPlayingPlaylistItem({
@@ -30,6 +31,7 @@ export function NowPlayingPlaylistItem({
   showStatus = true,
   isHost = false,
   priority = false,
+  statusAside,
 }: NowPlayingPlaylistItemProps) {
   const [entrance, setEntrance] = useState({
     id: playlistItem.id,
@@ -49,7 +51,7 @@ export function NowPlayingPlaylistItem({
   return (
     <>
       {showStatus && (
-        <div className="mb-3 flex items-center gap-2">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
           <div
             className={classNames(
               'h-2 w-2 rounded-full',
@@ -68,6 +70,7 @@ export function NowPlayingPlaylistItem({
               You are hosting
             </span>
           )}
+          {statusAside && <div className="ml-auto">{statusAside}</div>}
         </div>
       )}
       <div

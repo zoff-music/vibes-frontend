@@ -41,7 +41,7 @@ export function RemoteControlPreview({
           ref={playButtonRef}
           variant="secondary"
           size="small"
-          className="min-h-12 gap-2 text-sm"
+          className="min-h-12 gap-2"
           aria-label={playing ? 'Pause from remote' : 'Play from remote'}
           onClick={onTogglePlayback}
         >
@@ -52,7 +52,7 @@ export function RemoteControlPreview({
         <Button
           variant="tertiary"
           size="small"
-          className="min-h-12 gap-2 text-sm"
+          className="min-h-12 gap-2"
           aria-label="Skip from remote"
           onClick={onSkip}
         >

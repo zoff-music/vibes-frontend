@@ -69,7 +69,7 @@ export function RoomBrowserFilters({
           type="submit"
           disabled={pending}
           variant="tertiary"
-          className="min-h-12 shrink-0 px-4 text-sm"
+          className="min-h-12 shrink-0 px-4"
         >
           Search
         </Button>
