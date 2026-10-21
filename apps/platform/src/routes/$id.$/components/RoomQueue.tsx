@@ -209,7 +209,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
     return (
       <LazyMotion features={domMax}>
-        <div className="mt-6 flex min-h-0 min-w-0 flex-col lg:col-span-2 lg:mt-0 lg:h-full">
+        <div className="mt-6 flex min-h-0 min-w-0 flex-1 flex-col lg:col-span-2 lg:mt-0 lg:h-full">
           <div className="relative flex min-h-0 flex-1 flex-col">
             {/* Now Playing (Integrated into list style) */}
             {currentPlaylistItemData && (
@@ -280,7 +280,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               <div
                 className={classNames(
                   'min-h-0 lg:flex lg:flex-1 lg:flex-col',
-                  chatOpen && 'flex h-96 flex-col lg:h-auto lg:flex-1',
+                  chatOpen && 'flex min-h-64 flex-1 flex-col lg:min-h-0',
                 )}
               >
                 {chatOpen && (
