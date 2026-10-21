@@ -588,7 +588,7 @@ export const RoomPlayer = React.memo(
       <div
         data-room-player-surface
         className={classNames(
-          'min-w-0 origin-top-left space-y-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-6 lg:space-y-0',
+          'min-w-0 shrink-0 origin-top-left space-y-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-6 lg:space-y-0',
           minimized && '!block !space-y-0',
         )}
       >

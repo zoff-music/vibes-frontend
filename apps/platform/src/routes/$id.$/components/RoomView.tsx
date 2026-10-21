@@ -101,7 +101,7 @@ export function RoomView({
       <motion.div
         animate={roomEntryVisibleState}
         className={classNames(
-          'room-entry relative min-h-screen w-full min-w-0 overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden',
+          'room-entry relative min-h-dvh w-full min-w-0 overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden',
           isPartyScreen && 'bg-theme',
           minimized && '!min-h-0 !h-auto !overflow-visible',
         )}
@@ -112,7 +112,8 @@ export function RoomView({
           role={minimized ? 'region' : 'main'}
           aria-label={`Room ${displayRoom.name}`}
           className={classNames(
-            'relative z-10 flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden',
+            'relative z-10 flex min-h-dvh w-full min-w-0 flex-col overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden',
+            chatOpen && !isPartyScreen && 'h-dvh',
             minimized && '!min-h-0 !h-auto',
           )}
         >
@@ -163,6 +164,9 @@ export function RoomView({
                   className={classNames(
                     'mx-auto w-full min-w-0 items-start gap-8 px-4 lg:grid lg:h-full lg:min-h-0 lg:grid-cols-5 lg:grid-rows-[minmax(0,1fr)]',
                     !isPartyScreen && 'max-w-7xl pt-4 pb-8 sm:pt-3 lg:pb-6',
+                    chatOpen &&
+                      !isPartyScreen &&
+                      'max-lg:flex max-lg:h-full max-lg:flex-col max-lg:items-stretch max-lg:gap-0',
                     isPartyScreen && 'max-w-none py-4 lg:p-6',
                     minimized && '!block !p-0',
                   )}
@@ -179,7 +183,12 @@ export function RoomView({
                   />
 
                   {!isPartyScreen && !minimized && (
-                    <div className="min-h-0 min-w-0 lg:col-span-2 lg:h-full">
+                    <div
+                      className={classNames(
+                        'min-h-0 min-w-0 lg:col-span-2 lg:h-full',
+                        chatOpen && 'flex min-h-80 flex-1 flex-col lg:min-h-0',
+                      )}
+                    >
                       <RoomQueue
                         key={id}
                         listenerCount={

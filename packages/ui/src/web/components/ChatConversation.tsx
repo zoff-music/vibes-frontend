@@ -62,7 +62,7 @@ export function ChatConversation({
         role="log"
         aria-label="Room conversation"
         aria-live="polite"
-        className="min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-3 [scrollbar-gutter:stable]"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 pt-1 pb-3 [scrollbar-gutter:stable]"
       >
         <div className="flex min-h-full flex-col justify-end [&>p]:shrink-0">
           {messages.length === 0 && loading && (
@@ -103,7 +103,7 @@ export function ChatConversation({
             onChange={(event) => setDraft(event.currentTarget.value)}
             placeholder="Send a message…"
             maxLength={chatMessageMaxLength}
-            className="h-12 w-full rounded-xl border border-theme bg-theme-surface px-4 text-base text-theme placeholder:text-theme-muted focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+            className="h-12 w-full rounded-full border border-theme bg-theme-surface px-4 text-base text-theme placeholder:text-theme-muted focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
           />
         </label>
         <Button
