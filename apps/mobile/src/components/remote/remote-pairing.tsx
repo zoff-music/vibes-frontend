@@ -37,80 +37,85 @@ export function RemotePairingV2({
           automaticallyAdjustContentInsets={false}
           automaticallyAdjustsScrollIndicatorInsets={false}
           contentInsetAdjustmentBehavior="never"
-          contentContainerClassName="flex-grow justify-center gap-5 p-4 pb-30"
-          {...(clearance !== null && {
-            contentContainerStyle: { paddingBottom: clearance },
-          })}
+          contentContainerClassName="flex-grow"
           keyboardShouldPersistTaps="handled"
         >
-          <ContentColumn>
-            <View className="gap-5">
-              <View className="items-center gap-2 px-6">
-                <View
-                  className={classNames(
-                    'mb-2 size-16 items-center justify-center border',
-                    'rounded-3xl border-accent/40 bg-accent/10',
-                  )}
-                >
-                  <ZoffIcon color={theme.accent} name="remote" size={30} />
-                </View>
-                <Heading>Pair a remote</Heading>
-                <Copy muted>
-                  Control another Zoff screen without becoming another listener.
-                </Copy>
-              </View>
-              <Card>
-                <Copy muted>PAIR THIS PHONE</Copy>
-                <Button
-                  icon="scan"
-                  label="Scan remote QR code"
-                  disabled={controller.pairing}
-                  tone="secondary"
-                  onPress={() => void controllerActions.openScanner()}
-                />
-
-                <View className="flex-row items-center gap-3">
-                  <View className={classNames('h-px flex-1', 'bg-accent')} />
-                  <Copy muted>OR ENTER A CODE</Copy>
-                  <View className={classNames('h-px flex-1', 'bg-accent')} />
-                </View>
-                <Field
-                  accessibilityLabel="Remote ID"
-                  autoCapitalize="none"
-                  value={controller.remoteId}
-                  onChangeText={controllerActions.setRemoteId}
-                  placeholder="Remote ID"
-                  testID="remote-id"
-                />
-
-                <Field
-                  accessibilityLabel="Pairing code"
-                  autoCapitalize="none"
-                  value={controller.pairingCode}
-                  onChangeText={controllerActions.setPairingCode}
-                  onSubmitEditing={() => void controllerActions.pair()}
-                  placeholder="Pairing code"
-                  testID="remote-pairing-code"
-                />
-
-                <Button
-                  label={controller.pairing ? 'Pairing…' : 'Pair remote'}
-                  disabled={controller.pairing}
-                  onPress={() => void controllerActions.pair()}
-                />
-
-                {controller.error && (
-                  <Text
-                    accessibilityRole="alert"
-                    accessibilityLiveRegion="polite"
-                    className="font-body text-error"
+          <View
+            className="flex-1 justify-center gap-5 p-4 pb-30"
+            {...(clearance !== null && {
+              style: { paddingBottom: clearance },
+            })}
+          >
+            <ContentColumn>
+              <View className="gap-5">
+                <View className="items-center gap-2 px-6">
+                  <View
+                    className={classNames(
+                      'mb-2 size-16 items-center justify-center border',
+                      'rounded-3xl border-accent/40 bg-accent/10',
+                    )}
                   >
-                    {controller.error}
-                  </Text>
-                )}
-              </Card>
-            </View>
-          </ContentColumn>
+                    <ZoffIcon color={theme.accent} name="remote" size={30} />
+                  </View>
+                  <Heading>Pair a remote</Heading>
+                  <Copy muted>
+                    Control another Zoff screen without becoming another
+                    listener.
+                  </Copy>
+                </View>
+                <Card>
+                  <Copy muted>PAIR THIS PHONE</Copy>
+                  <Button
+                    icon="scan"
+                    label="Scan remote QR code"
+                    disabled={controller.pairing}
+                    tone="secondary"
+                    onPress={() => void controllerActions.openScanner()}
+                  />
+
+                  <View className="flex-row items-center gap-3">
+                    <View className={classNames('h-px flex-1', 'bg-accent')} />
+                    <Copy muted>OR ENTER A CODE</Copy>
+                    <View className={classNames('h-px flex-1', 'bg-accent')} />
+                  </View>
+                  <Field
+                    accessibilityLabel="Remote ID"
+                    autoCapitalize="none"
+                    value={controller.remoteId}
+                    onChangeText={controllerActions.setRemoteId}
+                    placeholder="Remote ID"
+                    testID="remote-id"
+                  />
+
+                  <Field
+                    accessibilityLabel="Pairing code"
+                    autoCapitalize="none"
+                    value={controller.pairingCode}
+                    onChangeText={controllerActions.setPairingCode}
+                    onSubmitEditing={() => void controllerActions.pair()}
+                    placeholder="Pairing code"
+                    testID="remote-pairing-code"
+                  />
+
+                  <Button
+                    label={controller.pairing ? 'Pairing…' : 'Pair remote'}
+                    disabled={controller.pairing}
+                    onPress={() => void controllerActions.pair()}
+                  />
+
+                  {controller.error && (
+                    <Text
+                      accessibilityRole="alert"
+                      accessibilityLiveRegion="polite"
+                      className="font-body text-error"
+                    >
+                      {controller.error}
+                    </Text>
+                  )}
+                </Card>
+              </View>
+            </ContentColumn>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </Screen>
