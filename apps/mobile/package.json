@@ -1,7 +1,7 @@
 {
   "name": "@vibes/mobile",
   "main": "expo-router/entry",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "dependencies": {
     "@expo/metro-runtime": "~58.0.14",
     "@react-native-community/slider": "5.2.1",
