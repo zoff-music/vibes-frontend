@@ -40,7 +40,7 @@ export function PublicRoomDiscovery({
           Browse all public <span aria-hidden="true">→</span>
         </Link>
       </div>
-      <div className="h-56 sm:h-20">
+      <div className="min-h-20">
         <Await
           resolve={rooms}
           fallback={
@@ -69,17 +69,22 @@ function RoomList({ rooms, onJoinRoom }: RoomListProps) {
   );
 
   return (
-    <div className="grid h-full grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-1">
+    <div className="flex flex-wrap gap-2">
       {visibleRooms?.map((room) => (
-        <PublicRoomTile key={room.id} room={room} onJoin={onJoinRoom} />
+        <div
+          key={room.id}
+          className="min-w-0 grow basis-full sm:basis-[calc((100%-1rem)/3)]"
+        >
+          <PublicRoomTile room={room} onJoin={onJoinRoom} />
+        </div>
       ))}
       {visibleRooms?.length === 0 && (
-        <p className="text-sm text-theme-muted sm:col-span-3">
+        <p className="w-full text-sm text-theme-muted">
           No rooms are live right now. Browse public rooms or start your own.
         </p>
       )}
       {rooms === null && (
-        <p className="text-sm text-theme-muted sm:col-span-3">
+        <p className="w-full text-sm text-theme-muted">
           Live rooms are temporarily unavailable.
         </p>
       )}
