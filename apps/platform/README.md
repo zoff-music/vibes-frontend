@@ -39,6 +39,14 @@ and playback content in the existing player surface; queue/chat state is
 room-scoped. Responses from previous-room player mutations are ignored.
 The return-to-room reminder is suppressed while a session is active.
 
+Hardware media keys use the room's Media Session handlers, including the same
+skip action as the room controls. While a room has a current item, a local,
+silent looping audio element keeps media-session ownership in the application
+document instead of the provider iframe. It follows playback state and releases
+its blob URL when the room session ends. It requires no native helper or browser
+extension; browser autoplay rules still apply, with playback retried on a user
+gesture. YouTube and SoundCloud remain the only audible media sources.
+
 Persistence applies to same-document Platform navigation. Reloading, closing
 the tab or following a document-level link to another application still ends
 the document's players; this is not browser picture-in-picture or background

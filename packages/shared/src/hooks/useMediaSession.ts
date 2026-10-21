@@ -1,6 +1,7 @@
 import type { PlaylistItem } from '@vibes/models';
 import { useEffect, useRef } from 'react';
-import { safeWrap } from '../wrap';
+import { safeWrap, safeWrapAsync } from '../wrap';
+import { createMediaSessionBridge } from './mediaSessionBridge';
 
 interface UseMediaSessionProps {
   canPlay: boolean;
@@ -21,9 +22,45 @@ export function useMediaSession({
   onPlay,
   onSkip,
 }: UseMediaSessionProps) {
+  const bridgeRef = useRef<ReturnType<typeof createMediaSessionBridge> | null>(
+    null,
+  );
+  const playingRef = useRef(isPlaying);
+  playingRef.current = isPlaying;
+  const hasPlaylistItem = Boolean(currentPlaylistItem);
   const pauseRef = useRef(onPause);
   const playRef = useRef(onPlay);
   const skipRef = useRef(onSkip);
+
+  useEffect(() => {
+    if (!hasPlaylistItem || !('mediaSession' in navigator)) return;
+    const bridge = createMediaSessionBridge();
+    bridgeRef.current = bridge;
+    const resume = () => {
+      if (playingRef.current && bridge.audio.paused) {
+        void safeWrapAsync(bridge.audio.play());
+      }
+    };
+    // Autoplay may be blocked until the first user gesture in the room.
+    document.addEventListener('pointerdown', resume, true);
+    document.addEventListener('keydown', resume, true);
+    return () => {
+      document.removeEventListener('pointerdown', resume, true);
+      document.removeEventListener('keydown', resume, true);
+      bridgeRef.current = null;
+      bridge.dispose();
+    };
+  }, [hasPlaylistItem]);
+
+  useEffect(() => {
+    const bridge = bridgeRef.current;
+    if (!hasPlaylistItem || !bridge) return;
+    if (isPlaying) {
+      void safeWrapAsync(bridge.audio.play());
+    } else {
+      bridge.audio.pause();
+    }
+  }, [hasPlaylistItem, isPlaying]);
 
   useEffect(() => {
     pauseRef.current = onPause;
