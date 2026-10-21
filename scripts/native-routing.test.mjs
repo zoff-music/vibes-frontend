@@ -197,21 +197,46 @@ test('mobile panels consistently use the large radius and thumbnails stay compac
   );
 });
 
-test('floating phone menu leaves extra clearance below the final content', () => {
+test('tab content consumes measured phone navigation clearance', () => {
   for (const file of [
     'settings/settings-screen',
     'remote/remote-pairing',
     'rooms/room-chat-panel',
+    'rooms/rooms-screen',
+    'queue',
   ]) {
     assert.match(
       readFileSync(`apps/mobile/src/components/${file}.tsx`, 'utf8'),
-      /pb-30/,
+      /paddingBottom: clearance/,
     );
   }
   assert.match(
-    readFileSync('apps/mobile/src/components/queue.tsx', 'utf8'),
-    /paddingBottom: 120/,
+    readFileSync(
+      'apps/mobile/src/components/layout/phone-navigation.tsx',
+      'utf8',
+    ),
+    /onLayout=\{geometry.onLayout\}/,
   );
+});
+
+test('menu clearance leaves eight points above measured menu across safe areas and text sizes', async () => {
+  const compiled = await build({
+    entryPoints: ['apps/mobile/src/utils/phone-navigation-geometry.ts'],
+    bundle: true,
+    write: false,
+    format: 'esm',
+    platform: 'node',
+  });
+  const { getPhoneNavigationGeometry } = await import(
+    `data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`
+  );
+  for (const inset of [0, 21, 34, 48]) {
+    for (const height of [56, 64, 72, 96]) {
+      const geometry = getPhoneNavigationGeometry(inset, height);
+      assert.equal(geometry.bottom, inset + 12);
+      assert.equal(geometry.clearance - geometry.bottom - height, 8);
+    }
+  }
 });
 
 test('TV landing keeps decorative artwork behind the card and preserves focus', () => {

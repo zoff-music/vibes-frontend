@@ -29,6 +29,7 @@ import {
 } from '@/providers/app-provider';
 import { useChatPreference } from '@/providers/chat-preference-provider';
 import { useInitialData } from '@/providers/initial-data-provider';
+import { usePhoneNavigationGeometry } from '@/providers/phone-navigation-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 import { DeviceRemoteSettings } from './device-remote-settings';
 
@@ -63,6 +64,7 @@ export function SettingsScreen() {
     useThemePreference();
   const theme = useAppTheme();
   const scrollEdgeFades = useScrollEdgeFades();
+  const { clearance } = usePhoneNavigationGeometry();
 
   return (
     <Screen>
@@ -73,6 +75,9 @@ export function SettingsScreen() {
             automaticallyAdjustsScrollIndicatorInsets={false}
             contentInsetAdjustmentBehavior="never"
             contentContainerClassName="gap-4 p-4 pb-30"
+            {...(clearance !== null && {
+              contentContainerStyle: { paddingBottom: clearance },
+            })}
             onContentSizeChange={scrollEdgeFades.onContentSizeChange}
             onLayout={scrollEdgeFades.onLayout}
             onScroll={scrollEdgeFades.onScroll}

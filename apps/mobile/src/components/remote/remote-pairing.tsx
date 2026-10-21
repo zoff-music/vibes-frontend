@@ -16,6 +16,7 @@ import type {
   ControllerRemoteActions,
   ControllerRemoteState,
 } from '@/hooks/use-controller-remote';
+import { usePhoneNavigationGeometry } from '@/providers/phone-navigation-provider';
 
 interface RemotePairingProps {
   controller: ControllerRemoteState;
@@ -27,6 +28,7 @@ export function RemotePairingV2({
   controllerActions,
 }: RemotePairingProps) {
   const theme = useAppTheme();
+  const { clearance } = usePhoneNavigationGeometry();
 
   return (
     <Screen>
@@ -36,6 +38,9 @@ export function RemotePairingV2({
           automaticallyAdjustsScrollIndicatorInsets={false}
           contentInsetAdjustmentBehavior="never"
           contentContainerClassName="flex-grow justify-center gap-5 p-4 pb-30"
+          {...(clearance !== null && {
+            contentContainerStyle: { paddingBottom: clearance },
+          })}
           keyboardShouldPersistTaps="handled"
         >
           <ContentColumn>

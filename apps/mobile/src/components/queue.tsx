@@ -16,6 +16,7 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { Copy, Empty } from '@/components/native';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { usePhoneNavigationGeometry } from '@/providers/phone-navigation-provider';
 
 interface QueueProps {
   contained?: boolean;
@@ -205,6 +206,7 @@ export function Queue({
   onVote,
   playlistItems,
 }: QueueProps) {
+  const { clearance } = usePhoneNavigationGeometry();
   const renderPlaylistItem = useCallback(
     ({ item, index }: ListRenderItemInfo<PlaylistItem>) => (
       <Animated.View
@@ -248,7 +250,7 @@ export function Queue({
       contentInsetAdjustmentBehavior="never"
       className="flex-1"
       {...(!contained && {
-        contentContainerStyle: queueStyle,
+        contentContainerStyle: { paddingBottom: clearance ?? 120 },
       })}
       data={playlistItems}
       initialNumToRender={8}
@@ -285,9 +287,6 @@ export function Queue({
 function QueueSeparator() {
   return <View className="h-3" />;
 }
-const queueStyle = {
-  paddingBottom: 120,
-};
 const thumbnailImageStyle = {
   height: '100%' as const,
   width: '100%' as const,
