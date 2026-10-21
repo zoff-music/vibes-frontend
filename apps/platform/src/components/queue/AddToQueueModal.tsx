@@ -22,6 +22,7 @@ import {
   Button,
   CheckIcon,
   CloseIcon,
+  IconButton,
   InfoIcon,
   Modal,
   PlaylistItemSearchResult,
@@ -136,6 +137,13 @@ export const AddToQueueModal: React.FC<Props> = ({
 
   const canGenerate = !generationUnavailableReason;
   const isGenerationSubmitting = generationFetcher.state !== 'idle';
+
+  useEffect(() => {
+    if (canGenerate || !isAIMode || isGenerationSubmitting) return;
+    setIsAIMode(false);
+    setSearchQuery('');
+    setError(null);
+  }, [canGenerate, isAIMode, isGenerationSubmitting]);
 
   const enabledSources = room.settings.enabledSources ?? [
     'youtube',
@@ -666,8 +674,8 @@ export const AddToQueueModal: React.FC<Props> = ({
       size="lg"
     >
       {/* Header */}
-      <div className="mb-6">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4">
+        <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <h2 id="add-song-title" className="text-base text-theme">
               {isAIMode ? 'Fill Playlist' : labels.add}
@@ -680,24 +688,25 @@ export const AddToQueueModal: React.FC<Props> = ({
                   : `Search by title, or paste a ${labels.item} link`}
             </p>
           </div>
-          <Button
+          <IconButton
             onClick={onClose}
-            variant="tertiary"
-            size="icon"
+            variant="ghost"
             aria-label={
               isAIMode ? 'Close playlist fill' : `Close ${labels.item} search`
             }
           >
-            <CloseIcon className="h-5 w-5 text-theme-muted" />
-          </Button>
+            <CloseIcon className="h-5 w-5" />
+          </IconButton>
         </div>
 
         {/* Provider Tabs */}
         {!isAIMode && (
-          <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
+          <div className="scrollbar-none flex gap-2 overflow-x-auto">
             {providerList.map((p) => (
               <Button
                 key={p}
+                className="shrink-0 gap-2"
+                aria-pressed={selectedProvider === p}
                 onClick={() => {
                   setSelectedProvider(p);
                   setSearchResults([]);
@@ -734,7 +743,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       {/* Search Input */}
       <div className="relative mb-6">
         <div className="flex gap-2">
-          <div className="relative flex-1">
+          <div className="relative min-w-0 flex-1">
             {/* Auth Check Logic Removed: searching allowed without prior active source check */}
 
             <div className="absolute top-1/2 left-4 -translate-y-1/2 text-theme-muted">
@@ -764,42 +773,35 @@ export const AddToQueueModal: React.FC<Props> = ({
               {...(isAIMode && {
                 maxLength: generatedPlaylistPromptMaxLength,
               })}
-              className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-12 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
+              className="h-14 w-full rounded-full border border-theme bg-theme-surface pr-14 pl-12 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
             />
 
             {searchQuery && (
-              <Button
+              <IconButton
                 onClick={() => handleSearchChange('')}
                 variant="ghost"
-                size="none"
                 aria-label="Clear search"
-                className="absolute top-1/2 right-3 -translate-y-1/2 p-1.5"
+                className="absolute top-1/2 right-1 -translate-y-1/2"
               >
-                <CloseIcon
-                  className="h-5 w-5 text-theme-subtle"
-                  strokeWidth={2}
-                />
-              </Button>
+                <CloseIcon className="h-5 w-5" strokeWidth={2} />
+              </IconButton>
             )}
           </div>
-          <Button
-            aria-checked={isAIMode}
-            aria-label={isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'}
-            className="h-14 w-14 shrink-0 p-0"
-            onClick={handleToggleAIMode}
-            role="switch"
-            size="none"
-            title={
-              canGenerate
-                ? isAIMode
-                  ? 'Turn off AI mode'
-                  : 'Fill playlist with AI'
-                : generationUnavailableReason
-            }
-            variant={isAIMode ? 'secondary' : 'tertiary'}
-          >
-            <SparklesIcon className="h-5 w-5" />
-          </Button>
+          {canGenerate && (
+            <IconButton
+              aria-checked={isAIMode}
+              aria-label={
+                isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'
+              }
+              className="h-14! w-14!"
+              onClick={handleToggleAIMode}
+              role="switch"
+              title={isAIMode ? 'Turn off AI mode' : 'Fill playlist with AI'}
+              variant={isAIMode ? 'tertiary-active' : 'ghost'}
+            >
+              <SparklesIcon className="h-5 w-5" />
+            </IconButton>
+          )}
         </div>
 
         {isAIMode && (
@@ -808,7 +810,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           </p>
         )}
 
-        {!canGenerate && (
+        {!canGenerate && !isAbovePlaylistItemLimit && (
           <p className="mt-3 text-theme-muted text-xs">
             {generationUnavailableReason}
           </p>
