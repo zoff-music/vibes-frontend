@@ -1,7 +1,8 @@
 import type { PlaylistItem } from '@vibes/models';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { usePlaybackStore } from '../stores/playbackStore';
 import { safeWrap, safeWrapAsync } from '../wrap';
+import { configureMediaSessionActions } from './mediaSessionActions';
 import { createMediaSessionBridge } from './mediaSessionBridge';
 import { mediaSessionPosition } from './mediaSessionPosition';
 
@@ -13,6 +14,7 @@ interface UseMediaSessionProps {
   onPause: () => void;
   onPlay: () => void;
   onSkip: () => void;
+  onPrevious?: () => void;
 }
 
 export function useMediaSession({
@@ -23,22 +25,30 @@ export function useMediaSession({
   onPause,
   onPlay,
   onSkip,
+  onPrevious,
 }: UseMediaSessionProps) {
   const bridgeRef = useRef<ReturnType<typeof createMediaSessionBridge> | null>(
     null,
   );
   const playingRef = useRef(isPlaying);
   playingRef.current = isPlaying;
-  const hasPlaylistItem = Boolean(currentPlaylistItem);
+  const playlistItemId = currentPlaylistItem?.id;
+  const hasPlaylistItem = Boolean(playlistItemId);
+  const installActionsRef = useRef<() => void>(() => {});
   const pauseRef = useRef(onPause);
   const playRef = useRef(onPlay);
   const skipRef = useRef(onSkip);
+  const previousRef = useRef(onPrevious);
+  const hasPreviousAction = Boolean(onPrevious);
 
   useEffect(() => {
     if (!hasPlaylistItem || !('mediaSession' in navigator)) return;
     const bridge = createMediaSessionBridge();
     bridgeRef.current = bridge;
+    const onPlaying = () => installActionsRef.current();
+    bridge.audio.addEventListener('playing', onPlaying);
     const resume = () => {
+      installActionsRef.current();
       if (playingRef.current && bridge.audio.paused) {
         void safeWrapAsync(bridge.audio.play());
       }
@@ -46,9 +56,12 @@ export function useMediaSession({
     // Autoplay may be blocked until the first user gesture in the room.
     document.addEventListener('pointerdown', resume, true);
     document.addEventListener('keydown', resume, true);
+    window.addEventListener('focus', resume);
     return () => {
       document.removeEventListener('pointerdown', resume, true);
       document.removeEventListener('keydown', resume, true);
+      window.removeEventListener('focus', resume);
+      bridge.audio.removeEventListener('playing', onPlaying);
       bridgeRef.current = null;
       bridge.dispose();
     };
@@ -56,19 +69,20 @@ export function useMediaSession({
 
   useEffect(() => {
     const bridge = bridgeRef.current;
-    if (!hasPlaylistItem || !bridge) return;
+    if (!playlistItemId || !bridge) return;
     if (isPlaying) {
       void safeWrapAsync(bridge.audio.play());
     } else {
       bridge.audio.pause();
     }
-  }, [hasPlaylistItem, isPlaying]);
+  }, [playlistItemId, isPlaying]);
 
   useEffect(() => {
     pauseRef.current = onPause;
     playRef.current = onPlay;
     skipRef.current = onSkip;
-  }, [onPause, onPlay, onSkip]);
+    previousRef.current = onPrevious;
+  }, [onPause, onPlay, onSkip, onPrevious]);
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) return;
@@ -134,51 +148,48 @@ export function useMediaSession({
     });
   }, [currentPlaylistItem, isPlaying]);
 
-  useEffect(() => {
+  const installActions = useCallback(() => {
     if (!('mediaSession' in navigator)) {
       return;
     }
 
-    safeWrap(() => {
-      navigator.mediaSession.setActionHandler(
+    configureMediaSessionActions(
+      (action, handler) => {
+        safeWrap(() =>
+          navigator.mediaSession.setActionHandler(action, handler),
+        );
+      },
+      {
+        play: canPlay ? () => playRef.current() : null,
+        pause: canPlay ? () => pauseRef.current() : null,
+        next: canSkip ? () => skipRef.current() : null,
+        previous: hasPreviousAction ? () => previousRef.current?.() : null,
+      },
+    );
+  }, [canPlay, canSkip, hasPreviousAction]);
+
+  useEffect(() => {
+    installActionsRef.current = installActions;
+    installActions();
+  }, [installActions]);
+
+  useEffect(() => {
+    if (!playlistItemId) return;
+    installActionsRef.current();
+  }, [playlistItemId]);
+
+  useEffect(
+    () => () => {
+      if (!('mediaSession' in navigator)) return;
+      for (const action of [
         'play',
-        canPlay ? () => playRef.current() : null,
-      );
-    });
-    safeWrap(() => {
-      navigator.mediaSession.setActionHandler(
         'pause',
-        canPlay ? () => pauseRef.current() : null,
-      );
-    });
-    safeWrap(() => {
-      navigator.mediaSession.setActionHandler(
         'nexttrack',
-        canSkip ? () => skipRef.current() : null,
-      );
-    });
-
-    // Zoff has no previous-track or media-panel seek controls. Registering
-    // null removes these actions from the session's supported action set.
-    for (const action of [
-      'previoustrack',
-      'seekto',
-      'seekforward',
-      'seekbackward',
-    ] as const) {
-      safeWrap(() => navigator.mediaSession.setActionHandler(action, null));
-    }
-
-    return () => {
-      safeWrap(() => {
-        navigator.mediaSession.setActionHandler('play', null);
-      });
-      safeWrap(() => {
-        navigator.mediaSession.setActionHandler('pause', null);
-      });
-      safeWrap(() => {
-        navigator.mediaSession.setActionHandler('nexttrack', null);
-      });
-    };
-  }, [canPlay, canSkip]);
+        'previoustrack',
+      ] as const) {
+        safeWrap(() => navigator.mediaSession.setActionHandler(action, null));
+      }
+    },
+    [],
+  );
 }

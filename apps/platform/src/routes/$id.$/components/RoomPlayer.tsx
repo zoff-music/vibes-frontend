@@ -416,6 +416,8 @@ export const RoomPlayer = React.memo(
       onPause: pause,
       onPlay: play,
       onSkip: skip,
+      onPrevious: () =>
+        showToast('No rewinds here. The next banger awaits.', 'info'),
     });
 
     /* 4. Effects */
