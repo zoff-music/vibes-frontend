@@ -1,7 +1,9 @@
 import type { PlaylistItem } from '@vibes/models';
 import { useEffect, useRef } from 'react';
+import { usePlaybackStore } from '../stores/playbackStore';
 import { safeWrap, safeWrapAsync } from '../wrap';
 import { createMediaSessionBridge } from './mediaSessionBridge';
+import { mediaSessionPosition } from './mediaSessionPosition';
 
 interface UseMediaSessionProps {
   canPlay: boolean;
@@ -11,6 +13,7 @@ interface UseMediaSessionProps {
   onPause: () => void;
   onPlay: () => void;
   onSkip: () => void;
+  onSeek?: (positionMs: number) => void;
 }
 
 export function useMediaSession({
@@ -21,6 +24,7 @@ export function useMediaSession({
   onPause,
   onPlay,
   onSkip,
+  onSeek,
 }: UseMediaSessionProps) {
   const bridgeRef = useRef<ReturnType<typeof createMediaSessionBridge> | null>(
     null,
@@ -31,6 +35,8 @@ export function useMediaSession({
   const pauseRef = useRef(onPause);
   const playRef = useRef(onPlay);
   const skipRef = useRef(onSkip);
+  const seekRef = useRef(onSeek);
+  const canSeek = canPlay && Boolean(onSeek);
 
   useEffect(() => {
     if (!hasPlaylistItem || !('mediaSession' in navigator)) return;
@@ -66,7 +72,44 @@ export function useMediaSession({
     pauseRef.current = onPause;
     playRef.current = onPlay;
     skipRef.current = onSkip;
-  }, [onPause, onPlay, onSkip]);
+    seekRef.current = onSeek;
+  }, [onPause, onPlay, onSkip, onSeek]);
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    const session = navigator.mediaSession;
+    if (!session.setPositionState) return;
+    const updatePosition = () => {
+      const state = usePlaybackStore.getState();
+      const positionMs =
+        state.currentPlaylistItem?.id === currentPlaylistItem?.id
+          ? state.actualPositionMs
+          : 0;
+      const position = mediaSessionPosition(
+        currentPlaylistItem?.duration ?? 0,
+        positionMs,
+      );
+      safeWrap(() => {
+        if (position) session.setPositionState(position);
+        else session.setPositionState();
+      });
+    };
+    updatePosition();
+    const unsubscribe = usePlaybackStore.subscribe(updatePosition);
+    return () => {
+      unsubscribe();
+      safeWrap(() => session.setPositionState());
+    };
+  }, [currentPlaylistItem]);
+
+  useEffect(
+    () => () => {
+      if (!('mediaSession' in navigator)) return;
+      navigator.mediaSession.metadata = null;
+      navigator.mediaSession.playbackState = 'none';
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) {
@@ -120,7 +163,53 @@ export function useMediaSession({
       );
     });
 
+    const seekTo = (seconds: number) => {
+      const duration =
+        usePlaybackStore.getState().currentPlaylistItem?.duration ?? 0;
+      if (!Number.isFinite(seconds) || duration <= 0) return;
+      seekRef.current?.(Math.max(0, Math.min(duration, seconds)) * 1000);
+    };
+    safeWrap(() =>
+      navigator.mediaSession.setActionHandler(
+        'seekto',
+        canSeek
+          ? (details) => {
+              if (details.seekTime !== undefined) seekTo(details.seekTime);
+            }
+          : null,
+      ),
+    );
+    safeWrap(() =>
+      navigator.mediaSession.setActionHandler(
+        'seekforward',
+        canSeek
+          ? (details) => {
+              seekTo(
+                usePlaybackStore.getState().actualPositionMs / 1000 +
+                  (details.seekOffset ?? 10),
+              );
+            }
+          : null,
+      ),
+    );
+    safeWrap(() =>
+      navigator.mediaSession.setActionHandler(
+        'seekbackward',
+        canSeek
+          ? (details) => {
+              seekTo(
+                usePlaybackStore.getState().actualPositionMs / 1000 -
+                  (details.seekOffset ?? 10),
+              );
+            }
+          : null,
+      ),
+    );
+
     return () => {
+      for (const action of ['seekto', 'seekforward', 'seekbackward'] as const) {
+        safeWrap(() => navigator.mediaSession.setActionHandler(action, null));
+      }
       safeWrap(() => {
         navigator.mediaSession.setActionHandler('play', null);
       });
@@ -131,5 +220,5 @@ export function useMediaSession({
         navigator.mediaSession.setActionHandler('nexttrack', null);
       });
     };
-  }, [canPlay, canSkip]);
+  }, [canPlay, canSkip, canSeek]);
 }
