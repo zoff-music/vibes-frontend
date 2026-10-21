@@ -10,6 +10,7 @@ import {
   CheckCircleIcon,
   CheckIcon,
   CloseIcon,
+  IconButton,
   InfoIcon,
   Modal,
   PlayIcon,
@@ -172,33 +173,28 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
       ariaLabelledBy="cast-device-selector-title"
       isOpen={isOpen}
       onClose={onClose}
-      className="w-80 max-w-sm rounded-lg border-2 border-gray-200 bg-white p-6 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800"
+      size="sm"
     >
-      <div className="mb-4 flex items-center justify-between">
-        <h3
-          id="cast-device-selector-title"
-          className="font-semibold text-gray-900 text-lg dark:text-white"
-        >
-          Cast to Device
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <h3 id="cast-device-selector-title" className="text-base text-theme">
+          Cast to device
         </h3>
-        <Button
+        <IconButton
           onClick={onClose}
           variant="ghost"
           aria-label="Close cast device selector"
         >
-          <CloseIcon className="h-6 w-6" />
-        </Button>
+          <CloseIcon className="h-5 w-5" />
+        </IconButton>
       </div>
 
       {/* Current connection */}
       {isConnected && currentSession && (
-        <div className="mb-4 rounded-lg border border-primary/20 bg-primary/10 p-3 transition-colors duration-200 dark:border-primary/30 dark:bg-primary/20">
-          <div className="mb-3 flex items-center justify-between">
+        <div className="mb-4 rounded-2xl border border-theme bg-theme-surface p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="font-medium text-primary dark:text-primary-light">
-                Connected
-              </div>
-              <div className="text-primary/80 text-sm dark:text-primary-light/80">
+              <div className="text-secondary text-sm">Connected</div>
+              <div className="text-sm text-theme-muted">
                 {currentSession.deviceName}
               </div>
             </div>
@@ -209,7 +205,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
           {/* Cast Current Song Button */}
           {isDev && currentPlaylistItem && (
-            <div className="border-primary/20 border-t pt-3 dark:border-primary/30">
+            <div className="border-theme border-t pt-4">
               <Button
                 onClick={() => handleCastCurrentPlaylistItem()}
                 disabled={isCasting}
@@ -229,13 +225,13 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                   </>
                 )}
               </Button>
-              <div className="mt-1 text-center text-primary/70 text-xs dark:text-primary-light/70">
+              <div className="mt-2 text-center text-theme-muted text-xs">
                 {currentPlaylistItem.title}
               </div>
 
               {/* YouTube Limitation Notice */}
               {currentPlaylistItem.sourceType === 'youtube' && (
-                <div className="mt-2 rounded border border-blue-300 bg-blue-100 p-3 text-blue-800 text-xs transition-colors duration-200 dark:border-blue-700/30 dark:bg-blue-900/20 dark:text-blue-400">
+                <div className="mt-3 rounded-2xl border border-theme bg-theme p-4 text-theme-muted text-xs">
                   <div className="flex items-start gap-2">
                     <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
                     <div>
@@ -249,7 +245,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                           href={`/casting/receiver/${isDev ? '?debug=true' : ''}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 underline hover:no-underline dark:text-blue-400"
+                          className="text-secondary underline hover:no-underline"
                         >
                           View Custom Receiver →
                         </a>
@@ -291,27 +287,25 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
       {!isConnected && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium text-gray-900 dark:text-white">
-              Available Devices
-            </h4>
+            <h4 className="text-sm text-theme">Available devices</h4>
             <Button onClick={handleRefresh} variant="ghost">
               Refresh
             </Button>
           </div>
 
           {availableDevices.length === 0 && (
-            <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-              <CastIcon className="mx-auto mb-2 h-12 w-12 text-gray-300 dark:text-gray-600" />
-              <div className="font-medium text-gray-500 dark:text-gray-400">
+            <div className="py-8 text-center text-theme-muted">
+              <CastIcon className="mx-auto mb-2 h-12 w-12 text-theme-subtle" />
+              <div className="font-medium text-theme-muted">
                 No Chromecast devices found
               </div>
-              <div className="mt-2 space-y-1 text-gray-400 text-xs dark:text-gray-500">
+              <div className="mt-2 space-y-1 text-theme-muted text-xs">
                 <div>Make sure your Chromecast is:</div>
                 <div>• On the same Wi-Fi network</div>
                 <div>• Powered on and ready</div>
                 <div>• Not being used by another app</div>
               </div>
-              <div className="mt-3 text-gray-400 text-xs dark:text-gray-500">
+              <div className="mt-3 text-theme-muted text-xs">
                 Chrome may still find devices while opening its device picker.
               </div>
               <Button
@@ -333,38 +327,37 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                   key={device.id}
                   onClick={() => handleDeviceSelect(device)}
                   variant="tertiary"
-                  size="none"
-                  className="w-full justify-start p-3 text-left"
+                  size="large"
+                  contentAlignment="between"
+                  className="w-full"
                   disabled={
                     isConnecting === device.id ||
                     (isConnected && currentSession?.deviceId === device.id)
                   }
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex w-full min-w-0 items-center gap-3">
                     <div className="shrink-0">
                       {device.type === 'chromecast' && (
-                        <CastIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                        <CastIcon className="h-6 w-6 text-theme-muted" />
                       )}
                       {device.type !== 'chromecast' && (
-                        <CheckCircleIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                        <CheckCircleIcon className="h-6 w-6 text-theme-muted" />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {device.name}
-                      </div>
-                      <div className="text-gray-500 text-sm capitalize dark:text-gray-400">
+                    <div className="min-w-0 flex-1">
+                      <div className="break-words">{device.name}</div>
+                      <div className="mt-1 font-pixel text-theme-muted text-xs capitalize tracking-normal">
                         {device.type}
                       </div>
                     </div>
                     {isConnecting === device.id && (
                       <div className="shrink-0">
-                        <SpinnerIcon className="h-4 w-4 animate-spin text-primary dark:text-primary-light" />
+                        <SpinnerIcon className="h-4 w-4 animate-spin text-secondary" />
                       </div>
                     )}
                     {isConnected && currentSession?.deviceId === device.id && (
                       <div className="shrink-0">
-                        <CheckIcon className="h-4 w-4 text-primary dark:text-primary-light" />
+                        <CheckIcon className="h-4 w-4 text-secondary" />
                       </div>
                     )}
                   </div>
@@ -375,7 +368,7 @@ export const DeviceSelector: React.FC<DeviceSelectorProps> = ({
         </div>
       )}
 
-      <div className="mt-6 text-center text-gray-500 text-xs transition-colors duration-200 dark:text-gray-400">
+      <div className="mt-5 text-center text-theme-muted text-xs">
         Make sure your device supports Google Cast and is connected to the same
         Wi-Fi network.
       </div>
