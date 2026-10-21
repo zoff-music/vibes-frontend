@@ -416,7 +416,6 @@ export const RoomPlayer = React.memo(
       onPause: pause,
       onPlay: play,
       onSkip: skip,
-      onSeek: handleLocalSeek,
     });
 
     /* 4. Effects */
