@@ -239,6 +239,29 @@ test('menu clearance leaves eight points above measured menu across safe areas a
   }
 });
 
+test('measured bottom clearance cannot replace scroll content side padding', () => {
+  for (const [file, spacing] of [
+    ['settings/settings-screen', 'gap-4 p-4 pb-30'],
+    ['remote/remote-pairing', 'flex-1 justify-center gap-5 p-4 pb-30'],
+    ['rooms/rooms-screen', 'grow px-6 pt-4 pb-32 md:py-12'],
+  ]) {
+    const source = readFileSync(
+      `apps/mobile/src/components/${file}.tsx`,
+      'utf8',
+    );
+    assert.ok(
+      source.includes(spacing),
+      `${file} retains its original side and top spacing`,
+    );
+    assert.doesNotMatch(source, /contentContainerStyle[=:]/);
+    assert.match(source, /style: \{ paddingBottom: clearance \}/);
+    assert.match(
+      source,
+      /<View\s+className[\s\S]*?style: \{ paddingBottom: clearance \}/,
+    );
+  }
+});
+
 test('TV landing keeps decorative artwork behind the card and preserves focus', () => {
   const source = readFileSync('apps/tv/src/screens/landing-screen.tsx', 'utf8');
   assert.match(source, /absolute inset-x-0 top-0/);

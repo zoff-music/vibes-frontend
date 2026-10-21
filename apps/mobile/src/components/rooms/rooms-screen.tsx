@@ -488,13 +488,7 @@ export function RoomsScreen() {
             automaticallyAdjustsScrollIndicatorInsets={false}
             contentInsetAdjustmentBehavior="never"
             ref={landingScroll}
-            {...(clearance !== null && {
-              contentContainerStyle: { paddingBottom: clearance },
-            })}
-            contentContainerClassName={classNames(
-              'grow px-6 pt-4 pb-32 md:py-12',
-              browseMode === 'live' && 'md:justify-center',
-            )}
+            contentContainerClassName="grow"
             keyboardShouldPersistTaps="handled"
             onContentSizeChange={(width, contentHeight) => {
               scrollEdgeFades.onContentSizeChange(width, contentHeight);
@@ -505,289 +499,301 @@ export function RoomsScreen() {
             refreshControl={refreshControl}
             scrollEventThrottle={16}
           >
-            <Animated.View
-              ref={landingContent}
-              onLayout={(event) => {
-                landingContentTop.current = event.nativeEvent.layout.y;
-                alignBrowser();
-              }}
-              collapsable={false}
-              className="mx-auto w-full max-w-xl"
-              style={landingPosition}
+            <View
+              className={classNames(
+                'grow px-6 pt-4 pb-32 md:py-12',
+                browseMode === 'live' && 'md:justify-center',
+              )}
+              {...(clearance !== null && {
+                style: { paddingBottom: clearance },
+              })}
             >
-              <View className="gap-5">
-                <View className="flex-row items-center gap-4 py-2">
-                  <Image
-                    source={zoffLogo}
-                    accessibilityLabel="Zoff"
-                    className="size-12"
-                  />
+              <Animated.View
+                ref={landingContent}
+                onLayout={(event) => {
+                  landingContentTop.current = event.nativeEvent.layout.y;
+                  alignBrowser();
+                }}
+                collapsable={false}
+                className="mx-auto w-full max-w-xl"
+                style={landingPosition}
+              >
+                <View className="gap-5">
+                  <View className="flex-row items-center gap-4 py-2">
+                    <Image
+                      source={zoffLogo}
+                      accessibilityLabel="Zoff"
+                      className="size-12"
+                    />
 
-                  <View className="gap-1">
-                    <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
-                      Zoff
-                    </Text>
-                    <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                      Shared rooms
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  accessibilityRole="tablist"
-                  className="flex-row gap-2 self-center rounded-full border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
-                >
-                  {roomTypes.map((type) => (
-                    <Pressable
-                      key={type}
-                      accessibilityRole="tab"
-                      accessibilityState={{
-                        selected: roomType === type,
-                      }}
-                      disabled={generationLoading}
-                      onPress={() => void changeRoomType(type)}
-                      className={classNames(
-                        'min-h-12 min-w-32 flex-row items-center justify-center gap-2 rounded-full border px-5',
-                        roomType === type
-                          ? 'border-accent bg-mobile-background dark:bg-mobile-dark-background'
-                          : 'border-transparent',
-                      )}
-                    >
-                      {roomType === type && (
-                        <View className="size-2 rounded-full bg-accent" />
-                      )}
-                      <Text className="font-heading text-lg text-mobile-text dark:text-mobile-dark-text">
-                        {type === 'WATCH' ? 'Watch' : 'Music'}
+                    <View className="gap-1">
+                      <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
+                        Zoff
                       </Text>
-                    </Pressable>
-                  ))}
-                </View>
-                <View className="gap-8">
-                  <View className="relative w-full pt-8">
-                    <View
-                      pointerEvents="none"
-                      className="absolute inset-x-0 top-0"
-                    >
-                      <NativeLandingSun watch={watch} compact />
-                    </View>
-                    <View className="gap-5 rounded-3xl border border-mobile-border bg-mobile-card px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
-                      <View className="gap-3">
-                        <Text
-                          accessibilityRole="header"
-                          className="text-center font-heading text-3xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
-                        >
-                          {watch ? 'Watch ' : 'Listen to music '}
-                          {'\n'}
-                          <Text className="text-primary">together.</Text>
-                        </Text>
-                        <Text className="text-center font-heading text-base text-mobile-muted dark:text-mobile-dark-muted">
-                          {watch
-                            ? 'One room. Everyone’s front row.'
-                            : 'One room. Everyone’s favourites.'}
-                        </Text>
-                      </View>
-                      <View className="gap-2">
-                        <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                          {isAIMode ? 'What’s the vibe?' : 'Room name'}
-                        </Text>
-                        <NativeGenerativeFrame
-                          shape="pill"
-                          active={isAIMode}
-                          animate={generativeMotion}
-                        >
-                          <Field
-                            inputClassName="min-h-14 text-lg"
-                            accessibilityLabel={
-                              isAIMode ? 'What’s the vibe?' : 'Room name'
-                            }
-                            autoCapitalize="none"
-                            onFocus={() => setInputFocused(true)}
-                            onBlur={() => setInputFocused(false)}
-                            value={value}
-                            onChangeText={(nextValue) => {
-                              setValue(nextValue);
-                              setError('');
-                            }}
-                            onSubmitEditing={submitRoom}
-                            maxLength={
-                              isAIMode
-                                ? generatedPlaylistPromptMaxLength
-                                : roomNameMaxLength
-                            }
-                            placeholder={placeholder}
-                            trailingAction={
-                              <NativeGenerativeInvitation
-                                active={isAIMode}
-                                animate={
-                                  generativeMotion &&
-                                  (isAIMode || !generationDiscovered)
-                                }
-                              >
-                                <Pressable
-                                  accessibilityLabel={
-                                    isAIMode
-                                      ? 'Turn off AI mode'
-                                      : 'Generate with AI'
-                                  }
-                                  accessibilityRole="switch"
-                                  accessibilityState={{
-                                    checked: isAIMode,
-                                  }}
-                                  className={classNames(
-                                    'size-11 items-center justify-center rounded-full border active:opacity-70',
-                                    isAIMode && 'border-accent bg-accent',
-                                    !isAIMode &&
-                                      'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
-                                  )}
-                                  onPress={() => {
-                                    setGenerationDiscovered(true);
-                                    toggleAIMode();
-                                  }}
-                                >
-                                  <ZoffIcon
-                                    color={isAIMode ? '#ffffff' : theme.text}
-                                    name="sparkles"
-                                    size={22}
-                                  />
-                                </Pressable>
-                              </NativeGenerativeInvitation>
-                            }
-                          />
-                        </NativeGenerativeFrame>
-                      </View>
-                      <Button
-                        label={submitLabel}
-                        accessibilityLabel={submitLabel}
-                        disabled={loading || generationLoading}
-                        onPress={submitRoom}
-                      />
-                      <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
-                        Start a room. Make it yours.
+                      <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                        Shared rooms
                       </Text>
                     </View>
                   </View>
                   <View
-                    ref={browseSection}
-                    collapsable={false}
-                    onLayout={alignBrowser}
-                    className="w-full gap-4"
-                    {...(browseMode === 'public' && {
-                      style: { minHeight: height - insets.top },
-                    })}
+                    accessibilityRole="tablist"
+                    className="flex-row gap-2 self-center rounded-full border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
                   >
-                    <View
-                      accessibilityRole="tablist"
-                      className="flex-row items-center justify-between gap-3"
-                    >
-                      {['live', 'public'].map((mode) => (
-                        <Pressable
-                          key={mode}
-                          accessibilityRole="tab"
-                          accessibilityState={{
-                            selected: browseMode === mode,
-                          }}
-                          onPress={() => void loadRooms(mode, 0, '')}
-                          className={classNames(
-                            'min-h-11 flex-row items-center gap-2 rounded-full active:opacity-70',
-                            mode === 'public' && 'px-2',
-                          )}
-                        >
-                          {mode === 'live' && (
-                            <View className="size-2 rounded-full bg-accent" />
-                          )}
+                    {roomTypes.map((type) => (
+                      <Pressable
+                        key={type}
+                        accessibilityRole="tab"
+                        accessibilityState={{
+                          selected: roomType === type,
+                        }}
+                        disabled={generationLoading}
+                        onPress={() => void changeRoomType(type)}
+                        className={classNames(
+                          'min-h-12 min-w-32 flex-row items-center justify-center gap-2 rounded-full border px-5',
+                          roomType === type
+                            ? 'border-accent bg-mobile-background dark:bg-mobile-dark-background'
+                            : 'border-transparent',
+                        )}
+                      >
+                        {roomType === type && (
+                          <View className="size-2 rounded-full bg-accent" />
+                        )}
+                        <Text className="font-heading text-lg text-mobile-text dark:text-mobile-dark-text">
+                          {type === 'WATCH' ? 'Watch' : 'Music'}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                  <View className="gap-8">
+                    <View className="relative w-full pt-8">
+                      <View
+                        pointerEvents="none"
+                        className="absolute inset-x-0 top-0"
+                      >
+                        <NativeLandingSun watch={watch} compact />
+                      </View>
+                      <View className="gap-5 rounded-3xl border border-mobile-border bg-mobile-card px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
+                        <View className="gap-3">
                           <Text
+                            accessibilityRole="header"
+                            className="text-center font-heading text-3xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
+                          >
+                            {watch ? 'Watch ' : 'Listen to music '}
+                            {'\n'}
+                            <Text className="text-primary">together.</Text>
+                          </Text>
+                          <Text className="text-center font-heading text-base text-mobile-muted dark:text-mobile-dark-muted">
+                            {watch
+                              ? 'One room. Everyone’s front row.'
+                              : 'One room. Everyone’s favourites.'}
+                          </Text>
+                        </View>
+                        <View className="gap-2">
+                          <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                            {isAIMode ? 'What’s the vibe?' : 'Room name'}
+                          </Text>
+                          <NativeGenerativeFrame
+                            shape="pill"
+                            active={isAIMode}
+                            animate={generativeMotion}
+                          >
+                            <Field
+                              inputClassName="min-h-14 text-lg"
+                              accessibilityLabel={
+                                isAIMode ? 'What’s the vibe?' : 'Room name'
+                              }
+                              autoCapitalize="none"
+                              onFocus={() => setInputFocused(true)}
+                              onBlur={() => setInputFocused(false)}
+                              value={value}
+                              onChangeText={(nextValue) => {
+                                setValue(nextValue);
+                                setError('');
+                              }}
+                              onSubmitEditing={submitRoom}
+                              maxLength={
+                                isAIMode
+                                  ? generatedPlaylistPromptMaxLength
+                                  : roomNameMaxLength
+                              }
+                              placeholder={placeholder}
+                              trailingAction={
+                                <NativeGenerativeInvitation
+                                  active={isAIMode}
+                                  animate={
+                                    generativeMotion &&
+                                    (isAIMode || !generationDiscovered)
+                                  }
+                                >
+                                  <Pressable
+                                    accessibilityLabel={
+                                      isAIMode
+                                        ? 'Turn off AI mode'
+                                        : 'Generate with AI'
+                                    }
+                                    accessibilityRole="switch"
+                                    accessibilityState={{
+                                      checked: isAIMode,
+                                    }}
+                                    className={classNames(
+                                      'size-11 items-center justify-center rounded-full border active:opacity-70',
+                                      isAIMode && 'border-accent bg-accent',
+                                      !isAIMode &&
+                                        'border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card',
+                                    )}
+                                    onPress={() => {
+                                      setGenerationDiscovered(true);
+                                      toggleAIMode();
+                                    }}
+                                  >
+                                    <ZoffIcon
+                                      color={isAIMode ? '#ffffff' : theme.text}
+                                      name="sparkles"
+                                      size={22}
+                                    />
+                                  </Pressable>
+                                </NativeGenerativeInvitation>
+                              }
+                            />
+                          </NativeGenerativeFrame>
+                        </View>
+                        <Button
+                          label={submitLabel}
+                          accessibilityLabel={submitLabel}
+                          disabled={loading || generationLoading}
+                          onPress={submitRoom}
+                        />
+                        <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                          Start a room. Make it yours.
+                        </Text>
+                      </View>
+                    </View>
+                    <View
+                      ref={browseSection}
+                      collapsable={false}
+                      onLayout={alignBrowser}
+                      className="w-full gap-4"
+                      {...(browseMode === 'public' && {
+                        style: { minHeight: height - insets.top },
+                      })}
+                    >
+                      <View
+                        accessibilityRole="tablist"
+                        className="flex-row items-center justify-between gap-3"
+                      >
+                        {['live', 'public'].map((mode) => (
+                          <Pressable
+                            key={mode}
+                            accessibilityRole="tab"
+                            accessibilityState={{
+                              selected: browseMode === mode,
+                            }}
+                            onPress={() => void loadRooms(mode, 0, '')}
                             className={classNames(
-                              'font-heading',
-                              mode === 'live' &&
-                                'text-mobile-text text-xl dark:text-mobile-dark-text',
-                              mode === 'public' && 'text-accent text-base',
-                              browseMode === mode &&
-                                mode === 'public' &&
-                                'underline',
+                              'min-h-11 flex-row items-center gap-2 rounded-full active:opacity-70',
+                              mode === 'public' && 'px-2',
                             )}
                           >
-                            {mode === 'live' ? 'Live rooms' : 'Browse all →'}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                    {browseMode !== 'live' && (
-                      <>
-                        <Field
-                          value={browseQuery}
-                          onChangeText={setBrowseQuery}
-                          placeholder="Search rooms by name"
-                          accessibilityLabel="Search rooms by name"
-                          onSubmitEditing={() => void loadRooms(browseMode)}
-                        />
-
-                        <Button
-                          label="Search rooms"
-                          tone="secondary"
-                          disabled={browsing}
-                          onPress={() => void loadRooms(browseMode)}
-                        />
-                      </>
-                    )}
-                    {browsing && <Copy muted>Loading rooms…</Copy>}
-                    {Boolean(browseError) && <Copy muted>{browseError}</Copy>}
-                    <View className="flex-row flex-wrap gap-3">
-                      {publicRooms.map(renderPublicRoom)}
-                      {publicRooms.length === 0 && !browsing && (
-                        <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
-                          <Copy muted>
-                            {browseMode === 'live'
-                              ? 'No rooms are live. Browse public rooms or start your own.'
-                              : 'No public rooms found. Try another name.'}
-                          </Copy>
-                        </View>
-                      )}
-                    </View>
-                    {browseMode !== 'live' &&
-                      browseResult &&
-                      browseResult.total > 0 && (
-                        <View className="flex-row items-center justify-between gap-2">
-                          <Button
-                            label="Previous"
-                            tone="secondary"
-                            disabled={browsing || browseResult.from === 0}
-                            onPress={() =>
-                              void loadRooms(
-                                browseMode,
-                                Math.max(
-                                  0,
-                                  browseResult.from - mobileRoomPageSize,
-                                ),
-                              )
-                            }
+                            {mode === 'live' && (
+                              <View className="size-2 rounded-full bg-accent" />
+                            )}
+                            <Text
+                              className={classNames(
+                                'font-heading',
+                                mode === 'live' &&
+                                  'text-mobile-text text-xl dark:text-mobile-dark-text',
+                                mode === 'public' && 'text-accent text-base',
+                                browseMode === mode &&
+                                  mode === 'public' &&
+                                  'underline',
+                              )}
+                            >
+                              {mode === 'live' ? 'Live rooms' : 'Browse all →'}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                      {browseMode !== 'live' && (
+                        <>
+                          <Field
+                            value={browseQuery}
+                            onChangeText={setBrowseQuery}
+                            placeholder="Search rooms by name"
+                            accessibilityLabel="Search rooms by name"
+                            onSubmitEditing={() => void loadRooms(browseMode)}
                           />
 
-                          <Copy muted>
-                            {Math.floor(
-                              browseResult.from / mobileRoomPageSize,
-                            ) + 1}{' '}
-                            /{' '}
-                            {Math.ceil(browseResult.total / mobileRoomPageSize)}
-                          </Copy>
                           <Button
-                            label="Next"
+                            label="Search rooms"
                             tone="secondary"
-                            disabled={
-                              browsing ||
-                              browseResult.to + 1 >= browseResult.total
-                            }
-                            onPress={() =>
-                              void loadRooms(
-                                browseMode,
-                                browseResult.from + mobileRoomPageSize,
-                              )
-                            }
+                            disabled={browsing}
+                            onPress={() => void loadRooms(browseMode)}
                           />
-                        </View>
+                        </>
                       )}
+                      {browsing && <Copy muted>Loading rooms…</Copy>}
+                      {Boolean(browseError) && <Copy muted>{browseError}</Copy>}
+                      <View className="flex-row flex-wrap gap-3">
+                        {publicRooms.map(renderPublicRoom)}
+                        {publicRooms.length === 0 && !browsing && (
+                          <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
+                            <Copy muted>
+                              {browseMode === 'live'
+                                ? 'No rooms are live. Browse public rooms or start your own.'
+                                : 'No public rooms found. Try another name.'}
+                            </Copy>
+                          </View>
+                        )}
+                      </View>
+                      {browseMode !== 'live' &&
+                        browseResult &&
+                        browseResult.total > 0 && (
+                          <View className="flex-row items-center justify-between gap-2">
+                            <Button
+                              label="Previous"
+                              tone="secondary"
+                              disabled={browsing || browseResult.from === 0}
+                              onPress={() =>
+                                void loadRooms(
+                                  browseMode,
+                                  Math.max(
+                                    0,
+                                    browseResult.from - mobileRoomPageSize,
+                                  ),
+                                )
+                              }
+                            />
+
+                            <Copy muted>
+                              {Math.floor(
+                                browseResult.from / mobileRoomPageSize,
+                              ) + 1}{' '}
+                              /{' '}
+                              {Math.ceil(
+                                browseResult.total / mobileRoomPageSize,
+                              )}
+                            </Copy>
+                            <Button
+                              label="Next"
+                              tone="secondary"
+                              disabled={
+                                browsing ||
+                                browseResult.to + 1 >= browseResult.total
+                              }
+                              onPress={() =>
+                                void loadRooms(
+                                  browseMode,
+                                  browseResult.from + mobileRoomPageSize,
+                                )
+                              }
+                            />
+                          </View>
+                        )}
+                    </View>
                   </View>
                 </View>
-              </View>
-            </Animated.View>
+              </Animated.View>
+            </View>
           </Animated.ScrollView>
           <ScrollEdgeFades
             backgroundColor={theme.background}
