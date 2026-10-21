@@ -56,7 +56,7 @@ const QueueListComponent: React.FC<Props> = ({
       return (
         <Link
           aria-label="Add a song"
-          className="panel-surface block w-full animate-fade-in cursor-pointer rounded-3xl px-4 py-20 text-center transition-[border-color,background-color,transform] hover:border-secondary/50 hover:bg-theme-surface focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-secondary/60 active:scale-press sm:px-12"
+          className="panel-surface flex min-h-full w-full flex-1 animate-fade-in cursor-pointer flex-col items-center justify-center rounded-3xl px-4 py-20 text-center transition-[border-color,background-color,transform] hover:border-secondary/50 hover:bg-theme-surface focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-secondary/60 active:scale-press sm:px-12"
           to={emptyHref}
           replace
           preventScrollReset
@@ -70,7 +70,7 @@ const QueueListComponent: React.FC<Props> = ({
     }
 
     return (
-      <div className="panel-surface animate-fade-in rounded-3xl px-4 py-20 text-center sm:px-12">
+      <div className="panel-surface flex min-h-full flex-1 animate-fade-in flex-col items-center justify-center rounded-3xl px-4 py-20 text-center sm:px-12">
         <EmptyQueueContent />
       </div>
     );
