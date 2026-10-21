@@ -26,6 +26,7 @@ export function PlaylistItemSearchResult({
       <Button
         onClick={onSelect}
         variant="ghost"
+        shape="rounded"
         size="none"
         aria-label={`Add ${title} by ${publisher}`}
         className="min-w-0 flex-1 justify-start gap-2 p-3 text-left hover:bg-theme sm:gap-3 sm:p-4"
