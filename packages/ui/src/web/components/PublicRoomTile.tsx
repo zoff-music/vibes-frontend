@@ -31,7 +31,7 @@ export function PublicRoomTile({ room, onJoin }: PublicRoomTileProps) {
       to={`/${encodeURIComponent(room.id)}`}
       prefetch="intent"
       onClick={handleClick}
-      className="flex min-h-16 w-full items-center gap-3 rounded-2xl border border-theme bg-theme-surface px-4 py-3 text-left shadow-sm transition-colors hover:border-theme-strong hover:bg-theme-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
+      className="flex h-full min-h-20 w-full items-center gap-3 rounded-3xl border border-theme bg-theme-surface px-5 py-4 text-left shadow-sm transition-colors hover:border-theme-strong hover:bg-theme-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
     >
       <span className="min-w-0 flex-1">
         <span className="block truncate font-pixel text-sm text-theme">

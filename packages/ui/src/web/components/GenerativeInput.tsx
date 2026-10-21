@@ -2,8 +2,8 @@ import { classNames } from '@vibes/shared';
 import { type RefObject, useId } from 'preact/compat';
 import { useGenerativeDiscovery } from '../hooks/useGenerativeDiscovery';
 import { SparklesIcon } from '../icons';
-import { Button } from './Button';
 import { GenerativeParticles } from './GenerativeParticles';
+import { IconButton } from './IconButton';
 
 interface GenerativeInputProps {
   active: boolean;
@@ -56,7 +56,7 @@ export function GenerativeInput({
       </div>
       <div
         className={classNames(
-          'generative-field relative isolate flex h-14 min-w-0 items-center rounded-2xl border bg-theme-surface transition-[box-shadow,border-color] duration-500 focus-within:ring-2 focus-within:ring-secondary/30 motion-reduce:transition-none',
+          'generative-field relative isolate flex h-14 min-w-0 items-center rounded-full border bg-theme-surface transition-[box-shadow,border-color] duration-500 focus-within:ring-2 focus-within:ring-secondary/30 motion-reduce:transition-none',
           active
             ? 'border-primary shadow-generative-field motion-safe:animate-generative-ignition'
             : 'border-theme',
@@ -67,10 +67,10 @@ export function GenerativeInput({
         {active && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-2xl"
+            className="pointer-events-none absolute inset-0 rounded-full"
           >
-            <span className="absolute -inset-2 origin-right rounded-3xl bg-radial-[at_100%_50%] from-secondary/45 via-primary/20 to-transparent opacity-0 blur-lg motion-safe:animate-generative-charge" />
-            <span className="absolute inset-0 overflow-hidden rounded-2xl">
+            <span className="absolute -inset-2 origin-right rounded-full bg-radial-[at_100%_50%] from-secondary/45 via-primary/20 to-transparent opacity-0 blur-lg motion-safe:animate-generative-charge" />
+            <span className="absolute inset-0 overflow-hidden rounded-full">
               <span className="absolute inset-0 origin-right bg-radial-[at_100%_50%] from-secondary/35 via-primary/15 to-transparent opacity-0 [mask-image:linear-gradient(to_left,black_40%,transparent)] motion-safe:animate-generative-charge" />
               <span className="absolute inset-x-0 top-0 h-px origin-right bg-linear-to-l from-secondary via-white to-primary opacity-0 shadow-secondary-strong motion-safe:animate-generative-rail" />
               <span className="absolute inset-x-0 bottom-0 h-px origin-right bg-linear-to-l from-secondary via-white to-primary opacity-0 shadow-secondary-strong motion-safe:animate-generative-rail" />
@@ -81,7 +81,7 @@ export function GenerativeInput({
         <span
           aria-hidden="true"
           hidden={active}
-          className="shrink-0 pl-4 text-sm text-theme-muted"
+          className="shrink-0 pl-6 text-sm text-theme-muted"
         >
           zoff.me/
         </span>
@@ -106,16 +106,15 @@ export function GenerativeInput({
           }}
           className={classNames(
             'relative z-10 h-full min-w-0 flex-1 bg-transparent font-mono text-base text-theme placeholder:text-theme-subtle focus:outline-none disabled:cursor-not-allowed disabled:opacity-60',
-            active ? 'pr-1 pl-4' : 'px-1',
+            active ? 'pr-1 pl-6' : 'px-1',
           )}
         />
-        <span className="relative z-20 shrink-0 border-theme border-l px-1">
-          <Button
+        <span className="relative z-20 shrink-0 px-1">
+          <IconButton
             aria-label="Toggle AI playlist generation"
             aria-pressed={active}
             {...(discovery.hint && { 'aria-describedby': hintId })}
             disabled={disabled}
-            size="icon"
             variant={active ? 'secondary' : 'ghost'}
             className={classNames(
               'relative before:pointer-events-none before:absolute before:inset-0.5 before:rounded-full before:bg-radial before:from-primary/40 before:via-secondary/20 before:to-transparent before:opacity-0',
@@ -144,7 +143,7 @@ export function GenerativeInput({
                   'motion-safe:animate-generative-wiggle',
               )}
             />
-          </Button>
+          </IconButton>
           {discovery.hint && (
             <span
               id={hintId}
@@ -167,14 +166,14 @@ export function GenerativeInput({
           <rect
             width="100%"
             height="100%"
-            rx="16"
+            rx="28"
             pathLength="100"
             className={classNames(orbitClass, 'stroke-secondary')}
           />
           <rect
             width="100%"
             height="100%"
-            rx="16"
+            rx="28"
             pathLength="100"
             className={classNames(
               orbitClass,
