@@ -6,7 +6,7 @@ import {
   ToastViewport,
 } from '@vibes/ui/web';
 import { AdminHeader } from './components/AdminHeader';
-import AdminLayout from './components/AdminLayout';
+import { AdminLayout } from './components/AdminLayout';
 
 export function App() {
   return (

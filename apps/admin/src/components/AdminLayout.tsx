@@ -9,7 +9,7 @@ interface LayoutProps {
   children: import('preact').ComponentChildren;
 }
 
-export default function AdminLayout({ children }: LayoutProps) {
+export function AdminLayout({ children }: LayoutProps) {
   const {
     admin: { session },
   } = useRootData<{ admin: AdminLoaderData }>();
