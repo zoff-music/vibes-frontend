@@ -1,20 +1,15 @@
 import { Button, CloseIcon } from '@vibes/ui/web';
 import { QRCodeSVG } from 'qrcode.react';
-import { UserCount } from './UserCount';
 
 interface PartyScreenJoinCardProps {
-  initialListenerCount: number;
   onExit: () => void;
-  roomId: string;
   roomName: string;
   roomType: RoomType;
   url: string;
 }
 
 export function PartyScreenJoinCard({
-  initialListenerCount,
   onExit,
-  roomId,
   roomName,
   roomType,
   url,
@@ -42,28 +37,16 @@ export function PartyScreenJoinCard({
         />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3">
-          <p className="font-pixel text-2xs text-secondary tracking-label">
-            Scan to join
-          </p>
-          <UserCount
-            initialCount={initialListenerCount}
-            roomId={roomId}
-            roomType={roomType}
-          />
-        </div>
+        <p className="font-pixel text-2xs text-secondary tracking-label">
+          Scan to join
+        </p>
         <p className="mt-3 truncate font-display text-theme text-xl">
           {roomName}
         </p>
         <p className="mt-2 text-theme-subtle text-xs">
           Add {labels.items} and vote from your phone
         </p>
-        <Button
-          className="mt-4 gap-2"
-          onClick={onExit}
-          size="small"
-          variant="ghost"
-        >
+        <Button className="mt-4 gap-2" onClick={onExit} variant="tertiary">
           <CloseIcon className="h-4 w-4" />
           Exit {labels.presentation}
         </Button>

@@ -226,9 +226,7 @@ export function RoomView({
                         fallback={<div className="mt-5 h-52 shrink-0" />}
                       >
                         <LazyPartyScreenJoinCard
-                          initialListenerCount={displayRoom.userCount ?? 0}
                           onExit={handleExitPartyScreen}
-                          roomId={id}
                           roomName={displayRoom.name}
                           roomType={displayRoom.roomType}
                           url={shareUrl}

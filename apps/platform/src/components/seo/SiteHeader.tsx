@@ -1,7 +1,7 @@
 import { Link, NavLink } from '@kasperrt/smolter/preact';
 import {
-  Button,
-  LinkButton,
+  IconButton,
+  IconLinkButton,
   SettingsIcon,
   SiteHeader as SharedSiteHeader,
   SiteBrand,
@@ -86,7 +86,7 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
               side="bottom"
             >
               {settingsHref && (
-                <LinkButton
+                <IconLinkButton
                   aria-label="Open settings"
                   to={settingsHref}
                   replace
@@ -94,21 +94,21 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
                   viewTransition={false}
                   prefetch="intent"
                   prefetchData
-                  size="icon"
-                  variant="tertiary"
+                  className="border-transparent!"
+                  variant="ghost"
                 >
                   <SettingsIcon className="h-5 w-5" />
-                </LinkButton>
+                </IconLinkButton>
               )}
               {!settingsHref && (
-                <Button
+                <IconButton
                   aria-label="Open settings"
                   onClick={() => setShowSettings(true)}
-                  size="icon"
-                  variant="tertiary"
+                  className="border-transparent!"
+                  variant="ghost"
                 >
                   <SettingsIcon className="h-5 w-5" />
-                </Button>
+                </IconButton>
               )}
             </Tooltip>
           </>
