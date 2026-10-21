@@ -20,7 +20,7 @@
     "@vibes/ui": "workspace:*",
     "preact": "11.0.1",
     "preact-render-to-string": "6.8.1",
-    "valibot": "1.4.2"
+    "valibot": "1.5.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",

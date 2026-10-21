@@ -41,17 +41,17 @@
     }
   },
   "dependencies": {
+    "@kasperrt/smolter": "0.4.6",
     "@vibes/models": "workspace:*",
     "@vibes/shared": "workspace:*",
     "d3": "^7.9.0",
-    "framer-motion": "14.1.0",
-    "react-youtube": "10.1.0",
+    "framer-motion": "14.4.0",
     "preact": "11.0.1",
-    "@kasperrt/smolter": "0.4.6"
+    "react-youtube": "10.1.0"
   },
   "devDependencies": {
-    "@react-native/metro-config": "0.86.3",
     "@biomejs/biome": "2.5.15",
+    "@react-native/metro-config": "0.86.3",
     "@types/d3": "^7.4.3",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",

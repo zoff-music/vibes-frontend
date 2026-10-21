@@ -9,6 +9,7 @@ import { useRoomStore } from '@vibes/shared';
 import {
   ArrowLeftIcon,
   CastIcon,
+  ExplicitBadge,
   IconButton,
   IconLinkButton,
   SettingsIcon,
@@ -206,13 +207,14 @@ export const RoomHeader = React.memo(
               <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             </IconButton>
 
-            <div className="min-w-0 px-1 text-center">
+            <div className="flex min-w-0 flex-wrap items-center justify-center gap-1 px-1 text-center">
               <h1
-                className="block w-full truncate whitespace-nowrap text-theme text-xs sm:text-sm"
+                className="min-w-0 truncate whitespace-nowrap text-theme text-xs sm:text-sm"
                 title={displayRoom?.name}
               >
                 {displayRoom?.name || 'Loading...'}
               </h1>
+              {displayRoom?.flagged && <ExplicitBadge />}
             </div>
 
             <div className="flex shrink-0 items-center gap-1 justify-self-end">

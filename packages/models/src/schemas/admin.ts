@@ -3,6 +3,9 @@ import { objectInputSchema } from './object-input';
 import { roomTypeSchema } from './room';
 
 export const adminRoomSummaryV2Schema = /* @__PURE__ */ v.object({
+  flagged: v.optional(v.boolean()),
+  flaggedAt: v.optional(v.string()),
+  checkedAt: v.optional(v.string()),
   id: v.string(),
   name: v.string(),
   userCount: v.pipe(v.number(), v.finite()),
@@ -35,6 +38,7 @@ export const adminRoomSearchV2Schema = /* @__PURE__ */ v.pipe(
   objectInputSchema,
   v.object({
     q: v.optional(v.string()),
+    flagged: v.optional(v.boolean()),
     sortBy: v.optional(v.picklist(['listeners', 'playlistItems'])),
     order: v.optional(v.picklist(['asc', 'desc'])),
     from: v.optional(v.pipe(v.number(), v.safeInteger(), v.minValue(0))),
@@ -84,6 +88,7 @@ export const adminUpdateRoomRequestSchema = /* @__PURE__ */ v.pipe(
   v.object({
     name: v.optional(v.string()),
     clearAdminPassword: v.optional(v.boolean()),
+    flagged: v.optional(v.boolean()),
   }),
 );
 

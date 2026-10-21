@@ -4,6 +4,7 @@ import type { AdminRoomResultV2 } from '@vibes/models';
 import { getServerApi } from '../../http.server';
 
 export interface AdminRoomSearch {
+  flagged: boolean;
   q: string;
   sortBy: 'listeners' | 'playlistItems';
   order: 'asc' | 'desc';
@@ -25,6 +26,7 @@ export async function loader({
   const headers = cookieHeader ? { Cookie: cookieHeader } : undefined;
   const url = new URL(request.url);
   const q = url.searchParams.get('q')?.trim() ?? '';
+  const flagged = url.searchParams.get('flagged') === 'true';
   const sortBy =
     url.searchParams.get('sortBy') === 'playlistItems'
       ? 'playlistItems'
@@ -41,6 +43,7 @@ export async function loader({
     '/admin/rooms',
     {
       $search: {
+        flagged,
         ...(q && { q }),
         sortBy,
         order,
@@ -58,6 +61,7 @@ export async function loader({
       return {
         roomResult: { rooms: [], from, to: from, total: 0, count: 0 },
         roomSearch: {
+          flagged,
           q,
           sortBy,
           order,
@@ -77,6 +81,7 @@ export async function loader({
   return {
     roomResult,
     roomSearch: {
+      flagged,
       q,
       sortBy,
       order,

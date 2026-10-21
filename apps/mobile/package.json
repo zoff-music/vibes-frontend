@@ -43,7 +43,7 @@
     "react-native-worklets": "0.13.0",
     "react-native-youtube-iframe": "2.4.1",
     "tailwindcss": "catalog:",
-    "valibot": "1.4.2"
+    "valibot": "1.5.0"
   },
   "expo": {
     "install": {
@@ -65,7 +65,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",
     "@types/react": "~19.2.18",
-    "postcss": "8.5.29",
+    "postcss": "8.5.31",
     "typescript": "~7.0.2"
   },
   "scripts": {

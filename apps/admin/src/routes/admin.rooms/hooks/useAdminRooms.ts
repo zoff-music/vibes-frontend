@@ -64,6 +64,7 @@ export function useAdminRooms() {
 
   const loadRoomPage = (next: AdminRoomSearch) => {
     const params = new URLSearchParams({
+      flagged: String(next.flagged),
       sortBy: next.sortBy,
       order: next.order,
       from: String(next.from),
@@ -162,6 +163,26 @@ export function useAdminRooms() {
     );
   };
 
+  const handleFlagRoom = (event: MouseEvent<HTMLButtonElement>) => {
+    const room = rooms.find((item) => item.id === event.currentTarget.value);
+
+    if (!room || isLoading) return;
+
+    fetcher.submit(
+      { intent: room.flagged ? 'unflagRoom' : 'flagRoom', roomId: room.id },
+      { method: 'post' },
+    );
+  };
+
+  const filterFlaggedRooms = () => {
+    loadRoomPage({
+      ...roomSearch,
+      flagged: !roomSearch.flagged,
+      from: 0,
+      to: roomSearch.pageSize - 1,
+    });
+  };
+
   const searchRooms = (query: string) => {
     loadRoomPage({
       ...roomSearch,
@@ -219,6 +240,8 @@ export function useAdminRooms() {
     handleEditingNameKeyDown,
     handleClearPassword,
     handleDeleteRoom,
+    handleFlagRoom,
+    filterFlaggedRooms,
     searchRooms,
     sortRooms,
     loadPreviousRooms,
