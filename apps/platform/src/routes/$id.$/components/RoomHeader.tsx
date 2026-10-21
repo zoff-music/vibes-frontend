@@ -5,12 +5,12 @@ import type {
   RoomUpdateV2,
   RoomV2,
 } from '@vibes/models';
-import { classNames, useRoomStore } from '@vibes/shared';
+import { useRoomStore } from '@vibes/shared';
 import {
   ArrowLeftIcon,
-  Button,
   CastIcon,
-  LinkButton,
+  IconButton,
+  IconLinkButton,
   SettingsIcon,
   ShareIcon,
   Tooltip,
@@ -26,7 +26,6 @@ import React, {
 import { RemoteControlButton } from '../../../components/remote/RemoteControlProvider';
 import { useRoomPanel } from '../hooks/useRoomPanel';
 import type { RoomActionData } from '../utils/actions/clientAction';
-import { UserCount } from './UserCount';
 
 const LazyRoomSettingsMenu = lazy(async () => {
   const module = await import('./RoomSettingsMenu');
@@ -193,16 +192,21 @@ export const RoomHeader = React.memo(
     return (
       <div
         ref={headerRef}
-        className="panel-surface sticky top-0 z-20 shrink-0 border-theme border-b px-4 py-3 sm:py-4"
+        className="sticky top-0 z-20 mx-auto w-full max-w-7xl shrink-0 px-2 py-2 sm:px-4 sm:py-3"
       >
-        <div className="mx-auto max-w-7xl">
-          <div className="relative flex items-center">
-            <Button className="shrink-0" onClick={onLeave} variant="ghost">
+        <div className="w-full rounded-full border border-theme bg-theme-surface p-1 shadow-lg">
+          <div className="relative grid min-w-0 grid-cols-[1fr_minmax(0,1fr)_1fr] items-center gap-1">
+            <IconButton
+              className="group justify-self-start"
+              onClick={onLeave}
+              variant="ghost"
+              aria-label="Leave room"
+              title="Leave room"
+            >
               <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-              <span className="text-2xs tracking-label">Leave</span>
-            </Button>
+            </IconButton>
 
-            <div className="pointer-events-none absolute left-1/2 w-1/2 min-w-0 -translate-x-1/2 text-center sm:pointer-events-auto sm:static sm:w-auto sm:flex-1 sm:translate-x-0 sm:px-4">
+            <div className="min-w-0 px-1 text-center">
               <h1
                 className="block w-full truncate whitespace-nowrap text-theme text-xs sm:text-sm"
                 title={displayRoom?.name}
@@ -211,22 +215,14 @@ export const RoomHeader = React.memo(
               </h1>
             </div>
 
-            <div className="ml-auto flex shrink-0 items-center gap-2">
-              <div className="hidden sm:block">
-                <UserCount
-                  initialCount={displayRoom?.userCount ?? 0}
-                  roomType={displayRoom?.roomType ?? 'MUSIC'}
-                  roomId={roomId}
-                />
-              </div>
-
+            <div className="flex shrink-0 items-center gap-1 justify-self-end">
               <div className="relative hidden sm:block">
                 <Tooltip
                   className="inline-flex"
                   content="Share Room"
                   side="bottom"
                 >
-                  <LinkButton
+                  <IconLinkButton
                     ref={shareButtonRef}
                     to={href(showShare ? '' : 'share')}
                     replace
@@ -234,12 +230,12 @@ export const RoomHeader = React.memo(
                     viewTransition={false}
                     prefetch="intent"
                     prefetchData
-                    variant={showShare ? 'tertiary-active' : 'tertiary'}
-                    size="icon"
+                    variant={showShare ? 'tertiary-active' : 'ghost'}
+                    aria-expanded={showShare}
                     aria-label="Share Room"
                   >
                     <ShareIcon className="h-5 w-5" />
-                  </LinkButton>
+                  </IconLinkButton>
                 </Tooltip>
 
                 <AnimatePresence initial={false}>
@@ -288,7 +284,7 @@ export const RoomHeader = React.memo(
               </div>
 
               <div className="hidden sm:block">
-                <RemoteControlButton />
+                <RemoteControlButton variant="ghost" />
               </div>
 
               {showCast && (
@@ -302,15 +298,14 @@ export const RoomHeader = React.memo(
                     }
                     side="bottom"
                   >
-                    <LinkButton
+                    <IconLinkButton
                       to={href('cast')}
                       replace
                       preventScrollReset
                       viewTransition={false}
                       prefetch="intent"
                       prefetchData
-                      variant={isCasting ? 'secondary' : 'tertiary'}
-                      size="icon"
+                      variant={isCasting ? 'tertiary-active' : 'ghost'}
                       aria-label={
                         isCasting && castDeviceName
                           ? `Casting to ${castDeviceName}`
@@ -318,26 +313,21 @@ export const RoomHeader = React.memo(
                       }
                     >
                       <CastIcon
-                        className={classNames(
-                          'h-5 w-5 transition-colors',
-                          isCasting && 'text-primary',
-                          !isCasting &&
-                            'text-theme-muted group-hover:text-primary',
-                        )}
+                        className="h-5 w-5 transition-colors"
                         showDot={isCasting}
                       />
-                    </LinkButton>
+                    </IconLinkButton>
                   </Tooltip>
                 </div>
               )}
 
-              <div className="relative sm:ml-1">
+              <div className="relative">
                 <Tooltip
                   className="inline-flex"
                   content="Room Settings"
                   side="bottom"
                 >
-                  <LinkButton
+                  <IconLinkButton
                     ref={settingsButtonRef}
                     to={href(showSettings ? '' : 'settings')}
                     replace
@@ -346,12 +336,12 @@ export const RoomHeader = React.memo(
                     prefetch="intent"
                     prefetchData
                     onClick={onToggleSettings}
-                    variant={showSettings ? 'tertiary-active' : 'tertiary'}
-                    size="icon"
+                    variant={showSettings ? 'tertiary-active' : 'ghost'}
+                    aria-expanded={showSettings}
                     aria-label="Room Settings"
                   >
                     <SettingsIcon className="h-5 w-5" />
-                  </LinkButton>
+                  </IconLinkButton>
                 </Tooltip>
 
                 <AnimatePresence initial={false}>

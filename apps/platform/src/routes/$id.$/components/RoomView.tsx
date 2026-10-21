@@ -13,6 +13,7 @@ import { useRoomView } from '../hooks/useRoomView';
 import type { RoomLoaderData } from '../loader';
 import { loadAddToQueueModal } from '../utils/preloadQueueModal';
 import { RoomOverlayPanels } from './RoomOverlayPanels';
+import { UserCount } from './UserCount';
 
 const LazyPartyScreenJoinCard = lazy(async () => {
   const module = await import('../components/PartyScreenJoinCard');
@@ -161,7 +162,7 @@ export function RoomView({
                 <div
                   className={classNames(
                     'mx-auto w-full min-w-0 items-start gap-8 px-4 lg:grid lg:h-full lg:min-h-0 lg:grid-cols-5 lg:grid-rows-[minmax(0,1fr)]',
-                    !isPartyScreen && 'max-w-7xl py-8 lg:py-6',
+                    !isPartyScreen && 'max-w-7xl pt-4 pb-8 sm:pt-3 lg:pb-6',
                     isPartyScreen && 'max-w-none py-4 lg:p-6',
                     minimized && '!block !p-0',
                   )}
@@ -181,6 +182,13 @@ export function RoomView({
                     <div className="min-h-0 min-w-0 lg:col-span-2 lg:h-full">
                       <RoomQueue
                         key={id}
+                        listenerCount={
+                          <UserCount
+                            initialCount={displayRoom.userCount ?? 0}
+                            roomId={id}
+                            roomType={displayRoom.roomType}
+                          />
+                        }
                         chatOpen={chatOpen}
                         roomId={id}
                         isSSR={isSSR}
@@ -197,6 +205,13 @@ export function RoomView({
                       <div className="min-h-0 lg:flex-1 lg:overflow-hidden">
                         <RoomQueue
                           key={id}
+                          listenerCount={
+                            <UserCount
+                              initialCount={displayRoom.userCount ?? 0}
+                              roomId={id}
+                              roomType={displayRoom.roomType}
+                            />
+                          }
                           chatOpen={chatOpen}
                           roomId={id}
                           isSSR={isSSR}
@@ -271,7 +286,7 @@ export function RoomView({
             aria-label={
               displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'
             }
-            className="fixed right-5 bottom-5 z-40 h-14 w-14 rounded-full p-0 shadow-primary-popover"
+            className="fixed right-5 bottom-5 z-40 h-14 w-14 p-0 shadow-primary-popover"
             to={panelHref('add')}
             replace
             preventScrollReset

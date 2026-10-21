@@ -15,7 +15,6 @@ import {
   useSyncExternalStore,
 } from 'preact/compat';
 import { createPortal } from 'react-dom';
-import { Button } from './Button';
 
 interface Props {
   alignment?: 'center' | 'top';
@@ -145,11 +144,9 @@ export function Modal({
           aria-modal="true"
           aria-labelledby={ariaLabelledBy}
         >
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="none"
-            className="fixed inset-0 h-full w-full"
+            className="fixed inset-0 h-full w-full rounded-none border-0 bg-transparent p-0"
             onClick={onClose}
             aria-label="Close modal"
             tabIndex={-1}

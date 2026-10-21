@@ -43,14 +43,16 @@ export const RoomSharePanel = ({
         <Button
           onClick={onShare}
           variant="secondary"
-          className="h-12 w-full gap-2"
+          size="none"
+          className="h-11 w-full gap-2 px-3"
         >
           <ShareIcon className="h-4 w-4" />
-          Share Room
+          <span className="whitespace-nowrap">Share Room</span>
         </Button>
 
         <LinkButton
-          className="hidden h-12 w-full gap-2 sm:flex"
+          size="none"
+          className="hidden h-11 w-full gap-2 px-3 sm:flex"
           to={href('share/embed')}
           replace
           preventScrollReset
@@ -59,15 +61,18 @@ export const RoomSharePanel = ({
           prefetchData
           variant="primary"
         >
-          Embed player
+          <span className="whitespace-nowrap">Embed player</span>
         </LinkButton>
         <Button
-          className="col-span-2 h-12 w-full gap-2"
+          size="none"
+          className="col-span-2 h-11 w-full gap-2 px-3"
           onClick={onOpenPartyScreen}
           variant="tertiary"
         >
           <CastIcon className="h-4 w-4" />
-          {getRoomLabels(roomType).presentation}
+          <span className="whitespace-nowrap">
+            {getRoomLabels(roomType).presentation}
+          </span>
         </Button>
       </div>
     </div>

@@ -1,6 +1,12 @@
-import { type FetcherWithComponents, Link } from '@kasperrt/smolter/preact';
+import { type FetcherWithComponents } from '@kasperrt/smolter/preact';
 import type { RemotePairingV2, RemoteStatusV2 } from '@vibes/models';
-import { Button, CloseIcon, Modal, RemoteIcon } from '@vibes/ui/web';
+import {
+  Button,
+  CloseIcon,
+  LinkButton,
+  Modal,
+  RemoteIcon,
+} from '@vibes/ui/web';
 import { Suspense } from 'preact/compat';
 import { QRCodeSVG } from 'qrcode.react';
 import type { RemoteControlActionData } from '../../routes/resources.remotes/clientAction';
@@ -168,14 +174,15 @@ export function RemoteControlDialog({
             )}
           </div>
           <div className="mt-3 border-theme border-t pt-3">
-            <Link
+            <LinkButton
+              variant="tertiary"
               to="/remotes/join"
               reloadDocument
-              className="inline-flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-theme bg-theme-surface px-5 py-2.5 font-normal text-base text-theme transition-all hover:border-theme-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme active:scale-press"
+              className="w-full gap-3"
             >
               <RemoteIcon className="h-5 w-5" />
               Connect as a Remote
-            </Link>
+            </LinkButton>
           </div>
         </Modal>
       )}

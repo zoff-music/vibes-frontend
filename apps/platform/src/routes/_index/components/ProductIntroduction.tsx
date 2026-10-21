@@ -131,7 +131,7 @@ export function ProductIntroduction({
         <Button
           onClick={onGeneratePlaylist}
           variant="primary"
-          className="min-h-12 shrink-0 gap-3 text-sm"
+          className="min-h-12 shrink-0 gap-3"
         >
           Start with an idea
           <ArrowRightIcon aria-hidden="true" className="size-4" />

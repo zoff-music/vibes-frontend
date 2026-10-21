@@ -29,8 +29,9 @@ export function RoomModePreview() {
         >
           <Button
             size="none"
+            shape="rounded"
             variant="tertiary"
-            className="min-h-12 rounded-xl px-3 py-3 text-sm aria-pressed:border-secondary aria-pressed:ring-1 aria-pressed:ring-secondary/30"
+            className="min-h-12 px-3 py-3 aria-pressed:border-secondary aria-pressed:ring-1 aria-pressed:ring-secondary/30"
             aria-pressed={!hostMode}
             onClick={() => setHostMode(false)}
           >
@@ -38,8 +39,9 @@ export function RoomModePreview() {
           </Button>
           <Button
             size="none"
+            shape="rounded"
             variant="tertiary"
-            className="min-h-12 rounded-xl px-3 py-3 text-sm aria-pressed:border-secondary aria-pressed:ring-1 aria-pressed:ring-secondary/30"
+            className="min-h-12 px-3 py-3 aria-pressed:border-secondary aria-pressed:ring-1 aria-pressed:ring-secondary/30"
             aria-pressed={hostMode}
             onClick={() => setHostMode(true)}
           >

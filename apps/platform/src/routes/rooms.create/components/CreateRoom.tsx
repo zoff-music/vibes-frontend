@@ -443,7 +443,7 @@ export function CreateRoom() {
             type="submit"
             disabled={!name.trim() || isCreating}
             variant="primary"
-            className="mt-8 w-full gap-3 px-6 py-4 font-pixel text-sm"
+            className="mt-8 w-full gap-3 px-6 py-4"
           >
             {isWaitingToCreate && (
               <>

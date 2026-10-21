@@ -1,7 +1,9 @@
 import { classNames } from '@vibes/shared';
 import React from 'preact/compat';
 import { getRoomLabels } from '../../shared/room';
-import { Button } from '../components/Button';
+import { ControlGroup } from '../components/ControlGroup';
+import { IconButton } from '../components/IconButton';
+import { IconLinkButton } from '../components/IconLinkButton';
 import { LinkButton } from '../components/LinkButton';
 import { Tooltip } from '../components/Tooltip';
 import {
@@ -32,7 +34,6 @@ interface Props {
   showCast: boolean;
   isCasting: boolean;
   castDeviceName?: string | null;
-  mobileTrailingContent?: React.ReactNode;
   volume: number;
   onVolumeChange: (volume: number) => void;
   onToggleMuted: () => void;
@@ -78,24 +79,20 @@ const VolumeControl = ({
 
   return (
     <div
-      className={classNames('flex h-11 min-w-0 items-center gap-2', className)}
+      data-volume-control
+      className={classNames('flex min-w-0 items-center gap-1', className)}
       ref={controlRef}
     >
-      <Button
+      <IconButton
         aria-label={volume === 0 ? 'Unmute player' : 'Mute player'}
         className="group"
         onClick={onToggleMuted}
-        size="icon"
-        variant="tertiary"
+        variant="ghost"
       >
-        {volume === 0 && (
-          <VolumeMutedIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
-        )}
-        {volume > 0 && (
-          <VolumeIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
-        )}
-      </Button>
-      <div className="flex h-11 min-w-0 flex-1 touch-none select-none items-center rounded-xl border border-theme bg-theme-surface px-2">
+        {volume === 0 && <VolumeMutedIcon className="h-5 w-5" />}
+        {volume > 0 && <VolumeIcon className="h-5 w-5" />}
+      </IconButton>
+      <div className="flex h-11 min-w-0 flex-1 touch-none select-none items-center pr-3 pl-1">
         <div className="relative h-5 min-w-0 flex-1">
           <div className="absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full bg-theme-muted/20">
             <div
@@ -142,7 +139,6 @@ const PlayerControlsComponent: React.FC<Props> = ({
   showCast,
   isCasting,
   castDeviceName,
-  mobileTrailingContent,
   volume,
   onVolumeChange,
   onToggleMuted,
@@ -153,90 +149,77 @@ const PlayerControlsComponent: React.FC<Props> = ({
   return (
     <div className={classNames('w-full', compact && 'p-3')}>
       <div className="flex flex-wrap items-center justify-start gap-1.5 sm:flex-nowrap sm:gap-4">
-        <Tooltip className="inline-flex" content={playbackLabel}>
-          <Button
-            onClick={isPlaying ? onPause : onPlay}
-            disabled={!canPlay}
-            variant="tertiary"
-            size="icon"
-            aria-label={playbackLabel}
-            className="group active:scale-95"
-          >
-            {isPlaying && <PauseIcon className="h-6 w-6 fill-current" />}
-            {!isPlaying && <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />}
-          </Button>
-        </Tooltip>
-
-        <SkipButton canSkip={canSkip} isSkipping={isSkipping} onSkip={onSkip} />
-
-        {!compact && showReset && (
-          <Tooltip className="inline-flex" content="Reset playback">
-            <Button
-              onClick={onReset}
-              variant="tertiary"
-              size="icon"
-              aria-label="Reset playback"
+        <ControlGroup aria-label="Playback controls" className="min-w-0 flex-1">
+          <Tooltip className="inline-flex" content={playbackLabel}>
+            <IconButton
+              onClick={isPlaying ? onPause : onPlay}
+              disabled={!canPlay}
+              variant="ghost"
+              aria-label={playbackLabel}
+              className="group active:scale-95"
             >
-              <ResetIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
-            </Button>
+              {isPlaying && <PauseIcon className="h-6 w-6 fill-current" />}
+              {!isPlaying && (
+                <PlayIcon className="ml-0.5 h-6 w-6 fill-current" />
+              )}
+            </IconButton>
           </Tooltip>
-        )}
 
-        <div
-          className={classNames('hidden', !compact && showCast && 'sm:block')}
-        >
-          <Tooltip
-            className="inline-flex"
-            content={
-              isCasting && castDeviceName
-                ? `Casting to ${castDeviceName}`
-                : 'Cast'
-            }
+          <SkipButton
+            canSkip={canSkip}
+            isSkipping={isSkipping}
+            onSkip={onSkip}
+            variant="ghost"
+          />
+
+          {!compact && showReset && (
+            <Tooltip className="inline-flex" content="Reset playback">
+              <IconButton
+                onClick={onReset}
+                variant="ghost"
+                aria-label="Reset playback"
+              >
+                <ResetIcon className="h-5 w-5" />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          <div
+            className={classNames('hidden', !compact && showCast && 'sm:block')}
           >
-            <LinkButton
-              to={castHref}
-              replace
-              preventScrollReset
-              viewTransition={false}
-              prefetch="intent"
-              prefetchData
-              variant={isCasting ? 'secondary' : 'tertiary'}
-              size="icon"
-              aria-label={
+            <Tooltip
+              className="inline-flex"
+              content={
                 isCasting && castDeviceName
                   ? `Casting to ${castDeviceName}`
                   : 'Cast'
               }
             >
-              <CastIcon
-                className={classNames(
-                  'h-5 w-5 transition-colors',
-                  isCasting && 'text-primary',
-                  !isCasting && 'text-theme-muted group-hover:text-primary',
-                )}
-                showDot={isCasting}
-              />
-            </LinkButton>
-          </Tooltip>
-        </div>
-
-        <div
-          className={classNames(
-            'min-w-24 max-w-52 flex-1',
-            !compact && 'sm:hidden',
-          )}
-        >
+              <IconLinkButton
+                to={castHref}
+                replace
+                preventScrollReset
+                viewTransition={false}
+                prefetch="intent"
+                prefetchData
+                variant={isCasting ? 'tertiary-active' : 'ghost'}
+                aria-label={
+                  isCasting && castDeviceName
+                    ? `Casting to ${castDeviceName}`
+                    : 'Cast'
+                }
+              >
+                <CastIcon className="h-5 w-5" showDot={isCasting} />
+              </IconLinkButton>
+            </Tooltip>
+          </div>
           <VolumeControl
-            className="w-full"
+            className="ml-auto w-24 max-w-52 flex-1 sm:w-auto"
             volume={volume}
             onVolumeChange={onVolumeChange}
             onToggleMuted={onToggleMuted}
           />
-        </div>
-
-        {!compact && mobileTrailingContent && (
-          <div className="ml-auto sm:hidden">{mobileTrailingContent}</div>
-        )}
+        </ControlGroup>
 
         <div
           className={classNames(
@@ -244,14 +227,6 @@ const PlayerControlsComponent: React.FC<Props> = ({
             !compact && 'sm:ml-auto sm:flex sm:w-auto',
           )}
         >
-          <div className="hidden sm:block">
-            <VolumeControl
-              className="w-52"
-              volume={volume}
-              onVolumeChange={onVolumeChange}
-              onToggleMuted={onToggleMuted}
-            />
-          </div>
           <div className="hidden sm:block">
             <LinkButton
               to={addPlaylistItemHref}
@@ -261,13 +236,11 @@ const PlayerControlsComponent: React.FC<Props> = ({
               prefetch="intent"
               prefetchData
               variant="primary"
-              className="h-12 min-w-0 gap-3 px-4 sm:px-6"
+              className="h-14 min-w-0 gap-3 px-4 sm:px-6"
               title={labels.add}
             >
               <PlusIcon className="h-5 w-5 shrink-0" />
-              <span className="whitespace-nowrap font-display text-xs tracking-display">
-                {labels.add}
-              </span>
+              <span className="whitespace-nowrap">{labels.add}</span>
             </LinkButton>
           </div>
         </div>

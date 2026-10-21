@@ -46,7 +46,7 @@ export function GeneratedPlaylistSection({
           <Button
             onClick={onGenerate}
             variant="primary"
-            className="mt-6 min-h-12 gap-3 text-sm"
+            className="mt-6 min-h-12 gap-3"
           >
             Generate a playlist
             <ArrowRightIcon aria-hidden="true" className="h-4 w-4 shrink-0" />

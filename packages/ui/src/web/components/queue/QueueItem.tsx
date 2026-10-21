@@ -133,11 +133,12 @@ const QueueItemComponent: React.FC<Props> = ({
                   disabled={isVoting}
                   variant="tertiary"
                   size="none"
-                  className="h-9 shrink-0 gap-1.5 whitespace-nowrap rounded-lg px-2 font-pixel text-2xs leading-none sm:h-8"
+                  className="h-11 min-w-14 shrink-0 gap-2 px-3 leading-none tracking-normal hover:bg-secondary/10 sm:h-9"
                   aria-label={`Vote for ${playlistItem.title} by ${playlistItem.publisher || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
                   aria-busy={isVoting}
                 >
                   <motion.span
+                    className="inline-flex shrink-0 items-center justify-center"
                     animate={
                       isVoting
                         ? { rotate: [0, -14, 14, 0], scale: [1, 1.2, 1] }
@@ -147,12 +148,11 @@ const QueueItemComponent: React.FC<Props> = ({
                   >
                     <VoteIcon className="h-4 w-4 text-secondary" />
                   </motion.span>
-                  <span className="hidden sm:inline">Vote</span>
                   <motion.span
                     key={voteCount}
-                    initial={{ scale: 1.35 }}
+                    initial={false}
                     animate={{ scale: 1 }}
-                    className="inline-flex h-5 min-w-4 items-center justify-center rounded-full bg-secondary/15 px-1 text-secondary tabular-nums"
+                    className="inline-flex min-w-3 items-center justify-center text-secondary tabular-nums"
                   >
                     {voteCount}
                   </motion.span>
@@ -167,7 +167,7 @@ const QueueItemComponent: React.FC<Props> = ({
                 onClick={handleRemove}
                 variant="destructive"
                 size="none"
-                className="min-h-9 min-w-9 rounded-xl p-2"
+                className="min-h-9 min-w-9 p-2"
                 aria-label={`Remove ${playlistItem.title} from queue`}
               >
                 <TrashIcon className="h-4 w-4" />

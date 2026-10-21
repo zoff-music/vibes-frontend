@@ -224,11 +224,9 @@ export const RoomSettingsMenu = ({
 
   return (
     <div className="fixed top-(--room-header-height) right-0 bottom-0 left-0 z-40 sm:contents">
-      <Button
+      <button
         type="button"
-        variant="ghost"
-        size="none"
-        className="absolute inset-0 h-full w-full sm:hidden"
+        className="absolute inset-0 h-full w-full rounded-none border-0 bg-transparent p-0 sm:hidden"
         onClick={onClose}
         aria-label="Close settings"
       />
@@ -248,7 +246,7 @@ export const RoomSettingsMenu = ({
           <div className="space-y-4">
             <div className="hidden sm:block">
               <LinkButton
-                className="w-full gap-2 font-pixel text-xs"
+                className="w-full gap-2"
                 to={href('settings/device')}
                 replace
                 preventScrollReset
@@ -271,7 +269,7 @@ export const RoomSettingsMenu = ({
                   prefetch="intent"
                   prefetchData
                   variant="tertiary"
-                  className="w-full gap-2 font-pixel text-xs"
+                  className="w-full gap-2"
                 >
                   <SettingsIcon className="h-4 w-4" />
                   Device
@@ -279,7 +277,7 @@ export const RoomSettingsMenu = ({
                 <Button
                   onClick={handleShareRoom}
                   variant="tertiary"
-                  className="w-full gap-2 font-pixel text-xs"
+                  className="w-full gap-2"
                 >
                   <ShareIcon className="h-4 w-4" />
                   Share room
@@ -292,7 +290,7 @@ export const RoomSettingsMenu = ({
                   prefetch="intent"
                   prefetchData
                   variant="tertiary"
-                  className="col-span-2 w-full gap-2 font-pixel text-xs"
+                  className="col-span-2 w-full gap-2"
                 >
                   <RemoteIcon className="h-4 w-4" />
                   Remote control
@@ -503,14 +501,15 @@ export const RoomSettingsMenu = ({
                 <Button
                   disabled={room?.hasPassword && !isAdmin}
                   onClick={() => room && updateRoom({ mode: 'server' })}
+                  shape="rounded"
                   className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
                   variant={room?.mode === 'server' ? 'cyan' : 'tertiary'}
                   aria-pressed={room?.mode === 'server'}
                 >
-                  <div className="w-full text-left font-pixel text-current text-sm leading-snug">
+                  <div className="w-full text-left text-current leading-snug">
                     Server Mode
                   </div>
-                  <div className="w-full text-left text-caption text-current leading-relaxed opacity-75">
+                  <div className="w-full text-left font-pixel text-caption text-current leading-relaxed tracking-normal opacity-75">
                     {watch
                       ? 'Keep videos playing together, automatically.'
                       : 'Auto-play music 24/7. Perfect for radio stations.'}
@@ -520,14 +519,15 @@ export const RoomSettingsMenu = ({
                 <Button
                   disabled={room?.hasPassword && !isAdmin}
                   onClick={() => room && updateRoom({ mode: 'host' })}
+                  shape="rounded"
                   className="min-h-22 w-full flex-col items-start gap-1 px-4 py-3 text-left"
                   variant={room?.mode === 'host' ? 'magenta' : 'tertiary'}
                   aria-pressed={room?.mode === 'host'}
                 >
-                  <div className="w-full text-left font-pixel text-current text-sm leading-snug">
+                  <div className="w-full text-left text-current leading-snug">
                     Host Mode
                   </div>
-                  <div className="w-full text-left text-caption text-current leading-relaxed opacity-75">
+                  <div className="w-full text-left font-pixel text-caption text-current leading-relaxed tracking-normal opacity-75">
                     Host controls playback. Great for parties.
                   </div>
                 </Button>
