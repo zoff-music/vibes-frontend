@@ -1,7 +1,7 @@
 import { classNames } from '@vibes/shared';
 import { type ReactNode, useLayoutEffect, useRef } from 'react';
 import { CloseIcon } from '../icons';
-import { Button } from './Button';
+import { IconButton } from './IconButton';
 import { LinkButton } from './LinkButton';
 
 interface PersistentPlayerFrameProps {
@@ -80,14 +80,13 @@ export function PersistentPlayerFrame({
           >
             {roomName}
           </LinkButton>
-          <Button
+          <IconButton
             aria-label="Close persistent player and leave room"
             onClick={onClose}
-            size="icon"
-            variant="tertiary"
+            variant="ghost"
           >
             <CloseIcon className="h-4 w-4" />
-          </Button>
+          </IconButton>
         </div>
       )}
       <div className="relative">{children}</div>
