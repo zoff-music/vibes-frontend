@@ -9,6 +9,7 @@ import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { mobileApi } from '@/lib/api';
 import { useChatPreference } from '@/providers/chat-preference-provider';
+import { usePhoneNavigationGeometry } from '@/providers/phone-navigation-provider';
 import { updateMessages } from '@/requests/update-messages';
 
 interface Props {
@@ -27,6 +28,7 @@ export function RoomChatPanel({
   renderQueue,
 }: Props) {
   const keyboardVisible = useKeyboardVisible();
+  const { clearance } = usePhoneNavigationGeometry();
   const { isTablet, isTabletLandscape } = useTabletLandscapeLayout();
   const preference = useChatPreference();
   const enabled = preference.loaded && preference.enabled;
@@ -85,9 +87,9 @@ export function RoomChatPanel({
 
   return (
     <View
+      {...(clearance !== null && { style: { paddingBottom: clearance } })}
       className={classNames(
         'min-h-0 flex-1',
-        !keyboardVisible && !isTablet && 'pb-30',
         !keyboardVisible && isTablet && 'pb-16',
       )}
     >

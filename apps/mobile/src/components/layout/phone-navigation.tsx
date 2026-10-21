@@ -4,13 +4,13 @@ import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { usePathname, useRouter } from 'expo-router';
 import { styled } from 'nativewind';
 import { Platform, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ZoffIcon, type ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { useRoomNavigation } from '@/providers/app-provider';
+import { usePhoneNavigationGeometry } from '@/providers/phone-navigation-provider';
 import { useThemePreference } from '@/providers/theme-provider';
 
 interface NavigationItem {
@@ -41,7 +41,7 @@ function GlassSurface(props: GlassSurfaceProps) {
 const NativeGlass = styled(GlassSurface, { className: 'style' });
 
 export function PhoneNavigation() {
-  const insets = useSafeAreaInsets();
+  const geometry = usePhoneNavigationGeometry();
   const pathname = usePathname();
   const router = useRouter();
   const theme = useAppTheme();
@@ -76,8 +76,9 @@ export function PhoneNavigation() {
     <View
       className="absolute inset-x-4 z-50 flex-row items-center gap-3"
       pointerEvents="box-none"
+      onLayout={geometry.onLayout}
       style={{
-        bottom: insets.bottom + navigationBottomOffset,
+        bottom: geometry.bottom,
       }}
     >
       <View
@@ -155,5 +156,3 @@ export function PhoneNavigation() {
     </View>
   );
 }
-
-const navigationBottomOffset = 12;
