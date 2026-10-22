@@ -18,6 +18,7 @@ import {
   createBodySizeLimitMiddleware,
   createFrameProtectionMiddleware,
   createMetricsMiddleware,
+  createOriginProtectionMiddleware,
   createTracingMiddleware,
 } from './middleware.ts';
 import { precompressedAssets } from './precompressed.ts';
@@ -307,6 +308,7 @@ export async function startServer(config: ServerConfig) {
 
   const app = express();
   app.set('trust proxy', 1);
+  app.use(createOriginProtectionMiddleware());
   app.use(
     createBodySizeLimitMiddleware({
       maxBytes: resolveBodySizeLimitBytes(config),
