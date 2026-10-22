@@ -5,7 +5,7 @@ import { createControllerRoomData } from './utils/createControllerRoomData';
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const remoteId = params.id ?? '';
   const cookie = request.headers.get('cookie') ?? '';
-  const client = getServerApi();
+  const client = getServerApi(request);
 
   if (!remoteId) {
     return {

@@ -13,6 +13,7 @@ import {
   type WebViewMessageEvent,
   type WebViewNavigation,
 } from 'react-native-webview';
+import { escapePlayerAttribute } from './html';
 
 export interface NativeSoundCloudPlayerProps {
   artworkUrl: string;
@@ -404,7 +405,7 @@ function getPlayerHtml(
   const widgetUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}&auto_play=false&single_active=false&visual=false&show_artwork=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`;
   const artworkMarkup =
     artworkHeight >= minimumArtworkHeight
-      ? `<img id="artwork" src=${JSON.stringify(artworkUrl)} alt="" />`
+      ? `<img id="artwork" src="${escapePlayerAttribute(artworkUrl)}" alt="" />`
       : '';
 
   return `<!doctype html>
@@ -428,7 +429,7 @@ function getPlayerHtml(
   </head>
   <body>
     <div id="artwork-frame">${artworkMarkup}</div>
-    <iframe id="player" allow="autoplay; encrypted-media" src=${JSON.stringify(widgetUrl)}></iframe>
+    <iframe id="player" allow="autoplay; encrypted-media" src="${escapePlayerAttribute(widgetUrl)}"></iframe>
     <script src="https://w.soundcloud.com/player/api.js"></script>
     <script>
       const playerFrame = document.getElementById('player');

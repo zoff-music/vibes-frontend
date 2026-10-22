@@ -7,7 +7,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const profileResult = new URL(request.url).pathname.endsWith(
     '/settings/device',
   )
-    ? await getServerApi().get('/sessions', null, {
+    ? await getServerApi(request).get('/sessions', null, {
         headers: { Cookie: request.headers.get('cookie') ?? '' },
         signal: request.signal,
         retry: 0,

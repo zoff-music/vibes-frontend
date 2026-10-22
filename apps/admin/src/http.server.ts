@@ -2,7 +2,10 @@ import {
   type ApiFetchLifecycle,
   createAdminApiClientWithBaseUrl,
 } from '@vibes/api';
-import { createTracedApiFetchLifecycle } from '@vibes/serve';
+import {
+  createTracedApiFetchLifecycle,
+  getServerRequestHeaders,
+} from '@vibes/serve';
 import { safeWrap } from '@vibes/shared';
 
 const FALLBACK_API_BASE_URL = 'http://localhost:8080';
@@ -84,12 +87,7 @@ export function getServerApi(
   );
 
   return createAdminApiClientWithBaseUrl(baseUrl, {
-    customHeaders: {
-      // Preserve the ingress-appended client chain for internal login limiting.
-      ...(request?.headers.get('x-forwarded-for') && {
-        'X-Forwarded-For': request.headers.get('x-forwarded-for') ?? '',
-      }),
-    },
+    customHeaders: getServerRequestHeaders(request),
     fetchLifecycle,
   });
 }
