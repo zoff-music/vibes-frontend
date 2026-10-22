@@ -17,7 +17,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: "26.8.1"
+          node-version: "26.12.1"
       - name: Install pnpm
         run: npm install --global pnpm@12.3.4
       - name: Verify locked security patches
