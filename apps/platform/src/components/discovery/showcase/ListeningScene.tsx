@@ -1,5 +1,9 @@
 import { classNames } from '@vibes/shared';
-import { ContentTransition, PlaybackProgress } from '@vibes/ui/web';
+import {
+  ContentTransition,
+  PlaybackProgress,
+  VinylRecord,
+} from '@vibes/ui/web';
 import { usePlaybackPreview } from '../../../hooks/discovery/usePlaybackPreview';
 import { queueDemoPlaylistItems } from '../../seo/preview';
 
@@ -23,24 +27,11 @@ export function ListeningScene({ playing }: ListeningSceneProps) {
           aria-hidden="true"
           className="pointer-events-none absolute size-52 rounded-full border border-primary/20 sm:size-60"
         />
-        <div
-          className={classNames(
-            'relative flex size-44 items-center justify-center rounded-full border border-white/15 bg-[repeating-radial-gradient(circle,#21192d_0px,#21192d_2px,#100b18_3px,#100b18_7px)] shadow-2xl motion-safe:animate-[spin_24s_linear_infinite] sm:size-52',
-            !playing && 'motion-safe:[animation-play-state:paused]',
-          )}
-        >
-          <img
-            src={playlistItem.thumbnailUrl}
-            width={100}
-            height={100}
-            alt="Illustrative record artwork"
-            className="size-22 rounded-full border-4 border-[#100b18] sm:size-26"
-          />
-          <span
-            aria-hidden="true"
-            className="absolute size-2 rounded-full border border-white/30 bg-[#100b18]"
-          />
-        </div>
+        <VinylRecord
+          artworkUrl={playlistItem.thumbnailUrl}
+          playing={playing}
+          className="size-44 sm:size-52"
+        />
         <div
           aria-hidden="true"
           className="absolute bottom-0 left-1/2 h-8 w-px bg-secondary/40"

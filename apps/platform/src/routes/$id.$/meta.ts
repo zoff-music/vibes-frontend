@@ -1,13 +1,23 @@
-import type { MetaFunction } from '@kasperrt/smolter/preact';
+import {
+  isRouteErrorResponse,
+  type MetaFunction,
+} from '@kasperrt/smolter/preact';
 import { playlistItemWebpThumbnail } from '@vibes/shared';
 import { publicAssetUrl } from '@vibes/ui/web';
+import { notFoundMeta } from '../$/meta';
 import type { loader } from './loader';
 import {
   createRoomShareDescription,
   createRoomShareTitle,
 } from './utils/share';
 
-export const roomMeta: MetaFunction<typeof loader> = ({ loaderData }) => {
+export const roomMeta: MetaFunction<typeof loader> = (args) => {
+  const { loaderData, error } = args;
+
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return notFoundMeta(args);
+  }
+
   if (!loaderData) {
     return [
       { title: 'Shared Room | Zoff' },

@@ -42,6 +42,7 @@ export { ThemeScript } from './components/ThemeScript';
 export * from './components/Toast';
 export * from './components/ToastViewport';
 export * from './components/Tooltip';
+export { VinylRecord } from './components/VinylRecord';
 export * from './graphs/ListenerUsageChart';
 export { MessageUsageChart } from './graphs/MessageUsageChart';
 export * from './graphs/SearchUsageChart';
