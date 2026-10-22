@@ -13,6 +13,7 @@ import {
   type WebViewMessageEvent,
   type WebViewNavigation,
 } from 'react-native-webview';
+import { serializePlayerScript } from './html';
 
 export interface NativeYouTubePlayerProps {
   height: number;
@@ -390,8 +391,8 @@ const allowedPlayerUrls = [
 ];
 
 function getPlayerHtml(sourceId: string) {
-  const serializedSourceId = JSON.stringify(sourceId);
-  const serializedOrigin = JSON.stringify(platformUrl);
+  const serializedSourceId = serializePlayerScript(sourceId);
+  const serializedOrigin = serializePlayerScript(platformUrl);
 
   return `<!doctype html>
 <html>

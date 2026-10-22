@@ -35,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw new Response('Room not found', { status: 404 });
   }
 
-  const serverApi = getServerApi();
+  const serverApi = getServerApi(request);
   const cookieHeader = request.headers.get('cookie') ?? undefined;
   const requestHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
   const [roomResult, playlistItemsResult, playbackResult, providersResult] =
