@@ -24,6 +24,36 @@ export interface FrameProtectionOptions {
   fileAllowedPath?: string;
 }
 
+export function createOriginProtectionMiddleware() {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      return next();
+    }
+
+    const expectedOrigin = URL.parse(`${req.protocol}://${req.get('host')}`);
+    const origin = req.get('origin');
+    const referer = URL.parse(req.get('referer') ?? '');
+    const sourceOrigin = origin ?? referer?.origin;
+    const fetchSite = req.get('sec-fetch-site');
+
+    // SameSite cookies also accompany requests from an untrusted sibling
+    // subdomain. Mutations must originate from this exact origin instead.
+    if (
+      !expectedOrigin ||
+      !sourceOrigin ||
+      sourceOrigin !== expectedOrigin.origin ||
+      fetchSite === 'cross-site' ||
+      fetchSite === 'same-site'
+    ) {
+      res.status(403).send('Forbidden request origin');
+
+      return undefined;
+    }
+
+    return next();
+  };
+}
+
 export function createFrameProtectionMiddleware(
   options: FrameProtectionOptions,
 ) {
