@@ -1,4 +1,4 @@
-import { useRouter } from '@kasperrt/smolter/preact';
+import { isRouteErrorResponse, useRouter } from '@kasperrt/smolter/preact';
 import { SiteLayout as SharedSiteLayout } from '@vibes/ui/web';
 import { memo, type ReactNode, useSyncExternalStore } from 'preact/compat';
 import { SiteFooter } from '../legal/SiteFooter';
@@ -10,12 +10,13 @@ interface SiteLayoutProps {
 
 export function SiteLayout({ children }: SiteLayoutProps) {
   const router = useRouter();
-  const { path = '' } = useSyncExternalStore(
+  const { path = '', error } = useSyncExternalStore(
     router.subscribe,
     router.getSnapshot,
     router.getSnapshot,
   );
-  const isRoomPage = roomPaths.has(path);
+  const isNotFound = isRouteErrorResponse(error) && error.status === 404;
+  const isRoomPage = roomPaths.has(path) && !isNotFound;
   const isPolicyPage = policyPaths.has(path);
 
   return (

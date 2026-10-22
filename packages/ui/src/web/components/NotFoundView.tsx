@@ -1,5 +1,6 @@
-import { classNames } from '@vibes/shared';
 import type { ReactNode } from 'preact/compat';
+import { LinkButton } from './LinkButton';
+import { VinylRecord } from './VinylRecord';
 
 interface NotFoundViewProps {
   children?: ReactNode;
@@ -7,43 +8,41 @@ interface NotFoundViewProps {
 
 export function NotFoundView({ children }: NotFoundViewProps) {
   return (
-    <main className="relative z-10 flex min-h-[calc(100svh-13rem)] items-center justify-center px-5 py-12 sm:px-6 sm:py-16">
-      <section
-        className={classNames(
-          'mx-auto grid w-full max-w-4xl items-center gap-12',
-          Boolean(children) && 'md:grid-cols-2 md:gap-16',
-        )}
-      >
-        <div
-          className={classNames(
-            'text-center',
-            Boolean(children) && 'md:text-left',
-          )}
-        >
-          <p className="font-pixel text-primary text-xs tracking-label">
-            TRACK NOT FOUND
-          </p>
-          <p
+    <main className="relative z-10 mx-auto w-full max-w-5xl px-5 py-10 sm:px-6 sm:py-16">
+      <section className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="text-center lg:text-left">
+          <div
             aria-hidden="true"
-            className="mt-3 font-pixel text-8xl text-theme leading-none sm:text-9xl"
+            className="mb-6 flex items-center justify-center gap-2 lg:justify-start"
           >
-            4<span className="text-primary">0</span>4
+            <span className="font-pixel text-9xl text-theme leading-none">
+              4
+            </span>
+            <VinylRecord playing className="w-28 sm:w-36" />
+            <span className="font-pixel text-9xl text-theme leading-none">
+              4
+            </span>
+          </div>
+          <p className="font-pixel text-secondary text-xs tracking-label">
+            PAGE NOT FOUND
           </p>
-          <h1 className="mt-5 font-pixel text-3xl text-theme normal-case sm:text-4xl">
-            Wrong track.
+          <h1 className="mt-4 font-pixel text-3xl text-theme normal-case sm:text-4xl">
+            Lost the page.
+            <br />
+            Found the beat.
           </h1>
-          <p className="mt-3 text-theme-muted">We couldn’t find that page.</p>
-          <a
-            className="mt-7 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-6 py-3 font-pixel text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
-            href="/"
-          >
-            Back to Zoff
-          </a>
-          {children && (
-            <p className="mt-5 text-theme-subtle text-xs">
-              404 BPM? Absolutely not.
-            </p>
-          )}
+          <p className="mx-auto mt-4 max-w-sm text-theme-muted leading-relaxed lg:mx-0">
+            There’s nothing at this address. Head back to the music, or make a
+            little of your own.
+          </p>
+          <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
+            <LinkButton to="/rooms/explore" variant="primary">
+              Find a room
+            </LinkButton>
+            <LinkButton to="/" variant="tertiary">
+              Back home
+            </LinkButton>
+          </div>
         </div>
         {children}
       </section>

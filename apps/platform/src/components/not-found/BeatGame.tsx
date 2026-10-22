@@ -1,8 +1,9 @@
 import { classNames } from '@vibes/shared';
 import { Button } from '@vibes/ui/web';
-import type { KeyboardEvent } from 'preact/compat';
-import { type Pad, TOTAL_ROUNDS } from './beatGameState';
+import { type KeyboardEvent, useEffect, useState } from 'preact/compat';
+import type { Pad } from './beatGameState';
 import { useBeatGame } from './useBeatGame';
+import { useDrumSounds } from './useDrumSounds';
 
 const pads: { id: Pad; rest: string; lit: string }[] = [
   {
@@ -29,19 +30,40 @@ const pads: { id: Pad; rest: string; lit: string }[] = [
 
 export function BeatGame() {
   const { ref, state, actions } = useBeatGame();
+  const sound = useDrumSounds();
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [hit, setHit] = useState<Pad | null>(null);
+  const freePlay = state.phase === 'idle' || state.phase === 'lost';
+  const names = ['Kick', 'Snare', 'Hi-hat', 'Bass'];
+
+  useEffect(() => {
+    if (state.cue !== null && soundEnabled && state.active) sound(state.cue);
+  }, [state.cue, soundEnabled, state.active, sound]);
+
+  useEffect(() => {
+    if (hit === null) return;
+    const timer = window.setTimeout(() => setHit(null), 160);
+    return () => window.clearTimeout(timer);
+  }, [hit]);
+
+  function pressPad(pad: Pad) {
+    if (!playing && !freePlay) return;
+    setHit(pad);
+    if (soundEnabled) sound(pad);
+    if (playing) actions.press(pad);
+  }
+
   const showing = state.phase === 'showing';
   const playing = state.phase === 'playing';
   const cleared = state.phase === 'cleared';
-  const won = state.phase === 'won';
   const manual = showing && state.reducedMotion;
   const pattern = state.sequence.slice(0, state.round + 1);
   const messages = {
-    idle: 'Watch the pads. Then repeat the pattern.',
+    idle: 'Jam on the pads, or test your ears with a beat challenge.',
     showing: 'Watch the pads…',
     playing: `Your turn. ${state.answered} / ${pattern.length}`,
-    cleared: 'Nice. One more beat?',
+    cleared: 'Nailed it. Adding another beat…',
     lost: 'Missed a beat. Fancy a remix?',
-    won: 'Perfect loop. You found the beat.',
   };
   let status = messages[state.phase];
 
@@ -60,9 +82,9 @@ export function BeatGame() {
 
     const pad = pads.find((item) => String(item.id + 1) === event.key);
 
-    if (pad && playing) {
+    if (pad && (playing || freePlay)) {
       event.preventDefault();
-      actions.press(pad.id);
+      pressPad(pad.id);
     }
   }
 
@@ -73,24 +95,17 @@ export function BeatGame() {
       return;
     }
 
-    if (cleared) {
-      actions.next();
-
-      return;
-    }
-
+    if (soundEnabled) sound(0);
     actions.start();
   }
 
-  let actionLabel = 'Play a round';
+  let actionLabel = 'Beat challenge';
 
   if (manual) {
     actionLabel = 'Ready';
-  } else if (cleared) {
-    actionLabel = 'Next round';
-  } else if (won || state.phase === 'lost') {
+  } else if (state.phase === 'lost') {
     actionLabel = 'Play again';
-  } else if (showing || playing) {
+  } else if (showing || playing || cleared) {
     actionLabel = 'Restart';
   }
 
@@ -99,14 +114,14 @@ export function BeatGame() {
       ref={ref}
       aria-labelledby="beat-game-title"
       onKeyDown={handleKeyDown}
-      className="mx-auto w-full max-w-sm rounded-3xl border border-theme bg-theme-surface p-5 shadow-panel sm:p-6"
+      className="mx-auto w-full max-w-md rounded-3xl border border-theme bg-theme-surface p-5 shadow-panel sm:p-6"
     >
       <div className="flex items-center justify-between gap-3">
         <h2 id="beat-game-title" className="font-pixel text-lg text-theme">
-          Repeat the beat
+          404 beat club
         </h2>
         <span className="text-theme-muted text-xs tabular-nums">
-          {state.round} / {TOTAL_ROUNDS}
+          Round {state.round}
         </span>
       </div>
       <p
@@ -117,26 +132,31 @@ export function BeatGame() {
       >
         {status}
       </p>
+      <p className="text-theme-subtle text-xs">
+        Tap a pad or press 1–4. Enable sound to hear your beat.
+      </p>
       <div className="mt-3 grid grid-cols-2 gap-3">
         {pads.map((pad) => (
           <Button
             key={pad.id}
             variant="ghost"
             size="none"
-            aria-label={`Pad ${pad.id + 1}`}
-            aria-disabled={!playing}
-            data-lit={state.cue === pad.id}
-            onClick={() => actions.press(pad.id)}
+            shape="rounded"
+            aria-label={`${names[pad.id]}, key ${pad.id + 1}`}
+            aria-disabled={!playing && !freePlay}
+            data-lit={state.cue === pad.id || hit === pad.id}
+            onClick={() => pressPad(pad.id)}
             className={classNames(
-              'h-20 rounded-2xl border-2 font-pixel text-3xl motion-reduce:transition-none sm:h-24',
+              'h-24 flex-col gap-2 rounded-2xl border-2 font-pixel text-sm motion-reduce:transition-none sm:h-28',
               pad.rest,
               pad.lit,
-              playing &&
+              (playing || freePlay) &&
                 'hover:brightness-125 active:brightness-150 motion-safe:active:scale-95',
-              !playing && 'cursor-default',
+              !playing && !freePlay && 'cursor-default',
             )}
           >
-            {pad.id + 1}
+            <span className="text-2xl">{pad.id + 1}</span>
+            <span>{names[pad.id]}</span>
           </Button>
         ))}
       </div>
@@ -149,7 +169,17 @@ export function BeatGame() {
         >
           {actionLabel}
         </Button>
-        <span className="text-theme-subtle text-xs">Tap or use 1–4</span>
+        <Button
+          size="small"
+          variant="ghost"
+          aria-pressed={soundEnabled}
+          onClick={() => {
+            if (!soundEnabled) sound(0);
+            setSoundEnabled(!soundEnabled);
+          }}
+        >
+          {soundEnabled ? 'Sound on' : 'Sound off'}
+        </Button>
       </div>
     </fieldset>
   );

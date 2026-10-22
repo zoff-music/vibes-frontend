@@ -1,6 +1,6 @@
 export type Pad = 0 | 1 | 2 | 3;
 
-type Phase = 'idle' | 'showing' | 'playing' | 'cleared' | 'lost' | 'won';
+type Phase = 'idle' | 'showing' | 'playing' | 'cleared' | 'lost';
 
 export interface BeatGameState {
   phase: Phase;
@@ -16,9 +16,8 @@ export type BeatGameAction =
   | { type: 'tick' }
   | { type: 'ready' }
   | { type: 'press'; pad: Pad }
-  | { type: 'next' };
+  | { type: 'next'; pad: Pad };
 
-export const TOTAL_ROUNDS = 5;
 export const initialBeatGame: BeatGameState = {
   phase: 'idle',
   sequence: [],
@@ -63,7 +62,7 @@ export function beatGameReducer(
       return {
         ...state,
         answered,
-        phase: state.round === TOTAL_ROUNDS ? 'won' : 'cleared',
+        phase: 'cleared',
       };
     }
 
@@ -75,6 +74,7 @@ export function beatGameReducer(
       ...state,
       phase: 'showing',
       round: state.round + 1,
+      sequence: [...state.sequence, action.pad],
       playhead: 0,
       answered: 0,
     };
