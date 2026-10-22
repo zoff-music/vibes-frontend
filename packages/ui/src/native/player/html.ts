@@ -1,11 +1,8 @@
+import escapeHtml from 'escape-html';
+
 // JSON string escaping does not protect HTML attributes or script boundaries.
 export function escapePlayerAttribute(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+  return escapeHtml(value);
 }
 
 export function serializePlayerScript(value: string): string {
