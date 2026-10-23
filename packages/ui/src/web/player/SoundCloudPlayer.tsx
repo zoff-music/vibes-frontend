@@ -1,6 +1,7 @@
 import {
   classNames,
   type PlaylistItem,
+  resolvePlaylistItemArtwork,
   safeWrap,
   usePlaybackStore,
 } from '@vibes/shared';
@@ -145,6 +146,9 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSynchronizedUpdateRef = useRef<string | null>(null);
   const latestWidgetPositionRef = useRef<number | null>(null);
+  const seekSettlingUntilRef = useRef(0);
+  const playbackProgressConfirmedRef = useRef(false);
+  const misalignedSamplesRef = useRef(0);
   const expectedSeekPositionRef = useRef<number | null>(null);
   const lastAlignmentRef = useRef<boolean | null>(null);
   const lastResetVersionRef = useRef(resetVersion);
@@ -269,6 +273,17 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     widget.bind(soundCloud.Widget.Events.PLAY_PROGRESS, (event?: unknown) => {
       if (!isSoundCloudProgressEvent(event)) return;
 
+      if (
+        isActiveRef.current &&
+        latestWidgetPositionRef.current !== null &&
+        event.currentPosition > latestWidgetPositionRef.current &&
+        event.currentPosition - latestWidgetPositionRef.current <
+          EXPECTED_SEEK_TOLERANCE_MS
+      ) {
+        playbackProgressConfirmedRef.current = true;
+        setSlowStartupPlaylistItemId(null);
+      }
+
       latestWidgetPositionRef.current = event.currentPosition;
       containerRef.current?.setAttribute(
         'data-provider-position-ms',
@@ -298,6 +313,15 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
       prewarmingRef.current = false;
 
+      if (!playbackProgressConfirmedRef.current) {
+        const playbackState = usePlaybackStore.getState();
+        playbackState.updateActualPosition();
+        const positionMs = usePlaybackStore.getState().actualPositionMs;
+        expectedSeekPositionRef.current = positionMs;
+        seekSettlingUntilRef.current = Date.now() + SEEK_SETTLING_MS;
+        widget.seekTo(positionMs);
+      }
+
       if (restartTimerRef.current) {
         clearTimeout(restartTimerRef.current);
         restartTimerRef.current = null;
@@ -307,7 +331,6 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       widget.setVolume(desiredVolumeRef.current);
       setIsWidgetMuted(desiredVolumeRef.current === MIN_VOLUME);
       setIsWidgetPlaying(true);
-      setSlowStartupPlaylistItemId(null);
     });
 
     widget.bind(soundCloud.Widget.Events.PAUSE, () => {
@@ -391,6 +414,9 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     lastSynchronizedUpdateRef.current = null;
     expectedSeekPositionRef.current = null;
     latestWidgetPositionRef.current = null;
+    playbackProgressConfirmedRef.current = false;
+    misalignedSamplesRef.current = 0;
+    seekSettlingUntilRef.current = 0;
     lastAlignmentRef.current = null;
     setIsReady(false);
     setIsWidgetPlaying(false);
@@ -404,8 +430,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
         loadingSourceIdRef.current = null;
         loadedSourceIdRef.current = sourceId;
-        lastSynchronizedUpdateRef.current =
-          usePlaybackStore.getState().updatedAt;
+        lastSynchronizedUpdateRef.current = null;
         setIsReady(true);
       },
     });
@@ -443,18 +468,15 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       !isActive ||
       !isReady ||
       !isPlaying ||
-      isWidgetPlaying ||
       needsUserGesture
     )
       return;
 
     let cancelled = false;
     const timeout = setTimeout(() => {
-      widgetRef.current?.isPaused((isPaused) => {
-        if (cancelled || !isPaused) return;
+      if (cancelled || playbackProgressConfirmedRef.current) return;
 
-        setSlowStartupPlaylistItemId(currentPlaylistItem?.id ?? null);
-      });
+      setSlowStartupPlaylistItemId(currentPlaylistItem?.id ?? null);
     }, AUTOPLAY_CONFIRMATION_MS);
 
     return () => {
@@ -466,7 +488,6 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     isActive,
     isReady,
     isPlaying,
-    isWidgetPlaying,
     needsUserGesture,
     currentPlaylistItem?.id,
   ]);
@@ -499,9 +520,14 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
     if (lastSynchronizedUpdateRef.current === updatedAt && !shouldReset) return;
 
-    const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
     lastSynchronizedUpdateRef.current = updatedAt;
+    let cancelled = false;
     widget.getPosition((widgetPositionMs) => {
+      if (cancelled) return;
+
+      const playbackState = usePlaybackStore.getState();
+      playbackState.updateActualPosition();
+      const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
       latestWidgetPositionRef.current = widgetPositionMs;
 
       if (
@@ -513,8 +539,15 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       }
 
       expectedSeekPositionRef.current = actualPositionMs;
+      seekSettlingUntilRef.current = Date.now() + SEEK_SETTLING_MS;
+      misalignedSamplesRef.current = 0;
+      lastAlignmentRef.current = null;
       widget.seekTo(actualPositionMs);
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, [isActive, isReady, resetVersion, updatedAt]);
 
   useEffect(() => {
@@ -523,29 +556,45 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     let cancelled = false;
     const interval = setInterval(() => {
       const widget = widgetRef.current;
-      const positionMs = latestWidgetPositionRef.current;
-
-      if (!widget || positionMs === null) return;
+      if (
+        !widget ||
+        document.hidden ||
+        loadingSourceIdRef.current ||
+        Date.now() < seekSettlingUntilRef.current
+      )
+        return;
 
       widget.isPaused((isPaused) => {
         if (cancelled) return;
 
-        setIsWidgetPlaying(!isPaused);
-        const playbackStore = usePlaybackStore.getState();
-        const authoritativePlayback = playbackStore.authoritativePlayback;
-        const sourceId = providerPlaylistItem?.sourceId;
-        const authoritativeSourceId =
-          authoritativePlayback.currentPlaylistItem?.sourceId;
-        const aligned =
-          sourceId === authoritativeSourceId &&
-          !isPaused === authoritativePlayback.isPlaying &&
-          Math.abs(positionMs - playbackStore.getAuthoritativePositionMs()) <=
-            ALIGNED_POSITION_TOLERANCE_MS;
+        widget.getPosition((positionMs) => {
+          if (cancelled || Date.now() < seekSettlingUntilRef.current) return;
 
-        if (lastAlignmentRef.current === aligned) return;
+          const playbackStore = usePlaybackStore.getState();
+          const authoritativePlayback = playbackStore.authoritativePlayback;
+          const sourceId = providerPlaylistItem?.sourceId;
+          const authoritativeSourceId =
+            authoritativePlayback.currentPlaylistItem?.sourceId;
+          const aligned =
+            sourceId === authoritativeSourceId &&
+            !isPaused === authoritativePlayback.isPlaying &&
+            Math.abs(positionMs - playbackStore.getAuthoritativePositionMs()) <=
+              ALIGNED_POSITION_TOLERANCE_MS;
 
-        lastAlignmentRef.current = aligned;
-        onLocalAlignmentChangeRef.current?.(aligned);
+          misalignedSamplesRef.current = aligned
+            ? 0
+            : misalignedSamplesRef.current + 1;
+          if (
+            !aligned &&
+            misalignedSamplesRef.current < MISALIGNED_SAMPLE_COUNT
+          )
+            return;
+
+          if (lastAlignmentRef.current === aligned) return;
+
+          lastAlignmentRef.current = aligned;
+          onLocalAlignmentChangeRef.current?.(aligned);
+        });
       });
     }, VOLUME_SAMPLE_MS);
 
@@ -580,6 +629,9 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     playbackState.updateActualPosition();
     const actualPositionMs = usePlaybackStore.getState().actualPositionMs;
     expectedSeekPositionRef.current = actualPositionMs;
+    seekSettlingUntilRef.current = Date.now() + SEEK_SETTLING_MS;
+    misalignedSamplesRef.current = 0;
+    lastAlignmentRef.current = null;
     widget.seekTo(actualPositionMs);
     playWidget(widget);
   }, [onLocalPlay, playWidget]);
@@ -587,8 +639,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const showClickToPlay =
     isActive &&
     (needsUserGesture ||
-      (slowStartupPlaylistItemId === currentPlaylistItem?.id &&
-        !isWidgetPlaying) ||
+      slowStartupPlaylistItemId === currentPlaylistItem?.id ||
       (showInitialPlaybackOverlay &&
         !isPlaybackUnlocked &&
         !allowUnmutedAutoplay));
@@ -647,7 +698,12 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         <img
           alt={`${providerPlaylistItem.title} artwork`}
           className="pointer-events-none min-h-0 w-full flex-1 object-contain object-center"
-          src={providerPlaylistItem.thumbnailUrl}
+          src={resolvePlaylistItemArtwork(providerPlaylistItem.thumbnailUrl)}
+          onError={(event) => {
+            const fallback = providerPlaylistItem.thumbnailUrl;
+            if (event.currentTarget.getAttribute('src') === fallback) return;
+            event.currentTarget.src = fallback;
+          }}
         />
         <iframe
           ref={iframeRef}
@@ -675,6 +731,7 @@ export const SoundCloudPlayer = memo(
   (previous, next) =>
     previous.allowUnmutedAutoplay === next.allowUnmutedAutoplay &&
     previous.appContext === next.appContext &&
+    previous.fill === next.fill &&
     previous.isVisible === next.isVisible &&
     previous.onEnded === next.onEnded &&
     previous.onLocalAlignmentChange === next.onLocalAlignmentChange &&
@@ -689,7 +746,9 @@ export const SoundCloudPlayer = memo(
 
 const EXPECTED_SEEK_TOLERANCE_MS = 1000;
 const ALIGNED_POSITION_TOLERANCE_MS = 2000;
-const SYNCHRONIZATION_TOLERANCE_MS = 5000;
+const SYNCHRONIZATION_TOLERANCE_MS = 2000;
+const SEEK_SETTLING_MS = 4000;
+const MISALIGNED_SAMPLE_COUNT = 2;
 const MAX_VOLUME = 100;
 const MIN_VOLUME = 0;
 const PREWARM_PLAY_TIME_MS = 100;
