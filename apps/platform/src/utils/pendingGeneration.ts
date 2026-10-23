@@ -1,4 +1,4 @@
-import type { RoomType } from '@vibes/models';
+import { type RoomType, roomTypeSchema } from '@vibes/models';
 import { safeWrap } from '@vibes/shared';
 import * as v from 'valibot';
 
@@ -6,6 +6,7 @@ const pendingGenerationSchema = v.object({
   id: v.pipe(v.string(), v.regex(/^[1-9]\d*$/)),
   prompt: v.string(),
   createdAt: v.number(),
+  roomType: roomTypeSchema,
 });
 
 export type PendingGeneration = v.InferOutput<typeof pendingGenerationSchema>;
@@ -20,7 +21,12 @@ export function readPendingGeneration(roomType: RoomType) {
     return v.parse(pendingGenerationSchema, JSON.parse(value));
   });
 
-  if (error || !pending || Date.now() - pending.createdAt > 24 * 60 * 60 * 1000)
+  if (
+    error ||
+    !pending ||
+    pending.roomType !== roomType ||
+    Date.now() - pending.createdAt > 24 * 60 * 60 * 1000
+  )
     return null;
 
   return pending;

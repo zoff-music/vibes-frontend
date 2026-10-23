@@ -32,7 +32,7 @@ export function useHomeGeneration(roomType: RoomType) {
   }, [action.data, roomType]);
 
   useEffect(() => {
-    if (!pending) return;
+    if (!pending || pending.roomType !== roomType) return;
     const load = () => {
       if (document.hidden || status.state !== 'idle') return;
       void status.load(`/resources/generations?id=${pending.id}`);
@@ -50,11 +50,12 @@ export function useHomeGeneration(roomType: RoomType) {
       window.clearTimeout(timer);
       document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [pending, status.state, status.data, status.load]);
+  }, [pending, roomType, status.state, status.data, status.load]);
 
   useEffect(() => {
     if (
       !pending ||
+      pending.roomType !== roomType ||
       status.data?.id !== pending.id ||
       handled.current === pending.id
     )

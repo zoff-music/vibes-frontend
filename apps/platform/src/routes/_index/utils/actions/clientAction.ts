@@ -54,7 +54,12 @@ export async function clientAction({
       };
     }
 
-    const pending = { id: generation.id, prompt, createdAt: Date.now() };
+    const pending: PendingGeneration = {
+      id: generation.id,
+      prompt,
+      roomType,
+      createdAt: Date.now(),
+    };
     savePendingGeneration(roomType, pending);
 
     return {
