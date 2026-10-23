@@ -10,7 +10,10 @@ import {
   readPendingGeneration,
 } from '../utils/pendingGeneration';
 
-export function useHomeGeneration(roomType: RoomType) {
+export function useHomeGeneration(
+  roomType: RoomType,
+  onRestoreGeneration: (prompt: string) => void,
+) {
   const action = useFetcher<HomeActionData>();
   const status = useFetcher<typeof clientLoader>();
   const navigate = useNavigate();
@@ -20,8 +23,10 @@ export function useHomeGeneration(roomType: RoomType) {
 
   useEffect(() => {
     handled.current = '';
-    setPending(readPendingGeneration(roomType));
-  }, [roomType]);
+    const restored = readPendingGeneration(roomType);
+    setPending(restored);
+    if (restored) onRestoreGeneration(restored.prompt);
+  }, [roomType, onRestoreGeneration]);
 
   useEffect(() => {
     if (!action.data || action.data === handledAction.current) return;

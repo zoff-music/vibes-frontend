@@ -8,6 +8,7 @@ import {
   lazy,
   memo,
   Suspense,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -55,6 +56,10 @@ export const HomeScreen = memo(function HomeScreen({
   const roomNameRef = useRef<HTMLInputElement>(null);
   const [generationEntry, setGenerationEntry] = useState(0);
   const reducedMotion = useReducedMotion();
+  const restoreGeneration = useCallback((value: string) => {
+    setIsAIMode(true);
+    setPrompt(value);
+  }, []);
 
   useEffect(() => {
     if (!isAIMode) return;
@@ -142,6 +147,7 @@ export const HomeScreen = memo(function HomeScreen({
               onJoinRoom={handleJoinRoom}
               onChange={isAIMode ? setPrompt : handleRoomCodeChange}
               onStartSession={handleStartSession}
+              onRestoreGeneration={restoreGeneration}
               onToggle={handleToggleAIMode}
               placeholder={placeholder}
               value={isAIMode ? prompt : roomCode}

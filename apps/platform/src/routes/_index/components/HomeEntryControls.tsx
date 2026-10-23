@@ -23,6 +23,7 @@ interface HomeEntryControlsProps {
   onToggle: () => void;
   onJoinRoom: () => void;
   onStartSession: () => void;
+  onRestoreGeneration: (prompt: string) => void;
 }
 
 export function HomeEntryControls({
@@ -35,9 +36,10 @@ export function HomeEntryControls({
   onToggle,
   onJoinRoom,
   onStartSession,
+  onRestoreGeneration,
 }: HomeEntryControlsProps) {
   const roomType = useExperience();
-  const generation = useHomeGeneration(roomType);
+  const generation = useHomeGeneration(roomType, onRestoreGeneration);
   const generating = generation.generating;
   const active = inputActive || generating;
 
