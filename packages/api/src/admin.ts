@@ -14,7 +14,6 @@ import {
   adminUpdateUserRequestSchema,
   adminUserSchema,
   adminUsersSchema,
-  connectedSchema,
   emptyObjectSchema,
   optionalAdminMessageUsageSearchSchema,
   roomTypeQuerySchema,
@@ -103,14 +102,6 @@ const v2Endpoints = {
       response: adminRoomsV2Schema,
     },
     delete: { response: adminRoomsV2Schema },
-  },
-  '/admin/events': {
-    sse: {
-      events: {
-        connected: connectedSchema,
-        admin_rooms_update: adminRoomsV2Schema,
-      },
-    },
   },
 } as const satisfies RequestDefinitions;
 
