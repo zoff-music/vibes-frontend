@@ -167,14 +167,11 @@ export const RoomPlayer = React.memo(
         displayRoom.userId &&
         displayRoom.hostId === displayRoom.userId,
     );
-    const hasHostPlaybackAuthority =
-      displayRoom?.mode === 'host' &&
-      (isAdmin ||
-        (!!displayRoom.userId && displayRoom.hostId === displayRoom.userId));
+    const hasHostPlaybackAuthority = isHost;
     const canControlRoomPlayback =
       displayRoom?.mode !== 'host' || hasHostPlaybackAuthority;
     const canSkipPlaylistItem =
-      canControlRoomPlayback &&
+      (canControlRoomPlayback || isAdmin) &&
       (isAdmin || Boolean(displayRoom?.settings.skipAllowed));
 
     const currentSourceType = currentPlaylistItem?.sourceType ?? null;
@@ -228,6 +225,8 @@ export const RoomPlayer = React.memo(
       (action: 'pause' | 'play') => {
         if (!roomMode) return;
 
+        if (roomMode === 'host' && !hasHostPlaybackAuthority) return;
+
         setLocalPlayingState(action === 'play', roomMode);
 
         if (roomMode === 'server') return;
@@ -245,7 +244,13 @@ export const RoomPlayer = React.memo(
           },
         );
       },
-      [roomMode, roomId, playbackFetcher, setLocalPlayingState],
+      [
+        roomMode,
+        roomId,
+        playbackFetcher,
+        setLocalPlayingState,
+        hasHostPlaybackAuthority,
+      ],
     );
 
     const play = useCallback(() => {
@@ -325,6 +330,8 @@ export const RoomPlayer = React.memo(
 
     const handleLocalPlay = useCallback(() => {
       if (roomMode === 'host') {
+        if (usePlaybackStore.getState().isPlaying) return;
+
         play();
 
         return;
@@ -337,6 +344,8 @@ export const RoomPlayer = React.memo(
 
     const seek = useCallback(
       (positionMs: number) => {
+        if (!hasHostPlaybackAuthority) return;
+
         submittedRoom.current = roomId;
         playbackFetcher.submit(
           {
@@ -351,7 +360,7 @@ export const RoomPlayer = React.memo(
           },
         );
       },
-      [playbackFetcher, roomId],
+      [playbackFetcher, roomId, hasHostPlaybackAuthority],
     );
 
     const handleLocalSeek = useCallback(
@@ -694,7 +703,10 @@ export const RoomPlayer = React.memo(
                 allowUnmutedAutoplay
                 fill
                 onLocalAlignmentChange={setLocalPlaybackAligned}
-                onLocalPlay={handleLocalPlay}
+                {...((hasHostPlaybackAuthority ||
+                  displayRoom?.mode === 'server') && {
+                  onLocalPlay: handleLocalPlay,
+                })}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 {...(hasHostPlaybackAuthority && {
                   onEnded: handleEnded,

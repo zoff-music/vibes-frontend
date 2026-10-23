@@ -97,7 +97,15 @@ export async function clientAction({
     const hasHostAuthority =
       room?.id === roomId &&
       room.mode === 'host' &&
-      (room.isAdmin || room.hostId === room.userId);
+      Boolean(room.userId) &&
+      room.hostId === room.userId;
+
+    if (intent === 'seek' && room?.mode === 'host' && !hasHostAuthority) {
+      return {
+        intent,
+        error: 'Only the host can seek for everyone in this room.',
+      };
+    }
 
     if (intent !== 'seek' && !hasHostAuthority) {
       const [error] = await client.v2.patch(

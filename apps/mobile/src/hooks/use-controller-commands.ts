@@ -71,7 +71,9 @@ export function useControllerCommands({
     }
 
     const hasHostAuthority =
-      room?.mode === 'host' && (room.isAdmin || room.hostId === room.userId);
+      room?.mode === 'host' &&
+      Boolean(room.userId) &&
+      room.hostId === room.userId;
 
     if (hasHostAuthority) {
       const result = await playbackActionSubmit({
@@ -140,6 +142,8 @@ export function useControllerCommands({
 
   const seek = async (positionMs: number) => {
     if (!remote?.currentRoomId) return;
+    if (room?.mode === 'host' && (!room.userId || room.hostId !== room.userId))
+      return;
 
     const result = await playbackActionSubmit({
       action: 'seek',
