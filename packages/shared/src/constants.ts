@@ -18,6 +18,13 @@ export function resolvePlaylistItemThumbnail(
 
 export const PUBLIC_ROOM_PAGE_SIZE = 12;
 
+export function resolvePlaylistItemArtwork(value?: string): string {
+  return resolvePlaylistItemThumbnail(value).replace(
+    /^(https:\/\/i\d+\.sndcdn\.com\/[^?#]+)-(?:large|t\d+x\d+)\.(jpg|png|webp)(?=\?|$)/,
+    '$1-t500x500.$2',
+  );
+}
+
 export function playlistItemWebpThumbnail(value?: string): string | undefined {
   const thumbnail = resolvePlaylistItemThumbnail(value, true);
 
