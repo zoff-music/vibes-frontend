@@ -82,8 +82,7 @@ export function PersistentRoomPlayer() {
           }
 
           const hasAuthority =
-            Boolean(room.isAdmin) ||
-            (Boolean(room.userId) && room.hostId === room.userId);
+            Boolean(room.userId) && room.hostId === room.userId;
 
           if (!hasAuthority) return;
 
@@ -112,8 +111,7 @@ export function PersistentRoomPlayer() {
           }
 
           const hasAuthority =
-            Boolean(room.isAdmin) ||
-            (Boolean(room.userId) && room.hostId === room.userId);
+            Boolean(room.userId) && room.hostId === room.userId;
 
           if (!hasAuthority || playback?.isPlaying === isPlaying) return;
 

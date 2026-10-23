@@ -95,11 +95,11 @@ export function RoomScreen() {
   }
 
   const hasHostPlaybackAuthority =
-    room.mode === 'host' &&
-    (room.isAdmin || (Boolean(room.userId) && room.hostId === room.userId));
+    room.mode === 'host' && Boolean(room.userId) && room.hostId === room.userId;
   const canControlPlayback = room.mode === 'server' || hasHostPlaybackAuthority;
   const canSkip =
-    canControlPlayback && (room.isAdmin || room.settings.skipAllowed);
+    (canControlPlayback || room.isAdmin) &&
+    (room.isAdmin || room.settings.skipAllowed);
   const labels = getRoomLabels(room.roomType);
   const emptyQueueMessage = room.isGenerating
     ? `Your ${labels.items} will appear here as the playlist is generated.`
@@ -167,6 +167,8 @@ export function RoomScreen() {
   };
 
   const seek = async (positionMs: number) => {
+    if (!hasHostPlaybackAuthority) return;
+
     const result = await submitPlayback({
       action: 'seek',
       intent: 'update',
@@ -296,10 +298,7 @@ export function RoomScreen() {
           onSeek={(position) => void seek(position)}
           position={authoritativePosition}
           seekable={
-            playerEnabled &&
-            Boolean(current) &&
-            room.mode === 'host' &&
-            (room.hostId === room.userId || room.isAdmin)
+            playerEnabled && Boolean(current) && hasHostPlaybackAuthority
           }
         />
 
