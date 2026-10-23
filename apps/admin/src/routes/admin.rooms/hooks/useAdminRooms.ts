@@ -6,6 +6,7 @@ import {
   useRevalidator,
 } from '@kasperrt/smolter/preact';
 import { useAdminEvents } from '@vibes/api';
+import type { AdminRoomSummaryV2 } from '@vibes/models';
 import { showRateLimitMessageToast } from '@vibes/shared';
 import {
   type ChangeEvent,
@@ -25,7 +26,13 @@ export function useAdminRooms() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const revalidator = useRevalidator();
-  const [liveRoomResult, setLiveRoomResult] = useState(roomResult);
+  const [liveRooms, setLiveRooms] = useState<AdminRoomSummaryV2[] | null>(null);
+  const [streamRevision, setStreamRevision] = useState(0);
+  const liveRoomResult = useMemo(
+    () =>
+      liveRooms === null ? roomResult : selectRoomPage(liveRooms, roomSearch),
+    [liveRooms, roomResult, roomSearch],
+  );
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const isLoading = fetcher.state !== 'idle' || navigation.state !== 'idle';
@@ -38,14 +45,26 @@ export function useAdminRooms() {
 
   useAdminEvents({
     enabled: true,
+    revision: streamRevision,
     onRoomsUpdate: (updatedRooms) => {
-      setLiveRoomResult(selectRoomPage(updatedRooms, roomSearch));
+      setLiveRooms(updatedRooms);
+    },
+    onRoomUpdate: (updatedRoom) => {
+      setLiveRooms((current) => {
+        if (current === null) return current;
+
+        return [
+          ...current.filter((room) => room.id !== updatedRoom.id),
+          updatedRoom,
+        ];
+      });
+    },
+    onRoomRemoved: (roomId) => {
+      setLiveRooms(
+        (current) => current?.filter((room) => room.id !== roomId) ?? null,
+      );
     },
   });
-
-  useEffect(() => {
-    setLiveRoomResult(roomResult);
-  }, [roomResult]);
 
   useEffect(() => {
     if (fetcher.data?.rateLimitMessage) {
@@ -55,12 +74,8 @@ export function useAdminRooms() {
     if (fetcher.data?.success) {
       setEditingRoomId(null);
       setEditingName('');
-
-      if (fetcher.data.rooms) {
-        setLiveRoomResult(selectRoomPage(fetcher.data.rooms, roomSearch));
-      }
     }
-  }, [fetcher.data, roomSearch]);
+  }, [fetcher.data]);
 
   const loadRoomPage = (next: AdminRoomSearch) => {
     const params = new URLSearchParams({
@@ -79,6 +94,7 @@ export function useAdminRooms() {
   };
 
   const refreshRooms = () => {
+    setStreamRevision((revision) => revision + 1);
     revalidator();
   };
 

@@ -18,6 +18,10 @@ export const adminRoomSummaryV2Schema = /* @__PURE__ */ v.object({
 
 export type AdminRoomSummaryV2 = v.InferOutput<typeof adminRoomSummaryV2Schema>;
 
+export const adminRoomChangeSchema = /* @__PURE__ */ v.object({
+  id: v.string(),
+});
+
 export const adminRoomsV2Schema = /* @__PURE__ */ v.array(
   adminRoomSummaryV2Schema,
 );

@@ -3,8 +3,10 @@ import {
   adminListenerUsageSchema,
   adminLoginRequestSchema,
   adminMessageUsageSchema,
+  adminRoomChangeSchema,
   adminRoomResultV2Schema,
   adminRoomSearchV2Schema,
+  adminRoomSummaryV2Schema,
   adminRoomsV2Schema,
   adminSearchUsageSchema,
   adminSessionResponseSchema,
@@ -112,6 +114,18 @@ const v2Endpoints = {
   },
 } as const satisfies RequestDefinitions;
 
+const v3Endpoints = {
+  '/admin/events': {
+    sse: {
+      events: {
+        admin_rooms_update: adminRoomsV2Schema,
+        admin_room_update: adminRoomSummaryV2Schema,
+        admin_room_removed: adminRoomChangeSchema,
+      },
+    },
+  },
+} as const satisfies RequestDefinitions;
+
 export function createAdminApiClientWithBaseUrl(
   baseUrl: string,
   options: ApiClientOptions = {},
@@ -121,6 +135,7 @@ export function createAdminApiClientWithBaseUrl(
 
   return Object.assign(client, {
     v2: createRequestClient(origin, '/api/v2', v2Endpoints, options),
+    v3: createRequestClient(origin, '/api/v3', v3Endpoints, options),
   });
 }
 
