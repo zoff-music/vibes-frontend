@@ -21,6 +21,7 @@ import {
   eventCursorSchema,
   generatedPlaylistRequestSchema,
   generatedRoomRequestV2Schema,
+  generationStatusSchema,
   itemsQueryV3Schema,
   itemsResultV3Schema,
   messageResponseSchema,
@@ -144,6 +145,15 @@ export const API_BASE_URL = `${API_URL}${API_BASE_PATH}`.replace(
 ); // Remove double slashes except after protocol
 
 const endpoints = {
+  '/generations': {
+    post: {
+      request: generatedRoomRequestV2Schema,
+      response: generationStatusSchema,
+    },
+  },
+  '/generations/{id}': {
+    get: { response: generationStatusSchema },
+  },
   '/sessions': {
     get: {
       response: sessionProfileSchema,

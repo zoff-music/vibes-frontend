@@ -62,3 +62,12 @@ export const roomGenerationUpdateSchema = /* @__PURE__ */ v.object({
 export type RoomGenerationUpdate = v.InferOutput<
   typeof roomGenerationUpdateSchema
 >;
+
+export const generationStatusSchema = /* @__PURE__ */ v.object({
+  id: v.pipe(v.string(), v.regex(/^[1-9]\d*$/)),
+  roomId: v.optional(v.string()),
+  status: roomGenerationStatusSchema,
+  error: v.optional(v.string()),
+});
+
+export type GenerationStatus = v.InferOutput<typeof generationStatusSchema>;
