@@ -12,6 +12,7 @@ import {
   MotionProvider,
   publicAssetUrl,
   ThemeScript,
+  useInitialControlPaint,
 } from '@vibes/ui/web';
 import { type ReactNode, useState } from 'preact/compat';
 import { App } from './App';
@@ -32,6 +33,8 @@ interface Props {
 }
 
 export function Layout({ children }: Props) {
+  useInitialControlPaint();
+
   const loaderData = useRootData<typeof loader>() as RootLoaderData | undefined;
   const themeId = loaderData?.theme ?? 'auto';
   // Nonce is only relevant for the initial document; keep it stable across client navigations.
@@ -46,7 +49,7 @@ export function Layout({ children }: Props) {
       data-debug={loaderData?.debug === true}
       className={classNames(
         themeClass,
-        'page-transitions motion-safe:scroll-smooth',
+        'initial-control-paint page-transitions motion-safe:scroll-smooth',
       )}
     >
       <head>

@@ -21,7 +21,7 @@ export function buttonClassName({
   className = '',
 }: Options) {
   const baseClasses =
-    'inline-flex cursor-pointer items-center border font-display text-xs font-normal tracking-display transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme disabled:cursor-not-allowed disabled:opacity-50';
+    'inline-flex cursor-pointer appearance-none items-center border font-display text-xs font-normal tracking-display transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme disabled:cursor-not-allowed disabled:opacity-50';
 
   const contentAlignmentClasses: Record<ButtonContentAlignment, string> = {
     center: 'justify-center',
