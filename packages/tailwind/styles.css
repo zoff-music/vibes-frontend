@@ -240,6 +240,13 @@
   }
 }
 
+@utility initial-control-paint {
+  &:not([data-controls-painted]) :where(a, button, input, select, textarea) {
+    /* Never interpolate from browser-default colors during initial style resolution. */
+    transition: none;
+  }
+}
+
 @utility page-transitions {
   &::view-transition,
   &::view-transition-group(*),

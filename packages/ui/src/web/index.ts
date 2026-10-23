@@ -47,6 +47,7 @@ export { VinylRecord } from './components/VinylRecord';
 export * from './graphs/ListenerUsageChart';
 export { MessageUsageChart } from './graphs/MessageUsageChart';
 export * from './graphs/SearchUsageChart';
+export { useInitialControlPaint } from './hooks/useInitialControlPaint';
 export * from './hooks/useProgressiveList';
 export * from './icons';
 export * from './player';
