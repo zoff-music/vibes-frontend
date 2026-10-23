@@ -42,7 +42,7 @@
     }
   },
   "dependencies": {
-    "@kasperrt/smolter": "0.4.7",
+    "@kasperrt/smolter": "0.4.8",
     "@vibes/models": "workspace:*",
     "@vibes/shared": "workspace:*",
     "d3": "^7.9.0",
