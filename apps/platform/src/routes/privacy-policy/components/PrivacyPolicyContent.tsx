@@ -21,9 +21,9 @@ export function PrivacyPolicyContent({
 
   return (
     <LegalDocument
-      description="This policy explains data processing in Zoff Music and Watch rooms, including providers, shared queues, chat, and AI playlist generation."
+      description="This policy explains data processing in Zoff Music and Watch rooms, including providers, shared queues, chat, AI playlist generation, and room-name moderation."
       title="Privacy Policy"
-      updatedAt="6 October 2026"
+      updatedAt="23 October 2026"
     >
       <LegalSection id="policy-1-who-operates-zoff" title="Who operates Zoff">
         <p>
@@ -219,6 +219,24 @@ export function PrivacyPolicyContent({
         </p>
       </LegalSection>
 
+      <LegalSection title="Room and playlist name moderation">
+        <p>
+          Zoff sends room names (the names of shared playlists), including names
+          of private rooms, to JEV for automated checks for hateful slurs and
+          other severely derogatory language. This moderation request contains
+          the names and moderation instructions, not chat messages, playlist
+          contents, participant nicknames, room passwords, or session tokens.
+          Avoid including personal or confidential information in a room name.
+        </p>
+        <p>
+          Zoff stores the review status and any resulting flag with the room. A
+          flagged room displays an Explicit label and cannot be made public or
+          appear in public room listings. Flagging alone does not delete the
+          room or stop playback. Service administrators can review flags and
+          correct mistakes; contact {privacyEmail} to request a review.
+        </p>
+      </LegalSection>
+
       <LegalSection title="Retention and deletion">
         <p>
           Search caches expire automatically after three days. Playlist
@@ -233,7 +251,7 @@ export function PrivacyPolicyContent({
           by contacting {privacyEmail}. Zoff may need information sufficient to
           identify the relevant session or room. Verified deletion requests are
           completed within seven days. Deleting data held by Zoff does not
-          delete data held by YouTube, Google, or another media provider;
+          delete data held by YouTube, Google, JEV, or another provider;
           provider data and permissions must be managed directly with that
           provider.
         </p>
@@ -244,8 +262,8 @@ export function PrivacyPolicyContent({
           Zoff shares information only when needed to operate the service,
           including with hosting and infrastructure providers, analytics
           infrastructure, Google when Gemini playlist generation is requested,
-          and the enabled media providers. Zoff does not sell personal
-          information or use it for targeted advertising.
+          JEV for room-name moderation, and the enabled media providers. Zoff
+          does not sell personal information or use it for targeted advertising.
         </p>
         <p>
           These providers may process information in countries outside the
