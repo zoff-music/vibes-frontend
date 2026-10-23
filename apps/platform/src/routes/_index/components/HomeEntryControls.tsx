@@ -1,18 +1,17 @@
-import { useFetcher } from '@kasperrt/smolter/preact';
 import {
   generatedPlaylistPromptMaxLength,
   roomNameMaxLength,
 } from '@vibes/models/limits';
-import { classNames, showToast } from '@vibes/shared';
+import { classNames } from '@vibes/shared';
 import {
   ArrowRightIcon,
   Button,
   GenerativeInput,
   SparklesIcon,
 } from '@vibes/ui/web';
-import { type RefObject, useEffect } from 'preact/compat';
+import type { RefObject } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
-import type { HomeActionData } from '../utils/actions/clientAction';
+import { useHomeGeneration } from '../../../hooks/useHomeGeneration';
 
 interface HomeEntryControlsProps {
   active: boolean;
@@ -27,7 +26,7 @@ interface HomeEntryControlsProps {
 }
 
 export function HomeEntryControls({
-  active,
+  active: inputActive,
   enabled,
   inputRef,
   value,
@@ -37,13 +36,10 @@ export function HomeEntryControls({
   onJoinRoom,
   onStartSession,
 }: HomeEntryControlsProps) {
-  const fetcher = useFetcher<HomeActionData>();
   const roomType = useExperience();
-  const generating = fetcher.state !== 'idle';
-
-  useEffect(() => {
-    if (fetcher.data?.error) showToast(fetcher.data.error, 'error');
-  }, [fetcher.data]);
+  const generation = useHomeGeneration(roomType);
+  const generating = generation.generating;
+  const active = inputActive || generating;
 
   const submit = () => {
     if (generating) return;
@@ -53,10 +49,7 @@ export function HomeEntryControls({
       return;
     }
     if (!value.trim()) return;
-    fetcher.submit(
-      { intent: 'generateRoom', prompt: value.trim(), roomType },
-      { method: 'post' },
-    );
+    generation.submit(value.trim());
   };
   const roomLabel = value.trim() ? 'Join room' : 'Start a room';
   const label = active ? 'Generate room' : roomLabel;
@@ -71,7 +64,7 @@ export function HomeEntryControls({
         enabled={enabled}
         disabled={generating}
         inputRef={inputRef}
-        value={value}
+        value={generation.pendingPrompt ?? value}
         placeholder={placeholder}
         maxLength={
           active ? generatedPlaylistPromptMaxLength : roomNameMaxLength

@@ -1,14 +1,18 @@
-import {
-  type ClientActionFunctionArgs,
-  redirect,
-} from '@kasperrt/smolter/preact';
+import type { ClientActionFunctionArgs } from '@kasperrt/smolter/preact';
 import { api, getAPIErrorMessage, getRateLimitMessage } from '@vibes/api';
+import type { RoomType } from '@vibes/models';
+import {
+  type PendingGeneration,
+  savePendingGeneration,
+} from '../../../../utils/pendingGeneration';
 
 export interface HomeActionData {
   error?: string;
   intent: 'generateRoom' | 'roomExists';
   roomCode?: string;
   roomExists?: boolean;
+  generation?: PendingGeneration;
+  generationRoomType?: RoomType;
 }
 
 export async function clientAction({
@@ -28,10 +32,15 @@ export async function clientAction({
       };
     }
 
-    const [createError, room] = await api.v2.post('/rooms/generation', null, {
-      prompt,
-      roomType,
-    });
+    const [createError, generation] = await api.post(
+      '/generations',
+      null,
+      {
+        prompt,
+        roomType,
+      },
+      { retry: 0 },
+    );
 
     if (createError) {
       const apiErrorMessage = await getAPIErrorMessage(createError);
@@ -45,7 +54,14 @@ export async function clientAction({
       };
     }
 
-    return redirect(`/${room.id}`);
+    const pending = { id: generation.id, prompt, createdAt: Date.now() };
+    savePendingGeneration(roomType, pending);
+
+    return {
+      intent: 'generateRoom',
+      generation: pending,
+      generationRoomType: roomType,
+    };
   }
 
   const rawRoomCode = String(formData.get('roomCode') ?? '');
