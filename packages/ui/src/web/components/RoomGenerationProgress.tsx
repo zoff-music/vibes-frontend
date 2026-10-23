@@ -1,21 +1,24 @@
 import { classNames } from '@vibes/shared';
+import { useEffect, useState } from 'preact/compat';
 import {
   playlistGenerationMessageIntervalMs,
   playlistGenerationMessages,
-} from '@vibes/ui/shared';
-import { AlertCircleIcon, GenerationSparkles } from '@vibes/ui/web';
-import { useEffect, useState } from 'preact/compat';
+} from '../../shared';
+import { AlertCircleIcon } from '../icons';
+import { GenerationSparkles } from './GenerationSparkles';
 
 const TAKING_LONGER_DELAY_MS = 2.5 * 60 * 1000;
 
 export interface RoomGenerationProgressProps {
   error?: string;
   isFailed: boolean;
+  awaitingName?: boolean;
 }
 
 export function RoomGenerationProgress({
   error,
   isFailed,
+  awaitingName = false,
 }: RoomGenerationProgressProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   const [isTakingLonger, setIsTakingLonger] = useState(false);
@@ -74,6 +77,10 @@ export function RoomGenerationProgress({
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-sm text-theme-muted sm:text-base">
           {!isFailed &&
+            awaitingName &&
+            'Finding a name and building your playlist. You can refresh this page without starting over.'}
+          {!isFailed &&
+            !awaitingName &&
             'Your room is ready to share. The playlist will keep generating even if you refresh or leave this page.'}
           {isFailed &&
             (error ??
