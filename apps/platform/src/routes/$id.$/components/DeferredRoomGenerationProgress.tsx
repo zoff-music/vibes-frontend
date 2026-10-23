@@ -1,8 +1,10 @@
+import type { RoomGenerationProgressProps } from '@vibes/ui/web';
 import { lazy, Suspense } from 'preact/compat';
-import type { RoomGenerationProgressProps } from './RoomGenerationProgress';
 
 const LazyRoomGenerationProgress = lazy(async () => {
-  const module = await import('./RoomGenerationProgress');
+  const module = await import(
+    '@vibes/ui/web/components/RoomGenerationProgress'
+  );
 
   return {
     default: module.RoomGenerationProgress,

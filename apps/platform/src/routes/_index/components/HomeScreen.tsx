@@ -114,6 +114,9 @@ export const HomeScreen = memo(function HomeScreen({
   const handleToggleAIMode = () => {
     setIsAIMode((current) => !current);
     roomNameRef.current?.focus({ preventScroll: true });
+    if (!isAIMode && window.matchMedia('(max-width: 767px)').matches) {
+      setGenerationEntry((current) => current + 1);
+    }
   };
 
   const handleRoomCodeChange = (value: string) => {

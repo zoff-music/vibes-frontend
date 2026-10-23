@@ -30,6 +30,7 @@ export * from './components/queue/EmbedItem';
 export * from './components/queue/QueueItem';
 export * from './components/queue/QueueList';
 export * from './components/queue/SearchResult';
+export * from './components/RoomGenerationProgress';
 export * from './components/SegmentedControl';
 export * from './components/SegmentedToggle';
 export * from './components/SiteBackground';

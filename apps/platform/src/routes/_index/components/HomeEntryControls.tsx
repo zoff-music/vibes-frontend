@@ -66,7 +66,7 @@ export function HomeEntryControls({
         enabled={enabled}
         disabled={generating}
         inputRef={inputRef}
-        value={generation.pendingPrompt ?? value}
+        value={value}
         placeholder={placeholder}
         maxLength={
           active ? generatedPlaylistPromptMaxLength : roomNameMaxLength
