@@ -326,12 +326,16 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     widget.bind(soundCloud.Widget.Events.FINISH, () => {
       if (!isActiveRef.current) return;
 
+      setIsPlaybackStarting(true);
+      setPlaybackStartDeadline(Date.now() + PLAYBACK_START_TIMEOUT_MS);
       onEndedRef.current?.();
     });
 
     widget.bind(soundCloud.Widget.Events.SEEK, () => {
       lastSeekAtRef.current = Date.now();
       seekSettlingUntilRef.current = Date.now() + SEEK_SETTLING_MS;
+      setIsPlaybackStarting(true);
+      setPlaybackStartDeadline(Date.now() + PLAYBACK_START_TIMEOUT_MS);
     });
 
     widget.bind(soundCloud.Widget.Events.PLAY_PROGRESS, (event?: unknown) => {
@@ -793,10 +797,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     isActive &&
     (needsUserGesture ||
       (isReady && isPlaying && !isWidgetPlaying && !isPlaybackStarting) ||
-      (isPlaying &&
-        showInitialPlaybackOverlay &&
-        !isPlaybackUnlocked &&
-        !allowUnmutedAutoplay));
+      (isPlaying && showInitialPlaybackOverlay && !isPlaybackUnlocked));
 
   useEffect(() => {
     if (!isActive) return;
@@ -882,7 +883,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         />
       </div>
       {showClickToPlay && (
-        <div className="absolute inset-x-0 top-0 bottom-40 z-40">
+        <div className="absolute inset-0 isolate z-40 transform-gpu">
           <ClickToPlayOverlay onClick={handleUserGesturePlay} />
         </div>
       )}
@@ -922,7 +923,7 @@ const VOLUME_SAMPLE_MS = 2000;
 const PLAYBACK_SAMPLE_MS = 500;
 const PLAYBACK_SAMPLE_TIMEOUT_MS = 2000;
 const PLAYBACK_CONFIRMATION_SAMPLES = 2;
-const PLAYBACK_START_TIMEOUT_MS = 4000;
+const PLAYBACK_START_TIMEOUT_MS = 10000;
 
 const SOUNDCLOUD_WIDGET_OPTIONS = {
   hide_related: true,
