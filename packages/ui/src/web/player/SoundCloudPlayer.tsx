@@ -23,6 +23,7 @@ import {
   claimProviderPlayback,
   registerProviderPlayback,
 } from './providerPlaybackCoordinator';
+import { replaceIframeNavigation } from './replaceIframeNavigation';
 
 declare global {
   interface Window {
@@ -367,8 +368,9 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
   useEffect(() => {
     const widget = widgetRef.current;
+    const iframe = iframeRef.current;
 
-    if (!widget || !isReady || !providerPlaylistItem) return;
+    if (!widget || !iframe || !isReady || !providerPlaylistItem) return;
 
     if (loadedSourceIdRef.current === providerPlaylistItem.sourceId) return;
 
@@ -385,18 +387,25 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     setIsWidgetPlaying(false);
     setIsWidgetMuted(true);
     widget.setVolume(MIN_VOLUME);
-    widget.load(getSoundCloudUrl(sourceId), {
-      ...SOUNDCLOUD_WIDGET_OPTIONS,
-      auto_play: isPlaybackGestureUnlocked(),
-      callback: () => {
-        if (loadingSourceIdRef.current !== sourceId) return;
+    const loadError = replaceIframeNavigation(iframe, () => {
+      widget.load(getSoundCloudUrl(sourceId), {
+        ...SOUNDCLOUD_WIDGET_OPTIONS,
+        auto_play: isPlaybackGestureUnlocked(),
+        callback: () => {
+          if (loadingSourceIdRef.current !== sourceId) return;
 
-        loadingSourceIdRef.current = null;
-        loadedSourceIdRef.current = sourceId;
-        lastSynchronizedUpdateRef.current = null;
-        setIsReady(true);
-      },
+          loadingSourceIdRef.current = null;
+          loadedSourceIdRef.current = sourceId;
+          lastSynchronizedUpdateRef.current = null;
+          setIsReady(true);
+        },
+      });
     });
+
+    if (loadError) {
+      loadingSourceIdRef.current = null;
+      console.error('[SoundCloud Widget] Track load error:', loadError);
+    }
   }, [isReady, providerPlaylistItem]);
 
   useEffect(() => {
