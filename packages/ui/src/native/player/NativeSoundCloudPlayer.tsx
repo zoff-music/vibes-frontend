@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { AppState, Linking, View } from 'react-native';
+import { AppState, Linking, Pressable, Text, View } from 'react-native';
 import {
   WebView,
   type WebViewMessageEvent,
@@ -64,6 +64,7 @@ export function NativeSoundCloudPlayer({
   const initialArtworkUrl = useRef(artworkUrl).current;
   const loadedTrackUrl = useRef(initialTrackUrl);
   const [ready, setReady] = useState(false);
+  const [blocked, setBlocked] = useState(isPlaying);
   const trackUrl = getSoundCloudTrackUrl(sourceId, providerUrl);
   const widgetHeight = Math.min(height, widgetHeightPixels);
   const artworkHeight = Math.max(0, height - widgetHeight);
@@ -99,6 +100,7 @@ export function NativeSoundCloudPlayer({
 
     loadedTrackUrl.current = trackUrl;
     setReady(false);
+    setBlocked(false);
     playerRef.current?.injectJavaScript(
       `window.zoffLoad?.(${JSON.stringify(trackUrl)}, ${JSON.stringify(artworkUrl)}); true;`,
     );
@@ -154,6 +156,10 @@ export function NativeSoundCloudPlayer({
   }, [ready]);
 
   const handleReady = useCallback(() => {
+    expectedPosition.current = {
+      commandedAt: Date.now(),
+      positionMs: latestPosition.current,
+    };
     setReady(true);
     playerRef.current?.injectJavaScript(
       `window.zoffInitialize?.(${Math.max(0, Math.round(latestPosition.current))}, ${desiredPlaying.current ? 'true' : 'false'}); true;`,
@@ -174,7 +180,14 @@ export function NativeSoundCloudPlayer({
         return;
       }
 
+      if (message.type === 'blocked') {
+        setBlocked(message.blocked);
+
+        return;
+      }
+
       if (message.type === 'playing') {
+        if (message.isPlaying) setBlocked(false);
         if (!message.commanded) onPlayingChange?.(message.isPlaying);
 
         return;
@@ -275,6 +288,27 @@ export function NativeSoundCloudPlayer({
           }}
         />
       </View>
+      {blocked && interactive && isPlaying && (
+        <View className="absolute inset-0 items-center justify-center bg-black">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Click to play SoundCloud"
+            className="rounded-full border border-white/30 bg-black/80 px-5 py-2 active:bg-black"
+            onPress={() => {
+              setBlocked(false);
+              expectedPosition.current = {
+                commandedAt: Date.now(),
+                positionMs: latestPosition.current,
+              };
+              playerRef.current?.injectJavaScript(
+                `window.zoffRetry?.(${Math.max(0, Math.round(latestPosition.current))}); true;`,
+              );
+            }}
+          >
+            <Text className="text-sm text-white">▶ Click to play</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -286,6 +320,11 @@ interface ExpectedPosition {
 
 interface ReadyMessage {
   type: 'ready';
+}
+
+interface BlockedMessage {
+  blocked: boolean;
+  type: 'blocked';
 }
 
 interface PlayingMessage {
@@ -314,6 +353,7 @@ interface ErrorMessage {
 }
 
 type PlayerMessage =
+  | BlockedMessage
   | EndedMessage
   | ErrorMessage
   | PlayingMessage
@@ -330,6 +370,14 @@ function isPlayerMessage(message: unknown): message is PlayerMessage {
     message.type === 'ready' ||
     message.type === 'ended' ||
     message.type === 'error'
+  ) {
+    return true;
+  }
+
+  if (
+    message.type === 'blocked' &&
+    'blocked' in message &&
+    typeof message.blocked === 'boolean'
   ) {
     return true;
   }
@@ -436,20 +484,25 @@ function getPlayerHtml(
       const player = SC.Widget(playerFrame);
       const post = (message) => window.ReactNativeWebView.postMessage(JSON.stringify(message));
       let ready = false;
+      let loading = false;
       let shouldPlay = false;
       let pendingSeekMs = null;
-      let expectedPlayingState = null;
+      let pendingSeekAt = 0;
       let expectedSeekCommandedAt = 0;
       let expectedSeekPositionMs = null;
       let expectedSeekRetryCount = 0;
-      let expectedSeekRetryTimer = null;
-      let restartTimer = null;
-      let restartAfterExpectedSeek = false;
-      let seekRestartTimer = null;
-      let initializationTimer = null;
-      let progressWatchdogTimer = null;
-      let progressRecoveryAttempts = 0;
+      let lastSeekAt = 0;
+      let generation = 0;
+      let positionRequestAt = 0;
+      let lastSamplePosition = null;
+      let lastSampleAt = 0;
+      let lastProgressAt = 0;
+      let startupAt = 0;
+      let started = false;
       let widgetPlaying = false;
+      let commandedPlaying = false;
+      let pauseTimer = null;
+      let blocked = false;
       let lastPaintRefreshAt = 0;
       let paintRefreshPhase = false;
 
@@ -461,63 +514,50 @@ function getPlayerHtml(
         playerFrame.style.opacity = paintRefreshPhase ? '0.999' : '1';
       };
 
-      const clearProgressWatchdog = () => {
-        if (progressWatchdogTimer === null) return;
-        clearTimeout(progressWatchdogTimer);
-        progressWatchdogTimer = null;
+      const setBlocked = (nextBlocked) => {
+        if (blocked === nextBlocked) return;
+        blocked = nextBlocked;
+        post({type: 'blocked', blocked});
       };
-      const watchForProgress = () => {
-        clearProgressWatchdog();
-        if (progressRecoveryAttempts >= ${maximumProgressRecoveryAttempts}) {
-          return;
-        }
-        progressWatchdogTimer = setTimeout(() => {
-          progressWatchdogTimer = null;
-          if (!ready || !shouldPlay || !widgetPlaying) return;
-          progressRecoveryAttempts += 1;
-          player.pause();
-          setTimeout(() => {
-            if (!ready || !shouldPlay) return;
-            expectedPlayingState = true;
-            player.play();
-          }, ${seekRestartDelayMs});
-        }, ${progressStartTimeoutMs});
-      };
-
-      const setPosition = (positionMs) => {
-        const nextPositionMs = Math.max(0, positionMs);
-        expectedSeekCommandedAt = Date.now();
-        expectedSeekPositionMs = nextPositionMs;
+      const queuePosition = (positionMs) => {
+        if (!Number.isFinite(positionMs)) return;
+        pendingSeekMs = Math.max(0, positionMs);
+        pendingSeekAt = Date.now();
         expectedSeekRetryCount = 0;
-        if (expectedSeekRetryTimer !== null) {
-          clearTimeout(expectedSeekRetryTimer);
-          expectedSeekRetryTimer = null;
-        }
-        restartAfterExpectedSeek = shouldPlay && widgetPlaying;
-        player.seekTo(nextPositionMs);
+      };
+      const flushPosition = () => {
+        if (!ready || pendingSeekMs === null || (shouldPlay && !started)) return;
+        const now = Date.now();
+        if (now - lastSeekAt < ${minimumSeekIntervalMs}) return;
+        const target = pendingSeekMs + (shouldPlay ? now - pendingSeekAt : 0);
+        pendingSeekMs = null;
+        expectedSeekPositionMs = target;
+        expectedSeekCommandedAt = now;
+        lastSeekAt = now;
+        lastSamplePosition = null;
+        startupAt = now;
+        player.seekTo(target);
       };
       const syncPlayback = () => {
         if (!ready) return;
-        if (pendingSeekMs !== null) {
-          setPosition(pendingSeekMs);
-          pendingSeekMs = null;
-        }
+        clearTimeout(pauseTimer);
+        pauseTimer = null;
         if (!shouldPlay) {
-          clearProgressWatchdog();
-          if (restartTimer !== null) {
-            clearTimeout(restartTimer);
-            restartTimer = null;
-          }
-          if (seekRestartTimer !== null) {
-            clearTimeout(seekRestartTimer);
-            seekRestartTimer = null;
-          }
-          expectedPlayingState = false;
+          setBlocked(false);
+          widgetPlaying = false;
+          commandedPlaying = true;
           player.pause();
+          flushPosition();
           return;
         }
-        expectedPlayingState = true;
+        if (widgetPlaying) {
+          flushPosition();
+          return;
+        }
+        startupAt = Date.now();
+        commandedPlaying = true;
         player.play();
+        flushPosition();
       };
       const markReady = () => {
         if (ready) return;
@@ -526,55 +566,52 @@ function getPlayerHtml(
       };
 
       window.zoffInitialize = (positionMs, playing) => {
-        pendingSeekMs = Math.max(0, positionMs);
+        queuePosition(positionMs);
         shouldPlay = playing;
-        if (initializationTimer !== null) clearTimeout(initializationTimer);
-        initializationTimer = setTimeout(() => {
-          initializationTimer = null;
-          syncPlayback();
-        }, ${initializationDelayMs});
+        syncPlayback();
       };
       window.zoffSetPlaying = (playing) => {
+        if (shouldPlay === playing) return;
         shouldPlay = playing;
-        if (initializationTimer !== null) return;
         syncPlayback();
       };
       window.zoffSeek = (positionMs) => {
-        pendingSeekMs = Math.max(0, positionMs);
-        if (initializationTimer !== null) return;
-        syncPlayback();
+        queuePosition(positionMs);
+        flushPosition();
       };
       window.zoffReset = (positionMs, playing) => {
-        if (initializationTimer !== null) {
-          clearTimeout(initializationTimer);
-          initializationTimer = null;
-        }
         shouldPlay = playing;
-        pendingSeekMs = Math.max(0, positionMs);
+        queuePosition(positionMs);
         if (!ready) return;
         player.setVolume(100);
         syncPlayback();
       };
+      window.zoffRetry = (positionMs) => {
+        setBlocked(false);
+        started = false;
+        lastSamplePosition = null;
+        shouldPlay = true;
+        queuePosition(positionMs);
+        syncPlayback();
+      };
       window.zoffLoad = (nextTrackUrl, nextArtworkUrl) => {
+        clearTimeout(pauseTimer);
+        pauseTimer = null;
         ready = false;
+        loading = true;
+        generation += 1;
+        const loadGeneration = generation;
         pendingSeekMs = null;
-        restartAfterExpectedSeek = false;
-        clearProgressWatchdog();
-        progressRecoveryAttempts = 0;
+        positionRequestAt = 0;
+        lastSamplePosition = null;
+        lastProgressAt = 0;
+        lastSeekAt = 0;
+        started = false;
         widgetPlaying = false;
+        setBlocked(false);
+        expectedSeekPositionMs = null;
+        expectedSeekCommandedAt = 0;
         expectedSeekRetryCount = 0;
-        if (expectedSeekRetryTimer !== null) {
-          clearTimeout(expectedSeekRetryTimer);
-          expectedSeekRetryTimer = null;
-        }
-        if (initializationTimer !== null) {
-          clearTimeout(initializationTimer);
-          initializationTimer = null;
-        }
-        if (seekRestartTimer !== null) {
-          clearTimeout(seekRestartTimer);
-          seekRestartTimer = null;
-        }
         const artwork = document.getElementById('artwork');
         if (artwork) artwork.src = nextArtworkUrl;
         player.load(nextTrackUrl, {
@@ -587,116 +624,121 @@ function getPlayerHtml(
           show_user: true,
           single_active: false,
           visual: false,
-          callback: markReady,
+          callback: () => {
+            if (generation !== loadGeneration) return;
+            loading = false;
+            markReady();
+          },
         });
       };
 
-      player.bind(SC.Widget.Events.READY, markReady);
+      player.bind(SC.Widget.Events.READY, () => {
+        if (!loading) markReady();
+      });
       player.bind(SC.Widget.Events.PLAY, () => {
-        widgetPlaying = true;
+        if (!ready) return;
+        clearTimeout(pauseTimer);
+        pauseTimer = null;
         if (!shouldPlay) {
-          expectedPlayingState = false;
-          player.pause();
-          return;
+          shouldPlay = true;
+          commandedPlaying = false;
         }
-        if (restartTimer !== null) {
-          clearTimeout(restartTimer);
-          restartTimer = null;
-        }
-        const commanded = expectedPlayingState === true;
-        expectedPlayingState = null;
-        watchForProgress();
-        post({ type: 'playing', isPlaying: true, commanded });
+        startupAt = Date.now();
+        lastSamplePosition = null;
       });
       player.bind(SC.Widget.Events.PAUSE, () => {
-        clearProgressWatchdog();
+        if (!ready) return;
+        const wasPlaying = widgetPlaying;
         widgetPlaying = false;
-        if (shouldPlay) {
-          if (restartTimer === null) {
-            restartTimer = setTimeout(() => {
-              restartTimer = null;
-              if (!ready || !shouldPlay) return;
-              expectedPlayingState = true;
-              player.play();
-            }, ${pauseRecoveryDelayMs});
-          }
-          return;
+        if (!shouldPlay || Date.now() - lastSeekAt < ${seekSettlingMs}) return;
+        if (wasPlaying && !commandedPlaying) {
+          const pauseGeneration = generation;
+          clearTimeout(pauseTimer);
+          // The widget emits PAUSE before FINISH; only a persistent user
+          // pause may change app playback, not a completed track.
+          pauseTimer = setTimeout(() => {
+            pauseTimer = null;
+            if (!ready || generation !== pauseGeneration || widgetPlaying || !shouldPlay) return;
+            shouldPlay = false;
+            setBlocked(false);
+            post({ type: 'playing', isPlaying: false, commanded: false });
+          }, ${pauseConfirmationMs});
         }
-        const commanded = expectedPlayingState === false;
-        expectedPlayingState = null;
-        post({ type: 'playing', isPlaying: false, commanded });
       });
       player.bind(SC.Widget.Events.PLAY_PROGRESS, (event) => {
         if (!Number.isFinite(event.currentPosition)) return;
         refreshPlayerPaint();
-        clearProgressWatchdog();
-        progressRecoveryAttempts = 0;
-        const shouldRetryExpectedSeek =
-          expectedSeekPositionMs !== null &&
-          expectedSeekRetryCount < ${maximumExpectedSeekRetries} &&
-          Date.now() - expectedSeekCommandedAt >= ${expectedSeekRetryDelayMs} &&
-          Math.abs(event.currentPosition - expectedSeekPositionMs) > ${expectedSeekToleranceMs};
-        if (shouldRetryExpectedSeek) {
-          expectedSeekRetryCount += 1;
-          expectedSeekCommandedAt = Date.now();
-          restartAfterExpectedSeek = shouldPlay;
-          player.seekTo(expectedSeekPositionMs);
-          return;
-        }
-        post({ type: 'position', positionMs: Math.round(event.currentPosition) });
       });
       player.bind(SC.Widget.Events.SEEK, () => {
+        const seekGeneration = generation;
         player.getPosition((positionMs) => {
+          if (!ready || seekGeneration !== generation || !Number.isFinite(positionMs)) return;
           const roundedPositionMs = Math.round(positionMs);
           const commanded =
-            expectedSeekPositionMs !== null &&
-            Date.now() - expectedSeekCommandedAt <= ${expectedSeekCommandWindowMs} &&
-            Math.abs(roundedPositionMs - expectedSeekPositionMs) <= ${expectedSeekToleranceMs};
-          const failedExpectedSeek =
-            expectedSeekPositionMs !== null &&
-            Date.now() - expectedSeekCommandedAt <= ${expectedSeekCommandWindowMs} &&
-            !commanded;
-          if (
-            failedExpectedSeek &&
-            expectedSeekRetryCount < ${maximumExpectedSeekRetries}
-          ) {
-            const retryPositionMs = expectedSeekPositionMs;
-            expectedSeekRetryCount += 1;
-            if (expectedSeekRetryTimer !== null) {
-              clearTimeout(expectedSeekRetryTimer);
-            }
-            expectedSeekRetryTimer = setTimeout(() => {
-              expectedSeekRetryTimer = null;
-              expectedSeekCommandedAt = Date.now();
-              restartAfterExpectedSeek = shouldPlay;
-              player.seekTo(retryPositionMs);
-            }, ${expectedSeekRetryDelayMs});
-            return;
-          }
-          const needsRestart =
-            shouldPlay && (!commanded || restartAfterExpectedSeek);
-          expectedSeekCommandedAt = 0;
-          expectedSeekPositionMs = null;
-          expectedSeekRetryCount = 0;
-          if (expectedSeekRetryTimer !== null) {
-            clearTimeout(expectedSeekRetryTimer);
-            expectedSeekRetryTimer = null;
-          }
-          restartAfterExpectedSeek = false;
+            expectedSeekPositionMs !== null || pendingSeekMs !== null ||
+            Date.now() - lastSeekAt < ${seekSettlingMs};
+          lastSamplePosition = null;
+          startupAt = Date.now();
           post({ commanded, type: 'seek', positionMs: roundedPositionMs });
-          if (needsRestart) {
-            player.pause();
-            if (seekRestartTimer !== null) clearTimeout(seekRestartTimer);
-            seekRestartTimer = setTimeout(() => {
-              seekRestartTimer = null;
-              if (!ready || !shouldPlay) return;
-              expectedPlayingState = true;
-              player.play();
-            }, ${seekRestartDelayMs});
-          }
         });
       });
-      player.bind(SC.Widget.Events.FINISH, () => post({ type: 'ended' }));
+      setInterval(() => {
+        if (!ready) return;
+        const now = Date.now();
+        flushPosition();
+        if (shouldPlay && now - Math.max(lastProgressAt, startupAt) > ${progressStartTimeoutMs}) {
+          setBlocked(true);
+          widgetPlaying = false;
+        }
+        if (positionRequestAt && now - positionRequestAt < ${positionRequestTimeoutMs}) return;
+        const requestGeneration = generation;
+        const requestedAt = now;
+        positionRequestAt = requestedAt;
+        player.getPosition((positionMs) => {
+          if (!ready || requestGeneration !== generation || positionRequestAt !== requestedAt) return;
+          positionRequestAt = 0;
+          if (!Number.isFinite(positionMs)) return;
+          const observedAt = Date.now();
+          const delta = lastSamplePosition === null ? 0 : positionMs - lastSamplePosition;
+          const elapsed = observedAt - lastSampleAt;
+          lastSamplePosition = positionMs;
+          lastSampleAt = observedAt;
+          const progressed = delta > 20 && delta <= elapsed * 2 + 500;
+          if (shouldPlay && progressed) {
+            lastProgressAt = observedAt;
+            started = true;
+            setBlocked(false);
+            if (!widgetPlaying) {
+              widgetPlaying = true;
+              post({type: 'playing', isPlaying: true, commanded: commandedPlaying});
+              commandedPlaying = false;
+            }
+          }
+          if (expectedSeekPositionMs !== null) {
+            const target = expectedSeekPositionMs + (shouldPlay ? observedAt - expectedSeekCommandedAt : 0);
+            if (Math.abs(positionMs - target) <= ${expectedSeekToleranceMs}) {
+              expectedSeekPositionMs = null;
+            } else if (observedAt - expectedSeekCommandedAt >= ${seekSettlingMs}) {
+              if (expectedSeekRetryCount < ${maximumExpectedSeekRetries}) {
+                expectedSeekRetryCount += 1;
+                pendingSeekMs = target;
+                pendingSeekAt = observedAt;
+                flushPosition();
+              } else expectedSeekPositionMs = null;
+            }
+          }
+          if (pendingSeekMs !== null || expectedSeekPositionMs !== null || (shouldPlay && !widgetPlaying)) return;
+          post({type: 'position', positionMs: Math.round(positionMs)});
+        });
+      }, ${positionPollIntervalMs});
+      player.bind(SC.Widget.Events.FINISH, () => {
+        clearTimeout(pauseTimer);
+        pauseTimer = null;
+        widgetPlaying = false;
+        shouldPlay = false;
+        setBlocked(false);
+        post({ type: 'ended' });
+      });
       player.bind(SC.Widget.Events.ERROR, () => post({ type: 'error' }));
     </script>
   </body>
@@ -709,15 +751,14 @@ const widgetHeightPixels = 166;
 const minimumArtworkHeight = 96;
 const seekChangeThreshold = 5_000;
 const expectedSeekToleranceMs = 1_000;
-const expectedSeekCommandWindowMs = 2_000;
-const expectedSeekRetryDelayMs = 300;
+const minimumSeekIntervalMs = 1_000;
+const seekSettlingMs = 4_000;
 const expectedPositionToleranceMs = 5_000;
 const expectedPositionTimeoutMs = 8_000;
-const pauseRecoveryDelayMs = 350;
-const initializationDelayMs = 300;
-const seekRestartDelayMs = 100;
-const progressStartTimeoutMs = 1_200;
-const maximumProgressRecoveryAttempts = 2;
+const progressStartTimeoutMs = 10_000;
+const positionPollIntervalMs = 500;
+const positionRequestTimeoutMs = 2_000;
+const pauseConfirmationMs = 250;
 const maximumExpectedSeekRetries = 3;
 const paintRefreshIntervalMs = 500;
 const allowedPlayerUrls = [platformUrl, 'https://w.soundcloud.com/'];
