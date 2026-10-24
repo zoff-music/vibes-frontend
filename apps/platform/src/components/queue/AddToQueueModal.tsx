@@ -1099,7 +1099,10 @@ const PlaybackRestrictionNotice: React.FC<PlaybackRestrictionNoticeProps> = ({
 }) => {
   if (!result.playbackRestriction) return null;
 
-  const message = playbackRestrictionMessages[result.playbackRestriction];
+  const message =
+    result.source === 'soundcloud' && result.playbackRestriction === 'embedding'
+      ? 'SoundCloud does not offer full embedded playback for this track. Preview-only and restricted tracks cannot be added.'
+      : playbackRestrictionMessages[result.playbackRestriction];
 
   if (result.playbackRestriction === 'age') {
     return (
