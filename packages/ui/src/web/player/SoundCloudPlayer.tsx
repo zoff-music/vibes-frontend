@@ -161,6 +161,36 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const [isWidgetPlaying, setIsWidgetPlaying] = useState(false);
   const [isWidgetMuted, setIsWidgetMuted] = useState(true);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
+  const [isPlaybackStarting, setIsPlaybackStarting] = useState(true);
+  const [playbackStartDeadline, setPlaybackStartDeadline] = useState(0);
+
+  useLayoutEffect(() => {
+    setIsPlaybackStarting(true);
+    setPlaybackStartDeadline(0);
+
+    if (
+      !isActive ||
+      !isReady ||
+      !isPlaying ||
+      providerPlaylistItem?.sourceId !== loadedSourceIdRef.current
+    )
+      return;
+
+    setPlaybackStartDeadline(Date.now() + PLAYBACK_START_TIMEOUT_MS);
+  }, [isActive, isReady, isPlaying, providerPlaylistItem?.sourceId]);
+
+  useEffect(() => {
+    if (!playbackStartDeadline) return;
+
+    const timeout = setTimeout(
+      () => {
+        setIsPlaybackStarting(false);
+      },
+      Math.max(0, playbackStartDeadline - Date.now()),
+    );
+
+    return () => clearTimeout(timeout);
+  }, [playbackStartDeadline]);
 
   useLayoutEffect(() => {
     desiredVolumeRef.current = desiredVolume;
@@ -623,6 +653,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
     needsUserGestureRef.current = false;
     setNeedsUserGesture(false);
+    setIsPlaybackStarting(true);
+    setPlaybackStartDeadline(Date.now() + PLAYBACK_START_TIMEOUT_MS);
     setIsPlaybackUnlocked(true);
     onLocalPlay?.();
     markPlaybackGestureUnlocked();
@@ -639,7 +671,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const showClickToPlay =
     isActive &&
     (needsUserGesture ||
-      (isReady && isPlaying && !isWidgetPlaying) ||
+      (isReady && isPlaying && !isWidgetPlaying && !isPlaybackStarting) ||
       (showInitialPlaybackOverlay &&
         !isPlaybackUnlocked &&
         !allowUnmutedAutoplay));
@@ -647,8 +679,16 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   useEffect(() => {
     if (!isActive) return;
 
-    onNeedsUserGestureChange?.(showClickToPlay);
-  }, [isActive, onNeedsUserGestureChange, showClickToPlay]);
+    onNeedsUserGestureChange?.(
+      showClickToPlay || (isPlaying && !isWidgetPlaying),
+    );
+  }, [
+    isActive,
+    isPlaying,
+    isWidgetPlaying,
+    onNeedsUserGestureChange,
+    showClickToPlay,
+  ]);
 
   if (providerPlaylistItem?.sourceType !== 'soundcloud') return null;
 
@@ -755,6 +795,7 @@ const PAUSE_RECOVERY_DELAY_MS = 350;
 const VOLUME_SAMPLE_MS = 2000;
 const PLAYBACK_SAMPLE_MS = 500;
 const PLAYBACK_CONFIRMATION_SAMPLES = 2;
+const PLAYBACK_START_TIMEOUT_MS = 4000;
 
 const SOUNDCLOUD_WIDGET_OPTIONS = {
   hide_related: true,
