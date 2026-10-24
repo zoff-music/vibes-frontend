@@ -7,18 +7,31 @@
     "packages/*"
   ],
   "scripts": {
+    "test:players": "vitest run --config scripts/players/vitest.config.ts",
+    "test:players:live": "vitest run --config scripts/players/vitest.live.config.ts",
+    "typecheck:players": "tsc -p scripts/players/tsconfig.json",
     "dev": "pnpm --filter @vibes/platform dev",
     "build": "pnpm --filter @vibes/platform build && pnpm --filter @vibes/admin build && pnpm --filter @vibes/cast build && pnpm --filter @vibes/embed build && pnpm --filter @vibes/remote build && pnpm --filter @vibes/tv build",
-    "typecheck": "pnpm --recursive typecheck",
+    "typecheck": "pnpm typecheck:players && pnpm --recursive typecheck",
     "lint": "pnpm check:api-boundaries && pnpm --recursive lint",
     "check:api-boundaries": "biome check scripts && node scripts/check-api-boundaries.mjs",
     "fix": "biome check --write --unsafe ."
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
+    "@tailwindcss/vite": "catalog:",
+    "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "esbuild": "0.28.2"
+    "@vibes/models": "workspace:*",
+    "@vibes/shared": "workspace:*",
+    "@vibes/tailwind": "workspace:*",
+    "@vibes/ui": "workspace:*",
+    "esbuild": "0.28.2",
+    "playwright": "1.64.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
   },
   "resolutions": {
     "@types/react": "19.3.0",
@@ -28,10 +41,10 @@
     "node": ">=26.12.1"
   },
   "dependencies": {
-    "react": "19.3.1",
-    "react-dom": "19.3.1",
     "@kasperrt/smolter": "0.4.8",
     "preact": "11.0.1",
-    "preact-render-to-string": "6.8.1"
+    "preact-render-to-string": "6.8.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   }
 }
