@@ -349,6 +349,19 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
     widget.bind(soundCloud.Widget.Events.PLAY, () => {
       const playbackState = usePlaybackStore.getState();
+
+      // Autoplay can arrive before load() commits its READY callback. Do not
+      // pause that new document because the previous source is still recorded.
+      if (
+        isActiveRef.current &&
+        playbackState.isPlaying &&
+        playbackState.currentPlaylistItem?.sourceType === 'soundcloud' &&
+        (loadingSourceIdRef.current ||
+          playbackState.currentPlaylistItem.sourceId !==
+            loadedSourceIdRef.current)
+      )
+        return;
+
       // The official widget can start from its own play control before the
       // parent document has received a gesture. Confirm progress below before
       // unlocking other players; do not pause that legitimate local start.
@@ -391,6 +404,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     });
 
     widget.bind(soundCloud.Widget.Events.PAUSE, () => {
+      if (loadingSourceIdRef.current) return;
+
       const shouldRestart = shouldWidgetPlay();
       setIsWidgetPlaying(false);
 
@@ -473,6 +488,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     if (loadingSourceIdRef.current === providerPlaylistItem.sourceId) return;
 
     const sourceId = providerPlaylistItem.sourceId;
+    if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+    restartTimerRef.current = null;
     if (seekTimerRef.current) clearTimeout(seekTimerRef.current);
     seekTimerRef.current = null;
     lastSeekAtRef.current = 0;
