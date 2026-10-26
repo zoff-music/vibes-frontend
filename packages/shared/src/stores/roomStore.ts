@@ -8,6 +8,7 @@ interface RoomState {
   isAdmin: boolean;
   nickname: string | null;
   usersCount: number;
+  hasLiveUsersCount: boolean;
 
   setRoom: (room: RoomV2) => void;
   setHost: (userId: string) => void;
@@ -24,19 +25,26 @@ export const useRoomStore = create<RoomState>((set) => ({
   isAdmin: false,
   nickname: null,
   usersCount: 0,
+  hasLiveUsersCount: false,
 
   setRoom: (room) => {
     set((state) => {
       const isSameRoom = state.room?.id === room.id;
-      const usersCount = room.userCount ?? (isSameRoom ? state.usersCount : 0);
+      // Snapshots can finish after a newer presence event, including on reconnect.
+      const hasLiveUsersCount = isSameRoom && state.hasLiveUsersCount;
+      const usersCount = hasLiveUsersCount
+        ? state.usersCount
+        : (room.userCount ?? (isSameRoom ? state.usersCount : 0));
 
       return {
         room: {
           ...room,
+          userCount: usersCount,
           userId: isSameRoom ? state.room?.userId : room.userId,
         },
         isAdmin: isSameRoom ? state.isAdmin : (room.isAdmin ?? false),
         usersCount,
+        hasLiveUsersCount,
       };
     });
   },
@@ -44,8 +52,14 @@ export const useRoomStore = create<RoomState>((set) => ({
     set((state) => ({
       room: state.room ? { ...state.room, hostId: userId } : null,
     })),
-  setUsers: (users) => set({ users, usersCount: users.length }),
-  setUsersCount: (usersCount) => set({ usersCount }),
+  setUsers: (users) =>
+    set({ users, usersCount: users.length, hasLiveUsersCount: true }),
+  setUsersCount: (usersCount) =>
+    set((state) => ({
+      usersCount,
+      hasLiveUsersCount: true,
+      room: state.room ? { ...state.room, userCount: usersCount } : null,
+    })),
   setSession: (userId, isAdmin, nickname) =>
     set({
       userId,
@@ -60,5 +74,6 @@ export const useRoomStore = create<RoomState>((set) => ({
       isAdmin: false,
       nickname: null,
       usersCount: 0,
+      hasLiveUsersCount: false,
     }),
 }));
