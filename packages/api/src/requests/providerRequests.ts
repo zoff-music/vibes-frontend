@@ -38,19 +38,32 @@ export function createProvidersRequest(client: ApiClient) {
 export const getProviders = /* @__PURE__ */ createProvidersRequest(api);
 
 export function createProviderSearchRequest(client: ApiClient) {
+  // Results contain public provider metadata; scope reuse to this client and room.
+  const read = createPublicRequestCache<ProviderItem[]>(5 * 60_000);
+
   return async (
     roomId: string,
     provider: SourceType,
     query: string,
     options?: ApiRequestOptions,
   ): ApiResult<ProviderItem[]> => {
-    return client.v2.get(
-      '/rooms/{id}/search/{provider}',
-      { id: roomId, provider, $search: { q: query } },
-      options,
+    const normalizedQuery = query.trim().replace(/\s+/g, ' ');
+    const key = JSON.stringify([roomId, provider, normalizedQuery]);
+
+    return read(
+      key,
+      (signal) =>
+        client.v2.get(
+          '/rooms/{id}/search/{provider}',
+          { id: roomId, provider, $search: { q: normalizedQuery } },
+          { ...options, signal, retry: 0 },
+        ),
+      options?.signal,
     );
   };
 }
+
+export const searchProvider = /* @__PURE__ */ createProviderSearchRequest(api);
 
 export function createProviderItemRequest(client: ApiClient) {
   return async (

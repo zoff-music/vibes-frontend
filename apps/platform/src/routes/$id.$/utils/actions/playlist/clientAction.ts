@@ -1,4 +1,4 @@
-import { api } from '@vibes/api';
+import { api, searchProvider } from '@vibes/api';
 import { createErrorData } from '../../../../../utils/room-actions/error';
 import type { RoomActionData, RoomActionRequest } from '../clientAction';
 
@@ -168,9 +168,10 @@ export async function playlistAction(
       };
     }
 
-    const [error, searchResults] = await api.v2.get(
-      '/rooms/{id}/search/{provider}',
-      { id: roomId, provider: body.provider, $search: { q: prompt } },
+    const [error, searchResults] = await searchProvider(
+      roomId,
+      body.provider,
+      prompt,
       { signal },
     );
 
