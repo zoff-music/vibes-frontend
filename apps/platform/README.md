@@ -298,7 +298,7 @@ selection pill using a live CSS transform. Supporting browsers animate named
 local SVG layers for the hero's sun/moon, with the orbit behind the solid hero surface.
 The orb stays centered in both modes. A slow circular eclipse reveals the moon
 and its colors over the sun, reversing when returning to Music, without moving
-or rotating the orb. The header labels and NEW sticker stay in the live header,
+or rotating the orb. The header labels stay in the live header,
 outside the artwork, so the pill cannot cover them.
 Experience transitions do not capture page snapshots: the card and header stay
 live and clickable throughout. All decorative artwork ignores pointer events.
