@@ -3,12 +3,12 @@ import type { ProductPage } from '../productPages';
 export const page: ProductPage = {
   slug: 'videos',
   label: 'A shared video queue',
-  title: 'Shared Video Queue | Collaborative Watch Playlists | Zoff',
+  title: 'Shared YouTube Queue | Add Videos and Vote Together | Zoff',
   description:
     'Build a shared video queue for a night of short films, discoveries and YouTube videos. Add together, vote and keep watching with Zoff.',
-  heading: 'Less link juggling. More watching.',
+  heading: 'Build a shared YouTube queue.',
   introduction:
-    'Collect everyone’s finds in one place. Decide what comes next without losing what is playing now.',
+    'Collect YouTube videos in one room queue, let friends add their finds and vote on what plays next. Watch the queue together without passing links around or interrupting the current video.',
   actionLabel: 'Try a Watch idea',
   sections: [
     {

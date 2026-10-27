@@ -82,7 +82,7 @@ export function HomeLanding({
                       </span>
                     )}
                     <span className="col-start-1 row-start-1 self-end">
-                      {watch ? 'Watch' : 'Listen to music'}
+                      {watch ? 'Watch YouTube' : 'Listen to music'}
                     </span>
                   </span>{' '}
                   <span className="block text-pink-800 dark:text-primary">
@@ -102,7 +102,7 @@ export function HomeLanding({
                   )}
                   <span className="col-start-1 row-start-1">
                     {watch
-                      ? 'A new kind of watch party. Bring your favourite videos and your favourite people.'
+                      ? 'Watch videos in sync with friends. Share a free room, build a YouTube queue and chat together. No extension needed.'
                       : musicDescription}
                   </span>
                 </span>

@@ -47,15 +47,16 @@ export function WatchIntroduction() {
             </span>
           </h2>
           <p className="mt-5 max-w-xl text-lg text-theme-muted leading-relaxed">
-            The same video. The same moment. A room for the people you wish were
-            on the sofa beside you.
+            Watch YouTube with friends on separate screens, with synchronized
+            playback and a shared video queue. Start a room, send its link and
+            watch together in your browser.
           </p>
           <Link
             prefetch="intent"
             className={guideClass}
             to="/discovery/watching"
           >
-            Explore watching together
+            How to watch YouTube together
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>
@@ -82,11 +83,12 @@ export function WatchIntroduction() {
             watch this” people.
           </h2>
           <p className="mt-5 text-lg text-theme-muted leading-relaxed">
-            A shared queue for your finds. Chat for everything in between. And
-            an off switch when the film deserves your full attention.
+            Add YouTube videos, vote on what plays next and chat without leaving
+            your watch party. Choose Host mode when one person should control
+            playback, or Server mode to let the queue keep moving automatically.
           </p>
           <Link prefetch="intent" className={guideClass} to="/discovery/cinema">
-            Plan a watch party
+            Set up a YouTube watch party
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>
