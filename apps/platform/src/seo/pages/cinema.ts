@@ -3,12 +3,12 @@ import type { ProductPage } from '../productPages';
 export const page: ProductPage = {
   slug: 'cinema',
   label: 'Watch parties',
-  title: 'Watch Parties | Watch Videos with Friends | Zoff',
+  title: 'YouTube Watch Party | Host a Video Night with Friends | Zoff',
   description:
     'Start a free watch party on Zoff. Bring friends, collect YouTube videos, chat and vote on what to watch next.',
-  heading: 'Your people. Your programme.',
+  heading: 'Host a YouTube watch party.',
   introduction:
-    'Short films. Rabbit holes. That one video everyone has to see. Turn a pile of links into a night together.',
+    'Bring your friends to a free YouTube watch party with a shared queue, synchronized playback and chat. Plan a night of short films, documentaries or everyone’s favourite videos, whether you are together or miles apart.',
   actionLabel: 'Plan a watch night',
   sections: [
     {

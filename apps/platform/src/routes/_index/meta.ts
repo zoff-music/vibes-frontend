@@ -12,8 +12,8 @@ export const meta: MetaFunction = ({ params }) => {
   const metadata = watch
     ? pageMetadata(
         '/features/watch',
-        'Watch Together | Shared Video Rooms | Zoff',
-        'Watch together in a free shared video room. Build a YouTube queue, vote on videos and chat with friends. No account needed.',
+        'Watch YouTube Together with Friends | Free Watch Party | Zoff',
+        'Watch YouTube together in sync with friends. Start a free watch party, share your room link, add videos and chat. No account or browser extension needed.',
       )
     : pageMetadata(
         '/',
