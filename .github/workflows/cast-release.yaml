@@ -26,8 +26,11 @@ jobs:
     if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/security.yaml
 
+  players:
+    uses: ./.github/workflows/players.yaml
+
   build:
-    needs: security
+    needs: [security, players]
     if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
