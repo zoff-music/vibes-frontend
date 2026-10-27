@@ -16,10 +16,23 @@ export const UserCount = ({
   const usersCount = useSyncExternalStore(useRoomStore.subscribe, () => {
     const state = useRoomStore.getState();
 
-    if (state.room?.id !== roomId) return initialCount;
+    if (state.room?.id !== roomId) return initialCount || null;
+
+    if (!state.hasLiveUsersCount && state.usersCount === 0) return null;
 
     return state.usersCount;
   });
+
+  if (usersCount === null) {
+    return (
+      <span
+        className="text-2xs text-theme-muted tracking-display"
+        role="status"
+      >
+        Connecting…
+      </span>
+    );
+  }
 
   return (
     <ListenerCount count={usersCount} roomType={roomType} variant="inline" />

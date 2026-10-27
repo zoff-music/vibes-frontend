@@ -8,6 +8,7 @@ interface RoomState {
   isAdmin: boolean;
   nickname: string | null;
   usersCount: number;
+  hasLiveUsersCount: boolean;
 
   setRoom: (room: RoomV2) => void;
   setHost: (userId: string) => void;
@@ -24,19 +25,41 @@ export const useRoomStore = create<RoomState>((set) => ({
   isAdmin: false,
   nickname: null,
   usersCount: 0,
+  hasLiveUsersCount: false,
 
   setRoom: (room) => {
     set((state) => {
       const isSameRoom = state.room?.id === room.id;
-      const usersCount = room.userCount ?? (isSameRoom ? state.usersCount : 0);
+      // Shared settings broadcasts have no requester identity. Authenticated
+      // snapshots and login responses do, and must refresh permissions.
+      const isPersonalized = Boolean(room.userId);
+      const userId = isPersonalized
+        ? room.userId
+        : isSameRoom
+          ? state.room?.userId
+          : undefined;
+      let isAdmin = isSameRoom ? state.isAdmin : false;
+
+      if (isPersonalized) isAdmin = room.isAdmin ?? false;
+      if (!room.hasPassword) isAdmin = false;
+
+      // Snapshots can finish after a newer presence event, including on reconnect.
+      const hasLiveUsersCount = isSameRoom && state.hasLiveUsersCount;
+      const usersCount = hasLiveUsersCount
+        ? state.usersCount
+        : (room.userCount ?? (isSameRoom ? state.usersCount : 0));
 
       return {
         room: {
           ...room,
-          userId: isSameRoom ? state.room?.userId : room.userId,
+          userCount: usersCount,
+          userId,
+          isAdmin,
         },
-        isAdmin: isSameRoom ? state.isAdmin : (room.isAdmin ?? false),
+        userId: userId ?? null,
+        isAdmin,
         usersCount,
+        hasLiveUsersCount,
       };
     });
   },
@@ -44,14 +67,21 @@ export const useRoomStore = create<RoomState>((set) => ({
     set((state) => ({
       room: state.room ? { ...state.room, hostId: userId } : null,
     })),
-  setUsers: (users) => set({ users, usersCount: users.length }),
-  setUsersCount: (usersCount) => set({ usersCount }),
+  setUsers: (users) =>
+    set({ users, usersCount: users.length, hasLiveUsersCount: true }),
+  setUsersCount: (usersCount) =>
+    set((state) => ({
+      usersCount,
+      hasLiveUsersCount: true,
+      room: state.room ? { ...state.room, userCount: usersCount } : null,
+    })),
   setSession: (userId, isAdmin, nickname) =>
-    set({
+    set((state) => ({
       userId,
       isAdmin,
       nickname: nickname || null,
-    }),
+      room: state.room ? { ...state.room, userId, isAdmin } : null,
+    })),
   reset: () =>
     set({
       room: null,
@@ -60,5 +90,6 @@ export const useRoomStore = create<RoomState>((set) => ({
       isAdmin: false,
       nickname: null,
       usersCount: 0,
+      hasLiveUsersCount: false,
     }),
 }));

@@ -207,7 +207,7 @@ export async function clientAction({
     const [error, searchResults] = await client.v2.get(
       '/rooms/{id}/search/{provider}',
       { id: roomId, provider, $search: { q: query } },
-      { signal: request.signal },
+      { signal: request.signal, retry: 0 },
     );
 
     if (error || !searchResults) return errorResult(intent, error);
