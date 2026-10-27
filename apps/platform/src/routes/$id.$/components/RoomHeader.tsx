@@ -128,7 +128,7 @@ export const RoomHeader = React.memo(
   }: RoomHeaderProps) => {
     const { href } = useRoomPanel();
     const settingsFetcher = useFetcher<RoomActionData>();
-    const isAdmin = useRoomStore((state) => state.isAdmin);
+    const isAdmin = Boolean(displayRoom?.hasPassword && displayRoom.isAdmin);
     const setRoom = useRoomStore((state) => state.setRoom);
 
     useEffect(() => {

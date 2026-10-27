@@ -87,7 +87,6 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
   const settingsButtonRef = useRef<HTMLAnchorElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
   const room = useRoomStore((state) => state.room);
-  const isAdmin = useRoomStore((state) => state.isAdmin);
   const setRoom = useRoomStore((state) => state.setRoom);
   const setHost = useRoomStore((state) => state.setHost);
   const setSession = useRoomStore((state) => state.setSession);
@@ -146,9 +145,10 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
     loaderData.room.generationError,
   );
   const displayRoom = useMemo(
-    () => (room?.id === loaderData.room.id ? room : loaderData.room),
-    [loaderData.room, room],
+    () => (!isSSR && room?.id === loaderData.room.id ? room : loaderData.room),
+    [isSSR, loaderData.room, room],
   );
+  const isAdmin = Boolean(displayRoom.hasPassword && displayRoom.isAdmin);
   const shareUrl = useMemo(
     () =>
       createRoomShareUrl(
