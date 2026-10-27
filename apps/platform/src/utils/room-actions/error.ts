@@ -25,6 +25,10 @@ export async function createErrorData(
 
   let permissionError: string | null = null;
 
+  if (intent === 'joinRoom' && status === FORBIDDEN_STATUS) {
+    permissionError = 'Incorrect password. Please try again.';
+  }
+
   if (apiError?.error === 'song_room_admin_required') {
     permissionError =
       intent === 'addPlaylist'
