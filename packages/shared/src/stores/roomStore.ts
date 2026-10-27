@@ -30,6 +30,19 @@ export const useRoomStore = create<RoomState>((set) => ({
   setRoom: (room) => {
     set((state) => {
       const isSameRoom = state.room?.id === room.id;
+      // Shared settings broadcasts have no requester identity. Authenticated
+      // snapshots and login responses do, and must refresh permissions.
+      const isPersonalized = Boolean(room.userId);
+      const userId = isPersonalized
+        ? room.userId
+        : isSameRoom
+          ? state.room?.userId
+          : undefined;
+      let isAdmin = isSameRoom ? state.isAdmin : false;
+
+      if (isPersonalized) isAdmin = room.isAdmin ?? false;
+      if (!room.hasPassword) isAdmin = false;
+
       // Snapshots can finish after a newer presence event, including on reconnect.
       const hasLiveUsersCount = isSameRoom && state.hasLiveUsersCount;
       const usersCount = hasLiveUsersCount
@@ -40,9 +53,11 @@ export const useRoomStore = create<RoomState>((set) => ({
         room: {
           ...room,
           userCount: usersCount,
-          userId: isSameRoom ? state.room?.userId : room.userId,
+          userId,
+          isAdmin,
         },
-        isAdmin: isSameRoom ? state.isAdmin : (room.isAdmin ?? false),
+        userId: userId ?? null,
+        isAdmin,
         usersCount,
         hasLiveUsersCount,
       };
@@ -61,11 +76,12 @@ export const useRoomStore = create<RoomState>((set) => ({
       room: state.room ? { ...state.room, userCount: usersCount } : null,
     })),
   setSession: (userId, isAdmin, nickname) =>
-    set({
+    set((state) => ({
       userId,
       isAdmin,
       nickname: nickname || null,
-    }),
+      room: state.room ? { ...state.room, userId, isAdmin } : null,
+    })),
   reset: () =>
     set({
       room: null,
