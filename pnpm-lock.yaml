@@ -753,6 +753,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@plausible-analytics/tracker':
+        specifier: 0.4.7
+        version: 0.4.7
       '@vibes/models':
         specifier: workspace:*
         version: link:../models
@@ -2716,6 +2719,9 @@ packages:
   '@peculiar/x509@2.1.0':
     resolution: {integrity: sha512-IYbg1R03CSQGWwl24kGyqrdVtixNSbRaDvBg1r5wyYjTP+VwPQkka1BzTgU5+vxiuwqg04OxdvdJ1xYYFIdUSA==}
     engines: {node: '>=20.0.0'}
+
+  '@plausible-analytics/tracker@0.4.7':
+    resolution: {integrity: sha512-majmq1uion4uLo88Tr0eMCMfi7TY00okp3I0Vql9egFaAz6DYCW4bJaV3t5LB3BfcvW5exJpmqzROU0a1b6nAA==}
 
   '@prometheus-io/client@0.16.1':
     resolution: {integrity: sha512-XkFPsGFGoSs/UMg/vh0QLDpanl/tsrOV5PLHdpGe8Ho+ir/Llhytr15j6y8ZwLrpIGzK9gTVVpIalA6C4UjUZw==}
@@ -8397,6 +8403,8 @@ snapshots:
       pvtsutils: 1.3.6
       tslib: 2.8.1
       tsyringe: 4.10.0
+
+  '@plausible-analytics/tracker@0.4.7': {}
 
   '@prometheus-io/client@0.16.1':
     dependencies:

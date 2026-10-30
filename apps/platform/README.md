@@ -611,9 +611,13 @@ The regular Latin font and main stylesheet are preloaded before loaders finish.
 The DOM stylesheet excludes native-only components from Tailwind's source scan.
 The header logo uses responsive WebP sizes, and provider marks declare their
 intrinsic dimensions. Keep these dimensions when replacing brand assets.
-The content-hashed analytics bootstrap queues events immediately and starts the
-external tracker after load and a paint opportunity, avoiding its layout reads
-during initial rendering.
+The official Plausible npm tracker is bundled into the client build and starts
+after load and a paint opportunity, avoiding layout reads during initial rendering.
+Platform and Admin send events to `/api/v1/usage-events`; the backend forwards
+them to the configured Plausible instance without application cookies or credentials.
+Automatic SPA pageviews, outbound links and tagged events remain enabled.
+Do Not Track, Global Privacy Control and `localStorage.plausible_ignore = 'true'`
+disable browser analytics. Native applications retain their existing direct transport.
 CSS unicode ranges load the remaining
 characters and bold weight only when needed, preserving the original font's
 character coverage. Native font assets are unchanged. To regenerate the web
