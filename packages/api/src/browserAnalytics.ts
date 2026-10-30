@@ -11,7 +11,7 @@ export function initializeBrowserAnalytics() {
     safeWrap(() =>
       init({
         domain: 'zoff.me',
-        endpoint: '/api/v1/usage-events',
+        endpoint: '/api/v1/activities',
         outboundLinks: true,
         transformRequest: (payload) => {
           if (analyticsDisabled()) return null;
