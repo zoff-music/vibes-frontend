@@ -2,6 +2,22 @@
 
 The primary web application for the Vibes ecosystem. It serves as the main interface for users to create rooms, manage queues, and control synchronized playback across devices with full server-side rendering support.
 
+## Web installation and native apps
+
+The web manifest supports standalone installation with ordinary and maskable
+192px/512px icons. Its stable `id`, `start_url` and scope remain `/`, preserving
+the identity of existing web installs. On macOS Sonoma or later, Safari's
+File > Add to Dock installs the site as a web app; Chromium browsers can offer
+their web-app install controls when their engagement requirements are met.
+
+Keep `prefer_related_applications` false so the native-app listings do not
+suppress web installation. Both the App Store and Google Play listings remain
+in the manifest, and the iOS Smart App Banner and visible store links remain
+available. This does not change native app IDs, deep links or store releases.
+Playback and room synchronization require a network connection; installation
+does not promise offline playback. Do not cache live room/session responses in
+a service worker just to enable installation.
+
 ## Embed sharing
 
 The room's **Embed player** settings include an **Autoplay** toggle, off by
