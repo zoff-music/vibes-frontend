@@ -13,7 +13,7 @@
     "preview": "node server/index.ts"
   },
   "dependencies": {
-    "@kasperrt/smolter": "0.4.8",
+    "@kasperrt/smolter": "0.4.10",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/serve": "workspace:*",
