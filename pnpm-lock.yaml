@@ -143,6 +143,7 @@ packageExtensionsChecksum: sha256-p9+VOE3mXsQKPSZxhXk/OT/d5Y9QnZFr4xBDbfh71DA=
 
 patchedDependencies:
   '@expo/cli@58.1.13': 2c8dea45783a6564a9245f3c3bc62a1c7b4643fc863102122056d492c6b19610
+  deepmerge@4.3.1: 658bcc27776e130ae51c0ad9597d4a3a52ac867af0fc014b78714ff162845fe0
   react-native-screens@4.30.0: 0e9b083be98798a379080d0b4b9d9cf847e8070038d7fb8ecf3bf40de54f6b25
   react-native-webview@14.0.1: 4d8feb0be219a14012adbaab4fd6a848ed6f3af5ce663a1dbcac009e64e88207
 
@@ -7667,7 +7668,7 @@ snapshots:
       '@expo/json-file': 11.2.1
       '@expo/platforms': 58.0.1
       '@expo/require-utils': 58.0.4(supports-color@8.1.1)(typescript@7.0.2)
-      deepmerge: 4.3.1
+      deepmerge: 4.3.1(patch_hash=658bcc27776e130ae51c0ad9597d4a3a52ac867af0fc014b78714ff162845fe0)
       getenv: 2.0.0
       glob: 13.0.6
       resolve-workspace-root: 2.0.1
@@ -9764,7 +9765,7 @@ snapshots:
 
   decamelize@1.2.0: {}
 
-  deepmerge@4.3.1: {}
+  deepmerge@4.3.1(patch_hash=658bcc27776e130ae51c0ad9597d4a3a52ac867af0fc014b78714ff162845fe0): {}
 
   defaults@1.0.4:
     dependencies:
