@@ -25,10 +25,10 @@ interface PlausibleClientOptions {
 }
 
 interface PlausibleEventBody {
-  domain: string;
-  name: string;
-  props: PlausibleEventProperties;
-  url: string;
+  d: string;
+  n: string;
+  p: PlausibleEventProperties;
+  u: string;
 }
 
 interface PlausibleEventProperties {
@@ -42,11 +42,12 @@ export function createPlausibleClient(
 
   return {
     trackPageview: async ({ path, surface }) => {
+      if (analyticsDisabled()) return;
       const body: PlausibleEventBody = {
-        domain: plausibleDomain,
-        name: pageviewEventName,
-        props: { surface },
-        url: new URL(path, canonicalOrigin).toString(),
+        d: plausibleDomain,
+        n: pageviewEventName,
+        p: { surface },
+        u: new URL(path, canonicalOrigin).toString(),
       };
       const headers = new Headers({
         'Content-Type': 'application/json',
@@ -54,9 +55,14 @@ export function createPlausibleClient(
 
       if (options.userAgent) headers.set('User-Agent', options.userAgent);
 
+      const endpoint =
+        typeof document !== 'undefined' &&
+        window.location.origin === canonicalOrigin
+          ? new URL('/api/v1/usage-events', canonicalOrigin).toString()
+          : plausibleEventUrl;
       const [requestError, request] = safeWrap(
         () =>
-          new Request(plausibleEventUrl, {
+          new Request(endpoint, {
             body: JSON.stringify(body),
             headers,
             method: 'POST',
@@ -72,6 +78,18 @@ export function createPlausibleClient(
 
 export function getRoomAnalyticsPath(roomId: string) {
   return `/${encodeURIComponent(roomId.trim().toLowerCase())}`;
+}
+
+export function analyticsDisabled() {
+  if (typeof document === 'undefined') return false;
+  if (navigator.doNotTrack === '1') return true;
+  if (
+    'globalPrivacyControl' in navigator &&
+    navigator.globalPrivacyControl === true
+  )
+    return true;
+  const [, ignored] = safeWrap(() => localStorage.getItem('plausible_ignore'));
+  return ignored === 'true';
 }
 
 export const plausibleClient = createPlausibleClient();

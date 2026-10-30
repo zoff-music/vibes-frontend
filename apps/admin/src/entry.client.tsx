@@ -5,10 +5,12 @@ import {
   configureApplication,
   mountApplication,
 } from '@kasperrt/smolter/preact/client';
+import { initializeBrowserAnalytics } from '@vibes/api/browserAnalytics';
 import { applicationEnvironment } from '@vibes/shared/navigation';
 import * as root from './root';
 
 configureApplication(applicationEnvironment);
+initializeBrowserAnalytics();
 
 mountApplication(
   routes,

@@ -71,7 +71,12 @@ export function PrivacyPolicyContent({
           <li>
             Aggregated, privacy-focused usage measurements collected through
             Zoff&apos;s self-hosted Plausible Analytics installation. Zoff does
-            not use this analytics data for targeted advertising.
+            not use this analytics data for targeted advertising. The browser
+            tracker is bundled with the application and sends events through
+            Zoff&apos;s backend without forwarding application cookies or
+            authentication credentials to Plausible. Browser analytics respect
+            Do Not Track, Global Privacy Control, and Plausible&apos;s local
+            opt-out setting (plausible_ignore).
           </li>
         </ul>
         <p>
