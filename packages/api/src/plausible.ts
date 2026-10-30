@@ -58,7 +58,7 @@ export function createPlausibleClient(
       const endpoint =
         typeof document !== 'undefined' &&
         window.location.origin === canonicalOrigin
-          ? new URL('/api/v1/usage-events', canonicalOrigin).toString()
+          ? new URL('/api/v1/activities', canonicalOrigin).toString()
           : plausibleEventUrl;
       const [requestError, request] = safeWrap(
         () =>
