@@ -12,15 +12,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kasperrt/smolter": "0.4.10",
+    "@kasperrt/smolter": "0.4.11",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "framer-motion": "14.4.0",
-    "preact": "11.0.1",
-    "preact-render-to-string": "6.8.1",
+    "preact": "11.1.1",
+    "preact-render-to-string": "6.8.2",
     "qrcode.react": "4.2.0"
   },
   "devDependencies": {
