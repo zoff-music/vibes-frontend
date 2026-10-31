@@ -28,10 +28,10 @@
     "node": ">=26.12.1"
   },
   "dependencies": {
+    "@kasperrt/smolter": "0.4.11",
+    "preact": "11.1.1",
+    "preact-render-to-string": "6.8.2",
     "react": "19.3.1",
-    "react-dom": "19.3.1",
-    "@kasperrt/smolter": "0.4.10",
-    "preact": "11.0.1",
-    "preact-render-to-string": "6.8.1"
+    "react-dom": "19.3.1"
   }
 }

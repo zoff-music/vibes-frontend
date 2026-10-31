@@ -107,7 +107,8 @@ minimumReleaseAgeExclude:
   - expo-glass-effect@57.0.2
   - expo-modules-core@57.0.17
   - expo-modules-jsi@57.1.0
-  - '@kasperrt/smolter@0.4.4 || 0.4.5 || 0.4.6 || 0.4.7 || 0.4.8 || 0.4.10'
+  - '@kasperrt/smolter@0.4.4 || 0.4.5 || 0.4.6 || 0.4.7 || 0.4.8 || 0.4.10 || 0.4.11'
+  - preact@11.1.1
 patchedDependencies:
   '@expo/cli@58.1.13': patches/@expo__cli@58.1.13.patch
   deepmerge@4.3.1: patches/deepmerge@4.3.1.patch

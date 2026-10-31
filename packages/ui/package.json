@@ -42,13 +42,13 @@
     }
   },
   "dependencies": {
-    "@kasperrt/smolter": "0.4.10",
+    "@kasperrt/smolter": "0.4.11",
     "@vibes/models": "workspace:*",
     "@vibes/shared": "workspace:*",
     "d3": "^7.9.0",
     "escape-html": "1.0.3",
     "framer-motion": "14.4.0",
-    "preact": "11.0.1",
+    "preact": "11.1.1",
     "react-youtube": "10.1.0"
   },
   "devDependencies": {
