@@ -10,6 +10,10 @@ export function RoomMembers({ roomId }: RoomMembersProps) {
     state.room?.id === roomId ? state.members : null,
   );
   const userId = useRoomStore((state) => state.userId);
+  const members = [...(presence?.members ?? [])].sort(
+    (left, right) =>
+      Number(right.userId === userId) - Number(left.userId === userId),
+  );
 
   return (
     <section
@@ -26,7 +30,7 @@ export function RoomMembers({ roomId }: RoomMembersProps) {
       )}
       {presence && (
         <ul className="space-y-2">
-          {presence.members.map((member) => (
+          {members.map((member) => (
             <li
               key={member.userId}
               className="relative flex min-h-14 w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface p-3 text-theme sm:gap-3"

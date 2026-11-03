@@ -10,7 +10,7 @@ export function ScrollButton({ direction, onClick }: ScrollButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className="pointer-events-auto flex min-h-11 items-center gap-1 rounded-full border border-white/40 bg-primary px-3 py-1.5 font-pixel text-3xs text-white shadow-primary-button focus-visible:outline-2 focus-visible:outline-secondary focus-visible:outline-offset-2"
+      className="pointer-events-auto flex cursor-pointer items-center gap-1 rounded-full border border-white/40 bg-primary px-3 py-1.5 font-pixel text-3xs text-white shadow-primary-button focus-visible:outline-2 focus-visible:outline-secondary focus-visible:outline-offset-2"
     >
       Scroll to {direction}
       <ChevronDownIcon
