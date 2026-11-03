@@ -1,4 +1,28 @@
 @theme {
+  --animate-scroll-from-top: scroll-from-top 180ms ease-out both;
+  --animate-scroll-from-bottom: scroll-from-bottom 180ms ease-out both;
+
+  @keyframes scroll-from-top {
+    from {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scroll-from-bottom {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
   --animate-generative-ignition: generative-ignition 1400ms ease-out both;
   --animate-generative-charge: generative-charge 1400ms ease-out both;
   --animate-generative-rail: generative-rail 1200ms 120ms ease-out both;

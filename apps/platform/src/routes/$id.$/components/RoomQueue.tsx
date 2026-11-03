@@ -363,20 +363,24 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     )}
                   </motion.div>
                 )}
-                {queueVisible && panel === '' && queueScroll.visible && (
+                {queueVisible && panel === '' && (
                   <>
-                    <div className="pointer-events-none fixed top-24 left-1/2 z-20 -translate-x-1/2 lg:absolute lg:top-3">
-                      <ScrollButton
-                        direction="top"
-                        onClick={() => queueScroll.scrollTo('top')}
-                      />
-                    </div>
-                    <div className="pointer-events-none fixed bottom-24 left-1/2 z-20 -translate-x-1/2 lg:absolute lg:bottom-3">
-                      <ScrollButton
-                        direction="bottom"
-                        onClick={() => queueScroll.scrollTo('bottom')}
-                      />
-                    </div>
+                    {queueScroll.visible.top && (
+                      <div className="pointer-events-none fixed top-24 left-1/2 z-20 -translate-x-1/2 lg:absolute lg:top-3">
+                        <ScrollButton
+                          direction="top"
+                          onClick={() => queueScroll.scrollTo('top')}
+                        />
+                      </div>
+                    )}
+                    {queueScroll.visible.bottom && (
+                      <div className="pointer-events-none fixed bottom-24 left-1/2 z-20 -translate-x-1/2 lg:absolute lg:bottom-3">
+                        <ScrollButton
+                          direction="bottom"
+                          onClick={() => queueScroll.scrollTo('bottom')}
+                        />
+                      </div>
+                    )}
                   </>
                 )}
               </div>
