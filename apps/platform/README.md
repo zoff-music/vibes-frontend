@@ -221,17 +221,6 @@ The shared not-found entry lazily imports its presentation, which separately
 loads BeatGame. Server rendering and client hydration use the same Suspense
 boundaries; do not switch markup based on whether `window` exists.
 
-For production hydration checks, build Platform and serve it locally on port
-3107 (metrics port 3108) with `NODE_ENV=production` and
-`VITE_API_URL_INTERNAL` pointing at a local test backend. Start a second copy on
-3117 (metrics port 3118) with `VITE_API_URL_INTERNAL=http://127.0.0.1:9` to
-exercise an unavailable upstream. Run `pnpm test:not-found`, then
-`TEST_BROWSER=webkit pnpm test:not-found` sequentially. The suite covers SSR
-404 content, a delayed presentation chunk, game interaction after hydration,
-home/back navigation, normal-page loading and non-404 recovery. It only accepts
-localhost targets. Override the two frontend URLs with `NOT_FOUND_TEST_URL`
-and `NOT_FOUND_ERROR_TEST_URL` if needed; stop both servers after testing.
-
 ## 🧩 Technical Stack
 
 ### Public product pages and search metadata
