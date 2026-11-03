@@ -235,7 +235,12 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                         prefetchData
                         aria-label="Show people in this room"
                         {...(membersOpen && { 'aria-current': 'page' })}
-                        className="inline-flex min-h-11 cursor-pointer items-center rounded-lg px-1 underline underline-offset-4 hover:text-theme focus-visible:outline-2 focus-visible:outline-secondary"
+                        className={classNames(
+                          'inline-flex min-h-11 cursor-pointer items-center border-b-2 px-1 hover:text-theme focus-visible:outline-2 focus-visible:outline-secondary',
+                          membersOpen
+                            ? 'border-secondary text-theme'
+                            : 'border-transparent text-theme-muted',
+                        )}
                       >
                         {listenerCount}
                       </Link>
