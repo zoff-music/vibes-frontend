@@ -29,6 +29,7 @@
     "@vibes/ui": "workspace:*",
     "esbuild": "0.28.2",
     "playwright": "1.64.1",
+    "tailwindcss": "catalog:",
     "typescript": "7.0.2",
     "vite": "8.3.4",
     "vitest": "5.0.5"

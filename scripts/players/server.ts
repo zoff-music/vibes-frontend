@@ -17,7 +17,6 @@ export async function startPlayerFixture(live = false) {
       alias: {
         react: 'preact/compat',
         'react-dom': 'preact/compat',
-        ...(!live && { 'react-youtube': resolve('scripts/players/sdk.tsx') }),
       },
     },
     server: { host: '127.0.0.1', port: 0 },

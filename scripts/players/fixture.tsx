@@ -3,11 +3,20 @@ import { usePlaybackStore } from '@vibes/shared';
 import { SoundCloudPlayer } from '@vibes/ui/web/player/SoundCloudPlayer';
 import { VideoPlayer } from '@vibes/ui/web/player/VideoPlayer';
 import { render } from 'preact';
-import { faults, finish, installSoundCloud, sample } from './sdk';
+import {
+  faults,
+  finish,
+  installSoundCloud,
+  installYouTube,
+  sample,
+} from './sdk';
 import type { Provider, Track } from './types';
 import './fixture.css';
 
-if (!__LIVE_PLAYERS__) installSoundCloud();
+if (!__LIVE_PLAYERS__) {
+  installSoundCloud();
+  installYouTube();
+}
 const params = new URLSearchParams(location.search);
 const providers = (params.get('sequence') || 'soundcloud,soundcloud').split(
   ',',

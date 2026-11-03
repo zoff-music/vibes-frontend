@@ -37,6 +37,11 @@ test.each([
     });
     page.setDefaultTimeout(15_000);
     const errors: string[] = [];
+    page.on('response', (response) => {
+      if (response.url().startsWith(origin) && response.status() >= 400) {
+        errors.push(`${response.status()} ${response.url()}`);
+      }
+    });
     page.on('pageerror', (error) => {
       errors.push(error.message);
       console.error(error.message);

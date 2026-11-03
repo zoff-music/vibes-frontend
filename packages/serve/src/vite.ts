@@ -32,7 +32,6 @@ export function applicationPlugins({
               'motion-utils',
               'zustand',
               'qrcode.react',
-              'react-youtube',
             ],
           },
         };

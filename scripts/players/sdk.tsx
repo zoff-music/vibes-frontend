@@ -1,30 +1,4 @@
-import { useEffect, useRef } from 'preact/hooks';
 import type { PlayerState, Provider } from './types';
-
-interface YouTubePlayer {
-  getVideoData: () => { video_id: string };
-  getCurrentTime: () => number;
-  getPlayerState: () => number;
-  getVolume: () => number;
-  setVolume: (value: number) => void;
-  isMuted: () => boolean;
-  mute: () => void;
-  unMute: () => void;
-  setSize: () => void;
-  addEventListener: (name: string, callback: () => void) => void;
-  removeEventListener: (name: string) => void;
-  playVideo: () => void;
-  pauseVideo: () => void;
-  seekTo: (seconds: number) => void;
-  loadVideoById: (id: string, seconds?: number) => void;
-}
-
-interface YouTubeProps {
-  videoId: string;
-  onReady: (event: { target: YouTubePlayer }) => void;
-  onStateChange: (event: { data: number }) => void;
-  onEnd: () => void;
-}
 
 // Only the external SDK is simulated. The production players, store, gesture
 // handling, navigation replacement and playback coordinator remain real.
@@ -161,79 +135,109 @@ export function installSoundCloud() {
   };
 }
 
-export default function YouTubeSdk({
-  videoId,
-  onReady,
-  onStateChange,
-  onEnd,
-}: YouTubeProps) {
-  const callbacks = useRef({ onReady, onStateChange, onEnd });
-  callbacks.current = { onReady, onStateChange, onEnd };
-  const initialVideo = useRef(videoId);
+type YouTubeConfiguration = ConstructorParameters<
+  NonNullable<Window['YT']>['Player']
+>[1];
 
-  useEffect(() => {
-    const state = clock('youtube', initialVideo.current);
-    const listeners = new Map<string, () => void>();
-    const emit = () => {
-      const data = state.playing ? 1 : 2;
-      setTimeout(() => callbacks.current.onStateChange({ data }), 20);
-    };
-    const player: YouTubePlayer = {
-      getVideoData: () => ({ video_id: state.id }),
-      getCurrentTime: () => position(state) / 1000,
-      getPlayerState: () => (state.playing ? 1 : 2),
-      getVolume: () => state.volume,
-      setVolume: (value) => {
-        state.volume = value;
-      },
-      isMuted: () => state.muted,
-      mute: () => {
-        state.muted = true;
-      },
-      unMute: () => {
-        state.muted = false;
-      },
-      setSize: () => {},
-      addEventListener: (name: string, callback: () => void) =>
-        listeners.set(name, callback),
-      removeEventListener: (name: string) => listeners.delete(name),
-      playVideo() {
-        if (faults.blocked) {
-          setTimeout(() => listeners.get('onAutoplayBlocked')?.(), 30);
-        }
-        const wasPlaying = state.playing;
-        play(state);
-        if (state.playing !== wasPlaying) emit();
-      },
-      pauseVideo() {
-        const wasPlaying = state.playing;
-        pause(state);
-        if (wasPlaying) emit();
-      },
-      seekTo(seconds: number) {
-        state.seeks++;
-        state.position = seconds * 1000;
-        state.reference = performance.now();
-      },
-      loadVideoById(id: string, seconds = 0) {
-        pause(state);
-        state.id = id;
-        state.position = seconds * 1000;
-        play(state);
-        emit();
-      },
-    };
+class YouTubeSdk {
+  private state: PlayerState;
+  private listeners = new Map<string, () => void>();
+  private iframe: HTMLIFrameElement;
+  private readyTimer: ReturnType<typeof setTimeout>;
+  private destroyed = false;
+
+  constructor(
+    target: HTMLElement,
+    private configuration: YouTubeConfiguration,
+  ) {
+    this.state = clock('youtube', configuration.videoId);
+    this.iframe = document.createElement('iframe');
+    this.iframe.title = 'YouTube SDK test double';
+    this.iframe.src = 'about:blank';
+    target.replaceWith(this.iframe);
+    this.readyTimer = setTimeout(
+      () => configuration.events.onReady({ target: this }),
+      30,
+    );
     finishYouTube = () => {
-      pause(state);
-      state.ended = true;
-      callbacks.current.onStateChange({ data: 0 });
-      callbacks.current.onEnd();
+      pause(this.state);
+      this.state.ended = true;
+      configuration.events.onStateChange({ data: 0 });
     };
-    callbacks.current.onReady({ target: player });
-    return () => {
-      pause(state);
-    };
-  }, []);
+  }
 
-  return <iframe title="YouTube SDK test double" src="about:blank" />;
+  private emit() {
+    const data = this.state.playing ? 1 : 2;
+    setTimeout(() => {
+      if (!this.destroyed) this.configuration.events.onStateChange({ data });
+    }, 20);
+  }
+
+  getVideoData() {
+    return { video_id: this.state.id };
+  }
+  getCurrentTime() {
+    return position(this.state) / 1000;
+  }
+  getPlayerState() {
+    return this.state.playing ? 1 : 2;
+  }
+  getVolume() {
+    return this.state.volume;
+  }
+  setVolume(value: number) {
+    this.state.volume = value;
+  }
+  isMuted() {
+    return this.state.muted;
+  }
+  mute() {
+    this.state.muted = true;
+  }
+  unMute() {
+    this.state.muted = false;
+  }
+  setSize() {}
+  addEventListener(name: string, callback: () => void) {
+    this.listeners.set(name, callback);
+  }
+  removeEventListener(name: string) {
+    this.listeners.delete(name);
+  }
+  playVideo() {
+    if (faults.blocked) {
+      setTimeout(() => this.listeners.get('onAutoplayBlocked')?.(), 30);
+    }
+    const wasPlaying = this.state.playing;
+    play(this.state);
+    if (this.state.playing !== wasPlaying) this.emit();
+  }
+  pauseVideo() {
+    const wasPlaying = this.state.playing;
+    pause(this.state);
+    if (wasPlaying) this.emit();
+  }
+  seekTo(seconds: number) {
+    this.state.seeks++;
+    this.state.position = seconds * 1000;
+    this.state.reference = performance.now();
+  }
+  loadVideoById(id: string, seconds = 0) {
+    pause(this.state);
+    this.state.id = id;
+    this.state.position = seconds * 1000;
+    play(this.state);
+    this.emit();
+  }
+  destroy() {
+    this.destroyed = true;
+    clearTimeout(this.readyTimer);
+    pause(this.state);
+    this.iframe.remove();
+    this.listeners.clear();
+  }
+}
+
+export function installYouTube() {
+  window.YT = { Player: YouTubeSdk };
 }
