@@ -13,6 +13,18 @@ export function ScreenInsetsProvider({ children }: PropsWithChildren) {
   return <WindowInsetsContext value={insets}>{children}</WindowInsetsContext>;
 }
 
+export function useScreenInsets(pageSheet = false): EdgeInsets {
+  const localInsets = useSafeAreaInsets();
+  const windowInsets = useContext(WindowInsetsContext);
+  const insets = pageSheet ? localInsets : (windowInsets ?? localInsets);
+
+  return {
+    ...insets,
+    left: Math.max(insets.left, localInsets.left),
+    right: Math.max(insets.right, localInsets.right),
+  };
+}
+
 interface ScreenSafeAreaProps extends ViewProps {
   edges?: readonly Edge[];
   pageSheet?: boolean;
@@ -24,9 +36,7 @@ export function ScreenSafeArea({
   style,
   ...props
 }: ScreenSafeAreaProps) {
-  const localInsets = useSafeAreaInsets();
-  const windowInsets = useContext(WindowInsetsContext);
-  const insets = pageSheet ? localInsets : (windowInsets ?? localInsets);
+  const insets = useScreenInsets(pageSheet);
 
   // Full-screen tabs use the window inset, not a per-tab provider which may
   // briefly report zero while its native screen attaches. Sheets stay local.

@@ -1,7 +1,10 @@
 import { useWindowDimensions } from 'react-native';
+import { useScreenInsets } from '@/components/screen-safe-area';
 
 export function useTabletLandscapeLayout() {
-  const { height, width } = useWindowDimensions();
+  const { height, width: windowWidth } = useWindowDimensions();
+  const insets = useScreenInsets();
+  const width = Math.max(0, windowWidth - insets.left - insets.right);
   const isTablet = Math.min(width, height) >= tabletMinimumHeight;
   const isTabletLandscape = isTablet && width > height;
   const isTabletPortrait = isTablet && !isTabletLandscape;
