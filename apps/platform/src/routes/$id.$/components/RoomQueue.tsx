@@ -61,7 +61,11 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialPlaylistItems,
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
-    const { href, peopleOpen: membersOpen } = useRoomPanel(roomId, minimized);
+    const {
+      href,
+      panel,
+      peopleOpen: membersOpen,
+    } = useRoomPanel(roomId, minimized);
     const queueScrollRef = useRef<HTMLDivElement>(null);
     const queueVisible = !minimized && !chatOpen && !membersOpen;
     useRoomQueueScroll(queueScrollRef, queueVisible);
@@ -354,17 +358,21 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     )}
                   </motion.div>
                 )}
-                {queueVisible && queueScroll.visible && (
-                  <div className="pointer-events-none fixed bottom-24 left-1/2 z-20 flex -translate-x-1/2 gap-2 lg:absolute lg:bottom-3">
-                    <ScrollButton
-                      direction="top"
-                      onClick={() => queueScroll.scrollTo('top')}
-                    />
-                    <ScrollButton
-                      direction="bottom"
-                      onClick={() => queueScroll.scrollTo('bottom')}
-                    />
-                  </div>
+                {queueVisible && panel === '' && queueScroll.visible && (
+                  <>
+                    <div className="pointer-events-none fixed top-24 left-1/2 z-20 -translate-x-1/2 lg:absolute lg:top-3">
+                      <ScrollButton
+                        direction="top"
+                        onClick={() => queueScroll.scrollTo('top')}
+                      />
+                    </div>
+                    <div className="pointer-events-none fixed bottom-24 left-1/2 z-20 -translate-x-1/2 lg:absolute lg:bottom-3">
+                      <ScrollButton
+                        direction="bottom"
+                        onClick={() => queueScroll.scrollTo('bottom')}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             </div>
