@@ -1,4 +1,4 @@
-import { domAnimation, LazyMotion } from 'framer-motion';
+import { domMin, LazyMotion } from 'framer-motion';
 import type { ReactNode } from 'preact/compat';
 
 interface MotionProviderProps {
@@ -6,5 +6,5 @@ interface MotionProviderProps {
 }
 
 export function MotionProvider({ children }: MotionProviderProps) {
-  return <LazyMotion features={domAnimation}>{children}</LazyMotion>;
+  return <LazyMotion features={domMin}>{children}</LazyMotion>;
 }
