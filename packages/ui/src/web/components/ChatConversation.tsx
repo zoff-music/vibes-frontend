@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useRef, useState } from 'preact/compat';
 import { ArrowRightIcon } from '../icons';
 import { Button } from './Button';
 import { ChatMessageLine } from './ChatMessageLine';
+import { ScrollButton } from './ScrollButton';
 
 interface ChatConversationProps {
   messages: RoomMessage[];
@@ -24,6 +25,7 @@ export function ChatConversation({
 }: ChatConversationProps) {
   const [draft, setDraft] = useState('');
   const nearBottom = useRef(true);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const conversationRef = useRef<HTMLDivElement>(null);
   const latestMessageId = messages[messages.length - 1]?.id;
@@ -63,6 +65,7 @@ export function ChatConversation({
           nearBottom.current =
             element.scrollHeight - element.scrollTop - element.clientHeight <
             80;
+          setShowScrollBottom(!nearBottom.current);
         }}
         role="log"
         aria-label="Room conversation"
@@ -91,6 +94,21 @@ export function ChatConversation({
           ))}
         </div>
       </div>
+
+      {showScrollBottom && (
+        <div className="flex shrink-0 justify-center py-2">
+          <ScrollButton
+            direction="bottom"
+            onClick={() => {
+              const conversation = conversationRef.current;
+              if (!conversation) return;
+              conversation.scrollTop = conversation.scrollHeight;
+              nearBottom.current = true;
+              setShowScrollBottom(false);
+            }}
+          />
+        </div>
+      )}
 
       {error && (
         <p role="status" className="py-2 text-sm text-theme-muted">
