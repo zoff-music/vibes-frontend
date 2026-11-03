@@ -1,16 +1,9 @@
 import { isRouteErrorResponse, useRouteError } from '@kasperrt/smolter/preact';
-import { NotFoundView } from '@vibes/ui/web';
-import { lazy, Suspense } from 'preact/compat';
 import { PlatformErrorView } from '../components/errors/PlatformErrorView';
 import { isStaleRouteError } from '../components/errors/recovery';
 import { Background } from '../components/layout/Background';
 import { SiteLayout } from '../components/layout/SiteLayout';
-
-const LazyBeatGame = lazy(() =>
-  import('../components/not-found/BeatGame').then((module) => ({
-    default: module.BeatGame,
-  })),
-);
+import { NotFoundPage } from '../components/not-found/NotFoundPage';
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -21,18 +14,7 @@ export function ErrorBoundary() {
       <>
         <Background />
         <SiteLayout>
-          <NotFoundView>
-            <Suspense
-              fallback={
-                <div
-                  aria-hidden="true"
-                  className="mx-auto h-92 w-full max-w-sm rounded-3xl border border-theme bg-theme-surface sm:h-102"
-                />
-              }
-            >
-              <LazyBeatGame />
-            </Suspense>
-          </NotFoundView>
+          <NotFoundPage />
         </SiteLayout>
       </>
     );
