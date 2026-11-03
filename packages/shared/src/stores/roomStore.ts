@@ -1,9 +1,10 @@
-import type { RoomUser, RoomV2 } from '@vibes/models';
+import type { RoomMembers, RoomUser, RoomV2 } from '@vibes/models';
 import { create } from 'zustand';
 
 interface RoomState {
   room: RoomV2 | null;
   users: RoomUser[];
+  members: RoomMembers | null;
   userId: string | null;
   isAdmin: boolean;
   nickname: string | null;
@@ -13,6 +14,7 @@ interface RoomState {
   setRoom: (room: RoomV2) => void;
   setHost: (userId: string) => void;
   setUsers: (users: RoomUser[]) => void;
+  setMembers: (members: RoomMembers) => void;
   setUsersCount: (count: number) => void;
   setSession: (userId: string, isAdmin: boolean, nickname?: string) => void;
   reset: () => void;
@@ -21,6 +23,7 @@ interface RoomState {
 export const useRoomStore = create<RoomState>((set) => ({
   room: null,
   users: [],
+  members: null,
   userId: null,
   isAdmin: false,
   nickname: null,
@@ -60,6 +63,8 @@ export const useRoomStore = create<RoomState>((set) => ({
         isAdmin,
         usersCount,
         hasLiveUsersCount,
+        members: isSameRoom ? state.members : null,
+        users: isSameRoom ? state.users : [],
       };
     });
   },
@@ -69,6 +74,7 @@ export const useRoomStore = create<RoomState>((set) => ({
     })),
   setUsers: (users) =>
     set({ users, usersCount: users.length, hasLiveUsersCount: true }),
+  setMembers: (members) => set({ members }),
   setUsersCount: (usersCount) =>
     set((state) => ({
       usersCount,
@@ -86,6 +92,7 @@ export const useRoomStore = create<RoomState>((set) => ({
     set({
       room: null,
       users: [],
+      members: null,
       userId: null,
       isAdmin: false,
       nickname: null,

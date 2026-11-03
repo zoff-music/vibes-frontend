@@ -39,6 +39,7 @@ export function useRoomEventsV3(
       onPlaylistItemsUpdate: (value) =>
         callbacksRef.current.onPlaylistItemsUpdate?.(value),
       onUsersUpdate: (value) => callbacksRef.current.onUsersUpdate?.(value),
+      onMembersUpdate: (value) => callbacksRef.current.onMembersUpdate?.(value),
     }).then(([error, stop]) => {
       if (!active) {
         stop?.();

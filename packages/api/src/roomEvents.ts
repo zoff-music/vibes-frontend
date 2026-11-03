@@ -7,6 +7,7 @@ import type {
   PlaylistItemPositionUpdate,
   RoomGenerationUpdate,
   RoomHostUpdate,
+  RoomMembers,
   RoomV2,
   SkipVoteUpdateV2,
 } from '@vibes/models';
@@ -42,6 +43,7 @@ export type RoomSSEV3Message =
   | { type: 'playlist_items_snapshot'; data: PlaylistItem[] }
   | { type: 'playback_update'; data: PlaybackStateV2 }
   | { type: 'users_update'; data: number }
+  | { type: 'members_update'; data: RoomMembers }
   | { type: 'playlist_item_added'; data: PlaylistItem }
   | { type: 'playlist_item_updated'; data: PlaylistItemPositionUpdate }
   | { type: 'playlist_item_removed'; data: PlaylistItemIdUpdate }
@@ -67,6 +69,7 @@ export interface RoomEventV3Callbacks {
   onPlaylistItemUpdated?: (update: PlaylistItemPositionUpdate) => void;
   onPlaylistItemsUpdate?: (playlistItems: PlaylistItem[]) => void;
   onUsersUpdate?: (count: number) => void;
+  onMembersUpdate?: (members: RoomMembers) => void;
 }
 
 export async function subscribeRoomEventsV3(
@@ -175,6 +178,12 @@ export function subscribeRoomUpdatesV3(
 
     if (message.type === 'users_update') {
       callbacks.onUsersUpdate?.(message.data);
+
+      return;
+    }
+
+    if (message.type === 'members_update') {
+      callbacks.onMembersUpdate?.(message.data);
 
       return;
     }
