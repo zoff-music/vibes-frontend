@@ -198,6 +198,15 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   }, [playbackStartDeadline]);
 
   useLayoutEffect(() => {
+    // A new queue item increments resetVersion too. Synchronize it normally;
+    // only an explicit Reset on the same active item should force a seek.
+    if (
+      (!isActiveRef.current && isActive) ||
+      providerPlaylistItemRef.current?.id !== providerPlaylistItem?.id
+    ) {
+      lastResetVersionRef.current = resetVersion;
+    }
+
     desiredVolumeRef.current = desiredVolume;
     isActiveRef.current = isActive;
     providerPlaylistItemRef.current = providerPlaylistItem;
@@ -216,6 +225,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     allowUnmutedAutoplay,
     needsUserGesture,
     initialSourceId,
+    resetVersion,
   ]);
 
   const shouldWidgetPlay = useCallback(() => {

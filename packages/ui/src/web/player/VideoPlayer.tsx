@@ -1272,7 +1272,10 @@ const VideoPlayerComponent = ({
       needsUserGesture ||
       (slowStartupVideoId === videoId &&
         playerState !== YOUTUBE_STATE_PLAYING) ||
-      (shouldPlay && isMutedState && desiredVolume > MIN_VOLUME)) &&
+      (shouldPlay &&
+        playerState === YOUTUBE_STATE_PLAYING &&
+        isMutedState &&
+        desiredVolume > MIN_VOLUME)) &&
     !error;
 
   const handleUserGesturePlay = useCallback(() => {
