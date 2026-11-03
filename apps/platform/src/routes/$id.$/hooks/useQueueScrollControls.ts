@@ -4,23 +4,31 @@ export function useQueueScrollControls(
   queueRef: RefObject<HTMLDivElement | null>,
   enabled: boolean,
 ) {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState({ top: false, bottom: false });
 
   useEffect(() => {
     const queue = queueRef.current;
     if (!enabled || !queue) {
-      setVisible(false);
+      setVisible({ top: false, bottom: false });
       return;
     }
 
     const desktop = window.matchMedia('(min-width: 1024px)');
     const update = () => {
       const bounds = queue.getBoundingClientRect();
-      setVisible(
-        desktop.matches
-          ? queue.scrollTop > 8
-          : bounds.top < 0 && bounds.bottom > 100,
-      );
+      const top = desktop.matches
+        ? queue.scrollTop > 8
+        : bounds.top < 0 && bounds.bottom > 100;
+      const bottom =
+        top &&
+        (desktop.matches
+          ? queue.scrollHeight - queue.scrollTop - queue.clientHeight > 8
+          : bounds.bottom > window.innerHeight + 8);
+
+      setVisible((previous) => {
+        if (previous.top === top && previous.bottom === bottom) return previous;
+        return { top, bottom };
+      });
     };
     update();
     queue.addEventListener('scroll', update, { passive: true });
@@ -28,6 +36,7 @@ export function useQueueScrollControls(
     window.addEventListener('resize', update);
     const observer = new ResizeObserver(update);
     observer.observe(queue);
+    if (queue.firstElementChild) observer.observe(queue.firstElementChild);
 
     return () => {
       queue.removeEventListener('scroll', update);
