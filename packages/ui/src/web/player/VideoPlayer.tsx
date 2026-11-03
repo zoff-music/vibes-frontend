@@ -14,7 +14,6 @@ import {
   useRef,
   useState,
 } from 'preact/compat';
-import YouTube, { type YouTubeProps } from 'react-youtube';
 import { ClickToPlayOverlay } from './ClickToPlayOverlay';
 import {
   isPlaybackGestureUnlocked,
@@ -26,14 +25,13 @@ import {
   registerProviderPlayback,
   silenceProviderPlayback,
 } from './providerPlaybackCoordinator';
-
-interface YouTubeReadyEvent {
-  target: YouTubePlayerRef;
-}
-
-interface YouTubeStateEvent {
-  data: number;
-}
+import { YouTubeFrame } from './YouTubeFrame';
+import type {
+  YouTubeOptions,
+  YouTubePlayer as YouTubePlayerRef,
+  YouTubeReadyEvent,
+  YouTubeStateEvent,
+} from './youtube';
 
 interface Props {
   allowUnmutedAutoplay?: boolean;
@@ -50,28 +48,6 @@ interface Props {
   onLocalVolumeChange?: () => void;
   onPlaybackError?: (playlistItemId: string) => void;
   volume?: number;
-}
-
-interface YouTubeVideoData {
-  video_id: string;
-}
-
-interface YouTubePlayerRef {
-  addEventListener: (event: string, listener: () => void) => void;
-  removeEventListener: (event: string, listener: () => void) => void;
-  seekTo: (seconds: number, allowSeekAhead?: boolean) => void;
-  getCurrentTime: () => number;
-  getVideoData: () => YouTubeVideoData;
-  getVolume: () => number;
-  playVideo: () => void;
-  pauseVideo: () => void;
-  getPlayerState: () => number;
-  loadVideoById: (videoId: string, startSeconds?: number) => void;
-  mute: () => void;
-  unMute: () => void;
-  isMuted: () => boolean;
-  setSize: (width: number, height: number) => void;
-  setVolume: (volume: number) => void;
 }
 
 interface PlayerSize {
@@ -1243,7 +1219,7 @@ const VideoPlayerComponent = ({
   }, [videoId, debugLog, forceAutoplay, isCastReceiver]);
 
   // All hooks must be called unconditionally, so define these before early return
-  const opts: YouTubeProps['opts'] = useMemo(
+  const opts: YouTubeOptions = useMemo(
     () => ({
       host: isCastReceiver
         ? 'https://www.youtube.com'
@@ -1345,7 +1321,7 @@ const VideoPlayerComponent = ({
     >
       <div className="relative min-h-0 flex-1 bg-black">
         {youtubeVideoIdProp && (!isCastReceiver || castPlayerSize) && (
-          <YouTube
+          <YouTubeFrame
             videoId={youtubeVideoIdProp}
             opts={opts}
             onReady={handleReady}

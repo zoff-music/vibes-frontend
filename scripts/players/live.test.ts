@@ -16,22 +16,6 @@ interface SoundCloudInspector {
   getCurrentSound: (callback: (track: { id: number }) => void) => void;
 }
 
-interface YouTubeInspector {
-  get: (id: string) =>
-    | {
-        getVideoData: () => { video_id: string };
-        getCurrentTime: () => number;
-        getPlayerState: () => number;
-      }
-    | undefined;
-}
-
-declare global {
-  interface Window {
-    YT?: YouTubeInspector;
-  }
-}
-
 // Real official embeds in an isolated localhost fixture. No Zoff backend/room.
 // No search, paid API calls, credentials, extracted streams or DB writes.
 // PLAYER_TRACKS='[{"provider":"soundcloud","id":"..."}, ...]'
@@ -192,7 +176,7 @@ test('local official widgets keep playing across skips and natural transitions',
       if (provider === 'youtube' && window.YT) {
         const frame = active.querySelector('iframe');
         if (!frame) return null;
-        const widget = window.YT.get(frame.id);
+        const widget = window.YT.get?.(frame.id);
         if (widget)
           return {
             provider,
