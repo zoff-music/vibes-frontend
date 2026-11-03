@@ -8,7 +8,6 @@ import {
   zoffIconSources,
 } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { useTabletLandscapeLayout } from '@/hooks/use-tablet-landscape-layout';
 import { triggerSelectionFeedback } from '@/lib/interaction-feedback';
 import { useRoomNavigation } from '@/providers/app-provider';
 import { useThemePreference } from '@/providers/theme-provider';
@@ -17,7 +16,6 @@ export function AppTabs() {
   const router = useRouter();
   const [{ resolvedScheme }] = useThemePreference();
   const theme = useAppTheme();
-  const tabletLayout = useTabletLandscapeLayout();
   const { addLabel, canAddPlaylistItems, hasRoom } = useRoomNavigation();
   const hidesNativeTabs = Platform.OS === 'android';
   const iconSources =
@@ -49,6 +47,7 @@ export function AppTabs() {
 
   return (
     <NativeTabs
+      sidebarAdaptable
       screenListeners={{
         tabPress: (event) => {
           if (!event.data.isPrevented) void triggerSelectionFeedback();
@@ -105,7 +104,7 @@ export function AppTabs() {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         disableAutomaticContentInsets
-        hidden={!canAddPlaylistItems || tabletLayout.isTablet}
+        hidden={!canAddPlaylistItems}
         name="add"
         role="search"
         unstable_nativeProps={{

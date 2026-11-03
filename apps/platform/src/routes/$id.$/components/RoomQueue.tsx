@@ -10,7 +10,7 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useChatPreferenceStore } from '@vibes/shared/chatPreferenceStore';
-import { NowPlayingPlaylistItem, QueueList } from '@vibes/ui/web';
+import { NowPlayingPlaylistItem, QueueList, ScrollButton } from '@vibes/ui/web';
 import { domMax, LazyMotion, m as motion } from 'framer-motion';
 import React, {
   lazy,
@@ -19,11 +19,13 @@ import React, {
   useRef,
   useState,
 } from 'preact/compat';
+import { useQueueScrollControls } from '../hooks/useQueueScrollControls';
 import { useRoomPanel } from '../hooks/useRoomPanel';
 import { useRoomQueueScroll } from '../hooks/useRoomQueueScroll';
 
 import type { RoomActionData } from '../utils/actions/clientAction';
 import { PlaybackProgress } from './PlaybackProgress';
+import { RoomMembers } from './RoomMembers';
 
 const LazyChatConversation = lazy(async () => {
   const module = await import('@vibes/ui/web/components/ChatConversation');
@@ -59,17 +61,23 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialPlaylistItems,
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
-    const { href } = useRoomPanel(roomId, minimized);
+    const {
+      href,
+      panel,
+      peopleOpen: membersOpen,
+    } = useRoomPanel(roomId, minimized);
     const queueScrollRef = useRef<HTMLDivElement>(null);
-    useRoomQueueScroll(queueScrollRef, !minimized && !chatOpen);
+    const queueVisible = !minimized && !chatOpen && !membersOpen;
+    useRoomQueueScroll(queueScrollRef, queueVisible);
+    const queueScroll = useQueueScrollControls(queueScrollRef, queueVisible);
     const chatPreference = useChatPreferenceStore((state) => state.enabled);
     // An explicit chat URL selects its surface during SSR and the first render.
     // The stored preference controls discovery, not an already-selected route.
     const chatEnabled = chatOpen || chatPreference;
     const chat = useChatTimeline(roomId, chatEnabled);
     useEffect(() => {
-      chat.selectChat(chatOpen && chatEnabled);
-    }, [chatOpen, chat.selectChat, chatEnabled]);
+      chat.selectChat(chatOpen && chatEnabled && !membersOpen);
+    }, [chatOpen, chat.selectChat, chatEnabled, membersOpen]);
     const [chatError, setChatError] = useState('');
     const [chatConnected, setChatConnected] = useState(false);
     const chatFetcher = useFetcher<RoomActionData>();
@@ -216,7 +224,28 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               <div className="mb-2 shrink-0">
                 <NowPlayingPlaylistItem
                   priority
-                  {...(listenerCount != null && { statusAside: listenerCount })}
+                  {...(listenerCount != null && {
+                    statusAside: (
+                      <Link
+                        to={href('people')}
+                        replace
+                        preventScrollReset
+                        viewTransition={false}
+                        prefetch="intent"
+                        prefetchData
+                        aria-label="Show people in this room"
+                        {...(membersOpen && { 'aria-current': 'page' })}
+                        className={classNames(
+                          'inline-flex min-h-11 cursor-pointer items-center border-b-2 px-1 hover:text-theme focus-visible:outline-2 focus-visible:outline-secondary',
+                          membersOpen
+                            ? 'border-secondary text-theme'
+                            : 'border-transparent text-theme-muted',
+                        )}
+                      >
+                        {listenerCount}
+                      </Link>
+                    ),
+                  })}
                   isHost={isHost}
                   playlistItem={currentPlaylistItemData}
                   isPlaying={isPlaying}
@@ -232,34 +261,28 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
             {/* Up Next List */}
             <div className="flex min-h-0 flex-1 flex-col">
               <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
-                {!chatEnabled && (
-                  <h2 className="py-4 font-display text-2xs text-theme-muted tracking-label">
-                    Up next ({queuedPlaylistItemCount})
-                  </h2>
-                )}
-                {chatEnabled && <h2 className="sr-only">Queue and chat</h2>}
+                <h2 className="sr-only">Queue, chat and people</h2>
+                <Link
+                  {...(!chatOpen && !membersOpen && { 'aria-current': 'page' })}
+                  to={href('', false)}
+                  replace
+                  preventScrollReset
+                  viewTransition={false}
+                  prefetch="intent"
+                  prefetchData
+                  className={classNames(
+                    'inline-flex min-h-12 cursor-pointer items-center border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
+                    !chatOpen && !membersOpen
+                      ? 'border-secondary text-theme'
+                      : 'border-transparent text-theme-muted',
+                  )}
+                >
+                  Up next ({queuedPlaylistItemCount})
+                </Link>
                 {chatEnabled && (
                   <Link
-                    {...(!chatOpen && { 'aria-current': 'page' })}
-                    to={href('', false)}
-                    replace
-                    preventScrollReset
-                    viewTransition={false}
-                    prefetch="intent"
-                    prefetchData
-                    className={classNames(
-                      'inline-flex min-h-12 cursor-pointer items-center border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                      !chatOpen
-                        ? 'border-secondary text-theme'
-                        : 'border-transparent text-theme-muted',
-                    )}
-                  >
-                    Up next ({queuedPlaylistItemCount})
-                  </Link>
-                )}
-                {chatEnabled && (
-                  <Link
-                    {...(chatOpen && { 'aria-current': 'page' })}
+                    {...(chatOpen &&
+                      !membersOpen && { 'aria-current': 'page' })}
                     to={href('chat')}
                     replace
                     preventScrollReset
@@ -268,7 +291,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     prefetchData
                     className={classNames(
                       'inline-flex min-h-12 cursor-pointer items-center border-b-2 px-1 font-display text-2xs tracking-label focus-visible:outline-2 focus-visible:outline-secondary',
-                      chatOpen
+                      chatOpen && !membersOpen
                         ? 'border-secondary text-theme'
                         : 'border-transparent text-theme-muted',
                     )}
@@ -279,12 +302,13 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
               </div>
               <div
                 className={classNames(
-                  'min-h-0 lg:flex lg:flex-1 lg:flex-col',
-                  (chatOpen || queuedPlaylistItemCount === 0) &&
+                  'relative min-h-0 lg:flex lg:flex-1 lg:flex-col',
+                  (chatOpen || membersOpen || queuedPlaylistItemCount === 0) &&
                     'flex min-h-64 flex-1 flex-col lg:min-h-0',
                 )}
               >
-                {chatOpen && (
+                {membersOpen && <RoomMembers roomId={roomId} />}
+                {chatOpen && !membersOpen && (
                   <div className="flex min-h-0 flex-1 flex-col">
                     <Suspense
                       fallback={
@@ -307,12 +331,12 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     </Suspense>
                   </div>
                 )}
-                {!chatOpen && (
+                {!chatOpen && !membersOpen && (
                   <motion.div
                     layoutScroll
                     ref={queueScrollRef}
                     className={classNames(
-                      'rounded-2xl lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]',
+                      'scroll-mt-24 scroll-mb-24 rounded-2xl lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]',
                       queuedPlaylistItemCount === 0 && 'flex flex-1 flex-col',
                     )}
                   >
@@ -338,6 +362,26 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                       </p>
                     )}
                   </motion.div>
+                )}
+                {queueVisible && panel === '' && (
+                  <>
+                    {queueScroll.visible.top && (
+                      <div className="pointer-events-none fixed top-24 left-1/2 z-20 -translate-x-1/2 lg:absolute lg:top-3">
+                        <ScrollButton
+                          direction="top"
+                          onClick={() => queueScroll.scrollTo('top')}
+                        />
+                      </div>
+                    )}
+                    {queueScroll.visible.bottom && (
+                      <div className="pointer-events-none fixed bottom-24 left-1/2 z-20 -translate-x-1/2 lg:absolute lg:bottom-3">
+                        <ScrollButton
+                          direction="bottom"
+                          onClick={() => queueScroll.scrollTo('bottom')}
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

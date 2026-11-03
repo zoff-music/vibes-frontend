@@ -13,6 +13,22 @@ export const roomUserSchema = /* @__PURE__ */ v.object({
 
 export type RoomUser = v.InferOutput<typeof roomUserSchema>;
 
+export const roomMemberSchema = /* @__PURE__ */ v.object({
+  userId: v.string(),
+  name: v.string(),
+  isAdmin: v.boolean(),
+  isModerator: v.boolean(),
+  isHost: v.boolean(),
+});
+
+export type RoomMember = v.InferOutput<typeof roomMemberSchema>;
+
+export const roomMembersSchema = /* @__PURE__ */ v.object({
+  members: v.array(roomMemberSchema),
+  castReceivers: v.number(),
+});
+export type RoomMembers = v.InferOutput<typeof roomMembersSchema>;
+
 export const sessionResponseV2Schema = /* @__PURE__ */ v.object({
   userId: v.string(),
   sessionId: v.string(),

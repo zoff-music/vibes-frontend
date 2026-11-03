@@ -51,7 +51,7 @@ import { useRoomPanel } from './useRoomPanel';
 
 export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
   useRememberRoom(loaderData.room.id);
-  const { panel, open, href, chatOpen } = useRoomPanel(
+  const { panel, open, href, chatOpen, peopleOpen } = useRoomPanel(
     loaderData.room.id,
     minimized,
   );
@@ -91,6 +91,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
   const setHost = useRoomStore((state) => state.setHost);
   const setSession = useRoomStore((state) => state.setSession);
   const setUsersCount = useRoomStore((state) => state.setUsersCount);
+  const setMembers = useRoomStore((state) => state.setMembers);
   const usersCount = useRoomStore((state) => state.usersCount);
   const playlistItems = useQueueStore((state) => state.playlistItems);
   const setPlaylistItems = useQueueStore((state) => state.setPlaylistItems);
@@ -261,6 +262,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
         setQueueSnapshotRoomId(id);
       },
       onUsersUpdate: setUsersCount,
+      onMembersUpdate: setMembers,
     }),
     [
       addPlaylistItem,
@@ -274,6 +276,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
       setRoom,
       setPlaylistItems,
       setUsersCount,
+      setMembers,
     ],
   );
 
@@ -553,6 +556,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
     showGenerationProgress,
     isPartyScreen,
     chatOpen,
+    peopleOpen,
     handleCloseAddPlaylistItem,
     handleCloseCast,
     handleOpenPartyScreen,

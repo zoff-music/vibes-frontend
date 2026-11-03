@@ -15,17 +15,36 @@ export function selectRoomPage(
       )
     : visibleRooms;
   matchingRooms.sort((left, right) => {
-    const leftValue =
+    const leftPrimaryValue =
       search.sortBy === 'playlistItems'
         ? left.playlistItemCount
         : left.userCount;
-    const rightValue =
+    const rightPrimaryValue =
       search.sortBy === 'playlistItems'
         ? right.playlistItemCount
         : right.userCount;
-    const difference = leftValue - rightValue;
+    const primaryDifference = leftPrimaryValue - rightPrimaryValue;
 
-    return search.order === 'asc' ? difference : -difference;
+    if (primaryDifference !== 0) {
+      return search.order === 'asc' ? primaryDifference : -primaryDifference;
+    }
+
+    const secondaryDifference =
+      search.sortBy === 'playlistItems'
+        ? left.userCount - right.userCount
+        : left.playlistItemCount - right.playlistItemCount;
+
+    if (secondaryDifference !== 0) {
+      return search.order === 'asc'
+        ? secondaryDifference
+        : -secondaryDifference;
+    }
+
+    const nameDifference = compareText(left.name, right.name);
+
+    return nameDifference !== 0
+      ? nameDifference
+      : compareText(left.id, right.id);
   });
   const page = matchingRooms.slice(search.from, search.to + 1);
 
@@ -36,4 +55,10 @@ export function selectRoomPage(
     to: page.length > 0 ? search.from + page.length - 1 : search.from,
     total: matchingRooms.length,
   };
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }

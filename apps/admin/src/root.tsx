@@ -63,12 +63,6 @@ export function Layout({ children }: LayoutProps) {
         />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script defer src="/plausible-init.js" />
-        <script
-          defer
-          data-domain="zoff.me"
-          src="https://analytics.zoff.me/js/script.outbound-links.tagged-events.js"
-        />
         <Meta />
         <Links />
       </head>

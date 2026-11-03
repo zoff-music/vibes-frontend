@@ -410,7 +410,7 @@ export function RoomScreen() {
     <View
       className={classNames(
         'flex-row items-center justify-between gap-3 self-stretch px-4 py-3',
-        tabletLayout.isTablet && 'h-20 py-0',
+        tabletLayout.isTablet && 'h-24 px-8',
       )}
     >
       <View className="min-w-0 flex-1 justify-center gap-0.5 overflow-hidden">

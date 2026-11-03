@@ -2,6 +2,22 @@
 
 The primary web application for the Vibes ecosystem. It serves as the main interface for users to create rooms, manage queues, and control synchronized playback across devices with full server-side rendering support.
 
+## Web installation and native apps
+
+The web manifest supports standalone installation with ordinary and maskable
+192px/512px icons. Its stable `id`, `start_url` and scope remain `/`, preserving
+the identity of existing web installs. On macOS Sonoma or later, Safari's
+File > Add to Dock installs the site as a web app; Chromium browsers can offer
+their web-app install controls when their engagement requirements are met.
+
+Keep `prefer_related_applications` false so the native-app listings do not
+suppress web installation. Both the App Store and Google Play listings remain
+in the manifest, and the iOS Smart App Banner and visible store links remain
+available. This does not change native app IDs, deep links or store releases.
+Playback and room synchronization require a network connection; installation
+does not promise offline playback. Do not cache live room/session responses in
+a service worker just to enable installation.
+
 ## Embed sharing
 
 The room's **Embed player** settings include an **Autoplay** toggle, off by
@@ -298,7 +314,7 @@ selection pill using a live CSS transform. Supporting browsers animate named
 local SVG layers for the hero's sun/moon, with the orbit behind the solid hero surface.
 The orb stays centered in both modes. A slow circular eclipse reveals the moon
 and its colors over the sun, reversing when returning to Music, without moving
-or rotating the orb. The header labels and NEW sticker stay in the live header,
+or rotating the orb. The header labels stay in the live header,
 outside the artwork, so the pill cannot cover them.
 Experience transitions do not capture page snapshots: the card and header stay
 live and clickable throughout. All decorative artwork ignores pointer events.
@@ -611,9 +627,13 @@ The regular Latin font and main stylesheet are preloaded before loaders finish.
 The DOM stylesheet excludes native-only components from Tailwind's source scan.
 The header logo uses responsive WebP sizes, and provider marks declare their
 intrinsic dimensions. Keep these dimensions when replacing brand assets.
-The content-hashed analytics bootstrap queues events immediately and starts the
-external tracker after load and a paint opportunity, avoiding its layout reads
-during initial rendering.
+The official Plausible npm tracker is bundled into the client build and starts
+after load and a paint opportunity, avoiding layout reads during initial rendering.
+Platform and Admin send events to `/api/v1/activities`; the backend forwards
+them to the configured Plausible instance without application cookies or credentials.
+Automatic SPA pageviews, outbound links and tagged events remain enabled.
+Do Not Track, Global Privacy Control and `localStorage.plausible_ignore = 'true'`
+disable browser analytics. Native applications retain their existing direct transport.
 CSS unicode ranges load the remaining
 characters and bold weight only when needed, preserving the original font's
 character coverage. Native font assets are unchanged. To regenerate the web

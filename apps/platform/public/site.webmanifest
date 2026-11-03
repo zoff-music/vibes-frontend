@@ -1,32 +1,38 @@
 {
+  "id": "/",
   "name": "ゾフ zoff",
   "short_name": "zoff",
-  "description": "ゾフ - Shared Music Queue",
+  "description": "Listen to music and watch YouTube together in shared rooms.",
   "start_url": "/",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
       "src": "/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "theme_color": "#000000",
   "background_color": "#000000",
   "orientation": "any",
   "display": "standalone",
-  "prefer_related_applications": true,
+  "prefer_related_applications": false,
   "related_applications": [
     {
       "platform": "play",
       "url": "https://play.google.com/store/apps/details?id=me.zoff.mobile",
       "id": "me.zoff.mobile"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/zoff-shared-music-queue/id6799954460",
+      "id": "6799954460"
     }
   ],
   "scope": "/",

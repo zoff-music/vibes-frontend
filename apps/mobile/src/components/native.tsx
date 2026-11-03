@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { MobileControlSurface } from '@/components/mobile-control-surface';
 import { NativeRetroGrid } from '@/components/native-retro-grid';
+import { ScreenSafeArea } from '@/components/screen-safe-area';
 import type { ZoffIconName } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import {
@@ -48,7 +49,8 @@ export function Screen({
     <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
       {showGrid && <NativeRetroGrid paused={gridPaused} />}
 
-      <View
+      <ScreenSafeArea
+        edges={['left', 'right']}
         className="z-20 flex-1"
         {...(reservesTabletNavigation && {
           style: {
@@ -57,7 +59,7 @@ export function Screen({
         })}
       >
         {children}
-      </View>
+      </ScreenSafeArea>
     </View>
   );
 }

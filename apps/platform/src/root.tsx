@@ -16,7 +16,6 @@ import {
 } from '@vibes/ui/web';
 import { type ReactNode, useState } from 'preact/compat';
 import { App } from './App';
-import analyticsUrl from './assets/analytics.js?no-inline&url';
 import { isStaleRouteError } from './components/errors/recovery';
 import stylesUrl from './index.css?url';
 import { ErrorBoundary } from './root/ErrorBoundary';
@@ -84,7 +83,6 @@ export function Layout({ children }: Props) {
         />
 
         <link rel="manifest" href="/site.webmanifest" />
-        <script defer src={analyticsUrl} />
         <Meta />
         <Links />
       </head>

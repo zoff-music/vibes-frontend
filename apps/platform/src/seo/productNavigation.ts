@@ -24,17 +24,17 @@ export const productNavigation = [
 export const watchNavigation = [
   {
     slug: 'watching',
-    label: 'Watch together',
-    caption: 'Different places. The same moment.',
+    label: 'Watch YouTube together',
+    caption: 'Create a room, invite friends and watch in sync.',
   },
   {
     slug: 'cinema',
-    label: 'Watch parties',
-    caption: 'Bring your people and the running commentary.',
+    label: 'YouTube watch parties',
+    caption: 'Host a video night with friends and room chat.',
   },
   {
     slug: 'videos',
-    label: 'A shared video queue',
-    caption: 'Turn a little curiosity into a whole evening.',
+    label: 'Shared YouTube queue',
+    caption: 'Add videos together and vote on what plays next.',
   },
 ];
