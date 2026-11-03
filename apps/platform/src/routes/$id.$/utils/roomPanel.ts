@@ -8,6 +8,7 @@ export type RoomPanel =
   | 'settings/device'
   | 'remote'
   | 'chat'
+  | 'people'
   | 'share'
   | 'share/embed'
   | 'cast';
@@ -29,6 +30,7 @@ export function getRetainedRoomData(id: string) {
 
 export function roomPanel(value = ''): RoomPanel {
   if (value.startsWith('chat/')) value = value.slice(5);
+  else if (value.startsWith('people/')) value = value.slice(7);
   if (
     value === '' ||
     value === 'add' ||
@@ -36,6 +38,7 @@ export function roomPanel(value = ''): RoomPanel {
     value === 'settings/device' ||
     value === 'remote' ||
     value === 'chat' ||
+    value === 'people' ||
     value === 'share' ||
     value === 'share/embed' ||
     value === 'cast'
