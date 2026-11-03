@@ -631,8 +631,9 @@ The regular Latin font and main stylesheet are preloaded before loaders finish.
 The DOM stylesheet excludes native-only components from Tailwind's source scan.
 The header logo uses responsive WebP sizes, and provider marks declare their
 intrinsic dimensions. Keep these dimensions when replacing brand assets.
-The official Plausible npm tracker is bundled into the client build and starts
-after load and a paint opportunity, avoiding layout reads during initial rendering.
+The official Plausible npm tracker is a deferred client chunk, imported only
+after load and a paint opportunity. Opted-out visitors do not download it;
+other visitors avoid its download and parsing on the critical hydration path.
 Platform and Admin send events to `/api/v1/activities`; the backend forwards
 them to the configured Plausible instance without application cookies or credentials.
 Automatic SPA pageviews, outbound links and tagged events remain enabled.

@@ -1,15 +1,19 @@
-import { init } from '@plausible-analytics/tracker';
-import { safeWrap } from '@vibes/shared/wrap';
+import { safeWrap, safeWrapAsync } from '@vibes/shared/wrap';
 
 import { analyticsDisabled } from './plausible';
 
 export function initializeBrowserAnalytics() {
   if (typeof window === 'undefined' || analyticsDisabled()) return;
 
-  const initialize = () => {
+  const initialize = async () => {
     if (analyticsDisabled()) return;
+    const [error, tracker] = await safeWrapAsync(
+      import('@plausible-analytics/tracker'),
+    );
+    if (error || !tracker || analyticsDisabled()) return;
+
     safeWrap(() =>
-      init({
+      tracker.init({
         domain: 'zoff.me',
         endpoint: '/api/v1/activities',
         outboundLinks: true,
