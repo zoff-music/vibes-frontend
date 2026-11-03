@@ -638,9 +638,11 @@ them to the configured Plausible instance without application cookies or credent
 Automatic SPA pageviews, outbound links and tagged events remain enabled.
 Do Not Track, Global Privacy Control and `localStorage.plausible_ignore = 'true'`
 disable browser analytics. Native applications retain their existing direct transport.
-CSS unicode ranges load the remaining
-characters and bold weight only when needed, preserving the original font's
-character coverage. Native font assets are unchanged. To regenerate the web
+CSS unicode ranges load extended Latin, Greek, Cyrillic, Hebrew, Arabic, Thai
+and symbols independently, and bold weight only when needed. A song name in one
+script must not download every other script. The generated groups preserve the
+original font's complete character coverage. Native font assets are unchanged.
+To regenerate the web
 subsets after updating the source WOFF2 fonts:
 
 ```sh

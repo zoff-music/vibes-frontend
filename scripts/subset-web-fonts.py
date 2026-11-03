@@ -7,13 +7,28 @@ from fontTools.ttLib import TTFont
 root = Path(__file__).resolve().parents[1]
 fonts = root / "packages/ui/src/shared/assets/fonts"
 latin = set(range(0x250)) | set(range(0x2000, 0x2070))
+scripts = [
+    ("latin", latin),
+    ("latin-extended", set(range(0x250, 0x370)) | set(range(0x1D00, 0x1F00))
+     | set(range(0x2C60, 0x2C80)) | set(range(0xA700, 0xA800))),
+    ("greek", set(range(0x370, 0x400)) | set(range(0x1F00, 0x2000))),
+    ("cyrillic", set(range(0x400, 0x530))),
+    ("hebrew", set(range(0x590, 0x600)) | set(range(0xFB1D, 0xFB50))),
+    ("arabic", set(range(0x600, 0x780)) | set(range(0xFB50, 0xFE00))
+     | set(range(0xFE70, 0xFF00))),
+    ("thai", set(range(0xE00, 0xE80))),
+]
 faces = []
 
 for weight, name in [(400, "Regular"), (700, "Bold")]:
     source = fonts / f"MSW98UI-{name}.woff2"
     coverage = set(TTFont(source).getBestCmap())
-    groups = [("latin", coverage & latin), ("other", coverage - latin)]
+    groups = [(name, coverage & points) for name, points in scripts]
+    assigned = set().union(*(points for _, points in groups))
+    groups.append(("symbols", coverage - assigned))
     for group, codepoints in groups:
+        if not codepoints:
+            continue
         font = TTFont(source, recalcTimestamp=False)
         options = subset.Options()
         options.recalc_timestamp = False
@@ -38,7 +53,7 @@ for weight, name in [(400, "Regular"), (700, "Bold")]:
   font-style: normal;
   font-weight: {weight};
   font-display: swap;
-  src: url("../ui/src/shared/assets/fonts/{filename}") format("woff2");
+  src: url("../ui/src/shared/assets/fonts/{filename}?no-inline") format("woff2");
   unicode-range: {unicode_range};
 }}''')
 
