@@ -51,7 +51,7 @@ import { useRoomPanel } from './useRoomPanel';
 
 export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
   useRememberRoom(loaderData.room.id);
-  const { panel, open, href, chatOpen } = useRoomPanel(
+  const { panel, open, href, chatOpen, peopleOpen } = useRoomPanel(
     loaderData.room.id,
     minimized,
   );
@@ -556,6 +556,7 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
     showGenerationProgress,
     isPartyScreen,
     chatOpen,
+    peopleOpen,
     handleCloseAddPlaylistItem,
     handleCloseCast,
     handleOpenPartyScreen,

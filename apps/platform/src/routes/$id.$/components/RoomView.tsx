@@ -77,6 +77,7 @@ export function RoomView({
     showGenerationProgress,
     isPartyScreen,
     chatOpen,
+    peopleOpen,
     handleCloseAddPlaylistItem,
     handleCloseCast,
     handleOpenPartyScreen,
@@ -98,7 +99,7 @@ export function RoomView({
     ? (loaderData.queuedPlaylistItemCount ??
         loaderData.playlistItems.length) === 0
     : playlistItems.every((item) => item.id === currentItemId);
-  const fillAvailableHeight = chatOpen || queueEmpty;
+  const fillAvailableHeight = chatOpen || peopleOpen || queueEmpty;
 
   return (
     <PersistentPlayerFrame

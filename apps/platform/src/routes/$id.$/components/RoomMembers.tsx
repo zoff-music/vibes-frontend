@@ -14,7 +14,7 @@ export function RoomMembers({ roomId }: RoomMembersProps) {
   return (
     <section
       aria-label="People in this room"
-      className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl p-1"
+      className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl lg:[scrollbar-gutter:stable]"
     >
       {!presence && (
         <p role="status" className="p-4 text-sm text-theme-muted">
@@ -29,7 +29,7 @@ export function RoomMembers({ roomId }: RoomMembersProps) {
           {presence.members.map((member) => (
             <li
               key={member.userId}
-              className="panel-surface flex min-h-14 items-center gap-3 rounded-2xl border border-theme px-4 py-3 text-theme"
+              className="relative flex min-h-14 w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface p-3 text-theme sm:gap-3"
             >
               {(member.isAdmin || member.isModerator) && (
                 <span

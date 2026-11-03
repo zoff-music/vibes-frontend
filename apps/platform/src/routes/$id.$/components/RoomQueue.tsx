@@ -61,10 +61,8 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     initialPlaylistItems,
     initialQueuedPlaylistItemCount,
   }: RoomQueueProps) => {
-    const { href } = useRoomPanel(roomId, minimized);
+    const { href, peopleOpen: membersOpen } = useRoomPanel(roomId, minimized);
     const queueScrollRef = useRef<HTMLDivElement>(null);
-    const [membersOpen, setMembersOpen] = useState(false);
-    const previousChatOpen = useRef(chatOpen);
     const queueVisible = !minimized && !chatOpen && !membersOpen;
     useRoomQueueScroll(queueScrollRef, queueVisible);
     const queueScroll = useQueueScrollControls(queueScrollRef, queueVisible);
@@ -76,10 +74,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     useEffect(() => {
       chat.selectChat(chatOpen && chatEnabled && !membersOpen);
     }, [chatOpen, chat.selectChat, chatEnabled, membersOpen]);
-    useEffect(() => {
-      if (previousChatOpen.current !== chatOpen) setMembersOpen(false);
-      previousChatOpen.current = chatOpen;
-    }, [chatOpen]);
     const [chatError, setChatError] = useState('');
     const [chatConnected, setChatConnected] = useState(false);
     const chatFetcher = useFetcher<RoomActionData>();
@@ -228,15 +222,19 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   priority
                   {...(listenerCount != null && {
                     statusAside: (
-                      <button
-                        type="button"
-                        onClick={() => setMembersOpen(true)}
+                      <Link
+                        to={href('people')}
+                        replace
+                        preventScrollReset
+                        viewTransition={false}
+                        prefetch="intent"
+                        prefetchData
                         aria-label="Show people in this room"
-                        aria-pressed={membersOpen}
-                        className="min-h-11 cursor-pointer rounded-lg px-1 focus-visible:outline-2 focus-visible:outline-secondary"
+                        {...(membersOpen && { 'aria-current': 'page' })}
+                        className="inline-flex min-h-11 cursor-pointer items-center rounded-lg px-1 underline underline-offset-4 hover:text-theme focus-visible:outline-2 focus-visible:outline-secondary"
                       >
                         {listenerCount}
-                      </button>
+                      </Link>
                     ),
                   })}
                   isHost={isHost}
@@ -257,7 +255,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                 <h2 className="sr-only">Queue, chat and people</h2>
                 <Link
                   {...(!chatOpen && !membersOpen && { 'aria-current': 'page' })}
-                  onClick={() => setMembersOpen(false)}
                   to={href('', false)}
                   replace
                   preventScrollReset
@@ -277,7 +274,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   <Link
                     {...(chatOpen &&
                       !membersOpen && { 'aria-current': 'page' })}
-                    onClick={() => setMembersOpen(false)}
                     to={href('chat')}
                     replace
                     preventScrollReset
@@ -293,11 +289,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   >
                     {chat.unread > 0 ? `Chat (${chat.unread})` : 'Chat'}
                   </Link>
-                )}
-                {membersOpen && (
-                  <span className="inline-flex min-h-12 items-center border-secondary border-b-2 px-1 font-display text-2xs text-theme tracking-label">
-                    People
-                  </span>
                 )}
               </div>
               <div

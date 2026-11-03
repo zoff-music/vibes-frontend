@@ -72,14 +72,19 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
   const roomId = params.id;
   const chatOpen =
     params['*'] === 'chat' || Boolean(params['*']?.startsWith('chat/'));
+  const peopleOpen =
+    params['*'] === 'people' || Boolean(params['*']?.startsWith('people/'));
   const isOpen =
     Boolean(roomId) &&
-    (params['*'] === 'remote' || params['*'] === 'chat/remote');
+    (params['*'] === 'remote' ||
+      params['*'] === 'chat/remote' ||
+      params['*'] === 'people/remote');
   const panelUrl = new URL(
     typeof window === 'undefined' ? location.href : window.location.href,
   );
   const panelSuffix = `${panelUrl.search}${panelUrl.hash}`;
-  const roomPath = `/${encodeURIComponent(roomId ?? '')}${chatOpen ? '/chat' : ''}`;
+  const viewPath = chatOpen ? '/chat' : peopleOpen ? '/people' : '';
+  const roomPath = `/${encodeURIComponent(roomId ?? '')}${viewPath}`;
   const remotePath = `${roomPath}/remote${panelSuffix}`;
   const [machineRoomId, setMachineRoomId] = useState('');
   const partyMode =
