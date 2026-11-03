@@ -217,6 +217,10 @@ tabs. Reduced motion shows the pattern without flashing and lets the player
 choose when to continue. Single-segment room names keep their existing room
 creation flow. Other failures retain their retry screen.
 
+The shared not-found entry lazily imports its presentation, which separately
+loads BeatGame. Server rendering and client hydration use the same Suspense
+boundaries; do not switch markup based on whether `window` exists.
+
 ## 🧩 Technical Stack
 
 ### Public product pages and search metadata
