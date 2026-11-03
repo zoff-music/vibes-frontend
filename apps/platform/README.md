@@ -664,6 +664,35 @@ animated layers out of initial SSR paint work. Hydration and controls are not
 delayed. Reduced-motion and page-visibility behavior still apply.
 
 Measure production builds with both Brotli and gzip, not Vite's dev server.
+For repeatable browser measurements, build Platform, serve it locally against
+a local test backend with a stable populated room, and run:
+
+```sh
+pnpm exec playwright install chromium
+pnpm --silent measure:frontend http://127.0.0.1:3107 /test-room > /tmp/frontend-before.json
+```
+
+The local origin must route `/api` to that same test backend. Do not point the
+test backend at production. Keep the queue, provider configuration, thumbnails,
+theme and machine unchanged between baseline and candidate runs. Rebuild and
+restart the server after changing branches, then repeat into a separate report.
+Use the same local asset origin for both builds, without a production CDN override.
+
+The TypeScript reporter uses existing Playwright tooling, rejects non-local
+frontend URLs, and does not submit searches or playback controls. It performs
+three cold visits each to the homepage and room at mobile and desktop sizes,
+with a new browser context, disabled HTTP cache and blocked service workers.
+Reports include encoded body bytes and transfer bytes (including response
+headers), completed request counts, per-resource URLs without query strings,
+main-frame script/task execution time, navigation timings, failures and unfinished
+requests. Third-party provider resources are reported separately by origin.
+Compare medians across runs; timings are unthrottled lab results, not real-user
+percentiles. The fixed observation window ends three seconds after `load`,
+not at network idle: room SSE deliberately stays open. Unfinished streams are
+listed rather than counted as fully downloaded resources. This is an initial
+viewport measurement, not a scroll-through or a playback correctness test.
+Browsers and contexts are closed after the report, including on failure.
+
 Shared API models use tree-shakeable Valibot schemas for runtime validation,
 defaults and input limits. Preserve the explicit user-facing validation messages;
 do not replace validation with type assertions.
