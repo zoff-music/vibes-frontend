@@ -676,8 +676,10 @@ timeouts, credentials and validation behavior.
 
 DOM app roots provide `MotionProvider` from `@vibes/ui/web`. Shared controls and
 platform animations use Motion's lightweight `m` components with synchronous
-`domAnimation` features, so entrances and interactions do not wait for another
-download. Room queues opt into layout features locally so rows move upward
+`domMin` animation features, so entrances do not wait for another download.
+Queue voting controls load their own synchronous `domAnimation` gesture features;
+pages without voting controls do not need that gesture bundle at startup.
+Room queues opt into layout features locally so rows move upward
 when playback advances and animate reordering after votes. The scroll container
 participates in layout measurement; reduced motion disables row movement.
 The embed playlist and deferred embed showcase also retain layout features.

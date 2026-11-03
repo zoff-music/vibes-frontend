@@ -3,7 +3,7 @@ import {
   getProviderItemUrl,
   type PlaylistItem,
 } from '@vibes/shared';
-import { m as motion } from 'framer-motion';
+import { domAnimation, LazyMotion, m as motion } from 'framer-motion';
 import React from 'preact/compat';
 import { formatPlaybackSeconds, getProviderDisplayName } from '../../../shared';
 import { TrashIcon, VoteIcon } from '../../icons';
@@ -127,37 +127,39 @@ const QueueItemComponent: React.FC<Props> = ({
               className="inline-flex"
               content="Vote this song up"
             >
-              <motion.div whileTap={{ scale: 0.92 }}>
-                <Button
-                  onClick={handleVote}
-                  disabled={isVoting}
-                  variant="tertiary"
-                  size="none"
-                  className="h-11 min-w-14 shrink-0 gap-2 px-3 leading-none tracking-normal hover:bg-secondary/10 sm:h-9"
-                  aria-label={`Vote for ${playlistItem.title} by ${playlistItem.publisher || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
-                  aria-busy={isVoting}
-                >
-                  <motion.span
-                    className="inline-flex shrink-0 items-center justify-center"
-                    animate={
-                      isVoting
-                        ? { rotate: [0, -14, 14, 0], scale: [1, 1.2, 1] }
-                        : { rotate: 0, scale: 1 }
-                    }
-                    transition={{ duration: 0.4 }}
+              <LazyMotion features={domAnimation}>
+                <motion.div whileTap={{ scale: 0.92 }}>
+                  <Button
+                    onClick={handleVote}
+                    disabled={isVoting}
+                    variant="tertiary"
+                    size="none"
+                    className="h-11 min-w-14 shrink-0 gap-2 px-3 leading-none tracking-normal hover:bg-secondary/10 sm:h-9"
+                    aria-label={`Vote for ${playlistItem.title} by ${playlistItem.publisher || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
+                    aria-busy={isVoting}
                   >
-                    <VoteIcon className="h-4 w-4 text-secondary" />
-                  </motion.span>
-                  <motion.span
-                    key={voteCount}
-                    initial={false}
-                    animate={{ scale: 1 }}
-                    className="inline-flex min-w-3 items-center justify-center text-secondary tabular-nums"
-                  >
-                    {voteCount}
-                  </motion.span>
-                </Button>
-              </motion.div>
+                    <motion.span
+                      className="inline-flex shrink-0 items-center justify-center"
+                      animate={
+                        isVoting
+                          ? { rotate: [0, -14, 14, 0], scale: [1, 1.2, 1] }
+                          : { rotate: 0, scale: 1 }
+                      }
+                      transition={{ duration: 0.4 }}
+                    >
+                      <VoteIcon className="h-4 w-4 text-secondary" />
+                    </motion.span>
+                    <motion.span
+                      key={voteCount}
+                      initial={false}
+                      animate={{ scale: 1 }}
+                      className="inline-flex min-w-3 items-center justify-center text-secondary tabular-nums"
+                    >
+                      {voteCount}
+                    </motion.span>
+                  </Button>
+                </motion.div>
+              </LazyMotion>
             </Tooltip>
           )}
 
