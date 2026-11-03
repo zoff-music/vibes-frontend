@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - ".github/workflows/security.yaml"
+      - ".github/workflows/publish-image.yaml"
       - "apps/remote/**"
       - "packages/**"
       - "package.json"
@@ -32,44 +33,34 @@ jobs:
     if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
-      packages: write
     environment: production
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
       - name: Build
         env:
           RELEASE_SHA: ${{ github.sha }}
           ASSET_ORIGIN: ${{ vars.ASSET_ORIGIN }}
         run: |
           IMAGE_REPOSITORY="ghcr.io/${GITHUB_REPOSITORY,,}/remote"
-          IMAGE_VERSION="main-$(date -u +%Y%m%d%H%M%S)-${RELEASE_SHA}"
           IMAGE="${IMAGE_REPOSITORY}:${RELEASE_SHA}"
-          VERSIONED_IMAGE="${IMAGE_REPOSITORY}:${IMAGE_VERSION}"
-          docker build --no-cache --build-arg ASSET_ORIGIN="$ASSET_ORIGIN" -f apps/remote/Dockerfile -t "$IMAGE" -t "$VERSIONED_IMAGE" .
-          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
-          echo "VERSIONED_IMAGE=$VERSIONED_IMAGE" >> "$GITHUB_ENV"
-      - name: Prepare Docker credentials
-        run: |
-          docker_config=$(mktemp -d "$RUNNER_TEMP/zoff-docker.XXXXXX")
-          echo "DOCKER_CONFIG=$docker_config" >> "$GITHUB_ENV"
-      - name: Push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
-          docker push "$IMAGE"
-          docker push "$VERSIONED_IMAGE"
-      - name: Remove Docker credentials
-        if: always() && env.DOCKER_CONFIG != ''
-        run: |
-          case "$DOCKER_CONFIG" in
-            "$RUNNER_TEMP"/zoff-docker.*) ;;
-            *) exit 1 ;;
-          esac
+          docker build --no-cache --build-arg ASSET_ORIGIN="$ASSET_ORIGIN" -f apps/remote/Dockerfile -t "$IMAGE" .
+          docker save "$IMAGE" -o "$RUNNER_TEMP/image.tar"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: remote-image
+          path: ${{ runner.temp }}/image.tar
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
 
-          docker logout ghcr.io || true
-          rm -f -- "$DOCKER_CONFIG/config.json"
-          rmdir -- "$DOCKER_CONFIG"
+  publish:
+    needs: build
+    permissions:
+      packages: write
+    uses: ./.github/workflows/publish-image.yaml
+    with:
+      app: remote

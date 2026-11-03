@@ -1,0 +1,78 @@
+name: publish-image
+
+on:
+  workflow_call:
+    inputs:
+      app:
+        required: true
+        type: string
+
+permissions:
+  packages: write
+
+jobs:
+  publish:
+    if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 15
+    steps:
+      # This runner never checks out source, builds dependencies, or runs the image.
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ inputs.app }}-image
+          path: ${{ runner.temp }}/release-image
+      - name: Load image
+        env:
+          APP: ${{ inputs.app }}
+        run: |
+          case "$APP" in
+            platform|admin|cast|embed|remote) ;;
+            *) exit 1 ;;
+          esac
+          docker load -i "$RUNNER_TEMP/release-image/image.tar"
+          docker image inspect "ghcr.io/${GITHUB_REPOSITORY,,}/$APP:$GITHUB_SHA" > /dev/null
+      - name: Install credential helper
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y pass gnupg golang-docker-credential-helpers
+          command -v docker-credential-pass
+      - name: Prepare encrypted credential store
+        run: |
+          umask 077
+          credentials_dir=$(mktemp -d "$RUNNER_TEMP/zoff-credentials.XXXXXX")
+          echo "CREDENTIALS_DIR=$credentials_dir" >> "$GITHUB_ENV"
+          export GNUPGHOME="$credentials_dir/gnupg"
+          export PASSWORD_STORE_DIR="$credentials_dir/pass"
+          export DOCKER_CONFIG="$credentials_dir/docker"
+          mkdir -m 700 "$GNUPGHOME" "$DOCKER_CONFIG"
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          echo "PASSWORD_STORE_DIR=$PASSWORD_STORE_DIR" >> "$GITHUB_ENV"
+          echo "DOCKER_CONFIG=$DOCKER_CONFIG" >> "$GITHUB_ENV"
+          gpg --batch --pinentry-mode loopback --passphrase '' --quick-generate-key 'Release credentials' rsa2048 encr 1d
+          fingerprint=$(gpg --batch --with-colons --list-secret-keys | awk -F: '$1 == "fpr" { print $10; exit }')
+          test -n "$fingerprint"
+          pass init "$fingerprint"
+          printf '%s\n' '{"credHelpers":{"ghcr.io":"pass"}}' > "$DOCKER_CONFIG/config.json"
+      - name: Push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP: ${{ inputs.app }}
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}/$APP:$GITHUB_SHA"
+          versioned_image="ghcr.io/${GITHUB_REPOSITORY,,}/$APP:main-$(date -u +%Y%m%d%H%M%S)-$GITHUB_SHA"
+          docker tag "$image" "$versioned_image"
+          printf '%s' "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          unset GITHUB_TOKEN
+          docker push "$image"
+          docker push "$versioned_image"
+      - name: Remove credentials
+        if: always() && env.CREDENTIALS_DIR != ''
+        run: |
+          case "$CREDENTIALS_DIR" in
+            "$RUNNER_TEMP"/zoff-credentials.*) ;;
+            *) exit 1 ;;
+          esac
+          docker logout ghcr.io || true
+          gpgconf --kill all || true
+          rm -rf -- "$CREDENTIALS_DIR"
