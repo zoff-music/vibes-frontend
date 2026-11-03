@@ -120,7 +120,7 @@ test('local official widgets keep playing across skips and natural transitions',
       request.failure()?.errorText,
     ),
   );
-  await page.addInitScript(() => {
+  await page.addInitScript((fixtureOrigin) => {
     window.observedMedia = new Set();
     window.observedAudioOutputs = new Set();
     // SoundCloud may use Web Audio instead of an HTML audio element. Observe
@@ -140,6 +140,8 @@ test('local official widgets keep playing across skips and natural transitions',
     });
     window.providerCommands = [];
     window.addEventListener('message', (event) => {
+      if (event.origin !== fixtureOrigin || event.source !== window.parent)
+        return;
       if (
         typeof event.data === 'string' &&
         /"method":"(play|pause|setVolume|seekTo)"/.test(event.data)
@@ -151,7 +153,7 @@ test('local official widgets keep playing across skips and natural transitions',
       window.observedMedia.add(this);
       return Reflect.apply(original, this, args);
     };
-  });
+  }, url.origin);
   await page.route(/https?:\/\/([^/]*\.)?zoff\.me(?:\/|$)/, (route) =>
     route.abort(),
   );
