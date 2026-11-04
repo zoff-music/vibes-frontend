@@ -8,6 +8,7 @@ export default defineConfig({
     ],
     fileParallelism: false,
     maxWorkers: 1,
+    maxConcurrency: 4,
     testTimeout: 240_000,
     hookTimeout: 30_000,
   },

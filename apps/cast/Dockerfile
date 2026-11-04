@@ -2,7 +2,7 @@ ARG NODE_VERSION=26.12.1
 ARG NODE_RUNTIME_IMAGE=platformatic/node-caged:26-slim
 ARG PNPM_VERSION=12.3.4
 
-FROM node:${NODE_VERSION}-bookworm-slim AS deps
+FROM node:${NODE_VERSION}-bookworm-slim AS base
 
 ARG PNPM_VERSION
 
@@ -18,11 +18,20 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml biome.json tsconfig.json ./
 COPY patches ./patches
 COPY apps/cast/package.json apps/cast/package.json
 COPY apps/platform/package.json apps/platform/package.json
-COPY packages ./packages
+COPY packages/api/package.json packages/api/package.json
+COPY packages/models/package.json packages/models/package.json
+COPY packages/serve/package.json packages/serve/package.json
+COPY packages/shared/package.json packages/shared/package.json
+COPY packages/tailwind/package.json packages/tailwind/package.json
+COPY packages/ui/package.json packages/ui/package.json
+
+FROM base AS deps
 
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS builder
+
+COPY packages ./packages
 
 ARG ASSET_ORIGIN=""
 ENV ASSET_ORIGIN=${ASSET_ORIGIN}
@@ -31,16 +40,21 @@ COPY apps/cast ./apps/cast
 
 RUN pnpm --filter @vibes/cast build
 
+FROM base AS production-deps
+
+RUN pnpm --filter @vibes/cast... install --prod --frozen-lockfile
+
 FROM ${NODE_RUNTIME_IMAGE} AS prod
 
 WORKDIR /app
 
-COPY --from=builder /src/package.json ./package.json
-COPY --from=builder /src/node_modules ./node_modules
-COPY --from=builder /src/packages ./packages
-COPY --from=builder /src/apps/cast/package.json ./apps/cast/package.json
+COPY --from=production-deps /src/package.json ./package.json
+COPY --from=production-deps /src/node_modules ./node_modules
+COPY packages ./packages
+COPY --from=production-deps /src/packages ./packages
+COPY --from=production-deps /src/apps/cast/package.json ./apps/cast/package.json
+COPY --from=production-deps /src/apps/cast/node_modules ./apps/cast/node_modules
 COPY --from=builder /src/apps/cast/server ./apps/cast/server
-COPY --from=builder /src/apps/cast/node_modules ./apps/cast/node_modules
 COPY --from=builder /src/apps/cast/dist ./apps/cast/dist
 
 ENV NODE_ENV=production

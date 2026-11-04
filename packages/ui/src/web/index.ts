@@ -1,4 +1,5 @@
 export { publicAssetUrl } from './assets';
+export { chatNameColor } from './chat';
 export * from './components/AnimatedNumber';
 export * from './components/Button';
 export { ChatConversation } from './components/ChatConversation';
