@@ -9,7 +9,7 @@ import {
   ResetIcon,
   SkipIcon,
 } from '@vibes/ui/web';
-import logoUrl from '../../../assets/logo.png';
+import logoUrl from '../../../assets/logo.webp?no-inline';
 
 interface Props {
   canControlPlayback: boolean;
@@ -106,7 +106,13 @@ export function EmbedRoomHeader({
           title="Open room on Zoff in a new tab"
           aria-label="Open room on Zoff in a new tab"
         >
-          <img className="h-7 w-7 rounded-full" src={logoUrl} alt="" />
+          <img
+            className="h-7 w-7 rounded-full"
+            src={logoUrl}
+            alt=""
+            width={28}
+            height={28}
+          />
           <ExternalLinkIcon className="h-4 w-4" />
         </a>
       </div>

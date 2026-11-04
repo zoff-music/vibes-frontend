@@ -7,6 +7,7 @@ import { IconButton } from './IconButton';
 interface PersistentPlayerFrameProps {
   children: ReactNode;
   minimized: boolean;
+  persistent?: boolean;
   roomName: string;
   roomHref: string;
   onClose: () => void;
@@ -15,6 +16,7 @@ interface PersistentPlayerFrameProps {
 export function PersistentPlayerFrame({
   children,
   minimized,
+  persistent = false,
   roomName,
   roomHref,
   onClose,
@@ -34,6 +36,7 @@ export function PersistentPlayerFrame({
     previousMode.current = minimized;
     previous.current = next;
     if (
+      document.documentElement.classList.contains('scene-transition') ||
       !changed ||
       !last ||
       !next.width ||
@@ -66,15 +69,18 @@ export function PersistentPlayerFrame({
         minimized &&
           'fixed right-4 bottom-4 z-40 w-96 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-theme bg-theme shadow-xl [view-transition-name:persistent-player] sm:right-6 sm:bottom-6',
       )}
+      data-player-persistent={persistent}
       data-minimized={minimized}
     >
       {minimized && (
-        <div className="flex items-center gap-2 border-theme border-b px-3 py-2">
+        <div
+          data-room-player-header
+          className="flex items-center gap-2 border-theme border-b px-3 py-2"
+        >
           <Link
             className="min-w-0 flex-1 truncate text-left text-sm text-theme-muted transition-colors hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
             to={roomHref}
             prefetch="intent"
-            viewTransition={false}
           >
             {roomName}
           </Link>

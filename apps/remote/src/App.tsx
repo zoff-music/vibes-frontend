@@ -78,7 +78,6 @@ export function App() {
                     to={settingsHref}
                     replace
                     preventScrollReset
-                    viewTransition={false}
                     prefetch="intent"
                     prefetchData
                     size="icon"

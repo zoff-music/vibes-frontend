@@ -18,4 +18,5 @@ export default function TermsOfService() {
   );
 }
 
+export { viewTransition } from '../../utils/viewTransition';
 export { loader } from './loader';

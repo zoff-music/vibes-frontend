@@ -56,7 +56,6 @@ export const RoomSharePanel = ({
           to={href('share/embed')}
           replace
           preventScrollReset
-          viewTransition={false}
           prefetch="intent"
           prefetchData
           variant="primary"

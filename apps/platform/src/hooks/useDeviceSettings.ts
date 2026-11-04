@@ -30,7 +30,6 @@ export function useDeviceSettings() {
     void navigate(href(open), {
       replace: true,
       preventScrollReset: true,
-      viewTransition: false,
     });
   };
   return { isOpen, setOpen, settingsHref: base ? href(true) : undefined };

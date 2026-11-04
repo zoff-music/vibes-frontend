@@ -1,6 +1,5 @@
 import { useNavigate } from '@kasperrt/smolter/preact';
 import { AlertCircleIcon, Button } from '@vibes/ui/web';
-import { canUseViewTransition } from '../../../utils/viewTransition';
 
 interface RoomErrorViewProps {
   isRoomNotFound: boolean;
@@ -34,9 +33,7 @@ export function RoomErrorView({
           {isRoomNotFound && (
             <Button
               onClick={() =>
-                navigate(`/rooms/create?name=${encodeURIComponent(roomId)}`, {
-                  viewTransition: canUseViewTransition(),
-                })
+                navigate(`/rooms/create?name=${encodeURIComponent(roomId)}`, {})
               }
               variant="primary"
             >

@@ -33,8 +33,6 @@ import {
 import { useRemoteControl } from '../../../components/remote/RemoteControlProvider';
 import { useRememberRoom } from '../../../hooks/useRememberRoom';
 import { useCastStore } from '../../../stores/castStore';
-import { usePersistentPlayerStore } from '../../../stores/persistentPlayerStore';
-import { canUseViewTransition } from '../../../utils/viewTransition';
 import {
   GENERATION_REFRESH_DELAY_MS,
   roomEntryInitialState,
@@ -374,9 +372,6 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
         state: {
           fromRoom: true,
         },
-        viewTransition:
-          !usePersistentPlayerStore.getState().enabled &&
-          canUseViewTransition(),
       },
     );
   }, [navigate, displayRoom.roomType]);
@@ -518,7 +513,9 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
   }, [showSettings, open, id]);
 
   const roomEntryInitial =
-    navigationType === 'PUSH' && !shouldReduceMotion
+    navigationType === 'PUSH' &&
+    !shouldReduceMotion &&
+    (typeof document === 'undefined' || !document.startViewTransition)
       ? roomEntryInitialState
       : false;
 

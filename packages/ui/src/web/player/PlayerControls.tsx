@@ -199,7 +199,6 @@ const PlayerControlsComponent: React.FC<Props> = ({
                 to={castHref}
                 replace
                 preventScrollReset
-                viewTransition={false}
                 prefetch="intent"
                 prefetchData
                 variant={isCasting ? 'tertiary-active' : 'ghost'}
@@ -232,7 +231,6 @@ const PlayerControlsComponent: React.FC<Props> = ({
               to={addPlaylistItemHref}
               replace
               preventScrollReset
-              viewTransition={false}
               prefetch="intent"
               prefetchData
               variant="primary"

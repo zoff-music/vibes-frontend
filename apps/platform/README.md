@@ -757,3 +757,25 @@ DOM apps use Preact with the shared Smolter adapter and optional flat-file route
 manifest. React Compiler is disabled for these builds; native apps retain their
 React runtime. Compatibility imports resolve to Preact in web bundles. Measure
 both transfer size and interaction performance when changing memoization.
+
+### Route transitions (Smolter 0.5.1)
+
+Page modules export the shared `viewTransition` callback. Platform keeps its
+SSR root shell mounted; only `page-content` crossfades. The header, footer,
+background and persistent player do not fade on page navigation. Room entry and
+exit use one scene dissolve once route data is ready, with the outgoing scene
+held opaque beneath the destination. With persistent playback enabled, the video
+uses a shared snapshot to travel between its room and floating positions; same-room panels commit immediately
+so provider iframes stay live. Joining keeps the current page visible with
+inline button feedback instead of a blocking loading overlay. Device
+settings, filters, hash jumps and the homepage Music/Watch eclipse retain their
+own local behavior. Reduced motion and hidden tabs bypass snapshots; rapid
+navigation cancels the previous snapshot.
+
+Smolter 0.5.1 nested routing is client-only. Its integrated SSR mount
+still uses flat routes. Trailing underscores in standalone route folder names
+prevent automatic parent inference without changing public URLs. Do not add
+nested layout routes until the integrated SSR/hydration path supports them.
+
+Run `node --test apps/platform/src/utils/viewTransitionPolicy.test.ts` for the
+navigation policy regression cases.

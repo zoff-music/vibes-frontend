@@ -5,7 +5,7 @@ import {
   useEffect,
   useState,
 } from 'preact/compat';
-import type { AdminRoomSearch } from '../../admin.rooms/loader';
+import type { AdminRoomSearch } from '../../admin_.rooms/loader';
 
 interface AdminRoomFiltersProps {
   disabled: boolean;

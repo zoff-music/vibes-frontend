@@ -230,7 +230,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                         to={href('people')}
                         replace
                         preventScrollReset
-                        viewTransition={false}
                         prefetch="intent"
                         prefetchData
                         aria-label="Show people in this room"
@@ -267,7 +266,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                   to={href('', false)}
                   replace
                   preventScrollReset
-                  viewTransition={false}
                   prefetch="intent"
                   prefetchData
                   className={classNames(
@@ -286,7 +284,6 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     to={href('chat')}
                     replace
                     preventScrollReset
-                    viewTransition={false}
                     prefetch="intent"
                     prefetchData
                     className={classNames(

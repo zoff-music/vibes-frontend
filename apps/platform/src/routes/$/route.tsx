@@ -6,4 +6,5 @@ export default function NotFound() {
   return <NotFoundPage />;
 }
 
+export { viewTransition } from '../../utils/viewTransition';
 export { loader } from './loader';

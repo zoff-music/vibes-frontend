@@ -1,3 +1,4 @@
+export { pageViewTransition as viewTransition } from '@vibes/ui/web';
 export { action } from './action';
 export { AdminRooms as default } from './components/AdminRooms';
 export { loader } from './loader';

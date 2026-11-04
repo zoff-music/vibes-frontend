@@ -91,7 +91,6 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
                   to={settingsHref}
                   replace
                   preventScrollReset
-                  viewTransition={false}
                   prefetch="intent"
                   prefetchData
                   className="border-transparent!"
