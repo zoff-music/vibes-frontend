@@ -68,7 +68,9 @@ jobs:
           context: .
           file: apps/embed/Dockerfile
           push: true
-          no-cache: true
+          pull: true
+          cache-from: type=gha,scope=embed
+          cache-to: type=gha,scope=embed,mode=max
           provenance: false
           build-args: |
             ASSET_ORIGIN=${{ vars.ASSET_ORIGIN }}

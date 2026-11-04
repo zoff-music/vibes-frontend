@@ -19,11 +19,18 @@ COPY patches ./patches
 COPY apps/admin/package.json apps/admin/package.json
 COPY apps/platform/package.json apps/platform/package.json
 COPY apps/cast/package.json apps/cast/package.json
-COPY packages ./packages
+COPY packages/api/package.json packages/api/package.json
+COPY packages/models/package.json packages/models/package.json
+COPY packages/serve/package.json packages/serve/package.json
+COPY packages/shared/package.json packages/shared/package.json
+COPY packages/tailwind/package.json packages/tailwind/package.json
+COPY packages/ui/package.json packages/ui/package.json
 
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS builder
+
+COPY packages ./packages
 
 ARG ASSET_ORIGIN=""
 ENV ASSET_ORIGIN=${ASSET_ORIGIN}
