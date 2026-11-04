@@ -5,3 +5,5 @@ export { meta } from './meta';
 export default function NotFound() {
   return <NotFoundView />;
 }
+
+export { pageViewTransition as viewTransition } from '@vibes/ui/web';

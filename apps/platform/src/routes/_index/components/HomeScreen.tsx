@@ -1,21 +1,13 @@
-import type {
-  NavigateFunction,
-  NavigationType,
+import {
+  type NavigateFunction,
+  type NavigationType,
+  useNavigation,
 } from '@kasperrt/smolter/preact';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
-import {
-  lazy,
-  memo,
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'preact/compat';
+import { memo, useCallback, useEffect, useRef, useState } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
 import { getPreviousPath } from '../../../utils/navigationHistory';
-import { canUseViewTransition } from '../../../utils/viewTransition';
 import { preloadHomeAction } from '../clientAction';
 import type { HomeLoaderData } from '../loader';
 import { HomeEntryControls } from './HomeEntryControls';
@@ -23,14 +15,6 @@ import { HomeLanding } from './HomeLanding';
 import { HomePlaceholder } from './HomePlaceholder';
 import { ReturnToRoom } from './ReturnToRoom';
 import { ReturnToRoomPreview } from './ReturnToRoomPreview';
-
-const LazyJoiningRoomState = lazy(async () => {
-  const module = await import('./JoiningRoomState');
-
-  return {
-    default: module.JoiningRoomState,
-  };
-});
 
 interface HomeScreenProps extends HomeLoaderData {
   navigate: NavigateFunction;
@@ -51,7 +35,11 @@ export const HomeScreen = memo(function HomeScreen({
   const previewReturn =
     import.meta.env.DEV && searchParams.get('preview') === 'return-to-room';
   const [isAIMode, setIsAIMode] = useState(searchParams.get('mode') === 'ai');
-  const [pendingRoomSlug, setPendingRoomSlug] = useState<string | null>(null);
+  const navigation = useNavigation();
+  const pendingRoomSlug =
+    navigation.state === 'loading'
+      ? navigation.location?.pathname.match(/^\/([^/]+)\/?$/)?.[1]
+      : null;
   const heroRef = useRef<HTMLDivElement>(null);
   const roomNameRef = useRef<HTMLInputElement>(null);
   const [generationEntry, setGenerationEntry] = useState(0);
@@ -92,6 +80,7 @@ export const HomeScreen = memo(function HomeScreen({
   const previousRoomId = previousPath?.match(/^\/([^/]+)$/)?.[1];
   const shouldFadeIn =
     navigationType === 'POP' &&
+    (typeof document === 'undefined' || !document.startViewTransition) &&
     Boolean(previousRoomId && !RESERVED_TOP_LEVEL_PATHS.has(previousRoomId));
   const handleJoinRoom = (selectedRoomId?: string) => {
     const requestedRoomId = selectedRoomId ?? roomCode;
@@ -99,16 +88,11 @@ export const HomeScreen = memo(function HomeScreen({
     if (!requestedRoomId.trim()) return;
 
     const slug = requestedRoomId.trim().toLowerCase().replace(/\s+/g, '-');
-    setPendingRoomSlug(slug);
-    navigate(`/${slug}${watch ? '?type=watch' : ''}`, {
-      viewTransition: canUseViewTransition(),
-    });
+    navigate(`/${slug}${watch ? '?type=watch' : ''}`, {});
   };
 
   const handleStartSession = () => {
-    navigate(watch ? '/rooms/create?type=watch' : '/rooms/create', {
-      viewTransition: canUseViewTransition(),
-    });
+    navigate(watch ? '/rooms/create?type=watch' : '/rooms/create', {});
   };
 
   const handleToggleAIMode = () => {
@@ -125,6 +109,7 @@ export const HomeScreen = memo(function HomeScreen({
 
   return (
     <div
+      aria-busy={Boolean(pendingRoomSlug)}
       className={classNames(
         'home-entry relative w-full',
         shouldFadeIn && 'animate-fade-in',
@@ -144,6 +129,7 @@ export const HomeScreen = memo(function HomeScreen({
         >
           {(placeholder) => (
             <HomeEntryControls
+              pending={Boolean(pendingRoomSlug)}
               active={isAIMode}
               enabled={heroVisible}
               inputRef={roomNameRef}
@@ -158,25 +144,17 @@ export const HomeScreen = memo(function HomeScreen({
           )}
         </HomePlaceholder>
       </HomeLanding>
-      {!watch && previewReturn && !pendingRoomSlug && (
+      {!watch && previewReturn && (
         <ReturnToRoomPreview
           onJoinRoom={handleJoinRoom}
           listenerCount={searchParams.get('listeners') === '0' ? 0 : 3}
         />
       )}
-      {!watch && !previewReturn && !pendingRoomSlug && (
-        <ReturnToRoom onJoinRoom={handleJoinRoom} />
-      )}
+      {!watch && !previewReturn && <ReturnToRoom onJoinRoom={handleJoinRoom} />}
       {pendingRoomSlug && (
-        <Suspense
-          fallback={
-            <p role="status" className="sr-only">
-              Joining room...
-            </p>
-          }
-        >
-          <LazyJoiningRoomState roomId={pendingRoomSlug} />
-        </Suspense>
+        <p role="status" className="sr-only">
+          Joining {pendingRoomSlug}…
+        </p>
       )}
     </div>
   );

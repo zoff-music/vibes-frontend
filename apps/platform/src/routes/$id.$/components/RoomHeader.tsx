@@ -195,7 +195,10 @@ export const RoomHeader = React.memo(
         ref={headerRef}
         className="sticky top-0 z-20 mx-auto w-full max-w-7xl shrink-0 px-2 py-2 sm:px-4 sm:py-3"
       >
-        <div className="w-full rounded-full border border-theme bg-theme-surface p-1 shadow-lg">
+        <div
+          data-room-player-header
+          className="w-full rounded-full border border-theme bg-theme-surface p-1 shadow-lg"
+        >
           <div className="relative grid min-w-0 grid-cols-[1fr_minmax(0,1fr)_1fr] items-center gap-1">
             <IconButton
               className="group justify-self-start"
@@ -229,7 +232,6 @@ export const RoomHeader = React.memo(
                     to={href(showShare ? '' : 'share')}
                     replace
                     preventScrollReset
-                    viewTransition={false}
                     prefetch="intent"
                     prefetchData
                     variant={showShare ? 'tertiary-active' : 'ghost'}
@@ -304,7 +306,6 @@ export const RoomHeader = React.memo(
                       to={href('cast')}
                       replace
                       preventScrollReset
-                      viewTransition={false}
                       prefetch="intent"
                       prefetchData
                       variant={isCasting ? 'tertiary-active' : 'ghost'}
@@ -334,7 +335,6 @@ export const RoomHeader = React.memo(
                     to={href(showSettings ? '' : 'settings')}
                     replace
                     preventScrollReset
-                    viewTransition={false}
                     prefetch="intent"
                     prefetchData
                     onClick={onToggleSettings}

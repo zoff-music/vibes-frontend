@@ -16,7 +16,6 @@ export function useDeviceSettings() {
     void navigate(`${base}${suffix}`, {
       replace: true,
       preventScrollReset: true,
-      viewTransition: false,
     });
   };
 

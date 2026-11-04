@@ -5,6 +5,8 @@ export { clientLoader } from './clientLoader';
 export default function RoomRoute() {
   return null;
 }
+
+export { viewTransition } from '../../utils/viewTransition';
 export { ErrorBoundary } from './ErrorBoundary';
 export { loader } from './loader';
 export { roomMeta as meta } from './meta';

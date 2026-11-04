@@ -14,3 +14,5 @@ export default function Guide() {
     </WatchPage>
   );
 }
+
+export { viewTransition } from '../../utils/viewTransition';

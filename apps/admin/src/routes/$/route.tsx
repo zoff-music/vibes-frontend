@@ -6,4 +6,5 @@ export default function NotFound() {
   return <NotFoundView />;
 }
 
+export { pageViewTransition as viewTransition } from '@vibes/ui/web';
 export { loader } from './loader';

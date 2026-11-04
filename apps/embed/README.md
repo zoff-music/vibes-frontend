@@ -86,3 +86,10 @@ manual memoization without React Compiler. Font
 preload URLs honor `EMBED_BASE_PATH` in both HTML and early response hints.
 Vite produces safely minified JavaScript plus Brotli/gzip sidecars; the shared
 server negotiates these while preserving MIME types and immutable caching.
+
+The single-route embed intentionally has no document view-transition callback:
+queue/playback updates keep their local animations and Smolter can omit unused
+transition dispatch. Its stylesheet imports the shared theme/base CSS with an
+explicit list of rendered shared controls, rather than scanning the whole UI
+catalog. Add newly used shared UI sources to `src/index.css` when extending the
+embed; keep Button's style helper and lazy provider-player sources included.

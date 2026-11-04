@@ -18,4 +18,5 @@ export default function PrivacyPolicy() {
   );
 }
 
+export { viewTransition } from '../../utils/viewTransition';
 export { loader } from './loader';

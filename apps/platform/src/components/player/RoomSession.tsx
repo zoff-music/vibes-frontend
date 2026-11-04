@@ -50,6 +50,7 @@ export function RoomSession() {
         <RoomView
           loaderData={current}
           minimized={!active}
+          persistent={enabled}
           onClose={() => {
             setRetained(null);
             useCastStore.getState().cleanup();

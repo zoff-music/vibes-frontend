@@ -15,6 +15,7 @@ import { useHomeGeneration } from '../../../hooks/useHomeGeneration';
 
 interface HomeEntryControlsProps {
   active: boolean;
+  pending: boolean;
   enabled: boolean;
   inputRef: RefObject<HTMLInputElement | null>;
   value: string;
@@ -28,6 +29,7 @@ interface HomeEntryControlsProps {
 
 export function HomeEntryControls({
   active: inputActive,
+  pending,
   enabled,
   inputRef,
   value,
@@ -44,7 +46,7 @@ export function HomeEntryControls({
   const active = inputActive || generating;
 
   const submit = () => {
-    if (generating) return;
+    if (generating || pending) return;
     if (!active) {
       if (value.trim()) onJoinRoom();
       else onStartSession();
@@ -54,7 +56,7 @@ export function HomeEntryControls({
     generation.submit(value.trim());
   };
   const roomLabel = value.trim() ? 'Join room' : 'Start a room';
-  const label = active ? 'Generate room' : roomLabel;
+  const label = pending ? 'Joining…' : active ? 'Generate room' : roomLabel;
 
   return (
     <section
@@ -64,7 +66,7 @@ export function HomeEntryControls({
       <GenerativeInput
         active={active}
         enabled={enabled}
-        disabled={generating}
+        disabled={generating || pending}
         inputRef={inputRef}
         value={value}
         placeholder={placeholder}
@@ -78,7 +80,7 @@ export function HomeEntryControls({
       <Button
         aria-label={generating ? 'Generating…' : label}
         onClick={submit}
-        disabled={generating || (active && !value.trim())}
+        disabled={pending || generating || (active && !value.trim())}
         variant="primary"
         size="large"
         contentAlignment="between"

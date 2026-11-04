@@ -255,7 +255,6 @@ export const RoomSettingsMenu = ({
                 to={href('settings/device')}
                 replace
                 preventScrollReset
-                viewTransition={false}
                 prefetch="intent"
                 prefetchData
                 variant="tertiary"
@@ -270,7 +269,6 @@ export const RoomSettingsMenu = ({
                   to={href('settings/device')}
                   replace
                   preventScrollReset
-                  viewTransition={false}
                   prefetch="intent"
                   prefetchData
                   variant="tertiary"
@@ -291,7 +289,6 @@ export const RoomSettingsMenu = ({
                   to={href('remote')}
                   replace
                   preventScrollReset
-                  viewTransition={false}
                   prefetch="intent"
                   prefetchData
                   variant="tertiary"

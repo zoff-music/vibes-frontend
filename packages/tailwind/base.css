@@ -1,0 +1,423 @@
+@import "tailwindcss" source(none);
+@import "./theme.css";
+@import "./fonts.css";
+
+@config "./config.js";
+
+/* Match the Latin web font's advance width while its preload is pending. */
+@font-face {
+  font-family: "MSW98UI Fallback";
+  src: local("Arial");
+  size-adjust: 95.5%;
+}
+
+@layer base {
+  :root,
+  body {
+    min-height: 100%;
+    font-family: theme("fontFamily.body");
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+  }
+
+  body {
+    margin: 0;
+  }
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    box-sizing: border-box;
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: theme("fontFamily.heading");
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  :root {
+    --theme-bg: #f6ebff;
+    --theme-bg-paper: #fdf7ff;
+    --theme-bg-surface: #f2ddff;
+    --theme-bg-elevated: #fff4ff;
+    --theme-bg-hover: #ead0ff;
+    --theme-text: #2a1840;
+    --theme-text-muted: #5b4276;
+    --theme-text-subtle: #8c74a8;
+    --theme-primary: #ff3fa4;
+    --theme-primary-muted: #ff2d96;
+    --theme-primary-light: #ff86cf;
+    --theme-border: rgba(112, 72, 140, 0.2);
+    --theme-border-strong: rgba(112, 72, 140, 0.35);
+    --theme-shadow: rgba(42, 18, 70, 0.18);
+    --theme-shadow-accent: rgba(255, 63, 164, 0.2);
+    --theme-glass-bg: rgba(255, 255, 255, 0.7);
+    --theme-glass-border: rgba(112, 72, 140, 0.2);
+    --theme-panel-bg: rgba(255, 255, 255, 0.78);
+    --theme-panel-strong-bg: rgba(255, 255, 255, 0.92);
+    --theme-panel-border: rgba(112, 72, 140, 0.22);
+    --theme-panel-border-strong: rgba(112, 72, 140, 0.35);
+    --theme-crt-bg: rgba(255, 255, 255, 0.85);
+    --theme-crt-shadow: rgba(76, 32, 120, 0.25);
+    --theme-page-gradient: linear-gradient(
+      120deg,
+      #ffc7e8,
+      #e1d5ff,
+      #bfe8ff,
+      #ffd2a9
+    );
+    --theme-page-glow:
+      radial-gradient(
+        circle at 50% 30%,
+        rgba(255, 188, 210, 0.5),
+        transparent 55%
+      ),
+      radial-gradient(
+        circle at 80% 10%,
+        rgba(132, 214, 255, 0.35),
+        transparent 50%
+      );
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.theme-light) {
+      --theme-bg: #120b1e;
+      --theme-bg-paper: #1a102a;
+      --theme-bg-surface: #1e1330;
+      --theme-bg-elevated: #251838;
+      --theme-bg-hover: #2a1b40;
+      --theme-text: #e8dff5;
+      --theme-text-muted: #bfa8d6;
+      --theme-text-subtle: #8c74a8;
+      --theme-primary: #ff2e97;
+      --theme-primary-muted: #d61c78;
+      --theme-primary-light: #ff74be;
+      --theme-border: rgba(112, 72, 140, 0.25);
+      --theme-border-strong: rgba(112, 72, 140, 0.4);
+      --theme-shadow: rgba(0, 0, 0, 0.4);
+      --theme-shadow-accent: rgba(255, 46, 151, 0.25);
+      --theme-glass-bg: rgba(30, 19, 48, 0.7);
+      --theme-glass-border: rgba(112, 72, 140, 0.25);
+      --theme-panel-bg: rgba(24, 14, 40, 0.8);
+      --theme-panel-strong-bg: rgba(30, 19, 48, 0.9);
+      --theme-panel-border: rgba(112, 72, 140, 0.3);
+      --theme-panel-border-strong: rgba(112, 72, 140, 0.45);
+      --theme-crt-bg: rgba(18, 11, 30, 0.9);
+      --theme-crt-shadow: rgba(0, 0, 0, 0.6);
+      --theme-page-gradient: linear-gradient(
+        120deg,
+        #2a1b40,
+        #1a102a,
+        #120b1e,
+        #3c2a5c
+      );
+      --theme-page-glow:
+        radial-gradient(
+          circle at 50% 30%,
+          rgba(180, 80, 140, 0.25),
+          transparent 55%
+        ),
+        radial-gradient(
+          circle at 80% 10%,
+          rgba(46, 20, 80, 0.4),
+          transparent 50%
+        );
+    }
+  }
+
+  .dark {
+    --theme-bg: #120b1e;
+    --theme-bg-paper: #1a102a;
+    --theme-bg-surface: #1e1330;
+    --theme-bg-elevated: #251838;
+    --theme-bg-hover: #2a1b40;
+    --theme-text: #e8dff5;
+    --theme-text-muted: #bfa8d6;
+    --theme-text-subtle: #8c74a8;
+    --theme-primary: #ff2e97;
+    --theme-primary-muted: #d61c78;
+    --theme-primary-light: #ff74be;
+    --theme-border: rgba(112, 72, 140, 0.25);
+    --theme-border-strong: rgba(112, 72, 140, 0.4);
+    --theme-shadow: rgba(0, 0, 0, 0.4);
+    --theme-shadow-accent: rgba(255, 46, 151, 0.25);
+    --theme-glass-bg: rgba(30, 19, 48, 0.7);
+    --theme-glass-border: rgba(112, 72, 140, 0.25);
+    --theme-panel-bg: rgba(24, 14, 40, 0.8);
+    --theme-panel-strong-bg: rgba(30, 19, 48, 0.9);
+    --theme-panel-border: rgba(112, 72, 140, 0.3);
+    --theme-panel-border-strong: rgba(112, 72, 140, 0.45);
+    --theme-crt-bg: rgba(18, 11, 30, 0.9);
+    --theme-crt-shadow: rgba(0, 0, 0, 0.6);
+    --theme-page-gradient: linear-gradient(
+      120deg,
+      #2a1b40,
+      #1a102a,
+      #120b1e,
+      #3c2a5c
+    );
+    --theme-page-glow:
+      radial-gradient(
+        circle at 50% 30%,
+        rgba(180, 80, 140, 0.25),
+        transparent 55%
+      ),
+      radial-gradient(circle at 80% 10%, rgba(46, 20, 80, 0.4), transparent 50%);
+  }
+}
+
+.theme-page-gradient {
+  background-image: var(--theme-page-gradient);
+}
+
+.theme-page-glow {
+  background-image: var(--theme-page-glow);
+}
+
+.provider-mark-dark {
+  display: none;
+}
+
+.dark .provider-mark-light {
+  display: none;
+}
+
+.dark .provider-mark-dark {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) .provider-mark-light {
+    display: none;
+  }
+
+  :root:not(.theme-light) .provider-mark-dark {
+    display: block;
+  }
+}
+
+.tooltip-content {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tooltip-content {
+    display: block;
+  }
+}
+
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Cross-document opt-in must be a stylesheet at-rule, not an element utility. */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+@utility initial-control-paint {
+  &:not([data-controls-painted]) :where(a, button, input, select, textarea) {
+    /* Never interpolate from browser-default colors during initial style resolution. */
+    transition: none;
+  }
+}
+
+@utility page-transitions {
+  &::view-transition,
+  &::view-transition-group(*),
+  &::view-transition-image-pair(*),
+  &::view-transition-old(*),
+  &::view-transition-new(*) {
+    pointer-events: none;
+  }
+
+  &::view-transition-group(*) {
+    animation-duration: 220ms;
+    animation-timing-function: ease-out;
+    /* Snapshots already contain the glass surface. Do not blur the new page
+       behind an outgoing card; generated browser keyframes also set this. */
+    /* biome-ignore lint/complexity/noImportantStyles: must override browser-generated snapshot animation keyframes */
+    backdrop-filter: none !important;
+  }
+
+  &::view-transition-group(page-content),
+  &::view-transition-group(root),
+  &::view-transition-group(site-footer) {
+    animation: none;
+  }
+
+  &::view-transition-old(*) {
+    animation: none;
+    opacity: 0;
+  }
+
+  &::view-transition-new(*) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  /* The shared shell stays fully painted while only page content changes. */
+  &::view-transition-group(site-header),
+  &::view-transition-group(site-brand),
+  &::view-transition-group(site-navigation) {
+    animation: none;
+  }
+
+  /* Snapshot pixels must not stretch with differently sized header grid tracks. */
+  &::view-transition-old(site-brand),
+  &::view-transition-new(site-brand),
+  &::view-transition-old(site-navigation),
+  &::view-transition-new(site-navigation) {
+    width: max-content;
+    height: auto;
+    object-fit: none;
+    object-position: left center;
+  }
+
+  &::view-transition-old(site-navigation),
+  &::view-transition-new(site-navigation) {
+    right: 0;
+    left: auto;
+    object-position: right center;
+  }
+
+  &::view-transition-old(page-content) {
+    opacity: 1;
+    animation: page-fade-out 140ms ease-out both;
+  }
+
+  &::view-transition-new(page-content) {
+    animation: page-fade-in 180ms ease-out both;
+  }
+
+  &::view-transition-group(persistent-player) {
+    z-index: 40;
+    animation: none;
+  }
+
+  &::view-transition-old(persistent-player) {
+    display: none;
+  }
+
+  &::view-transition-new(persistent-player) {
+    animation: none;
+  }
+
+  /* Room/public layouts have different shells. Capture one opaque scene and
+     reveal the destination over it, rather than fading both into the backdrop. */
+  &.scene-transition * {
+    /* biome-ignore lint/complexity/noImportantStyles: override named snapshot utilities for this navigation only */
+    view-transition-name: none !important;
+  }
+
+  /* Keep the same video as a shared surface while the surrounding scene fades.
+     The browser animates its captured bounds; the provider iframe stays mounted. */
+  &.scene-transition
+    [data-player-persistent="true"]
+    [data-room-player-surface] {
+    /* biome-ignore lint/complexity/noImportantStyles: opt this shared surface back into scene capture */
+    view-transition-name: room-video !important;
+  }
+
+  &.scene-transition [data-player-persistent="true"] [data-room-player-header] {
+    /* biome-ignore lint/complexity/noImportantStyles: pair the room toolbar with the floating title bar */
+    view-transition-name: room-player-header !important;
+  }
+
+  &.scene-transition::view-transition-group(room-player-header) {
+    z-index: 51;
+    animation-duration: 440ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+  }
+
+  &.scene-transition::view-transition-old(room-player-header),
+  &.scene-transition::view-transition-new(room-player-header) {
+    width: 100%;
+    height: 100%;
+  }
+
+  &.scene-transition::view-transition-old(room-player-header) {
+    opacity: 1;
+    animation: page-fade-out 220ms ease-out both;
+  }
+
+  &.scene-transition::view-transition-new(room-player-header) {
+    animation: page-fade-in 220ms ease-out both;
+  }
+
+  &.scene-transition::view-transition-group(room-video) {
+    z-index: 50;
+    animation-duration: 440ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+    border-radius: 1.5rem;
+  }
+
+  &.scene-transition::view-transition-old(room-video) {
+    display: none;
+  }
+
+  &.scene-transition::view-transition-new(room-video) {
+    width: 100%;
+    height: 100%;
+    animation: none;
+    opacity: 1;
+  }
+
+  &.scene-transition::view-transition-old(root) {
+    opacity: 1;
+    animation: none;
+  }
+
+  &.scene-transition::view-transition-new(root) {
+    animation: page-fade-in 260ms ease-in-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::view-transition-group(*),
+    &::view-transition-old(*),
+    &::view-transition-new(*) {
+      animation: none;
+    }
+  }
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0.96;
+  }
+}
+
+html[data-page-enter] main {
+  animation: app-fade-in 120ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-page-enter] main {
+    animation: none;
+  }
+}

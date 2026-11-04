@@ -32,7 +32,6 @@ import {
 import type { RemoteControlActionData } from '../../routes/resources.remotes/clientAction';
 import { subscribeRemoteReports } from '../../utils/remoteReporting';
 import { createEmptyRemoteStatus } from '../../utils/remoteStatus';
-import { canUseViewTransition } from '../../utils/viewTransition';
 
 interface RemoteRoomUpdate {
   origin: string;
@@ -166,9 +165,7 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
     (event: RemoteRoomUpdate) => {
       if (event.origin !== 'controller' || !event.roomId) return;
 
-      navigate(`/${encodeURIComponent(event.roomId)}`, {
-        viewTransition: canUseViewTransition(),
-      });
+      navigate(`/${encodeURIComponent(event.roomId)}`, {});
     },
     [navigate],
   );
@@ -252,7 +249,6 @@ export function RemoteControlProvider({ children, initialRemote }: Props) {
       void navigate(`${roomPath}${panelSuffix}`, {
         replace: true,
         preventScrollReset: true,
-        viewTransition: false,
       });
       return;
     }
@@ -334,7 +330,6 @@ export function RemoteControlButton({
         to={remoteHref}
         replace
         preventScrollReset
-        viewTransition={false}
         prefetch="intent"
         prefetchData
         variant={variant}

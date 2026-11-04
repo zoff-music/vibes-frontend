@@ -110,7 +110,6 @@ const QueueListComponent: React.FC<Props> = ({
           to={emptyHref}
           replace
           preventScrollReset
-          viewTransition={false}
           prefetch="intent"
           prefetchData
         >

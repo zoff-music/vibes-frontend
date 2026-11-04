@@ -38,7 +38,6 @@ export function useRoomPanel(roomId?: string, minimized = false) {
       void navigate(href(next), {
         replace: true,
         preventScrollReset: true,
-        viewTransition: false,
       });
     },
     [href, navigate],

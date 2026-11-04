@@ -36,4 +36,5 @@ export default function Callback() {
   );
 }
 
+export { viewTransition } from '../../utils/viewTransition';
 export { loader } from './loader';

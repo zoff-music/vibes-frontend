@@ -1,3 +1,4 @@
+export { viewTransition } from '../../utils/viewTransition';
 export { clientAction } from './clientAction';
 export { clientLoader } from './clientLoader';
 export { CreateRoom as default } from './components/CreateRoom';

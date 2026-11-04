@@ -4,7 +4,7 @@ import { useChatPreferenceStore } from '@vibes/shared/chatPreferenceStore';
 import { useThemeStore } from '@vibes/shared/themeStore';
 import { PersonalSettingsModal } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'preact/compat';
-import type { ProfileRouteData } from '../routes/admin.resources.profile/clientLoader';
+import type { ProfileRouteData } from '../routes/admin_.resources.profile/clientLoader';
 
 interface DeviceSettingsProps {
   onClose: () => void;

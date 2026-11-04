@@ -17,30 +17,25 @@ export function SiteLayout({ children }: SiteLayoutProps) {
   );
   const isNotFound = isRouteErrorResponse(error) && error.status === 404;
   const isRoomPage = roomPaths.has(path) && !isNotFound;
-  const isPolicyPage = policyPaths.has(path);
 
   return (
-    <SiteLayoutContent isRoomPage={isRoomPage} isPolicyPage={isPolicyPage}>
-      {children}
-    </SiteLayoutContent>
+    <SiteLayoutContent isRoomPage={isRoomPage}>{children}</SiteLayoutContent>
   );
 }
 
 interface SiteLayoutContentProps extends SiteLayoutProps {
   isRoomPage: boolean;
-  isPolicyPage: boolean;
 }
 
 const SiteLayoutContent = memo(function SiteLayoutContent({
   children,
   isRoomPage,
-  isPolicyPage,
 }: SiteLayoutContentProps) {
   if (isRoomPage) return children;
 
   return (
     <SharedSiteLayout
-      header={<SiteHeader showExperienceSwitch={!isPolicyPage} />}
+      header={<SiteHeader showExperienceSwitch />}
       footer={<SiteFooter />}
     >
       {children}
@@ -49,8 +44,3 @@ const SiteLayoutContent = memo(function SiteLayoutContent({
 });
 
 const roomPaths = new Set(['/:id/*', '/rooms/:id']);
-const policyPaths = new Set([
-  '/security',
-  '/privacy-policy',
-  '/terms-of-service',
-]);

@@ -1,4 +1,5 @@
 export { Home as default } from '../../components/home/Home';
+export { viewTransition } from '../../utils/viewTransition';
 export { clientAction } from '../_index/clientAction';
 export { shouldRevalidate } from '../_index/shouldRevalidate';
 export { clientLoader } from '../features.$experience/clientLoader';

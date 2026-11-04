@@ -12,4 +12,5 @@ export default function ExploreRooms() {
   return <RoomBrowser {...data} />;
 }
 
+export { viewTransition } from '../../utils/viewTransition';
 export { loader } from './loader';

@@ -53,3 +53,9 @@ export { useInitialControlPaint } from './hooks/useInitialControlPaint';
 export * from './hooks/useProgressiveList';
 export * from './icons';
 export * from './player';
+
+export {
+  immediateViewTransition,
+  pageViewTransition,
+  sceneViewTransition,
+} from './routeTransition';

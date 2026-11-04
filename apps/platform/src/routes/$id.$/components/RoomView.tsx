@@ -36,12 +36,14 @@ const LazyAddToQueueModal = lazy(loadAddToQueueModal);
 interface RoomViewProps {
   loaderData: RoomLoaderData;
   minimized: boolean;
+  persistent: boolean;
   onClose: () => void;
 }
 
 export function RoomView({
   loaderData: initialData,
   minimized,
+  persistent,
   onClose,
 }: RoomViewProps) {
   const {
@@ -104,6 +106,7 @@ export function RoomView({
   return (
     <PersistentPlayerFrame
       minimized={minimized}
+      persistent={persistent}
       roomName={displayRoom.name}
       roomHref={`/${encodeURIComponent(id)}`}
       onClose={onClose}
@@ -113,6 +116,7 @@ export function RoomView({
         animate={roomEntryVisibleState}
         className={classNames(
           'room-entry relative min-h-dvh w-full min-w-0 overflow-x-hidden lg:h-dvh lg:min-h-0 lg:overflow-hidden',
+          !minimized && '[view-transition-name:page-content]',
           isPartyScreen && 'bg-theme',
           minimized && '!min-h-0 !h-auto !overflow-visible',
         )}
@@ -309,7 +313,6 @@ export function RoomView({
             to={panelHref('add')}
             replace
             preventScrollReset
-            viewTransition={false}
             prefetch="intent"
             prefetchData
             size="none"

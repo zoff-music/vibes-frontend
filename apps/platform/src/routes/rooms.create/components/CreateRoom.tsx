@@ -16,7 +16,6 @@ import {
 import React from 'preact/compat';
 import { SiteHero } from '../../../components/layout/SiteHero';
 import { SitePage } from '../../../components/layout/SitePage';
-import { canUseViewTransition } from '../../../utils/viewTransition';
 import { useCreateRoom } from '../hooks/useCreateRoom';
 
 interface ProviderOption {
@@ -107,7 +106,6 @@ export function CreateRoom() {
         <div className="mb-8 flex items-center justify-between">
           <Link
             to="/"
-            viewTransition={canUseViewTransition()}
             className="group inline-flex cursor-pointer items-center gap-2 text-theme-muted transition-colors hover:text-theme"
           >
             <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />

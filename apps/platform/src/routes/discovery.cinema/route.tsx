@@ -7,3 +7,5 @@ export { meta } from './meta';
 export default function Guide() {
   return <WatchPage page={page} preview={<ChatPreview watch />}></WatchPage>;
 }
+
+export { viewTransition } from '../../utils/viewTransition';

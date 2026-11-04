@@ -625,7 +625,6 @@ export const RoomPlayer = React.memo(
               className="absolute inset-0 z-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-inset"
               to={`/${encodeURIComponent(roomId)}`}
               prefetch="intent"
-              viewTransition={false}
             >
               <span className="sr-only">Return to room</span>
             </Link>

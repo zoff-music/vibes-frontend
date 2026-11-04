@@ -13,4 +13,5 @@ export default function Security() {
   return <SecurityContent securityEmail={loaderData.securityEmail} />;
 }
 
+export { viewTransition } from '../../utils/viewTransition';
 export { loader } from './loader';

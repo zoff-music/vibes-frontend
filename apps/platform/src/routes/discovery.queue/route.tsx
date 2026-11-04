@@ -12,3 +12,5 @@ export default function Guide() {
     </ProductPageContent>
   );
 }
+
+export { viewTransition } from '../../utils/viewTransition';

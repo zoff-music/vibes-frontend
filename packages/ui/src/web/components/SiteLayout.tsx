@@ -15,7 +15,7 @@ export function SiteLayout({ children, header, footer }: SiteLayoutProps) {
       <div
         id="page-content"
         tabIndex={-1}
-        className="min-w-0 flex-1 focus:outline-none"
+        className="min-w-0 flex-1 [view-transition-name:page-content] focus:outline-none"
       >
         {children}
       </div>
