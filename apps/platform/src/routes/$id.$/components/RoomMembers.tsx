@@ -1,5 +1,5 @@
 import { classNames, useRoomStore } from '@vibes/shared';
-import { CrownIcon, RemoteIcon } from '@vibes/ui/web';
+import { CrownIcon, chatNameColor, RemoteIcon } from '@vibes/ui/web';
 
 interface RoomMembersProps {
   roomId: string;
@@ -57,7 +57,12 @@ export function RoomMembers({ roomId }: RoomMembersProps) {
                   <span className="sr-only">Room host</span>
                 </span>
               )}
-              <span className="wrap-anywhere min-w-0 flex-1">
+              <span
+                className={classNames(
+                  'wrap-anywhere min-w-0 flex-1',
+                  chatNameColor(member.userId),
+                )}
+              >
                 {member.name}
               </span>
               {member.userId === userId && (
