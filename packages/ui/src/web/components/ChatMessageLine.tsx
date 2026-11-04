@@ -1,20 +1,9 @@
 import type { RoomMessage } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import {
-  chatNameColorIndex,
-  formatChatMessage,
-  formatChatTime,
-} from '../../shared/chat';
+import { formatChatMessage, formatChatTime } from '../../shared/chat';
+import { chatNameColor } from '../chat';
 import { CrownIcon, RemoteIcon } from '../icons';
 import { Tooltip } from './Tooltip';
-
-const nameColors = [
-  'text-sky-300 [.theme-light_&]:text-sky-700',
-  'text-violet-300 [.theme-light_&]:text-violet-700',
-  'text-amber-200 [.theme-light_&]:text-amber-800',
-  'text-emerald-300 [.theme-light_&]:text-emerald-700',
-  'text-pink-300 [.theme-light_&]:text-pink-700',
-];
 
 interface ChatMessageLineProps {
   message: RoomMessage;
@@ -61,12 +50,7 @@ export function ChatMessageLine({ message }: ChatMessageLineProps) {
           <RemoteIcon aria-hidden="true" className="h-4 w-4" />
         </span>
       )}
-      <span
-        className={classNames(
-          'font-bold',
-          nameColors[chatNameColorIndex(message.userId)],
-        )}
-      >
+      <span className={classNames('font-bold', chatNameColor(message.userId))}>
         {message.name}
       </span>
       <span className="text-theme-muted">{separator}</span>
