@@ -63,7 +63,9 @@ jobs:
           context: .
           file: apps/admin/Dockerfile
           push: true
-          no-cache: true
+          pull: true
+          cache-from: type=gha,scope=admin
+          cache-to: type=gha,scope=admin,mode=max
           provenance: false
           build-args: |
             ASSET_ORIGIN=${{ vars.ASSET_ORIGIN }}

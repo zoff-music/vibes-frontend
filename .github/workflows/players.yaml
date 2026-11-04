@@ -15,8 +15,14 @@ permissions:
 
 jobs:
   players:
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    env:
+      PLAYER_BROWSER: ${{ matrix.browser }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -31,20 +37,16 @@ jobs:
       - name: Check player test conventions
         run: pnpm exec biome check scripts/players
       - name: Install browsers
-        run: pnpm exec playwright install --with-deps chromium webkit
-      - name: Chromium player integration
-        run: pnpm test:players
-      - name: WebKit player integration
-        env:
-          PLAYER_BROWSER: webkit
+        run: pnpm exec playwright install --with-deps "${{ matrix.browser }}"
+      - name: Player integration
         run: pnpm test:players
       - name: Optional official-widget integration
-        if: github.event_name == 'workflow_dispatch' && inputs.tracks != ''
+        if: github.event_name == 'workflow_dispatch' && inputs.tracks != '' && matrix.browser == 'chromium'
         env:
           PLAYER_TRACKS: ${{ inputs.tracks }}
         run: pnpm test:players:live
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: player-failure-screenshots
+          name: player-failure-screenshots-${{ matrix.browser }}
           path: test-results/players

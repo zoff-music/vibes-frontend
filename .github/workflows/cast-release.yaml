@@ -67,7 +67,9 @@ jobs:
           context: .
           file: apps/cast/Dockerfile
           push: true
-          no-cache: true
+          pull: true
+          cache-from: type=gha,scope=cast
+          cache-to: type=gha,scope=cast,mode=max
           provenance: false
           build-args: |
             ASSET_ORIGIN=${{ vars.ASSET_ORIGIN }}

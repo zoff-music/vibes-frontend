@@ -1,13 +1,38 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
-import { chromium, webkit } from 'playwright';
-import { onTestFinished, test } from 'vitest';
+import { type Browser, chromium, webkit } from 'playwright';
+import type { ViteDevServer } from 'vite';
+import { afterAll, beforeAll, test } from 'vitest';
 import { startPlayerFixture } from './server';
 import type { Provider } from './types';
 
 const browsers = { chromium, webkit };
+let server: ViteDevServer;
+let browser: Browser;
+let origin: string;
 
-test.each([
+beforeAll(async () => {
+  server = await startPlayerFixture(false);
+  const url = server.resolvedUrls?.local[0];
+  assert.ok(url);
+  origin = url;
+  browser = await browsers[
+    process.env.PLAYER_BROWSER === 'webkit' ? 'webkit' : 'chromium'
+  ].launch({
+    headless: true,
+    ...(process.env.CHROMIUM_PATH &&
+      process.env.PLAYER_BROWSER !== 'webkit' && {
+        executablePath: process.env.CHROMIUM_PATH,
+      }),
+  });
+});
+
+afterAll(async () => {
+  await browser?.close();
+  await server?.close();
+});
+
+test.concurrent.for([
   'soundcloud,soundcloud',
   'youtube,youtube',
   'soundcloud,youtube',
@@ -17,24 +42,13 @@ test.each([
   {
     timeout: 240_000,
   },
-  async (sequence) => {
-    const server = await startPlayerFixture(false);
-    onTestFinished(() => server.close());
-    const origin = server.resolvedUrls?.local[0];
-    assert.ok(origin);
-    const browser = await browsers[
-      process.env.PLAYER_BROWSER === 'webkit' ? 'webkit' : 'chromium'
-    ].launch({
-      headless: true,
-      ...(process.env.CHROMIUM_PATH && {
-        executablePath: process.env.CHROMIUM_PATH,
-      }),
-    });
-    onTestFinished(() => browser.close());
+  async (sequence, { onTestFinished }) => {
+    // newPage creates an isolated browser context for each provider sequence.
     const page = await browser.newPage({
       viewport: { width: 390, height: 844 },
       hasTouch: true,
     });
+    onTestFinished(() => page.close());
     page.setDefaultTimeout(15_000);
     const errors: string[] = [];
     page.on('response', (response) => {
