@@ -2,7 +2,7 @@ ARG NODE_VERSION=26.12.1
 ARG NODE_RUNTIME_IMAGE=platformatic/node-caged:26-slim
 ARG PNPM_VERSION=12.3.4
 
-FROM node:${NODE_VERSION}-bookworm-slim AS deps
+FROM node:${NODE_VERSION}-bookworm-slim AS base
 
 ARG PNPM_VERSION
 
@@ -25,6 +25,8 @@ COPY packages/shared/package.json packages/shared/package.json
 COPY packages/tailwind/package.json packages/tailwind/package.json
 COPY packages/ui/package.json packages/ui/package.json
 
+FROM base AS deps
+
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS builder
@@ -38,16 +40,21 @@ COPY apps/platform ./apps/platform
 
 RUN pnpm --filter @vibes/platform build
 
+FROM base AS production-deps
+
+RUN pnpm --filter @vibes/platform... install --prod --frozen-lockfile
+
 FROM ${NODE_RUNTIME_IMAGE} AS prod
 
 WORKDIR /app
 
-COPY --from=builder /src/package.json ./package.json
-COPY --from=builder /src/node_modules ./node_modules
-COPY --from=builder /src/packages ./packages
-COPY --from=builder /src/apps/platform/package.json ./apps/platform/package.json
+COPY --from=production-deps /src/package.json ./package.json
+COPY --from=production-deps /src/node_modules ./node_modules
+COPY packages ./packages
+COPY --from=production-deps /src/packages ./packages
+COPY --from=production-deps /src/apps/platform/package.json ./apps/platform/package.json
+COPY --from=production-deps /src/apps/platform/node_modules ./apps/platform/node_modules
 COPY --from=builder /src/apps/platform/server ./apps/platform/server
-COPY --from=builder /src/apps/platform/node_modules ./apps/platform/node_modules
 COPY --from=builder /src/apps/platform/dist ./apps/platform/dist
 
 ENV NODE_ENV=production
