@@ -80,7 +80,8 @@ function RoomList({ rooms, onJoinRoom }: RoomListProps) {
       ))}
       {visibleRooms?.length === 0 && (
         <p className="w-full text-sm text-theme-muted">
-          No rooms are live right now. Browse public rooms or start your own.
+          No public rooms are live right now. Browse public rooms or start your
+          own.
         </p>
       )}
       {rooms === null && (
