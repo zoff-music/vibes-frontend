@@ -34,7 +34,7 @@
     }
   },
   "dependencies": {
-    "@kasperrt/smolter": "0.5.2",
+    "@kasperrt/smolter": "catalog:",
     "@react-native-tvos/config-tv": "^0.1.7",
     "@vibes/api": "workspace:*",
     "@vibes/models": "workspace:*",
