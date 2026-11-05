@@ -13,27 +13,41 @@ export function browserBundle(splitRoutes = true): Plugin {
     name: 'zoff-browser-bundle',
     apply: 'build',
     config(_config, { isSsrBuild }) {
-      if (isSsrBuild || !splitRoutes) return;
+      if (isSsrBuild) {
+        return {
+          build: {
+            rollupOptions: {
+              output: {
+                assetFileNames: 'assets/[hash][extname]',
+              },
+            },
+          },
+        };
+      }
 
-      // Group only the static entry graph; route and feature imports stay lazy.
       return {
         build: {
           rollupOptions: {
             output: {
-              codeSplitting: {
-                groups: [
-                  {
-                    name: 'startup',
-                    test: /\/node_modules\//,
-                    tags: ['$initial'],
-                  },
-                  {
-                    name: 'shell',
-                    test: /\/packages\//,
-                    tags: ['$initial'],
-                  },
-                ],
-              },
+              entryFileNames: 'assets/[hash].js',
+              chunkFileNames: 'assets/[hash].js',
+              assetFileNames: 'assets/[hash][extname]',
+              ...(splitRoutes && {
+                codeSplitting: {
+                  groups: [
+                    {
+                      name: 'startup',
+                      test: /\/node_modules\//,
+                      tags: ['$initial'],
+                    },
+                    {
+                      name: 'shell',
+                      test: /\/packages\//,
+                      tags: ['$initial'],
+                    },
+                  ],
+                },
+              }),
             },
           },
         },
