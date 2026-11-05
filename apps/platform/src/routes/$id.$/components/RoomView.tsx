@@ -2,6 +2,7 @@ import { classNames, usePlaybackStore } from '@vibes/shared';
 import { LinkButton, PersistentPlayerFrame, PlusIcon } from '@vibes/ui/web';
 import { AnimatePresence, m as motion } from 'framer-motion';
 import { lazy, Suspense } from 'preact/compat';
+import { useCastStore } from '../../../stores/castStore';
 import { DeferredModalLoading } from '../components/DeferredModalLoading';
 import { DeferredRoomGenerationProgress as RoomGenerationProgress } from '../components/DeferredRoomGenerationProgress';
 import { RoomConnections } from '../components/RoomConnections';
@@ -109,7 +110,10 @@ export function RoomView({
       persistent={persistent}
       roomName={displayRoom.name}
       roomHref={`/${encodeURIComponent(id)}`}
-      onClose={onClose}
+      onClose={() => {
+        onClose();
+        useCastStore.getState().cleanup();
+      }}
     >
       <RoomConnections providers={loaderData.providers} />
       <motion.div

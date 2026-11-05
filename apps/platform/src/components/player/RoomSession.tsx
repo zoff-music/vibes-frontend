@@ -7,7 +7,6 @@ import {
   useSyncExternalStore,
 } from 'preact/compat';
 import type { RoomLoaderData } from '../../routes/$id.$/loader';
-import { useCastStore } from '../../stores/castStore';
 import { usePersistentPlayerStore } from '../../stores/persistentPlayerStore';
 
 const RoomView = lazy(async () => {
@@ -53,7 +52,6 @@ export function RoomSession() {
           persistent={enabled}
           onClose={() => {
             setRetained(null);
-            useCastStore.getState().cleanup();
           }}
         />
       )}
