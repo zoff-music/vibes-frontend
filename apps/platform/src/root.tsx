@@ -18,6 +18,7 @@ import { type ReactNode, useState } from 'preact/compat';
 import { App } from './App';
 import { isStaleRouteError } from './components/errors/recovery';
 import stylesUrl from './index.css?url';
+import { CriticalStyles } from './root/CriticalStyles';
 import { ErrorBoundary } from './root/ErrorBoundary';
 import { loader, type RootLoaderData } from './root/loader';
 
@@ -59,7 +60,8 @@ export function Layout({ children }: Props) {
         <FontPreloads />
 
         <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
-        <link rel="stylesheet" href={stylesUrl} />
+        {loaderData?.criticalCss && <CriticalStyles href={stylesUrl} />}
+        {!loaderData?.criticalCss && <link rel="stylesheet" href={stylesUrl} />}
         <link rel="describedby" href="/llms.txt" type="text/plain" />
 
         <link

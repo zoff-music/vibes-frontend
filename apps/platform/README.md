@@ -615,6 +615,19 @@ PORT=3000
 - **Hot Module Replacement**: Sub-second development feedback
 - **Zustand Optimization**: Selective subscriptions prevent unnecessary re-renders
 
+### Critical CSS experiment (draft)
+
+Production builds generate a Beasties extraction plan from the emitted Tailwind
+stylesheet. Set `CRITICAL_CSS=true` on the Platform server to test per-document
+inline styles and a non-render-blocking full stylesheet. It is disabled by default.
+The root owns the inline style during hydration; the full stylesheet becomes
+active after hydration, with a blocking stylesheet fallback when JavaScript is
+disabled. No player, admin, remote, Cast or native application is changed.
+
+This experiment buffers SSR HTML and currently exceeds the homepage's 14 kB
+compressed-document budget. Do not enable it in production before resolving
+those costs and validating cold loads, dark mode, navigation and layout shifts.
+
 ### Initial document and fonts
 
 The production SSR entry exports `documentPreloads` for the shared server to

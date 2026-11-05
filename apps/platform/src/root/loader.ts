@@ -44,6 +44,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     remoteError || !remote ? createEmptyRemoteStatus() : remote;
 
   return {
+    criticalCss: process.env.CRITICAL_CSS === 'true',
     debug: process.env.VITE_DEBUG === 'true',
     theme,
     embedBasePath,

@@ -4,6 +4,7 @@ import { assetBase } from '@vibes/serve/assets';
 import { precompressAssets } from '@vibes/serve/precompress';
 import { applicationPlugins } from '@vibes/serve/vite';
 import { defineConfig, loadEnv } from 'vite';
+import { criticalCss } from './vite/criticalCss';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -35,6 +36,7 @@ export default defineConfig(({ command, mode }) => {
     base: isBuild ? assetBase(env.ASSET_ORIGIN, '/') : '/',
     plugins: [
       tailwindcss(),
+      criticalCss(),
       ...applicationPlugins({ dataEndpoint: '/_smolter' }),
 
       precompressAssets(),

@@ -1,0 +1,354 @@
+[
+  {
+    "name": "390-home",
+    "route": "/",
+    "status": 200,
+    "html": {
+      "raw": 41245,
+      "br": 7524,
+      "gzip": 8902
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1116
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1116
+        }
+      ],
+      "shifts": [
+        {
+          "value": 0.000056671613914263453,
+          "time": 2894.4000000059605
+        }
+      ],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "390-features-watch",
+    "route": "/features/watch",
+    "status": 200,
+    "html": {
+      "raw": 38339,
+      "br": 7344,
+      "gzip": 8763
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1072
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1072
+        }
+      ],
+      "shifts": [],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "390-discovery-queue",
+    "route": "/discovery/queue",
+    "status": 200,
+    "html": {
+      "raw": 41488,
+      "br": 7006,
+      "gzip": 8364
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 948
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 948
+        }
+      ],
+      "shifts": [],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "390-settings-device",
+    "route": "/settings/device",
+    "status": 200,
+    "html": {
+      "raw": 45712,
+      "br": 8212,
+      "gzip": 9673
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1144
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1144
+        }
+      ],
+      "shifts": [
+        {
+          "value": 0.000056671613914263453,
+          "time": 2940.5999999940395
+        }
+      ],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "390-electro",
+    "route": "/electro",
+    "status": 200,
+    "html": {
+      "raw": 65968,
+      "br": 7254,
+      "gzip": 9206
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1028
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1052
+        }
+      ],
+      "shifts": [
+        {
+          "value": 0.0006994106497711538,
+          "time": 1196.699999988079
+        },
+        {
+          "value": 0.00015881410796345603,
+          "time": 1269.5999999940395
+        }
+      ],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "390-electro-settings",
+    "route": "/electro/settings",
+    "status": 200,
+    "html": {
+      "raw": 84582,
+      "br": 9127,
+      "gzip": 11541
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1112
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1112
+        }
+      ],
+      "shifts": [
+        {
+          "value": 0.8822915028862784,
+          "time": 1178
+        },
+        {
+          "value": 0.0006994106497711538,
+          "time": 1288.699999988079
+        },
+        {
+          "value": 0.00015881410796345603,
+          "time": 1362.0999999940395
+        }
+      ],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "1440-home",
+    "route": "/",
+    "status": 200,
+    "html": {
+      "raw": 41245,
+      "br": 7507,
+      "gzip": 8903
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1040
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1040
+        }
+      ],
+      "shifts": [
+        {
+          "value": 0.000022599613831841322,
+          "time": 2833.100000023842
+        }
+      ],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "1440-features-watch",
+    "route": "/features/watch",
+    "status": 200,
+    "html": {
+      "raw": 38339,
+      "br": 7344,
+      "gzip": 8763
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1120
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1120
+        }
+      ],
+      "shifts": [],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "1440-discovery-queue",
+    "route": "/discovery/queue",
+    "status": 200,
+    "html": {
+      "raw": 41488,
+      "br": 7006,
+      "gzip": 8364
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1008
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1008
+        }
+      ],
+      "shifts": [],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "1440-settings-device",
+    "route": "/settings/device",
+    "status": 200,
+    "html": {
+      "raw": 44361,
+      "br": 7613,
+      "gzip": 9014
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1144
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1144
+        }
+      ],
+      "shifts": [
+        {
+          "value": 0.000022599613831841322,
+          "time": 2936.100000023842
+        }
+      ],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "1440-electro",
+    "route": "/electro",
+    "status": 200,
+    "html": {
+      "raw": 64673,
+      "br": 6735,
+      "gzip": 8364
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1156
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1156
+        }
+      ],
+      "shifts": [
+        {
+          "value": 0.00002520990151294907,
+          "time": 1389.4000000059605
+        }
+      ],
+      "inlineStyles": 0
+    },
+    "errors": []
+  },
+  {
+    "name": "1440-electro-settings",
+    "route": "/electro/settings",
+    "status": 200,
+    "html": {
+      "raw": 82613,
+      "br": 8529,
+      "gzip": 10501
+    },
+    "metrics": {
+      "paints": [
+        {
+          "name": "first-paint",
+          "ms": 1148
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 1148
+        }
+      ],
+      "shifts": [
+        {
+          "value": 0.00002520990151294907,
+          "time": 1388.0999999940395
+        }
+      ],
+      "inlineStyles": 0
+    },
+    "errors": []
+  }
+]
