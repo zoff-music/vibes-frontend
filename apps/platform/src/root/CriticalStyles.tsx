@@ -1,21 +1,22 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 
 interface CriticalStylesProps {
   href: string;
+  nonce?: string;
 }
 
-export function CriticalStyles({ href }: CriticalStylesProps) {
+// Activate the full stylesheet as soon as it loads, independent of hydration.
+const activateStylesheet =
+  "(l=>{const a=()=>{l.media='all'};l.sheet?a():l.addEventListener('load',a)})(document.currentScript.previousElementSibling)";
+
+export function CriticalStyles({ href, nonce }: CriticalStylesProps) {
   const [css] = useState(() =>
     typeof document === 'undefined'
       ? ''
       : (document.getElementById('critical-css')?.textContent ?? ''),
   );
-  const [ready, setReady] = useState(false);
-
-  // The client entry hydrates after this stylesheet loads, so activation cannot repaint.
-  useEffect(() => {
-    setReady(true);
-  }, []);
+  // The client entry hydrates after the stylesheet loads, so it is already active there.
+  const active = typeof document !== 'undefined';
 
   return (
     <>
@@ -23,8 +24,12 @@ export function CriticalStyles({ href }: CriticalStylesProps) {
       <link
         rel="stylesheet"
         href={href}
-        media={ready ? 'all' : 'print'}
+        media={active ? 'all' : 'print'}
         data-critical-stylesheet=""
+      />
+      <script
+        {...(nonce && { nonce })}
+        dangerouslySetInnerHTML={{ __html: activateStylesheet }}
       />
       <noscript>
         <link rel="stylesheet" href={href} />

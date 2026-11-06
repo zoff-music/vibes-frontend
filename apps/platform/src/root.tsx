@@ -60,7 +60,12 @@ export function Layout({ children }: Props) {
         <FontPreloads />
 
         <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
-        {loaderData?.criticalCss && <CriticalStyles href={stylesUrl} />}
+        {loaderData?.criticalCss && (
+          <CriticalStyles
+            href={stylesUrl}
+            {...(cspNonce && { nonce: cspNonce })}
+          />
+        )}
         {!loaderData?.criticalCss && <link rel="stylesheet" href={stylesUrl} />}
         <link rel="describedby" href="/llms.txt" type="text/plain" />
 

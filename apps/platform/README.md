@@ -635,7 +635,10 @@ paint. It is disabled by default.
 - The inline style starts with the full sheet's `@layer` order, so the cascade
   matches the blocking stylesheet.
 - Mark regions that are below the fold on every viewport with
-  `data-critical="defer"`; their styles arrive with the full stylesheet.
+  `data-critical="defer"`; their styles arrive with the full stylesheet, and
+  they stay hidden (keeping their space) until it applies.
+- An inline script activates the full stylesheet as soon as it loads, so a
+  failed or slow bundle never leaves the page on the inline subset.
 - The client entry hydrates only after the full stylesheet has loaded, so UI
   that appears during hydration never renders against the inline subset.
 - A `<noscript>` stylesheet keeps JavaScript-disabled rendering unchanged.

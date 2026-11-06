@@ -84,6 +84,7 @@ export function addVibesUtilities({ addBase, addUtilities }) {
       fontFamily: '"MSW98UI", "Lucida Console", "Courier New", monospace',
     },
     '.font-pixel': {
+      fontFamily: '"MSW98UI", "MS Sans Serif", Tahoma, sans-serif',
       letterSpacing: '0.05em',
     },
     '.font-wide': {

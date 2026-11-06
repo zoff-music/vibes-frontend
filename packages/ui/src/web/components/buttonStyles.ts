@@ -48,7 +48,7 @@ export function buttonClassName({
       'border border-green-300 bg-green-500 text-green-950 shadow-lg shadow-green-500/30 hover:bg-green-400',
     orange:
       'border border-orange-300 bg-soundcloud text-on-soundcloud shadow-soundcloud hover:bg-orange-400',
-    cyan: 'border border-cyan-200 bg-secondary text-on-secondary shadow-secondary-soft hover:bg-cyan-300',
+    cyan: 'border border-cyan-200 bg-secondary text-on-secondary shadow-cyan hover:bg-cyan-300',
     magenta:
       'border border-fuchsia-400 bg-fuchsia-700 text-white shadow-lg shadow-fuchsia-500/30 hover:bg-fuchsia-600',
   };

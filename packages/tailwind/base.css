@@ -258,7 +258,7 @@
     width: --spacing(3.5);
     height: --spacing(3.5);
     margin-top: --spacing(-1);
-    border: 2px solid var(--color-secondary);
+    border: 2px solid --theme(--color-secondary);
     border-radius: 9999px;
     background-color: var(--theme-bg-surface);
   }
@@ -272,7 +272,7 @@
     box-sizing: border-box;
     width: --spacing(3.5);
     height: --spacing(3.5);
-    border: 2px solid var(--color-secondary);
+    border: 2px solid --theme(--color-secondary);
     border-radius: 9999px;
     background-color: var(--theme-bg-surface);
   }
@@ -291,7 +291,7 @@
     margin-top: --spacing(-1);
     border: 0;
     border-radius: 9999px;
-    background-color: var(--color-primary);
+    background-color: --theme(--color-primary);
   }
 
   &::-moz-range-track {
@@ -304,7 +304,7 @@
     height: --spacing(3);
     border: 0;
     border-radius: 9999px;
-    background-color: var(--color-primary);
+    background-color: --theme(--color-primary);
   }
 }
 
@@ -483,4 +483,9 @@ html[data-page-enter] main {
   html[data-page-enter] main {
     animation: none;
   }
+}
+
+/* Critical CSS hides deferred regions until this stylesheet applies; see @vibes/serve/critical-css. */
+[data-critical="defer"] {
+  visibility: visible;
 }

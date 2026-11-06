@@ -4,6 +4,9 @@ import { safeWrap, safeWrapAsync } from '@vibes/shared/wrap';
 import { type CompactPlan, createProcessor } from 'beasties/runtime';
 
 const placeholder = '<style id="critical-css"></style>';
+const deferredMarker = 'data-critical="defer"';
+// Deferred regions have no inline styles; keep them hidden until the full stylesheet reveals them.
+const hideDeferred = '[data-critical="defer"]{visibility:hidden}';
 const autofocus = /<[a-z][^>]*\sautofocus[\s=/>]/;
 const variableReference = /var\(\s*(--[\w-]+)/g;
 const customDeclaration = /([{;])(--[\w-]+):([^;}]*)(?=[;}])/g;
@@ -180,7 +183,8 @@ export function createCriticalCss({
         ? loaded.focusProcessor
         : loaded.processor;
       const { css } = processor.extract(themedDocument(withoutDeferred(html)));
-      return loaded.layers + compactCriticalCss(css, html);
+      const hidden = html.includes(deferredMarker) ? hideDeferred : '';
+      return loaded.layers + hidden + compactCriticalCss(css, html);
     });
     if (error) console.error('Unable to inline critical CSS', error);
 
