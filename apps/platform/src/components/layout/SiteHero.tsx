@@ -10,6 +10,7 @@ interface SiteHeroProps {
   aside?: ReactNode;
   footer?: ReactNode;
   layout?: 'split' | 'centered';
+  prominent?: boolean;
   className?: string;
 }
 
@@ -22,6 +23,7 @@ export function SiteHero({
   aside,
   footer,
   layout = 'split',
+  prominent = false,
   className,
 }: SiteHeroProps) {
   const centered = layout === 'centered';
@@ -30,13 +32,15 @@ export function SiteHero({
     <section
       aria-labelledby={id}
       className={classNames(
-        'site-hero crt-frame overflow-hidden rounded-frame',
+        'site-hero overflow-hidden rounded-frame',
+        prominent ? 'crt-frame-solid' : 'crt-frame',
         className,
       )}
     >
       <div
         className={classNames(
           'grid items-center',
+          prominent && 'transform-gpu',
           centered &&
             'gap-6 px-6 pt-10 pb-6 sm:px-8 sm:pt-12 md:justify-items-center lg:px-10',
           !centered && 'gap-7 p-6 sm:gap-8 sm:p-8 lg:gap-12 lg:p-10',
@@ -56,7 +60,10 @@ export function SiteHero({
           )}
           <h1
             id={id}
-            className="font-pixel text-4xl text-theme normal-case leading-none tracking-tight sm:text-5xl lg:text-6xl"
+            className={classNames(
+              'font-pixel text-4xl text-theme normal-case leading-none tracking-tight',
+              prominent ? 'sm:text-6xl lg:text-7xl' : 'sm:text-5xl lg:text-6xl',
+            )}
           >
             {title}
           </h1>

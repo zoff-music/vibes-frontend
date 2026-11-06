@@ -615,18 +615,34 @@ PORT=3000
 - **Hot Module Replacement**: Sub-second development feedback
 - **Zustand Optimization**: Selective subscriptions prevent unnecessary re-renders
 
-### Critical CSS experiment (draft)
+### Critical CSS
 
-Production builds generate a Beasties extraction plan from the emitted Tailwind
-stylesheet. Set `CRITICAL_CSS=true` on the Platform server to test per-document
-inline styles and a non-render-blocking full stylesheet. It is disabled by default.
-The root owns the inline style during hydration; the full stylesheet becomes
-active after hydration, with a blocking stylesheet fallback when JavaScript is
-disabled. No player, admin, remote, Cast or native application is changed.
+The `criticalCss()` Vite plugin from `@vibes/serve/critical-css/vite` compiles
+the emitted Tailwind stylesheet into a Beasties extraction plan
+(`dist/client/.vite/critical-css.json`). With `CRITICAL_CSS=true`,
+`startServer` (`mode.criticalCss`) inlines, per document, only the rules its
+markup can match, and the root loads the full stylesheet without blocking first
+paint. It is disabled by default.
 
-This experiment buffers SSR HTML and currently exceeds the homepage's 14 kB
-compressed-document budget. Do not enable it in production before resolving
-those costs and validating cold loads, dark mode, navigation and layout shifts.
+- The build drops rules that cannot affect first paint: `:hover`, `:focus*`,
+  `:active`, `::view-transition-*` and transition timing utilities (dropped
+  together, so nothing animates before the full stylesheet applies).
+- The server keeps both palettes for automatic themes (the theme script adds
+  `.dark` before paint), prunes unused custom properties and `@property`
+  registrations, and drops the old-browser `@layer properties` fallback, the
+  `prefers-color-scheme` copy of `.dark` and `unicode-range` on inline font
+  faces. Focus states are kept only for documents that autofocus a control.
+- The inline style starts with the full sheet's `@layer` order, so the cascade
+  matches the blocking stylesheet.
+- Mark regions that are below the fold on every viewport with
+  `data-critical="defer"`; their styles arrive with the full stylesheet.
+- The client entry hydrates only after the full stylesheet has loaded, so UI
+  that appears during hydration never renders against the inline subset.
+- A `<noscript>` stylesheet keeps JavaScript-disabled rendering unchanged.
+
+Every SSR document, including the homepage and room settings, stays under
+14 kB with the server's Brotli encoding. Extraction needs the complete document,
+so these responses are buffered rather than streamed.
 
 ### Initial document and fonts
 

@@ -59,7 +59,7 @@ export function SegmentedToggle({
           className={classNames(
             'flex items-center justify-center rounded-lg transition-all',
             !checked
-              ? 'bg-ink text-text-inverse shadow-soft'
+              ? 'bg-ink text-text-inverse shadow-xs'
               : 'text-theme-muted',
           )}
         >
@@ -69,7 +69,7 @@ export function SegmentedToggle({
           className={classNames(
             'flex items-center justify-center rounded-lg transition-all',
             checked
-              ? 'bg-secondary text-ink shadow-neon-cyan'
+              ? 'bg-secondary text-ink shadow-secondary-soft'
               : 'text-theme-muted',
           )}
         >

@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { constants as zlibConstants } from 'node:zlib';
 import {
   type RouteAssets,
   routePreloads,
@@ -13,6 +14,7 @@ import { safeWrapAsync } from '@vibes/shared/wrap';
 import compression from 'compression';
 import express, { type Request, type Response } from 'express';
 import type { Manifest } from 'vite';
+import { createCriticalCss } from './criticalCss.ts';
 import { metricsApp } from './metrics.ts';
 import {
   createBodySizeLimitMiddleware,
@@ -61,6 +63,8 @@ type ServerMode =
   | {
       type: 'ssr';
       loadBuild: () => Promise<unknown>;
+      /** Inline per-document critical CSS built by `@vibes/serve/critical-css/vite`. */
+      criticalCss?: boolean;
     }
   | {
       type: 'spa';
@@ -221,7 +225,16 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     );
     app.use(express.static(config.staticDir, staticOptions));
 
-    const build = (await config.mode.loadBuild()) as ApplicationBuild;
+    const application = (await config.mode.loadBuild()) as ApplicationBuild;
+    const inlineCriticalCss = createCriticalCss({
+      enabled: config.mode.criticalCss === true,
+      clientDir: config.staticDir,
+    });
+    const build: ApplicationBuild = {
+      ...application,
+      default: async (request, entry) =>
+        inlineCriticalCss(await application.default(request, entry)),
+    };
     const manifest = JSON.parse(
       await readFile(
         path.join(config.staticDir, '.vite/manifest.json'),
@@ -314,7 +327,12 @@ export async function startServer(config: ServerConfig) {
       maxBytes: resolveBodySizeLimitBytes(config),
     }),
   );
-  app.use(compression());
+  // Quality 7 costs about the same CPU as the default 4 on SSR documents and keeps more of them in the first round trip.
+  app.use(
+    compression({
+      brotli: { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 7 } },
+    }),
+  );
   app.disable('x-powered-by');
   app.use(
     createFrameProtectionMiddleware({

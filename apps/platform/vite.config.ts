@@ -1,10 +1,10 @@
 import path from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import { assetBase } from '@vibes/serve/assets';
+import { criticalCss } from '@vibes/serve/critical-css/vite';
 import { precompressAssets } from '@vibes/serve/precompress';
 import { applicationPlugins } from '@vibes/serve/vite';
 import { defineConfig, loadEnv } from 'vite';
-import { criticalCss } from './vite/criticalCss';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {

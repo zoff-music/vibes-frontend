@@ -6,7 +6,8 @@ interface ThemeScriptProps {
 }
 
 export function ThemeScript({ nonce }: ThemeScriptProps) {
-  // Resolve automatic mode before styles paint without a blocking round trip.
+  // Resolve automatic mode, including Tailwind dark variants, before styles paint without a blocking round trip.
+  // theme-init.js is inlined verbatim, so keep comments here rather than in that file.
   return (
     <script
       {...(nonce && { nonce })}

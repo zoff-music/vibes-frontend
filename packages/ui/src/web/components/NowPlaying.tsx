@@ -82,7 +82,7 @@ export function NowPlayingPlaylistItem({
       >
         <div
           className={classNames(
-            'group/card panel-surface no-box relative flex min-w-0 items-center overflow-hidden rounded-2xl backdrop-blur-none!',
+            'group/card panel-surface no-box backdrop-filter-none! relative flex min-w-0 items-center overflow-hidden rounded-2xl',
             density === 'compact' ? 'gap-3 p-3' : 'gap-4 p-4',
           )}
         >

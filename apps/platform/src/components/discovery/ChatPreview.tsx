@@ -245,7 +245,7 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
                 'size-36 rounded-full',
                 state.branding &&
                   'motion-safe:animate-spin motion-safe:[animation-duration:1.4s] motion-safe:[animation-iteration-count:1]',
-                !state.playing && '[animation-play-state:paused]',
+                !state.playing && 'animation-paused',
               )}
             />
           </motion.div>

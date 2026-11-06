@@ -1,4 +1,3 @@
-// Resolve automatic mode before CSS paints, including Tailwind dark variants.
 if (
   !document.documentElement.classList.contains('theme-light') &&
   !document.documentElement.classList.contains('dark') &&

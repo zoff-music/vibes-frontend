@@ -16,7 +16,7 @@ export function VinylRecord({
       aria-hidden="true"
       className={classNames(
         'relative flex aspect-square shrink-0 items-center justify-center rounded-full border border-white/15 bg-[repeating-radial-gradient(circle,#21192d_0px,#21192d_2px,#100b18_3px,#100b18_7px)] shadow-2xl motion-safe:animate-[spin_24s_linear_infinite]',
-        !playing && 'motion-safe:[animation-play-state:paused]',
+        !playing && 'motion-safe:animation-paused',
         className,
       )}
     >

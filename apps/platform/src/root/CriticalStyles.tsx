@@ -12,6 +12,7 @@ export function CriticalStyles({ href }: CriticalStylesProps) {
   );
   const [ready, setReady] = useState(false);
 
+  // The client entry hydrates after this stylesheet loads, so activation cannot repaint.
   useEffect(() => {
     setReady(true);
   }, []);
@@ -19,7 +20,12 @@ export function CriticalStyles({ href }: CriticalStylesProps) {
   return (
     <>
       <style id="critical-css" dangerouslySetInnerHTML={{ __html: css }} />
-      <link rel="stylesheet" href={href} media={ready ? 'all' : 'print'} />
+      <link
+        rel="stylesheet"
+        href={href}
+        media={ready ? 'all' : 'print'}
+        data-critical-stylesheet=""
+      />
       <noscript>
         <link rel="stylesheet" href={href} />
       </noscript>

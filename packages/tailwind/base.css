@@ -245,6 +245,69 @@
   }
 }
 
+/* Range inputs: one class instead of a dozen pseudo-element variants per slider. */
+@utility range-progress {
+  &::-webkit-slider-runnable-track {
+    height: --spacing(1.5);
+    background-color: transparent;
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    box-sizing: border-box;
+    width: --spacing(3.5);
+    height: --spacing(3.5);
+    margin-top: --spacing(-1);
+    border: 2px solid var(--color-secondary);
+    border-radius: 9999px;
+    background-color: var(--theme-bg-surface);
+  }
+
+  &::-moz-range-track {
+    height: --spacing(1.5);
+    background-color: transparent;
+  }
+
+  &::-moz-range-thumb {
+    box-sizing: border-box;
+    width: --spacing(3.5);
+    height: --spacing(3.5);
+    border: 2px solid var(--color-secondary);
+    border-radius: 9999px;
+    background-color: var(--theme-bg-surface);
+  }
+}
+
+@utility range-volume {
+  &::-webkit-slider-runnable-track {
+    height: --spacing(1);
+    background-color: transparent;
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: --spacing(3);
+    height: --spacing(3);
+    margin-top: --spacing(-1);
+    border: 0;
+    border-radius: 9999px;
+    background-color: var(--color-primary);
+  }
+
+  &::-moz-range-track {
+    height: --spacing(1);
+    background-color: transparent;
+  }
+
+  &::-moz-range-thumb {
+    width: --spacing(3);
+    height: --spacing(3);
+    border: 0;
+    border-radius: 9999px;
+    background-color: var(--color-primary);
+  }
+}
+
 @utility page-transitions {
   &::view-transition,
   &::view-transition-group(*),

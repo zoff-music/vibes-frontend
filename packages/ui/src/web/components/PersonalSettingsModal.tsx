@@ -198,7 +198,7 @@ function ThemeButton({
           active && !defaultTheme
             ? 'bg-secondary text-on-secondary shadow-secondary-soft'
             : active
-              ? 'bg-theme-surface text-theme shadow-soft'
+              ? 'bg-theme-surface text-theme shadow-xs'
               : 'text-theme-muted hover:bg-theme-surface hover:text-theme',
         )}
       >

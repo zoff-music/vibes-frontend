@@ -584,9 +584,6 @@ importers:
       '@vibes/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      beasties:
-        specifier: 0.5.5
-        version: 0.5.5
       framer-motion:
         specifier: 14.4.0
         version: 14.4.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -880,6 +877,9 @@ importers:
       '@vibes/shared':
         specifier: workspace:*
         version: link:../shared
+      beasties:
+        specifier: 0.5.5
+        version: 0.5.5
       compression:
         specifier: 1.8.2
         version: 1.8.2(supports-color@8.1.1)
