@@ -10,8 +10,13 @@ import {
   useRoomStore,
 } from '@vibes/shared';
 import { useChatPreferenceStore } from '@vibes/shared/chatPreferenceStore';
-import { NowPlayingPlaylistItem, QueueList, ScrollButton } from '@vibes/ui/web';
-import { domMax, LazyMotion, m as motion } from 'framer-motion';
+import {
+  loadMotionLayoutFeatures,
+  NowPlayingPlaylistItem,
+  QueueList,
+  ScrollButton,
+} from '@vibes/ui/web';
+import { LazyMotion, m as motion } from 'framer-motion';
 import React, {
   lazy,
   Suspense,
@@ -216,7 +221,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
     }, [voteFetcher.data, voteFetcher.state, votingPlaylistItemId]);
 
     return (
-      <LazyMotion features={domMax}>
+      <LazyMotion features={loadMotionLayoutFeatures}>
         <div className="mt-6 flex min-h-0 min-w-0 flex-1 flex-col lg:col-span-2 lg:mt-0 lg:h-full">
           <div className="relative flex min-h-0 flex-1 flex-col">
             {/* Now Playing (Integrated into list style) */}
