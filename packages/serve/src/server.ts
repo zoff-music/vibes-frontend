@@ -26,6 +26,8 @@ import {
 import { precompressedAssets } from './precompressed.ts';
 import {
   clientEntryPreloads,
+  isModulePreload,
+  modulePreloadHrefs,
   sendDocumentPreloads,
   staticDocumentPreloads,
 } from './preloads.ts';
@@ -230,10 +232,26 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
       enabled: config.mode.criticalCss === true,
       clientDir: config.staticDir,
     });
+    const criticalCss = config.mode.criticalCss === true;
+    const routeLinks = (pathname: string) =>
+      routePreloads(routeAssets, pathname, clientAssetBase)
+        .split(/,\s*(?=<)/)
+        .filter(Boolean);
     const build: ApplicationBuild = {
       ...application,
       default: async (request, entry) =>
-        inlineCriticalCss(await application.default(request, entry), request),
+        inlineCriticalCss(
+          await application.default(request, entry),
+          request,
+          // Chromium preloads modules from the 103 Early Hints; other engines (Safari only honours
+          // preconnect there) get them as compact markup instead of a large final Link header.
+          /"Chromium"/.test(request.headers.get('sec-ch-ua') ?? '')
+            ? []
+            : modulePreloadHrefs([
+                ...documentPreloads,
+                ...routeLinks(new URL(request.url).pathname),
+              ]),
+        ),
     };
     const manifest = JSON.parse(
       await readFile(
@@ -265,11 +283,19 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
         (req.method === 'GET' || req.method === 'HEAD')
       ) {
         res.set('Cache-Control', 'no-cache');
-        const preloads = routePreloads(routeAssets, req.path, clientAssetBase);
+        const preloads = routeLinks(req.path);
 
-        if (preloads) res.set('Link', preloads);
+        if (criticalCss) {
+          // Early Hints carry every preload; the final Link header drops module preloads, which
+          // keeps the first round trip under 14 kB (see the document wrapper above).
+          sendDocumentPreloads(req, res, [...documentPreloads, ...preloads], {
+            inMarkup: isModulePreload,
+          });
+        } else {
+          if (preloads.length > 0) res.set('Link', preloads.join(', '));
 
-        sendDocumentPreloads(req, res, documentPreloads);
+          sendDocumentPreloads(req, res, documentPreloads);
+        }
       }
 
       next();

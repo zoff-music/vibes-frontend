@@ -8,7 +8,6 @@ import {
 import { lazy } from 'preact/compat';
 import { ProductLinks } from '../../../components/seo/ProductLinks';
 import { CommunityStats } from './CommunityStats';
-import { RemotePreview } from './RemotePreview';
 import { RoomControlsPreview } from './RoomControlsPreview';
 
 const LazyVotingPreview = lazy(() =>
@@ -109,7 +108,6 @@ export function ProductIntroduction({
           </div>
         </section>
         <RoomControlsPreview />
-        <RemotePreview />
         <section
           id="ai-playlists"
           aria-labelledby="home-generation-heading"

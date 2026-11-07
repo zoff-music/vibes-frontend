@@ -48,6 +48,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     criticalCss:
       process.env.NODE_ENV === 'production' &&
       process.env.CRITICAL_CSS !== 'false',
+    // Chromium browsers can cast; rooms reserve the phone Cast button's slot so it never shifts in.
+    castCapable: /"Chromium"/.test(request.headers.get('sec-ch-ua') ?? ''),
     debug: process.env.VITE_DEBUG === 'true',
     theme,
     embedBasePath,

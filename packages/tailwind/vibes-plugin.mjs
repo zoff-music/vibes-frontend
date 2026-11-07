@@ -142,6 +142,10 @@ export function addVibesUtilities({ addBase, addUtilities }) {
       textShadow:
         '0 0 10px rgba(255, 80, 200, 0.35), 0 0 24px rgba(0, 217, 255, 0.25)',
     },
+    // Fully clipped elements carry no on-screen area, so an iframe's own layout shifts weigh nothing.
+    '.clip-hidden': {
+      clipPath: 'inset(50%)',
+    },
     '.animation-paused': {
       animationPlayState: 'paused',
     },

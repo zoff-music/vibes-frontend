@@ -150,6 +150,11 @@ const VideoPlayerComponent = ({
   const canPlayAudio = hasUserStartedPlayback || allowUnmutedAutoplay;
   const [isMutedState, setIsMutedState] = useState(false);
   const [playerState, setPlayerState] = useState(YOUTUBE_STATE_UNSTARTED);
+  const [hasPlayed, setHasPlayed] = useState(false);
+
+  useEffect(() => {
+    if (playerState === YOUTUBE_STATE_PLAYING) setHasPlayed(true);
+  }, [playerState]);
   const [castPlayerSize, setCastPlayerSize] = useState<PlayerSize | null>(null);
   const origin =
     typeof window === 'undefined' ? undefined : window.location.origin;
@@ -1254,6 +1259,13 @@ const VideoPlayerComponent = ({
         desiredVolume > MIN_VOLUME)) &&
     !error;
 
+  // YouTube's embed lays itself out after it reports ready; keep it unpainted until it is playing, under
+  // the click-to-play overlay, or meant to stay paused, so the embed's own shifts never count as ours.
+  const youtubeHidden =
+    !isReady ||
+    showClickToPlay ||
+    (shouldPlay && !hasPlayed && playerState !== YOUTUBE_STATE_PLAYING);
+
   const handleUserGesturePlay = useCallback(() => {
     const player = playerRef.current;
 
@@ -1330,6 +1342,7 @@ const VideoPlayerComponent = ({
             onError={handleError}
             className={classNames(
               'absolute inset-0 flex items-center justify-center [&_iframe]:max-h-full [&_iframe]:w-full',
+              youtubeHidden && 'clip-hidden invisible',
               fill &&
                 'h-full min-h-0 w-full [&_iframe]:h-full [&_iframe]:max-w-full',
               !fill &&
@@ -1351,7 +1364,7 @@ const VideoPlayerComponent = ({
         </div>
       )}
 
-      {!isReady && !error && !showClickToPlay && (
+      {youtubeHidden && !error && !showClickToPlay && (
         <div
           className="pointer-events-none absolute inset-0 flex items-center justify-center gap-3 px-4 py-3"
           role="status"
