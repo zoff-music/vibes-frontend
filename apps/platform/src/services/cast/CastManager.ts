@@ -375,6 +375,14 @@ class GoogleCastManager implements ICastManager {
           return LOCAL_EMULATOR_ENABLED ? [...this.devices] : [];
         }
 
+        // Browsers without Cast support (most non-Chrome and headless browsers) report this; it is
+        // the expected "no devices" state, not a failure.
+        if (/no cast extension/i.test(initErr.message)) {
+          console.warn('Cast is not available in this browser.');
+
+          return LOCAL_EMULATOR_ENABLED ? [...this.devices] : [];
+        }
+
         console.error('Failed to discover devices:', initErr);
         this.notifyError({
           code: 'DISCOVERY_FAILED',
