@@ -487,5 +487,5 @@ html[data-page-enter] main {
 
 /* Critical CSS hides deferred regions until this stylesheet applies; see @vibes/serve/critical-css. */
 [data-critical="defer"] {
-  visibility: visible;
+  visibility: inherit;
 }

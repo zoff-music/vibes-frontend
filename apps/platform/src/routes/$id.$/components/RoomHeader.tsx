@@ -1,11 +1,11 @@
-import { useFetcher } from '@kasperrt/smolter/preact';
+import { useFetcher, useRootData } from '@kasperrt/smolter/preact';
 import type {
   Providers,
   RoomSettingsV2,
   RoomUpdateV2,
   RoomV2,
 } from '@vibes/models';
-import { useRoomStore } from '@vibes/shared';
+import { classNames, useRoomStore } from '@vibes/shared';
 import {
   ArrowLeftIcon,
   CastIcon,
@@ -25,6 +25,7 @@ import React, {
   useEffect,
 } from 'preact/compat';
 import { RemoteControlButton } from '../../../components/remote/RemoteControlProvider';
+import type { RootLoaderData } from '../../../root/loader';
 import { useRoomPanel } from '../hooks/useRoomPanel';
 import type { RoomActionData } from '../utils/actions/clientAction';
 
@@ -127,6 +128,8 @@ export const RoomHeader = React.memo(
     providers,
   }: RoomHeaderProps) => {
     const { href } = useRoomPanel();
+    const castCapable =
+      (useRootData() as RootLoaderData | undefined)?.castCapable === true;
     const settingsFetcher = useFetcher<RoomActionData>();
     const isAdmin = Boolean(displayRoom?.hasPassword && displayRoom.isAdmin);
     const setRoom = useRoomStore((state) => state.setRoom);
@@ -291,8 +294,11 @@ export const RoomHeader = React.memo(
                 <RemoteControlButton variant="ghost" />
               </div>
 
-              {showCast && (
-                <div className="sm:hidden">
+              {(showCast || castCapable) && (
+                <div
+                  className={classNames('sm:hidden', !showCast && 'invisible')}
+                  {...(!showCast && { inert: true, 'aria-hidden': true })}
+                >
                   <Tooltip
                     className="inline-flex"
                     content={

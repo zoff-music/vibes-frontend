@@ -1330,6 +1330,9 @@ const VideoPlayerComponent = ({
             onError={handleError}
             className={classNames(
               'absolute inset-0 flex items-center justify-center [&_iframe]:max-h-full [&_iframe]:w-full',
+              // YouTube's embed lays itself out while loading; keep it unpainted until it is ready and
+              // not under the opaque click-to-play overlay, so its internal shifts never count as ours.
+              (!isReady || showClickToPlay) && 'invisible',
               fill &&
                 'h-full min-h-0 w-full [&_iframe]:h-full [&_iframe]:max-w-full',
               !fill &&

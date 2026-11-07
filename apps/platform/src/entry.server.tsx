@@ -16,10 +16,15 @@ configureApplication(applicationEnvironment);
 
 export const clientAssetBase = import.meta.env.BASE_URL;
 
-export const documentPreloads = createDocumentPreloads(
-  stylesUrl,
-  fontPreloadUrls,
-);
+// Room artwork (the largest paint) comes from YouTube's image host: open that connection from the
+// Link header and Early Hints, which add nothing to the document's first-round-trip bytes. The
+// embed origins are left alone: an earlier embed moves its own layout shift into the load window.
+const providerPreconnects = ['<https://i.ytimg.com>; rel=preconnect'];
+
+export const documentPreloads = [
+  ...createDocumentPreloads(stylesUrl, fontPreloadUrls),
+  ...providerPreconnects,
+];
 
 export const routes = fileRoutes;
 
