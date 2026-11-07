@@ -39,6 +39,8 @@ interface Props {
   onEnded?: () => void;
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
+  /** Whether the video itself (or its error) is on screen, as opposed to a loading state. */
+  onVideoVisibleChange?: (visible: boolean) => void;
   appContext?: 'platform' | 'cast';
   preloadPlaylistItem?: PlaylistItem | null;
   onLocalPause?: () => void;
@@ -68,6 +70,7 @@ const VideoPlayerComponent = ({
   onEnded,
   fill = false,
   onNeedsUserGestureChange,
+  onVideoVisibleChange,
   appContext = 'platform',
   preloadPlaylistItem = null,
   onLocalAlignmentChange,
@@ -1117,7 +1120,8 @@ const VideoPlayerComponent = ({
 
   const handleError = useCallback(
     (event: unknown) => {
-      console.error('[VideoPlayer] Player error:', event);
+      // Provider errors (unavailable or non-embeddable videos) are content states shown in the UI.
+      console.warn('[VideoPlayer] Player error:', playerErrorDetail(event));
       setError('This video is unavailable in the embedded player.');
 
       if (
@@ -1306,6 +1310,12 @@ const VideoPlayerComponent = ({
     onNeedsUserGestureChange?.(showClickToPlay);
   }, [isYouTubeActive, showClickToPlay, onNeedsUserGestureChange]);
 
+  const isVideoVisible = isYouTubeActive && (!youtubeHidden || !!error);
+
+  useEffect(() => {
+    onVideoVisibleChange?.(isVideoVisible);
+  }, [isVideoVisible, onVideoVisibleChange]);
+
   const containerClass = fill
     ? 'relative flex h-full w-full flex-col overflow-hidden bg-black'
     : 'relative flex h-full min-h-player-min w-full flex-col overflow-hidden bg-black';
@@ -1437,3 +1447,11 @@ const YOUTUBE_STATE_UNSTARTED = -1;
 
 /** Fetch the YouTube iframe API ahead of a player mount, such as when a visitor is about to join a room. */
 export { loadYouTubeApi as preloadYouTubeApi } from './youtube';
+
+function playerErrorDetail(event: unknown): unknown {
+  if (typeof event === 'object' && event !== null && 'data' in event) {
+    return { code: event.data };
+  }
+
+  return event;
+}

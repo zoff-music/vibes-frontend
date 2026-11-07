@@ -50,6 +50,7 @@ interface PlayerProps {
   onEnded?: () => void;
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
+  onVideoVisibleChange?: (visible: boolean) => void;
   appContext?: 'platform' | 'cast';
   preloadPlaylistItem?: PlaylistItem | null;
   onLocalPause?: () => void;
@@ -207,6 +208,7 @@ export const RoomPlayer = React.memo(
     const [VideoPlayerComponent, setVideoPlayerComponent] =
       useState<PlayerComponent | null>(null);
     const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
+    const [isVideoVisible, setIsVideoVisible] = useState(false);
     const [isSkipPending, setIsSkipPending] = useState(false);
     useLayoutEffect(() => {
       if (submittedRoom.current === roomId) return;
@@ -589,6 +591,12 @@ export const RoomPlayer = React.memo(
     const isPlayerMissing =
       (isSoundCloudTrack && !SoundCloudPlayerComponent) ||
       (isVideoTrack && !VideoPlayerComponent);
+    // Server-rendered now playing stays up until the video itself is on screen, so first paint
+    // shows what is playing (not an empty frame); it steps aside for click-to-play.
+    const showNowPlayingPanel =
+      !isConnected &&
+      (isPlayerMissing ||
+        (isVideoTrack && !isVideoVisible && !isPlaybackBlocked));
     const currentPlayerError = isSoundCloudTrack
       ? playerLoadErrors.soundcloud
       : isVideoTrack
@@ -654,6 +662,7 @@ export const RoomPlayer = React.memo(
                 })}
                 isVisible={!isConnected && isVideoTrack}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
+                onVideoVisibleChange={setIsVideoVisible}
                 appContext="platform"
                 preloadPlaylistItem={preloadVideoPlaylistItem}
                 volume={volume}
@@ -668,22 +677,32 @@ export const RoomPlayer = React.memo(
               </div>
             </div>
           )}
-          {currentPlaylistItem && isPlayerMissing && (
+          {currentPlaylistItem && showNowPlayingPanel && (
             <div className="min-h-player-min">
-              <div className="absolute inset-0 flex items-center justify-center bg-black">
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black">
                 {/* SIGNAL CRT */}
                 <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
                   <div className="vhs-scanlines h-full w-full animate-none! opacity-20 mix-blend-overlay" />
                   <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
                 </div>
-                <div role="status" className="relative z-10 text-center">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
-                    <div
+                {/* Server-rendered now playing: visible at first paint while the provider player loads. */}
+                <div
+                  role="status"
+                  className="relative z-10 flex max-w-full flex-col items-center gap-2 px-6 text-center"
+                >
+                  <p className="line-clamp-2 font-display text-2xl text-white sm:text-3xl">
+                    {currentPlaylistItem.title}
+                  </p>
+                  {currentPlaylistItem.publisher && (
+                    <p className="line-clamp-1 text-sm text-white/70">
+                      {currentPlaylistItem.publisher}
+                    </p>
+                  )}
+                  <p className="mt-2 inline-flex items-center gap-2 text-2xs text-white/60 uppercase tracking-widest">
+                    <span
                       aria-hidden="true"
-                      className="h-6 w-6 rounded-full border-2 border-theme border-t-primary motion-safe:animate-spin"
+                      className="h-3 w-3 rounded-full border-2 border-white/30 border-t-primary motion-safe:animate-spin"
                     />
-                  </div>
-                  <p className="text-sm text-theme-muted">
                     {currentPlayerError ?? 'Loading player...'}
                   </p>
                 </div>
