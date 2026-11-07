@@ -243,10 +243,14 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
         inlineCriticalCss(
           await application.default(request, entry),
           request,
-          modulePreloadHrefs([
-            ...documentPreloads,
-            ...routeLinks(new URL(request.url).pathname),
-          ]),
+          // Chromium preloads modules from the 103 Early Hints; other engines (Safari only honours
+          // preconnect there) get them as compact markup instead of a large final Link header.
+          /"Chromium"/.test(request.headers.get('sec-ch-ua') ?? '')
+            ? []
+            : modulePreloadHrefs([
+                ...documentPreloads,
+                ...routeLinks(new URL(request.url).pathname),
+              ]),
         ),
     };
     const manifest = JSON.parse(
@@ -282,9 +286,8 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
         const preloads = routeLinks(req.path);
 
         if (criticalCss) {
-          // Early Hints carry every preload; the buffered document carries module preloads as
-          // markup, which compresses far better than the final Link header and keeps the first
-          // round trip under 14 kB.
+          // Early Hints carry every preload; the final Link header drops module preloads, which
+          // keeps the first round trip under 14 kB (see the document wrapper above).
           sendDocumentPreloads(req, res, [...documentPreloads, ...preloads], {
             inMarkup: isModulePreload,
           });

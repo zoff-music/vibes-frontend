@@ -219,8 +219,10 @@ export function createCriticalCss({
     const preloadMarkup = modulePreloads
       .map((href) => `<link rel="modulepreload" href="${href}"/>`)
       .join('');
+    // End of body: the whole document arrives in the first round trip, so the preload scanner
+    // still finds them at once, without competing with head resources for first paint.
     const document = preloadMarkup
-      ? styled.replace('</head>', () => `${preloadMarkup}</head>`)
+      ? styled.replace('</body>', () => `${preloadMarkup}</body>`)
       : styled;
 
     const init = {
