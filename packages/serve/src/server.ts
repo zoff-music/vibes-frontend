@@ -289,7 +289,10 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
           // Early Hints carry every preload; the final Link header drops module preloads, which
           // keeps the first round trip under 14 kB (see the document wrapper above).
           sendDocumentPreloads(req, res, [...documentPreloads, ...preloads], {
-            inMarkup: isModulePreload,
+            // Documents also render their font and stylesheet preloads in <head>, so the final
+            // header needs only what markup cannot carry early (preconnects).
+            inMarkup: (link) =>
+              isModulePreload(link) || /;\s*rel=preload\b/.test(link),
           });
         } else {
           if (preloads.length > 0) res.set('Link', preloads.join(', '));
