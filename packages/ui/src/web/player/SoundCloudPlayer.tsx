@@ -1,4 +1,5 @@
 import {
+  afterFirstPaint,
   classNames,
   type PlaylistItem,
   resolvePlaylistItemArtwork,
@@ -157,6 +158,19 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const desiredVolume = Math.min(MAX_VOLUME, Math.max(MIN_VOLUME, volume));
   const desiredVolumeRef = useRef(desiredVolume);
   const [isReady, setIsReady] = useState(false);
+  // The widget iframe (provider script on the main thread) starts right after the page's first paint.
+  const [canLoadWidget, setCanLoadWidget] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void afterFirstPaint().then(() => {
+      if (active) setCanLoadWidget(true);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
   const [isPlaybackUnlocked, setIsPlaybackUnlocked] = useState(
     isPlaybackGestureUnlocked,
   );
@@ -305,7 +319,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     const iframe = iframeRef.current;
     const soundCloud = window.SC;
 
-    if (!iframe || !soundCloud || widgetRef.current) return;
+    // Before first paint the iframe has no source; its about:blank load must not bind the widget.
+    if (!iframe?.getAttribute('src') || !soundCloud || widgetRef.current) {
+      return;
+    }
 
     const [widgetError, widget] = safeWrap(() => soundCloud.Widget(iframe));
 
@@ -474,6 +491,8 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   }, [shouldWidgetPlay, playWidget, prewarmWidget]);
 
   useEffect(() => {
+    if (!canLoadWidget) return;
+
     if (!window.SC) {
       const script = document.createElement('script');
       script.src = 'https://w.soundcloud.com/player/api.js';
@@ -484,8 +503,9 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       return;
     }
 
+    // The iframe now has its source; bind like a mount-time iframe always did.
     initializeWidget();
-  }, [initializeWidget]);
+  }, [canLoadWidget, initializeWidget]);
 
   useEffect(() => {
     const widget = widgetRef.current;
@@ -898,7 +918,9 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         <iframe
           ref={iframeRef}
           id="sc-widget"
-          src={getSoundCloudWidgetSrc(initialSourceId)}
+          {...(canLoadWidget && {
+            src: getSoundCloudWidgetSrc(initialSourceId),
+          })}
           onLoad={initializeWidget}
           width="100%"
           height="166"

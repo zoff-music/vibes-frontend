@@ -1,10 +1,10 @@
+import { afterFirstPaint } from '@vibes/shared';
 import { useEffect, useRef } from 'react';
 import { type ApiV3Client, apiV3 } from '../client';
 import {
   type RoomEventV3Callbacks,
   subscribeRoomUpdatesV3,
 } from '../roomEvents';
-import { afterDocumentLoad } from './afterDocumentLoad';
 
 export function useRoomEventsV3(
   roomId: string | undefined,
@@ -21,7 +21,7 @@ export function useRoomEventsV3(
 
     let active = true;
     let unsubscribe: (() => void) | null = null;
-    void afterDocumentLoad().then(() => {
+    void afterFirstPaint().then(() => {
       if (!active) return;
 
       return subscribeRoomUpdatesV3(client, roomId, {

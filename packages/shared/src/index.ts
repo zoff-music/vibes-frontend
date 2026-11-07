@@ -10,6 +10,7 @@ export * from './toast';
 export * from './types';
 export * from './utils/classNames';
 export * from './utils/debug';
+export * from './utils/paint';
 export * from './utils/provider';
 export * from './utils/serverClock';
 export * from './utils/theme';
