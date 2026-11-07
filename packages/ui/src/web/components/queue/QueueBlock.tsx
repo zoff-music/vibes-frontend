@@ -32,7 +32,7 @@ export const QueueBlock = React.memo(function QueueBlock({
   isAdmin,
   votingPlaylistItemId,
 }: QueueBlockProps) {
-  const ref = useRef<HTMLLIElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const firstItemId = items[0]?.id;
 
   useLayoutEffect(() => {
@@ -57,18 +57,17 @@ export const QueueBlock = React.memo(function QueueBlock({
   }, [visible, firstItemId]);
 
   return (
-    <li
+    <div
       ref={ref}
       data-queue-block={index}
-      role="presentation"
       className="h-[calc(var(--queue-row-size)*var(--queue-block-count))]"
       style={{ '--queue-block-count': items.length }}
     >
       {visible && (
-        <ol role="presentation">
+        <div>
           <AnimatePresence initial={false} custom={currentItemIds}>
             {items.map((playlistItem, offset) => (
-              <motion.li
+              <motion.div
                 key={playlistItem.id}
                 role="listitem"
                 data-queue-row={playlistItem.id}
@@ -112,11 +111,11 @@ export const QueueBlock = React.memo(function QueueBlock({
                   {...(onVote && { onVote })}
                   {...(isAdmin !== undefined && { isAdmin })}
                 />
-              </motion.li>
+              </motion.div>
             ))}
           </AnimatePresence>
-        </ol>
+        </div>
       )}
-    </li>
+    </div>
   );
 });
