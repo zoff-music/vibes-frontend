@@ -89,11 +89,13 @@ function withoutDeferred(html: string) {
   let match = marker.exec(result);
   while (match) {
     const tag = match[1];
-    const tags = new RegExp(`<(/?)${tag}\\b[^>]*>`, 'g');
+    // A fixed pattern for every tag; only the deferred element's own tag changes depth.
+    const tags = /<(\/?)([a-z][a-z0-9-]*)\b[^>]*>/g;
     tags.lastIndex = match.index + match[0].length;
     let depth = 1;
     let end = result.length;
     for (let next = tags.exec(result); next; next = tags.exec(result)) {
+      if (next[2] !== tag) continue;
       depth += next[1] ? -1 : 1;
       if (depth === 0) {
         end = next.index + next[0].length;

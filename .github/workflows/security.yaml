@@ -1,6 +1,7 @@
 name: security
 
 on:
+  pull_request:
   workflow_call:
 
 permissions:
@@ -8,7 +9,7 @@ permissions:
 
 jobs:
   audit:
-    if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.repository == 'zoff-music/vibes-frontend' && (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -26,7 +27,7 @@ jobs:
         run: pnpm audit --audit-level=moderate
 
   semgrep:
-    if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.repository == 'zoff-music/vibes-frontend' && (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
