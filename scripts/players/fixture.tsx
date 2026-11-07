@@ -3,6 +3,7 @@ import { usePlaybackStore } from '@vibes/shared';
 import { SoundCloudPlayer } from '@vibes/ui/web/player/SoundCloudPlayer';
 import { VideoPlayer } from '@vibes/ui/web/player/VideoPlayer';
 import { render } from 'preact';
+import { useState } from 'preact/compat';
 import {
   faults,
   finish,
@@ -13,11 +14,13 @@ import {
 import type { Provider, Track } from './types';
 import './fixture.css';
 
+const params = new URLSearchParams(location.search);
 if (!__LIVE_PLAYERS__) {
   installSoundCloud();
   installYouTube();
+  // A browser that already lets this document play audio.
+  if (params.has('autoplay')) faults.blocked = false;
 }
-const params = new URLSearchParams(location.search);
 const providers = (params.get('sequence') || 'soundcloud,soundcloud').split(
   ',',
 ) as Provider[];
@@ -72,6 +75,15 @@ if (!__LIVE_PLAYERS__)
 function Fixture() {
   const item = usePlaybackStore((value) => value.currentPlaylistItem);
   const playing = usePlaybackStore((value) => value.isPlaying);
+  // Arriving from another page: the room (and its players) mounts after a user gesture.
+  const [entered, setEntered] = useState(!params.has('entry'));
+  if (!entered) {
+    return (
+      <button type="button" onClick={() => setEntered(true)}>
+        Enter room
+      </button>
+    );
+  }
   if (!item) return null;
   return (
     <>
@@ -106,6 +118,7 @@ function Fixture() {
         />
         <VideoPlayer
           allowUnmutedAutoplay={!__LIVE_PLAYERS__}
+          deferEmbedUntilInteraction
           onLocalPause={localPause}
           onLocalPlay={localPlay}
           isVisible={item.sourceType === 'youtube'}

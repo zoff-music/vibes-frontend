@@ -51,6 +51,7 @@ interface PlayerProps {
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   appContext?: 'platform' | 'cast';
+  deferEmbedUntilInteraction?: boolean;
   preloadPlaylistItem?: PlaylistItem | null;
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
@@ -638,6 +639,7 @@ export const RoomPlayer = React.memo(
             >
               <VideoPlayerComponent
                 allowUnmutedAutoplay
+                deferEmbedUntilInteraction
                 fill
                 onLocalAlignmentChange={setLocalPlaybackAligned}
                 {...((hasHostPlaybackAuthority ||

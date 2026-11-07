@@ -5,6 +5,7 @@ export default defineConfig({
     include: [
       'scripts/players/native-bridge.test.ts',
       'scripts/players/integration.test.ts',
+      'scripts/players/start-gate.test.ts',
     ],
     fileParallelism: false,
     maxWorkers: 1,

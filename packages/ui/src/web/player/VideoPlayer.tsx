@@ -16,6 +16,7 @@ import {
 } from 'preact/compat';
 import { ClickToPlayOverlay } from './ClickToPlayOverlay';
 import {
+  canAutoplayAudibly,
   isPlaybackGestureUnlocked,
   markPlaybackGestureUnlocked,
   subscribeToPlaybackGestureUnlock,
@@ -40,6 +41,8 @@ interface Props {
   fill?: boolean;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   appContext?: 'platform' | 'cast';
+  /** Mount the provider embed on the first interaction when the visit cannot play audio yet. */
+  deferEmbedUntilInteraction?: boolean;
   preloadPlaylistItem?: PlaylistItem | null;
   onLocalPause?: () => void;
   onLocalPlay?: () => void;
@@ -69,6 +72,7 @@ const VideoPlayerComponent = ({
   fill = false,
   onNeedsUserGestureChange,
   appContext = 'platform',
+  deferEmbedUntilInteraction = false,
   preloadPlaylistItem = null,
   onLocalAlignmentChange,
   onLocalPause,
@@ -89,6 +93,9 @@ const VideoPlayerComponent = ({
   const lastLoadedVideoIdRef = useRef<string | null>(null);
   const pendingVideoIdRef = useRef<string | null>(null);
   const pauseAfterLoadVideoIdRef = useRef<string | null>(null);
+  // A click on the deferred prompt arrives before the embed exists; replay it once the embed is ready.
+  const pendingGesturePlayRef = useRef(false);
+  const gesturePlayRef = useRef<() => void>(() => {});
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
@@ -159,6 +166,97 @@ const VideoPlayerComponent = ({
   const origin =
     typeof window === 'undefined' ? undefined : window.location.origin;
   const isCastReceiver = appContext === 'cast';
+  // A visitor arriving from another page (or anyone the browser already lets hear audio) mounts the
+  // embed at once, so room-to-room navigation and allowed autoplay start exactly as before. A cold,
+  // gesture-less visit cannot play audibly anyway; it shows click-to-play and loads the embed
+  // (about 1 MB of provider script) on the first sign of a person: pointer, touch, wheel or key.
+  const [isFrameUnlocked, setIsFrameUnlocked] = useState(false);
+  const [isAwaitingStartGesture, setIsAwaitingStartGesture] = useState(false);
+
+  useEffect(() => {
+    if (isFrameUnlocked) return;
+
+    if (
+      !deferEmbedUntilInteraction ||
+      hasUserStartedPlayback ||
+      isCastReceiver ||
+      window.navigator.userActivation?.hasBeenActive
+    ) {
+      setIsFrameUnlocked(true);
+
+      return;
+    }
+
+    let disposed = false;
+    const unlock = () => {
+      if (!disposed) setIsFrameUnlocked(true);
+    };
+    const listenerOptions = { capture: true, passive: true };
+
+    for (const type of FRAME_UNLOCK_EVENTS) {
+      window.addEventListener(type, unlock, listenerOptions);
+    }
+
+    for (const origin of FRAME_PRECONNECT_ORIGINS) {
+      if (
+        document.head.querySelector(`link[rel="preconnect"][href="${origin}"]`)
+      ) {
+        continue;
+      }
+
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = origin;
+      document.head.append(link);
+    }
+
+    void canAutoplayAudibly().then((allowed) => {
+      if (disposed) return;
+
+      if (allowed) {
+        unlock();
+
+        return;
+      }
+
+      setIsAwaitingStartGesture(true);
+    });
+
+    return () => {
+      disposed = true;
+
+      for (const type of FRAME_UNLOCK_EVENTS) {
+        window.removeEventListener(type, unlock, listenerOptions);
+      }
+    };
+  }, [
+    deferEmbedUntilInteraction,
+    hasUserStartedPlayback,
+    isCastReceiver,
+    isFrameUnlocked,
+  ]);
+
+  useEffect(() => {
+    if (!isAwaitingStartGesture) return;
+
+    // Any click or key press gives the document user activation, after which the embed may start
+    // audibly on its own; a failed start falls back to the regular click-to-play prompt.
+    const settle = () => setIsAwaitingStartGesture(false);
+    const listenerOptions = { capture: true, passive: true };
+    const unsubscribe = subscribeToPlaybackGestureUnlock(settle);
+
+    for (const type of START_GESTURE_EVENTS) {
+      window.addEventListener(type, settle, listenerOptions);
+    }
+
+    return () => {
+      unsubscribe();
+
+      for (const type of START_GESTURE_EVENTS) {
+        window.removeEventListener(type, settle, listenerOptions);
+      }
+    };
+  }, [isAwaitingStartGesture]);
 
   useEffect(() => {
     return registerProviderPlayback('youtube', () => {
@@ -770,6 +868,16 @@ const VideoPlayerComponent = ({
       setError(null);
       debugLog('ready');
 
+      if (pendingGesturePlayRef.current) {
+        pendingGesturePlayRef.current = false;
+
+        if (isYouTubeActiveRef.current) {
+          gesturePlayRef.current();
+
+          return;
+        }
+      }
+
       const playbackState = usePlaybackStore.getState();
       const loadedVideoId = event.target.getVideoData().video_id;
 
@@ -1249,7 +1357,11 @@ const VideoPlayerComponent = ({
   const showClickToPlay =
     isYouTubeActive &&
     !isCastReceiver &&
-    (!canPlayAudio ||
+    ((isAwaitingStartGesture &&
+      shouldPlay &&
+      !hasUserStartedPlayback &&
+      !hasPlayed) ||
+      !canPlayAudio ||
       needsUserGesture ||
       (slowStartupVideoId === videoId &&
         playerState !== YOUTUBE_STATE_PLAYING) ||
@@ -1269,7 +1381,16 @@ const VideoPlayerComponent = ({
   const handleUserGesturePlay = useCallback(() => {
     const player = playerRef.current;
 
-    if (!player) return;
+    if (!player) {
+      // Unlock audio within this gesture; the embed mounts now and replays this play once ready.
+      setIsFrameUnlocked(true);
+      setHasUserStartedPlayback(true);
+      setNeedsUserGesture(false);
+      markPlaybackGestureUnlocked();
+      pendingGesturePlayRef.current = true;
+
+      return;
+    }
 
     setHasUserStartedPlayback(true);
     setNeedsUserGesture(false);
@@ -1299,6 +1420,10 @@ const VideoPlayerComponent = ({
       debugLog('user-gesture-error', { error: err.message });
     }
   }, [debugLog, onLocalPlay, videoId]);
+
+  useLayoutEffect(() => {
+    gesturePlayRef.current = handleUserGesturePlay;
+  }, [handleUserGesturePlay]);
 
   useEffect(() => {
     if (!isYouTubeActive) return;
@@ -1332,24 +1457,26 @@ const VideoPlayerComponent = ({
       )}
     >
       <div className="relative min-h-0 flex-1 bg-black">
-        {youtubeVideoIdProp && (!isCastReceiver || castPlayerSize) && (
-          <YouTubeFrame
-            videoId={youtubeVideoIdProp}
-            opts={opts}
-            onReady={handleReady}
-            onStateChange={handleStateChange}
-            onEnd={handleEnd}
-            onError={handleError}
-            className={classNames(
-              'absolute inset-0 flex items-center justify-center [&_iframe]:max-h-full [&_iframe]:w-full',
-              youtubeHidden && 'clip-hidden invisible',
-              fill &&
-                'h-full min-h-0 w-full [&_iframe]:h-full [&_iframe]:max-w-full',
-              !fill &&
-                'min-h-video-min [&_iframe]:aspect-video [&_iframe]:max-w-full',
-            )}
-          />
-        )}
+        {youtubeVideoIdProp &&
+          isFrameUnlocked &&
+          (!isCastReceiver || castPlayerSize) && (
+            <YouTubeFrame
+              videoId={youtubeVideoIdProp}
+              opts={opts}
+              onReady={handleReady}
+              onStateChange={handleStateChange}
+              onEnd={handleEnd}
+              onError={handleError}
+              className={classNames(
+                'absolute inset-0 flex items-center justify-center [&_iframe]:max-h-full [&_iframe]:w-full',
+                youtubeHidden && 'clip-hidden invisible',
+                fill &&
+                  'h-full min-h-0 w-full [&_iframe]:h-full [&_iframe]:max-w-full',
+                !fill &&
+                  'min-h-video-min [&_iframe]:aspect-video [&_iframe]:max-w-full',
+              )}
+            />
+          )}
       </div>
 
       {showClickToPlay && (
@@ -1383,6 +1510,21 @@ const VideoPlayerComponent = ({
 };
 
 export const VideoPlayer = memo(VideoPlayerComponent);
+
+const FRAME_UNLOCK_EVENTS = [
+  'pointerdown',
+  'pointermove',
+  'touchstart',
+  'wheel',
+  'keydown',
+] as const;
+
+const START_GESTURE_EVENTS = ['click', 'keydown'] as const;
+
+const FRAME_PRECONNECT_ORIGINS = [
+  'https://www.youtube.com',
+  'https://www.youtube-nocookie.com',
+] as const;
 
 const AUTHORITATIVE_SEEK_THRESHOLD_SECONDS = 1;
 

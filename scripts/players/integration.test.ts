@@ -166,6 +166,10 @@ test.concurrent.for([
       1,
       'startup prompt stays until playback is actually unlocked',
     );
+    // A visitor's pointer reaches the page before their click. The YouTube embed may mount on that
+    // movement; it must stay blocked until the click, as browser autoplay policy keeps it.
+    await prompt.hover();
+    await page.waitForTimeout(300);
     await page.evaluate(() => {
       window.playerTest.faults.blocked = false;
     });
