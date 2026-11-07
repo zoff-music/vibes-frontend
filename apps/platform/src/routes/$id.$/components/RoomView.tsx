@@ -115,7 +115,17 @@ export function RoomView({
         useCastStore.getState().cleanup();
       }}
     >
-      <RoomConnections providers={loaderData.providers} />
+      <RoomConnections
+        providers={loaderData.providers}
+        sourceTypes={
+          new Set(
+            [
+              loaderData.playback?.currentPlaylistItem,
+              ...(loaderData.preloadPlaylistItems ?? []),
+            ].flatMap((item) => (item ? [item.sourceType] : [])),
+          )
+        }
+      />
       <motion.div
         animate={roomEntryVisibleState}
         className={classNames(

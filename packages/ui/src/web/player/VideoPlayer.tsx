@@ -1434,3 +1434,6 @@ const YOUTUBE_STATE_PLAYING = 1;
 const YOUTUBE_STATE_BUFFERING = 3;
 
 const YOUTUBE_STATE_UNSTARTED = -1;
+
+/** Fetch the YouTube iframe API ahead of a player mount, such as when a visitor is about to join a room. */
+export { loadYouTubeApi as preloadYouTubeApi } from './youtube';

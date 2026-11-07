@@ -30,6 +30,13 @@ const loadFeatures = () =>
     .then(() => import('./motionFeatures'))
     .then((module) => module.domMin);
 
+// Layout projection (shared layout and reordering) is the largest feature set; screens that need it
+// load it the same way, so their first paint and hydration never wait for it.
+export const loadMotionLayoutFeatures = () =>
+  afterLoad()
+    .then(() => import('./motionLayoutFeatures'))
+    .then((module) => module.domMax);
+
 export function MotionProvider({ children }: MotionProviderProps) {
   return <LazyMotion features={loadFeatures}>{children}</LazyMotion>;
 }

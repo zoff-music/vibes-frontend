@@ -1,6 +1,7 @@
 import type { EventCursor, RoomMessage } from '@vibes/models';
 import { useEffect, useRef } from 'react';
 import { type ApiClient, api } from '../client';
+import { afterDocumentLoad } from './afterDocumentLoad';
 
 interface MessageCallbacks {
   onConnecting?: () => void;
@@ -92,7 +93,9 @@ export function useRoomMessages(
         }, 3000);
       }
     };
-    void connect();
+    void afterDocumentLoad().then(() => {
+      if (active) void connect();
+    });
 
     return () => {
       active = false;

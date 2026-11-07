@@ -10,6 +10,7 @@ import { useExperience } from '../../../hooks/useExperience';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import { preloadHomeAction } from '../clientAction';
 import type { HomeLoaderData } from '../loader';
+import { warmRoomEntry } from '../utils/warmRoomEntry';
 import { HomeEntryControls } from './HomeEntryControls';
 import { HomeLanding } from './HomeLanding';
 import { HomePlaceholder } from './HomePlaceholder';
@@ -53,6 +54,17 @@ export const HomeScreen = memo(function HomeScreen({
     if (!isAIMode) return;
 
     void safeWrapAsync(preloadHomeAction());
+  }, [isAIMode]);
+
+  useEffect(() => {
+    const input = roomNameRef.current;
+
+    if (!input || isAIMode) return;
+
+    // Focus means a visitor (never a load-time script) is about to join a room.
+    input.addEventListener('focus', warmRoomEntry);
+
+    return () => input.removeEventListener('focus', warmRoomEntry);
   }, [isAIMode]);
 
   useEffect(() => {
@@ -104,6 +116,7 @@ export const HomeScreen = memo(function HomeScreen({
   };
 
   const handleRoomCodeChange = (value: string) => {
+    if (!isAIMode) warmRoomEntry();
     setRoomCode(value);
   };
 
