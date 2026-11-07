@@ -643,9 +643,11 @@ paint. It is disabled by default.
   that appears during hydration never renders against the inline subset.
 - A `<noscript>` stylesheet keeps JavaScript-disabled rendering unchanged.
 
-Every SSR document, including the homepage and room settings, stays under
-14 kB with the server's Brotli encoding. Extraction needs the complete document,
-so these responses are buffered rather than streamed.
+Extraction needs the complete document, so these responses are buffered rather
+than streamed. Because the whole document is in hand, `@vibes/serve` compresses
+it with Brotli quality 10 (about 15 ms on the libuv thread pool, off the event
+loop); streamed and data responses keep the middleware's quality 7. Every SSR
+document, including room settings on busy rooms, stays under 14 kB on the wire.
 
 ### Initial document and fonts
 

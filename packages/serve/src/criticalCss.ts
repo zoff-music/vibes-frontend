@@ -1,7 +1,15 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { promisify } from 'node:util';
+import { brotliCompress, constants } from 'node:zlib';
 import { safeWrap, safeWrapAsync } from '@vibes/shared/wrap';
 import { type CompactPlan, createProcessor } from 'beasties/runtime';
+import Negotiator from 'negotiator';
+
+const compressBrotli = promisify(brotliCompress);
+// Buffered documents can afford denser Brotli than streamed responses: quality 10 keeps
+// room pages in the first round trip for ~15 ms of thread-pool time, off the event loop.
+const documentQuality = 10;
 
 const placeholder = '<style id="critical-css"></style>';
 const deferredMarker = 'data-critical="defer"';
@@ -165,7 +173,10 @@ export function createCriticalCss({
     ? loadProcessor(resolve(clientDir, criticalCssPlanFile))
     : undefined;
 
-  return async function inlineCriticalCss(response: Response) {
+  return async function inlineCriticalCss(
+    response: Response,
+    request?: Request,
+  ) {
     if (
       !processor ||
       !response.headers.get('content-type')?.includes('text/html')
@@ -202,10 +213,40 @@ export function createCriticalCss({
         )
       : activateStylesheet(html);
 
-    return new Response(document, {
+    const init = {
       status: response.status,
       statusText: response.statusText,
       headers,
-    });
+    };
+    if (!acceptsBrotli(request)) return new Response(document, init);
+
+    const source = Buffer.from(document);
+    const [compressError, body] = await safeWrapAsync(
+      compressBrotli(source, {
+        params: {
+          [constants.BROTLI_PARAM_QUALITY]: documentQuality,
+          [constants.BROTLI_PARAM_SIZE_HINT]: source.length,
+        },
+      }),
+    );
+    if (compressError || !body) return new Response(document, init);
+
+    // The compression middleware leaves responses that are already encoded untouched.
+    headers.set('Content-Encoding', 'br');
+    headers.set('Content-Length', String(body.length));
+    headers.append('Vary', 'Accept-Encoding');
+    return new Response(new Uint8Array(body), init);
   };
+}
+
+function acceptsBrotli(request?: Request) {
+  const accept = request?.headers.get('accept-encoding');
+  if (!accept) return false;
+
+  return (
+    new Negotiator({ headers: { 'accept-encoding': accept } }).encoding([
+      'br',
+      'identity',
+    ]) === 'br'
+  );
 }

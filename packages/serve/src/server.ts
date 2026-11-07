@@ -233,7 +233,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     const build: ApplicationBuild = {
       ...application,
       default: async (request, entry) =>
-        inlineCriticalCss(await application.default(request, entry)),
+        inlineCriticalCss(await application.default(request, entry), request),
     };
     const manifest = JSON.parse(
       await readFile(
