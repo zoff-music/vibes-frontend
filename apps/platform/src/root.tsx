@@ -8,6 +8,7 @@ import {
 } from '@kasperrt/smolter/preact/document';
 import { classNames } from '@vibes/shared';
 import {
+  ArtworkRevealScript,
   FontPreloads,
   MotionProvider,
   publicAssetUrl,
@@ -55,6 +56,7 @@ export function Layout({ children }: Props) {
       <head>
         <meta charSet="UTF-8" />
         <ThemeScript {...(cspNonce && { nonce: cspNonce })} />
+        <ArtworkRevealScript {...(cspNonce && { nonce: cspNonce })} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="apple-itunes-app" content="app-id=6799954460" />
         <FontPreloads />

@@ -643,6 +643,16 @@ paint. It is disabled by default.
   that appears during hydration never renders against the inline subset.
 - A `<noscript>` stylesheet keeps JavaScript-disabled rendering unchanged.
 
+Related first-load work in shared packages:
+
+- `ArtworkRevealScript` shows server-rendered playlist artwork as soon as each
+  image loads, instead of waiting for hydration. YouTube's 120×90 placeholder for
+  a missing WebP stays hidden so `PlaylistItemArtwork` can fall back to JPEG.
+- `MotionProvider` fetches framer-motion's animation features after the `load`
+  event and an idle callback, so they never compete with the startup bundle.
+- `AnimatedNumber` counts up with `requestAnimationFrame` instead of the
+  imperative motion engine.
+
 Extraction needs the complete document, so these responses are buffered rather
 than streamed. Because the whole document is in hand, `@vibes/serve` compresses
 it with Brotli quality 10 (about 15 ms on the libuv thread pool, off the event
