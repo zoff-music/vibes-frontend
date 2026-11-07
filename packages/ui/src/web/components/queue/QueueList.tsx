@@ -126,8 +126,10 @@ const QueueListComponent: React.FC<Props> = ({
   }
 
   return (
-    <ol
+    // biome-ignore lint/a11y/useSemanticElements: a native <ol> may only contain <li>, but rows render inside virtualized block wrappers.
+    <div
       ref={ref}
+      role="list"
       aria-label="Upcoming songs"
       className="relative [--queue-row-size:5.125rem] sm:[--queue-row-size:5.625rem]"
       onFocusCapture={(event) => {
@@ -173,7 +175,7 @@ const QueueListComponent: React.FC<Props> = ({
           />
         ))}
       </LayoutGroup>
-    </ol>
+    </div>
   );
 };
 

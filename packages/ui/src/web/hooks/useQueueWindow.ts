@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/compat';
 
 export function useQueueWindow(blockCount: number, pageVisible: boolean) {
-  const ref = useRef<HTMLOListElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const [visibleBlocks, setVisibleBlocks] = useState<ReadonlySet<number>>(
     () => new Set([0]),
   );
