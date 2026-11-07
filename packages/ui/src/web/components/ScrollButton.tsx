@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import { m as motion, useReducedMotion } from 'framer-motion';
 import { ChevronDownIcon } from '../icons';
 
@@ -25,7 +26,7 @@ export function ScrollButton({ direction, onClick }: ScrollButtonProps) {
       Scroll to {direction}
       <ChevronDownIcon
         aria-hidden="true"
-        className={direction === 'top' ? 'h-3 w-3 rotate-180' : 'h-3 w-3'}
+        className={classNames('h-3 w-3', direction === 'top' && 'rotate-180')}
       />
     </motion.button>
   );

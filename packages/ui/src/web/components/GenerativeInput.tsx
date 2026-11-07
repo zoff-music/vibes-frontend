@@ -55,11 +55,11 @@ export function GenerativeInput({
   return (
     <div className="min-w-0">
       <div
-        className={
+        className={classNames(
           hideLabel
             ? 'sr-only'
-            : 'mb-2 flex h-5 items-center justify-between gap-3'
-        }
+            : 'mb-2 flex h-5 items-center justify-between gap-3',
+        )}
       >
         <label htmlFor={id} className="font-pixel text-sm text-theme-muted">
           {label ?? (active ? 'What’s the vibe?' : 'Room name')}
