@@ -10,7 +10,6 @@ import { classNames } from '@vibes/shared';
 import {
   ArtworkRevealScript,
   FontPreloads,
-  FontReadyScript,
   MotionProvider,
   publicAssetUrl,
   ThemeScript,
@@ -70,7 +69,6 @@ export function Layout({ children }: Props) {
           />
         )}
         {!loaderData?.criticalCss && <link rel="stylesheet" href={stylesUrl} />}
-        <FontReadyScript {...(cspNonce && { nonce: cspNonce })} />
         <link rel="describedby" href="/llms.txt" type="text/plain" />
 
         <link

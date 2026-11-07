@@ -10,7 +10,6 @@ export * from './components/DebugConsole';
 export * from './components/DeferredContent';
 export * from './components/ExplicitBadge';
 export { FontPreloads, fontPreloadUrls } from './components/FontPreloads';
-export { FontReadyScript } from './components/FontReadyScript';
 export * from './components/GenerationSparkles';
 export * from './components/GenerativeInput';
 export * from './components/IconButton';
