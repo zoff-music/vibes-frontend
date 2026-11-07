@@ -31,10 +31,11 @@ export function warmRoomEntry() {
     document.head.append(link);
   }
 
-  void safeWrapAsync(import('../../$id.$/components/RoomView'));
+  void safeWrapAsync(import('../routes/$id.$/components/RoomView'));
+  void safeWrapAsync(import('@vibes/ui/web/player/VideoPlayer'));
   void safeWrapAsync(
-    import('@vibes/ui/web/player/VideoPlayer').then(({ preloadYouTubeApi }) =>
-      preloadYouTubeApi(),
+    import('@vibes/ui/web/player/youtube').then(({ loadYouTubeApi }) =>
+      loadYouTubeApi(),
     ),
   );
 }

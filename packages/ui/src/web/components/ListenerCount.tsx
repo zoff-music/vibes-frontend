@@ -31,10 +31,16 @@ export function ListenerCount({
         <div className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
       )}
       <span className="text-2xs tracking-display">
-        <span className={variant === 'inline' ? 'hidden' : 'sm:hidden'}>
+        <span
+          className={classNames(variant === 'inline' ? 'hidden' : 'sm:hidden')}
+        >
           {count}
         </span>
-        <span className={variant === 'inline' ? 'inline' : 'hidden sm:inline'}>
+        <span
+          className={classNames(
+            variant === 'inline' ? 'inline' : 'hidden sm:inline',
+          )}
+        >
           {count} {count === 1 ? labels.participant : labels.participants}
         </span>
       </span>

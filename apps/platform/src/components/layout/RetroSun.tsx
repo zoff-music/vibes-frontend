@@ -43,7 +43,7 @@ export function RetroSun({
       )}
       <OrbitArtwork
         watch={watch}
-        className={animate ? 'experience-orbit-incoming' : ''}
+        className={classNames(animate && 'experience-orbit-incoming')}
       />
     </div>
   );

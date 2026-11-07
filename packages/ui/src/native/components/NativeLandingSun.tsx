@@ -29,7 +29,7 @@ export function NativeLandingSun({
         compact ? 'h-40' : 'h-24',
       )}
     >
-      <View className={compact ? 'size-40' : 'size-56'}>
+      <View className={classNames(compact ? 'size-40' : 'size-56')}>
         {watch && (
           <View className="absolute inset-0 rounded-full bg-native-background dark:bg-native-dark-background" />
         )}
