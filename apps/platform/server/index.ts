@@ -53,5 +53,6 @@ startServer({
   mode: {
     type: 'ssr',
     loadBuild: () => dynamicImport('../dist/server/index.js'),
+    criticalCss: process.env.CRITICAL_CSS !== 'false',
   },
 });

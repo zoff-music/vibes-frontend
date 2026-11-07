@@ -615,6 +615,50 @@ PORT=3000
 - **Hot Module Replacement**: Sub-second development feedback
 - **Zustand Optimization**: Selective subscriptions prevent unnecessary re-renders
 
+### Critical CSS
+
+The `criticalCss()` Vite plugin from `@vibes/serve/critical-css/vite` compiles
+the emitted Tailwind stylesheet into a Beasties extraction plan
+(`dist/client/.vite/critical-css.json`). `startServer` (`mode.criticalCss`)
+inlines, per document, only the rules its markup can match, and the root loads
+the full stylesheet without blocking first paint. It is enabled by default; set
+`CRITICAL_CSS=false` to fall back to the blocking stylesheet.
+
+- The build drops rules that cannot affect first paint: `:hover`, `:focus*`,
+  `:active`, `::view-transition-*` and transition timing utilities (dropped
+  together, so nothing animates before the full stylesheet applies).
+- The server keeps both palettes for automatic themes (the theme script adds
+  `.dark` before paint), prunes unused custom properties and `@property`
+  registrations, and drops the old-browser `@layer properties` fallback, the
+  `prefers-color-scheme` copy of `.dark` and `unicode-range` on inline font
+  faces. Focus states are kept only for documents that autofocus a control.
+- The inline style starts with the full sheet's `@layer` order, so the cascade
+  matches the blocking stylesheet.
+- Mark regions that are below the fold on every viewport with
+  `data-critical="defer"`; their styles arrive with the full stylesheet, and
+  they stay hidden (keeping their space) until it applies.
+- An inline script activates the full stylesheet as soon as it loads, so a
+  failed or slow bundle never leaves the page on the inline subset.
+- The client entry hydrates only after the full stylesheet has loaded, so UI
+  that appears during hydration never renders against the inline subset.
+- A `<noscript>` stylesheet keeps JavaScript-disabled rendering unchanged.
+
+Related first-load work in shared packages:
+
+- `ArtworkRevealScript` shows server-rendered playlist artwork as soon as each
+  image loads, instead of waiting for hydration. YouTube's 120×90 placeholder for
+  a missing WebP stays hidden so `PlaylistItemArtwork` can fall back to JPEG.
+- `MotionProvider` fetches framer-motion's animation features after the `load`
+  event and an idle callback, so they never compete with the startup bundle.
+- `AnimatedNumber` counts up with `requestAnimationFrame` instead of the
+  imperative motion engine.
+
+Extraction needs the complete document, so these responses are buffered rather
+than streamed. Because the whole document is in hand, `@vibes/serve` compresses
+it with Brotli quality 10 (about 15 ms on the libuv thread pool, off the event
+loop); streamed and data responses keep the middleware's quality 7. Every SSR
+document, including room settings on busy rooms, stays under 14 kB on the wire.
+
 ### Initial document and fonts
 
 The production SSR entry exports `documentPreloads` for the shared server to

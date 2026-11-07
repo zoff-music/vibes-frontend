@@ -96,14 +96,14 @@ const VolumeControl = ({
         <div className="relative h-5 min-w-0 flex-1">
           <div className="absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full bg-theme-muted/20">
             <div
-              className="absolute inset-0 bg-gradient-to-r from-secondary via-primary to-accent"
+              className="gradient-volume absolute inset-0"
               style={{ clipPath: `inset(0 ${100 - volume}% 0 0)` }}
             />
           </div>
           <input
             aria-label="Player volume"
             aria-valuetext={`${volume} percent`}
-            className="absolute inset-x-0 top-0 h-5 w-full cursor-pointer touch-none select-none appearance-none bg-transparent [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-primary [&::-moz-range-track]:h-1 [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-primary"
+            className="range-volume absolute inset-x-0 top-0 h-5 w-full cursor-pointer touch-none select-none appearance-none bg-transparent"
             max="100"
             min="0"
             onInput={(event) =>

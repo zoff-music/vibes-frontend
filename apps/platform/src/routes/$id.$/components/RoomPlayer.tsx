@@ -599,8 +599,8 @@ export const RoomPlayer = React.memo(
       <div
         data-room-player-surface
         className={classNames(
-          'min-w-0 shrink-0 origin-top-left space-y-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-6 lg:space-y-0',
-          minimized && '!block !space-y-0',
+          'flex min-w-0 shrink-0 origin-top-left flex-col gap-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto]',
+          minimized && '!block',
         )}
       >
         <AutoSkipHandler
@@ -615,7 +615,7 @@ export const RoomPlayer = React.memo(
         {/* Player - Reserve height to prevent CLS */}
         <div
           className={classNames(
-            'crt-frame relative isolate flex min-h-player-min w-full overflow-hidden rounded-player bg-black backdrop-blur-none! sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
+            'crt-frame backdrop-filter-none! relative isolate flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
             minimized && '!aspect-video !min-h-[202px] !rounded-none',
           )}
         >

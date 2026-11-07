@@ -46,7 +46,7 @@ export function GenerativeInput({
   const animationState =
     active && discovery.animate
       ? '[animation-play-state:running]'
-      : '[animation-play-state:paused]';
+      : 'animation-paused';
   const orbitClass = classNames(
     'fill-none stroke-3 [stroke-dasharray:15_85] [stroke-linecap:round] [vector-effect:non-scaling-stroke] motion-safe:animate-generative-orbit',
     animationState,

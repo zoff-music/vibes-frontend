@@ -24,6 +24,7 @@ export * from './components/NowPlaying';
 export { PersistentPlayerFrame } from './components/PersistentPlayerFrame';
 export * from './components/PersonalSettingsModal';
 export * from './components/PlaybackProgress';
+export { ArtworkRevealScript } from './components/PlaylistItemArtwork';
 export * from './components/ProviderIcon';
 export * from './components/ProviderMark';
 export * from './components/PublicRoomTile';

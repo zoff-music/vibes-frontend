@@ -11,9 +11,12 @@ import { safeWrapAsync } from '@vibes/shared/wrap';
 import { render } from 'preact';
 import { StartupError } from './components/errors/StartupError';
 import * as root from './root';
+import { waitForCriticalStylesheet } from './root/criticalStylesheet';
 
 configureApplication(applicationEnvironment);
 initializeBrowserAnalytics();
+
+await waitForCriticalStylesheet();
 
 const [startupError] = await safeWrapAsync(
   mountApplication(

@@ -142,6 +142,40 @@ export function addVibesUtilities({ addBase, addUtilities }) {
       textShadow:
         '0 0 10px rgba(255, 80, 200, 0.35), 0 0 24px rgba(0, 217, 255, 0.25)',
     },
+    '.animation-paused': {
+      animationPlayState: 'paused',
+    },
+    '.site-gradient-immersive': {
+      inset: '-12%',
+      backgroundSize: '140% 140%',
+    },
+    '.gradient-playback': {
+      backgroundImage: 'linear-gradient(90deg, #ff3fa4, #00d9ff)',
+    },
+    '.gradient-volume': {
+      backgroundImage:
+        'linear-gradient(to right in oklab, #00d9ff, #ff2e97, #ffd700)',
+    },
+    '.sun-glow': {
+      backgroundImage:
+        'radial-gradient(circle, rgba(255, 94, 156, 0.28) 0%, rgba(230, 58, 160, 0.16) 30%, rgba(159, 66, 196, 0.07) 50%, transparent 70%)',
+    },
+    '.site-scanlines': {
+      backgroundImage:
+        'repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 3px)',
+    },
+    '.site-grid-plane': {
+      width: '200%',
+      maskImage: 'linear-gradient(to top, black 30%, transparent 95%)',
+      transform: 'translateX(-50%) perspective(600px) rotateX(60deg)',
+    },
+    '.site-grid-lines': {
+      top: '-5rem',
+      height: 'calc(100% + 5rem)',
+      backgroundImage:
+        'linear-gradient(to right, rgba(255, 105, 180, 0) 0px, rgba(255, 105, 180, 0.45) 1px, rgba(255, 105, 180, 0) 2px), linear-gradient(to bottom, rgba(0, 217, 255, 0) 0px, rgba(0, 217, 255, 0.45) 1px, rgba(0, 217, 255, 0) 2px)',
+      backgroundSize: '80px 80px',
+    },
     '.vhs-scanlines': {
       backgroundImage:
         'repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 3px)',
@@ -183,6 +217,13 @@ export function addVibesUtilities({ addBase, addUtilities }) {
         'inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 40px var(--theme-crt-shadow), 0 0 24px rgba(0, 217, 255, 0.2)',
       background: 'var(--theme-crt-bg)',
       backdropFilter: 'blur(8px)',
+    },
+    '.crt-frame-solid': {
+      position: 'relative',
+      border: '1px solid var(--theme-panel-border)',
+      boxShadow:
+        'inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 40px var(--theme-crt-shadow), 0 0 24px rgba(0, 217, 255, 0.2)',
+      background: 'var(--theme-bg)',
     },
     '.neon-glow': {
       boxShadow:

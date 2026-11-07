@@ -89,6 +89,7 @@ export function PlaylistItemArtwork({
         )}
         width={width}
         height={height}
+        data-artwork=""
         decoding="async"
         fetchPriority={fetchPriority}
         loading={loading}
@@ -96,5 +97,24 @@ export function PlaylistItemArtwork({
         onLoad={handleLoad}
       />
     </picture>
+  );
+}
+
+interface ArtworkRevealScriptProps {
+  nonce?: string;
+}
+
+// Reveal server-rendered artwork as soon as it loads, before hydration. YouTube's 120×90
+// placeholder for a missing WebP stays hidden so the component can fall back to JPEG.
+const revealArtwork =
+  "document.addEventListener('load',e=>{const i=e.target,s=i.previousElementSibling;i.dataset?.artwork!=null&&i.naturalWidth&&!(s&&i.currentSrc==s.srcset&&i.naturalWidth==120&&i.naturalHeight==90)&&i.classList.remove('opacity-0')},1)";
+
+export function ArtworkRevealScript({ nonce }: ArtworkRevealScriptProps) {
+  return (
+    <script
+      {...(nonce && { nonce })}
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: static, build-owned reveal script; never user content
+      dangerouslySetInnerHTML={{ __html: revealArtwork }}
+    />
   );
 }

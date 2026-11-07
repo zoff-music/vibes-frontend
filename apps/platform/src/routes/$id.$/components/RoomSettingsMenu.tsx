@@ -248,7 +248,7 @@ export const RoomSettingsMenu = ({
           onScroll={updateScrollCue}
           className="h-full overflow-y-scroll overscroll-contain p-5 sm:max-h-settings-max"
         >
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="hidden sm:block">
               <LinkButton
                 className="w-full gap-2"
@@ -263,7 +263,7 @@ export const RoomSettingsMenu = ({
                 Device
               </LinkButton>
             </div>
-            <div className="space-y-3 sm:hidden">
+            <div className="flex flex-col gap-3 sm:hidden">
               <div className="grid grid-cols-2 gap-2">
                 <LinkButton
                   to={href('settings/device')}
@@ -499,7 +499,7 @@ export const RoomSettingsMenu = ({
                 Room Mode
               </h5>
 
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Button
                   disabled={room?.hasPassword && !isAdmin}
                   onClick={() => room && updateRoom({ mode: 'server' })}
@@ -540,7 +540,7 @@ export const RoomSettingsMenu = ({
               <div
                 ref={adminSectionRef}
                 className={classNames(
-                  'group mt-6 flex flex-col gap-2 border-theme border-t pt-4 text-theme transition-all duration-300',
+                  'group mt-2 flex flex-col gap-2 border-theme border-t pt-4 text-theme transition-all duration-300',
                   wobblePassword && 'rounded-xl border-red-500',
                 )}
               >
@@ -595,7 +595,7 @@ export const RoomSettingsMenu = ({
             )}
 
             {isAdmin && (
-              <div className="group mt-6 border-theme border-t pt-4 text-center">
+              <div className="group mt-2 border-theme border-t pt-4 text-center">
                 <span className="text-secondary text-sm">
                   ✓ You are an Admin
                 </span>

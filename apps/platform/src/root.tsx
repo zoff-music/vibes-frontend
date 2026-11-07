@@ -8,6 +8,7 @@ import {
 } from '@kasperrt/smolter/preact/document';
 import { classNames } from '@vibes/shared';
 import {
+  ArtworkRevealScript,
   FontPreloads,
   MotionProvider,
   publicAssetUrl,
@@ -18,6 +19,7 @@ import { type ReactNode, useState } from 'preact/compat';
 import { App } from './App';
 import { isStaleRouteError } from './components/errors/recovery';
 import stylesUrl from './index.css?url';
+import { CriticalStyles } from './root/CriticalStyles';
 import { ErrorBoundary } from './root/ErrorBoundary';
 import { loader, type RootLoaderData } from './root/loader';
 
@@ -54,12 +56,19 @@ export function Layout({ children }: Props) {
       <head>
         <meta charSet="UTF-8" />
         <ThemeScript {...(cspNonce && { nonce: cspNonce })} />
+        <ArtworkRevealScript {...(cspNonce && { nonce: cspNonce })} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="apple-itunes-app" content="app-id=6799954460" />
         <FontPreloads />
 
         <link rel="preload" href={stylesUrl} as="style" fetchPriority="high" />
-        <link rel="stylesheet" href={stylesUrl} />
+        {loaderData?.criticalCss && (
+          <CriticalStyles
+            href={stylesUrl}
+            {...(cspNonce && { nonce: cspNonce })}
+          />
+        )}
+        {!loaderData?.criticalCss && <link rel="stylesheet" href={stylesUrl} />}
         <link rel="describedby" href="/llms.txt" type="text/plain" />
 
         <link

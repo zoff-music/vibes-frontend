@@ -1,6 +1,7 @@
 import path from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import { assetBase } from '@vibes/serve/assets';
+import { criticalCss } from '@vibes/serve/critical-css/vite';
 import { precompressAssets } from '@vibes/serve/precompress';
 import { applicationPlugins } from '@vibes/serve/vite';
 import { defineConfig, loadEnv } from 'vite';
@@ -35,6 +36,7 @@ export default defineConfig(({ command, mode }) => {
     base: isBuild ? assetBase(env.ASSET_ORIGIN, '/') : '/',
     plugins: [
       tailwindcss(),
+      criticalCss(),
       ...applicationPlugins({ dataEndpoint: '/_smolter' }),
 
       precompressAssets(),

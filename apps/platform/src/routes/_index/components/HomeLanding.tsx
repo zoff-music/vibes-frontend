@@ -49,7 +49,7 @@ export function HomeLanding({
       <div
         ref={heroRef}
         data-experience={watch ? 'watch' : 'music'}
-        className="flex flex-col gap-8 pt-24 pb-8 sm:gap-10 sm:pt-32 sm:pb-10 [&_.site-hero]:relative [&_h1]:text-4xl sm:[&_h1]:text-6xl lg:[&_h1]:text-7xl"
+        className="flex flex-col gap-8 pt-24 pb-8 sm:gap-10 sm:pt-32 sm:pb-10"
       >
         <div className="relative">
           <div
@@ -66,10 +66,11 @@ export function HomeLanding({
               />
             </div>
           </div>
-          <div className="experience-hero relative z-10 [&_.site-hero>div]:transform-gpu [&_.site-hero]:bg-theme [&_.site-hero]:backdrop-filter-none">
+          <div className="experience-hero relative z-10">
             <SiteHero
               id="home-heading"
               layout="centered"
+              prominent
               title={
                 <>
                   <span className="grid">

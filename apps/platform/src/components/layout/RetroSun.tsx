@@ -34,9 +34,8 @@ export function RetroSun({
     >
       <div
         className={classNames(
-          'absolute -inset-1/2 rounded-full',
-          'bg-[radial-gradient(circle,rgba(255,94,156,0.28)_0%,rgba(230,58,160,0.16)_30%,rgba(159,66,196,0.07)_50%,transparent_70%)]',
-          'motion-safe:animate-sunset-glow group-data-[paused=true]/sun:[animation-play-state:paused]',
+          'sun-glow absolute -inset-1/2 rounded-full',
+          'group-data-[paused=true]/sun:animation-paused motion-safe:animate-sunset-glow',
         )}
       />
       {animate && (
@@ -101,9 +100,9 @@ function OrbitArtwork({ watch, className }: OrbitArtworkProps) {
               width="100"
               height={band.height}
               className={classNames(
-                'origin-center fill-white [transform-box:fill-box]',
+                'transform-fill origin-center fill-white',
                 'motion-safe:animate-sun-ripple',
-                'group-data-[paused=true]/sun:[animation-play-state:paused]',
+                'group-data-[paused=true]/sun:animation-paused',
                 band.delay,
               )}
             />
