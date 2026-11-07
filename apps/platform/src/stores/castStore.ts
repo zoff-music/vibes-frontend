@@ -7,6 +7,7 @@ import {
   type PlaylistItem,
 } from '@vibes/models';
 import {
+  afterFirstPaint,
   browserDebugLog,
   type ResolvedColorScheme,
   safeWrap,
@@ -91,6 +92,8 @@ export const useCastStore = create<CastState>((set, get) => ({
     browserDebugLog('[Cast] store initialize:start');
     set({ lastError: null });
 
+    // The Cast SDK runs on the main thread; let the page paint first.
+    await afterFirstPaint();
     const castManager = await getCastManager();
 
     // Set up event listeners

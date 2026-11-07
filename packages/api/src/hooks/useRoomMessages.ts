@@ -1,7 +1,7 @@
 import type { EventCursor, RoomMessage } from '@vibes/models';
+import { afterFirstPaint } from '@vibes/shared';
 import { useEffect, useRef } from 'react';
 import { type ApiClient, api } from '../client';
-import { afterDocumentLoad } from './afterDocumentLoad';
 
 interface MessageCallbacks {
   onConnecting?: () => void;
@@ -93,7 +93,7 @@ export function useRoomMessages(
         }, 3000);
       }
     };
-    void afterDocumentLoad().then(() => {
+    void afterFirstPaint().then(() => {
       if (active) void connect();
     });
 

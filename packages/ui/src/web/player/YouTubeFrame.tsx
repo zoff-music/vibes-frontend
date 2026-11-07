@@ -1,4 +1,4 @@
-import { safeWrap, safeWrapAsync } from '@vibes/shared';
+import { afterFirstPaint, safeWrap, safeWrapAsync } from '@vibes/shared';
 import { useEffect, useLayoutEffect, useRef } from 'preact/compat';
 import {
   loadYouTubeApi,
@@ -54,26 +54,34 @@ export function YouTubeFrame({
 
     let disposed = false;
     let player: YouTubePlayer | null = null;
-    // Start the embed now rather than after the API script: the SDK attaches to an existing iframe,
-    // so the player download overlaps iframe_api and its widget script instead of following them.
-    const target = createEmbedFrame(
-      callbacks.current.videoId,
-      callbacks.current.opts,
-    );
-    parent.append(target);
+    let target: HTMLIFrameElement | null = null;
 
     const initialize = async () => {
-      const [loadError, api] = await safeWrapAsync(loadYouTubeApi());
+      // The small API script loads at once. The embed (about 1 MB of provider script) starts right
+      // after the page's first paint and before the API resolves: the SDK attaches to an existing
+      // iframe, so the player download overlaps the API instead of following it.
+      const apiLoad = safeWrapAsync(loadYouTubeApi());
+      await afterFirstPaint();
+      if (disposed) return;
+
+      target = createEmbedFrame(
+        callbacks.current.videoId,
+        callbacks.current.opts,
+      );
+      parent.append(target);
+
+      const [loadError, api] = await apiLoad;
       if (disposed) return;
       if (loadError) {
         callbacks.current.onError(loadError);
         return;
       }
-      if (!api) return;
+      if (!api || !target) return;
+      const frame = target;
 
       const [createError, instance] = safeWrap(
         () =>
-          new api.Player(target, {
+          new api.Player(frame, {
             ...callbacks.current.opts,
             videoId: callbacks.current.videoId,
             events: {
