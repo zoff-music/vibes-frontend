@@ -619,10 +619,10 @@ PORT=3000
 
 The `criticalCss()` Vite plugin from `@vibes/serve/critical-css/vite` compiles
 the emitted Tailwind stylesheet into a Beasties extraction plan
-(`dist/client/.vite/critical-css.json`). With `CRITICAL_CSS=true`,
-`startServer` (`mode.criticalCss`) inlines, per document, only the rules its
-markup can match, and the root loads the full stylesheet without blocking first
-paint. It is disabled by default.
+(`dist/client/.vite/critical-css.json`). `startServer` (`mode.criticalCss`)
+inlines, per document, only the rules its markup can match, and the root loads
+the full stylesheet without blocking first paint. It is enabled by default; set
+`CRITICAL_CSS=false` to fall back to the blocking stylesheet.
 
 - The build drops rules that cannot affect first paint: `:hover`, `:focus*`,
   `:active`, `::view-transition-*` and transition timing utilities (dropped

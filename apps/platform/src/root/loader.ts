@@ -44,7 +44,10 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     remoteError || !remote ? createEmptyRemoteStatus() : remote;
 
   return {
-    criticalCss: process.env.CRITICAL_CSS === 'true',
+    // Matches startServer: production SSR inlines critical CSS unless CRITICAL_CSS=false.
+    criticalCss:
+      process.env.NODE_ENV === 'production' &&
+      process.env.CRITICAL_CSS !== 'false',
     debug: process.env.VITE_DEBUG === 'true',
     theme,
     embedBasePath,
