@@ -178,6 +178,8 @@ export function createCriticalCss({
   return async function inlineCriticalCss(
     response: Response,
     request?: Request,
+    /** Module preloads the document carries as markup instead of on the final Link header. */
+    modulePreloads: string[] = [],
   ) {
     if (
       !processor ||
@@ -208,12 +210,18 @@ export function createCriticalCss({
       `critical-css;dur=${(performance.now() - started).toFixed(2)}`,
     );
 
-    const document = css
+    const styled = css
       ? html.replace(
           placeholder,
           () => `<style id="critical-css">${css}</style>`,
         )
       : activateStylesheet(html);
+    const preloadMarkup = modulePreloads
+      .map((href) => `<link rel="modulepreload" href="${href}"/>`)
+      .join('');
+    const document = preloadMarkup
+      ? styled.replace('</head>', () => `${preloadMarkup}</head>`)
+      : styled;
 
     const init = {
       status: response.status,

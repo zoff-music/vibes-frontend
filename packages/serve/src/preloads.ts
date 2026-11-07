@@ -30,10 +30,27 @@ export function clientEntryPreloads(
   return links;
 }
 
+interface DocumentPreloadOptions {
+  /** Links the document itself carries as markup: sent as Early Hints only, not on the final Link header. */
+  inMarkup?: (link: string) => boolean;
+}
+
+export function isModulePreload(link: string) {
+  return /;\s*rel=modulepreload\b/.test(link);
+}
+
+/** Hrefs of `<url>; rel=modulepreload` entries in a Link-header list. */
+export function modulePreloadHrefs(links: string[]) {
+  return links
+    .filter(isModulePreload)
+    .flatMap((link) => link.match(/^<([^>]+)>/)?.[1] ?? []);
+}
+
 export function sendDocumentPreloads(
   req: Request,
   res: Response,
   links: string[],
+  { inMarkup }: DocumentPreloadOptions = {},
 ) {
   if (req.method !== 'GET' || !req.headers.accept?.includes('text/html')) {
     return;
@@ -58,7 +75,11 @@ export function sendDocumentPreloads(
     .split(/,\s*(?=<)/)
     .filter(Boolean);
 
-  res.set('Link', [...new Set([...uniqueLinks, ...existingLinks])].join(', '));
+  const finalLinks = [...new Set([...uniqueLinks, ...existingLinks])].filter(
+    (link) => !inMarkup?.(link),
+  );
+
+  if (finalLinks.length > 0) res.set('Link', finalLinks.join(', '));
   res.writeEarlyHints({ link: uniqueLinks });
 }
 
