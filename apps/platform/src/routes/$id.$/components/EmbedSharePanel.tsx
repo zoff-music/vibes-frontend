@@ -108,10 +108,10 @@ export function EmbedSharePanel({
     >
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h2 id="embed-player-title" className="text-base text-theme">
+          <h2 id="embed-player-title" className="text-theme text-base">
             Embed player
           </h2>
-          <p className="mt-1 text-sm text-theme-muted">
+          <p className="text-theme-muted mt-1 text-sm">
             Choose what the embed displays and which actions visitors can take.
           </p>
         </div>
@@ -121,7 +121,7 @@ export function EmbedSharePanel({
           size="icon"
           aria-label="Close embed settings"
         >
-          <CloseIcon className="h-5 w-5 text-theme-muted" />
+          <CloseIcon className="text-theme-muted h-5 w-5" />
         </Button>
       </div>
 
@@ -134,7 +134,7 @@ export function EmbedSharePanel({
             >
               Layout
             </h3>
-            <p className="mt-1 text-theme-muted text-xs">
+            <p className="text-theme-muted mt-1 text-xs">
               Choose which room content appears inside the iframe.
             </p>
           </div>
@@ -163,7 +163,7 @@ export function EmbedSharePanel({
         <section aria-labelledby="embed-playback-title">
           <h3
             id="embed-playback-title"
-            className="mb-3 font-pixel text-2xs text-theme tracking-display"
+            className="font-pixel text-2xs text-theme tracking-display mb-3"
           >
             Playback
           </h3>
@@ -177,7 +177,7 @@ export function EmbedSharePanel({
             label="Autoplay"
             description="Start playing with sound when the page loads. Off by default."
           />
-          <p className="mt-2 text-theme-muted text-xs">
+          <p className="text-theme-muted mt-2 text-xs">
             Requires the player. Some browsers still require a click before
             playing sound.
           </p>
@@ -191,7 +191,7 @@ export function EmbedSharePanel({
             >
               Visitor controls
             </h3>
-            <p className="mt-1 text-theme-muted text-xs">
+            <p className="text-theme-muted mt-1 text-xs">
               Room permissions still decide whether each action is allowed.
             </p>
           </div>
@@ -225,7 +225,7 @@ export function EmbedSharePanel({
             >
               Appearance
             </h3>
-            <p className="mt-1 text-theme-muted text-xs">
+            <p className="text-theme-muted mt-1 text-xs">
               Auto follows the visitor&apos;s device theme.
             </p>
           </div>
@@ -276,23 +276,23 @@ export function EmbedSharePanel({
 
       <div className="mb-2">
         <p className="text-2xs text-theme tracking-display">Embed code</p>
-        <p className="mt-1 text-theme-muted text-xs">
+        <p className="text-theme-muted mt-1 text-xs">
           This code updates automatically as you change the settings.
         </p>
       </div>
       <button
         type="button"
         onClick={handleCopyEmbedScript}
-        className="group w-full cursor-copy rounded-2xl border border-theme bg-theme-surface p-5 text-left transition-colors hover:border-theme-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
+        className="group border-theme bg-theme-surface hover:border-theme-strong focus-visible:ring-secondary focus-visible:ring-offset-theme w-full cursor-copy rounded-2xl border p-5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         aria-label="Select and copy embed code"
       >
         <code
           ref={codeRef}
-          className="block max-h-32 overflow-auto whitespace-pre-wrap break-all font-mono text-theme-muted text-xs selection:bg-primary/40"
+          className="text-theme-muted selection:bg-primary/40 block max-h-32 overflow-auto font-mono text-xs break-all whitespace-pre-wrap"
         >
           {embedScript}
         </code>
-        <span className="mt-3 flex items-center justify-end gap-1.5 text-2xs text-theme-muted group-hover:text-theme">
+        <span className="text-2xs text-theme-muted group-hover:text-theme mt-3 flex items-center justify-end gap-1.5">
           {copied && <CheckIcon className="h-3.5 w-3.5" />}
           {!copied && <CopyIcon className="h-3.5 w-3.5" />}
           {copied ? 'Copied' : 'Click to select and copy'}

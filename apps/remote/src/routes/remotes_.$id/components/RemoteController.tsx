@@ -44,14 +44,14 @@ export function RemoteController() {
     return (
       <main className="relative z-10 flex min-h-screen items-center justify-center p-4">
         <section className="panel-strong w-full max-w-md rounded-4xl p-8 text-center">
-          <RemoteIcon className="mx-auto h-12 w-12 text-theme-muted" />
-          <h1 className="mt-5 font-display text-theme text-xl">
+          <RemoteIcon className="text-theme-muted mx-auto h-12 w-12" />
+          <h1 className="font-display text-theme mt-5 text-xl">
             Remote unavailable
           </h1>
-          <p className="mt-3 text-sm text-theme-muted">{loaderData.error}</p>
+          <p className="text-theme-muted mt-3 text-sm">{loaderData.error}</p>
           <Link
             to="/remotes/join"
-            className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-secondary px-5 py-2.5 text-text-inverse transition-opacity hover:opacity-90"
+            className="bg-secondary text-text-inverse mt-6 inline-flex w-full items-center justify-center rounded-xl px-5 py-2.5 transition-opacity hover:opacity-90"
           >
             Pair another machine
           </Link>
@@ -67,7 +67,7 @@ export function RemoteController() {
           <p className="font-pixel text-2xs text-secondary tracking-label">
             Controlling machine
           </p>
-          <h1 className="mt-1 truncate font-display text-lg text-theme">
+          <h1 className="font-display text-theme mt-1 truncate text-lg">
             {room?.name ?? 'No room selected'}
           </h1>
         </div>
@@ -158,7 +158,7 @@ export function RemoteController() {
 
       {!room && (
         <section className="panel-surface mt-4 rounded-3xl p-8 text-center">
-          <p className="text-sm text-theme-muted">
+          <p className="text-theme-muted text-sm">
             Enter a room name to move the controlled machine.
           </p>
         </section>
@@ -179,7 +179,7 @@ export function RemoteController() {
           />
 
           <section className="panel-strong min-w-0 rounded-3xl p-4 sm:p-5">
-            <h2 className="mb-4 font-display text-2xs text-theme-muted tracking-label">
+            <h2 className="font-display text-2xs text-theme-muted tracking-label mb-4">
               Up next ({queuedPlaylistItems.length})
             </h2>
             <QueueList

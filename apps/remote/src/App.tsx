@@ -31,7 +31,7 @@ export function App() {
   if (isOpen) settingsLoaded.current = true;
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-theme text-theme">
+    <div className="bg-theme text-theme relative min-h-screen overflow-x-clip">
       <SiteBackground variant="landing" showGrid />
       <ToastViewport />
       <SiteLayout

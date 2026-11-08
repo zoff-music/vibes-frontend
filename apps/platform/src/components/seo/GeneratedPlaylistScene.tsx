@@ -41,19 +41,19 @@ export function GeneratedPlaylistScene({
     return (
       <MotionConfig reducedMotion="user">
         <div className="pt-5" data-phase={state.phase}>
-          <div className="flex min-h-20 items-center gap-3 rounded-2xl border border-theme bg-theme-surface px-4">
+          <div className="border-theme bg-theme-surface flex min-h-20 items-center gap-3 rounded-2xl border px-4">
             <SparklesIcon
               aria-hidden="true"
-              className="size-5 shrink-0 text-primary"
+              className="text-primary size-5 shrink-0"
             />
-            <p className="h-12 min-w-0 flex-1 text-theme leading-6">
+            <p className="text-theme h-12 min-w-0 flex-1 leading-6">
               <span className="sr-only">{prompt}</span>
               <span aria-hidden="true">
                 {state.prompt || 'A mood, a genre, an idea…'}
               </span>
             </p>
           </div>
-          <div className="flex h-16 items-center justify-between gap-3 text-theme-muted text-xs">
+          <div className="text-theme-muted flex h-16 items-center justify-between gap-3 text-xs">
             <span>YOUR STARTING QUEUE</span>
             <span className="w-26 shrink-0">
               {typing
@@ -110,28 +110,28 @@ export function GeneratedPlaylistScene({
         data-phase={state.phase}
         className="mt-5"
       >
-        <div className="rounded-2xl border border-theme bg-theme-surface p-4">
-          <p className="mb-3 font-pixel text-theme-muted text-xs">
+        <div className="border-theme bg-theme-surface rounded-2xl border p-4">
+          <p className="font-pixel text-theme-muted mb-3 text-xs">
             {watch ? 'Your Watch idea' : 'Your playlist prompt'}
           </p>
           <div className="flex min-h-12 min-w-0 items-center gap-3">
             <SparklesIcon
               aria-hidden="true"
-              className="h-5 w-5 shrink-0 text-primary"
+              className="text-primary h-5 w-5 shrink-0"
             />
-            <p className="min-w-0 text-sm text-theme">
+            <p className="text-theme min-w-0 text-sm">
               <span className="sr-only">{prompt}</span>
               <span aria-hidden="true">{state.prompt}</span>
               {typing && (
                 <span
                   aria-hidden="true"
-                  className="ml-0.5 border-primary border-r-2"
+                  className="border-primary ml-0.5 border-r-2"
                 />
               )}
             </p>
           </div>
         </div>
-        <div className="my-5 flex flex-wrap items-center justify-between gap-2 text-theme-muted text-xs">
+        <div className="text-theme-muted my-5 flex flex-wrap items-center justify-between gap-2 text-xs">
           <span className="font-pixel">
             {watch ? 'afterhours / preview' : 'electro'}
           </span>
@@ -150,14 +150,14 @@ export function GeneratedPlaylistScene({
           className="relative grid min-h-72"
         >
           {!showPlaylist && (
-            <div className="col-start-1 row-start-1 flex flex-col items-center justify-center gap-5 rounded-2xl border border-theme bg-theme-surface p-6 text-center">
+            <div className="border-theme bg-theme-surface col-start-1 row-start-1 flex flex-col items-center justify-center gap-5 rounded-2xl border p-6 text-center">
               <GenerationSparkles active={playing && searching} />
               <motion.p
                 key={searching ? 'searching' : 'prompt'}
                 initial={{ opacity: state.reducedMotion ? 1 : 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: state.reducedMotion ? 0 : 0.2 }}
-                className="w-full font-pixel text-sm text-theme"
+                className="font-pixel text-theme w-full text-sm"
               >
                 {watch &&
                   (searching

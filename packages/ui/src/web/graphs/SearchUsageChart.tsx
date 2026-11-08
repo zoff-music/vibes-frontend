@@ -65,7 +65,7 @@ export function SearchUsageChart({
   });
 
   return (
-    <div className="panel-surface rounded-2xl border border-theme p-5">
+    <div className="panel-surface border-theme rounded-2xl border p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <SegmentedControl
           label="Search aggregation"
@@ -89,7 +89,7 @@ export function SearchUsageChart({
           onChange={setProvider}
         />
       </div>
-      <p className="mt-4 text-sm text-theme-muted">
+      <p className="text-theme-muted mt-4 text-sm">
         {totals.reduce((sum, point) => sum + point.total, 0).toLocaleString()}{' '}
         searches ·{' '}
         {totals.reduce((sum, point) => sum + point.live, 0).toLocaleString()}{' '}

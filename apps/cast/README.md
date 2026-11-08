@@ -9,6 +9,7 @@ The standalone Chromecast Receiver application for the Vibes ecosystem. It handl
 ## 🚀 Getting Started
 
 ### Local Development
+
 The receiver runs on port 3003.
 
 ```sh
@@ -19,6 +20,7 @@ pnpm --filter @vibes/cast dev
 **Receiver URL**: `http://localhost:3003`
 
 ### Build System
+
 The cast app uses Vite for local development and production builds.
 
 - **Custom Build Script**: `scripts/build.ts` handles client-side bundling with environment variable injection
@@ -73,6 +75,7 @@ The receiver communicates with sender applications (web/mobile) using standard G
 ## 🏗 Architecture
 
 ### Build Pipeline
+
 1. **CSS Processing**: Tailwind CSS with cascade layers flattened by PostCSS and Vite's `chrome80` CSS target
 2. **Legacy Transpilation**: Uses `@vitejs/plugin-legacy` with `chrome >= 80`, legacy chunks, and runtime polyfills
 3. **Client Bundle**: Preact app and shared DOM components are bundled before legacy transpilation. Safe multi-pass Terser minification runs without changing browser targets.
@@ -85,6 +88,7 @@ the cascade-layer transform, and the legacy plugin when updating build tooling.
 Verify both legacy output and modern output, not only the modern browser preview.
 
 ### Environment Configuration
+
 The build system automatically handles environment variables:
 
 ```bash
@@ -99,7 +103,9 @@ FRONTEND_URL=your-frontend-url
 ```
 
 ### File Watching (Development)
+
 The build script includes intelligent file watching:
+
 - **Vite**: Development server and static production build
 - **File Types**: Watches `.tsx`, `.ts`, `.css`, and `public/` directory changes
 - **Debouncing**: Prevents excessive rebuilds during rapid file changes
@@ -107,6 +113,7 @@ The build script includes intelligent file watching:
 ## 🧩 Integration
 
 This app is built with:
+
 - **React 19**: Modern component architecture with SSR streaming
 - **pnpm**: Workspace package manager
 - **Tailwind CSS**: Theme-driven styling with legacy browser support
@@ -147,6 +154,7 @@ debug messages; received warning/error messages remain visible.
 
 **Playback Position Resetting**
 If you notice the playback position resetting to `0:00` when play/pause is toggled rapidly or during sync updates:
+
 - **Cause**: The receiver receives `updatePlayback` or `syncPlayback` messages where `positionMs` might be 0 (default fallback) or slightly out of sync.
 - **Fix**: The `CastProvider` has logic to **preserve the local playback position** if:
   1. The playlist item ID has not changed (same queue entry).

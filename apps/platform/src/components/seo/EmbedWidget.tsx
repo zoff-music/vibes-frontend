@@ -21,8 +21,8 @@ export function EmbedWidget() {
   return (
     <div className="w-full min-w-0">
       <div className="grid items-stretch gap-5 md:grid-cols-[16rem_minmax(0,1fr)] lg:gap-6">
-        <div className="flex min-h-104 flex-col rounded-2xl border border-theme bg-theme-surface p-4">
-          <h3 className="mb-5 font-pixel text-sm text-theme">Embed settings</h3>
+        <div className="border-theme bg-theme-surface flex min-h-104 flex-col rounded-2xl border p-4">
+          <h3 className="font-pixel text-theme mb-5 text-sm">Embed settings</h3>
           <div className="space-y-4">
             <SegmentedToggle
               label="Player"
@@ -59,7 +59,7 @@ export function EmbedWidget() {
               variant="plain-full"
             />
           </div>
-          <p className="mt-auto pt-4 text-theme-muted text-xs leading-relaxed">
+          <p className="text-theme-muted mt-auto pt-4 text-xs leading-relaxed">
             Autoplay is off by default. Browsers may still require a click to
             play sound.
           </p>
@@ -70,10 +70,10 @@ export function EmbedWidget() {
               <section
                 ref={ref}
                 aria-label="Electro embed preview"
-                className="@container absolute inset-0 flex min-w-0 flex-col overflow-hidden rounded-2xl border border-theme bg-theme"
+                className="border-theme bg-theme @container absolute inset-0 flex min-w-0 flex-col overflow-hidden rounded-2xl border"
               >
-                <div className="flex shrink-0 items-center justify-between gap-3 border-theme border-b bg-theme-elevated px-3 py-2">
-                  <span className="font-pixel text-sm text-theme">electro</span>
+                <div className="border-theme bg-theme-elevated flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
+                  <span className="font-pixel text-theme text-sm">electro</span>
                   <div className="flex items-center gap-2">
                     {options.player && (
                       <Button
@@ -122,11 +122,11 @@ export function EmbedWidget() {
                 >
                   {options.player && (
                     <section className="min-w-0" aria-label="Player">
-                      <div className="flex min-w-0 @min-[32rem]:flex-col items-center @min-[32rem]:items-stretch gap-3">
+                      <div className="flex min-w-0 items-center gap-3 @min-[32rem]:flex-col @min-[32rem]:items-stretch">
                         <div
                           role="img"
                           aria-label="Video player"
-                          className="@min-[32rem]:mx-auto flex @min-[32rem]:h-32 h-20 @min-[32rem]:w-full w-32 @min-[32rem]:max-w-56 shrink-0 items-center justify-center rounded-lg bg-black"
+                          className="flex h-20 w-32 shrink-0 items-center justify-center rounded-lg bg-black @min-[32rem]:mx-auto @min-[32rem]:h-32 @min-[32rem]:w-full @min-[32rem]:max-w-56"
                         >
                           <img
                             src={playlistItem.thumbnailUrl}
@@ -139,10 +139,10 @@ export function EmbedWidget() {
                           />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="truncate font-pixel text-sm text-theme">
+                          <h4 className="font-pixel text-theme truncate text-sm">
                             {playlistItem.title}
                           </h4>
-                          <p className="mt-1 text-theme-muted text-xs">
+                          <p className="text-theme-muted mt-1 text-xs">
                             {playlistItem.publisher}
                           </p>
                         </div>
@@ -189,7 +189,7 @@ export function EmbedWidget() {
                     </section>
                   )}
                   {!options.player && !options.playlist && (
-                    <p className="flex items-center justify-center text-center text-sm text-theme-muted">
+                    <p className="text-theme-muted flex items-center justify-center text-center text-sm">
                       This embed has no visible player or playlist.
                     </p>
                   )}

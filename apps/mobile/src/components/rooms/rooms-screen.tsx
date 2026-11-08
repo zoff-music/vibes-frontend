@@ -436,7 +436,7 @@ export function RoomsScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Join ${item.name}`}
-          className="w-full flex-row items-center gap-4 rounded-3xl border border-mobile-border bg-mobile-card p-5 active:opacity-70 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
+          className="border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card w-full flex-row items-center gap-4 rounded-3xl border p-5 active:opacity-70"
           onPress={() => {
             setValue(item.id);
             void joinRoom(item.id);
@@ -445,16 +445,16 @@ export function RoomsScreen() {
           <View className="min-w-0 flex-1 gap-1">
             <Text
               numberOfLines={1}
-              className="font-heading text-mobile-text text-xl dark:text-mobile-dark-text"
+              className="font-heading text-mobile-text dark:text-mobile-dark-text text-xl"
             >
               {item.name}
             </Text>
-            <Text className="font-heading text-base text-mobile-muted dark:text-mobile-dark-muted">
+            <Text className="font-heading text-mobile-muted dark:text-mobile-dark-muted text-base">
               {item.listenerCount} {getRoomLabels(item.roomType).activity} ·{' '}
               {item.playlistItemCount} {getRoomLabels(item.roomType).items}
             </Text>
           </View>
-          <Text className="shrink-0 font-heading text-accent text-lg">
+          <Text className="font-heading text-accent shrink-0 text-lg">
             Join →
           </Text>
         </Pressable>
@@ -527,17 +527,17 @@ export function RoomsScreen() {
                     />
 
                     <View className="gap-1">
-                      <Text className="font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
+                      <Text className="font-heading text-mobile-text dark:text-mobile-dark-text text-3xl">
                         Zoff
                       </Text>
-                      <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                      <Text className="font-heading text-mobile-muted dark:text-mobile-dark-muted text-sm">
                         Shared rooms
                       </Text>
                     </View>
                   </View>
                   <View
                     accessibilityRole="tablist"
-                    className="flex-row gap-2 self-center rounded-full border border-mobile-border bg-mobile-card p-1 dark:border-mobile-dark-border dark:bg-mobile-dark-card"
+                    className="border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card flex-row gap-2 self-center rounded-full border p-1"
                   >
                     {roomTypes.map((type) => (
                       <Pressable
@@ -556,9 +556,9 @@ export function RoomsScreen() {
                         )}
                       >
                         {roomType === type && (
-                          <View className="size-2 rounded-full bg-accent" />
+                          <View className="bg-accent size-2 rounded-full" />
                         )}
-                        <Text className="font-heading text-lg text-mobile-text dark:text-mobile-dark-text">
+                        <Text className="font-heading text-mobile-text dark:text-mobile-dark-text text-lg">
                           {type === 'WATCH' ? 'Watch' : 'Music'}
                         </Text>
                       </Pressable>
@@ -572,24 +572,24 @@ export function RoomsScreen() {
                       >
                         <NativeLandingSun watch={watch} compact />
                       </View>
-                      <View className="gap-5 rounded-3xl border border-mobile-border bg-mobile-card px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card">
+                      <View className="border-mobile-border bg-mobile-card dark:border-mobile-dark-border dark:bg-mobile-dark-card gap-5 rounded-3xl border px-5 py-6">
                         <View className="gap-3">
                           <Text
                             accessibilityRole="header"
-                            className="text-center font-heading text-3xl text-mobile-text leading-tight md:text-5xl dark:text-mobile-dark-text"
+                            className="font-heading text-mobile-text dark:text-mobile-dark-text text-center text-3xl leading-tight md:text-5xl"
                           >
                             {watch ? 'Watch ' : 'Listen to music '}
                             {'\n'}
                             <Text className="text-primary">together.</Text>
                           </Text>
-                          <Text className="text-center font-heading text-base text-mobile-muted dark:text-mobile-dark-muted">
+                          <Text className="font-heading text-mobile-muted dark:text-mobile-dark-muted text-center text-base">
                             {watch
                               ? 'One room. Everyone’s front row.'
                               : 'One room. Everyone’s favourites.'}
                           </Text>
                         </View>
                         <View className="gap-2">
-                          <Text className="font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                          <Text className="font-heading text-mobile-muted dark:text-mobile-dark-muted text-sm">
                             {isAIMode ? 'What’s the vibe?' : 'Room name'}
                           </Text>
                           <NativeGenerativeFrame
@@ -663,7 +663,7 @@ export function RoomsScreen() {
                           disabled={loading || generationLoading}
                           onPress={submitRoom}
                         />
-                        <Text className="text-center font-heading text-mobile-muted text-sm dark:text-mobile-dark-muted">
+                        <Text className="font-heading text-mobile-muted dark:text-mobile-dark-muted text-center text-sm">
                           Start a room. Make it yours.
                         </Text>
                       </View>
@@ -695,7 +695,7 @@ export function RoomsScreen() {
                             )}
                           >
                             {mode === 'live' && (
-                              <View className="size-2 rounded-full bg-accent" />
+                              <View className="bg-accent size-2 rounded-full" />
                             )}
                             <Text
                               className={classNames(
@@ -736,7 +736,7 @@ export function RoomsScreen() {
                       <View className="flex-row flex-wrap gap-3">
                         {publicRooms.map(renderPublicRoom)}
                         {publicRooms.length === 0 && !browsing && (
-                          <View className="w-full rounded-3xl border border-mobile-border bg-mobile-card/70 px-5 py-6 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70">
+                          <View className="border-mobile-border bg-mobile-card/70 dark:border-mobile-dark-border dark:bg-mobile-dark-card/70 w-full rounded-3xl border px-5 py-6">
                             <Copy muted>
                               {browseMode === 'live'
                                 ? 'No rooms are live. Browse public rooms or start your own.'

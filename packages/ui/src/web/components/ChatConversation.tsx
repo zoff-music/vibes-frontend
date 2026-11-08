@@ -70,22 +70,22 @@ export function ChatConversation({
         role="log"
         aria-label="Room conversation"
         aria-live="polite"
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 pt-1 pb-3 [scrollbar-gutter:stable]"
+        className="min-h-0 flex-1 [scrollbar-gutter:stable] overflow-y-auto overscroll-contain px-1 pt-1 pb-3"
       >
         <div className="flex min-h-full flex-col justify-end [&>p]:shrink-0">
           {messages.length === 0 && loading && (
             <div className="space-y-3 py-3">
               <div aria-hidden="true" className="space-y-2">
-                <div className="h-3 w-40 max-w-full rounded-full bg-theme-surface" />
-                <div className="h-3 w-24 rounded-full bg-theme-surface" />
+                <div className="bg-theme-surface h-3 w-40 max-w-full rounded-full" />
+                <div className="bg-theme-surface h-3 w-24 rounded-full" />
               </div>
-              <p role="status" className="text-sm text-theme-muted">
+              <p role="status" className="text-theme-muted text-sm">
                 Connecting to chat…
               </p>
             </div>
           )}
           {messages.length === 0 && !loading && !error && (
-            <p className="py-3 text-sm text-theme-muted">
+            <p className="text-theme-muted py-3 text-sm">
               No recent messages. Say hi to the room!
             </p>
           )}
@@ -111,13 +111,13 @@ export function ChatConversation({
       )}
 
       {error && (
-        <p role="status" className="py-2 text-sm text-theme-muted">
+        <p role="status" className="text-theme-muted py-2 text-sm">
           {error}
         </p>
       )}
       <form
         onSubmit={sendMessage}
-        className="flex shrink-0 items-end gap-2 border-theme border-t bg-theme/90 pt-3 pb-1"
+        className="border-theme bg-theme/90 flex shrink-0 items-end gap-2 border-t pt-3 pb-1"
       >
         <label className="min-w-0 flex-1">
           <span className="sr-only">Room message</span>
@@ -127,7 +127,7 @@ export function ChatConversation({
             onChange={(event) => setDraft(event.currentTarget.value)}
             placeholder="Send a message…"
             maxLength={chatMessageMaxLength}
-            className="h-12 w-full rounded-full border border-theme bg-theme-surface px-4 text-base text-theme placeholder:text-theme-muted focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+            className="border-theme bg-theme-surface text-theme placeholder:text-theme-muted focus:border-secondary focus:ring-secondary h-12 w-full rounded-full border px-4 text-base focus:ring-1 focus:outline-none"
           />
         </label>
         <Button

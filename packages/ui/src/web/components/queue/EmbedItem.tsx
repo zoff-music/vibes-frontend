@@ -27,16 +27,16 @@ export function EmbedQueuePlaylistItem({
         loading="lazy"
       />
       <span className="min-w-0 flex-1 text-left">
-        <span className="block truncate text-theme text-xs">
+        <span className="text-theme block truncate text-xs">
           {playlistItem.title}
         </span>
-        <span className="mt-0.5 block truncate text-theme-muted text-xs">
+        <span className="text-theme-muted mt-0.5 block truncate text-xs">
           {playlistItem.publisher || 'Unknown artist'} ·{' '}
           {formatPlaybackSeconds(playlistItem.duration)}
         </span>
       </span>
-      <span className="relative flex shrink-0 items-center gap-1.5 rounded-lg border border-secondary/20 bg-secondary/10 px-2 py-1.5 text-theme text-xs">
-        <VoteIcon aria-hidden="true" className="h-3.5 w-3.5 text-secondary" />
+      <span className="border-secondary/20 bg-secondary/10 text-theme relative flex shrink-0 items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs">
+        <VoteIcon aria-hidden="true" className="text-secondary h-3.5 w-3.5" />
         {voteCount}
         <span className="sr-only"> votes</span>
       </span>
@@ -45,7 +45,7 @@ export function EmbedQueuePlaylistItem({
 
   if (!votingEnabled) {
     return (
-      <div className="flex items-center gap-3 rounded-2xl border border-theme bg-theme-surface p-3">
+      <div className="border-theme bg-theme-surface flex items-center gap-3 rounded-2xl border p-3">
         {content}
       </div>
     );
@@ -56,7 +56,7 @@ export function EmbedQueuePlaylistItem({
       variant="tertiary"
       size="none"
       shape="rounded"
-      className="w-full justify-start gap-3 p-3 text-left transition-shadow hover:shadow-primary-soft"
+      className="hover:shadow-primary-soft w-full justify-start gap-3 p-3 text-left transition-shadow"
       onClick={() => onVote(playlistItem.id)}
       aria-label={`Vote for ${playlistItem.title} by ${playlistItem.publisher || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
       title={`Vote for ${playlistItem.title} (${voteCount} votes)`}

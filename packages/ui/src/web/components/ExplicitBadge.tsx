@@ -5,7 +5,7 @@ export function ExplicitBadge() {
     <Tooltip className="inline-flex shrink-0" content={explanation}>
       <button
         aria-label={explanation}
-        className="rounded border border-primary/40 bg-primary/10 px-1.5 py-0.5 font-semibold text-theme text-xs leading-tight focus-visible:outline-2 focus-visible:outline-secondary"
+        className="border-primary/40 bg-primary/10 text-theme focus-visible:outline-secondary rounded border px-1.5 py-0.5 text-xs leading-tight font-semibold focus-visible:outline-2"
         type="button"
       >
         Explicit

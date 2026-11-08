@@ -22,14 +22,14 @@ export function PlaylistItemSearchResult({
   children,
 }: PlaylistItemSearchResultProps) {
   return (
-    <div className="flex min-w-0 border-theme border-t first:border-t-0">
+    <div className="border-theme flex min-w-0 border-t first:border-t-0">
       <Button
         onClick={onSelect}
         variant="ghost"
         shape="rounded"
         size="none"
         aria-label={`Add ${title} by ${publisher}`}
-        className="min-w-0 flex-1 justify-start gap-2 p-3 text-left hover:bg-theme sm:gap-3 sm:p-4"
+        className="hover:bg-theme min-w-0 flex-1 justify-start gap-2 p-3 text-left sm:gap-3 sm:p-4"
       >
         <div className="relative shrink-0">
           <img
@@ -39,19 +39,19 @@ export function PlaylistItemSearchResult({
             decoding="async"
             width={112}
             height={80}
-            className="h-16 w-20 rounded-xl border border-theme bg-theme-surface object-cover sm:h-20 sm:w-28"
+            className="border-theme bg-theme-surface h-16 w-20 rounded-xl border object-cover sm:h-20 sm:w-28"
           />
           {durationSeconds !== undefined && (
-            <div className="absolute right-1 bottom-1 rounded-md bg-theme px-1.5 py-0.5 text-2xs text-theme backdrop-blur-sm sm:right-1.5 sm:bottom-1.5 sm:px-2">
+            <div className="bg-theme text-2xs text-theme absolute right-1 bottom-1 rounded-md px-1.5 py-0.5 backdrop-blur-sm sm:right-1.5 sm:bottom-1.5 sm:px-2">
               {formatDuration(durationSeconds)}
             </div>
           )}
         </div>
         <div className="flex min-w-0 flex-1 flex-col justify-center">
-          <h4 className="mb-1.5 line-clamp-2 text-sm text-theme leading-snug">
+          <h4 className="text-theme mb-1.5 line-clamp-2 text-sm leading-snug">
             {title}
           </h4>
-          <p className="line-clamp-1 text-theme-muted text-xs">{publisher}</p>
+          <p className="text-theme-muted line-clamp-1 text-xs">{publisher}</p>
           {children}
         </div>
       </Button>

@@ -31,7 +31,7 @@ export function DeviceRemoteSettings({
           listener.
         </Copy>
         {machineRemote?.paired && (
-          <View className="rounded-3xl border border-accent/40 bg-accent/10 p-4">
+          <View className="border-accent/40 bg-accent/10 rounded-3xl border p-4">
             <Text className="font-heading text-accent text-base">
               Remote connected
             </Text>
@@ -48,7 +48,7 @@ export function DeviceRemoteSettings({
             <Copy muted>REMOTE ID</Copy>
             <Copy>{machinePairing.id}</Copy>
             <Copy muted>PAIRING CODE</Copy>
-            <Text className="font-heading text-2xl text-accent tracking-widest">
+            <Text className="font-heading text-accent text-2xl tracking-widest">
               {machinePairing.pairingCode}
             </Text>
             <Copy muted>This pairing is single-use and expires shortly.</Copy>

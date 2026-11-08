@@ -20,11 +20,11 @@ export function PublicRoomDiscovery({
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2
           id="live-rooms-heading"
-          className="flex shrink-0 items-center gap-2 font-pixel text-sm text-theme-muted normal-case tracking-normal"
+          className="font-pixel text-theme-muted flex shrink-0 items-center gap-2 text-sm tracking-normal normal-case"
         >
           <span
             aria-hidden="true"
-            className="size-1.5 rounded-full bg-secondary"
+            className="bg-secondary size-1.5 rounded-full"
           />
           Live rooms
         </h2>
@@ -35,7 +35,7 @@ export function PublicRoomDiscovery({
               ? '/rooms/explore?live=false&type=watch'
               : '/rooms/explore?live=false'
           }
-          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 text-cyan-800 text-sm transition-colors hover:bg-theme-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:text-secondary"
+          className="hover:bg-theme-surface focus-visible:ring-secondary dark:text-secondary inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 text-sm text-cyan-800 transition-colors focus-visible:ring-2 focus-visible:outline-none"
         >
           Browse all public <span aria-hidden="true">→</span>
         </Link>
@@ -44,7 +44,7 @@ export function PublicRoomDiscovery({
         <Await
           resolve={rooms}
           fallback={
-            <p className="text-sm text-theme-muted">Loading live rooms…</p>
+            <p className="text-theme-muted text-sm">Loading live rooms…</p>
           }
           errorElement={<RoomList rooms={null} onJoinRoom={onJoinRoom} />}
         >
@@ -79,13 +79,13 @@ function RoomList({ rooms, onJoinRoom }: RoomListProps) {
         </div>
       ))}
       {visibleRooms?.length === 0 && (
-        <p className="w-full text-sm text-theme-muted">
+        <p className="text-theme-muted w-full text-sm">
           No public rooms are live right now. Browse public rooms or start your
           own.
         </p>
       )}
       {rooms === null && (
-        <p className="w-full text-sm text-theme-muted">
+        <p className="text-theme-muted w-full text-sm">
           Live rooms are temporarily unavailable.
         </p>
       )}

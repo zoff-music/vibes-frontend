@@ -19,14 +19,14 @@ Zoff does not require an account or collect a real name. A pseudonymous session
 identifier is nevertheless persistent enough that Apple can consider the
 following data linked to a user. Declare conservatively:
 
-| App Store data type | Collected | Linked | Tracking | Purpose |
-| --- | --- | --- | --- | --- |
-| User ID | Yes | Yes | No | App Functionality; Fraud Prevention |
-| Emails or Text Messages | Yes | Yes | No | App Functionality |
-| Other User Content | Yes | Yes | No | App Functionality |
-| Product Interaction | Yes | Yes | No | App Functionality; Analytics |
-| Search History | Yes | Yes | No | App Functionality; Analytics |
-| Other Diagnostic Data | Yes | Yes | No | App Functionality |
+| App Store data type     | Collected | Linked | Tracking | Purpose                             |
+| ----------------------- | --------- | ------ | -------- | ----------------------------------- |
+| User ID                 | Yes       | Yes    | No       | App Functionality; Fraud Prevention |
+| Emails or Text Messages | Yes       | Yes    | No       | App Functionality                   |
+| Other User Content      | Yes       | Yes    | No       | App Functionality                   |
+| Product Interaction     | Yes       | Yes    | No       | App Functionality; Analytics        |
+| Search History          | Yes       | Yes    | No       | App Functionality; Analytics        |
+| Other Diagnostic Data   | Yes       | Yes    | No       | App Functionality                   |
 
 **Other User Content** includes room names, room settings, queue entries,
 votes, optional nicknames, and AI playlist prompts. **Emails or Text Messages**
@@ -37,9 +37,9 @@ timing and application logs.
 
 ## Data not linked to the user
 
-| App Store data type | Collected | Linked | Tracking | Purpose |
-| --- | --- | --- | --- | --- |
-| Coarse Location | Yes | No | No | Fraud Prevention; App Functionality |
+| App Store data type | Collected | Linked | Tracking | Purpose                             |
+| ------------------- | --------- | ------ | -------- | ----------------------------------- |
+| Coarse Location     | Yes       | No     | No       | Fraud Prevention; App Functionality |
 
 Coarse location may be inferred from an IP address for provider availability,
 security, rate limiting, and abuse prevention. Zoff does not request precise

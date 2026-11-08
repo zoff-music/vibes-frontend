@@ -33,7 +33,7 @@
     "react-native": ">=0.86.2",
     "react-native-qrcode-svg": "^6.3.21",
     "react-native-reanimated": "4.7.1",
-    "react-native-svg": "15.16.0",
+    "react-native-svg": "15.16.1",
     "react-native-webview": "14.0.1",
     "react-native-youtube-iframe": "2.4.1"
   },
@@ -46,30 +46,30 @@
     "@kasperrt/smolter": "catalog:",
     "@vibes/models": "workspace:*",
     "@vibes/shared": "workspace:*",
-    "d3": "^7.9.0",
+    "d3": "^7.9.2",
     "escape-html": "1.0.3",
-    "framer-motion": "14.4.0",
-    "preact": "11.1.1"
+    "framer-motion": "14.10.1",
+    "preact": "11.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
-    "@react-native/metro-config": "0.88.0",
+    "@biomejs/biome": "2.6.6",
+    "@react-native/metro-config": "0.88.1",
     "@types/d3": "^7.4.3",
     "@types/escape-html": "^1.0.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "expo": "~58.0.16",
+    "expo": "~58.0.23",
     "nativewind": "5.0.0-preview.4",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "react-native": "npm:react-native-tvos@0.88.0-0",
+    "react-native": "npm:react-native-tvos@0.88.1-0",
     "react-native-css": "3.0.7",
-    "react-native-qrcode-svg": "^6.3.26",
+    "react-native-qrcode-svg": "^6.3.54",
     "react-native-reanimated": "4.7.1",
-    "react-native-svg": "15.16.0",
+    "react-native-svg": "15.16.1",
     "react-native-webview": "14.0.1",
     "react-native-youtube-iframe": "2.4.1",
     "typescript": "~7.0.2",
-    "vite": "8.3.4"
+    "vite": "8.3.6"
   }
 }

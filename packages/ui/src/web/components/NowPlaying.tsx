@@ -65,7 +65,7 @@ export function NowPlayingPlaylistItem({
             {isPlaying ? 'Now Playing' : 'Paused'}
           </span>
           {isHost && (
-            <span className="ml-auto inline-flex items-center gap-1 text-secondary text-xs">
+            <span className="text-secondary ml-auto inline-flex items-center gap-1 text-xs">
               <RemoteIcon aria-hidden="true" className="h-4 w-4" />
               You are hosting
             </span>
@@ -100,15 +100,15 @@ export function NowPlayingPlaylistItem({
             />
           </div>
           <div className="relative z-10 min-w-0 flex-1 overflow-hidden">
-            <h2 className="mb-1 block max-w-full truncate font-display text-theme text-xs">
+            <h2 className="font-display text-theme mb-1 block max-w-full truncate text-xs">
               {playlistItem.title}
             </h2>
-            <div className="flex min-w-0 items-center gap-2 overflow-hidden text-theme-muted text-xs">
+            <div className="text-theme-muted flex min-w-0 items-center gap-2 overflow-hidden text-xs">
               <span className="min-w-0 truncate">
                 {playlistItem.publisher || 'Unknown Artist'}
               </span>
               <span className="text-theme-subtle">•</span>
-              <span className="shrink-0 font-mono text-theme-muted text-xs">
+              <span className="text-theme-muted shrink-0 font-mono text-xs">
                 {formatPlaybackSeconds(playlistItem.duration)}
               </span>
             </div>
@@ -124,7 +124,7 @@ export function NowPlayingPlaylistItem({
                   href={providerUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+                  className="focus:ring-secondary/40 cursor-pointer rounded-md p-1 transition-opacity hover:opacity-100 focus:ring-2 focus:outline-hidden"
                   aria-label={`Open ${playlistItem.title} on ${getProviderDisplayName(playlistItem.sourceType)}`}
                 >
                   <ProviderIcon
@@ -137,7 +137,7 @@ export function NowPlayingPlaylistItem({
             {(!providerLink ||
               (!providerUrl && playlistItem.sourceType === 'soundcloud')) && (
               <ProviderIcon
-                className="h-5 w-5 text-theme-muted"
+                className="text-theme-muted h-5 w-5"
                 provider={playlistItem.sourceType}
               />
             )}

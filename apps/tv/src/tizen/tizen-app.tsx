@@ -167,7 +167,7 @@ export function TizenApp({ actionError, loaderData, loading }: TizenAppProps) {
   }
 
   return (
-    <main className="relative h-full overflow-hidden bg-tv-background font-heading text-tv-text">
+    <main className="bg-tv-background font-heading text-tv-text relative h-full overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_100%,rgba(255,46,151,0.14),transparent_35%),radial-gradient(circle_at_90%_0%,rgba(0,217,255,0.08),transparent_30%)]" />
       {screen}
     </main>

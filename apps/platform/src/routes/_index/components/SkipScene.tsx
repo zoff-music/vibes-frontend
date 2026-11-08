@@ -25,7 +25,7 @@ export function SkipPlaylistItemSetupScene({
 }: SkipPlaylistItemSetupSceneProps) {
   return (
     <div>
-      <p className="mb-3 text-theme-muted text-xs">
+      <p className="text-theme-muted mb-3 text-xs">
         {changedPlaylistItem ? 'Next song playing' : 'Now playing'}
       </p>
       <ContentTransition transitionKey={playlistItem.id}>

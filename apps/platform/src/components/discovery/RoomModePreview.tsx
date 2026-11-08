@@ -31,7 +31,7 @@ export function RoomModePreview() {
             size="none"
             shape="rounded"
             variant="tertiary"
-            className="min-h-12 px-3 py-3 aria-pressed:border-secondary aria-pressed:ring-1 aria-pressed:ring-secondary/30"
+            className="aria-pressed:border-secondary aria-pressed:ring-secondary/30 min-h-12 px-3 py-3 aria-pressed:ring-1"
             aria-pressed={!hostMode}
             onClick={() => setHostMode(false)}
           >
@@ -41,14 +41,14 @@ export function RoomModePreview() {
             size="none"
             shape="rounded"
             variant="tertiary"
-            className="min-h-12 px-3 py-3 aria-pressed:border-secondary aria-pressed:ring-1 aria-pressed:ring-secondary/30"
+            className="aria-pressed:border-secondary aria-pressed:ring-secondary/30 min-h-12 px-3 py-3 aria-pressed:ring-1"
             aria-pressed={hostMode}
             onClick={() => setHostMode(true)}
           >
             Host mode
           </Button>
         </fieldset>
-        <div className="mt-6 min-h-56 rounded-2xl border border-theme bg-theme-surface p-4 sm:p-5">
+        <div className="border-theme bg-theme-surface mt-6 min-h-56 rounded-2xl border p-4 sm:p-5">
           <ContentTransition transitionKey={String(hostMode)}>
             <RoomModeScene hostMode={hostMode} playing={state.playing} />
           </ContentTransition>

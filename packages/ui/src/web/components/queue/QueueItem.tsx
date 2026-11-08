@@ -78,15 +78,15 @@ const QueueItemComponent: React.FC<Props> = ({
         />
 
         <div className="min-w-0 flex-1 overflow-hidden">
-          <h3 className="block max-w-full truncate text-left text-theme text-xs">
+          <h3 className="text-theme block max-w-full truncate text-left text-xs">
             {playlistItem.title}
           </h3>
-          <div className="mt-1 flex min-w-0 items-center gap-1.5 overflow-hidden text-theme-muted text-xs">
+          <div className="text-theme-muted mt-1 flex min-w-0 items-center gap-1.5 overflow-hidden text-xs">
             <span className="min-w-0 truncate">
               {playlistItem.publisher || 'Unknown Artist'}
             </span>
             <span className="text-theme-subtle">•</span>
-            <span className="shrink-0 text-theme-muted text-xs">
+            <span className="text-theme-muted shrink-0 text-xs">
               {formatPlaybackSeconds(playlistItem.duration)}
             </span>
             {providerUrl && providerLink && (
@@ -99,7 +99,7 @@ const QueueItemComponent: React.FC<Props> = ({
                   href={providerUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-7 min-w-7 cursor-pointer items-center justify-center rounded-lg text-theme-muted transition-colors hover:bg-theme hover:text-theme focus:outline-hidden focus:ring-2 focus:ring-secondary/40"
+                  className="text-theme-muted hover:bg-theme hover:text-theme focus:ring-secondary/40 inline-flex min-h-7 min-w-7 cursor-pointer items-center justify-center rounded-lg transition-colors focus:ring-2 focus:outline-hidden"
                   aria-label={`Open ${playlistItem.title} on ${getProviderDisplayName(playlistItem.sourceType)}`}
                 >
                   <ProviderIcon
@@ -112,7 +112,7 @@ const QueueItemComponent: React.FC<Props> = ({
             {!providerLink && (
               <span className="inline-flex min-h-7 min-w-7 shrink-0 items-center justify-center">
                 <ProviderIcon
-                  className="h-3.5 w-3.5 text-theme-muted"
+                  className="text-theme-muted h-3.5 w-3.5"
                   provider={playlistItem.sourceType}
                 />
               </span>
@@ -134,7 +134,7 @@ const QueueItemComponent: React.FC<Props> = ({
                     disabled={isVoting}
                     variant="tertiary"
                     size="none"
-                    className="h-11 min-w-14 shrink-0 gap-2 px-3 leading-none tracking-normal hover:bg-secondary/10 sm:h-9"
+                    className="hover:bg-secondary/10 h-11 min-w-14 shrink-0 gap-2 px-3 leading-none tracking-normal sm:h-9"
                     aria-label={`Vote for ${playlistItem.title} by ${playlistItem.publisher || 'Unknown Artist'}, ${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`}
                     aria-busy={isVoting}
                   >
@@ -147,13 +147,13 @@ const QueueItemComponent: React.FC<Props> = ({
                       }
                       transition={{ duration: 0.4 }}
                     >
-                      <VoteIcon className="h-4 w-4 text-secondary" />
+                      <VoteIcon className="text-secondary h-4 w-4" />
                     </motion.span>
                     <motion.span
                       key={voteCount}
                       initial={false}
                       animate={{ scale: 1 }}
-                      className="inline-flex min-w-3 items-center justify-center text-secondary tabular-nums"
+                      className="text-secondary inline-flex min-w-3 items-center justify-center tabular-nums"
                     >
                       {voteCount}
                     </motion.span>

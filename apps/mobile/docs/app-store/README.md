@@ -26,11 +26,11 @@ those older files into the fresh set. They document previous builds.
 
 ## Verified dimensions
 
-| Asset | Files | Dimensions | Alpha |
-| --- | ---: | ---: | --- |
-| App icon | 1 | 1024 × 1024 | No |
-| iPhone 6.9-inch | 6 | 1320 × 2868 | No |
-| iPad 13-inch | 6 | 2064 × 2752 | No |
+| Asset           | Files |  Dimensions | Alpha |
+| --------------- | ----: | ----------: | ----- |
+| App icon        |     1 | 1024 × 1024 | No    |
+| iPhone 6.9-inch |     6 | 1320 × 2868 | No    |
+| iPad 13-inch    |     6 | 2064 × 2752 | No    |
 
 Apple accepts one to ten screenshots per device class. Zoff supports iPad, so
 both the 6.9-inch iPhone and 13-inch iPad sets are included. Do not resize,

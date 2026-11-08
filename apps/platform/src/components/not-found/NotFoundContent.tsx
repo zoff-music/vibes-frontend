@@ -12,7 +12,7 @@ export function NotFoundContent() {
         fallback={
           <div
             aria-hidden="true"
-            className="mx-auto h-92 w-full max-w-sm rounded-3xl border border-theme bg-theme-surface sm:h-102"
+            className="border-theme bg-theme-surface mx-auto h-92 w-full max-w-sm rounded-3xl border sm:h-102"
           />
         }
       >

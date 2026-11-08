@@ -26,7 +26,7 @@ export function VotingPreview() {
         className="h-170"
       >
         <div className="px-3 pt-5 sm:px-5">
-          <div className="h-28 border-theme border-b pb-5">
+          <div className="border-theme h-28 border-b pb-5">
             <ContentTransition transitionKey={state.currentItem.id}>
               <NowPlayingPlaylistItem
                 playlistItem={state.currentItem}
@@ -37,7 +37,7 @@ export function VotingPreview() {
               />
             </ContentTransition>
           </div>
-          <div className="flex h-10 items-center justify-between text-theme-muted text-xs">
+          <div className="text-theme-muted flex h-10 items-center justify-between text-xs">
             <span>UP NEXT</span>
             <span>Try a vote ↓</span>
           </div>

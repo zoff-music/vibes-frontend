@@ -23,11 +23,11 @@ interface WindowBlock {
 
 const EmptyQueueContent = () => (
   <>
-    <div className="mb-5 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-theme bg-theme-surface">
-      <QueueEmptyIcon className="h-10 w-10 text-theme-muted" />
+    <div className="border-theme bg-theme-surface mb-5 inline-flex h-20 w-20 items-center justify-center rounded-2xl border">
+      <QueueEmptyIcon className="text-theme-muted h-10 w-10" />
     </div>
-    <h3 className="mb-2 font-display text-base text-theme">Queue is Empty</h3>
-    <p className="mb-2 text-sm text-theme-muted">
+    <h3 className="font-display text-theme mb-2 text-base">Queue is Empty</h3>
+    <p className="text-theme-muted mb-2 text-sm">
       Add some songs to get the party started
     </p>
     <p className="jp-art text-theme-subtle text-xs">曲を追加</p>
@@ -106,7 +106,7 @@ const QueueListComponent: React.FC<Props> = ({
       return (
         <Link
           aria-label="Add a song"
-          className="panel-surface flex min-h-full w-full flex-1 animate-fade-in cursor-pointer flex-col items-center justify-center rounded-3xl px-4 py-20 text-center transition-[border-color,background-color,transform] hover:border-secondary/50 hover:bg-theme-surface focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-secondary/60 active:scale-press sm:px-12"
+          className="panel-surface animate-fade-in hover:border-secondary/50 hover:bg-theme-surface focus-visible:ring-secondary/60 active:scale-press flex min-h-full w-full flex-1 cursor-pointer flex-col items-center justify-center rounded-3xl px-4 py-20 text-center transition-[border-color,background-color,transform] focus-visible:ring-2 focus-visible:outline-hidden sm:px-12"
           to={emptyHref}
           replace
           preventScrollReset
@@ -119,7 +119,7 @@ const QueueListComponent: React.FC<Props> = ({
     }
 
     return (
-      <div className="panel-surface flex min-h-full flex-1 animate-fade-in flex-col items-center justify-center rounded-3xl px-4 py-20 text-center sm:px-12">
+      <div className="panel-surface animate-fade-in flex min-h-full flex-1 flex-col items-center justify-center rounded-3xl px-4 py-20 text-center sm:px-12">
         <EmptyQueueContent />
       </div>
     );

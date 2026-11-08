@@ -108,7 +108,7 @@ export function ProviderPlayer({
   return (
     <View className="gap-2">
       <View
-        className="items-center justify-center overflow-hidden rounded-3xl border border-mobile-border bg-black dark:border-mobile-dark-border"
+        className="border-mobile-border dark:border-mobile-dark-border items-center justify-center overflow-hidden rounded-3xl border bg-black"
         style={{
           height: playerHeight,
           marginHorizontal: horizontalMargin,

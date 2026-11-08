@@ -92,9 +92,9 @@ const VolumeControl = ({
         {volume === 0 && <VolumeMutedIcon className="h-5 w-5" />}
         {volume > 0 && <VolumeIcon className="h-5 w-5" />}
       </IconButton>
-      <div className="flex h-11 min-w-0 flex-1 touch-none select-none items-center pr-3 pl-1">
+      <div className="flex h-11 min-w-0 flex-1 touch-none items-center pr-3 pl-1 select-none">
         <div className="relative h-5 min-w-0 flex-1">
-          <div className="absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full bg-theme-muted/20">
+          <div className="bg-theme-muted/20 absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full">
             <div
               className="gradient-volume absolute inset-0"
               style={{ clipPath: `inset(0 ${100 - volume}% 0 0)` }}
@@ -103,7 +103,7 @@ const VolumeControl = ({
           <input
             aria-label="Player volume"
             aria-valuetext={`${volume} percent`}
-            className="range-volume absolute inset-x-0 top-0 h-5 w-full cursor-pointer touch-none select-none appearance-none bg-transparent"
+            className="range-volume absolute inset-x-0 top-0 h-5 w-full cursor-pointer touch-none appearance-none bg-transparent select-none"
             max="100"
             min="0"
             onInput={(event) =>

@@ -30,7 +30,7 @@ export function PlaybackProgress({
 
   return (
     <View className="gap-1">
-      <Text className="font-heading text-mobile-muted text-xs tracking-widest dark:text-mobile-dark-muted">
+      <Text className="font-heading text-mobile-muted dark:text-mobile-dark-muted text-xs tracking-widest">
         PLAYBACK POSITION
       </Text>
       {seekable && durationMs > 0 && (
@@ -69,10 +69,10 @@ export function PlaybackProgress({
         </View>
       )}
       <View className="flex-row justify-between">
-        <Text className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
+        <Text className="font-heading text-mobile-muted dark:text-mobile-dark-muted text-xs">
           {formatPlaybackMilliseconds(boundedPositionMs)}
         </Text>
-        <Text className="font-heading text-mobile-muted text-xs dark:text-mobile-dark-muted">
+        <Text className="font-heading text-mobile-muted dark:text-mobile-dark-muted text-xs">
           {formatPlaybackMilliseconds(durationMs)}
         </Text>
       </View>

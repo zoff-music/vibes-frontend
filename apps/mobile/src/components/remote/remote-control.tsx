@@ -170,7 +170,7 @@ export function RemoteControl({
                       <View className="min-w-0 flex-1 gap-2">
                         <Text
                           numberOfLines={2}
-                          className="font-heading text-base text-mobile-text dark:text-mobile-dark-text"
+                          className="font-heading text-mobile-text dark:text-mobile-dark-text text-base"
                         >
                           {playback?.currentPlaylistItem?.title ??
                             'Nothing playing'}

@@ -31,7 +31,7 @@ export function NativeLandingSun({
     >
       <View className={classNames(compact ? 'size-40' : 'size-56')}>
         {watch && (
-          <View className="absolute inset-0 rounded-full bg-native-background dark:bg-native-dark-background" />
+          <View className="bg-native-background dark:bg-native-dark-background absolute inset-0 rounded-full" />
         )}
         <Svg width="100%" height="100%" viewBox="0 0 100 100">
           <Defs>

@@ -19,8 +19,8 @@ export function AdminOverview() {
   return (
     <main className="space-y-8">
       <header>
-        <h1 className="font-black text-3xl tracking-tight">Overview</h1>
-        <p className="text-sm text-theme-muted">
+        <h1 className="text-3xl font-black tracking-tight">Overview</h1>
+        <p className="text-theme-muted text-sm">
           Music and Watch rooms, with chat, search and audience activity.
         </p>
       </header>
@@ -45,9 +45,9 @@ export function AdminOverview() {
         ].map((type) => (
           <article
             key={type.label}
-            className="panel-surface rounded-2xl border border-theme p-5"
+            className="panel-surface border-theme rounded-2xl border p-5"
           >
-            <h2 className="font-bold text-theme text-xl">{type.label} rooms</h2>
+            <h2 className="text-theme text-xl font-bold">{type.label} rooms</h2>
             <dl className="mt-4 grid grid-cols-3 gap-3">
               {[
                 { label: 'Rooms', value: type.stats.totalRooms },
@@ -55,8 +55,8 @@ export function AdminOverview() {
                 { label: type.audience, value: type.stats.totalListeners },
               ].map((metric) => (
                 <div key={metric.label}>
-                  <dt className="text-sm text-theme-muted">{metric.label}</dt>
-                  <dd className="mt-2 font-black text-2xl text-theme">
+                  <dt className="text-theme-muted text-sm">{metric.label}</dt>
+                  <dd className="text-theme mt-2 text-2xl font-black">
                     {metric.value.toLocaleString()}
                   </dd>
                 </div>
@@ -69,11 +69,11 @@ export function AdminOverview() {
       <section aria-labelledby="chat-usage-title">
         <h2
           id="chat-usage-title"
-          className="font-black text-2xl tracking-tight"
+          className="text-2xl font-black tracking-tight"
         >
           Chat messages
         </h2>
-        <p className="mt-1 text-sm text-theme-muted">
+        <p className="text-theme-muted mt-1 text-sm">
           Sent messages only. Playlist and vote activity is excluded.
         </p>
         <MessageUsageChart usage={messageUsage} />
@@ -81,14 +81,14 @@ export function AdminOverview() {
 
       <section>
         <div className="mb-4">
-          <h2 className="font-black text-2xl tracking-tight">
+          <h2 className="text-2xl font-black tracking-tight">
             Audience activity
           </h2>
-          <p className="text-sm text-theme-muted">
+          <p className="text-theme-muted text-sm">
             Concurrent listeners and watchers sampled once per minute.
           </p>
           {listenerUsage.generatedAt && (
-            <p className="mt-1 text-theme-subtle text-xs">
+            <p className="text-theme-subtle mt-1 text-xs">
               Updated{' '}
               {usageDateFormatter.format(new Date(listenerUsage.generatedAt))}{' '}
               UTC
@@ -106,13 +106,13 @@ export function AdminOverview() {
 
       <section>
         <div className="mb-4">
-          <h2 className="font-black text-2xl tracking-tight">Search Usage</h2>
-          <p className="text-sm text-theme-muted">
+          <h2 className="text-2xl font-black tracking-tight">Search Usage</h2>
+          <p className="text-theme-muted text-sm">
             Provider searches, including AI playlist fallback searches. Direct
             track links use metadata lookup and are not counted.
           </p>
           {searchUsage.generatedAt && (
-            <p className="mt-1 text-theme-subtle text-xs">
+            <p className="text-theme-subtle mt-1 text-xs">
               Updated{' '}
               {usageDateFormatter.format(new Date(searchUsage.generatedAt))} UTC
             </p>

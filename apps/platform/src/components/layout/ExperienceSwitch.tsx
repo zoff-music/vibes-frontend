@@ -32,7 +32,7 @@ export function ExperienceSwitch() {
   return (
     <nav
       aria-label="Choose your Zoff experience"
-      className="experience-selector relative inline-grid grid-cols-2 rounded-full border border-theme bg-theme-surface p-1 shadow-sm"
+      className="experience-selector border-theme bg-theme-surface relative inline-grid grid-cols-2 rounded-full border p-1 shadow-sm"
     >
       <span
         aria-hidden="true"

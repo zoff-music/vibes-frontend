@@ -72,13 +72,13 @@ export function NativeChatConversation({
             scrollRef.current?.scrollToOffset({ offset: 0, animated: false });
         }}
         ListEmptyComponent={
-          <Text className="py-3 font-heading text-native-muted dark:text-native-dark-muted">
+          <Text className="font-heading text-native-muted dark:text-native-dark-muted py-3">
             Say hello to the room.
           </Text>
         }
         renderItem={({ item: message }) => (
           <View key={message.id} className="flex-row items-start gap-1 py-1">
-            <Text className="font-heading text-native-muted text-xs leading-6 dark:text-native-dark-muted">
+            <Text className="font-heading text-native-muted dark:text-native-dark-muted text-xs leading-6">
               {formatChatTime(message.createdAt)}{' '}
             </Text>
             {(message.isAdmin || message.isModerator) && (
@@ -100,7 +100,7 @@ export function NativeChatConversation({
                 <NativeIcon definition={remoteIcon} color="#00cce9" size={14} />
               </View>
             )}
-            <Text className="min-w-0 flex-1 font-heading text-native-text text-sm leading-6 dark:text-native-dark-text">
+            <Text className="font-heading text-native-text dark:text-native-dark-text min-w-0 flex-1 text-sm leading-6">
               <Text className={nameColors[chatNameColorIndex(message.userId)]}>
                 {message.name}
               </Text>
@@ -120,12 +120,12 @@ export function NativeChatConversation({
       {Boolean(error) && (
         <Text
           accessibilityLiveRegion="polite"
-          className="px-4 py-2 font-heading text-native-muted dark:text-native-dark-muted"
+          className="font-heading text-native-muted dark:text-native-dark-muted px-4 py-2"
         >
           {error}
         </Text>
       )}
-      <View className="shrink-0 flex-row items-center gap-2 border-native-border border-t bg-native-card px-3 py-3 dark:border-native-dark-border dark:bg-native-dark-card">
+      <View className="border-native-border bg-native-card dark:border-native-dark-border dark:bg-native-dark-card shrink-0 flex-row items-center gap-2 border-t px-3 py-3">
         <TextInput
           accessibilityLabel="Room message"
           placeholder="Send a message…"

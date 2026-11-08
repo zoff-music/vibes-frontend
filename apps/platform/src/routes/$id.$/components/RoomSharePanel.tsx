@@ -21,7 +21,7 @@ export const RoomSharePanel = ({
 
   return (
     <div className="space-y-6 text-center">
-      <div className="inline-flex rounded-xl border border-theme bg-white p-2">
+      <div className="border-theme inline-flex rounded-xl border bg-white p-2">
         <QRCodeSVG
           value={url}
           size={180}

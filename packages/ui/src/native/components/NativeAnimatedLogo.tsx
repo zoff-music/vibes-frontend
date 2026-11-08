@@ -132,7 +132,7 @@ export function NativeAnimatedLogo({
         style={cyanSliceStyle}
       >
         <Animated.Text
-          className="absolute top-0 w-37.5 text-center font-heading text-[52px] leading-[60px] tracking-[3px]"
+          className="font-heading absolute top-0 w-37.5 text-center text-[52px] leading-[60px] tracking-[3px]"
           style={[{ color: accentColor }, cyanSliceTextStyle, cyanJitterStyle]}
         >
           ゾフ
@@ -144,7 +144,7 @@ export function NativeAnimatedLogo({
         style={pinkSliceStyle}
       >
         <Animated.Text
-          className="absolute top-0 w-37.5 text-center font-heading text-[52px] leading-[60px] tracking-[3px]"
+          className="font-heading absolute top-0 w-37.5 text-center text-[52px] leading-[60px] tracking-[3px]"
           style={[{ color: pinkColor }, pinkSliceTextStyle, pinkJitterStyle]}
         >
           ゾフ
@@ -152,7 +152,7 @@ export function NativeAnimatedLogo({
       </Animated.View>
       <Animated.Text
         accessible={false}
-        className="absolute top-2 w-37.5 text-center font-heading text-[52px] leading-[60px] tracking-[3px]"
+        className="font-heading absolute top-2 w-37.5 text-center text-[52px] leading-[60px] tracking-[3px]"
         style={{
           color: baseColor,
           textShadowColor: pinkColor,

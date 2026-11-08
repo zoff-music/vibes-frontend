@@ -113,7 +113,7 @@ test('prefetch reads once, preserves query keys, and is consumed once', async ()
     router.getSnapshot().url,
     'http://localhost/rooms/audit?tag=a&tag=b#second',
   );
-  await router.navigate('/rooms/audit?tag=a&tag=b');
+  await router.navigate('/rooms/audit?tag=a&tag=b#second');
   assert.equal(reads.length, 2);
   router.dispose();
 });

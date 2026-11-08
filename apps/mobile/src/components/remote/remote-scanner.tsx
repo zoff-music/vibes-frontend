@@ -83,7 +83,7 @@ export function RemoteScanner({
       presentationStyle="fullScreen"
       onRequestClose={close}
     >
-      <GestureHandlerRootView className="flex-1 bg-mobile-background dark:bg-mobile-dark-background">
+      <GestureHandlerRootView className="bg-mobile-background dark:bg-mobile-dark-background flex-1">
         <SafeAreaView style={safeAreaStyle}>
           <ScrollView
             contentInsetAdjustmentBehavior="never"
@@ -95,11 +95,11 @@ export function RemoteScanner({
                 <View className="items-center gap-3">
                   <Text
                     accessibilityRole="header"
-                    className="text-center font-heading text-3xl text-mobile-text dark:text-mobile-dark-text"
+                    className="font-heading text-mobile-text dark:text-mobile-dark-text text-center text-3xl"
                   >
                     Scan remote QR code
                   </Text>
-                  <Text className="text-center font-body text-base text-mobile-muted dark:text-mobile-dark-muted">
+                  <Text className="font-body text-mobile-muted dark:text-mobile-dark-muted text-center text-base">
                     Point your camera at the code on the other Zoff screen.
                   </Text>
                 </View>
@@ -147,13 +147,13 @@ export function RemoteScanner({
                 </GestureDetector>
 
                 <View className="w-full gap-5">
-                  <Text className="text-center font-body text-base text-mobile-muted dark:text-mobile-dark-muted">
+                  <Text className="font-body text-mobile-muted dark:text-mobile-dark-muted text-center text-base">
                     Pinch to zoom
                   </Text>
                   <Text
                     accessibilityLiveRegion="polite"
                     accessibilityRole="text"
-                    className="text-center font-body text-base text-mobile-text dark:text-mobile-dark-text"
+                    className="font-body text-mobile-text dark:text-mobile-dark-text text-center text-base"
                   >
                     {status}
                   </Text>

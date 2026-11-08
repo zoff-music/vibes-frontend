@@ -23,13 +23,13 @@ export function ProviderAttribution({ providers }: ProviderAttributionProps) {
       {activeProviders.map((provider) => (
         <a
           aria-label={`Open ${providerNames[provider]}`}
-          className="flex min-h-11 min-w-0 cursor-pointer items-center rounded-lg px-2 opacity-75 transition-colors hover:bg-theme-surface hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+          className="hover:bg-theme-surface focus-visible:ring-secondary flex min-h-11 min-w-0 cursor-pointer items-center rounded-lg px-2 opacity-75 transition-colors hover:opacity-100 focus-visible:ring-2 focus-visible:outline-none"
           href={providerURLs[provider]}
           key={provider}
           rel="noreferrer"
           target="_blank"
         >
-          <ProviderMark className="h-5 min-w-0 max-w-24" provider={provider} />
+          <ProviderMark className="h-5 max-w-24 min-w-0" provider={provider} />
         </a>
       ))}
     </nav>

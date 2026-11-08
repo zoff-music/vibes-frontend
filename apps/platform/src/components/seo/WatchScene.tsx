@@ -42,14 +42,14 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
         className="relative min-w-0"
         aria-label="Illustrated Watch preview, not a live room"
       >
-        <div className="mb-4 flex h-8 items-center justify-between gap-3 text-theme-muted text-xs">
+        <div className="text-theme-muted mb-4 flex h-8 items-center justify-between gap-3 text-xs">
           <span className="font-pixel tracking-widest">THE SAME MOMENT.</span>
           <span className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
+            <span className="bg-secondary h-1.5 w-1.5 rounded-full" />
             Three screens. One room.
           </span>
         </div>
-        <div className="relative isolate overflow-hidden rounded-3xl border border-theme bg-theme-surface p-2 shadow-retro sm:p-3">
+        <div className="border-theme bg-theme-surface shadow-retro relative isolate overflow-hidden rounded-3xl border p-2 sm:p-3">
           <div className="relative aspect-video overflow-hidden rounded-2xl bg-[#100c20] text-white">
             <ContentTransition
               transitionKey={scene}
@@ -143,14 +143,14 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
                 <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/10" />
                 <div className="absolute right-5 bottom-5 left-5 flex items-end justify-between gap-3 sm:bottom-7 sm:left-7">
                   <div>
-                    <p className="mb-2 text-2xs text-white/60 tracking-label">
+                    <p className="text-2xs tracking-label mb-2 text-white/60">
                       ZOFF / WATCH
                     </p>
                     <p className="font-pixel text-2xl sm:text-4xl">
                       {current.title}
                     </p>
                   </div>
-                  <span className="shrink-0 whitespace-nowrap rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-xs">
+                  <span className="shrink-0 rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-xs whitespace-nowrap">
                     Preview
                   </span>
                 </div>
@@ -185,13 +185,13 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
               positionMs={Math.min(frame, 12) * 1000}
               showTimes={false}
             />
-            <div className="flex h-10 items-center justify-between gap-2 text-theme-muted text-xs">
+            <div className="text-theme-muted flex h-10 items-center justify-between gap-2 text-xs">
               <span className="flex items-center gap-2">
-                <PlayIcon className="h-3 w-3 text-secondary" />
+                <PlayIcon className="text-secondary h-3 w-3" />
                 Shared playback
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckIcon className="h-3 w-3 text-secondary" />
+                <CheckIcon className="text-secondary h-3 w-3" />
                 In sync
               </span>
             </div>
@@ -201,7 +201,7 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
           <>
             <svg
               viewBox="0 0 600 28"
-              className="h-7 w-full text-secondary"
+              className="text-secondary h-7 w-full"
               preserveAspectRatio="none"
               aria-hidden="true"
             >
@@ -230,17 +230,17 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
               {['You', 'Mira', 'Alex'].map((name, index) => (
                 <div
                   key={name}
-                  className="min-w-0 rounded-xl border border-theme bg-theme-surface px-3 py-3"
+                  className="border-theme bg-theme-surface min-w-0 rounded-xl border px-3 py-3"
                 >
                   <div className="mb-2 flex items-center justify-between text-xs">
                     <span>{name}</span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
+                    <span className="bg-secondary h-1.5 w-1.5 rounded-full" />
                   </div>
                   <motion.div
                     initial={false}
                     animate={{ scaleX: restarting ? 0 : (frame + 1) / 13 }}
                     transition={{ duration: 0.7, delay: index * 0.04 }}
-                    className="h-0.5 origin-left rounded-full bg-secondary"
+                    className="bg-secondary h-0.5 origin-left rounded-full"
                   />
                 </div>
               ))}
@@ -270,7 +270,7 @@ export function WatchScene({ compact = false }: WatchSceneProps) {
             </Button>
           ))}
         </fieldset>
-        <figcaption className="mt-4 h-12 text-sm text-theme-muted">
+        <figcaption className="text-theme-muted mt-4 h-12 text-sm">
           <ContentTransition transitionKey={frame < 5 ? 'join' : 'watch'}>
             <span>
               {frame < 5

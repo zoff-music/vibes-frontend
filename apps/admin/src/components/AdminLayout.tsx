@@ -34,14 +34,14 @@ export function AdminLayout({ children }: LayoutProps) {
 
   if (!session.authorized || !session.user) {
     return (
-      <main className="relative flex items-center justify-center px-6 py-12 text-theme">
+      <main className="text-theme relative flex items-center justify-center px-6 py-12">
         <div className="relative z-10 w-full max-w-md">
-          <div className="panel-strong rounded-3xl border border-theme-strong p-8">
+          <div className="panel-strong border-theme-strong rounded-3xl border p-8">
             <div className="mb-6 text-center">
-              <h1 className="mb-2 font-black text-3xl tracking-tight">
+              <h1 className="mb-2 text-3xl font-black tracking-tight">
                 Admin Access
               </h1>
-              <p className="text-sm text-theme-muted">
+              <p className="text-theme-muted text-sm">
                 Sign in with your admin account.
               </p>
             </div>
@@ -49,12 +49,12 @@ export function AdminLayout({ children }: LayoutProps) {
             <fetcher.Form action="/admin" className="space-y-4" method="post">
               <input name="intent" type="hidden" value="login" />
               <label className="block">
-                <span className="mb-2 block font-semibold text-theme-muted text-xs uppercase tracking-widest">
+                <span className="text-theme-muted mb-2 block text-xs font-semibold tracking-widest uppercase">
                   Username
                 </span>
                 <input
                   autoComplete="username"
-                  className="w-full rounded-xl border-2 border-theme bg-theme-surface px-4 py-3 font-mono text-base text-theme transition-all placeholder:text-theme-subtle focus:border-primary focus:shadow-focus-primary focus:outline-hidden"
+                  className="border-theme bg-theme-surface text-theme placeholder:text-theme-subtle focus:border-primary focus:shadow-focus-primary w-full rounded-xl border-2 px-4 py-3 font-mono text-base transition-all focus:outline-hidden"
                   disabled={isSubmitting}
                   maxLength={64}
                   minLength={3}
@@ -68,12 +68,12 @@ export function AdminLayout({ children }: LayoutProps) {
               </label>
 
               <label className="block">
-                <span className="mb-2 block font-semibold text-theme-muted text-xs uppercase tracking-widest">
+                <span className="text-theme-muted mb-2 block text-xs font-semibold tracking-widest uppercase">
                   Password
                 </span>
                 <input
                   autoComplete="current-password"
-                  className="w-full rounded-xl border-2 border-theme bg-theme-surface px-4 py-3 font-mono text-base text-theme transition-all placeholder:text-theme-subtle focus:border-primary focus:shadow-focus-primary focus:outline-hidden"
+                  className="border-theme bg-theme-surface text-theme placeholder:text-theme-subtle focus:border-primary focus:shadow-focus-primary w-full rounded-xl border-2 px-4 py-3 font-mono text-base transition-all focus:outline-hidden"
                   disabled={isSubmitting}
                   maxLength={128}
                   minLength={16}
@@ -89,7 +89,7 @@ export function AdminLayout({ children }: LayoutProps) {
               {fetcher.data?.error && (
                 <p
                   aria-live="polite"
-                  className="text-red-500 text-sm"
+                  className="text-sm text-red-500"
                   role="alert"
                 >
                   {fetcher.data.error}
@@ -112,15 +112,15 @@ export function AdminLayout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="relative mx-auto w-full max-w-6xl px-5 py-6 text-theme sm:px-6">
+    <div className="text-theme relative mx-auto w-full max-w-6xl px-5 py-6 sm:px-6">
       <div className="space-y-8">
         <div className="border-theme border-b pb-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-theme-subtle text-xs uppercase tracking-widest">
+              <p className="text-theme-subtle text-xs tracking-widest uppercase">
                 Zoff administration
               </p>
-              <p className="font-black text-2xl tracking-tight">
+              <p className="text-2xl font-black tracking-tight">
                 {session.user.username}
               </p>
             </div>

@@ -41,7 +41,7 @@ export function RoomBrowserPagination({
   return (
     <nav
       aria-label="Public room pages"
-      className="mt-7 flex items-center justify-between gap-3 border-theme border-t pt-6"
+      className="border-theme mt-7 flex items-center justify-between gap-3 border-t pt-6"
     >
       {hasPrevious && (
         <Link
@@ -70,19 +70,19 @@ export function RoomBrowserPagination({
         </Link>
       )}
       {!hasPrevious && (
-        <span className="px-5 py-2 text-sm text-theme-subtle">Previous</span>
+        <span className="text-theme-subtle px-5 py-2 text-sm">Previous</span>
       )}
       <div
         role="status"
         aria-live="polite"
         aria-atomic="true"
-        className="relative min-w-24 text-center text-theme-muted text-xs"
+        className="text-theme-muted relative min-w-24 text-center text-xs"
       >
         <span className="block">
           Page {Math.floor(search.from / publicRoomPageSize) + 1} of {pages}
         </span>
         {pending && (
-          <span className="absolute inset-x-0 top-full mt-2 flex items-center justify-center gap-2 whitespace-nowrap text-cyan-800 dark:text-secondary">
+          <span className="dark:text-secondary absolute inset-x-0 top-full mt-2 flex items-center justify-center gap-2 whitespace-nowrap text-cyan-800">
             <span
               aria-hidden="true"
               className="size-3 shrink-0 rounded-full border-2 border-current border-t-transparent motion-safe:animate-spin"
@@ -112,7 +112,7 @@ export function RoomBrowserPagination({
         </Link>
       )}
       {!hasNext && (
-        <span className="px-5 py-2 text-sm text-theme-subtle">Next</span>
+        <span className="text-theme-subtle px-5 py-2 text-sm">Next</span>
       )}
     </nav>
   );

@@ -139,6 +139,7 @@ component; only joining intentionally triggers page navigation.
 ## 🚀 Getting Started
 
 ### Local Development
+
 The platform app runs on port 3001 with SSR support.
 
 ```sh
@@ -179,6 +180,7 @@ pnpm test
 ## 🏗 Architecture
 
 ### Server-Side Rendering (SSR)
+
 The platform app includes comprehensive SSR support via `server.tsx`:
 
 - **React 19 SSR**: Uses `renderToReadableStream` for streaming HTML responses
@@ -188,6 +190,7 @@ The platform app includes comprehensive SSR support via `server.tsx`:
 - **Hot Module Replacement**: WebSocket-based HMR for instant development feedback
 
 ### Data Flow
+
 1. **Initial Request**: Server pre-fetches room data if available
 2. **SSR Rendering**: React renders with initial data, preventing loading states
 3. **Client Hydration**: React takes over with pre-populated stores
@@ -200,6 +203,7 @@ notification only when the item is absent before applying that event, so votes
 and replayed updates do not produce duplicate addition notifications.
 
 ### Route Handling
+
 - **`/`**: Home page with room creation and joining
 - **`/room/create`**: Room creation with optional `?name=` parameter
 - **`/room/{id}`**: Room view with server-side room data fetching

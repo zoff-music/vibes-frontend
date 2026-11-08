@@ -28,7 +28,7 @@ export function ListenerCount({
       )}
     >
       {variant === 'pill' && (
-        <div className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
+        <div className="bg-secondary h-2 w-2 animate-pulse rounded-full" />
       )}
       <span className="text-2xs tracking-display">
         <span

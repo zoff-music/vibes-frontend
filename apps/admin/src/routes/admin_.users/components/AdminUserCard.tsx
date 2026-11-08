@@ -31,18 +31,18 @@ export function AdminUserCard({
   const isResetting = admin.id === resetAdminID;
 
   return (
-    <article className="panel-surface rounded-2xl border border-theme p-5">
+    <article className="panel-surface border-theme rounded-2xl border p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-bold text-xl">{admin.username}</h2>
+            <h2 className="text-xl font-bold">{admin.username}</h2>
             {isCurrentUser && (
-              <span className="rounded-full bg-secondary/15 px-3 py-1 font-bold text-secondary text-xs">
+              <span className="bg-secondary/15 text-secondary rounded-full px-3 py-1 text-xs font-bold">
                 Current account
               </span>
             )}
           </div>
-          <p className="mt-1 text-theme-subtle text-xs">
+          <p className="text-theme-subtle mt-1 text-xs">
             Created {adminDateFormatter.format(new Date(admin.createdAt))}
           </p>
         </div>
@@ -71,19 +71,19 @@ export function AdminUserCard({
 
       {isResetting && (
         <form
-          className="mt-4 flex flex-col gap-3 border-theme border-t pt-4 sm:flex-row sm:items-end"
+          className="border-theme mt-4 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-end"
           method="post"
           onSubmit={onResetPassword}
         >
           <input name="intent" type="hidden" value="resetPassword" />
           <input name="adminId" type="hidden" value={admin.id} />
           <label className="min-w-0 flex-1">
-            <span className="mb-2 block font-semibold text-theme-muted text-xs uppercase tracking-widest">
+            <span className="text-theme-muted mb-2 block text-xs font-semibold tracking-widest uppercase">
               New password
             </span>
             <input
               autoComplete="new-password"
-              className="w-full rounded-xl border border-theme bg-theme-surface px-4 py-3 font-mono text-base text-theme outline-hidden transition-colors focus:border-primary"
+              className="border-theme bg-theme-surface text-theme focus:border-primary w-full rounded-xl border px-4 py-3 font-mono text-base outline-hidden transition-colors"
               disabled={isSubmitting}
               maxLength={128}
               minLength={16}

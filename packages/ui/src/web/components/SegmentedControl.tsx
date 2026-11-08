@@ -31,7 +31,7 @@ export function SegmentedControl({
   return (
     <fieldset disabled={disabled} className="min-w-0">
       <legend className="sr-only">{label}</legend>
-      <div className="grid auto-cols-fr grid-flow-col gap-1 rounded-2xl border border-theme bg-theme-surface p-1">
+      <div className="border-theme bg-theme-surface grid auto-cols-fr grid-flow-col gap-1 rounded-2xl border p-1">
         {options.map((option) => (
           <label key={option.value} className="relative min-w-0">
             <input

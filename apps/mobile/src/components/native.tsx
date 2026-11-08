@@ -46,7 +46,7 @@ export function Screen({
     Platform.OS === 'android' && tabletLayout.isTablet;
 
   return (
-    <View className="flex-1 overflow-hidden bg-mobile-background dark:bg-mobile-dark-background">
+    <View className="bg-mobile-background dark:bg-mobile-dark-background flex-1 overflow-hidden">
       {showGrid && <NativeRetroGrid paused={gridPaused} />}
 
       <ScreenSafeArea

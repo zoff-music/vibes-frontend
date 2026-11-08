@@ -210,8 +210,8 @@ export function RoomUsageChart({
       />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-semibold text-sm text-theme">{label} by room</p>
-          <p className="mt-1 text-theme-muted text-xs">
+          <p className="text-theme text-sm font-semibold">{label} by room</p>
+          <p className="text-theme-muted mt-1 text-xs">
             Hover, focus or tap an interval for exact counts. Times are UTC.
           </p>
         </div>
@@ -220,13 +220,13 @@ export function RoomUsageChart({
             Solid: uncached · Dashed: cached. Both stack within each room.
           </p>
         )}
-        <label htmlFor={id} className="space-y-1 text-sm text-theme-muted">
+        <label htmlFor={id} className="text-theme-muted space-y-1 text-sm">
           <span className="block">Room breakdown</span>
           <select
             id={id}
             value={activeRoom}
             onChange={(event) => setSelectedRoom(event.currentTarget.value)}
-            className="max-w-64 rounded-lg border border-theme bg-theme-surface px-3 py-2 text-theme focus-visible:outline-2 focus-visible:outline-secondary"
+            className="border-theme bg-theme-surface text-theme focus-visible:outline-secondary max-w-64 rounded-lg border px-3 py-2 focus-visible:outline-2"
           >
             <option value="*">All rooms</option>
             {rooms.map(([room]) => (
@@ -237,7 +237,7 @@ export function RoomUsageChart({
           </select>
         </label>
       </div>
-      <div className="overflow-x-auto rounded-xl border border-theme bg-theme-surface p-3">
+      <div className="border-theme bg-theme-surface overflow-x-auto rounded-xl border p-3">
         <div className="relative min-w-xl">
           <svg
             viewBox="0 0 720 290"
@@ -320,20 +320,20 @@ export function RoomUsageChart({
                 as="div"
                 className="min-w-0 flex-1"
                 content={
-                  <span className="block w-72 space-y-2 whitespace-normal font-sans text-sm">
-                    <span className="block text-theme-muted">
+                  <span className="block w-72 space-y-2 font-sans text-sm whitespace-normal">
+                    <span className="text-theme-muted block">
                       {timestampFormat(bucket.timestamp)}
                     </span>
                     <span className="block font-bold">
                       {bucket.shownTotal.toLocaleString()} {label.toLowerCase()}
                     </span>
                     {!showCacheSplit && bucket.detail && activeRoom === '*' && (
-                      <span className="block text-theme-muted text-xs">
+                      <span className="text-theme-muted block text-xs">
                         {bucket.detail}
                       </span>
                     )}
                     {showCacheSplit && (
-                      <span className="grid grid-cols-[1fr_4rem_4rem] gap-2 text-theme-muted text-xs">
+                      <span className="text-theme-muted grid grid-cols-[1fr_4rem_4rem] gap-2 text-xs">
                         <span>Room</span>
                         <span className="text-right">Uncached</span>
                         <span className="text-right">Cached</span>
@@ -380,7 +380,7 @@ export function RoomUsageChart({
               >
                 <button
                   type="button"
-                  className="h-full w-full cursor-crosshair rounded-sm hover:bg-secondary/10 focus-visible:bg-secondary/10 focus-visible:outline-2 focus-visible:outline-secondary"
+                  className="hover:bg-secondary/10 focus-visible:bg-secondary/10 focus-visible:outline-secondary h-full w-full cursor-crosshair rounded-sm focus-visible:outline-2"
                   aria-label={`${timestampFormat(bucket.timestamp)}: ${bucket.shownTotal} ${label.toLowerCase()}. ${bucket.tooltipDescription}`}
                 />
               </Tooltip>
@@ -390,12 +390,12 @@ export function RoomUsageChart({
       </div>
       {maximum === 1 &&
         chartBuckets.every((bucket) => bucket.shownTotal === 0) && (
-          <p className="text-sm text-theme-muted">
+          <p className="text-theme-muted text-sm">
             No activity in this period.
           </p>
         )}
       <ul
-        className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-theme-muted"
+        className="text-theme-muted flex flex-wrap gap-x-5 gap-y-2 text-sm"
         aria-label="Room legend"
       >
         {visibleRooms.map((room) => (

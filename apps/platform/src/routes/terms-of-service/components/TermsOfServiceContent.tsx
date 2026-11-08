@@ -199,7 +199,7 @@ export function TermsOfServiceContent({
         <p>
           Questions about these terms can be sent to{' '}
           <a
-            className="text-cyan-800 underline decoration-current/40 underline-offset-4 transition-colors hover:text-theme dark:text-secondary"
+            className="hover:text-theme dark:text-secondary text-cyan-800 underline decoration-current/40 underline-offset-4 transition-colors"
             href={`mailto:${contactEmail}`}
           >
             {contactEmail}

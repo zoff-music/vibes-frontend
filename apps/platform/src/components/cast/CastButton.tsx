@@ -107,23 +107,23 @@ export const CastButton: React.FC<CastButtonProps> = ({ onDeviceSelect }) => {
         }
       >
         {getCastIcon()}
-        <span className="font-medium text-sm transition-colors duration-200">
+        <span className="text-sm font-medium transition-colors duration-200">
           {getButtonText()}
         </span>
       </Button>
 
       {/* Error Display */}
       {lastError && (
-        <div className="mt-2 rounded border border-red-300 bg-red-100 p-2 text-red-700 text-xs transition-colors duration-200 dark:border-red-700/30 dark:bg-red-900/20 dark:text-red-400">
+        <div className="mt-2 rounded border border-red-300 bg-red-100 p-2 text-xs text-red-700 transition-colors duration-200 dark:border-red-700/30 dark:bg-red-900/20 dark:text-red-400">
           {lastError.description}
         </div>
       )}
 
       {/* Connection Status */}
       {isConnected && currentSession && (
-        <div className="mt-1 text-center text-primary text-xs transition-colors duration-200 dark:text-primary-light">
+        <div className="text-primary dark:text-primary-light mt-1 text-center text-xs transition-colors duration-200">
           <div className="flex items-center gap-1">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-primary dark:bg-primary-light"></div>
+            <div className="bg-primary dark:bg-primary-light h-2 w-2 animate-pulse rounded-full"></div>
             <span>Casting to {currentSession.deviceName}</span>
           </div>
         </div>

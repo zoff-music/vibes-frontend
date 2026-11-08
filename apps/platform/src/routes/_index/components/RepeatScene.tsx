@@ -46,7 +46,7 @@ export function RepeatPlaylistItemSetupScene({
         </div>
       </ContentTransition>
       <div className="flex min-h-11 items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-theme-muted text-xs">
+        <p className="text-theme-muted flex items-center gap-2 text-xs">
           {advanced && !removePlayed && (
             <motion.span
               aria-hidden="true"
@@ -63,7 +63,7 @@ export function RepeatPlaylistItemSetupScene({
         <Button
           variant="ghost"
           size="none"
-          className="min-h-11 w-28 shrink-0 px-2 hover:bg-theme-surface"
+          className="hover:bg-theme-surface min-h-11 w-28 shrink-0 px-2"
           onClick={onFinish}
           disabled={advanced}
         >
@@ -88,7 +88,7 @@ export function RepeatPlaylistItemSetupScene({
           />
         )}
         {advanced && removePlayed && (
-          <p className="flex min-h-17 items-center border-theme border-y text-sm text-theme-muted">
+          <p className="border-theme text-theme-muted flex min-h-17 items-center border-y text-sm">
             Queue cleared. Nothing repeats.
           </p>
         )}

@@ -7,19 +7,19 @@ interface RecoveryProps {
 
 export function ErrorBoundary({ retry }: RecoveryProps) {
   return (
-    <View className="flex-1 items-center justify-center gap-5 bg-mobile-background p-8 dark:bg-mobile-dark-background">
-      <Text className="text-center font-heading text-3xl text-mobile-text dark:text-mobile-dark-text">
+    <View className="bg-mobile-background dark:bg-mobile-dark-background flex-1 items-center justify-center gap-5 p-8">
+      <Text className="font-heading text-mobile-text dark:text-mobile-dark-text text-center text-3xl">
         The signal dropped
       </Text>
-      <Text className="text-center font-body text-mobile-muted dark:text-mobile-dark-muted">
+      <Text className="font-body text-mobile-muted dark:text-mobile-dark-muted text-center">
         Zoff could not load this screen. Check your connection and try again.
       </Text>
       <Pressable
         accessibilityRole="button"
-        className="min-h-13 rounded-full bg-mobile-primary px-6 py-4 active:opacity-80"
+        className="bg-mobile-primary min-h-13 rounded-full px-6 py-4 active:opacity-80"
         onPress={retry}
       >
-        <Text className="font-heading text-lg text-mobile-dark-background">
+        <Text className="font-heading text-mobile-dark-background text-lg">
           Try again
         </Text>
       </Pressable>

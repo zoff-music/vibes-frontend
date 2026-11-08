@@ -44,7 +44,7 @@ function SettingsSwitch({
   return (
     <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
       <View className="min-w-0 flex-1 gap-1">
-        <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
+        <Text className="font-heading text-mobile-text dark:text-mobile-dark-text text-base">
           {label}
         </Text>
         <Copy muted>{description}</Copy>
@@ -272,5 +272,5 @@ function ModeButton({
 }
 
 function Divider() {
-  return <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />;
+  return <View className="bg-mobile-border dark:bg-mobile-dark-border h-px" />;
 }

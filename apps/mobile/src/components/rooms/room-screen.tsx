@@ -325,7 +325,7 @@ export function RoomScreen() {
             )}
             <Text
               numberOfLines={1}
-              className="font-heading text-base text-mobile-text dark:text-mobile-dark-text"
+              className="font-heading text-mobile-text dark:text-mobile-dark-text text-base"
             >
               {current?.title ?? 'Nothing playing'}
             </Text>

@@ -39,21 +39,21 @@ export function ProductLinks({
           )}
         >
           <span>
-            <span className="block font-pixel text-sm">{page.label}</span>
-            <span className="mt-1 block text-theme-muted text-xs">
+            <span className="font-pixel block text-sm">{page.label}</span>
+            <span className="text-theme-muted mt-1 block text-xs">
               {page.caption}
             </span>
           </span>
           {currentSlug === page.slug && (
             <CheckIcon
               aria-hidden="true"
-              className="h-4 w-4 shrink-0 text-secondary"
+              className="text-secondary h-4 w-4 shrink-0"
             />
           )}
           {currentSlug !== page.slug && (
             <ArrowRightIcon
               aria-hidden="true"
-              className="h-4 w-4 shrink-0 text-theme-muted transition-transform group-hover:translate-x-1"
+              className="text-theme-muted h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1"
             />
           )}
         </Link>

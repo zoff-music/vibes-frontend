@@ -30,7 +30,7 @@ export function VinylRecord({
         />
       )}
       {!artworkUrl && (
-        <span className="flex size-1/2 items-center justify-center rounded-full border-4 border-[#100b18] bg-primary font-pixel text-pink-950 text-xs">
+        <span className="bg-primary font-pixel flex size-1/2 items-center justify-center rounded-full border-4 border-[#100b18] text-xs text-pink-950">
           ZOFF
         </span>
       )}

@@ -42,9 +42,9 @@ export function EmbedRoomHeader({
   const usersCount = useRoomStore((state) => state.usersCount);
 
   return (
-    <header className="flex items-center justify-between border-theme border-b bg-theme-elevated px-4 py-3">
+    <header className="border-theme bg-theme-elevated flex items-center justify-between border-b px-4 py-3">
       <div className="flex min-w-0 items-center gap-2">
-        <h1 className="min-w-0 truncate font-pixel text-sm text-theme">
+        <h1 className="font-pixel text-theme min-w-0 truncate text-sm">
           {room.name}
         </h1>
         {showReset && (
@@ -102,7 +102,7 @@ export function EmbedRoomHeader({
           href={roomUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-theme bg-theme-surface p-1.5 pr-2.5 text-theme transition-colors hover:border-theme-strong"
+          className="border-theme bg-theme-surface text-theme hover:border-theme-strong inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border p-1.5 pr-2.5 transition-colors"
           title="Open room on Zoff in a new tab"
           aria-label="Open room on Zoff in a new tab"
         >

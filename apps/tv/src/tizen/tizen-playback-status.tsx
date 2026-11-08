@@ -41,7 +41,7 @@ export function TizenPlaybackStatus({
       </div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/20">
         <div
-          className="h-full bg-accent"
+          className="bg-accent h-full"
           style={{ width: `${progress * percentageMultiplier}%` }}
         />
       </div>

@@ -68,19 +68,19 @@ export function TizenRoom({
 
   return (
     <div className="relative flex h-full overflow-hidden p-6">
-      <section className="flex h-full w-[68%] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-primary/30 bg-tv-card">
+      <section className="border-primary/30 bg-tv-card flex h-full w-[68%] shrink-0 flex-col overflow-hidden rounded-[2rem] border">
         <div className="min-h-0 flex-1 bg-black">
           <TizenProviderSurface
             isGenerating={isGenerating}
             playback={playback}
           />
         </div>
-        <div className="shrink-0 border-tv-border border-t bg-black px-8 py-5">
+        <div className="border-tv-border shrink-0 border-t bg-black px-8 py-5">
           <div className="tv-space-x-6 flex items-end">
             {current?.thumbnailUrl && (
               <img
                 alt=""
-                className="size-20 shrink-0 rounded-xl border border-tv-border object-cover"
+                className="border-tv-border size-20 shrink-0 rounded-xl border object-cover"
                 src={current.thumbnailUrl}
               />
             )}
@@ -88,11 +88,11 @@ export function TizenRoom({
               <h1 className="mb-2 truncate text-2xl">
                 {current?.title ?? 'No song is playing'}
               </h1>
-              <p className="truncate text-lg text-tv-muted">
+              <p className="text-tv-muted truncate text-lg">
                 {current?.publisher ?? 'Waiting for the room queue'}
               </p>
             </div>
-            <span className="shrink-0 text-tv-muted text-xl">
+            <span className="text-tv-muted shrink-0 text-xl">
               {current ? getProviderDisplayName(current.sourceType) : ''}
             </span>
           </div>
@@ -104,14 +104,14 @@ export function TizenRoom({
       </section>
 
       <div className="h-full min-w-0 flex-1 pl-6">
-        <aside className="flex h-full flex-col rounded-[2rem] border border-primary/30 bg-tv-card p-7">
-          <header className="tv-space-x-3 mb-5 flex items-center justify-between border-tv-border border-b pb-5">
-            <h2 className="text-sm text-tv-muted uppercase tracking-[0.2em]">
+        <aside className="border-primary/30 bg-tv-card flex h-full flex-col rounded-[2rem] border p-7">
+          <header className="tv-space-x-3 border-tv-border mb-5 flex items-center justify-between border-b pb-5">
+            <h2 className="text-tv-muted text-sm tracking-[0.2em] uppercase">
               Up Next ({queued.length})
             </h2>
             <div className="tv-space-x-3 flex items-center">
-              <div className="tv-space-x-2 flex items-center rounded-full border border-accent/30 px-4 py-2 text-sm text-tv-muted">
-                <span className="size-2 rounded-full bg-accent" />
+              <div className="tv-space-x-2 border-accent/30 text-tv-muted flex items-center rounded-full border px-4 py-2 text-sm">
+                <span className="bg-accent size-2 rounded-full" />
                 <span>
                   {displayedListenerCount}{' '}
                   {displayedListenerCount === 1
@@ -131,7 +131,7 @@ export function TizenRoom({
 
           <div className="min-h-0 flex-1 overflow-hidden" ref={queueRef}>
             {queued.length === 0 && (
-              <div className="flex h-full items-center justify-center rounded-2xl border border-tv-border text-center text-tv-muted">
+              <div className="border-tv-border text-tv-muted flex h-full items-center justify-center rounded-2xl border text-center">
                 The queue is empty
               </div>
             )}
@@ -142,15 +142,15 @@ export function TizenRoom({
                     .slice(0, visibleQueueLength)
                     .map((playlistItem, index) => (
                       <div
-                        className="tv-space-x-4 flex h-24 items-center rounded-2xl border border-tv-border bg-tv-surface px-4"
+                        className="tv-space-x-4 border-tv-border bg-tv-surface flex h-24 items-center rounded-2xl border px-4"
                         key={playlistItem.id}
                       >
-                        <span className="w-7 shrink-0 text-center text-tv-muted text-xs">
+                        <span className="text-tv-muted w-7 shrink-0 text-center text-xs">
                           {index + 1}
                         </span>
                         <img
                           alt=""
-                          className="size-16 shrink-0 rounded-xl border border-tv-border object-cover"
+                          className="border-tv-border size-16 shrink-0 rounded-xl border object-cover"
                           decoding="async"
                           loading="lazy"
                           src={playlistItem.thumbnailUrl}
@@ -159,16 +159,16 @@ export function TizenRoom({
                           <p className="truncate text-xs">
                             {playlistItem.title}
                           </p>
-                          <p className="mt-1 truncate text-tv-muted text-xs">
+                          <p className="text-tv-muted mt-1 truncate text-xs">
                             {playlistItem.publisher ?? 'Unknown Artist'} ·{' '}
                             {formatPlaybackSeconds(playlistItem.duration)}
                           </p>
                         </div>
-                        <span className="tv-space-x-1 flex shrink-0 items-center text-accent text-xs">
+                        <span className="tv-space-x-1 text-accent flex shrink-0 items-center text-xs">
                           <VoteIcon className="size-4" />
                           <span>{playlistItem.voteCount ?? 0}</span>
                         </span>
-                        <span className="shrink-0 text-tv-muted">
+                        <span className="text-tv-muted shrink-0">
                           <ProviderIcon
                             className="size-[1.125rem]"
                             provider={playlistItem.sourceType}
@@ -178,7 +178,7 @@ export function TizenRoom({
                     ))}
                 </div>
                 {queueRemainderLabel && (
-                  <div className="flex min-h-7 flex-1 items-center justify-center text-tv-muted text-xs">
+                  <div className="text-tv-muted flex min-h-7 flex-1 items-center justify-center text-xs">
                     {queueRemainderLabel}
                   </div>
                 )}
@@ -186,14 +186,14 @@ export function TizenRoom({
             )}
           </div>
 
-          <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-3xl border border-primary/30 bg-tv-surface p-4">
+          <div className="border-primary/30 bg-tv-surface mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-3xl border p-4">
             <div className="min-w-0 pr-4">
-              <p className="text-accent text-xs uppercase tracking-[0.2em]">
+              <p className="text-accent text-xs tracking-[0.2em] uppercase">
                 Scan to join
               </p>
               <p className="mt-3 truncate text-2xl">{room.name}</p>
               {room.flagged && <ExplicitBadge />}
-              <p className="mt-2 text-sm text-tv-muted">
+              <p className="text-tv-muted mt-2 text-sm">
                 Add {labels.items} and vote from your phone
               </p>
             </div>

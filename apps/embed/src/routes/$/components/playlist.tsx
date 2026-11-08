@@ -14,7 +14,7 @@ export function EmbedPlaylist({ playlistItems, votingEnabled, onVote }: Props) {
 
   return (
     <div
-      className="relative h-full min-h-0 min-w-0 overflow-y-auto overflow-x-hidden overscroll-none pr-1"
+      className="relative h-full min-h-0 min-w-0 overflow-x-hidden overflow-y-auto overscroll-none pr-1"
       data-embed-scroll
     >
       <div className="mb-3 flex items-center justify-between">
@@ -58,7 +58,7 @@ export function EmbedPlaylist({ playlistItems, votingEnabled, onVote }: Props) {
           <div aria-hidden="true" className="h-10" ref={sentinelRef} />
         )}
         {playlistItems.length === 0 && (
-          <div className="rounded-xl border border-theme bg-theme-surface p-6 text-center text-theme-muted text-xs">
+          <div className="border-theme bg-theme-surface text-theme-muted rounded-xl border p-6 text-center text-xs">
             The queue is empty
           </div>
         )}

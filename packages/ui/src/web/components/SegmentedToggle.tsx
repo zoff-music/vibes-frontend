@@ -99,7 +99,7 @@ export function SegmentedToggle({
           {label && (
             <div
               id={`${inputId}-label`}
-              className="font-pixel text-theme text-xs tracking-display"
+              className="font-pixel text-theme tracking-display text-xs"
             >
               {label}
             </div>
@@ -107,7 +107,7 @@ export function SegmentedToggle({
           {description && (
             <div
               id={`${inputId}-description`}
-              className="mt-1 text-theme-muted text-xs"
+              className="text-theme-muted mt-1 text-xs"
             >
               {description}
             </div>

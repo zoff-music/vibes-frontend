@@ -11,10 +11,10 @@ export function AdminErrorView({
   title = 'Admin unavailable',
 }: AdminErrorViewProps) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center px-6 py-12 text-theme">
-      <section className="panel-strong relative z-10 w-full max-w-md rounded-3xl border border-theme-strong p-8 text-center">
-        <h1 className="font-black text-3xl tracking-tight">{title}</h1>
-        <p className="mt-3 text-sm text-theme-muted">{message}</p>
+    <main className="text-theme relative flex min-h-screen items-center justify-center px-6 py-12">
+      <section className="panel-strong border-theme-strong relative z-10 w-full max-w-md rounded-3xl border p-8 text-center">
+        <h1 className="text-3xl font-black tracking-tight">{title}</h1>
+        <p className="text-theme-muted mt-3 text-sm">{message}</p>
         <Button
           className="mt-6 w-full"
           onClick={() => window.location.reload()}
@@ -24,7 +24,7 @@ export function AdminErrorView({
           Reload
         </Button>
         <Link
-          className="mt-3 inline-flex w-full items-center justify-center rounded-xl px-4 py-2 text-sm text-theme-muted transition-colors hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="text-theme-muted hover:text-theme focus-visible:ring-primary mt-3 inline-flex w-full items-center justify-center rounded-xl px-4 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
           to="/admin"
         >
           Return to sign in

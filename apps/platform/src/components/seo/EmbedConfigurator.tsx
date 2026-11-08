@@ -12,7 +12,7 @@ export function EmbedConfigurator() {
         fallback={
           <div
             aria-hidden="true"
-            className="h-213 rounded-2xl border border-theme bg-theme-surface md:h-104"
+            className="border-theme bg-theme-surface h-213 rounded-2xl border md:h-104"
           />
         }
       >

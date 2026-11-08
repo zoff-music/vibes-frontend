@@ -43,8 +43,8 @@ export function ProductScreenshots() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,#ff2e9726,transparent_65%)]"
         />
-        <div className="relative flex items-center justify-between gap-3 text-theme-muted text-xs">
-          <span className="font-pixel text-cyan-800 dark:text-secondary">
+        <div className="text-theme-muted relative flex items-center justify-between gap-3 text-xs">
+          <span className="font-pixel dark:text-secondary text-cyan-800">
             ZOFF IN YOUR POCKET
           </span>
           <span>iOS + Android</span>
@@ -52,11 +52,11 @@ export function ProductScreenshots() {
         <div className="relative mx-auto mt-6 h-[clamp(23rem,118vw,36rem)] max-w-112 sm:h-144">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-12 aspect-square rounded-full border border-primary/15"
+            className="border-primary/15 pointer-events-none absolute inset-x-0 top-12 aspect-square rounded-full border"
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-8 top-20 aspect-square rounded-full border border-secondary/15"
+            className="border-secondary/15 pointer-events-none absolute inset-x-8 top-20 aspect-square rounded-full border"
           />
           {screens.map((screen, index) => (
             <motion.div
@@ -111,7 +111,7 @@ export function ProductScreenshots() {
             </button>
           ))}
         </fieldset>
-        <figcaption className="relative flex h-20 items-center justify-center text-center text-sm text-theme-muted">
+        <figcaption className="text-theme-muted relative flex h-20 items-center justify-center text-center text-sm">
           {screens[selected].caption}
         </figcaption>
       </figure>

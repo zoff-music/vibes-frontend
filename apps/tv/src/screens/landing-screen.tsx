@@ -219,7 +219,7 @@ export function LandingScreen({
               />
               {isAIMode && session.loading && (
                 <View className="flex-row items-center justify-center gap-4">
-                  <View className="h-3 w-3 rounded-full bg-accent" />
+                  <View className="bg-accent h-3 w-3 rounded-full" />
                   <Text
                     className={classNames(
                       'font-heading text-accent',
@@ -291,8 +291,8 @@ export function LandingScreen({
             {browser.loading && <NativeCopy muted>Loading rooms…</NativeCopy>}
             {browser.error && <NativeCopy>{browser.error}</NativeCopy>}
             {!browser.loading && !browser.error && rooms.length === 0 && (
-              <View className="rounded-3xl border-2 border-tv-border bg-tv-card p-8">
-                <Text className="font-heading text-2xl text-tv-muted">
+              <View className="border-tv-border bg-tv-card rounded-3xl border-2 p-8">
+                <Text className="font-heading text-tv-muted text-2xl">
                   {browser.browsing
                     ? 'No rooms match your search.'
                     : 'No public rooms are active right now.'}

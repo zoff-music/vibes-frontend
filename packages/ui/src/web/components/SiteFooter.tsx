@@ -15,14 +15,14 @@ export function SiteFooter({ renderLocalLink }: SiteFooterProps) {
     <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 [view-transition-name:site-footer] sm:px-6 sm:pb-6">
       <nav
         aria-label="Site links"
-        className="panel-surface mx-auto grid w-fit max-w-full grid-cols-3 items-center rounded-2xl border border-theme p-1 sm:flex sm:px-2"
+        className="panel-surface border-theme mx-auto grid w-fit max-w-full grid-cols-3 items-center rounded-2xl border p-1 sm:flex sm:px-2"
       >
         {links.map((link, index) => (
           <Fragment key={link.href}>
             {index > 0 && (
               <span
                 aria-hidden="true"
-                className="hidden h-4 shrink-0 border-theme border-l sm:block"
+                className="border-theme hidden h-4 shrink-0 border-l sm:block"
               />
             )}
             {renderLocalLink &&

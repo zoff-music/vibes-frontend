@@ -73,12 +73,12 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
 
   if (isGenerating && !currentPlaylistItem) {
     player = (
-      <View className="flex-1 items-center justify-center gap-3 bg-tv-surface">
+      <View className="bg-tv-surface flex-1 items-center justify-center gap-3">
         <ActivityIndicator color="#22c7e8" size="large" />
-        <Text className="font-heading text-2xl text-tv-text">
+        <Text className="font-heading text-tv-text text-2xl">
           {generationMessage}
         </Text>
-        <Text className="font-heading text-lg text-tv-muted">
+        <Text className="font-heading text-tv-muted text-lg">
           Your {labels.items} will appear here automatically.
         </Text>
       </View>
@@ -87,12 +87,12 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
 
   return (
     <View className="flex-1 flex-row gap-3 p-3">
-      <View className="min-w-0 flex-[1.85] overflow-hidden rounded-3xl border border-tv-border bg-tv-card">
+      <View className="border-tv-border bg-tv-card min-w-0 flex-[1.85] overflow-hidden rounded-3xl border">
         <View className="min-h-0 flex-1 bg-black">{player}</View>
         <View className="border-tv-border border-t bg-black px-5 py-3">
           <View className="flex-row items-end gap-3">
             {!compact && currentPlaylistItem?.thumbnailUrl && (
-              <View className="h-14 w-14 overflow-hidden rounded-xl border border-tv-border bg-black">
+              <View className="border-tv-border h-14 w-14 overflow-hidden rounded-xl border bg-black">
                 <Image
                   cachePolicy="memory-disk"
                   contentFit="cover"
@@ -104,13 +104,13 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
             )}
             <View className="min-w-0 flex-1">
               <Text
-                className="mb-1 font-heading text-lg text-tv-text"
+                className="font-heading text-tv-text mb-1 text-lg"
                 numberOfLines={1}
               >
                 {currentPlaylistItem?.title ?? 'No song is playing'}
               </Text>
               <Text
-                className="font-heading text-sm text-tv-muted"
+                className="font-heading text-tv-muted text-sm"
                 numberOfLines={1}
               >
                 {currentPlaylistItem?.publisher ?? 'Waiting for the room queue'}
@@ -131,14 +131,14 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
         </View>
       </View>
 
-      <View className="min-w-0 flex-1 rounded-3xl border border-tv-border bg-tv-card p-3">
-        <View className="mb-3 flex-row items-center justify-between gap-2 border-tv-border border-b pb-3">
-          <Text className="font-heading text-sm text-tv-muted">
+      <View className="border-tv-border bg-tv-card min-w-0 flex-1 rounded-3xl border p-3">
+        <View className="border-tv-border mb-3 flex-row items-center justify-between gap-2 border-b pb-3">
+          <Text className="font-heading text-tv-muted text-sm">
             UP NEXT ({queuedPlaylistItems.length})
           </Text>
           <View className="flex-row items-center gap-2">
-            <View className="h-12 flex-row items-center gap-2 rounded-full border border-accent/30 px-4">
-              <View className="h-2 w-2 rounded-full bg-accent" />
+            <View className="border-accent/30 h-12 flex-row items-center gap-2 rounded-full border px-4">
+              <View className="bg-accent h-2 w-2 rounded-full" />
               <Text className="font-heading text-tv-muted text-xs">
                 {session.listenerCount || session.room?.userCount || 0}{' '}
                 {(session.listenerCount || session.room?.userCount || 0) === 1
@@ -161,8 +161,8 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
           onLayout={handleQueueLayout}
         >
           {queuedPlaylistItems.length === 0 && (
-            <View className="h-full items-center justify-center rounded-3xl border border-tv-border">
-              <Text className="font-heading text-sm text-tv-muted">
+            <View className="border-tv-border h-full items-center justify-center rounded-3xl border">
+              <Text className="font-heading text-tv-muted text-sm">
                 The queue is empty
               </Text>
             </View>
@@ -186,10 +186,10 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
                       )}
                       key={playlistItem.id}
                     >
-                      <Text className="w-6 text-center font-heading text-tv-muted text-xs">
+                      <Text className="font-heading text-tv-muted w-6 text-center text-xs">
                         {index + 1}
                       </Text>
-                      <View className="size-12 overflow-hidden rounded-xl border border-tv-border bg-black">
+                      <View className="border-tv-border size-12 overflow-hidden rounded-xl border bg-black">
                         <Image
                           cachePolicy="memory-disk"
                           contentFit="cover"
@@ -206,7 +206,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
                           {playlistItem.title}
                         </Text>
                         <Text
-                          className="mt-1 font-heading text-tv-muted text-xs"
+                          className="font-heading text-tv-muted mt-1 text-xs"
                           numberOfLines={1}
                         >
                           {playlistItem.publisher ?? 'Unknown Artist'} ·{' '}
@@ -242,7 +242,7 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
           )}
         </View>
 
-        <View className="mt-3 flex-row items-center gap-3 rounded-3xl border border-primary/30 bg-tv-surface p-3">
+        <View className="border-primary/30 bg-tv-surface mt-3 flex-row items-center gap-3 rounded-3xl border p-3">
           <NativeQrCode
             logo={require('../../assets/icon.png')}
             size={compact ? 56 : 80}
@@ -253,14 +253,14 @@ export function RoomScreen({ session, sessionActions }: RoomScreenProps) {
               SCAN TO JOIN
             </Text>
             <Text
-              className="mt-1 font-heading text-tv-text text-xl"
+              className="font-heading text-tv-text mt-1 text-xl"
               numberOfLines={1}
             >
               {session.room?.name}
             </Text>
             {session.room?.flagged && <NativeExplicitBadge />}
             {!compact && (
-              <Text className="mt-1 font-heading text-tv-muted text-xs">
+              <Text className="font-heading text-tv-muted mt-1 text-xs">
                 Add {labels.items} and vote from your phone
               </Text>
             )}

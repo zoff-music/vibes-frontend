@@ -30,7 +30,7 @@ export default function Callback() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 p-4 text-white">
-      <h1 className="mb-2 font-bold text-2xl">Authentication Successful</h1>
+      <h1 className="mb-2 text-2xl font-bold">Authentication Successful</h1>
       <p className="text-slate-400">You can close this window now.</p>
     </div>
   );

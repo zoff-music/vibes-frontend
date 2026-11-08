@@ -13,7 +13,7 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import {
   ParentBasedSampler,
   TraceIdRatioBasedSampler,
-} from '@opentelemetry/sdk-trace-base';
+} from '@opentelemetry/sdk-trace';
 import { backendRequestDuration, backendRequestStatusCode } from './metrics.ts';
 
 interface TracedApiFetchState {

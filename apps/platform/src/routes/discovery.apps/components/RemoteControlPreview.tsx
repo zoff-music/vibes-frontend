@@ -32,10 +32,10 @@ export function RemoteControlPreview({
   return (
     <div className="flex h-full flex-col justify-center">
       <p className="font-pixel text-theme-muted text-xs">Controlling electro</p>
-      <h3 className="mt-3 truncate font-display text-base text-theme">
+      <h3 className="font-display text-theme mt-3 truncate text-base">
         {playlistItem.title}
       </h3>
-      <p className="mt-1 text-sm text-theme-muted">{playlistItem.publisher}</p>
+      <p className="text-theme-muted mt-1 text-sm">{playlistItem.publisher}</p>
       <div className="mt-5 grid grid-cols-2 gap-3">
         <Button
           ref={playButtonRef}

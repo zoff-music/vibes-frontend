@@ -114,7 +114,7 @@ export function SettingsScreen() {
                       {Boolean(chat.warning) && (
                         <Copy muted>{chat.warning}</Copy>
                       )}
-                      <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                      <View className="bg-mobile-border dark:bg-mobile-dark-border h-px" />
                       <Copy muted>APPEARANCE</Copy>
                       <View className="flex-row gap-2">
                         <View className="flex-1">
@@ -142,10 +142,10 @@ export function SettingsScreen() {
                           />
                         </View>
                       </View>
-                      <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                      <View className="bg-mobile-border dark:bg-mobile-dark-border h-px" />
                       <View className="min-h-16 flex-row items-center justify-between gap-4 py-1">
                         <View className="min-w-0 flex-1 gap-1">
-                          <Text className="font-heading text-base text-mobile-text dark:text-mobile-dark-text">
+                          <Text className="font-heading text-mobile-text dark:text-mobile-dark-text text-base">
                             Player enabled
                           </Text>
                           <Copy muted>
@@ -209,7 +209,7 @@ export function SettingsScreen() {
                         }
                       />
 
-                      <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                      <View className="bg-mobile-border dark:bg-mobile-dark-border h-px" />
                       <SettingsRow
                         label="Terms of service"
                         onPress={() =>
@@ -219,7 +219,7 @@ export function SettingsScreen() {
                         }
                       />
 
-                      <View className="h-px bg-mobile-border dark:bg-mobile-dark-border" />
+                      <View className="bg-mobile-border dark:bg-mobile-dark-border h-px" />
                       <SettingsRow
                         description={
                           Constants.expoConfig?.version ?? 'development'

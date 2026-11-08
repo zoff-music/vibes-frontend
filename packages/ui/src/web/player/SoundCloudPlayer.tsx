@@ -885,7 +885,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       {!isReady && (
         <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
           <div className="vhs-scanlines h-full w-full opacity-40 mix-blend-overlay" />
-          <div className="crt-overlay !absolute !z-21 pointer-events-none inset-0 opacity-10" />
+          <div className="crt-overlay pointer-events-none !absolute inset-0 !z-21 opacity-10" />
         </div>
       )}
       {!isReady && (
@@ -898,7 +898,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
               aria-hidden="true"
               className="mx-auto mb-3 h-8 w-8 rounded-full border-2 border-orange-500/50 border-t-orange-500 motion-safe:animate-spin"
             />
-            <p className="glow-text font-mono text-orange-400 text-sm">
+            <p className="glow-text font-mono text-sm text-orange-400">
               Loading player...
             </p>
           </div>

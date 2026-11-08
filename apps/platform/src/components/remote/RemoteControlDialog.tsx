@@ -51,11 +51,11 @@ export function RemoteControlDialog({
             <div>
               <h2
                 id="remote-control-title"
-                className="font-display text-lg text-theme"
+                className="font-display text-theme text-lg"
               >
                 Remote Control
               </h2>
-              <p className="mt-2 text-sm text-theme-muted">
+              <p className="text-theme-muted mt-2 text-sm">
                 Pair another device to control this browser. Disabling remote
                 control revokes access immediately.
               </p>
@@ -90,14 +90,14 @@ export function RemoteControlDialog({
                   }}
                 />
               </div>
-              <div className="rounded-2xl border border-theme bg-theme-surface p-4">
+              <div className="border-theme bg-theme-surface rounded-2xl border p-4">
                 <p className="font-pixel text-2xs text-theme-muted tracking-label">
                   Manual pairing
                 </p>
-                <p className="mt-3 break-all font-mono text-theme text-xs">
+                <p className="text-theme mt-3 font-mono text-xs break-all">
                   {pairing.id}
                 </p>
-                <p className="mt-3 font-display text-2xl text-secondary tracking-widest">
+                <p className="font-display text-secondary mt-3 text-2xl tracking-widest">
                   {pairing.pairingCode}
                 </p>
               </div>
@@ -108,14 +108,14 @@ export function RemoteControlDialog({
           )}
 
           {!pairing && remote.enabled && (
-            <div className="rounded-2xl border border-theme bg-theme-surface p-5 text-center">
-              <RemoteIcon className="mx-auto h-10 w-10 text-secondary" />
+            <div className="border-theme bg-theme-surface rounded-2xl border p-5 text-center">
+              <RemoteIcon className="text-secondary mx-auto h-10 w-10" />
               {remote.paired && (
                 <>
-                  <p className="mt-3 font-display text-sm text-theme">
+                  <p className="font-display text-theme mt-3 text-sm">
                     Remote paired
                   </p>
-                  <p className="mt-2 text-theme-muted text-xs">
+                  <p className="text-theme-muted mt-2 text-xs">
                     The one-time pairing has been used. The paired device can
                     now control this browser until remote control is disabled or
                     replaced.
@@ -124,10 +124,10 @@ export function RemoteControlDialog({
               )}
               {!remote.paired && (
                 <>
-                  <p className="mt-3 font-display text-sm text-theme">
+                  <p className="font-display text-theme mt-3 text-sm">
                     Remote control enabled
                   </p>
-                  <p className="mt-2 text-theme-muted text-xs">
+                  <p className="text-theme-muted mt-2 text-xs">
                     Create a new one-time pairing to connect another device.
                   </p>
                 </>
@@ -173,7 +173,7 @@ export function RemoteControlDialog({
               </controlFetcher.Form>
             )}
           </div>
-          <div className="mt-3 border-theme border-t pt-3">
+          <div className="border-theme mt-3 border-t pt-3">
             <LinkButton
               variant="tertiary"
               to="/remotes/join"

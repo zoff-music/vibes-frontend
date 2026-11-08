@@ -86,7 +86,7 @@ export function HomeLanding({
                       {watch ? 'Watch YouTube' : 'Listen to music'}
                     </span>
                   </span>{' '}
-                  <span className="block text-pink-800 dark:text-primary">
+                  <span className="dark:text-primary block text-pink-800">
                     together.
                   </span>
                 </>
@@ -109,7 +109,7 @@ export function HomeLanding({
                 </span>
               }
               eyebrow={
-                <span className="tracking-widest sm:tracking-label">
+                <span className="sm:tracking-label tracking-widest">
                   {watch
                     ? 'GOOD VIDEOS. BETTER COMPANY.'
                     : 'GOOD MUSIC. BETTER COMPANY.'}
@@ -118,7 +118,7 @@ export function HomeLanding({
               aside={
                 <div className="min-h-36 md:min-h-28">
                   {children}
-                  <p className="mt-3 text-theme-muted text-xs md:text-center">
+                  <p className="text-theme-muted mt-3 text-xs md:text-center">
                     Always free. No account needed.
                   </p>
                 </div>
@@ -140,7 +140,7 @@ export function HomeLanding({
         <ProductIntroduction onGeneratePlaylist={onGeneratePlaylist} />
       )}
       {watch && <WatchIntroduction />}
-      <p lang="ja" className="jp-art mt-6 text-center text-theme-muted text-xs">
+      <p lang="ja" className="jp-art text-theme-muted mt-6 text-center text-xs">
         {watch ? '同じ瞬間を、一緒に。' : '音楽は共有するもの'}
       </p>
     </SitePage>
