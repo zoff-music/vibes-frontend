@@ -15,7 +15,11 @@ import {
   useQueueStore,
   useRoomStore,
 } from '@vibes/shared';
-import { markPlaybackGestureUnlocked, PlayerControls } from '@vibes/ui/web';
+import {
+  markPlaybackGestureUnlocked,
+  PlayerControls,
+  PlaylistItemArtwork,
+} from '@vibes/ui/web';
 import React, {
   type ComponentType,
   useCallback,
@@ -690,6 +694,14 @@ export const RoomPlayer = React.memo(
                   role="status"
                   className="relative z-10 flex max-w-full flex-col items-center gap-2 px-6 text-center"
                 >
+                  {/* Same preloaded artwork as the now-playing card, revealed before hydration. */}
+                  <PlaylistItemArtwork
+                    thumbnailUrl={currentPlaylistItem.thumbnailUrl}
+                    width={320}
+                    height={180}
+                    fetchPriority="high"
+                    className="mb-2 aspect-video w-36 rounded-xl border border-white/10 object-cover shadow-lg transition-opacity duration-300 sm:w-56"
+                  />
                   <p className="font-display line-clamp-2 text-2xl text-white sm:text-3xl">
                     {currentPlaylistItem.title}
                   </p>
