@@ -19,19 +19,19 @@
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "jsqr": "1.4.0",
-    "preact": "11.1.1",
+    "preact": "11.2.0",
     "preact-render-to-string": "6.8.2",
     "valibot": "1.5.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",
-    "@types/node": "26.6.5",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.7",
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@vibes/tailwind": "workspace:*",
     "tailwindcss": "catalog:",
     "terser": "5.51.2",
     "typescript": "7.0.2",
-    "vite": "8.3.4"
+    "vite": "8.3.6"
   }
 }

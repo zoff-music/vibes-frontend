@@ -18,8 +18,8 @@
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
-    "framer-motion": "14.4.0",
-    "preact": "11.1.1",
+    "framer-motion": "14.10.1",
+    "preact": "11.2.0",
     "preact-render-to-string": "6.8.2",
     "qrcode.react": "4.2.0"
   },
@@ -28,14 +28,14 @@
     "@csstools/postcss-cascade-layers": "6.0.2",
     "@tailwindcss/vite": "catalog:",
     "@types/chromecast-caf-receiver": "6.0.27",
-    "@types/node": "26.6.5",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.7",
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@vibes/tailwind": "workspace:*",
-    "@vitejs/plugin-legacy": "8.2.3",
+    "@vitejs/plugin-legacy": "8.2.4",
     "tailwindcss": "catalog:",
     "terser": "5.51.2",
     "typescript": "7.0.2",
-    "vite": "8.3.4"
+    "vite": "8.3.6"
   }
 }
