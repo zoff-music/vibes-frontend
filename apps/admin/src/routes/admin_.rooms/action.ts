@@ -86,7 +86,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === 'deleteRoom') {
-    const [error, rooms] = await serverApi.v2.delete(
+    const [error] = await serverApi.v2.delete(
       '/admin/rooms/{id}',
       { id: roomID },
       { headers, signal: request.signal },
@@ -101,7 +101,7 @@ export async function action({ request }: ActionFunctionArgs) {
       };
     }
 
-    return { rooms: rooms ?? [], success: true };
+    return { success: true };
   }
 
   return { error: 'Unsupported room action.' };

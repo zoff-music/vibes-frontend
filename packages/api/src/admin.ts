@@ -101,7 +101,7 @@ const v2Endpoints = {
       request: adminUpdateRoomRequestSchema,
       response: adminRoomsV2Schema,
     },
-    delete: { response: adminRoomsV2Schema },
+    delete: { response: emptyObjectSchema },
   },
 } as const satisfies RequestDefinitions;
 
