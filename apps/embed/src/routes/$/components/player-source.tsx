@@ -33,7 +33,7 @@ interface LoadedPlayers {
 function PlayerLoading() {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-black">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-theme border-t-primary" />
+      <div className="border-theme border-t-primary h-8 w-8 animate-spin rounded-full border-2" />
     </div>
   );
 }

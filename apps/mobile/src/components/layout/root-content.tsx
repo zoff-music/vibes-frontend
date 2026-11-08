@@ -22,7 +22,7 @@ export function RootContent() {
   }, [resolvedScheme]);
 
   return (
-    <GestureHandlerRootView className="flex-1 bg-mobile-background dark:bg-mobile-dark-background">
+    <GestureHandlerRootView className="bg-mobile-background dark:bg-mobile-dark-background flex-1">
       <ThemeProvider
         value={resolvedScheme === 'light' ? DefaultTheme : DarkTheme}
       >

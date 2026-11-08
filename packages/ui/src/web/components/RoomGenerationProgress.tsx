@@ -61,21 +61,21 @@ export function RoomGenerationProgress({
         {!isFailed && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10 rounded-3xl shadow-secondary-progress motion-safe:animate-pulse"
+            className="shadow-secondary-progress pointer-events-none absolute inset-0 -z-10 rounded-3xl motion-safe:animate-pulse"
           />
         )}
         {!isFailed && <GenerationSparkles className="mx-auto mb-6" />}
         {isFailed && (
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-error/10 text-error">
+          <div className="bg-error/10 text-error mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
             <AlertCircleIcon className="h-10 w-10" />
           </div>
         )}
 
-        <h2 className="font-pixel text-lg text-theme sm:text-xl">
+        <h2 className="font-pixel text-theme text-lg sm:text-xl">
           {!isFailed && playlistGenerationMessages[messageIndex]}
           {isFailed && 'Playlist generation stopped'}
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-sm text-theme-muted sm:text-base">
+        <p className="text-theme-muted mx-auto mt-4 max-w-xl text-sm sm:text-base">
           {!isFailed &&
             awaitingName &&
             'Finding a name and building your playlist. You can refresh this page without starting over.'}
@@ -87,7 +87,7 @@ export function RoomGenerationProgress({
               'Could not finish this playlist. You can still use the room normally.')}
         </p>
         {!isFailed && isTakingLonger && (
-          <p className="mx-auto mt-3 max-w-xl text-sm text-theme-subtle sm:text-base">
+          <p className="text-theme-subtle mx-auto mt-3 max-w-xl text-sm sm:text-base">
             This is taking longer than usual.
           </p>
         )}

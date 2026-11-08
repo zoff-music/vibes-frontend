@@ -46,11 +46,11 @@ export function AdminRoomCard({
   const labels = getRoomLabels(room.roomType);
 
   return (
-    <article className="panel-surface min-w-0 rounded-xl border border-theme px-4 py-3">
+    <article className="panel-surface border-theme min-w-0 rounded-xl border px-4 py-3">
       <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 space-y-1">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h2 className="break-words font-bold text-base text-theme">
+            <h2 className="text-theme text-base font-bold break-words">
               {room.name}
             </h2>
             {room.flagged && <ExplicitBadge />}
@@ -63,7 +63,7 @@ export function AdminRoomCard({
               </span>
             ))}
           </div>
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-theme-muted text-xs">
+          <div className="text-theme-muted flex flex-wrap gap-x-3 gap-y-1 text-xs">
             <span>{room.isPublic ? 'Public' : 'Private'}</span>
             <span>
               {room.userCount}{' '}
@@ -86,7 +86,7 @@ export function AdminRoomCard({
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-1">
           <a
-            className="inline-flex min-h-9 items-center rounded-full px-3 text-primary text-sm transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-secondary"
+            className="text-primary hover:bg-primary/10 focus-visible:outline-secondary inline-flex min-h-9 items-center rounded-full px-3 text-sm transition-colors focus-visible:outline-2"
             href={`/${encodeURIComponent(room.id)}`}
           >
             Open
@@ -130,10 +130,10 @@ export function AdminRoomCard({
         </div>
       </div>
       {isEditing && (
-        <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 border-theme border-t pt-3">
+        <div className="border-theme mt-3 flex min-w-0 flex-wrap items-center gap-2 border-t pt-3">
           <input
             aria-label="Room name"
-            className="min-w-0 flex-1 rounded-full border border-theme bg-theme px-3 py-2 text-base text-theme outline-hidden focus:border-primary"
+            className="border-theme bg-theme text-theme focus:border-primary min-w-0 flex-1 rounded-full border px-3 py-2 text-base outline-hidden"
             disabled={isLoading}
             onChange={onEditingNameChange}
             onKeyDown={onEditingNameKeyDown}

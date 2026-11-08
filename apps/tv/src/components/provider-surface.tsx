@@ -63,7 +63,7 @@ export function ProviderSurface({
   if (!playlistItem) {
     return (
       <View className="h-full items-center justify-center rounded-[2rem] bg-black">
-        <Text className="font-heading text-4xl text-tv-muted">
+        <Text className="font-heading text-tv-muted text-4xl">
           Nothing playing yet
         </Text>
       </View>

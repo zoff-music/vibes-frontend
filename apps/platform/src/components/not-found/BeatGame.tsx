@@ -114,10 +114,10 @@ export function BeatGame() {
       ref={ref}
       aria-labelledby="beat-game-title"
       onKeyDown={handleKeyDown}
-      className="mx-auto w-full max-w-md rounded-3xl border border-theme bg-theme-surface p-5 shadow-panel sm:p-6"
+      className="border-theme bg-theme-surface shadow-panel mx-auto w-full max-w-md rounded-3xl border p-5 sm:p-6"
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 id="beat-game-title" className="font-pixel text-lg text-theme">
+        <h2 id="beat-game-title" className="font-pixel text-theme text-lg">
           404 beat club
         </h2>
         <span className="text-theme-muted text-xs tabular-nums">
@@ -128,7 +128,7 @@ export function BeatGame() {
         role="status"
         aria-live="polite"
         aria-atomic="true"
-        className="mt-2 min-h-10 text-sm text-theme-muted"
+        className="text-theme-muted mt-2 min-h-10 text-sm"
       >
         {status}
       </p>

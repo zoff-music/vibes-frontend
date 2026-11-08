@@ -18,7 +18,7 @@ export function DeferredRoomGenerationProgress(
     <Suspense
       fallback={
         <div
-          className="mx-auto flex h-full min-h-64 items-center justify-center p-8 text-theme-muted"
+          className="text-theme-muted mx-auto flex h-full min-h-64 items-center justify-center p-8"
           role="status"
         >
           {props.isFailed

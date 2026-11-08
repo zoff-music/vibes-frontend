@@ -144,14 +144,14 @@ export function RemotePlaybackControls({
             width={96}
             height={96}
             decoding="async"
-            className="h-20 w-20 shrink-0 rounded-xl border border-theme bg-theme-surface object-cover sm:h-24 sm:w-24"
+            className="border-theme bg-theme-surface h-20 w-20 shrink-0 rounded-xl border object-cover sm:h-24 sm:w-24"
           />
         )}
         <div className="min-w-0 flex-1">
-          <h2 className="line-clamp-2 font-display text-lg text-theme">
+          <h2 className="font-display text-theme line-clamp-2 text-lg">
             {currentPlaylistItem?.title ?? 'Nothing playing'}
           </h2>
-          <p className="mt-2 truncate text-sm text-theme-muted">
+          <p className="text-theme-muted mt-2 truncate text-sm">
             {currentPlaylistItem?.publisher ?? `Add a ${labels.item} to begin`}
           </p>
         </div>
@@ -205,7 +205,7 @@ export function RemotePlaybackControls({
                 variant="tertiary"
                 disabled={fetcher.state !== 'idle'}
               >
-                <ResetIcon className="h-5 w-5 text-theme-muted transition-colors group-hover:text-primary" />
+                <ResetIcon className="text-theme-muted group-hover:text-primary h-5 w-5 transition-colors" />
               </Button>
             </Tooltip>
           </fetcher.Form>
@@ -230,7 +230,7 @@ export function RemotePlaybackControls({
           positionMs={seekPositionMs}
         />
         {!canSeek && room.mode === 'host' && (
-          <p className="mt-2 text-theme-subtle text-xs">
+          <p className="text-theme-subtle mt-2 text-xs">
             Seeking is available when this machine is the room host.
           </p>
         )}

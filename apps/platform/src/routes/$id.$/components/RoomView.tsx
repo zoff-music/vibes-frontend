@@ -323,7 +323,7 @@ export function RoomView({
             aria-label={
               displayRoom.roomType === 'WATCH' ? 'Add video' : 'Add song'
             }
-            className="fixed right-5 bottom-5 z-40 h-14 w-14 p-0 shadow-primary-popover"
+            className="shadow-primary-popover fixed right-5 bottom-5 z-40 h-14 w-14 p-0"
             to={panelHref('add')}
             replace
             preventScrollReset

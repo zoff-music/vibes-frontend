@@ -70,7 +70,7 @@ export const Toast = ({
         {(type === 'error' || type === 'warning') && (
           <AlertCircleIcon className="h-5 w-5 shrink-0" />
         )}
-        <span className="font-bold text-sm tracking-wide sm:text-base">
+        <span className="text-sm font-bold tracking-wide sm:text-base">
           {message}
         </span>
       </div>

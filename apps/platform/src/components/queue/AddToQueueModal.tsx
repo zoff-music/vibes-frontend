@@ -706,10 +706,10 @@ export const AddToQueueModal: React.FC<Props> = ({
       <div className="mb-4">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 id="add-song-title" className="text-base text-theme">
+            <h2 id="add-song-title" className="text-theme text-base">
               {isAIMode ? 'Fill Playlist' : labels.add}
             </h2>
-            <p className="mt-1 text-theme-muted text-xs">
+            <p className="text-theme-muted mt-1 text-xs">
               {isAIMode
                 ? 'Describe the playlist you want AI to build'
                 : room.settings.playlistImport
@@ -729,7 +729,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         </div>
 
         {/* Provider Tabs */}
-        <div className="scrollbar-none flex gap-2 overflow-x-auto">
+        <div className="flex scrollbar-none gap-2 overflow-x-auto">
           {providerList.map((p) => (
             <Button
               key={p}
@@ -835,12 +835,12 @@ export const AddToQueueModal: React.FC<Props> = ({
 
         {/* SoundCloud Disclaimer */}
         {selectedProvider === 'soundcloud' && (
-          <div className="mt-3 rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 motion-safe:animate-slide-down">
+          <div className="motion-safe:animate-slide-down mt-3 rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4">
             <div className="flex gap-3">
               <div className="mt-0.5 text-orange-400">
                 <InfoIcon className="h-5 w-5" />
               </div>
-              <p className="text-sm text-theme-muted leading-relaxed">
+              <p className="text-theme-muted text-sm leading-relaxed">
                 <span className="text-2xs text-orange-400">Note:</span> Some
                 SoundCloud searches may return empty results due to rights or
                 copyright restrictions on certain items.
@@ -850,13 +850,13 @@ export const AddToQueueModal: React.FC<Props> = ({
         )}
 
         {!canGenerate && !isAbovePlaylistItemLimit && (
-          <p className="mt-3 text-theme-muted text-xs">
+          <p className="text-theme-muted mt-3 text-xs">
             {generationUnavailableReason}
           </p>
         )}
 
         {error && (
-          <div className="mt-3 flex animate-slide-down items-start gap-2 text-error text-sm">
+          <div className="animate-slide-down text-error mt-3 flex items-start gap-2 text-sm">
             <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
               {error}
@@ -880,7 +880,7 @@ export const AddToQueueModal: React.FC<Props> = ({
           searchResults.length > 0 &&
           !isLoading &&
           !justAdded && (
-            <div className="mt-2 max-h-128 w-full animate-scale-in overflow-hidden overflow-y-auto rounded-2xl border border-theme bg-theme-surface shadow-primary-popover">
+            <div className="animate-scale-in border-theme bg-theme-surface shadow-primary-popover mt-2 max-h-128 w-full overflow-hidden overflow-y-auto rounded-2xl border">
               {searchResults.slice(0, visibleResultCount).map((result) => (
                 <PlaylistItemSearchResult
                   key={result.id}
@@ -914,17 +914,17 @@ export const AddToQueueModal: React.FC<Props> = ({
         !previewItem &&
         !previewPlaylist &&
         (providerTrackLink || providerPlaylistLink) && (
-          <div className="animate-scale-in rounded-2xl border border-theme bg-theme-surface p-8 text-center">
-            <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-theme bg-theme">
+          <div className="animate-scale-in border-theme bg-theme-surface rounded-2xl border p-8 text-center">
+            <div className="border-theme bg-theme mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl border">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             </div>
-            <p className="text-sm text-theme-muted">Loading preview...</p>
+            <p className="text-theme-muted text-sm">Loading preview...</p>
           </div>
         )}
 
       {/* Video Preview */}
       {previewItem && !justAdded && (
-        <div className="mb-6 animate-scale-in rounded-2xl border border-theme bg-theme-surface p-4">
+        <div className="animate-scale-in border-theme bg-theme-surface mb-6 rounded-2xl border p-4">
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
               <img
@@ -933,18 +933,18 @@ export const AddToQueueModal: React.FC<Props> = ({
                 width={128}
                 height={96}
                 decoding="async"
-                className="h-24 w-32 rounded-xl border border-theme bg-theme-surface object-cover"
+                className="border-theme bg-theme-surface h-24 w-32 rounded-xl border object-cover"
               />
 
-              <div className="absolute right-1.5 bottom-1.5 rounded-md bg-theme px-2 py-0.5 text-2xs text-theme backdrop-blur-sm">
+              <div className="bg-theme text-2xs text-theme absolute right-1.5 bottom-1.5 rounded-md px-2 py-0.5 backdrop-blur-sm">
                 {formatDuration(parseISODuration(previewItem.duration))}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="mb-2 line-clamp-2 text-sm text-theme">
+              <h3 className="text-theme mb-2 line-clamp-2 text-sm">
                 {previewItem.title}
               </h3>
-              <p className="line-clamp-1 text-theme-muted text-xs">
+              <p className="text-theme-muted line-clamp-1 text-xs">
                 {previewItem.publisher}
               </p>
               <PlaybackRestrictionNotice result={previewItem} />
@@ -955,34 +955,34 @@ export const AddToQueueModal: React.FC<Props> = ({
       )}
 
       {previewPlaylist && !justAdded && (
-        <div className="mb-6 animate-scale-in overflow-hidden rounded-2xl border border-theme bg-theme-surface">
+        <div className="animate-scale-in border-theme bg-theme-surface mb-6 overflow-hidden rounded-2xl border">
           <div className="border-theme border-b p-4">
-            <h3 className="text-sm text-theme">
+            <h3 className="text-theme text-sm">
               {previewPlaylist.title ?? 'Playlist ready to import'}
             </h3>
-            <p className="mt-1 text-theme-muted text-xs">
+            <p className="text-theme-muted mt-1 text-xs">
               {previewPlaylist.items.length} {labels.items} found
             </p>
             {previewPlaylist.skippedEmbeddingCount > 0 && (
-              <p role="status" className="mt-2 text-theme-muted text-xs">
+              <p role="status" className="text-theme-muted mt-2 text-xs">
                 Skipped {previewPlaylist.skippedEmbeddingCount} {labels.items}{' '}
                 because YouTube does not allow them to play in embedded players.
               </p>
             )}
             {previewPlaylist.skippedMadeForKidsCount > 0 && (
-              <p role="status" className="mt-2 text-theme-muted text-xs">
+              <p role="status" className="text-theme-muted mt-2 text-xs">
                 Skipped {previewPlaylist.skippedMadeForKidsCount} videos marked
                 as made for kids on YouTube. Zoff does not support these videos.
               </p>
             )}
             {previewPlaylist.skippedRoomTypeCount > 0 && (
-              <p role="status" className="mt-2 text-theme-muted text-xs">
+              <p role="status" className="text-theme-muted mt-2 text-xs">
                 Skipped {previewPlaylist.skippedRoomTypeCount} non-music videos.
                 Use a Watch room to import videos from other categories.
               </p>
             )}
             {previewPlaylist.truncated && (
-              <p className="mt-2 text-orange-400 text-xs">
+              <p className="mt-2 text-xs text-orange-400">
                 Only the first 5,000 playlist entries are checked. Eligible
                 items from those entries will be imported.
               </p>
@@ -992,9 +992,9 @@ export const AddToQueueModal: React.FC<Props> = ({
             {previewPlaylist.items.slice(0, 100).map((item, index) => (
               <div
                 key={item.key}
-                className="flex items-center gap-3 border-theme border-t px-4 py-3 first:border-t-0"
+                className="border-theme flex items-center gap-3 border-t px-4 py-3 first:border-t-0"
               >
-                <span className="w-6 shrink-0 text-right text-theme-subtle text-xs">
+                <span className="text-theme-subtle w-6 shrink-0 text-right text-xs">
                   {index + 1}
                 </span>
                 <img
@@ -1004,12 +1004,12 @@ export const AddToQueueModal: React.FC<Props> = ({
                   height={48}
                   loading="lazy"
                   decoding="async"
-                  className="h-12 w-12 shrink-0 rounded-lg border border-theme object-cover"
+                  className="border-theme h-12 w-12 shrink-0 rounded-lg border object-cover"
                 />
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-theme text-xs">{item.title}</p>
-                  <p className="mt-1 truncate text-theme-muted text-xs">
+                  <p className="text-theme truncate text-xs">{item.title}</p>
+                  <p className="text-theme-muted mt-1 truncate text-xs">
                     {item.publisher}
                   </p>
                   <PlaybackRestrictionNotice result={item} />
@@ -1019,7 +1019,7 @@ export const AddToQueueModal: React.FC<Props> = ({
             ))}
           </div>
           {previewPlaylist.items.length > 100 && (
-            <p className="border-theme border-t p-4 text-center text-theme-muted text-xs">
+            <p className="border-theme text-theme-muted border-t p-4 text-center text-xs">
               and {(previewPlaylist.items.length - 100).toLocaleString()} more
             </p>
           )}
@@ -1028,12 +1028,12 @@ export const AddToQueueModal: React.FC<Props> = ({
 
       {/* Success State */}
       {justAdded && (
-        <div className="animate-scale-in rounded-2xl border border-secondary/40 bg-secondary/10 p-10 text-center">
-          <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-secondary/40 bg-secondary/20">
-            <CheckIcon className="h-10 w-10 text-secondary" />
+        <div className="animate-scale-in border-secondary/40 bg-secondary/10 rounded-2xl border p-10 text-center">
+          <div className="border-secondary/40 bg-secondary/20 mb-4 inline-flex h-20 w-20 items-center justify-center rounded-2xl border">
+            <CheckIcon className="text-secondary h-10 w-10" />
           </div>
-          <h3 className="mb-2 text-base text-theme">{successTitle}</h3>
-          <p className="mb-1 text-sm text-theme-muted">{successDescription}</p>
+          <h3 className="text-theme mb-2 text-base">{successTitle}</h3>
+          <p className="text-theme-muted mb-1 text-sm">{successDescription}</p>
           <p className="jp-art text-theme-subtle text-xs">追加されました</p>
         </div>
       )}
@@ -1125,7 +1125,7 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
         href={providerUrl}
         target="_blank"
         rel="noreferrer"
-        className="flex min-w-10 shrink-0 cursor-pointer items-center justify-center self-stretch px-2 text-theme-muted transition-colors hover:bg-theme hover:text-theme focus:outline-hidden focus:ring-2 focus:ring-secondary/40 sm:min-w-14 sm:px-4"
+        className="text-theme-muted hover:bg-theme hover:text-theme focus:ring-secondary/40 flex min-w-10 shrink-0 cursor-pointer items-center justify-center self-stretch px-2 transition-colors focus:ring-2 focus:outline-hidden sm:min-w-14 sm:px-4"
         aria-label={`Open ${result.title} on ${providerNames[result.source]}`}
         title={`Open on ${providerNames[result.source]}`}
       >
@@ -1136,7 +1136,7 @@ const ProviderAttribution: React.FC<ProviderAttributionProps> = ({
 
   return (
     <div
-      className="flex min-w-10 shrink-0 items-center justify-center self-stretch px-2 text-theme-muted sm:min-w-14 sm:px-4"
+      className="text-theme-muted flex min-w-10 shrink-0 items-center justify-center self-stretch px-2 sm:min-w-14 sm:px-4"
       role="img"
       aria-label={`${providerNames[result.source]} result`}
       title={`${providerNames[result.source]} result`}
@@ -1165,7 +1165,7 @@ const PlaybackRestrictionNotice: React.FC<PlaybackRestrictionNoticeProps> = ({
       <Tooltip className="mt-1 w-fit" content={message} side="bottom">
         <span
           aria-label={message}
-          className="relative flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-orange-400 font-pixel text-3xs text-orange-400"
+          className="font-pixel text-3xs relative flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-orange-400 text-orange-400"
           role="img"
         >
           18
@@ -1197,7 +1197,7 @@ const PlaybackRestrictionNotice: React.FC<PlaybackRestrictionNoticeProps> = ({
     <Tooltip className="mt-1 w-fit" content={message} side="bottom">
       <span
         aria-label={message}
-        className="flex h-5 items-center gap-1 rounded-full border border-orange-400 px-1.5 font-pixel text-3xs text-orange-400"
+        className="font-pixel text-3xs flex h-5 items-center gap-1 rounded-full border border-orange-400 px-1.5 text-orange-400"
         role="img"
       >
         <InfoIcon className="h-3 w-3 shrink-0" />

@@ -16,8 +16,8 @@ export function TizenProviderSurface({
 
   if (isGenerating && !playlistItem) {
     return (
-      <div className="tv-space-y-6 flex h-full flex-col items-center justify-center bg-tv-surface">
-        <div className="size-14 animate-spin rounded-full border-4 border-tv-border border-t-accent" />
+      <div className="tv-space-y-6 bg-tv-surface flex h-full flex-col items-center justify-center">
+        <div className="border-tv-border border-t-accent size-14 animate-spin rounded-full border-4" />
         <div className="animate-pulse text-3xl">{generationMessage}</div>
         <div className="text-tv-muted text-xl">
           Playlist items will appear here automatically.
@@ -28,7 +28,7 @@ export function TizenProviderSurface({
 
   if (!playlistItem) {
     return (
-      <div className="flex h-full items-center justify-center bg-black text-4xl text-tv-muted">
+      <div className="text-tv-muted flex h-full items-center justify-center bg-black text-4xl">
         Nothing playing yet
       </div>
     );

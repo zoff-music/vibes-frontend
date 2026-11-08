@@ -56,7 +56,7 @@ export function GeneratedPlaylistDemo({
                   setSelected(index);
                   setRevision((current) => current + 1);
                 }}
-                className="min-h-11 rounded-xl px-2 text-sm aria-pressed:border-secondary aria-pressed:bg-theme"
+                className="aria-pressed:border-secondary aria-pressed:bg-theme min-h-11 rounded-xl px-2 text-sm"
               >
                 {example.label}
               </Button>

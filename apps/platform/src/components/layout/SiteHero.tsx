@@ -54,7 +54,7 @@ export function SiteHero({
           )}
         >
           {eyebrow && (
-            <p className="mb-4 font-pixel text-2xs text-pink-800 tracking-label dark:text-primary">
+            <p className="font-pixel text-2xs tracking-label dark:text-primary mb-4 text-pink-800">
               {eyebrow}
             </p>
           )}

@@ -68,7 +68,7 @@ export function RoomSetupScene({
       <p
         aria-live={state.requested ? 'polite' : 'off'}
         aria-atomic="true"
-        className="mt-3 min-h-12 text-sm text-theme-muted leading-snug"
+        className="text-theme-muted mt-3 min-h-12 text-sm leading-snug"
       >
         {state.caption}
       </p>

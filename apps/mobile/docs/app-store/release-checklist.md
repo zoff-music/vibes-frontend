@@ -3,9 +3,9 @@
 ## App record
 
 - [ ] Create the App Store Connect record with bundle ID `me.zoff.mobile` and
-      SKU `zoff-mobile-ios`.
+  SKU `zoff-mobile-ios`.
 - [ ] Add the public Apple ID as `submit.production.ios.ascAppId` in
-      `apps/mobile/eas.json`.
+  `apps/mobile/eas.json`.
 - [ ] Select Music as the primary category and Social Networking as secondary.
 - [ ] Set the app to Free and confirm territory availability.
 - [ ] Complete the content-rights and age-rating questionnaires.

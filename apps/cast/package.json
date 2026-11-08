@@ -24,7 +24,7 @@
     "qrcode.react": "4.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
+    "@biomejs/biome": "2.6.6",
     "@csstools/postcss-cascade-layers": "6.0.2",
     "@tailwindcss/vite": "catalog:",
     "@types/chromecast-caf-receiver": "6.0.27",

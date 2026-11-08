@@ -64,12 +64,12 @@ export function RoomModeScene({ hostMode, playing }: RoomModeSceneProps) {
               onClick={actions.skip}
               aria-label="Skip preview song"
             >
-              <SkipIcon className="h-5 w-5 text-theme-muted" />
+              <SkipIcon className="text-theme-muted h-5 w-5" />
             </Button>
           </>
         )}
         {!hostMode && (
-          <span className="text-sm text-theme-muted">
+          <span className="text-theme-muted text-sm">
             The next song starts automatically.
           </span>
         )}

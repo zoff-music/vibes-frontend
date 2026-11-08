@@ -58,7 +58,7 @@ export function ListenerUsageChart({
   );
 
   return (
-    <div className="panel-surface rounded-2xl border border-theme p-5">
+    <div className="panel-surface border-theme rounded-2xl border p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <SegmentedControl
           label="Audience aggregation"
@@ -71,7 +71,7 @@ export function ListenerUsageChart({
           value={period}
           onChange={setPeriod}
         />
-        <p className="text-sm text-theme-muted">
+        <p className="text-theme-muted text-sm">
           Peak{' '}
           {Math.max(
             0,
@@ -80,7 +80,7 @@ export function ListenerUsageChart({
           · Latest {buckets[buckets.length - 1]?.total ?? 0}
         </p>
       </div>
-      <p className="mt-4 text-theme-muted text-xs">
+      <p className="text-theme-muted mt-4 text-xs">
         Each stack shows listeners and watchers at the overall peak minute in
         that interval, not the sum of separate room peaks.
       </p>

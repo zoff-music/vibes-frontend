@@ -52,7 +52,7 @@ export function PersonalSettingsModal({
     >
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h2 id="personal-settings-title" className="text-base text-theme">
+          <h2 id="personal-settings-title" className="text-theme text-base">
             Personal settings
           </h2>
         </div>
@@ -70,14 +70,14 @@ export function PersonalSettingsModal({
         <section aria-labelledby="profile-display-name-title">
           <form className="space-y-4" onSubmit={onSubmit}>
             <label
-              className="block font-pixel text-2xs text-theme-muted tracking-label"
+              className="font-pixel text-2xs text-theme-muted tracking-label block"
               htmlFor="profile-name"
               id="profile-display-name-title"
             >
               Display name
             </label>
             <input
-              className="w-full rounded-2xl border border-theme bg-theme-surface px-4 py-4 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
+              className="border-theme bg-theme-surface text-theme placeholder:text-theme-subtle focus:border-secondary focus:ring-secondary/30 w-full rounded-2xl border px-4 py-4 text-base focus:ring-2 focus:outline-hidden"
               disabled={isLoading || isSaving}
               id="profile-name"
               maxLength={displayNameMaxLength}
@@ -133,7 +133,7 @@ export function PersonalSettingsModal({
             Appearance
           </h3>
           <div
-            className="mt-4 grid grid-cols-3 rounded-2xl border border-theme bg-black/5 p-1 dark:bg-white/5"
+            className="border-theme mt-4 grid grid-cols-3 rounded-2xl border bg-black/5 p-1 dark:bg-white/5"
             role="radiogroup"
           >
             <ThemeButton

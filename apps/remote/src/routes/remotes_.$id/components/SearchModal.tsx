@@ -45,11 +45,11 @@ export function PlaylistItemSearchModal({
         <div>
           <h2
             id="remote-search-title"
-            className="font-display text-lg text-theme"
+            className="font-display text-theme text-lg"
           >
             {labels.add}
           </h2>
-          <p className="mt-2 text-sm text-theme-muted">
+          <p className="text-theme-muted mt-2 text-sm">
             Search enabled providers from the remote.
           </p>
         </div>
@@ -105,7 +105,7 @@ export function PlaylistItemSearchModal({
           <fetcher.Form
             key={`${result.source}-${result.id}`}
             method="post"
-            className="flex items-center gap-3 rounded-2xl border border-theme bg-theme-surface p-3"
+            className="border-theme bg-theme-surface flex items-center gap-3 rounded-2xl border p-3"
           >
             <input type="hidden" name="intent" value="addPlaylistItem" />
             <input type="hidden" name="roomId" value={roomId} />
@@ -138,8 +138,8 @@ export function PlaylistItemSearchModal({
               className="h-12 w-12 rounded-xl object-cover"
             />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-theme text-xs">{result.title}</p>
-              <p className="mt-1 truncate text-theme-muted text-xs">
+              <p className="text-theme truncate text-xs">{result.title}</p>
+              <p className="text-theme-muted mt-1 truncate text-xs">
                 {result.publisher}
               </p>
             </div>

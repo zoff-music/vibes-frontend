@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.6/schema.json",
   "files": {
     "includes": [
       "apps/**",
@@ -34,11 +34,8 @@
         "noAutofocus": "off"
       },
       "nursery": {
-        "useSortedClasses": {
-          "level": "error",
-          "options": {
-            "functions": ["clsx", "cva", "tw"]
-          }
+        "useTailwindSortedClasses": {
+          "level": "error"
         }
       },
       "correctness": {
@@ -66,5 +63,30 @@
     "parser": {
       "tailwindDirectives": true
     }
-  }
+  },
+  "tailwind": {
+    "mergeFunctions": ["clsx", "tw"],
+    "variantFunctions": ["cva"]
+  },
+  "overrides": [
+    {
+      "includes": [
+        "apps/admin/**",
+        "apps/cast/**",
+        "apps/embed/**",
+        "apps/platform/**",
+        "apps/remote/**",
+        "apps/tv/src/tizen/**",
+        "packages/ui/src/web/**",
+        "scripts/**"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noReactNativeRawText": "off"
+          }
+        }
+      }
+    }
+  ]
 }

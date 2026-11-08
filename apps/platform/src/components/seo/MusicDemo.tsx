@@ -51,14 +51,14 @@ export function MusicDemo({
         )}
       >
         <div className="min-w-0">
-          <p className="flex items-center gap-2 font-pixel text-sm text-theme">
+          <p className="font-pixel text-theme flex items-center gap-2 text-sm">
             <span
               aria-hidden="true"
-              className="size-1.5 shrink-0 rounded-full bg-secondary"
+              className="bg-secondary size-1.5 shrink-0 rounded-full"
             />
             {label}
           </p>
-          <p className="mt-0.5 text-theme-muted text-xs">{detail}</p>
+          <p className="text-theme-muted mt-0.5 text-xs">{detail}</p>
         </div>
         <button
           type="button"
@@ -77,7 +77,7 @@ export function MusicDemo({
                 : `Pause ${label} animation`
           }
           aria-pressed={animationPaused}
-          className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+          className="text-theme-muted hover:bg-theme-surface hover:text-theme focus-visible:ring-secondary flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
         >
           {animationPaused && (
             <PlayIcon aria-hidden="true" className="size-3.5" />

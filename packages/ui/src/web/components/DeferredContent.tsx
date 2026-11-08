@@ -41,7 +41,7 @@ export function DeferredContent({ children, fallback }: DeferredContentProps) {
       >
         {fallback}
         <div className="absolute inset-0 grid place-items-center">
-          <div className="rounded-full border border-theme bg-theme-surface/80 p-3 shadow-secondary-soft">
+          <div className="border-theme bg-theme-surface/80 shadow-secondary-soft rounded-full border p-3">
             <img
               src={logo}
               alt=""

@@ -44,7 +44,7 @@ export function TizenRoomControls({
           method="post"
         >
           <button
-            className="rounded-xl border-2 border-tv-border bg-tv-surface px-4 py-2 text-sm disabled:opacity-40"
+            className="border-tv-border bg-tv-surface rounded-xl border-2 px-4 py-2 text-sm disabled:opacity-40"
             disabled={!hasCurrentItem || !allowed || pending || voted}
             type="submit"
           >
@@ -52,7 +52,7 @@ export function TizenRoomControls({
           </button>
         </fetcher.Form>
         <button
-          className="rounded-xl border-2 border-tv-border bg-tv-surface px-4 py-2 text-sm"
+          className="border-tv-border bg-tv-surface rounded-xl border-2 px-4 py-2 text-sm"
           onClick={onLeave}
           type="button"
         >
@@ -61,7 +61,7 @@ export function TizenRoomControls({
       </div>
       <p
         aria-live="polite"
-        className="max-w-48 text-sm text-tv-muted"
+        className="text-tv-muted max-w-48 text-sm"
         role="status"
       >
         {message}

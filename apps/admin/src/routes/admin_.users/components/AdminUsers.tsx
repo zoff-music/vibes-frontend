@@ -24,8 +24,8 @@ export function AdminUsers() {
   return (
     <main className="space-y-6">
       <header>
-        <h1 className="font-black text-3xl tracking-tight">Admin Users</h1>
-        <p className="text-sm text-theme-muted">
+        <h1 className="text-3xl font-black tracking-tight">Admin Users</h1>
+        <p className="text-theme-muted text-sm">
           Create accounts, reset another admin&apos;s password, or revoke their
           access.
         </p>
@@ -34,7 +34,7 @@ export function AdminUsers() {
       {fetcher.data?.error && !fetcher.data.rateLimitMessage && (
         <p
           aria-live="polite"
-          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-500 text-sm"
+          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500"
           role="alert"
         >
           {fetcher.data.error}
@@ -43,16 +43,16 @@ export function AdminUsers() {
       {fetcher.data?.message && (
         <p
           aria-live="polite"
-          className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-700 text-sm dark:text-green-300"
+          className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-300"
           role="status"
         >
           {fetcher.data.message}
         </p>
       )}
 
-      <section className="panel-surface rounded-2xl border border-theme p-5">
-        <h2 className="font-black text-xl tracking-tight">Create admin user</h2>
-        <p className="mt-1 text-sm text-theme-muted">
+      <section className="panel-surface border-theme rounded-2xl border p-5">
+        <h2 className="text-xl font-black tracking-tight">Create admin user</h2>
+        <p className="text-theme-muted mt-1 text-sm">
           Usernames are lowercase. Passwords must contain at least 16
           characters.
         </p>
@@ -60,12 +60,12 @@ export function AdminUsers() {
         <fetcher.Form className="mt-5 grid gap-4 md:grid-cols-2" method="post">
           <input name="intent" type="hidden" value="createUser" />
           <label className="block">
-            <span className="mb-2 block font-semibold text-theme-muted text-xs uppercase tracking-widest">
+            <span className="text-theme-muted mb-2 block text-xs font-semibold tracking-widest uppercase">
               Username
             </span>
             <input
               autoComplete="off"
-              className="w-full rounded-xl border border-theme bg-theme-surface px-4 py-3 font-mono text-base text-theme outline-hidden transition-colors focus:border-primary"
+              className="border-theme bg-theme-surface text-theme focus:border-primary w-full rounded-xl border px-4 py-3 font-mono text-base outline-hidden transition-colors"
               disabled={isSubmitting}
               maxLength={64}
               minLength={3}
@@ -78,12 +78,12 @@ export function AdminUsers() {
             />
           </label>
           <label className="block">
-            <span className="mb-2 block font-semibold text-theme-muted text-xs uppercase tracking-widest">
+            <span className="text-theme-muted mb-2 block text-xs font-semibold tracking-widest uppercase">
               Password
             </span>
             <input
               autoComplete="new-password"
-              className="w-full rounded-xl border border-theme bg-theme-surface px-4 py-3 font-mono text-base text-theme outline-hidden transition-colors focus:border-primary"
+              className="border-theme bg-theme-surface text-theme focus:border-primary w-full rounded-xl border px-4 py-3 font-mono text-base outline-hidden transition-colors"
               disabled={isSubmitting}
               maxLength={128}
               minLength={16}

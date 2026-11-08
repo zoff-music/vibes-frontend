@@ -86,7 +86,7 @@ export function TizenLanding({
         <img src={zoffLogo} alt="Zoff" className="mr-6 size-28 rounded-full" />
         <div>
           <h1 className="text-6xl">Zoff</h1>
-          <p className="mt-2 text-2xl text-tv-muted 2xl:text-3xl">
+          <p className="text-tv-muted mt-2 text-2xl 2xl:text-3xl">
             Rooms on your TV
           </p>
         </div>
@@ -98,7 +98,7 @@ export function TizenLanding({
             to="/"
             prefetch="intent"
             aria-current={!watch ? 'page' : false}
-            className="rounded-2xl border-2 border-tv-border bg-tv-card px-8 py-5 text-2xl aria-[current=page]:border-accent 2xl:text-3xl"
+            className="border-tv-border bg-tv-card aria-[current=page]:border-accent rounded-2xl border-2 px-8 py-5 text-2xl 2xl:text-3xl"
           >
             Music
           </Link>
@@ -106,7 +106,7 @@ export function TizenLanding({
             to="/?type=watch"
             prefetch="intent"
             aria-current={watch ? 'page' : false}
-            className="rounded-2xl border-2 border-tv-border bg-tv-card px-8 py-5 text-2xl aria-[current=page]:border-accent 2xl:text-3xl"
+            className="border-tv-border bg-tv-card aria-[current=page]:border-accent rounded-2xl border-2 px-8 py-5 text-2xl 2xl:text-3xl"
           >
             Watch
           </Link>
@@ -114,17 +114,17 @@ export function TizenLanding({
       </header>
       <div className="-mx-5 grid grid-cols-2 items-start">
         <div className="px-5">
-          <section className="relative mt-24 rounded-[2rem] border-2 border-tv-border bg-tv-card/95 p-10">
+          <section className="border-tv-border bg-tv-card/95 relative mt-24 rounded-[2rem] border-2 p-10">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-0 -top-24 flex h-24 justify-center overflow-hidden"
             >
               {!watch && (
-                <div className="size-56 rounded-full bg-linear-to-b from-[#ffe8a3] via-[#ff6b9b] to-[#ac42d5] opacity-80 [mask-image:linear-gradient(to_bottom,black_0%,black_22%,transparent_22%,transparent_24%,black_24%,black_30%,transparent_30%,transparent_33%,black_33%,black_38%,transparent_38%,transparent_42%,black_42%,black_46%,transparent_46%)]" />
+                <div className="size-56 rounded-full bg-linear-to-b from-[#ffe8a3] via-[#ff6b9b] to-[#ac42d5] [mask-image:linear-gradient(to_bottom,black_0%,black_22%,transparent_22%,transparent_24%,black_24%,black_30%,transparent_30%,transparent_33%,black_33%,black_38%,transparent_38%,transparent_42%,black_42%,black_46%,transparent_46%)] opacity-80" />
               )}
               {watch && (
-                <div className="relative size-56 overflow-hidden rounded-full bg-linear-to-br from-[#d8bcff] via-accent to-[#a74fe8] opacity-80">
-                  <div className="absolute top-3 right-3 size-52 rounded-full bg-tv-background" />
+                <div className="via-accent relative size-56 overflow-hidden rounded-full bg-linear-to-br from-[#d8bcff] to-[#a74fe8] opacity-80">
+                  <div className="bg-tv-background absolute top-3 right-3 size-52 rounded-full" />
                 </div>
               )}
             </div>
@@ -150,7 +150,7 @@ export function TizenLanding({
               <div className="tv-space-x-5 flex">
                 <input
                   aria-label={isAIMode ? 'Playlist prompt' : 'Room name'}
-                  className="min-h-20 min-w-0 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-5 text-2xl 2xl:text-3xl"
+                  className="border-tv-border bg-tv-surface min-h-20 min-w-0 flex-1 rounded-2xl border-2 px-5 text-2xl 2xl:text-3xl"
                   onChange={(event) => setValue(event.currentTarget.value)}
                   placeholder={placeholder}
                   maxLength={
@@ -163,7 +163,7 @@ export function TizenLanding({
                 <button
                   aria-label={isAIMode ? 'Disable AI mode' : 'Enable AI mode'}
                   aria-pressed={isAIMode}
-                  className="min-w-24 rounded-2xl border-2 border-tv-border bg-tv-surface px-7 text-4xl"
+                  className="border-tv-border bg-tv-surface min-w-24 rounded-2xl border-2 px-7 text-4xl"
                   onClick={onToggleAIMode}
                   type="button"
                 >
@@ -171,28 +171,28 @@ export function TizenLanding({
                 </button>
               </div>
               <button
-                className="min-h-20 w-full rounded-2xl border-2 border-primary bg-primary px-10 text-2xl disabled:opacity-40 2xl:text-3xl"
+                className="border-primary bg-primary min-h-20 w-full rounded-2xl border-2 px-10 text-2xl disabled:opacity-40 2xl:text-3xl"
                 disabled={loading || !value.trim()}
                 type="submit"
               >
                 {submitLabel}
               </button>
               {isAIMode && loading && (
-                <p className="animate-pulse text-center text-accent text-xl">
+                <p className="text-accent animate-pulse text-center text-xl">
                   {generationMessage}
                 </p>
               )}
             </form>
-            {error && <p className="mt-4 text-primary text-xl">{error}</p>}
+            {error && <p className="text-primary mt-4 text-xl">{error}</p>}
           </section>
         </div>
         <div className="px-5">
-          <section className="mt-24 rounded-[2rem] border-2 border-tv-border bg-tv-card/95 p-8">
+          <section className="border-tv-border bg-tv-card/95 mt-24 rounded-[2rem] border-2 p-8">
             <div className="tv-space-x-4 mb-5 flex">
               <button
                 type="button"
                 aria-pressed={!browsing}
-                className="min-h-16 flex-1 rounded-2xl border-2 border-tv-border bg-tv-card px-5 text-2xl aria-pressed:border-accent 2xl:text-3xl"
+                className="border-tv-border bg-tv-card aria-pressed:border-accent min-h-16 flex-1 rounded-2xl border-2 px-5 text-2xl 2xl:text-3xl"
                 onClick={() => setBrowsing(false)}
                 ref={liveRoomsRef}
               >
@@ -201,7 +201,7 @@ export function TizenLanding({
               <button
                 type="button"
                 aria-pressed={browsing}
-                className="min-h-16 flex-1 rounded-2xl border-2 border-tv-border bg-tv-card px-5 text-2xl aria-pressed:border-accent 2xl:text-3xl"
+                className="border-tv-border bg-tv-card aria-pressed:border-accent min-h-16 flex-1 rounded-2xl border-2 px-5 text-2xl 2xl:text-3xl"
                 onClick={() => loadRooms()}
               >
                 Browse
@@ -221,26 +221,26 @@ export function TizenLanding({
                   value={query}
                   maxLength={100}
                   onChange={(event) => setQuery(event.currentTarget.value)}
-                  className="min-h-16 min-w-0 flex-1 rounded-2xl border-2 border-tv-border bg-tv-surface px-5 text-2xl 2xl:text-3xl"
+                  className="border-tv-border bg-tv-surface min-h-16 min-w-0 flex-1 rounded-2xl border-2 px-5 text-2xl 2xl:text-3xl"
                 />
                 <button
                   type="submit"
                   disabled={browseLoading}
-                  className="rounded-2xl border-2 border-tv-border px-5 text-xl"
+                  className="border-tv-border rounded-2xl border-2 px-5 text-xl"
                 >
                   Search
                 </button>
               </form>
             )}
             {browsing && browseLoading && (
-              <p className="mb-4 text-tv-muted">Loading rooms…</p>
+              <p className="text-tv-muted mb-4">Loading rooms…</p>
             )}
             {browsing && browser.data?.error && (
-              <p className="mb-4 text-primary">{browser.data.error}</p>
+              <p className="text-primary mb-4">{browser.data.error}</p>
             )}
             <div className="tv-space-y-5 flex flex-col" ref={channelListRef}>
               {!browseLoading && rooms.length === 0 && (
-                <p className="rounded-2xl border border-tv-border bg-tv-card p-6 text-tv-muted text-xl">
+                <p className="border-tv-border bg-tv-card text-tv-muted rounded-2xl border p-6 text-xl">
                   {browsing
                     ? 'No rooms match your search.'
                     : 'No public rooms are active right now.'}
@@ -253,7 +253,7 @@ export function TizenLanding({
                 >
                   {rooms.map((room) => (
                     <button
-                      className="tv-space-x-6 flex min-h-28 min-w-0 flex-1 items-center justify-between rounded-2xl border-2 border-tv-border bg-tv-card p-6 text-left"
+                      className="tv-space-x-6 border-tv-border bg-tv-card flex min-h-28 min-w-0 flex-1 items-center justify-between rounded-2xl border-2 p-6 text-left"
                       key={room.id}
                       onClick={() => onJoinOrCreateRoom(room.id)}
                       type="button"
@@ -262,14 +262,14 @@ export function TizenLanding({
                         <strong className="block truncate text-xl 2xl:text-3xl">
                           {room.name}
                         </strong>
-                        <span className="mt-1 block truncate text-base text-tv-muted 2xl:text-2xl">
+                        <span className="text-tv-muted mt-1 block truncate text-base 2xl:text-2xl">
                           {room.listenerCount}{' '}
                           {getRoomLabels(room.roomType).activity} ·{' '}
                           {room.playlistItemCount}{' '}
                           {getRoomLabels(room.roomType).items}
                         </span>
                       </span>
-                      <span className="shrink-0 text-accent text-lg 2xl:text-2xl">
+                      <span className="text-accent shrink-0 text-lg 2xl:text-2xl">
                         Join →
                       </span>
                     </button>
@@ -281,7 +281,7 @@ export function TizenLanding({
               <div className="tv-space-x-4 mt-5 flex items-center justify-between text-xl">
                 <button
                   type="button"
-                  className="min-h-16 rounded-2xl border-2 border-tv-border px-5 disabled:opacity-40"
+                  className="border-tv-border min-h-16 rounded-2xl border-2 px-5 disabled:opacity-40"
                   disabled={browseLoading || result.from === 0}
                   onClick={() => loadRooms(Math.max(0, result.from - 12))}
                 >
@@ -293,7 +293,7 @@ export function TizenLanding({
                 </span>
                 <button
                   type="button"
-                  className="min-h-16 rounded-2xl border-2 border-tv-border px-5 disabled:opacity-40"
+                  className="border-tv-border min-h-16 rounded-2xl border-2 px-5 disabled:opacity-40"
                   disabled={browseLoading || result.from + 12 >= result.total}
                   onClick={() => loadRooms(result.from + 12)}
                 >

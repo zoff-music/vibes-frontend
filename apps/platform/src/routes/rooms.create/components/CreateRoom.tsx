@@ -106,12 +106,12 @@ export function CreateRoom() {
         <div className="mb-8 flex items-center justify-between">
           <Link
             to="/"
-            className="group inline-flex cursor-pointer items-center gap-2 text-theme-muted transition-colors hover:text-theme"
+            className="group text-theme-muted hover:text-theme inline-flex cursor-pointer items-center gap-2 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            <span className="font-pixel text-xs tracking-label">Back</span>
+            <span className="font-pixel tracking-label text-xs">Back</span>
           </Link>
-          <div className="text-right font-pixel text-theme-muted text-xs tracking-label">
+          <div className="font-pixel text-theme-muted tracking-label text-right text-xs">
             CREATE A SESSION
           </div>
         </div>
@@ -127,14 +127,14 @@ export function CreateRoom() {
               : 'Build a listening room in seconds.'
           }
         >
-          <p className="jp-art mt-2 text-theme-subtle text-xs" lang="ja">
+          <p className="jp-art text-theme-subtle mt-2 text-xs" lang="ja">
             セッションを作成
           </p>
           <div className="mt-8 grid gap-4 sm:gap-6 lg:grid-cols-2 lg:items-start">
             <div className="space-y-4 sm:space-y-6">
               {/* 1. SESSION NAME */}
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <label className="mb-3 block font-pixel text-2xs text-theme-muted tracking-label">
+                <label className="font-pixel text-2xs text-theme-muted tracking-label mb-3 block">
                   SESSION NAME
                 </label>
                 <div className="relative">
@@ -145,18 +145,18 @@ export function CreateRoom() {
                     placeholder="Friday Night Vibes"
                     value={name}
                     onChange={(e) => setName(e.currentTarget.value)}
-                    className="w-full rounded-2xl border border-theme bg-theme-surface py-4 pr-24 pl-4 text-base text-theme placeholder:text-theme-subtle focus:border-secondary focus:outline-hidden focus:ring-2 focus:ring-secondary/30"
+                    className="border-theme bg-theme-surface text-theme placeholder:text-theme-subtle focus:border-secondary focus:ring-secondary/30 w-full rounded-2xl border py-4 pr-24 pl-4 text-base focus:ring-2 focus:outline-hidden"
                     autoFocus
                   />
 
                   {nameAvailability === 'checking' && (
-                    <span className="absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2 animate-spin rounded-full border-2 border-theme-muted border-t-transparent" />
+                    <span className="border-theme-muted absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2 animate-spin rounded-full border-2 border-t-transparent" />
                   )}
                   {nameAvailability === 'available' && (
                     <CheckIcon className="absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2 text-green-500" />
                   )}
                   {nameAvailability === 'taken' && (
-                    <CloseIcon className="absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2 text-error" />
+                    <CloseIcon className="text-error absolute top-1/2 right-14 h-5 w-5 -translate-y-1/2" />
                   )}
                   <Button
                     type="button"
@@ -166,15 +166,15 @@ export function CreateRoom() {
                     disabled={isGeneratingName || isLoading}
                     aria-label="Generate a memorable room name"
                     title="Generate a memorable room name"
-                    className="absolute top-1/2 right-2 -translate-y-1/2 text-theme-muted hover:text-secondary"
+                    className="text-theme-muted hover:text-secondary absolute top-1/2 right-2 -translate-y-1/2"
                   >
                     {isGeneratingName && (
-                      <DiceIcon className="h-5 w-5 animate-dice-roll" />
+                      <DiceIcon className="animate-dice-roll h-5 w-5" />
                     )}
                     {!isGeneratingName && <DiceIcon className="h-5 w-5" />}
                   </Button>
                 </div>
-                <p className="mt-3 text-theme-subtle text-xs">
+                <p className="text-theme-subtle mt-3 text-xs">
                   Use the dice for an available name that is easy to remember
                   and share.
                 </p>
@@ -220,7 +220,7 @@ export function CreateRoom() {
                   )}
                 >
                   ADMIN PASSWORD
-                  <span className="ml-2 text-theme-subtle">(optional)</span>
+                  <span className="text-theme-subtle ml-2">(optional)</span>
                 </label>
                 <input
                   name="password"
@@ -252,7 +252,7 @@ export function CreateRoom() {
 
               {/* 3. ALLOWED SOURCES */}
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <label className="mb-4 block font-pixel text-2xs text-theme-muted tracking-label">
+                <label className="font-pixel text-2xs text-theme-muted tracking-label mb-4 block">
                   ALLOWED SOURCES
                 </label>
                 <div className="flex gap-2">
@@ -280,7 +280,7 @@ export function CreateRoom() {
 
               {/* 4. ROOM MODE */}
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <label className="mb-4 block font-pixel text-2xs text-theme-muted tracking-label">
+                <label className="font-pixel text-2xs text-theme-muted tracking-label mb-4 block">
                   ROOM MODE
                 </label>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -291,10 +291,10 @@ export function CreateRoom() {
                     variant={mode === 'server' ? 'cyan' : 'tertiary'}
                     aria-pressed={mode === 'server'}
                   >
-                    <div className="mb-2 font-pixel text-current text-xs tracking-display">
+                    <div className="font-pixel tracking-display mb-2 text-xs text-current">
                       SERVER MODE
                     </div>
-                    <div className="text-current text-xs opacity-75">
+                    <div className="text-xs text-current opacity-75">
                       {roomType === 'WATCH'
                         ? 'Keep videos playing together, automatically.'
                         : 'Auto-play music 24/7 for radio rooms.'}
@@ -307,10 +307,10 @@ export function CreateRoom() {
                     variant={mode === 'host' ? 'magenta' : 'tertiary'}
                     aria-pressed={mode === 'host'}
                   >
-                    <div className="mb-2 font-pixel text-current text-xs tracking-display">
+                    <div className="font-pixel tracking-display mb-2 text-xs text-current">
                       HOST MODE
                     </div>
-                    <div className="text-current text-xs opacity-75">
+                    <div className="text-xs text-current opacity-75">
                       Host controls playback for parties.
                     </div>
                   </Button>
@@ -411,7 +411,7 @@ export function CreateRoom() {
               </div>
 
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <h2 className="mb-6 font-pixel text-caption text-theme-muted tracking-banner">
+                <h2 className="font-pixel text-caption text-theme-muted tracking-banner mb-6">
                   VISIBILITY
                 </h2>
                 <SegmentedToggle
@@ -428,9 +428,9 @@ export function CreateRoom() {
 
           {/* Error */}
           {error && (
-            <div className="mt-6 rounded-2xl border border-error/40 bg-error/10 p-5 text-error text-sm">
+            <div className="border-error/40 bg-error/10 text-error mt-6 rounded-2xl border p-5 text-sm">
               <div className="flex items-start gap-3">
-                <AlertCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-error" />
+                <AlertCircleIcon className="text-error mt-0.5 h-5 w-5 shrink-0" />
                 <p className="flex-1">{error}</p>
               </div>
             </div>

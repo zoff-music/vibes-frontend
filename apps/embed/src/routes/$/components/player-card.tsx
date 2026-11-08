@@ -48,7 +48,7 @@ export function EmbedPlayerCard({
           />
         )}
         {!currentPlaylistItem && (
-          <div className="flex h-full items-center justify-center text-theme-muted text-xs">
+          <div className="text-theme-muted flex h-full items-center justify-center text-xs">
             Nothing playing
           </div>
         )}
@@ -67,10 +67,10 @@ export function EmbedPlayerCard({
       <div className="mt-3 min-w-0 shrink-0">
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
-            <h1 className="truncate font-pixel text-sm text-theme">
+            <h1 className="font-pixel text-theme truncate text-sm">
               {currentPlaylistItem?.title ?? 'Waiting for music'}
             </h1>
-            <p className="mt-1 truncate text-theme-muted text-xs">
+            <p className="text-theme-muted mt-1 truncate text-xs">
               {currentPlaylistItem?.publisher ?? 'The room queue is ready'}
             </p>
           </div>
@@ -82,7 +82,7 @@ export function EmbedPlayerCard({
           max={1}
           value={Math.min(progress, 1)}
         />
-        <div className="mt-1 flex justify-between font-mono text-2xs text-theme-subtle">
+        <div className="text-2xs text-theme-subtle mt-1 flex justify-between font-mono">
           <span>{formatPlaybackMilliseconds(boundedPositionMs)}</span>
           <span>{formatPlaybackMilliseconds(durationMs)}</span>
         </div>

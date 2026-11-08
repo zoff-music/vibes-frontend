@@ -315,7 +315,7 @@ export function NativeGenerativeInvitation({
     <View className="relative">
       <Animated.View
         pointerEvents="none"
-        className="absolute -inset-1 rounded-full border-2 border-accent/60 bg-accent/20"
+        className="border-accent/60 bg-accent/20 absolute -inset-1 rounded-full border-2"
         style={halo}
       />
       <Animated.View style={invitation}>{children}</Animated.View>

@@ -1367,8 +1367,8 @@ const VideoPlayerComponent = ({
       )}
 
       {error && (
-        <div className="shrink-0 border-white/15 border-t bg-black px-4 py-3 text-center">
-          <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
+        <div className="shrink-0 border-t border-white/15 bg-black px-4 py-3 text-center">
+          <p className="text-2xs font-mono tracking-widest text-white/70 uppercase">
             {error}
           </p>
         </div>
@@ -1383,7 +1383,7 @@ const VideoPlayerComponent = ({
             aria-hidden="true"
             className="h-4 w-4 rounded-full border-2 border-red-500/30 border-t-red-500 motion-safe:animate-spin"
           />
-          <p className="font-mono text-2xs text-white/70 uppercase tracking-widest">
+          <p className="text-2xs font-mono tracking-widest text-white/70 uppercase">
             Loading player...
           </p>
         </div>

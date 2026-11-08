@@ -18,14 +18,14 @@ export function RoomErrorView({
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4">
-      <div className="panel-surface w-full max-w-md animate-scale-in rounded-player p-8 text-center">
-        <div className="mb-5 inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-error/50 bg-error/10">
-          <AlertCircleIcon className="h-10 w-10 text-error" />
+      <div className="panel-surface animate-scale-in rounded-player w-full max-w-md p-8 text-center">
+        <div className="border-error/50 bg-error/10 mb-5 inline-flex h-20 w-20 items-center justify-center rounded-2xl border">
+          <AlertCircleIcon className="text-error h-10 w-10" />
         </div>
-        <h2 className="mb-2 font-display text-lg text-theme">
+        <h2 className="font-display text-theme mb-2 text-lg">
           Connection Failed
         </h2>
-        <p className="mb-6 text-sm text-theme-muted">{message}</p>
+        <p className="text-theme-muted mb-6 text-sm">{message}</p>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button onClick={onRetry} variant="tertiary">
             Try Again

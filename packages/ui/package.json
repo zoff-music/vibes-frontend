@@ -52,7 +52,7 @@
     "preact": "11.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
+    "@biomejs/biome": "2.6.6",
     "@react-native/metro-config": "0.88.1",
     "@types/d3": "^7.4.3",
     "@types/escape-html": "^1.0.4",

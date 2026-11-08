@@ -54,12 +54,12 @@ export function TvHome() {
   }
 
   return (
-    <View className="flex-1 bg-tv-background">
+    <View className="bg-tv-background flex-1">
       <StatusBar hidden />
       <View className="absolute inset-0 opacity-40">
-        <View className="absolute inset-x-0 bottom-0 h-1/3 bg-primary/10" />
-        <View className="absolute top-0 right-0 h-80 w-80 rounded-full bg-accent/5" />
-        <View className="absolute bottom-0 left-1/4 h-96 w-96 rounded-full bg-primary/10" />
+        <View className="bg-primary/10 absolute inset-x-0 bottom-0 h-1/3" />
+        <View className="bg-accent/5 absolute top-0 right-0 h-80 w-80 rounded-full" />
+        <View className="bg-primary/10 absolute bottom-0 left-1/4 h-96 w-96 rounded-full" />
       </View>
       {screen}
     </View>

@@ -15,10 +15,10 @@ export function ChatMessageLine({ message }: ChatMessageLineProps) {
   const crownLabel = message.isModerator ? 'Moderator' : 'Room admin';
 
   return (
-    <p className="wrap-anywhere py-1 text-base text-theme leading-6">
+    <p className="text-theme py-1 text-base leading-6 wrap-anywhere">
       <time
         dateTime={new Date(message.createdAt).toISOString()}
-        className="mr-2 text-theme-subtle text-xs tabular-nums"
+        className="text-theme-subtle mr-2 text-xs tabular-nums"
       >
         {formatChatTime(message.createdAt)}
       </time>
@@ -44,7 +44,7 @@ export function ChatMessageLine({ message }: ChatMessageLineProps) {
       {message.isHost && (
         <span
           title="Room host"
-          className="mr-1 inline-block align-middle text-secondary"
+          className="text-secondary mr-1 inline-block align-middle"
         >
           <span className="sr-only">Room host </span>
           <RemoteIcon aria-hidden="true" className="h-4 w-4" />

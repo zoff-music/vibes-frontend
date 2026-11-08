@@ -34,8 +34,8 @@ export function AdminRooms() {
     <main className="space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-black text-3xl tracking-tight">Rooms</h1>
-          <p className="text-sm text-theme-muted">
+          <h1 className="text-3xl font-black tracking-tight">Rooms</h1>
+          <p className="text-theme-muted text-sm">
             {hasRooms
               ? `${liveRoomResult.total} rooms, ${totalViewers} participants on this page`
               : roomSearch.q
@@ -51,7 +51,7 @@ export function AdminRooms() {
       {fetcher.data?.error && !fetcher.data.rateLimitMessage && (
         <p
           aria-live="polite"
-          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-500 text-sm"
+          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500"
           role="alert"
         >
           {fetcher.data.error}
@@ -99,7 +99,7 @@ export function AdminRooms() {
         aria-label="Room pagination"
         className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
-        <p className="text-sm text-theme-muted">
+        <p className="text-theme-muted text-sm">
           {liveRoomResult.total === 0
             ? 'No rooms'
             : `${liveRoomResult.from + 1}–${liveRoomResult.to + 1} of ${liveRoomResult.total}`}

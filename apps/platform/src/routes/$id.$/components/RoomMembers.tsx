@@ -21,19 +21,19 @@ export function RoomMembers({ roomId }: RoomMembersProps) {
       className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl lg:[scrollbar-gutter:stable]"
     >
       {!presence && (
-        <p role="status" className="p-4 text-sm text-theme-muted">
+        <p role="status" className="text-theme-muted p-4 text-sm">
           Connecting to room members…
         </p>
       )}
       {presence && presence.members.length === 0 && (
-        <p className="p-4 text-sm text-theme-muted">No listeners connected.</p>
+        <p className="text-theme-muted p-4 text-sm">No listeners connected.</p>
       )}
       {presence && (
         <ul className="space-y-2">
           {members.map((member) => (
             <li
               key={member.userId}
-              className="relative flex min-h-14 w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface p-3 text-theme sm:gap-3"
+              className="border-theme bg-theme-surface text-theme relative flex min-h-14 w-full min-w-0 items-center gap-2.5 rounded-2xl border p-3 sm:gap-3"
             >
               {(member.isAdmin || member.isModerator) && (
                 <span
@@ -52,7 +52,7 @@ export function RoomMembers({ roomId }: RoomMembersProps) {
                 </span>
               )}
               {member.isHost && (
-                <span title="Room host" className="shrink-0 text-secondary">
+                <span title="Room host" className="text-secondary shrink-0">
                   <RemoteIcon aria-hidden="true" className="h-4 w-4" />
                   <span className="sr-only">Room host</span>
                 </span>
@@ -73,7 +73,7 @@ export function RoomMembers({ roomId }: RoomMembersProps) {
         </ul>
       )}
       {presence && presence.castReceivers > 0 && (
-        <p className="p-4 text-sm text-theme-muted">
+        <p className="text-theme-muted p-4 text-sm">
           {presence.castReceivers} Cast{' '}
           {presence.castReceivers === 1 ? 'receiver' : 'receivers'}
         </p>

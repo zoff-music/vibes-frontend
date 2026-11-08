@@ -70,8 +70,8 @@ export function EmbedRoomView({ loaderData }: Props) {
     room.settings.skipAllowed;
 
   return (
-    <main className="h-full min-h-0 overflow-hidden bg-theme text-theme">
-      <section className="flex h-full w-full flex-col overflow-hidden border border-theme bg-theme">
+    <main className="bg-theme text-theme h-full min-h-0 overflow-hidden">
+      <section className="border-theme bg-theme flex h-full w-full flex-col overflow-hidden border">
         <EmbedRoomHeader
           canControlPlayback={Boolean(currentPlaylistItem)}
           canSkip={canSkip}
@@ -115,7 +115,7 @@ export function EmbedRoomView({ loaderData }: Props) {
           </div>
         )}
         {showEmptyState && (
-          <div className="flex min-h-0 flex-1 items-center justify-center p-4 text-center text-theme-muted text-xs">
+          <div className="text-theme-muted flex min-h-0 flex-1 items-center justify-center p-4 text-center text-xs">
             This embed has no visible player or playlist.
           </div>
         )}

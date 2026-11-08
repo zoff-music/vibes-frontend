@@ -61,7 +61,7 @@ export function GenerativeInput({
             : 'mb-2 flex h-5 items-center justify-between gap-3',
         )}
       >
-        <label htmlFor={id} className="font-pixel text-sm text-theme-muted">
+        <label htmlFor={id} className="font-pixel text-theme-muted text-sm">
           {label ?? (active ? 'What’s the vibe?' : 'Room name')}
         </label>
         {active && maxLength && (
@@ -85,19 +85,19 @@ export function GenerativeInput({
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 rounded-full"
           >
-            <span className="absolute -inset-2 origin-right rounded-full bg-radial-[at_100%_50%] from-secondary/45 via-primary/20 to-transparent opacity-0 blur-lg motion-safe:animate-generative-charge" />
+            <span className="from-secondary/45 via-primary/20 motion-safe:animate-generative-charge absolute -inset-2 origin-right rounded-full bg-radial-[at_100%_50%] to-transparent opacity-0 blur-lg" />
             <span className="absolute inset-0 overflow-hidden rounded-full">
-              <span className="absolute inset-0 origin-right bg-radial-[at_100%_50%] from-secondary/35 via-primary/15 to-transparent opacity-0 [mask-image:linear-gradient(to_left,black_40%,transparent)] motion-safe:animate-generative-charge" />
-              <span className="absolute inset-x-0 top-0 h-px origin-right bg-linear-to-l from-secondary via-white to-primary opacity-0 shadow-secondary-strong motion-safe:animate-generative-rail" />
-              <span className="absolute inset-x-0 bottom-0 h-px origin-right bg-linear-to-l from-secondary via-white to-primary opacity-0 shadow-secondary-strong motion-safe:animate-generative-rail" />
-              <span className="absolute inset-y-0 right-0 w-1/3 bg-linear-to-r from-transparent via-secondary/35 to-transparent opacity-0 motion-safe:animate-generative-sweep" />
+              <span className="from-secondary/35 via-primary/15 motion-safe:animate-generative-charge absolute inset-0 origin-right bg-radial-[at_100%_50%] to-transparent [mask-image:linear-gradient(to_left,black_40%,transparent)] opacity-0" />
+              <span className="from-secondary to-primary shadow-secondary-strong motion-safe:animate-generative-rail absolute inset-x-0 top-0 h-px origin-right bg-linear-to-l via-white opacity-0" />
+              <span className="from-secondary to-primary shadow-secondary-strong motion-safe:animate-generative-rail absolute inset-x-0 bottom-0 h-px origin-right bg-linear-to-l via-white opacity-0" />
+              <span className="via-secondary/35 motion-safe:animate-generative-sweep absolute inset-y-0 right-0 w-1/3 bg-linear-to-r from-transparent to-transparent opacity-0" />
             </span>
           </span>
         )}
         <span
           aria-hidden="true"
           hidden={active}
-          className="shrink-0 pl-6 text-sm text-theme-muted"
+          className="text-theme-muted shrink-0 pl-6 text-sm"
         >
           {prefix}
         </span>
@@ -166,7 +166,7 @@ export function GenerativeInput({
               <span
                 id={hintId}
                 role="tooltip"
-                className="pointer-events-none absolute right-0 bottom-full mb-3 w-64 max-w-[calc(100vw-4rem)] rounded-xl border border-theme bg-theme-surface p-3 font-pixel text-sm text-theme shadow-xl"
+                className="border-theme bg-theme-surface font-pixel text-theme pointer-events-none absolute right-0 bottom-full mb-3 w-64 max-w-[calc(100vw-4rem)] rounded-xl border p-3 text-sm shadow-xl"
               >
                 Got a mood? Turn it into a playlist with AI.
               </span>

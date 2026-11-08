@@ -54,7 +54,7 @@ export function MessageUsageChart({ usage }: MessageUsageChartProps) {
   });
 
   return (
-    <div className="panel-surface rounded-2xl border border-theme p-5">
+    <div className="panel-surface border-theme rounded-2xl border p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <SegmentedControl
           label="Chat aggregation"
@@ -66,7 +66,7 @@ export function MessageUsageChart({ usage }: MessageUsageChartProps) {
           value={period}
           onChange={setPeriod}
         />
-        <p className="text-sm text-theme-muted">
+        <p className="text-theme-muted text-sm">
           {buckets
             .reduce((sum, bucket) => sum + bucket.total, 0)
             .toLocaleString()}{' '}

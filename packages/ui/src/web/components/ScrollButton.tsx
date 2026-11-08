@@ -21,7 +21,7 @@ export function ScrollButton({ direction, onClick }: ScrollButtonProps) {
       }
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reducedMotion ? 0 : 0.18, ease: 'easeOut' }}
-      className="pointer-events-auto flex cursor-pointer items-center gap-1 rounded-full border border-white/40 bg-primary px-3 py-1.5 font-pixel text-3xs text-white shadow-primary-button focus-visible:outline-2 focus-visible:outline-secondary focus-visible:outline-offset-2"
+      className="bg-primary font-pixel text-3xs shadow-primary-button focus-visible:outline-secondary pointer-events-auto flex cursor-pointer items-center gap-1 rounded-full border border-white/40 px-3 py-1.5 text-white focus-visible:outline-2 focus-visible:outline-offset-2"
     >
       Scroll to {direction}
       <ChevronDownIcon

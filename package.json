@@ -18,7 +18,7 @@
     "fix": "biome check --write --unsafe ."
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
+    "@biomejs/biome": "2.6.6",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "26.6.6",
     "@types/react": "19.3.0",

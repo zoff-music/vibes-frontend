@@ -264,7 +264,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
 
             {/* Up Next List */}
             <div className="flex min-h-0 flex-1 flex-col">
-              <div className="mb-3 flex shrink-0 items-center justify-between border-theme border-b">
+              <div className="border-theme mb-3 flex shrink-0 items-center justify-between border-b">
                 <h2 className="sr-only">Queue, chat and people</h2>
                 <Link
                   {...(!chatOpen && !membersOpen && { 'aria-current': 'page' })}
@@ -315,7 +315,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     <Suspense
                       fallback={
                         <div
-                          className="panel-surface flex flex-1 items-center justify-center rounded-2xl p-4 text-theme-muted"
+                          className="panel-surface text-theme-muted flex flex-1 items-center justify-center rounded-2xl p-4"
                           role="status"
                         >
                           Loading chat...
@@ -357,7 +357,7 @@ export const RoomQueue: React.FC<RoomQueueProps> = React.memo(
                     {queuedPlaylistItemCount >
                       visibleQueuedPlaylistItemCount && (
                       <p
-                        className="py-4 text-center text-sm text-theme-muted"
+                        className="text-theme-muted py-4 text-center text-sm"
                         role="status"
                       >
                         Connecting to load the rest of the queue…

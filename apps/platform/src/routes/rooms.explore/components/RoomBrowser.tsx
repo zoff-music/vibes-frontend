@@ -58,13 +58,13 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
     <SitePage>
       <div className="pt-6 pb-12 sm:pt-8 sm:pb-16">
         <div className="mb-6 sm:mb-8">
-          <p className="mb-3 font-pixel text-pink-700 text-xs tracking-display dark:text-primary">
+          <p className="font-pixel tracking-display dark:text-primary mb-3 text-xs text-pink-700">
             PUBLIC ROOMS
           </p>
-          <h1 className="font-pixel text-3xl text-theme normal-case leading-tight tracking-normal sm:text-4xl">
+          <h1 className="font-pixel text-theme text-3xl leading-tight tracking-normal normal-case sm:text-4xl">
             Find a room.
           </h1>
-          <p className="mt-3 max-w-2xl text-sm text-theme-muted leading-relaxed">
+          <p className="text-theme-muted mt-3 max-w-2xl text-sm leading-relaxed">
             {search.roomType === 'WATCH'
               ? 'Join people watching now, or explore public watch rooms.'
               : 'Join people listening now, or explore public music rooms.'}
@@ -79,7 +79,7 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
           aria-label="Public room results"
           className="scroll-mt-6 pt-6 focus:outline-none"
         >
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-theme-muted text-xs">
+          <div className="text-theme-muted mb-4 flex flex-wrap items-center justify-between gap-2 text-xs">
             <p role="status" aria-live="polite" aria-atomic="true">
               {summary}
             </p>
@@ -95,13 +95,13 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
             )}
 
             {result && result.count === 0 && (
-              <div className="rounded-2xl border border-theme bg-theme-surface px-5 py-12 text-center sm:py-16">
+              <div className="border-theme bg-theme-surface rounded-2xl border px-5 py-12 text-center sm:py-16">
                 <h2 className="font-pixel text-theme text-xl">
                   {search.q && `No rooms matching “${search.q}”.`}
                   {!search.q && search.live && 'No live rooms right now.'}
                   {!search.q && !search.live && 'No public rooms yet.'}
                 </h2>
-                <p className="mt-3 text-sm text-theme-muted">
+                <p className="text-theme-muted mt-3 text-sm">
                   {search.live &&
                     'Browse all public rooms, including those without listeners.'}
                   {!search.live &&
@@ -118,7 +118,7 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
                           from: 0,
                         })
                   }
-                  className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-theme bg-theme px-5 text-sm text-theme transition-colors hover:border-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                  className="border-theme bg-theme text-theme hover:border-secondary focus-visible:ring-secondary mt-5 inline-flex min-h-11 items-center rounded-xl border px-5 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
                 >
                   {!search.q && !search.live
                     ? 'Start a room'
@@ -128,7 +128,7 @@ export function RoomBrowser({ result, search }: RoomBrowserLoaderData) {
             )}
 
             {!result && (
-              <div className="rounded-2xl border border-theme bg-theme-surface p-6 text-center">
+              <div className="border-theme bg-theme-surface rounded-2xl border p-6 text-center">
                 <p className="text-theme-muted">
                   We couldn’t load the rooms. Give it another try.
                 </p>

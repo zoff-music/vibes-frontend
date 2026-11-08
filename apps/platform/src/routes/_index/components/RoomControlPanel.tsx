@@ -26,7 +26,7 @@ export function RoomControlPanel() {
         className="h-166"
       >
         <div className="min-w-0">
-          <div className="flex h-42 min-w-0 flex-col justify-between border-theme border-b bg-theme-surface/60 px-4 py-4 sm:px-6">
+          <div className="border-theme bg-theme-surface/60 flex h-42 min-w-0 flex-col justify-between border-b px-4 py-4 sm:px-6">
             <fieldset className="flex gap-2" aria-label="Room settings preview">
               {roomSetups.map((setup) => (
                 <button
@@ -54,11 +54,11 @@ export function RoomControlPanel() {
             </div>
           </div>
           <div className="min-w-0 px-4 pb-4 sm:px-6">
-            <div className="flex h-14 items-center justify-between gap-3 text-theme-muted text-xs">
+            <div className="text-theme-muted flex h-14 items-center justify-between gap-3 text-xs">
               <span className="flex items-center gap-2">
                 <span
                   aria-hidden="true"
-                  className="flex size-6 items-center justify-center rounded-full bg-secondary/10 font-pixel text-cyan-800 dark:text-secondary"
+                  className="bg-secondary/10 font-pixel dark:text-secondary flex size-6 items-center justify-center rounded-full text-cyan-800"
                 >
                   M
                 </span>

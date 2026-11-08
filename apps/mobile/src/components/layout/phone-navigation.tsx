@@ -61,7 +61,7 @@ export function PhoneNavigation() {
         bottom: geometry.bottom,
       }}
     >
-      <View className="min-w-0 flex-1 flex-row rounded-full border border-mobile-border/70 bg-mobile-card/95 p-1 shadow-black/20 shadow-lg dark:border-mobile-dark-border/70 dark:bg-mobile-dark-card/95">
+      <View className="border-mobile-border/70 bg-mobile-card/95 dark:border-mobile-dark-border/70 dark:bg-mobile-dark-card/95 min-w-0 flex-1 flex-row rounded-full border p-1 shadow-lg shadow-black/20">
         {items.map((item) => {
           const selected = pathname === item.href;
 
@@ -100,7 +100,7 @@ export function PhoneNavigation() {
         <Pressable
           accessibilityLabel={addLabel}
           accessibilityRole="button"
-          className="size-16 items-center justify-center rounded-full border border-primary bg-primary shadow-lg shadow-primary/30 active:opacity-80"
+          className="border-primary bg-primary shadow-primary/30 size-16 items-center justify-center rounded-full border shadow-lg active:opacity-80"
           onPress={() => router.push('/add')}
         >
           <ZoffIcon color="#ffffff" name="add" size={26} />

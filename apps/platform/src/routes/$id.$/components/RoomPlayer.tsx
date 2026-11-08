@@ -630,7 +630,7 @@ export const RoomPlayer = React.memo(
           {minimized && (
             <Link
               aria-label={`Return to ${displayRoom?.name ?? 'room'}`}
-              className="absolute inset-0 z-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-inset"
+              className="focus-visible:ring-secondary absolute inset-0 z-40 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
               to={`/${encodeURIComponent(roomId)}`}
               prefetch="intent"
             >
@@ -671,8 +671,8 @@ export const RoomPlayer = React.memo(
           )}
           {isConnected && castDeviceName && (
             <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
-              <div className="panel-surface flex items-center gap-3 rounded-full px-5 py-2 text-sm text-theme shadow-playback-badge">
-                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-primary" />
+              <div className="panel-surface text-theme shadow-playback-badge flex items-center gap-3 rounded-full px-5 py-2 text-sm">
+                <span className="bg-primary h-2.5 w-2.5 animate-pulse rounded-full" />
                 <span className="font-medium">Casting to {castDeviceName}</span>
               </div>
             </div>
@@ -683,14 +683,14 @@ export const RoomPlayer = React.memo(
                 {/* SIGNAL CRT */}
                 <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
                   <div className="vhs-scanlines h-full w-full animate-none! opacity-20 mix-blend-overlay" />
-                  <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
+                  <div className="crt-overlay pointer-events-none !absolute inset-0 !z-2 opacity-10" />
                 </div>
                 {/* Server-rendered now playing: visible at first paint while the provider player loads. */}
                 <div
                   role="status"
                   className="relative z-10 flex max-w-full flex-col items-center gap-2 px-6 text-center"
                 >
-                  <p className="line-clamp-2 font-display text-2xl text-white sm:text-3xl">
+                  <p className="font-display line-clamp-2 text-2xl text-white sm:text-3xl">
                     {currentPlaylistItem.title}
                   </p>
                   {currentPlaylistItem.publisher && (
@@ -698,10 +698,10 @@ export const RoomPlayer = React.memo(
                       {currentPlaylistItem.publisher}
                     </p>
                   )}
-                  <p className="mt-2 inline-flex items-center gap-2 text-2xs text-white/60 uppercase tracking-widest">
+                  <p className="text-2xs mt-2 inline-flex items-center gap-2 tracking-widest text-white/60 uppercase">
                     <span
                       aria-hidden="true"
-                      className="h-3 w-3 rounded-full border-2 border-white/30 border-t-primary motion-safe:animate-spin"
+                      className="border-t-primary h-3 w-3 rounded-full border-2 border-white/30 motion-safe:animate-spin"
                     />
                     {currentPlayerError ?? 'Loading player...'}
                   </p>
@@ -741,13 +741,13 @@ export const RoomPlayer = React.memo(
               {/* SIGNAL CRT */}
               <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
                 <div className="vhs-scanlines h-full w-full animate-none! opacity-20 mix-blend-overlay" />
-                <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
+                <div className="crt-overlay pointer-events-none !absolute inset-0 !z-2 opacity-10" />
               </div>
               <div className="relative z-10 text-center">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme bg-theme-surface">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-theme border-t-primary" />
+                <div className="border-theme bg-theme-surface mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border">
+                  <div className="border-theme border-t-primary h-6 w-6 animate-spin rounded-full border-2" />
                 </div>
-                <p className="text-sm text-theme-muted">Loading song...</p>
+                <p className="text-theme-muted text-sm">Loading song...</p>
               </div>
             </div>
           )}
@@ -756,13 +756,13 @@ export const RoomPlayer = React.memo(
               {/* SIGNAL CRT */}
               <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
                 <div className="vhs-scanlines h-full w-full animate-none! opacity-20 mix-blend-overlay" />
-                <div className="crt-overlay !absolute !z-2 pointer-events-none inset-0 opacity-10" />
+                <div className="crt-overlay pointer-events-none !absolute inset-0 !z-2 opacity-10" />
               </div>
               <div className="relative z-10 text-center">
-                <div className="mb-6 inline-flex items-center rounded-full border border-theme px-4 py-2 text-2xs text-theme-muted tracking-label">
+                <div className="border-theme text-2xs text-theme-muted tracking-label mb-6 inline-flex items-center rounded-full border px-4 py-2">
                   NO SIGNAL
                 </div>
-                <h3 className="mb-2 font-display text-base text-theme">
+                <h3 className="font-display text-theme mb-2 text-base">
                   Add a {displayRoom?.roomType === 'WATCH' ? 'video' : 'song'}{' '}
                   to light up the room
                 </h3>

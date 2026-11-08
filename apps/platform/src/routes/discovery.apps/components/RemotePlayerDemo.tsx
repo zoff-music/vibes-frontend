@@ -35,11 +35,11 @@ export function RemotePlayerDemo() {
         <div className="relative grid h-full min-w-0 items-center gap-5 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] sm:gap-6 sm:p-4">
           <section
             aria-label="Controlled player"
-            className="relative min-w-0 rounded-3xl border border-theme bg-theme p-4 shadow-lg sm:-translate-y-8"
+            className="border-theme bg-theme relative min-w-0 rounded-3xl border p-4 shadow-lg sm:-translate-y-8"
           >
-            <div className="mb-4 flex items-center justify-between text-theme-muted text-xs">
+            <div className="text-theme-muted mb-4 flex items-center justify-between text-xs">
               <span>THE PLAYER</span>
-              <span className="flex w-18 justify-end text-cyan-800 dark:text-secondary">
+              <span className="dark:text-secondary flex w-18 justify-end text-cyan-800">
                 <motion.span
                   key={`${state.playing}-${state.playlistItem.id}`}
                   initial={{ opacity: 0, y: 4 }}
@@ -88,10 +88,10 @@ export function RemotePlayerDemo() {
                 )}
               </div>
               <div className="min-w-0 sm:mt-4">
-                <p className="truncate font-pixel text-lg text-theme">
+                <p className="font-pixel text-theme truncate text-lg">
                   {state.playlistItem.title}
                 </p>
-                <p className="mt-1 text-theme-muted text-xs">
+                <p className="text-theme-muted mt-1 text-xs">
                   Sound plays here
                 </p>
               </div>
@@ -105,17 +105,17 @@ export function RemotePlayerDemo() {
           </section>
           <section
             aria-label="Phone remote"
-            className="relative min-w-0 overflow-hidden rounded-3xl border-2 border-theme-strong bg-theme-surface p-4 shadow-xl sm:min-h-96 sm:translate-y-8"
+            className="border-theme-strong bg-theme-surface relative min-w-0 overflow-hidden rounded-3xl border-2 p-4 shadow-xl sm:min-h-96 sm:translate-y-8"
           >
             <div
               aria-hidden="true"
-              className="mx-auto mb-4 h-1 w-10 rounded-full bg-theme-muted/30"
+              className="bg-theme-muted/30 mx-auto mb-4 h-1 w-10 rounded-full"
             />
-            <div className="mb-5 flex items-center justify-between border-theme border-b pb-3 text-theme-muted text-xs">
+            <div className="border-theme text-theme-muted mb-5 flex items-center justify-between border-b pb-3 text-xs">
               <span>YOUR PHONE</span>
               <RemoteIcon
                 aria-hidden="true"
-                className="size-4 text-cyan-800 dark:text-secondary"
+                className="dark:text-secondary size-4 text-cyan-800"
               />
             </div>
             <div className="grid min-h-57 items-center sm:min-h-68">
@@ -137,13 +137,13 @@ export function RemotePlayerDemo() {
                         repeat: state.animate ? Infinity : 0,
                         ease: 'easeInOut',
                       }}
-                      className="absolute inset-x-0 top-3 h-0.5 bg-secondary shadow-secondary-soft"
+                      className="bg-secondary shadow-secondary-soft absolute inset-x-0 top-3 h-0.5"
                     />
                   </div>
-                  <p className="mt-4 text-sm text-theme">
+                  <p className="text-theme mt-4 text-sm">
                     Scan the player’s code
                   </p>
-                  <p className="mt-1 text-theme-muted text-xs">
+                  <p className="text-theme-muted mt-1 text-xs">
                     Or enter its pairing code.
                   </p>
                   <Button

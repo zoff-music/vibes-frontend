@@ -70,7 +70,7 @@ export function AddPlaylistItemSetupScene({
                   durationSeconds={playlistItem.duration}
                   onSelect={onAdd}
                   attribution={
-                    <span className="flex shrink-0 items-center px-3 text-theme-muted">
+                    <span className="text-theme-muted flex shrink-0 items-center px-3">
                       <ProviderIcon
                         provider={playlistItem.sourceType}
                         className="h-4 w-4"
@@ -78,7 +78,7 @@ export function AddPlaylistItemSetupScene({
                     </span>
                   }
                 >
-                  <span className="mt-1 text-primary text-xs">
+                  <span className="text-primary mt-1 text-xs">
                     + Add to queue
                   </span>
                 </PlaylistItemSearchResult>

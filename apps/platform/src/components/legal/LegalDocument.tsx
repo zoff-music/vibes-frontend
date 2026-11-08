@@ -94,7 +94,7 @@ export function LegalDocument({
       <div className="grid items-start gap-6 pt-10 sm:pt-16 lg:grid-cols-4 lg:gap-10">
         <aside className="hidden lg:sticky lg:top-6 lg:block">
           <nav aria-label="On this page" className="mt-8 hidden lg:block">
-            <p className="mb-3 px-3 font-pixel text-theme-subtle text-xs">
+            <p className="font-pixel text-theme-subtle mb-3 px-3 text-xs">
               On this page
             </p>
             <ul className="space-y-1">
@@ -136,7 +136,7 @@ export function LegalDocument({
                         preventScroll: true,
                       });
                     }}
-                    className="block rounded-xl px-3 py-3 text-sm text-theme-muted leading-relaxed transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    className="text-theme-muted hover:bg-theme-surface hover:text-theme focus-visible:ring-secondary block rounded-xl px-3 py-3 text-sm leading-relaxed transition-colors focus-visible:ring-2 focus-visible:outline-none"
                   >
                     {index + 1}. {section.props.title}
                   </a>
@@ -147,7 +147,7 @@ export function LegalDocument({
         </aside>
         <article
           aria-label={title}
-          className="panel-surface min-w-0 space-y-8 rounded-frame border border-theme p-6 sm:p-8 lg:col-span-3 lg:p-10"
+          className="panel-surface rounded-frame border-theme min-w-0 space-y-8 border p-6 sm:p-8 lg:col-span-3 lg:p-10"
         >
           {content}
         </article>
@@ -168,12 +168,12 @@ export function LegalSection({
     <section
       id={id ?? sectionId(title)}
       tabIndex={-1}
-      className="scroll-mt-8 space-y-4 border-theme border-b pb-8 last:border-b-0 last:pb-0 focus:outline-none"
+      className="border-theme scroll-mt-8 space-y-4 border-b pb-8 last:border-b-0 last:pb-0 focus:outline-none"
     >
-      <h2 className="font-pixel text-theme text-xl normal-case tracking-normal">
+      <h2 className="font-pixel text-theme text-xl tracking-normal normal-case">
         {heading}
       </h2>
-      <div className="space-y-4 text-theme-muted leading-7">{children}</div>
+      <div className="text-theme-muted space-y-4 leading-7">{children}</div>
     </section>
   );
 }
@@ -181,7 +181,7 @@ export function LegalSection({
 export function LegalSubsection({ children, title }: LegalSubsectionProps) {
   return (
     <section className="space-y-3 pt-2">
-      <h3 className="font-pixel text-lg text-theme normal-case tracking-normal">
+      <h3 className="font-pixel text-theme text-lg tracking-normal normal-case">
         {title}
       </h3>
       <div className="space-y-4">{children}</div>
@@ -211,7 +211,7 @@ function sectionId(title: string) {
 export function LegalLink({ children, href }: LegalLinkProps) {
   return (
     <a
-      className="text-cyan-800 underline decoration-current/40 underline-offset-4 transition-colors hover:text-theme dark:text-secondary"
+      className="hover:text-theme dark:text-secondary text-cyan-800 underline decoration-current/40 underline-offset-4 transition-colors"
       href={href}
       rel="noreferrer"
       target="_blank"

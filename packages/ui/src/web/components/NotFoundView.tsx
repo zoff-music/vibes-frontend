@@ -15,23 +15,23 @@ export function NotFoundView({ children }: NotFoundViewProps) {
             aria-hidden="true"
             className="mb-6 flex items-center justify-center gap-2 lg:justify-start"
           >
-            <span className="font-pixel text-9xl text-theme leading-none">
+            <span className="font-pixel text-theme text-9xl leading-none">
               4
             </span>
             <VinylRecord playing className="w-28 sm:w-36" />
-            <span className="font-pixel text-9xl text-theme leading-none">
+            <span className="font-pixel text-theme text-9xl leading-none">
               4
             </span>
           </div>
-          <p className="font-pixel text-secondary text-xs tracking-label">
+          <p className="font-pixel text-secondary tracking-label text-xs">
             PAGE NOT FOUND
           </p>
-          <h1 className="mt-4 font-pixel text-3xl text-theme normal-case sm:text-4xl">
+          <h1 className="font-pixel text-theme mt-4 text-3xl normal-case sm:text-4xl">
             Lost the page.
             <br />
             Found the beat.
           </h1>
-          <p className="mx-auto mt-4 max-w-sm text-theme-muted leading-relaxed lg:mx-0">
+          <p className="text-theme-muted mx-auto mt-4 max-w-sm leading-relaxed lg:mx-0">
             There’s nothing at this address. Head back to the music, or make a
             little of your own.
           </p>

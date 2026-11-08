@@ -17,7 +17,7 @@ const CastAppContent = () => {
 
   return (
     <>
-      <div className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-cast-shell text-text dark:bg-cast-shell-dark dark:text-dark-text [&_*]:animate-none! [&_*]:backdrop-blur-none! [&_*]:transition-none!">
+      <div className="bg-cast-shell text-text dark:bg-cast-shell-dark dark:text-dark-text relative flex h-screen w-screen items-center justify-center overflow-hidden [&_*]:animate-none! [&_*]:backdrop-blur-none! [&_*]:transition-none!">
         <div className="relative z-10 flex h-full w-full items-center justify-center">
           {currentPlaylistItem && <ActiveView />}
           {!currentPlaylistItem && <IdleView />}

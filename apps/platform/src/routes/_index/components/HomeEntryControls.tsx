@@ -94,13 +94,13 @@ export function HomeEntryControls({
         {active && !generating && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-linear-to-r from-transparent via-white/40 to-transparent opacity-0 motion-safe:animate-generative-action-sweep"
+            className="motion-safe:animate-generative-action-sweep pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-linear-to-r from-transparent via-white/40 to-transparent opacity-0"
           />
         )}
         {generating && (
           <span
             aria-hidden="true"
-            className="absolute inset-y-0 w-1/3 bg-linear-to-r from-transparent via-white/35 to-transparent motion-safe:animate-ai-button-shimmer"
+            className="motion-safe:animate-ai-button-shimmer absolute inset-y-0 w-1/3 bg-linear-to-r from-transparent via-white/35 to-transparent"
           />
         )}
         <span className="sr-only" aria-live="polite">
@@ -108,7 +108,7 @@ export function HomeEntryControls({
         </span>
         <span
           aria-hidden="true"
-          className="relative block h-5 min-w-0 flex-1 whitespace-nowrap text-left leading-5"
+          className="relative block h-5 min-w-0 flex-1 text-left leading-5 whitespace-nowrap"
         >
           <span
             className={classNames(

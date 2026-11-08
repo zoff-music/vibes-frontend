@@ -30,7 +30,7 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
           onToggle={state.toggle}
           className="h-160"
         >
-          <div className="flex h-28 items-center gap-4 border-theme border-b px-4 sm:px-6">
+          <div className="border-theme flex h-28 items-center gap-4 border-b px-4 sm:px-6">
             <img
               src={logo}
               width={40}
@@ -87,7 +87,7 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
             )}
             {!state.chatEnabled && (
               <div className="space-y-3">
-                <p className="mb-5 text-theme-muted text-xs">UP NEXT</p>
+                <p className="text-theme-muted mb-5 text-xs">UP NEXT</p>
                 {playlistItems.slice(0, 3).map((item, index) => (
                   <QueueItem
                     key={item.id}
@@ -139,7 +139,7 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
               duration: state.reducedMotion ? 0 : 0.65,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="relative col-start-1 row-start-1 min-w-0 overflow-hidden border border-theme bg-theme-surface shadow-secondary-panel"
+            className="border-theme bg-theme-surface shadow-secondary-panel relative col-start-1 row-start-1 min-w-0 overflow-hidden border"
           >
             <motion.div
               initial={false}
@@ -150,12 +150,12 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
               }}
               className="flex h-full min-w-0 flex-col"
             >
-              <div className="flex shrink-0 items-center justify-between gap-3 border-theme border-b px-5 py-4">
-                <span className="font-pixel text-sm text-theme">
+              <div className="border-theme flex shrink-0 items-center justify-between gap-3 border-b px-5 py-4">
+                <span className="font-pixel text-theme text-sm">
                   {watch ? 'afterhours' : 'electro'}
                 </span>
-                <span className="flex items-center gap-2 text-secondary text-xs">
-                  <span className="size-1.5 rounded-full bg-secondary" />
+                <span className="text-secondary flex items-center gap-2 text-xs">
+                  <span className="bg-secondary size-1.5 rounded-full" />
                   {state.chatEnabled ? 'Room chat' : 'Up next'}
                 </span>
               </div>
@@ -167,7 +167,7 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: state.reducedMotion ? 0 : 0.2 }}
-                    className="flex min-h-0 flex-1 flex-col justify-end overflow-hidden px-4 pt-3 pb-5 [mask-image:linear-gradient(to_bottom,transparent,black_1rem)] sm:px-5"
+                    className="flex min-h-0 flex-1 flex-col justify-end overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_1rem)] px-4 pt-3 pb-5 sm:px-5"
                   >
                     <div className="relative h-full">
                       <AnimatePresence initial={false}>
@@ -214,7 +214,7 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
                         density="compact"
                       />
                     ))}
-                    <p className="px-2 pt-4 text-sm text-theme-muted">
+                    <p className="text-theme-muted px-2 pt-4 text-sm">
                       {watch ? 'Chat off. Film on.' : 'Chat off. Music on.'}
                     </p>
                   </motion.div>
@@ -250,7 +250,7 @@ export function ChatPreview({ watch = false }: ChatPreviewProps) {
             />
           </motion.div>
         </div>
-        <figcaption className="mt-4 h-12 text-center text-sm text-theme-muted">
+        <figcaption className="text-theme-muted mt-4 h-12 text-center text-sm">
           <span aria-hidden="true">
             {state.chatEnabled
               ? 'Every pick has a person behind it.'

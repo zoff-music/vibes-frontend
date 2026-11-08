@@ -50,10 +50,10 @@ export function CastQueue({ playlistItems }: Props) {
   return (
     <div
       ref={viewportRef}
-      className="flex min-h-0 flex-1 flex-col overflow-hidden [--cast-queue-track-gap:12px] [--cast-queue-track-height:96px] cast-compact:[--cast-queue-track-gap:8px] cast-compact:[--cast-queue-track-height:72px] max-sm:[--cast-queue-track-gap:6px] max-sm:[--cast-queue-track-height:64px]"
+      className="cast-compact:[--cast-queue-track-gap:8px] cast-compact:[--cast-queue-track-height:72px] flex min-h-0 flex-1 flex-col overflow-hidden [--cast-queue-track-gap:12px] [--cast-queue-track-height:96px] max-sm:[--cast-queue-track-gap:6px] max-sm:[--cast-queue-track-height:64px]"
     >
       {playlistItems.length === 0 && (
-        <div className="flex h-full items-center justify-center rounded-2xl border border-cast-border bg-surface/88 text-center text-text-muted dark:border-cast-border-dark dark:bg-cast-surface-dark/88 dark:text-dark-text-muted">
+        <div className="border-cast-border bg-surface/88 text-text-muted dark:border-cast-border-dark dark:bg-cast-surface-dark/88 dark:text-dark-text-muted flex h-full items-center justify-center rounded-2xl border text-center">
           The queue is empty
         </div>
       )}
@@ -63,9 +63,9 @@ export function CastQueue({ playlistItems }: Props) {
             {visiblePlaylistItems.map((playlistItem, index) => (
               <div
                 key={playlistItem.id}
-                className="flex h-(--cast-queue-track-height) items-center cast-compact:gap-3 gap-4 rounded-2xl border border-cast-border bg-surface cast-compact:px-3 px-4 max-sm:gap-2 max-sm:px-2 dark:border-cast-border-dark dark:bg-cast-surface-dark"
+                className="cast-compact:gap-3 border-cast-border bg-surface cast-compact:px-3 dark:border-cast-border-dark dark:bg-cast-surface-dark flex h-(--cast-queue-track-height) items-center gap-4 rounded-2xl border px-4 max-sm:gap-2 max-sm:px-2"
               >
-                <span className="w-7 shrink-0 text-center text-text-subtle text-xs dark:text-dark-text-subtle">
+                <span className="text-text-subtle dark:text-dark-text-subtle w-7 shrink-0 text-center text-xs">
                   {index + 1}
                 </span>
                 <img
@@ -73,26 +73,26 @@ export function CastQueue({ playlistItems }: Props) {
                   alt=""
                   decoding="async"
                   loading="lazy"
-                  className="cast-compact:h-12 h-16 cast-compact:w-12 w-16 shrink-0 rounded-xl border border-cast-border bg-surface object-cover max-sm:h-10 max-sm:w-10 dark:border-cast-border-dark dark:bg-cast-surface-dark"
+                  className="cast-compact:h-12 cast-compact:w-12 border-cast-border bg-surface dark:border-cast-border-dark dark:bg-cast-surface-dark h-16 w-16 shrink-0 rounded-xl border object-cover max-sm:h-10 max-sm:w-10"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-text text-xs dark:text-dark-text">
+                  <p className="text-text dark:text-dark-text truncate text-xs">
                     {playlistItem.title}
                   </p>
-                  <p className="mt-1 truncate text-text-muted text-xs dark:text-dark-text-muted">
+                  <p className="text-text-muted dark:text-dark-text-muted mt-1 truncate text-xs">
                     {playlistItem.publisher || 'Unknown Artist'} ·{' '}
                     {formatPlaybackSeconds(playlistItem.duration)}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
-                  <div className="flex items-center gap-1 text-secondary">
+                  <div className="text-secondary flex items-center gap-1">
                     <VoteIcon className="h-4 w-4" />
                     <span className="min-w-4 text-center text-xs tabular-nums">
                       {playlistItem.voteCount ?? 0}
                     </span>
                   </div>
                   <ProviderIcon
-                    className="h-5 w-5 text-text-muted dark:text-dark-text-muted"
+                    className="text-text-muted dark:text-dark-text-muted h-5 w-5"
                     provider={playlistItem.sourceType}
                   />
                 </div>
@@ -100,7 +100,7 @@ export function CastQueue({ playlistItems }: Props) {
             ))}
           </div>
           {queueRemainderLabel && (
-            <div className="flex min-h-7 flex-1 items-center justify-center text-text-muted text-xs dark:text-dark-text-muted">
+            <div className="text-text-muted dark:text-dark-text-muted flex min-h-7 flex-1 items-center justify-center text-xs">
               {queueRemainderLabel}
             </div>
           )}

@@ -31,18 +31,18 @@ export function PublicRoomTile({ room, onJoin }: PublicRoomTileProps) {
       to={`/${encodeURIComponent(room.id)}`}
       prefetch="intent"
       onClick={handleClick}
-      className="flex h-full min-h-20 w-full items-center gap-3 rounded-3xl border border-theme bg-theme-surface px-5 py-4 text-left shadow-sm transition-colors hover:border-theme-strong hover:bg-theme-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-theme"
+      className="border-theme bg-theme-surface hover:border-theme-strong hover:bg-theme-hover focus-visible:ring-secondary focus-visible:ring-offset-theme flex h-full min-h-20 w-full items-center gap-3 rounded-3xl border px-5 py-4 text-left shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       <span className="min-w-0 flex-1">
-        <span className="block truncate font-pixel text-sm text-theme">
+        <span className="font-pixel text-theme block truncate text-sm">
           {room.name}
         </span>
-        <span className="mt-1 block text-theme-muted text-xs">
+        <span className="text-theme-muted mt-1 block text-xs">
           {room.listenerCount} {labels.activity} · {room.playlistItemCount}{' '}
           {room.playlistItemCount === 1 ? labels.item : labels.items}
         </span>
       </span>
-      <span className="shrink-0 font-pixel text-cyan-800 text-xs dark:text-secondary">
+      <span className="font-pixel dark:text-secondary shrink-0 text-xs text-cyan-800">
         Join <span aria-hidden="true">→</span>
       </span>
     </Link>

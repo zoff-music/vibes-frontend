@@ -41,7 +41,7 @@ export function TabletTopNavigation() {
         top: insets.top + topNavigationOffset,
       }}
     >
-      <View className="flex-row rounded-full bg-mobile-card/95 p-1 shadow-black/15 shadow-lg dark:bg-mobile-dark-card/95">
+      <View className="bg-mobile-card/95 dark:bg-mobile-dark-card/95 flex-row rounded-full p-1 shadow-lg shadow-black/15">
         {items.map((item) => {
           const selected = pathname === item.href;
 

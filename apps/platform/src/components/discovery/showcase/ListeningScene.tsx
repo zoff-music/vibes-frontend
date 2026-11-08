@@ -21,11 +21,11 @@ export function ListeningScene({ playing }: ListeningSceneProps) {
       <div className="relative flex h-64 items-center justify-center sm:h-72">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute size-64 rounded-full border border-secondary/20 sm:size-72"
+          className="border-secondary/20 pointer-events-none absolute size-64 rounded-full border sm:size-72"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute size-52 rounded-full border border-primary/20 sm:size-60"
+          className="border-primary/20 pointer-events-none absolute size-52 rounded-full border sm:size-60"
         />
         <VinylRecord
           artworkUrl={playlistItem.thumbnailUrl}
@@ -34,17 +34,17 @@ export function ListeningScene({ playing }: ListeningSceneProps) {
         />
         <div
           aria-hidden="true"
-          className="absolute bottom-0 left-1/2 h-8 w-px bg-secondary/40"
+          className="bg-secondary/40 absolute bottom-0 left-1/2 h-8 w-px"
         />
       </div>
       <div className="relative mb-5 flex h-10 items-center justify-center">
-        <span className="rounded-full border border-theme bg-theme px-4 py-2 text-sm text-theme">
-          <span className="mr-2 text-cyan-800 dark:text-secondary">●</span>
+        <span className="border-theme bg-theme text-theme rounded-full border px-4 py-2 text-sm">
+          <span className="dark:text-secondary mr-2 text-cyan-800">●</span>
           zoff.me/electro
         </span>
         <div
           aria-hidden="true"
-          className="absolute inset-x-12 top-full h-5 rounded-t-xl border-theme border-x border-t"
+          className="border-theme absolute inset-x-12 top-full h-5 rounded-t-xl border-x border-t"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -52,9 +52,9 @@ export function ListeningScene({ playing }: ListeningSceneProps) {
           <section
             key={label}
             aria-label={`${label} listening`}
-            className="relative min-w-0 rounded-2xl border border-theme bg-theme p-3 shadow-lg sm:p-4"
+            className="border-theme bg-theme relative min-w-0 rounded-2xl border p-3 shadow-lg sm:p-4"
           >
-            <p className="mb-3 flex items-center justify-between text-sm text-theme">
+            <p className="text-theme mb-3 flex items-center justify-between text-sm">
               <span className="flex items-center gap-2">
                 <span
                   aria-hidden="true"
@@ -69,12 +69,12 @@ export function ListeningScene({ playing }: ListeningSceneProps) {
                 </span>
                 {label}
               </span>
-              <span className="text-cyan-800 text-xs dark:text-secondary">
+              <span className="dark:text-secondary text-xs text-cyan-800">
                 In sync
               </span>
             </p>
             <ContentTransition transitionKey={playlistItem.id}>
-              <p className="truncate text-theme-muted text-xs">
+              <p className="text-theme-muted truncate text-xs">
                 {playlistItem.title}
               </p>
             </ContentTransition>

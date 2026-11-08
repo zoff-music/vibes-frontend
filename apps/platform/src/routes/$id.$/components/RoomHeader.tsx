@@ -52,10 +52,10 @@ interface DeferredHeaderLoadingProps {
 function DeferredHeaderLoading({ label }: DeferredHeaderLoadingProps) {
   return (
     <div
-      className="flex min-h-24 items-center justify-center gap-3 text-theme"
+      className="text-theme flex min-h-24 items-center justify-center gap-3"
       role="status"
     >
-      <div className="h-5 w-5 animate-spin rounded-full border-2 border-theme border-t-primary" />
+      <div className="border-theme border-t-primary h-5 w-5 animate-spin rounded-full border-2" />
       <span className="font-pixel text-2xs text-theme-muted">{label}</span>
     </div>
   );
@@ -64,7 +64,7 @@ function DeferredHeaderLoading({ label }: DeferredHeaderLoadingProps) {
 function DeferredSettingsLoading() {
   return (
     <div className="fixed top-(--room-header-height) right-0 bottom-0 left-0 z-40 sm:contents">
-      <div className="fixed top-(--room-header-height) right-0 left-0 h-[calc(100dvh-var(--room-header-height))] w-full border-theme border-t bg-theme-surface shadow-2xl sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:min-h-40 sm:w-72 sm:rounded-3xl sm:border">
+      <div className="border-theme bg-theme-surface fixed top-(--room-header-height) right-0 left-0 h-[calc(100dvh-var(--room-header-height))] w-full border-t shadow-2xl sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:min-h-40 sm:w-72 sm:rounded-3xl sm:border">
         <DeferredHeaderLoading label="Loading settings..." />
       </div>
     </div>
@@ -200,7 +200,7 @@ export const RoomHeader = React.memo(
       >
         <div
           data-room-player-header
-          className="w-full rounded-full border border-theme bg-theme-surface p-1 shadow-lg"
+          className="border-theme bg-theme-surface w-full rounded-full border p-1 shadow-lg"
         >
           <div className="relative grid min-w-0 grid-cols-[1fr_minmax(0,1fr)_1fr] items-center gap-1">
             <IconButton
@@ -215,7 +215,7 @@ export const RoomHeader = React.memo(
 
             <div className="flex min-w-0 flex-wrap items-center justify-center gap-1 px-1 text-center">
               <h1
-                className="min-w-0 truncate whitespace-nowrap text-theme text-xs sm:text-sm"
+                className="text-theme min-w-0 truncate text-xs whitespace-nowrap sm:text-sm"
                 title={displayRoom?.name}
               >
                 {displayRoom?.name || 'Loading...'}

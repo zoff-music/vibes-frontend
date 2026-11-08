@@ -65,11 +65,11 @@ export function SiteBrand() {
       <span className="hidden sm:block">
         <span
           aria-hidden="true"
-          className="glow-text block font-wide text-4xl leading-none"
+          className="glow-text font-wide block text-4xl leading-none"
         >
           ゾフ
         </span>
-        <span className="mt-2 block text-theme-muted text-xs">
+        <span className="text-theme-muted mt-2 block text-xs">
           Shared rooms
         </span>
       </span>

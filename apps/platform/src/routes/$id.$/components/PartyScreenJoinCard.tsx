@@ -17,7 +17,7 @@ export function PartyScreenJoinCard({
   const labels = getRoomLabels(roomType);
 
   return (
-    <div className="panel-strong mt-5 flex shrink-0 items-center gap-5 rounded-3xl border border-primary/30 p-4">
+    <div className="panel-strong border-primary/30 mt-5 flex shrink-0 items-center gap-5 rounded-3xl border p-4">
       <div className="inline-flex shrink-0 rounded-2xl bg-white p-2">
         <QRCodeSVG
           className="h-36 w-36 xl:h-44 xl:w-44"
@@ -40,10 +40,10 @@ export function PartyScreenJoinCard({
         <p className="font-pixel text-2xs text-secondary tracking-label">
           Scan to join
         </p>
-        <p className="mt-3 truncate font-display text-theme text-xl">
+        <p className="font-display text-theme mt-3 truncate text-xl">
           {roomName}
         </p>
-        <p className="mt-2 text-theme-subtle text-xs">
+        <p className="text-theme-subtle mt-2 text-xs">
           Add {labels.items} and vote from your phone
         </p>
         <Button className="mt-4 gap-2" onClick={onExit} variant="tertiary">

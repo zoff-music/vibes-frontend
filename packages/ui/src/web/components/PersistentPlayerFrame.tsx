@@ -75,10 +75,10 @@ export function PersistentPlayerFrame({
       {minimized && (
         <div
           data-room-player-header
-          className="flex items-center gap-2 border-theme border-b px-3 py-2"
+          className="border-theme flex items-center gap-2 border-b px-3 py-2"
         >
           <Link
-            className="min-w-0 flex-1 truncate text-left text-sm text-theme-muted transition-colors hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+            className="text-theme-muted hover:text-theme focus-visible:ring-secondary min-w-0 flex-1 truncate text-left text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
             to={roomHref}
             prefetch="intent"
           >

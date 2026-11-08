@@ -241,12 +241,12 @@ export const RoomSettingsMenu = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: -8 }}
         transition={{ type: 'spring', stiffness: 440, damping: 34 }}
-        className="fixed top-(--room-header-height) right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full origin-top-right overflow-hidden border-theme border-t bg-theme-surface text-theme shadow-2xl sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:max-h-settings-max sm:w-80 sm:rounded-3xl sm:border lg:w-96"
+        className="border-theme bg-theme-surface text-theme sm:max-h-settings-max fixed top-(--room-header-height) right-0 left-0 z-10 h-[calc(100dvh-var(--room-header-height))] w-full origin-top-right overflow-hidden border-t shadow-2xl sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-3 sm:h-auto sm:w-80 sm:rounded-3xl sm:border lg:w-96"
       >
         <div
           ref={scrollPanelRef}
           onScroll={updateScrollCue}
-          className="h-full overflow-y-scroll overscroll-contain p-5 sm:max-h-settings-max"
+          className="sm:max-h-settings-max h-full overflow-y-scroll overscroll-contain p-5"
         >
           <div className="flex flex-col gap-4">
             <div className="hidden sm:block">
@@ -300,19 +300,19 @@ export const RoomSettingsMenu = ({
               </div>
             </div>
 
-            <h4 className="border-theme border-b pb-2 font-pixel text-2xs text-theme-muted tracking-label">
+            <h4 className="border-theme font-pixel text-2xs text-theme-muted tracking-label border-b pb-2">
               Room Control
             </h4>
 
             {room?.mode === 'host' && (
-              <div className="rounded-lg border border-secondary/30 bg-secondary/10 p-3">
+              <div className="border-secondary/30 bg-secondary/10 rounded-lg border p-3">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-secondary"></div>
+                  <div className="bg-secondary h-2 w-2 rounded-full"></div>
                   <span className="font-pixel text-secondary text-sm">
                     Host Mode Active
                   </span>
                 </div>
-                <p className="mt-1 text-theme-muted text-xs">
+                <p className="text-theme-muted mt-1 text-xs">
                   In host mode, the host and room admins control skipping.
                   Admins Only Skip restricts it to room admins.
                 </p>
@@ -459,7 +459,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="border-theme border-t pt-4">
-              <h5 className="mb-3 font-pixel text-2xs text-theme-muted tracking-label">
+              <h5 className="font-pixel text-2xs text-theme-muted tracking-label mb-3">
                 Sources
               </h5>
               <div
@@ -495,7 +495,7 @@ export const RoomSettingsMenu = ({
             </div>
 
             <div className="border-theme border-t pt-4">
-              <h5 className="mb-3 font-pixel text-2xs text-theme-muted tracking-label">
+              <h5 className="font-pixel text-2xs text-theme-muted tracking-label mb-3">
                 Room Mode
               </h5>
 
@@ -508,10 +508,10 @@ export const RoomSettingsMenu = ({
                   variant={room?.mode === 'server' ? 'cyan' : 'tertiary'}
                   aria-pressed={room?.mode === 'server'}
                 >
-                  <div className="w-full text-left text-current leading-snug">
+                  <div className="w-full text-left leading-snug text-current">
                     Server Mode
                   </div>
-                  <div className="w-full text-left font-pixel text-caption text-current leading-relaxed tracking-normal opacity-75">
+                  <div className="font-pixel text-caption w-full text-left leading-relaxed tracking-normal text-current opacity-75">
                     {watch
                       ? 'Keep videos playing together, automatically.'
                       : 'Auto-play music 24/7. Perfect for radio stations.'}
@@ -526,10 +526,10 @@ export const RoomSettingsMenu = ({
                   variant={room?.mode === 'host' ? 'magenta' : 'tertiary'}
                   aria-pressed={room?.mode === 'host'}
                 >
-                  <div className="w-full text-left text-current leading-snug">
+                  <div className="w-full text-left leading-snug text-current">
                     Host Mode
                   </div>
-                  <div className="w-full text-left font-pixel text-caption text-current leading-relaxed tracking-normal opacity-75">
+                  <div className="font-pixel text-caption w-full text-left leading-relaxed tracking-normal text-current opacity-75">
                     Host controls playback. Great for parties.
                   </div>
                 </Button>
@@ -585,7 +585,7 @@ export const RoomSettingsMenu = ({
                 {adminError && (
                   <p
                     aria-live="polite"
-                    className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-error text-sm"
+                    className="border-error/30 bg-error/10 text-error rounded-xl border px-3 py-2 text-sm"
                     role="alert"
                   >
                     {adminError}
@@ -595,21 +595,21 @@ export const RoomSettingsMenu = ({
             )}
 
             {isAdmin && (
-              <div className="group mt-2 border-theme border-t pt-4 text-center">
+              <div className="group border-theme mt-2 border-t pt-4 text-center">
                 <span className="text-secondary text-sm">
                   ✓ You are an Admin
                 </span>
               </div>
             )}
 
-            <p className="pt-2 text-center text-2xs text-theme-muted italic">
+            <p className="text-2xs text-theme-muted pt-2 text-center italic">
               Settings sync enabled
             </p>
           </div>
         </div>
 
         {canScrollDown && (
-          <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-20 flex justify-center bg-gradient-to-t from-theme-surface via-theme-surface/95 pt-12 pb-4">
+          <div className="from-theme-surface via-theme-surface/95 pointer-events-none absolute right-0 bottom-0 left-0 z-20 flex justify-center bg-gradient-to-t pt-12 pb-4">
             <div className="motion-safe:animate-bounce">
               <ScrollButton
                 direction="bottom"

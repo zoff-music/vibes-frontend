@@ -9,14 +9,14 @@ interface Props {
 
 export function TvRecoveryView({ title, message, retry }: Props) {
   return (
-    <View className="flex-1 items-center justify-center gap-6 bg-tv-background p-12">
+    <View className="bg-tv-background flex-1 items-center justify-center gap-6 p-12">
       <Text
         accessibilityRole="header"
-        className="text-center font-heading text-4xl text-tv-text"
+        className="font-heading text-tv-text text-center text-4xl"
       >
         {title}
       </Text>
-      <Text className="max-w-2xl text-center font-heading text-2xl text-tv-muted">
+      <Text className="font-heading text-tv-muted max-w-2xl text-center text-2xl">
         {message}
       </Text>
       <NativeButton

@@ -41,7 +41,7 @@ export function RoomSettingsModal({ fetcher, isOpen, onClose, room }: Props) {
       <div className="flex items-start justify-between gap-4">
         <h2
           id="remote-settings-title"
-          className="font-display text-lg text-theme"
+          className="font-display text-theme text-lg"
         >
           Room settings
         </h2>
@@ -72,7 +72,7 @@ export function RoomSettingsModal({ fetcher, isOpen, onClose, room }: Props) {
           {fetcher.data?.intent === 'joinAdmin' && fetcher.data.error && (
             <p
               aria-live="polite"
-              className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-error text-sm"
+              className="border-error/30 bg-error/10 text-error rounded-xl border px-3 py-2 text-sm"
               role="alert"
             >
               {fetcher.data.error}
@@ -138,8 +138,8 @@ export function RoomSettingsModal({ fetcher, isOpen, onClose, room }: Props) {
             }
           />
 
-          <div className="rounded-2xl border border-theme bg-theme-surface p-4">
-            <p className="mb-3 font-pixel text-2xs text-theme-muted tracking-label">
+          <div className="border-theme bg-theme-surface rounded-2xl border p-4">
+            <p className="font-pixel text-2xs text-theme-muted tracking-label mb-3">
               Enabled providers
             </p>
             <div className="flex flex-wrap gap-2">

@@ -28,11 +28,11 @@ export function RoomGenerationProgress() {
       className="flex-1 items-center justify-center gap-4 px-8"
       entering={FadeIn.duration(250)}
     >
-      <View className="size-16 items-center justify-center rounded-full bg-accent/10">
+      <View className="bg-accent/10 size-16 items-center justify-center rounded-full">
         <ActivityIndicator color={theme.accent} size="large" />
       </View>
       <View className="items-center gap-2">
-        <Text className="text-center font-heading text-mobile-text text-xl dark:text-mobile-dark-text">
+        <Text className="font-heading text-mobile-text dark:text-mobile-dark-text text-center text-xl">
           {playlistGenerationMessages[messageIndex]}
         </Text>
         <Copy muted>Your playlist will appear here automatically.</Copy>

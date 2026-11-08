@@ -23,23 +23,23 @@ export function ProductPageContent({
       <article>
         <header className="grid items-center gap-10 pt-12 pb-14 sm:pt-20 sm:pb-20 lg:grid-cols-5 lg:gap-14">
           <div className="min-w-0 lg:col-span-2">
-            <p className="mb-5 font-pixel text-pink-800 text-xs tracking-label dark:text-primary">
+            <p className="font-pixel tracking-label dark:text-primary mb-5 text-xs text-pink-800">
               {page.label.toUpperCase()}
             </p>
-            <h1 className="font-pixel text-4xl normal-case leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="font-pixel text-4xl leading-tight tracking-tight normal-case sm:text-5xl lg:text-6xl">
               {page.heading}
-              <span className="mt-1 block text-pink-800 dark:text-primary">
+              <span className="dark:text-primary mt-1 block text-pink-800">
                 {page.accent}
               </span>
             </h1>
-            <p className="mt-6 max-w-lg text-theme-muted leading-relaxed sm:text-lg">
+            <p className="text-theme-muted mt-6 max-w-lg leading-relaxed sm:text-lg">
               {page.introduction}
             </p>
             {page.slug !== 'apps' && (
               <Link
                 to="/rooms/create"
                 prefetch="intent"
-                className="mt-7 inline-flex min-h-13 items-center justify-between gap-8 rounded-2xl bg-primary px-5 py-3 text-sm text-text-inverse transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                className="bg-primary text-text-inverse hover:bg-primary-muted focus-visible:ring-secondary mt-7 inline-flex min-h-13 items-center justify-between gap-8 rounded-2xl px-5 py-3 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
               >
                 {page.actionLabel}
                 <ArrowRightIcon
@@ -72,32 +72,32 @@ export function ProductPageContent({
                 <Link
                   to="/"
                   prefetch="intent"
-                  className="mt-4 inline-flex min-h-11 items-center gap-3 rounded-lg text-cyan-800 text-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:text-secondary"
+                  className="focus-visible:ring-secondary dark:text-secondary mt-4 inline-flex min-h-11 items-center gap-3 rounded-lg text-sm text-cyan-800 underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:outline-none"
                 >
                   {page.actionLabel}
                   <ArrowRightIcon aria-hidden="true" className="size-4" />
                 </Link>
               </>
             )}
-            <p className="mt-3 text-theme-muted text-xs">
+            <p className="text-theme-muted mt-3 text-xs">
               Always free. No account needed.
             </p>
           </div>
           <div className="min-w-0 lg:col-span-3">{preview}</div>
         </header>
-        <div className="grid gap-8 border-theme border-y py-10 sm:grid-cols-2 sm:gap-12 sm:py-12">
+        <div className="border-theme grid gap-8 border-y py-10 sm:grid-cols-2 sm:gap-12 sm:py-12">
           {page.sections.slice(0, 2).map((section, index) => (
             <section key={section.title}>
               <span
                 aria-hidden="true"
-                className="font-pixel text-cyan-800 text-xs dark:text-secondary"
+                className="font-pixel dark:text-secondary text-xs text-cyan-800"
               >
                 0{index + 1}
               </span>
-              <h2 className="mt-3 font-pixel text-2xl normal-case leading-tight sm:text-3xl">
+              <h2 className="font-pixel mt-3 text-2xl leading-tight normal-case sm:text-3xl">
                 {section.title}
               </h2>
-              <p className="mt-4 max-w-lg text-theme-muted leading-relaxed">
+              <p className="text-theme-muted mt-4 max-w-lg leading-relaxed">
                 {section.body}
               </p>
             </section>
@@ -106,20 +106,20 @@ export function ProductPageContent({
         {children}
         <section
           aria-labelledby="guide-questions-heading"
-          className="grid gap-7 border-theme border-t py-14 sm:py-20 lg:grid-cols-5 lg:gap-14"
+          className="border-theme grid gap-7 border-t py-14 sm:py-20 lg:grid-cols-5 lg:gap-14"
         >
           <div className="lg:col-span-2">
-            <p className="font-pixel text-cyan-800 text-xs tracking-label dark:text-secondary">
+            <p className="font-pixel tracking-label dark:text-secondary text-xs text-cyan-800">
               THE LITTLE DETAILS
             </p>
             <h2
               id="guide-questions-heading"
-              className="mt-4 font-pixel text-3xl normal-case tracking-tight"
+              className="font-pixel mt-4 text-3xl tracking-tight normal-case"
             >
               Good to know.
             </h2>
           </div>
-          <div className="product-accordion min-w-0 overflow-hidden rounded-2xl border border-theme bg-theme-surface lg:col-span-3">
+          <div className="product-accordion border-theme bg-theme-surface min-w-0 overflow-hidden rounded-2xl border lg:col-span-3">
             {page.sections.slice(2).map((section) => (
               <ProductAccordion key={section.title} {...section} />
             ))}
@@ -129,11 +129,11 @@ export function ProductPageContent({
       <section
         id="explore-zoff"
         aria-labelledby="keep-exploring-heading"
-        className="scroll-mt-8 border-theme border-t py-14 sm:py-20"
+        className="border-theme scroll-mt-8 border-t py-14 sm:py-20"
       >
         <h2
           id="keep-exploring-heading"
-          className="mb-7 font-pixel text-3xl normal-case tracking-tight"
+          className="font-pixel mb-7 text-3xl tracking-tight normal-case"
         >
           Make yourself at home.
         </h2>

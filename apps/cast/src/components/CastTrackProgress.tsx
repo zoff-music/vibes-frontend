@@ -46,7 +46,7 @@ export function CastTrackProgress({ playlistItem }: Props) {
       </div>
       <progress
         aria-label="Playback progress"
-        className="h-2 w-full appearance-none overflow-hidden rounded-full bg-white/20 [&::-moz-progress-bar]:bg-secondary [&::-webkit-progress-bar]:bg-white/20 [&::-webkit-progress-value]:bg-secondary"
+        className="[&::-moz-progress-bar]:bg-secondary [&::-webkit-progress-value]:bg-secondary h-2 w-full appearance-none overflow-hidden rounded-full bg-white/20 [&::-webkit-progress-bar]:bg-white/20"
         max={durationMs || millisecondsPerSecond}
         value={boundedPositionMs}
       />

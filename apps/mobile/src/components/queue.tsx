@@ -154,14 +154,14 @@ const QueueItem = memo(function QueueItem({
           {onDelete && (
             <Pressable
               accessibilityLabel={`Delete ${playlistItem.title}`}
-              className="w-20 items-center justify-center rounded-3xl border-2 border-error bg-error active:opacity-70"
+              className="border-error bg-error w-20 items-center justify-center rounded-3xl border-2 active:opacity-70"
               onPress={() => {
                 swipeable.close();
                 onDelete(playlistItem);
               }}
             >
               <ZoffIcon color="#ffffff" name="trash" size={20} />
-              <Text className="mt-1 font-heading text-white text-xs">
+              <Text className="font-heading mt-1 text-xs text-white">
                 Delete
               </Text>
             </Pressable>

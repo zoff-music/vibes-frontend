@@ -106,8 +106,8 @@ export const DebugConsole: React.FC<Props> = ({ enabled = false }) => {
   if (!envDebugEnabled || !isVisible) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-0 left-0 z-9999 flex h-[50vh] w-full flex-col overflow-hidden border-zinc-700 border-t-2 bg-black/90 font-mono text-white text-xs">
-      <div className="pointer-events-auto flex select-none justify-between bg-zinc-700 p-1">
+    <div className="pointer-events-none fixed bottom-0 left-0 z-9999 flex h-[50vh] w-full flex-col overflow-hidden border-t-2 border-zinc-700 bg-black/90 font-mono text-xs text-white">
+      <div className="pointer-events-auto flex justify-between bg-zinc-700 p-1 select-none">
         <strong>Debug Console</strong>
         <Button
           onClick={() => setLogs([])}
