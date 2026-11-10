@@ -17,7 +17,6 @@ import React, { useEffect, useState } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
 import { type RoomsCreateActionData } from '../clientAction';
 import type { clientLoader } from '../clientLoader';
-import { slugifyRoomName } from '../utils/slugifyRoomName';
 
 type RoomNameAvailabilityState =
   | 'idle'
@@ -49,6 +48,7 @@ export function useCreateRoom() {
   const [reservation, setReservation] = useState<RoomNameReservation | null>(
     null,
   );
+  const [reservedName, setReservedName] = useState('');
   const [isWaitingToCreate, setIsWaitingToCreate] = useState(false);
   const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
   const [wobblePassword, setWobblePassword] = useState(false);
@@ -112,7 +112,7 @@ export function useCreateRoom() {
 
     if (
       reservation &&
-      reservation.name === slugifyRoomName(trimmedName) &&
+      reservedName === trimmedName &&
       Date.parse(reservation.expiresAt) > Date.now()
     ) {
       setNameAvailability('available');
@@ -134,7 +134,7 @@ export function useCreateRoom() {
         availabilityTimerRef.current = null;
       }
     };
-  }, [name, reservation, checkRoomNameAvailability]);
+  }, [name, reservation, reservedName, checkRoomNameAvailability]);
 
   useEffect(() => {
     if (!reservation) return;
@@ -186,6 +186,7 @@ export function useCreateRoom() {
     if (!data.reservation) return;
 
     setReservation(data.reservation);
+    setReservedName(data.checkedName ?? data.reservation.name);
     setNameAvailability('available');
     setNameAvailabilityError(null);
 
@@ -221,6 +222,7 @@ export function useCreateRoom() {
     if (!data.reservation) return;
 
     setReservation(data.reservation);
+    setReservedName(data.reservation.name);
     setNameAvailability('available');
     setNameAvailabilityError(null);
     setName(data.reservation.name);

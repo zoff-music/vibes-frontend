@@ -77,19 +77,19 @@ async function createRoom(
   roomType: RoomType,
   signal: AbortSignal,
 ): Promise<RequestResult<CreateRoomData>> {
-  const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
+  const displayName = name.trim();
   const enabledSources = providers.filter(
     (provider) => roomType !== 'WATCH' || provider === 'youtube',
   );
 
-  if (!normalizedName) return { data: null, error: 'Enter a room name.' };
+  if (!displayName) return { data: null, error: 'Enter a room name.' };
 
   if (enabledSources.length === 0) {
     return { data: null, error: 'Providers are still loading.' };
   }
 
   const [reservationError, reservation] = await requests.reserveRoom(
-    normalizedName,
+    displayName,
     { signal },
   );
 
@@ -105,7 +105,7 @@ async function createRoom(
 
   const [error, room] = await requests.createRoom(
     {
-      name: normalizedName,
+      name: displayName,
       mode: 'server',
       roomType,
       reservationToken: reservation.token,

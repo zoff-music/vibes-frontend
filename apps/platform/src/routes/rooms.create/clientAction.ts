@@ -109,7 +109,7 @@ export async function clientAction({
     };
   }
 
-  return redirect(`/${room.id}`);
+  return redirect(`/${encodeURIComponent(room.id)}`);
 }
 
 async function reserveRoomName(
