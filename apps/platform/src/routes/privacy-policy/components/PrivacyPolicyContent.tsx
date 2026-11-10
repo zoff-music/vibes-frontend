@@ -23,7 +23,7 @@ export function PrivacyPolicyContent({
     <LegalDocument
       description="This policy explains data processing in Zoff Music and Watch rooms, including providers, shared queues, chat, AI playlist generation, and room-name moderation."
       title="Privacy Policy"
-      updatedAt="23 October 2026"
+      updatedAt="10 November 2026"
     >
       <LegalSection id="policy-1-who-operates-zoff" title="Who operates Zoff">
         <p>
@@ -114,16 +114,16 @@ export function PrivacyPolicyContent({
                 thumbnails, durations, categories, view counts, and like counts.
               </p>
               <p>
-                YouTube search results are cached for up to three days to reduce
+                YouTube search results are cached for up to seven days to reduce
                 duplicate API requests. When a user adds a result to a room, the
                 relevant public video information is stored with that room so
                 the shared queue can function. Queue metadata is scheduled for
                 refresh after 21 days. If it cannot be refreshed, a separate
                 cleanup removes it after 25 days without a successful refresh,
-                including a paused or currently selected video. This leaves time
-                for the search cache, import staging, and event replay before
-                the 30-day retention limit. An expired current video stops
-                playing locally when the room receives the update.
+                including a paused or currently selected video. Search caches,
+                import staging, and room event replay have separate expiration
+                periods. An expired current video stops playing locally when the
+                room receives the update.
               </p>
               <p>
                 Videos YouTube marks as made for kids are excluded from search,
@@ -178,7 +178,7 @@ export function PrivacyPolicyContent({
                 duration, genre, and playback information.
               </p>
               <p>
-                SoundCloud search results are cached for up to three days to
+                SoundCloud search results are cached for up to seven days to
                 avoid repeated provider requests. Tracks selected for a room are
                 stored with the room queue. Zoff does not claim ownership of
                 SoundCloud user content.
@@ -244,7 +244,8 @@ export function PrivacyPolicyContent({
 
       <LegalSection title="Retention and deletion">
         <p>
-          Search caches expire automatically after three days. Playlist
+          Search results are cached for up to seven days from when they are
+          fetched; empty search results expire after 15 minutes. Playlist
           generation job records are retained for up to one day. Room and queue
           data remain available while the room exists and may be removed by room
           or service administrators. Security and operational logs are retained
