@@ -101,9 +101,9 @@ export function CreateRoomSheet({
   };
 
   const createRoom = async () => {
-    const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
+    const displayName = name.trim();
 
-    if (!normalizedName) {
+    if (!displayName) {
       setError('Room name is required.');
 
       return;
@@ -130,10 +130,10 @@ export function CreateRoomSheet({
     setLoading(true);
     let roomReservation = reservation;
 
-    if (!roomReservation || roomReservation.name !== normalizedName) {
+    if (!roomReservation || roomReservation.name !== displayName) {
       const result = await submit({
         intent: 'reserve',
-        name: normalizedName,
+        name: displayName,
       });
 
       if (result.data?.intent !== 'reserved') {
@@ -156,7 +156,7 @@ export function CreateRoomSheet({
     const result = await submit({
       intent: 'create',
       request: {
-        name: normalizedName,
+        name: displayName,
         mode,
         roomType,
         reservationToken: roomReservation.token,

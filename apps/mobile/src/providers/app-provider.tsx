@@ -301,7 +301,7 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   const setRoomId = useCallback(
     async (nextRoomId: string, password = '') => {
-      const normalized = nextRoomId.trim().toLowerCase().replace(/\s+/g, '-');
+      const normalized = nextRoomId.trim();
 
       if (!normalized) {
         setError('Enter a room name.');
@@ -331,12 +331,12 @@ export function AppProvider({ children }: PropsWithChildren) {
       }
 
       const { snapshot, warning } = result.data;
-      setRoomIdValue(normalized);
+      setRoomIdValue(snapshot.room.id);
 
       if (snapshot.room.isAdmin) {
-        authenticatedRoomIdsRef.current.add(normalized);
+        authenticatedRoomIdsRef.current.add(snapshot.room.id);
       } else {
-        authenticatedRoomIdsRef.current.delete(normalized);
+        authenticatedRoomIdsRef.current.delete(snapshot.room.id);
       }
 
       clearLocalOverrides();

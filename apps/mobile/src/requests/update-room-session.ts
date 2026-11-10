@@ -108,7 +108,7 @@ async function openRoom(
   signal: AbortSignal,
   password = '',
 ): Promise<RequestResult<RoomSessionActionData>> {
-  const [roomError, existingRoom] = await readRequests.fetchRoom(roomId, {
+  const [roomError, existingRoom] = await readRequests.resolveRoom(roomId, {
     signal,
   });
 
@@ -122,6 +122,8 @@ async function openRoom(
 
     return requestFailure(roomError, 'Could not open that room.');
   }
+
+  roomId = existingRoom.id;
 
   const [, storedPassword] = await getSecureValue(
     getRoomAdminPasswordStorageKey(roomId),

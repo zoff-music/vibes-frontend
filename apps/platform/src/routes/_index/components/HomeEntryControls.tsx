@@ -73,7 +73,7 @@ export function HomeEntryControls({
         maxLength={
           active ? generatedPlaylistPromptMaxLength : roomNameMaxLength
         }
-        onChange={(next) => onChange(active ? next : next.toLowerCase())}
+        onChange={onChange}
         onToggle={onToggle}
         onSubmit={submit}
       />

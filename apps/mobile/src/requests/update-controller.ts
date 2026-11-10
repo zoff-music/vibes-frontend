@@ -118,10 +118,17 @@ export async function updateController({
   }
 
   if (input.intent === 'changeRoom') {
+    const [roomError, room] = await client.v2.get(
+      '/room-resolutions',
+      { $search: { name: input.roomId.trim() } },
+      { signal },
+    );
+    if (roomError || !room)
+      return failure(roomError, 'Could not find that room.');
     const [error] = await remoteRequests.updateRemote(
       remoteId,
       {
-        roomId: input.roomId,
+        roomId: room.id,
       },
       { signal },
     );

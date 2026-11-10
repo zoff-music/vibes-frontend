@@ -67,12 +67,9 @@ async function joinOrCreateRoom(
   roomType: RoomType,
   signal: AbortSignal,
 ): Promise<Response | TizenSessionActionData> {
-  const roomId = name.toLowerCase().replace(/\s+/g, '-');
   const [roomError, room] = await tizenApi.v2.get(
-    '/rooms/{id}',
-    {
-      id: roomId,
-    },
+    '/room-resolutions',
+    { $search: { name } },
     { signal },
   );
 
@@ -100,7 +97,7 @@ async function joinOrCreateRoom(
     };
   }
 
-  return createRoom(roomId, providers, roomType, signal);
+  return createRoom(name, providers, roomType, signal);
 }
 
 async function createRoom(
