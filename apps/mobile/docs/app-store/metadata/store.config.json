@@ -18,7 +18,7 @@
           "cast",
           "rooms"
         ],
-        "releaseNotes": "Room queues now always cycle while preserving the existing option to remove songs after playback. The redundant queue-loop setting has been removed throughout the app.",
+        "releaseNotes": "This update fixes room-name handling when joining rooms and updates the app's underlying dependencies.",
         "promoText": "Create a shared room, shape the queue together, cast to a bigger screen, or use your phone as a remote.",
         "marketingUrl": "https://zoff.me",
         "supportUrl": "https://github.com/zoff-music/vibes-frontend/issues",
