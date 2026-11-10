@@ -123,7 +123,7 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
 
   const loadRoom = useCallback(
     async (nextRoomId: string): Promise<RoomJoinResult> => {
-      const normalizedRoomId = nextRoomId.trim().toLowerCase();
+      const normalizedRoomId = nextRoomId.trim();
 
       if (!normalizedRoomId) {
         setRequestError('Enter a room name.');
@@ -155,7 +155,7 @@ export function useTvSession(): readonly [TvSessionState, TvSessionActions] {
       }
 
       applyRoomSnapshot(result.data);
-      setRoomId(normalizedRoomId);
+      setRoomId(result.data.room.id);
       setRequestError('');
 
       return 'joined';

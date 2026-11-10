@@ -53,6 +53,7 @@ import {
   roomMessageSchema,
   roomNameReservationRequestSchema,
   roomNameReservationSchema,
+  roomResolutionQuerySchema,
   roomTypeQuerySchema,
   roomUpdateV2Schema,
   roomV2Schema,
@@ -230,6 +231,9 @@ const endpoints = {
 } as const satisfies RequestDefinitions;
 
 const v2Endpoints = {
+  '/room-resolutions': {
+    get: { $search: roomResolutionQuerySchema, response: roomV2Schema },
+  },
   '/rooms': {
     post: { request: createRoomRequestV2Schema, response: roomV2Schema },
   },

@@ -1,6 +1,7 @@
 import {
   type NavigateFunction,
   type NavigationType,
+  useFetcher,
   useNavigation,
 } from '@kasperrt/smolter/preact';
 import { classNames, safeWrapAsync } from '@vibes/shared';
@@ -11,6 +12,7 @@ import { getPreviousPath } from '../../../utils/navigationHistory';
 import { warmRoomEntry } from '../../../utils/warmRoomEntry';
 import { preloadHomeAction } from '../clientAction';
 import type { HomeLoaderData } from '../loader';
+import type { HomeActionData } from '../utils/actions/clientAction';
 import { HomeEntryControls } from './HomeEntryControls';
 import { HomeLanding } from './HomeLanding';
 import { HomePlaceholder } from './HomePlaceholder';
@@ -31,6 +33,8 @@ export const HomeScreen = memo(function HomeScreen({
   searchParams,
 }: HomeScreenProps) {
   const [roomCode, setRoomCode] = useState('');
+  const joinFetcher = useFetcher<HomeActionData>();
+  const joining = joinFetcher.state !== 'idle';
   const [prompt, setPrompt] = useState('');
   const watch = useExperience() === 'WATCH';
   const previewReturn =
@@ -99,8 +103,18 @@ export const HomeScreen = memo(function HomeScreen({
 
     if (!requestedRoomId.trim()) return;
 
-    const slug = requestedRoomId.trim().toLowerCase().replace(/\s+/g, '-');
-    navigate(`/${slug}${watch ? '?type=watch' : ''}`, {});
+    if (selectedRoomId) {
+      navigate(`/${encodeURIComponent(selectedRoomId)}`, {});
+      return;
+    }
+    void joinFetcher.submit(
+      {
+        intent: 'joinRoom',
+        roomCode: requestedRoomId.trim(),
+        roomType: watch ? 'WATCH' : 'MUSIC',
+      },
+      { method: 'post', action: '/' },
+    );
   };
 
   const handleStartSession = () => {
@@ -122,11 +136,11 @@ export const HomeScreen = memo(function HomeScreen({
 
   return (
     <div
-      aria-busy={Boolean(pendingRoomSlug)}
+      aria-busy={Boolean(pendingRoomSlug) || joining}
       className={classNames(
         'home-entry relative w-full',
         shouldFadeIn && 'animate-fade-in',
-        pendingRoomSlug && 'pointer-events-none',
+        (pendingRoomSlug || joining) && 'pointer-events-none',
       )}
     >
       <HomeLanding
@@ -142,7 +156,7 @@ export const HomeScreen = memo(function HomeScreen({
         >
           {(placeholder) => (
             <HomeEntryControls
-              pending={Boolean(pendingRoomSlug)}
+              pending={Boolean(pendingRoomSlug) || joining}
               active={isAIMode}
               enabled={heroVisible}
               inputRef={roomNameRef}
@@ -157,6 +171,11 @@ export const HomeScreen = memo(function HomeScreen({
           )}
         </HomePlaceholder>
       </HomeLanding>
+      {joinFetcher.data?.intent === 'joinRoom' && joinFetcher.data.error && (
+        <p role="alert" className="text-center text-red-600 dark:text-red-400">
+          {joinFetcher.data.error}
+        </p>
+      )}
       {!watch && previewReturn && (
         <ReturnToRoomPreview
           onJoinRoom={handleJoinRoom}

@@ -50,16 +50,31 @@ export async function clientLoader({
     };
   }
 
+  const [roomError, room] = await tizenApi.v2.get(
+    '/room-resolutions',
+    { $search: { name: roomId } },
+    options,
+  );
+  if (roomError || !room) {
+    return {
+      roomType,
+      error: await getRequestErrorMessage(
+        roomError,
+        'Could not load that room.',
+      ),
+      providers,
+      publicRooms,
+      roomId: '',
+      snapshot: null,
+    };
+  }
   const snapshotResults = await Promise.all([
-    tizenApi.v2.get('/rooms/{id}', { id: roomId }, options),
-    tizenApi.v3.get('/rooms/{id}/items', { id: roomId, $search: {} }, options),
-    tizenApi.v2.get('/rooms/{id}/states', { id: roomId }, options),
+    tizenApi.v3.get('/rooms/{id}/items', { id: room.id, $search: {} }, options),
+    tizenApi.v2.get('/rooms/{id}/states', { id: room.id }, options),
   ]);
-  const requestError =
-    snapshotResults[0][0] ?? snapshotResults[1][0] ?? snapshotResults[2][0];
-  const room = snapshotResults[0][1];
-  const playlistItems = snapshotResults[1][1]?.data;
-  const playback = snapshotResults[2][1];
+  const requestError = snapshotResults[0][0] ?? snapshotResults[1][0];
+  const playlistItems = snapshotResults[0][1]?.data;
+  const playback = snapshotResults[1][1];
 
   if (requestError || !room || !playlistItems || !playback) {
     return {
@@ -80,7 +95,7 @@ export async function clientLoader({
     error: '',
     providers,
     publicRooms,
-    roomId,
+    roomId: room.id,
     snapshot: { playback, room, playlistItems },
   };
 }

@@ -16,18 +16,30 @@ export async function loadRoom({
   params,
   signal,
 }: RequestArgs): Promise<RequestResult<RoomSnapshot>> {
-  const roomId = params.id?.trim().toLowerCase();
+  const roomName = params.id?.trim();
 
-  if (!roomId) return { data: null, error: 'Enter a room name.' };
+  if (!roomName) return { data: null, error: 'Enter a room name.' };
 
-  const results = await Promise.all([
-    readRequests.fetchRoom(roomId, { signal }),
-    readRequests.fetchPlaylistItems(roomId, { signal }),
-    playbackRequests.fetchPlayback(roomId, { signal }),
+  const [roomError, room] = await readRequests.resolveRoom(roomName, {
+    signal,
+  });
+  if (roomError || !room) {
+    if (getHttpError(roomError)?.response.status === notFoundStatus)
+      return { data: null, error: roomNotFoundError };
+    return {
+      data: null,
+      error: await getRequestErrorMessage(
+        roomError,
+        'Could not find that room.',
+      ),
+    };
+  }
+  const [playlistResult, playbackResult] = await Promise.all([
+    readRequests.fetchPlaylistItems(room.id, { signal }),
+    playbackRequests.fetchPlayback(room.id, { signal }),
   ]);
-  const [roomError, room] = results[0];
-  const [playlistItemsError, playlistItems] = results[1];
-  const [playbackError, playback] = results[2];
+  const [playlistItemsError, playlistItems] = playlistResult;
+  const [playbackError, playback] = playbackResult;
   const error = roomError ?? playlistItemsError ?? playbackError;
   const snapshot =
     room && playlistItems && playback

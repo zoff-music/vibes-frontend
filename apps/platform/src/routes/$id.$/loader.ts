@@ -80,6 +80,23 @@ export async function loader({
       });
     }
 
+    const [resolutionError, resolvedRoom] = await serverApi.v2.get(
+      '/room-resolutions',
+      { $search: { name: roomId } },
+      options,
+    );
+    if (resolvedRoom) {
+      const canonicalUrl = new URL(request.url);
+      canonicalUrl.pathname = `/${encodeURIComponent(resolvedRoom.id)}`;
+      return redirect(canonicalUrl.toString());
+    }
+    if (
+      resolutionError &&
+      getHttpError(resolutionError)?.response.status !== 404
+    ) {
+      throw new Response('Room temporarily unavailable', { status: 503 });
+    }
+
     const createUrl = new URL('/rooms/create', request.url);
     createUrl.searchParams.set('name', roomId);
 

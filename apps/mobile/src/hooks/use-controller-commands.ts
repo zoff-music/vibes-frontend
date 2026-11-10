@@ -175,7 +175,7 @@ export function useControllerCommands({
   };
 
   const changeRoom = async () => {
-    const normalizedRoomId = nextRoomId.trim().toLowerCase();
+    const normalizedRoomId = nextRoomId.trim();
 
     if (!normalizedRoomId) {
       setError('Enter the room name to control.');

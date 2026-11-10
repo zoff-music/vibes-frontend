@@ -1,5 +1,13 @@
-import type { ClientActionFunctionArgs } from '@kasperrt/smolter/preact';
-import { api, getAPIErrorMessage, getRateLimitMessage } from '@vibes/api';
+import {
+  type ClientActionFunctionArgs,
+  redirect,
+} from '@kasperrt/smolter/preact';
+import {
+  api,
+  getAPIErrorMessage,
+  getHttpError,
+  getRateLimitMessage,
+} from '@vibes/api';
 import type { RoomType } from '@vibes/models';
 import {
   type PendingGeneration,
@@ -8,7 +16,7 @@ import {
 
 export interface HomeActionData {
   error?: string;
-  intent: 'generateRoom' | 'roomExists';
+  intent: 'generateRoom' | 'roomExists' | 'joinRoom';
   roomCode?: string;
   roomExists?: boolean;
   generation?: PendingGeneration;
@@ -70,7 +78,7 @@ export async function clientAction({
   }
 
   const rawRoomCode = String(formData.get('roomCode') ?? '');
-  const roomCode = rawRoomCode.trim().toLowerCase().replace(/\s+/g, '-');
+  const roomCode = rawRoomCode.trim();
 
   if (!roomCode) {
     return {
@@ -80,7 +88,30 @@ export async function clientAction({
     };
   }
 
-  const [error] = await api.v2.get('/rooms/{id}', { id: roomCode });
+  const [error, room] = await api.v2.get(
+    '/room-resolutions',
+    {
+      $search: { name: roomCode },
+    },
+    { signal: request.signal },
+  );
+  if (intent === 'joinRoom') {
+    if (error && getHttpError(error)?.response.status !== 404) {
+      return {
+        intent: 'joinRoom',
+        error:
+          (await getAPIErrorMessage(error)) ??
+          getRateLimitMessage(error) ??
+          'Could not find that room. Please try again.',
+      };
+    }
+    if (room) return redirect(`/${encodeURIComponent(room.id)}`);
+    const createUrl = new URL('/rooms/create', request.url);
+    createUrl.searchParams.set('name', roomCode);
+    if (formData.get('roomType') === 'WATCH')
+      createUrl.searchParams.set('type', 'watch');
+    return redirect(createUrl.toString());
+  }
 
   return {
     intent: 'roomExists',

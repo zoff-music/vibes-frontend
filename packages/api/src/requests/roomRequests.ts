@@ -50,6 +50,7 @@ export function createPublicRoomPageRequest(client: ApiV3Client) {
 }
 
 export interface RoomReadRequests {
+  resolveRoom: (name: string, options?: ApiRequestOptions) => ApiResult<RoomV2>;
   fetchRoom: (roomId: string, options?: ApiRequestOptions) => ApiResult<RoomV2>;
   fetchPlaylistItems: (
     roomId: string,
@@ -59,6 +60,8 @@ export interface RoomReadRequests {
 
 export function createRoomReadRequests(client: ApiClient): RoomReadRequests {
   return {
+    resolveRoom: (name: string, options?: ApiRequestOptions) =>
+      client.v2.get('/room-resolutions', { $search: { name } }, options),
     fetchRoom: (roomId: string, options?: ApiRequestOptions) =>
       client.v2.get('/rooms/{id}', { id: roomId }, options),
     fetchPlaylistItems: async (roomId: string, options?: ApiRequestOptions) => {
