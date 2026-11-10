@@ -10,6 +10,7 @@
     "./chatPreferenceStore": "./src/stores/chatPreferenceStore.ts",
     ".": "./src/index.ts",
     "./wrap": "./src/wrap.ts",
+    "./paint": "./src/utils/paint.ts",
     "./tv-player": "./src/tv-player.ts",
     "./navigation": "./src/navigation.ts",
     "./requests": "./src/requests.ts",

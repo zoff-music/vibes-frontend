@@ -1,4 +1,4 @@
-import { afterFirstPaint } from '@vibes/shared';
+import { afterFirstPaint } from '@vibes/shared/paint';
 import { useEffect, useRef } from 'react';
 import { type ApiV3Client, apiV3 } from '../client';
 import {

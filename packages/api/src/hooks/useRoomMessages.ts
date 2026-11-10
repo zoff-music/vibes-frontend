@@ -1,5 +1,5 @@
 import type { EventCursor, RoomMessage } from '@vibes/models';
-import { afterFirstPaint } from '@vibes/shared';
+import { afterFirstPaint } from '@vibes/shared/paint';
 import { useEffect, useRef } from 'react';
 import { type ApiClient, api } from '../client';
 
