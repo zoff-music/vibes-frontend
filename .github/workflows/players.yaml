@@ -14,12 +14,40 @@ permissions:
   contents: read
 
 jobs:
+  browser-image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      image: ${{ steps.playwright.outputs.image }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Resolve matching Playwright image
+        id: playwright
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').devDependencies.playwright")
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Pin Playwright to an exact release version for the browser image."
+            exit 1
+          fi
+          echo "image=mcr.microsoft.com/playwright:v${version}-noble" >> "$GITHUB_OUTPUT"
+
   players:
+    needs: browser-image
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, webkit]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    # Browsers and their OS dependencies are baked into the matching image.
+    container:
+      image: ${{ needs.browser-image.outputs.image }}
+      options: --init --ipc=host
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 40
     env:
       PLAYER_BROWSER: ${{ matrix.browser }}
@@ -36,8 +64,6 @@ jobs:
         run: pnpm typecheck:players
       - name: Check player test conventions
         run: pnpm exec biome check scripts/players
-      - name: Install browsers
-        run: pnpm exec playwright install --with-deps "${{ matrix.browser }}"
       - name: Player integration
         run: pnpm test:players
       - name: Optional official-widget integration
