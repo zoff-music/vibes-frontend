@@ -47,6 +47,7 @@ export function MessageUsageChart({ usage }: MessageUsageChartProps) {
         )
         .map((point) => ({
           roomId: point.roomId,
+          ...(point.roomName && { roomName: point.roomName }),
           ...(point.roomType && { roomType: point.roomType }),
           value: point.messages,
         })),

@@ -48,6 +48,7 @@ export function SearchUsageChart({
       const current = rooms.get(point.roomId);
       rooms.set(point.roomId, {
         roomId: point.roomId,
+        ...(point.roomName && { roomName: point.roomName }),
         ...(point.roomType && { roomType: point.roomType }),
         value: (current?.value ?? 0) + point.total,
         cached: (current?.cached ?? 0) + point.cached,

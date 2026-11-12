@@ -6,6 +6,7 @@ import { Tooltip } from '../components/Tooltip';
 
 export interface RoomUsageValue {
   roomId: string;
+  roomName?: string;
   roomType?: 'MUSIC' | 'WATCH';
   value: number;
   cached?: number;
@@ -26,6 +27,7 @@ interface RoomUsageChartProps {
   label: string;
   tickFormat: string;
   showCacheSplit?: boolean;
+  summaryMode?: 'total' | 'peak';
 }
 
 interface RoomUsageSeries {
@@ -39,10 +41,14 @@ export function RoomUsageChart({
   label,
   tickFormat,
   showCacheSplit = false,
+  summaryMode = 'total',
 }: RoomUsageChartProps) {
   const id = useId();
   const [selectedRoom, setSelectedRoom] = useState('*');
   const [selectedType, setSelectedType] = useState('all');
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(0);
+  const roomNames = new Map<string, string>();
   const roomTypes = new Map<string, RoomUsageValue['roomType']>();
   const roomTotals = new Map<string, number>();
 
@@ -51,9 +57,12 @@ export function RoomUsageChart({
       if (!room.roomId) continue;
 
       roomTypes.set(room.roomId, room.roomType);
+      if (room.roomName) roomNames.set(room.roomId, room.roomName);
       roomTotals.set(
         room.roomId,
-        (roomTotals.get(room.roomId) ?? 0) + room.value,
+        summaryMode === 'peak'
+          ? Math.max(roomTotals.get(room.roomId) ?? 0, room.value)
+          : (roomTotals.get(room.roomId) ?? 0) + room.value,
       );
     }
   }
@@ -69,20 +78,35 @@ export function RoomUsageChart({
     const typeLabel =
       type === 'WATCH' ? 'Watch' : type === 'MUSIC' ? 'Music' : 'Unknown type';
 
+    if (room === '*other')
+      return `Other rooms (${Math.max(0, rooms.length - 5)})`;
+
     return room === '*unknown'
       ? roomLabel(room)
-      : `${typeLabel} · ${roomLabel(room)}`;
+      : `${typeLabel} · ${roomNames.get(room) || roomLabel(room)}`;
   };
   const activeRoom =
     selectedRoom === '*' || rooms.some(([room]) => room === selectedRoom)
       ? selectedRoom
       : '*';
-  const paletteRooms = allRooms.map(([room]) => room).sort();
+  const paletteRooms = rooms.slice(0, 5).map(([room]) => room);
+  const otherRooms = new Set(rooms.slice(5).map(([room]) => room));
+  const matchingRooms = rooms.filter(([room]) =>
+    `${room} ${describeRoom(room)}`
+      .toLowerCase()
+      .includes(query.trim().toLowerCase()),
+  );
+  const activePage = Math.min(
+    page,
+    Math.max(0, Math.ceil(matchingRooms.length / 20) - 1),
+  );
+  const pageRooms = matchingRooms.slice(activePage * 20, (activePage + 1) * 20);
   const color = (room: string) => roomColor(room, paletteRooms.indexOf(room));
   const roomSeries =
     activeRoom === '*'
       ? [
-          ...rooms.map(([room]) => room),
+          ...paletteRooms,
+          ...(otherRooms.size > 0 ? ['*other'] : []),
           ...(selectedType === 'all' ? ['*unknown'] : []),
         ]
       : [activeRoom];
@@ -107,6 +131,14 @@ export function RoomUsageChart({
   const chartBuckets = buckets.map((bucket) => {
     const counts = new Map(bucket.rooms.map((room) => [room.roomId, room]));
     const values = series.map(({ room, metric }) => {
+      if (room === '*other') {
+        return bucket.rooms.reduce(
+          (sum, entry) =>
+            sum + (otherRooms.has(entry.roomId) ? (entry[metric] ?? 0) : 0),
+          0,
+        );
+      }
+
       if (room === '*unknown') {
         const total = metric === 'value' ? bucket.total : (bucket[metric] ?? 0);
         const attributed = bucket.rooms.reduce(
@@ -206,6 +238,7 @@ export function RoomUsageChart({
         onChange={(value) => {
           setSelectedType(value);
           setSelectedRoom('*');
+          setPage(0);
         }}
       />
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -220,23 +253,21 @@ export function RoomUsageChart({
             Solid: uncached · Dashed: cached. Both stack within each room.
           </p>
         )}
-        <label htmlFor={id} className="text-theme-muted space-y-1 text-sm">
-          <span className="block">Room breakdown</span>
-          <select
-            id={id}
-            value={activeRoom}
-            onChange={(event) => setSelectedRoom(event.currentTarget.value)}
-            className="border-theme bg-theme-surface text-theme focus-visible:outline-secondary max-w-64 rounded-lg border px-3 py-2 focus-visible:outline-2"
+        {activeRoom !== '*' && (
+          <button
+            type="button"
+            onClick={() => setSelectedRoom('*')}
+            className="border-theme text-theme focus-visible:outline-secondary rounded-lg border px-3 py-2 text-sm focus-visible:outline-2"
           >
-            <option value="*">All rooms</option>
-            {rooms.map(([room]) => (
-              <option key={room} value={room}>
-                {describeRoom(room)}
-              </option>
-            ))}
-          </select>
-        </label>
+            Back to top rooms
+          </button>
+        )}
       </div>
+      <p className="text-theme-muted text-sm" aria-live="polite">
+        {activeRoom === '*' &&
+          `Top ${Math.min(5, rooms.length)} of ${rooms.length} rooms by ${summaryMode === 'peak' ? 'peak audience' : 'activity'}. Remaining rooms are combined; no counts are dropped.`}
+        {activeRoom !== '*' && describeRoom(activeRoom)}
+      </p>
       <div className="border-theme bg-theme-surface overflow-x-auto rounded-xl border p-3">
         <div className="relative min-w-xl">
           <svg
@@ -272,7 +303,10 @@ export function RoomUsageChart({
                 path.points.some((point) => point.top < point.bottom),
               )
               .map((path) => (
-                <g key={path.label} className={color(path.room)}>
+                <g
+                  key={`${path.room}-${path.metric}`}
+                  className={color(path.room)}
+                >
                   <path
                     d={path.area}
                     fill="currentColor"
@@ -282,20 +316,21 @@ export function RoomUsageChart({
                     d={path.line}
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth={2.5}
+                    strokeWidth={1.5}
                     strokeLinejoin="round"
                     strokeDasharray={path.metric === 'cached' ? '5 4' : 'none'}
                     strokeOpacity={path.metric === 'cached' ? 0.65 : 1}
                   />
-                  {path.points.map((point, index) => (
-                    <circle
-                      key={chartBuckets[index].timestamp.toISOString()}
-                      cx={point.x}
-                      cy={point.top}
-                      r={2.5}
-                      fill="currentColor"
-                    />
-                  ))}
+                  {path.points.length === 1 &&
+                    path.points.map((point) => (
+                      <circle
+                        key={path.room}
+                        cx={point.x}
+                        cy={point.top}
+                        r={3}
+                        fill="currentColor"
+                      />
+                    ))}
                 </g>
               ))}
             {chartBuckets.map((bucket, index) => (
@@ -363,7 +398,9 @@ export function RoomUsageChart({
                               className={color(room)}
                             />
                           </svg>
-                          <span className="truncate">{describeRoom(room)}</span>
+                          <span className="break-words">
+                            {describeRoom(room)}
+                          </span>
                         </span>
                         <span className="text-right tabular-nums">
                           {value > 0 && value.toLocaleString()}
@@ -395,12 +432,19 @@ export function RoomUsageChart({
           </p>
         )}
       <ul
-        className="text-theme-muted flex flex-wrap gap-x-5 gap-y-2 text-sm"
+        className="text-theme grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3"
         aria-label="Room legend"
       >
         {visibleRooms.map((room) => (
-          <li key={room} className="flex items-center gap-2">
-            <svg viewBox="0 0 8 8" className="h-2.5 w-2.5" aria-hidden="true">
+          <li
+            key={room}
+            className="border-theme flex min-w-0 items-start gap-2 rounded-lg border p-3"
+          >
+            <svg
+              viewBox="0 0 8 8"
+              className="mt-1 h-2.5 w-2.5 shrink-0"
+              aria-hidden="true"
+            >
               <rect
                 width="8"
                 height="8"
@@ -409,10 +453,104 @@ export function RoomUsageChart({
                 className={color(room)}
               />
             </svg>
-            {describeRoom(room)}
+            <span className="min-w-0 flex-1 break-words">
+              {describeRoom(room)}
+            </span>
+            <span className="shrink-0 font-sans tabular-nums">
+              {(summaryMode === 'peak'
+                ? Math.max(
+                    0,
+                    ...chartBuckets.map(
+                      (bucket) =>
+                        bucket.tooltipRooms.find((entry) => entry.room === room)
+                          ?.total ?? 0,
+                    ),
+                  )
+                : chartBuckets.reduce(
+                    (sum, bucket) =>
+                      sum +
+                      (bucket.tooltipRooms.find((entry) => entry.room === room)
+                        ?.total ?? 0),
+                    0,
+                  )
+              ).toLocaleString()}
+              <span className="text-theme-muted ml-1 text-xs">
+                {summaryMode === 'peak' ? 'peak' : 'total'}
+              </span>
+            </span>
           </li>
         ))}
       </ul>
+      <details className="border-theme rounded-xl border p-4">
+        <summary className="text-theme focus-visible:outline-secondary cursor-pointer text-sm font-semibold focus-visible:outline-2">
+          Find a room · {rooms.length.toLocaleString()} rooms
+        </summary>
+        <label htmlFor={id} className="text-theme mt-4 block text-sm">
+          Search room name or ID
+        </label>
+        <input
+          id={id}
+          type="search"
+          value={query}
+          onInput={(event) => {
+            setQuery(event.currentTarget.value);
+            setPage(0);
+          }}
+          className="border-theme bg-theme-surface text-theme focus-visible:outline-secondary mt-2 w-full rounded-lg border px-3 py-2 focus-visible:outline-2"
+        />
+        <p className="text-theme-muted my-3 text-xs" aria-live="polite">
+          {matchingRooms.length} matches · Ranked by{' '}
+          {summaryMode === 'peak'
+            ? 'peak participants at sampled intervals'
+            : 'total activity in this period'}
+        </p>
+        <ul className="divide-theme divide-y">
+          {pageRooms.map(([room, total]) => (
+            <li key={room}>
+              <button
+                type="button"
+                aria-pressed={activeRoom === room}
+                onClick={() => setSelectedRoom(room)}
+                className="text-theme hover:bg-secondary/10 focus-visible:outline-secondary flex min-h-11 w-full items-center justify-between gap-4 rounded px-2 py-2 text-left text-sm focus-visible:outline-2"
+              >
+                <span className="min-w-0 break-words">
+                  {describeRoom(room)}
+                  <span className="text-theme-muted block text-xs">{room}</span>
+                </span>
+                <span className="shrink-0 font-sans tabular-nums">
+                  {total.toLocaleString()}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        {matchingRooms.length === 0 && (
+          <p className="text-theme-muted text-sm">No matching rooms.</p>
+        )}
+        {matchingRooms.length > 20 && (
+          <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+            <button
+              type="button"
+              disabled={activePage === 0}
+              onClick={() => setPage(activePage - 1)}
+              className="text-theme focus-visible:outline-secondary min-h-11 rounded px-3 focus-visible:outline-2 disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span className="text-theme-muted">
+              Page {activePage + 1} of {Math.ceil(matchingRooms.length / 20)}
+            </span>
+            <button
+              type="button"
+              disabled={(activePage + 1) * 20 >= matchingRooms.length}
+              onClick={() => setPage(activePage + 1)}
+              className="text-theme focus-visible:outline-secondary min-h-11 rounded px-3 focus-visible:outline-2 disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </details>
       <p className="text-theme-subtle text-xs">
         Older activity and clients without a room ID are shown as unattributed.
         Select a room to inspect it individually. Unknown room types remain in
@@ -431,6 +569,7 @@ function roomLabel(room: string) {
 
 function roomColor(room: string, index: number) {
   if (room === '*unknown' || room === '') return 'text-slate-400';
+  if (room === '*other') return 'text-theme-muted';
 
   return classNames(roomColors[Math.max(0, index) % roomColors.length]);
 }

@@ -50,6 +50,7 @@ export function ListenerUsageChart({
           )
           .map((point) => ({
             roomId: point.roomId,
+            ...(point.roomName && { roomName: point.roomName }),
             ...(point.roomType && { roomType: point.roomType }),
             value: point.listeners,
           })),
@@ -87,6 +88,7 @@ export function ListenerUsageChart({
       <RoomUsageChart
         buckets={buckets}
         label="Participants"
+        summaryMode="peak"
         tickFormat={period === 'hour' || period === 'day' ? '%H:%M' : '%d %b'}
       />
     </div>
