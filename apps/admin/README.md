@@ -9,9 +9,11 @@ It stays outside document flow, pauses in hidden tabs and respects reduced
 motion. Login and error views use the same background without opaque page layers.
 
 The overview separates Music and Watch totals. Room cards label the immutable
-room type beside the room name. Search, chat and audience charts retain stacked
-per-room series and show room types in legends, selectors and tooltips. Chart
-type filters select Music or Watch without combining their room series; search
+room type beside the room name. Search, chat and audience charts show the five highest-activity rooms, an
+explicit Other rooms aggregate and any unattributed activity. Bounded legends
+show exact totals (peaks for audience), and a searchable, paginated room list
+supports individual drill-down by display name or ID. Chart
+type filters select Music or Watch before ranking and grouping rooms; search
 keeps separate cached and uncached lines. Audience breakdowns remain sampled at
 the overall peak minute, rather than inventing independent per-type peaks.
 Deleted rooms and older responses with no room type remain unknown in All rooms.
@@ -36,4 +38,7 @@ Validate the app with:
 pnpm --filter @vibes/admin lint
 pnpm --filter @vibes/admin typecheck
 pnpm --filter @vibes/admin build
+pnpm exec vitest run --config scripts/admin/vitest.config.ts
+pnpm exec playwright install chromium
+node scripts/admin/browser.mjs
 ```

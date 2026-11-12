@@ -130,6 +130,7 @@ export const adminSearchUsageSchema = /* @__PURE__ */ v.object({
         ...v.omit(adminSearchUsagePointSchema, ['unique']).entries,
         roomId: v.string(),
         roomType: v.optional(v.picklist(['MUSIC', 'WATCH'])),
+        roomName: v.optional(v.string()),
       }),
     ),
   ),
@@ -154,6 +155,7 @@ export const adminListenerUsageSchema = /* @__PURE__ */ v.object({
         ...listenerUsagePointSchema.entries,
         roomId: v.string(),
         roomType: v.optional(v.picklist(['MUSIC', 'WATCH'])),
+        roomName: v.optional(v.string()),
       }),
     ),
   ),
@@ -169,6 +171,7 @@ export const adminMessageUsageSchema = /* @__PURE__ */ v.object({
       v.object({
         roomId: v.string(),
         roomType: v.optional(v.picklist(['MUSIC', 'WATCH'])),
+        roomName: v.optional(v.string()),
         window: v.picklist(['hour', 'day', 'month']),
         timestamp: v.string(),
         messages: v.pipe(v.number(), v.finite()),
