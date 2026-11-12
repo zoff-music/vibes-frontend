@@ -78,8 +78,8 @@ export function createTracedApiFetchLifecycle(serviceName: string) {
   const tracer = trace.getTracer(serviceName);
 
   return {
-    beforeRequest(request: Request) {
-      const state = startRequestTrace(tracer, request);
+    beforeRequest(request: Request, routeTemplate?: string) {
+      const state = startRequestTrace(tracer, request, routeTemplate);
       const spanContext = trace.setSpan(context.active(), state.span);
       const headers = new Headers(request.headers);
       propagation.inject(spanContext, headers, headersSetter);
@@ -100,7 +100,6 @@ export function createTracedApiFetchLifecycle(serviceName: string) {
         operation_name: state.operationName,
       });
       state.span.setAttribute('http.method', request.method);
-      state.span.setAttribute('http.url', request.url);
       state.span.setAttribute('http.status_code', response.status);
 
       if (response.status >= 500) {
@@ -138,9 +137,11 @@ export function createTracedApiFetchLifecycle(serviceName: string) {
 function startRequestTrace(
   tracer: ReturnType<typeof trace.getTracer>,
   request: Request,
+  routeTemplate?: string,
 ) {
   const requestUrl = new URL(request.url);
-  const operationName = `${request.method} ${requestUrl.pathname}`;
+  const route = routeTemplate ?? 'unknown';
+  const operationName = `${request.method} ${route}`;
   const endTimer = backendRequestDuration.startTimer({
     operation_name: operationName,
   });
@@ -148,6 +149,13 @@ function startRequestTrace(
   return {
     endTimer,
     operationName,
-    span: tracer.startSpan(operationName, { kind: SpanKind.CLIENT }),
+    span: tracer.startSpan(operationName, {
+      kind: SpanKind.CLIENT,
+      attributes: {
+        'http.request.method': request.method,
+        'url.template': route,
+        'server.address': requestUrl.hostname,
+      },
+    }),
   };
 }
