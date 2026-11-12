@@ -38,7 +38,7 @@ interface ApiRequestOptions {
 }
 
 export interface ApiFetchLifecycle {
-  beforeRequest?: (request: Request) => Request;
+  beforeRequest?: (request: Request, routeTemplate?: string) => Request;
   afterResponse?: (request: Request, response: Response) => void;
   afterError?: (request: Request, error: Error) => void;
   afterRequest?: (request: Request) => void;
@@ -87,6 +87,7 @@ function createFetchError(method: string, err: Error) {
 export function createApiFetchProvider(
   lifecycle: ApiFetchLifecycle = {},
   fetcher: ApiFetch = fetch,
+  routeTemplates: readonly string[] = [],
 ): ApiFetchProvider {
   return class ApiFetchProviderClient implements ApiFetchClient {
     private baseUrl: string;
@@ -165,6 +166,15 @@ export function createApiFetchProvider(
       options: ApiRequestOptions,
     ): ApiFetchResult {
       const headers = mergeHeaders(this.options.headers, options.headers);
+      const eventStream = headers
+        .get('Accept')
+        ?.split(',')
+        .some(
+          (value) =>
+            value.split(';')[0]?.trim().toLowerCase() === 'text/event-stream',
+        );
+      // Subscription setup and reconnects are not bounded REST operations.
+      const requestLifecycle: ApiFetchLifecycle = eventStream ? {} : lifecycle;
       const url = `${this.baseUrl}${endpoint.replace(/^\//, '')}`;
       const request = new Request(url, {
         body: options.body,
@@ -174,20 +184,39 @@ export function createApiFetchProvider(
         headers,
         ...(options.signal && { signal: options.signal }),
       });
-      const lifecycleRequest = lifecycle.beforeRequest?.(request) ?? request;
+      const pathname = new URL(url).pathname;
+      const pathSegments = pathname.split('/');
+      const routeTemplate =
+        routeTemplates.find((template) => template === pathname) ??
+        routeTemplates.find((template) => {
+          const segments = template.split('/');
+
+          return (
+            segments.length === pathSegments.length &&
+            segments.every(
+              (segment, index) =>
+                segment === pathSegments[index] ||
+                (segment.startsWith('{') &&
+                  segment.endsWith('}') &&
+                  pathSegments[index] !== ''),
+            )
+          );
+        });
+      const lifecycleRequest =
+        requestLifecycle.beforeRequest?.(request, routeTemplate) ?? request;
 
       const [err, response] = await safeWrapAsync(fetcher(lifecycleRequest));
 
       if (err || !response) {
         const normalizedErr = err ?? new Error('error fetching response');
-        lifecycle.afterError?.(lifecycleRequest, normalizedErr);
-        lifecycle.afterRequest?.(lifecycleRequest);
+        requestLifecycle.afterError?.(lifecycleRequest, normalizedErr);
+        requestLifecycle.afterRequest?.(lifecycleRequest);
 
         return [createFetchError(options.method, normalizedErr), null];
       }
 
-      lifecycle.afterResponse?.(lifecycleRequest, response);
-      lifecycle.afterRequest?.(lifecycleRequest);
+      requestLifecycle.afterResponse?.(lifecycleRequest, response);
+      requestLifecycle.afterRequest?.(lifecycleRequest);
 
       if (response.ok) {
         return [null, response as ApiFetchResponse];
@@ -209,6 +238,7 @@ export async function headApiUrl(
   options: ApiHeadOptions = {},
   lifecycle: ApiFetchLifecycle = {},
   fetcher: ApiFetch = fetch,
+  routeTemplate?: string,
 ): Promise<[Error | null, boolean | null]> {
   const request = new Request(url, {
     credentials: 'include',
@@ -216,7 +246,8 @@ export async function headApiUrl(
     method: 'HEAD',
     ...(options.signal && { signal: options.signal }),
   });
-  const lifecycleRequest = lifecycle.beforeRequest?.(request) ?? request;
+  const lifecycleRequest =
+    lifecycle.beforeRequest?.(request, routeTemplate) ?? request;
   const [err, response] = await safeWrapAsync(fetcher(lifecycleRequest));
 
   if (err || !response) {

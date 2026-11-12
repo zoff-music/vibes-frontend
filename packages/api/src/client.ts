@@ -406,7 +406,11 @@ export function createRequestClient<const Endpoints extends RequestDefinitions>(
   const resolvedBaseUrl = normalizedBaseUrl.replace(/([^:]\/)\/+/g, '$1');
 
   return new RequestClient({
-    fetchProvider: createApiFetchProvider(fetchLifecycle, fetcher),
+    fetchProvider: createApiFetchProvider(
+      fetchLifecycle,
+      fetcher,
+      Object.keys(endpoints).map((endpoint) => `${basePath}${endpoint}`),
+    ),
     hostname: resolvedBaseUrl,
     baseUrl: resolvedBaseUrl,
     endpoints,
@@ -463,6 +467,7 @@ export function createApiClientWithBaseUrl(
         },
         fetchLifecycle,
         fetcher,
+        `${API_BASE_PATH}/rooms/{id}`,
       );
     },
   });
