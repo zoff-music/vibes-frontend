@@ -98,10 +98,6 @@ export default defineConfig(({ mode, command }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        '@vibes/ui': path.resolve(__dirname, '../../packages/ui/src'),
-        '@vibes/shared': path.resolve(__dirname, '../../packages/shared/src'),
-        '@vibes/models': path.resolve(__dirname, '../../packages/models/src'),
-        '@vibes/api': path.resolve(__dirname, '../../packages/api/src'),
       },
     },
   };
