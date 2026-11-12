@@ -1,6 +1,14 @@
 import type { PlaylistItem } from '@vibes/models';
 import { classNames } from '@vibes/shared';
-import { lazy, memo, Suspense, useEffect, useState } from 'preact/compat';
+import { PlayerLoading } from '@vibes/ui/web';
+import {
+  lazy,
+  memo,
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from 'preact/compat';
 
 const LazySoundCloudPlayer = lazy(async () => {
   const module = await import('@vibes/ui/web/player/SoundCloudPlayer');
@@ -30,14 +38,6 @@ interface LoadedPlayers {
   youtube: boolean;
 }
 
-function PlayerLoading() {
-  return (
-    <div className="absolute inset-0 flex items-center justify-center bg-black">
-      <div className="border-theme border-t-primary h-8 w-8 animate-spin rounded-full border-2" />
-    </div>
-  );
-}
-
 function EmbedPlayerSourceComponent({
   autoplay,
   currentPlaylistItem,
@@ -48,6 +48,15 @@ function EmbedPlayerSourceComponent({
   onNeedsUserGestureChange,
   playlistItems,
 }: Props) {
+  const [isVideoVisible, setIsVideoVisible] = useState(false);
+  const [isPlaybackBlocked, setIsPlaybackBlocked] = useState(false);
+  const handleNeedsUserGestureChange = useCallback(
+    (needsGesture: boolean) => {
+      setIsPlaybackBlocked(needsGesture);
+      onNeedsUserGestureChange(needsGesture);
+    },
+    [onNeedsUserGestureChange],
+  );
   const isSoundCloudActive = currentPlaylistItem?.sourceType === 'soundcloud';
   const isYouTubeActive = currentPlaylistItem?.sourceType === 'youtube';
   const isSoundCloudEnabled = enabledProviders.includes('soundcloud');
@@ -90,16 +99,17 @@ function EmbedPlayerSourceComponent({
             !isYouTubeActive && 'pointer-events-none opacity-0',
           )}
         >
-          <Suspense fallback={isYouTubeActive && <PlayerLoading />}>
+          <Suspense fallback={null}>
             <LazyVideoPlayer
               allowUnmutedAutoplay={autoplay}
               isVisible={isYouTubeActive}
               fill
               appContext="platform"
+              onVideoVisibleChange={setIsVideoVisible}
               onLocalAlignmentChange={onLocalAlignmentChange}
               onLocalPause={onLocalInteraction}
               onLocalPlay={onLocalPlay}
-              onNeedsUserGestureChange={onNeedsUserGestureChange}
+              onNeedsUserGestureChange={handleNeedsUserGestureChange}
               onLocalSeek={onLocalInteraction}
               onLocalVolumeChange={onLocalInteraction}
               preloadPlaylistItem={preloadYouTubePlaylistItem}
@@ -114,7 +124,14 @@ function EmbedPlayerSourceComponent({
             !isSoundCloudActive && 'pointer-events-none opacity-0',
           )}
         >
-          <Suspense fallback={isSoundCloudActive && <PlayerLoading />}>
+          <Suspense
+            fallback={
+              isSoundCloudActive &&
+              currentPlaylistItem && (
+                <PlayerLoading playlistItem={currentPlaylistItem} />
+              )
+            }
+          >
             <LazySoundCloudPlayer
               allowUnmutedAutoplay={autoplay}
               showInitialPlaybackOverlay
@@ -123,7 +140,7 @@ function EmbedPlayerSourceComponent({
               onLocalAlignmentChange={onLocalAlignmentChange}
               onLocalPause={onLocalInteraction}
               onLocalPlay={onLocalPlay}
-              onNeedsUserGestureChange={onNeedsUserGestureChange}
+              onNeedsUserGestureChange={handleNeedsUserGestureChange}
               onLocalSeek={onLocalInteraction}
               onLocalVolumeChange={onLocalInteraction}
               preloadPlaylistItem={preloadSoundCloudPlaylistItem}
@@ -131,6 +148,12 @@ function EmbedPlayerSourceComponent({
           </Suspense>
         </div>
       )}
+      {currentPlaylistItem &&
+        isYouTubeActive &&
+        !isVideoVisible &&
+        !isPlaybackBlocked && (
+          <PlayerLoading playlistItem={currentPlaylistItem} />
+        )}
     </div>
   );
 }

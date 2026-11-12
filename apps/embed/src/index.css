@@ -4,6 +4,8 @@
 @source "../../../packages/ui/src/web/components/Button.tsx";
 @source "../../../packages/ui/src/web/components/buttonStyles.ts";
 @source "../../../packages/ui/src/web/components/ListenerCount.tsx";
+@source "../../../packages/ui/src/web/components/PlayerLoading.tsx";
+@source "../../../packages/ui/src/web/components/PlaylistItemArtwork.tsx";
 @source "../../../packages/ui/src/web/components/Toast.tsx";
 @source "../../../packages/ui/src/web/components/ToastViewport.tsx";
 @source "../../../packages/ui/src/web/components/queue/EmbedItem.tsx";

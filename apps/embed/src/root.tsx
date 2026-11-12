@@ -6,7 +6,12 @@ import {
   Scripts,
 } from '@kasperrt/smolter/preact/document';
 import { classNames, parseColorScheme } from '@vibes/shared';
-import { FontPreloads, MotionProvider, ThemeScript } from '@vibes/ui/web';
+import {
+  ArtworkRevealScript,
+  FontPreloads,
+  MotionProvider,
+  ThemeScript,
+} from '@vibes/ui/web';
 import type { ReactNode } from 'preact/compat';
 import { App } from './App';
 import { useEmbedScrollContainment } from './hooks/use-embed-scroll-containment';
@@ -33,6 +38,7 @@ export function Layout({ children }: Props) {
       <head>
         <meta charSet="UTF-8" />
         <ThemeScript />
+        <ArtworkRevealScript />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content={colorSchemeContent} />
         <FontPreloads />
