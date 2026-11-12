@@ -166,6 +166,15 @@ export function createApiFetchProvider(
       options: ApiRequestOptions,
     ): ApiFetchResult {
       const headers = mergeHeaders(this.options.headers, options.headers);
+      const eventStream = headers
+        .get('Accept')
+        ?.split(',')
+        .some(
+          (value) =>
+            value.split(';')[0]?.trim().toLowerCase() === 'text/event-stream',
+        );
+      // Subscription setup and reconnects are not bounded REST operations.
+      const requestLifecycle: ApiFetchLifecycle = eventStream ? {} : lifecycle;
       const url = `${this.baseUrl}${endpoint.replace(/^\//, '')}`;
       const request = new Request(url, {
         body: options.body,
@@ -194,20 +203,20 @@ export function createApiFetchProvider(
           );
         });
       const lifecycleRequest =
-        lifecycle.beforeRequest?.(request, routeTemplate) ?? request;
+        requestLifecycle.beforeRequest?.(request, routeTemplate) ?? request;
 
       const [err, response] = await safeWrapAsync(fetcher(lifecycleRequest));
 
       if (err || !response) {
         const normalizedErr = err ?? new Error('error fetching response');
-        lifecycle.afterError?.(lifecycleRequest, normalizedErr);
-        lifecycle.afterRequest?.(lifecycleRequest);
+        requestLifecycle.afterError?.(lifecycleRequest, normalizedErr);
+        requestLifecycle.afterRequest?.(lifecycleRequest);
 
         return [createFetchError(options.method, normalizedErr), null];
       }
 
-      lifecycle.afterResponse?.(lifecycleRequest, response);
-      lifecycle.afterRequest?.(lifecycleRequest);
+      requestLifecycle.afterResponse?.(lifecycleRequest, response);
+      requestLifecycle.afterRequest?.(lifecycleRequest);
 
       if (response.ok) {
         return [null, response as ApiFetchResponse];
