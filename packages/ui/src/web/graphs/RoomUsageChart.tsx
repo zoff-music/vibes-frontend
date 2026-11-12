@@ -1,6 +1,8 @@
 import { classNames } from '@vibes/shared';
 import { area, line, scaleLinear, utcFormat } from 'd3';
 import { useId, useState } from 'preact/compat';
+import { Button } from '../components/Button';
+import { Input } from '../components/Input';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { Tooltip } from '../components/Tooltip';
 
@@ -254,13 +256,13 @@ export function RoomUsageChart({
           </p>
         )}
         {activeRoom !== '*' && (
-          <button
-            type="button"
+          <Button
+            variant="tertiary"
+            size="small"
             onClick={() => setSelectedRoom('*')}
-            className="border-theme text-theme focus-visible:outline-secondary rounded-lg border px-3 py-2 text-sm focus-visible:outline-2"
           >
             Back to top rooms
-          </button>
+          </Button>
         )}
       </div>
       <p className="text-theme-muted text-sm" aria-live="polite">
@@ -485,18 +487,16 @@ export function RoomUsageChart({
         <summary className="text-theme focus-visible:outline-secondary cursor-pointer text-sm font-semibold focus-visible:outline-2">
           Find a room · {rooms.length.toLocaleString()} rooms
         </summary>
-        <label htmlFor={id} className="text-theme mt-4 block text-sm">
-          Search room name or ID
-        </label>
-        <input
+        <Input
           id={id}
+          label="Search room name or ID"
           type="search"
           value={query}
+          containerClassName="mt-4"
           onInput={(event) => {
             setQuery(event.currentTarget.value);
             setPage(0);
           }}
-          className="border-theme bg-theme-surface text-theme focus-visible:outline-secondary mt-2 w-full rounded-lg border px-3 py-2 focus-visible:outline-2"
         />
         <p className="text-theme-muted my-3 text-xs" aria-live="polite">
           {matchingRooms.length} matches · Ranked by{' '}
@@ -507,11 +507,13 @@ export function RoomUsageChart({
         <ul className="divide-theme divide-y">
           {pageRooms.map(([room, total]) => (
             <li key={room}>
-              <button
-                type="button"
+              <Button
+                variant={activeRoom === room ? 'tertiary-active' : 'ghost'}
+                shape="rounded"
+                contentAlignment="between"
                 aria-pressed={activeRoom === room}
                 onClick={() => setSelectedRoom(room)}
-                className="text-theme hover:bg-secondary/10 focus-visible:outline-secondary flex min-h-11 w-full items-center justify-between gap-4 rounded px-2 py-2 text-left text-sm focus-visible:outline-2"
+                className="w-full gap-4 text-left"
               >
                 <span className="min-w-0 break-words">
                   {describeRoom(room)}
@@ -520,7 +522,7 @@ export function RoomUsageChart({
                 <span className="shrink-0 font-sans tabular-nums">
                   {total.toLocaleString()}
                 </span>
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
@@ -529,25 +531,25 @@ export function RoomUsageChart({
         )}
         {matchingRooms.length > 20 && (
           <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-            <button
-              type="button"
+            <Button
+              variant="tertiary"
+              size="small"
               disabled={activePage === 0}
               onClick={() => setPage(activePage - 1)}
-              className="text-theme focus-visible:outline-secondary min-h-11 rounded px-3 focus-visible:outline-2 disabled:opacity-40"
             >
               Previous
-            </button>
+            </Button>
             <span className="text-theme-muted">
               Page {activePage + 1} of {Math.ceil(matchingRooms.length / 20)}
             </span>
-            <button
-              type="button"
+            <Button
+              variant="tertiary"
+              size="small"
               disabled={(activePage + 1) * 20 >= matchingRooms.length}
               onClick={() => setPage(activePage + 1)}
-              className="text-theme focus-visible:outline-secondary min-h-11 rounded px-3 focus-visible:outline-2 disabled:opacity-40"
             >
               Next
-            </button>
+            </Button>
           </div>
         )}
       </details>
