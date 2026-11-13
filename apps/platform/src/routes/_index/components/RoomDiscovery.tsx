@@ -30,7 +30,7 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
 
   return (
     <section aria-label="Rooms" className="mt-6">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-3 sm:w-fit">
         {initial.history.length > 0 && (
           <SegmentedControl
             label="Rooms to show"
@@ -55,17 +55,6 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
             Public rooms
           </h2>
         )}
-        <Link
-          prefetch="intent"
-          to={
-            roomType === 'WATCH'
-              ? '/rooms/explore?live=false&type=watch'
-              : '/rooms/explore?live=false'
-          }
-          className="hover:bg-theme-surface focus-visible:ring-secondary dark:text-secondary inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 text-sm text-cyan-800 transition-colors focus-visible:ring-2 focus-visible:outline-none"
-        >
-          Browse all public <span aria-hidden="true">→</span>
-        </Link>
       </div>
       <section
         aria-label={recent ? 'Recent rooms' : 'Public rooms'}
@@ -106,6 +95,19 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
           </p>
         )}
       </section>
+      {!recent && (
+        <Link
+          prefetch="intent"
+          to={
+            roomType === 'WATCH'
+              ? '/rooms/explore?live=false&type=watch'
+              : '/rooms/explore?live=false'
+          }
+          className="hover:bg-theme-surface focus-visible:ring-secondary dark:text-secondary mt-3 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 text-sm text-cyan-800 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        >
+          Browse all public <span aria-hidden="true">→</span>
+        </Link>
+      )}
     </section>
   );
 }
