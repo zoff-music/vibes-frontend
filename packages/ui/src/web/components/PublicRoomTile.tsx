@@ -4,11 +4,19 @@ import type { MouseEvent } from 'preact/compat';
 import { getRoomLabels } from '../../shared/room';
 
 interface PublicRoomTileProps {
-  room: PublicRoomV3;
+  room: Pick<PublicRoomV3, 'id' | 'name' | 'roomType'> &
+    Partial<Pick<PublicRoomV3, 'listenerCount' | 'playlistItemCount'>>;
+  detailsPlaceholder?: string;
   onJoin?: (roomId: string) => void;
 }
 
-export function PublicRoomTile({ room, onJoin }: PublicRoomTileProps) {
+export function PublicRoomTile({
+  room,
+  onJoin,
+  detailsPlaceholder = 'Loading room details…',
+}: PublicRoomTileProps) {
+  const hasDetails =
+    room.listenerCount !== undefined && room.playlistItemCount !== undefined;
   const labels = getRoomLabels(room.roomType);
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (
@@ -37,9 +45,14 @@ export function PublicRoomTile({ room, onJoin }: PublicRoomTileProps) {
         <span className="font-pixel text-theme block truncate text-sm">
           {room.name}
         </span>
-        <span className="text-theme-muted mt-1 block text-xs">
-          {room.listenerCount} {labels.activity} · {room.playlistItemCount}{' '}
-          {room.playlistItemCount === 1 ? labels.item : labels.items}
+        <span className="text-theme-muted mt-1 block truncate text-xs">
+          {hasDetails && (
+            <>
+              {room.listenerCount} {labels.activity} · {room.playlistItemCount}{' '}
+              {room.playlistItemCount === 1 ? labels.item : labels.items}
+            </>
+          )}
+          {!hasDetails && detailsPlaceholder}
         </span>
       </span>
       <span className="font-pixel dark:text-secondary shrink-0 text-xs text-cyan-800">

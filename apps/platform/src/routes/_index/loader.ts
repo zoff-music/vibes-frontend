@@ -1,57 +1,39 @@
 import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
-import { createProvidersRequest, createPublicRequestCache } from '@vibes/api';
-import type { Providers, PublicRoomV3, StatsV2 } from '@vibes/models';
-import { getServerApi, getServerApiV3 } from '../../http.server';
-
-const readPublicRooms = createPublicRequestCache<PublicRoomV3[]>(10_000);
+import { createProvidersRequest } from '@vibes/api';
+import type { Providers, StatsV2 } from '@vibes/models';
+import { getServerApi } from '../../http.server';
+import type { RoomDiscoveryData } from '../../utils/roomDiscovery';
+import { loader as loadRooms } from '../resources.rooms/loader';
 
 export interface HomeLoaderData {
   data: {
+    roomDiscovery: RoomDiscoveryData;
     providers: Providers | null;
-    publicRooms: Promise<PublicRoomV3[] | null> | PublicRoomV3[] | null;
     stats: Promise<StatsV2 | null> | null;
   };
 }
 
-export async function loader({
-  request,
-  params,
-}: LoaderFunctionArgs): Promise<HomeLoaderData> {
+export async function loader(
+  args: LoaderFunctionArgs,
+): Promise<HomeLoaderData> {
+  const { request, params } = args;
   const serverApi = getServerApi(request);
-  const serverApiV3 = getServerApiV3(request);
   const options = { retry: 0, signal: request.signal };
   const roomType = params.experience === 'watch' ? 'WATCH' : 'MUSIC';
   const stats = serverApi.v2
     .get('/stats', { $search: { roomType } }, options)
     .then(([error, result]) => (error ? null : result));
-  const apiOrigin =
-    process.env.VITE_API_URL_INTERNAL || new URL(request.url).origin;
-  const publicRoomsRequest = readPublicRooms(
-    `${apiOrigin}:${roomType}`,
-    async (signal) => {
-      const [error, result] = await serverApiV3.get(
-        '/rooms/public',
-        { $search: { live: true, from: 0, to: 2, roomType } },
-        { retry: 0, signal },
-      );
-
-      if (error) return [error, null];
-
-      return [null, result.rooms.filter((room) => room.roomType === roomType)];
-    },
-    request.signal,
-  );
   const getProviders = createProvidersRequest(serverApi);
-  const [providersError, providers] = await getProviders(options);
-  const publicRooms = publicRoomsRequest.then(([error, rooms]) =>
-    error ? null : rooms,
-  );
-
-  const data = {
-    providers: providersError ? null : providers,
-    publicRooms,
-    stats,
+  const [providerResult, roomDiscovery] = await Promise.all([
+    getProviders(options),
+    loadRooms(args),
+  ]);
+  const [providersError, providers] = providerResult;
+  return {
+    data: {
+      roomDiscovery,
+      providers: providersError ? null : providers,
+      stats,
+    },
   };
-
-  return { data };
 }

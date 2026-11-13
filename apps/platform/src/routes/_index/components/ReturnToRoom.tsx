@@ -1,5 +1,6 @@
-import { useFetcher } from '@kasperrt/smolter/preact';
-import { useEffect, useState } from 'preact/compat';
+import { useFetcher, useURLLocation } from '@kasperrt/smolter/preact';
+import { useEffect, useRef, useState } from 'preact/compat';
+import { useAutoRejoinStore } from '../../../stores/autoRejoinStore';
 import { usePersistentPlayerStore } from '../../../stores/persistentPlayerStore';
 import { getPreviousPath } from '../../../utils/navigationHistory';
 import {
@@ -14,13 +15,19 @@ interface ReturnToRoomProps {
 }
 
 export function ReturnToRoom({ onJoinRoom }: ReturnToRoomProps) {
+  const location = useURLLocation();
+  const settingsOpen = location.pathname.endsWith('/settings/device');
   const { data, load } = useFetcher<typeof clientLoader>();
+  // Apply the preference on arrival, never while editing settings on this visit.
+  const [autoRejoin] = useState(() => useAutoRejoinStore.getState().enabled);
+  const attempted = useRef(false);
   const [dismissed, setDismissed] = useState(false);
   const activeRoomId = usePersistentPlayerStore((state) => state.activeRoomId);
 
   useEffect(() => {
     // Only a fresh document can offer a return. In-app navigation never does.
     const eligible =
+      !settingsOpen &&
       !activeRoomId &&
       !dismissed &&
       !getPreviousPath() &&
@@ -54,11 +61,28 @@ export function ReturnToRoom({ onJoinRoom }: ReturnToRoomProps) {
       window.removeEventListener('pageshow', handlePageShow);
       document.removeEventListener('visibilitychange', refresh);
     };
-  }, [activeRoomId, dismissed, load]);
+  }, [activeRoomId, dismissed, load, settingsOpen]);
 
   const room = data?.room;
 
-  if (!room || dismissed || activeRoomId) return null;
+  useEffect(() => {
+    if (
+      settingsOpen ||
+      !room ||
+      !autoRejoin ||
+      dismissed ||
+      activeRoomId ||
+      attempted.current ||
+      getPreviousPath() ||
+      readRoomReminder() !== room.id
+    )
+      return;
+    attempted.current = true;
+    onJoinRoom(room.id);
+  }, [room, autoRejoin, dismissed, activeRoomId, onJoinRoom, settingsOpen]);
+
+  if (settingsOpen || !room || dismissed || activeRoomId || autoRejoin)
+    return null;
 
   return (
     <ReturnToRoomCard

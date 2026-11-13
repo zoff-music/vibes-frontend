@@ -54,6 +54,7 @@ import {
   roomNameReservationRequestSchema,
   roomNameReservationSchema,
   roomResolutionQuerySchema,
+  roomSummariesQuerySchema,
   roomTypeQuerySchema,
   roomUpdateV2Schema,
   roomV2Schema,
@@ -325,6 +326,12 @@ const v2Endpoints = {
 } as const satisfies RequestDefinitions;
 
 const v3Endpoints = {
+  '/rooms': {
+    get: {
+      $search: roomSummariesQuerySchema,
+      response: publicRoomResultV3Schema,
+    },
+  },
   '/rooms/{id}/items': {
     get: { $search: itemsQueryV3Schema, response: itemsResultV3Schema },
     post: {

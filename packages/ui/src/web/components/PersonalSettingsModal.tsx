@@ -18,6 +18,8 @@ interface PersonalSettingsModalProps {
   error?: string;
   chatEnabled: boolean;
   onChatChange: (enabled: boolean) => void;
+  autoRejoin?: boolean;
+  onAutoRejoinChange?: (enabled: boolean) => void;
   persistentPlayer?: boolean;
   onPersistentPlayerChange?: (enabled: boolean) => void;
   themeId: ThemeId;
@@ -35,6 +37,8 @@ export function PersonalSettingsModal({
   error,
   chatEnabled,
   onChatChange,
+  autoRejoin = false,
+  onAutoRejoinChange,
   persistentPlayer = false,
   onPersistentPlayerChange,
   themeId,
@@ -111,6 +115,16 @@ export function PersonalSettingsModal({
           checked={chatEnabled}
           onChange={onChatChange}
         />
+
+        {onAutoRejoinChange && (
+          <SegmentedToggle
+            label="Auto-rejoin on return"
+            variant="plain-full"
+            size="comfortable"
+            checked={autoRejoin}
+            onChange={onAutoRejoinChange}
+          />
+        )}
 
         {onPersistentPlayerChange && (
           <SegmentedToggle
