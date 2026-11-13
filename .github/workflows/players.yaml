@@ -58,7 +58,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
-      - run: npm install --global pnpm@12.3.4
+      - run: npm install --global pnpm@12.18.0
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Typecheck player tests
         run: pnpm typecheck:players
@@ -66,6 +66,8 @@ jobs:
         run: pnpm exec biome check scripts/players
       - name: Player integration
         run: pnpm test:players
+      - name: Route transition integration
+        run: node --test scripts/route-transition.browser.mjs apps/platform/src/utils/viewTransitionPolicy.test.ts
       - name: Optional official-widget integration
         if: github.event_name == 'workflow_dispatch' && inputs.tracks != '' && matrix.browser == 'chromium'
         env:

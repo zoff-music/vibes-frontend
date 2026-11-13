@@ -5,3 +5,27 @@
 @config "@vibes/tailwind/cast-config";
 @source "../../../../packages/ui/src/web";
 @source "../../../../packages/ui/src/shared";
+
+/* Compound queries are variants, not length-valued container breakpoints. */
+@custom-variant cast-compact (
+  @media (min-width: 640px) and (max-width: 1100px),
+    (min-width: 640px) and (max-aspect-ratio: 4 / 3)
+);
+@custom-variant cast-square (@media (max-aspect-ratio: 4 / 3));
+@custom-variant cast-square-wide (
+  @media (min-width: 640px) and (max-aspect-ratio: 4 / 3)
+);
+@custom-variant cast-landscape (
+  @media (max-width: 1100px) and (min-aspect-ratio: 4 / 3)
+);
+@custom-variant cast-short (@media (max-width: 1100px) and (max-height: 560px));
+@custom-variant cast-short-square (
+  @media (max-width: 1100px) and (max-height: 560px) and (
+      max-aspect-ratio: 4 / 3
+    )
+);
+@custom-variant cast-tiny-square (
+  @media (max-width: 1100px) and (max-height: 400px) and (
+      max-aspect-ratio: 4 / 3
+    )
+);

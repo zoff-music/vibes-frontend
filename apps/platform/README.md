@@ -833,7 +833,7 @@ manifest. React Compiler is disabled for these builds; native apps retain their
 React runtime. Compatibility imports resolve to Preact in web bundles. Measure
 both transfer size and interaction performance when changing memoization.
 
-### Route transitions (Smolter 0.5.1)
+### Route transitions (Smolter 0.5.6)
 
 Page modules export the shared `viewTransition` callback. Platform keeps its
 SSR root shell mounted; only `page-content` crossfades. The header, footer,
@@ -847,10 +847,19 @@ settings, filters, hash jumps and the homepage Music/Watch eclipse retain their
 own local behavior. Reduced motion and hidden tabs bypass snapshots; rapid
 navigation cancels the previous snapshot.
 
-Smolter 0.5.1 nested routing is client-only. Its integrated SSR mount
+Document departures use Smolter’s `next.leaving` flag. Same-origin handoffs
+commit with `crossDocument: []`, preserving the shared stylesheet’s browser
+transition into the destination without starting a second SPA capture. Hidden
+tabs, reduced motion and cross-origin departures commit immediately. The initial
+hydration commit does not start a transition, so it cannot cancel the incoming
+browser snapshot. Local development port handoffs retain their entry fallback.
+
+Smolter 0.5.6 nested routing is client-only. Its integrated SSR mount
 still uses flat routes. Trailing underscores in standalone route folder names
 prevent automatic parent inference without changing public URLs. Do not add
 nested layout routes until the integrated SSR/hydration path supports them.
 
 Run `node --test apps/platform/src/utils/viewTransitionPolicy.test.ts` for the
-navigation policy regression cases.
+navigation policy regression cases. Run
+`node --test scripts/route-transition.browser.mjs` for document handoffs and
+initial-entry coverage.
