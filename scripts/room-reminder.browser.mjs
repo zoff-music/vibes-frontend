@@ -12,7 +12,7 @@ test('leaving a retained player clears the return target until the room is reope
         import { useRememberRoom } from './apps/platform/src/hooks/useRememberRoom';
 
         function Room({ minimized }) {
-          useRememberRoom('electro', 'Electro', minimized);
+          useRememberRoom('electro', 'Electro', minimized, 'MUSIC');
           return null;
         }
 

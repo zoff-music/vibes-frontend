@@ -1,3 +1,4 @@
+import type { PublicRoomV3 } from '@vibes/models';
 import { useEffect } from 'preact/compat';
 import { rememberRecentRoom } from '../utils/recentRooms';
 import { clearRoomReminder, rememberRoom } from '../utils/roomReminder';
@@ -7,10 +8,11 @@ export function useRememberRoom(
   roomId: string,
   roomName: string,
   minimized: boolean,
+  roomType: PublicRoomV3['roomType'],
 ) {
   useEffect(() => {
-    rememberRecentRoom({ id: roomId, name: roomName });
-  }, [roomId, roomName]);
+    rememberRecentRoom({ id: roomId, name: roomName }, roomType);
+  }, [roomId, roomName, roomType]);
 
   useEffect(() => {
     // A retained player is still mounted after leaving the room page.

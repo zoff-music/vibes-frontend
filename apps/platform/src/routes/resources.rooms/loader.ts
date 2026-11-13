@@ -16,8 +16,8 @@ export async function loader({
 }: LoaderFunctionArgs): Promise<RoomDiscoveryData> {
   const api = getServerApiV3(request);
   const cookie = request.headers.get('cookie') ?? '';
-  const history = readRecentRooms(cookie);
   const roomType = params.experience === 'watch' ? 'WATCH' : 'MUSIC';
+  const history = readRecentRooms(cookie, roomType);
   const options = { retry: 0, signal: request.signal };
   const apiOrigin =
     process.env.VITE_API_URL_INTERNAL || new URL(request.url).origin;
@@ -52,7 +52,11 @@ export async function loader({
           },
           options,
         )
-        .then(([error, result]) => (error ? null : result.rooms))
+        .then(([error, result]) =>
+          error
+            ? null
+            : result.rooms.filter((room) => room.roomType === roomType),
+        )
     : Promise.resolve([]);
   const [publicRooms, recentRooms] = await Promise.all([
     publicRequest,
@@ -66,6 +70,7 @@ export async function loader({
       cookie,
       history.length > 0,
       Boolean(publicRooms?.length),
+      roomType,
     ),
   };
 }
