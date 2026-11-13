@@ -1,13 +1,33 @@
-import { Link } from '@kasperrt/smolter/preact';
+import { useFetcher } from '@kasperrt/smolter/preact';
+import { PublicRoomTile } from '@vibes/ui/web';
+import { useEffect } from 'preact/compat';
 import type { RecentRoom } from '../../../utils/recentRooms';
+import type { clientLoader } from '../../resources.recents/clientLoader';
 
 interface RecentRoomsProps {
   rooms: RecentRoom[];
 }
 
 export function RecentRooms({ rooms }: RecentRoomsProps) {
-  if (!rooms.length) return null;
+  const { data, error, load } = useFetcher<typeof clientLoader>();
+  const roomIds = rooms.map((room) => room.id).join(',');
+  useEffect(() => {
+    if (!roomIds) return;
+    const refresh = () => {
+      if (document.visibilityState === 'visible')
+        void load('/resources/recents?view=history');
+    };
+    refresh();
+    const interval = window.setInterval(refresh, 30_000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [roomIds, load]);
 
+  if (!rooms.length) return null;
+  const details = data && 'rooms' in data ? data.rooms : undefined;
   return (
     <section aria-labelledby="recent-rooms-heading" className="mt-6">
       <h2
@@ -18,19 +38,20 @@ export function RecentRooms({ rooms }: RecentRoomsProps) {
       </h2>
       <div className="grid gap-2 sm:grid-cols-3">
         {rooms.map((room) => (
-          <Link
+          <PublicRoomTile
             key={room.id}
-            to={`/${encodeURIComponent(room.id)}`}
-            prefetch="intent"
-            className="border-theme bg-theme-surface hover:border-theme-strong hover:bg-theme-hover focus-visible:ring-secondary focus-visible:ring-offset-theme flex min-h-14 min-w-0 items-center gap-3 rounded-3xl border px-5 py-4 text-left shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-          >
-            <span className="font-pixel text-theme min-w-0 flex-1 truncate text-sm">
-              {room.name}
-            </span>
-            <span className="font-pixel dark:text-secondary shrink-0 text-xs text-cyan-800">
-              Join <span aria-hidden="true">→</span>
-            </span>
-          </Link>
+            room={
+              details?.find((item) => item.id === room.id) ?? {
+                ...room,
+                roomType: 'MUSIC',
+              }
+            }
+            detailsPlaceholder={
+              details || error
+                ? 'Room details unavailable'
+                : 'Loading room details…'
+            }
+          />
         ))}
       </div>
     </section>

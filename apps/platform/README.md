@@ -114,7 +114,13 @@ live public rooms. Public and private visits share the same per-browser history;
 revisiting a room moves it to the front. Only IDs and display names are stored in
 a bounded, same-site cookie for one year. The homepage loader reads it for SSR
 and client navigation, so hydration does not insert a new section or reserve
-empty space for first-time visitors. Recent entries use the normal room links.
+empty space for first-time visitors. Recent entries reuse the public-room tile
+and show current listeners and song/video counts. Their details row is reserved
+in SSR, then refreshed through `resources.recents?view=history` every 30 seconds
+while visible and when returning to the tab. Each room uses its metadata and a
+one-item queue page for the total, without subscribing as a listener. Failed or
+inaccessible rooms keep their link and show “Room details unavailable” rather
+than misleading zero counts.
 
 ### Return to a room
 
