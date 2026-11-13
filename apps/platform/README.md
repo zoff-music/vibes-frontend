@@ -107,7 +107,24 @@ The add-to-queue dialog and its action module preload together on pointer,
 keyboard or touch intent. Opening the dialog uses those same module imports.
 Chat subscriptions and unread counts remain outside both deferred dialogs.
 
+### Recent rooms
+
+The homepage shows up to three recently visited rooms, newest first, next to
+live public rooms. Public and private visits share the same per-browser history;
+revisiting a room moves it to the front. Only IDs and display names are stored in
+a bounded, same-site cookie for one year. The homepage loader reads it for SSR
+and client navigation, so hydration does not insert a new section or reserve
+empty space for first-time visitors. Recent entries use the normal room links.
+
 ### Return to a room
+
+Device settings include **Auto-rejoin on return**, off by default and saved only
+on this browser. On an eligible return visit, enabling it opens the remembered
+room after the existing fresh-room lookup instead of showing the reminder.
+Changing the preference applies on the next visit; it does not navigate away
+from settings. Intentional departures, browser Back, and active persistent
+players retain the existing reminder exclusions. Unavailable rooms do not
+trigger an automatic redirect.
 
 Opening a room remembers its ID locally. Leaving through in-app navigation or
 a same-tab link to another Zoff page clears it. Closing the tab or leaving the

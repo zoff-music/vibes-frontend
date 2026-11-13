@@ -2,6 +2,7 @@ import type { ClientLoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import { api, createPublicRequestCache, getProviders } from '@vibes/api';
 import type { PublicRoomV3 } from '@vibes/models';
 import { getRetainedHomeData, loadDeviceSettings } from '../../utils/homePanel';
+import { readRecentRooms } from '../../utils/recentRooms';
 import type { HomeLoaderData } from './loader';
 
 const readRooms = createPublicRequestCache<PublicRoomV3[]>(10_000);
@@ -21,7 +22,9 @@ export async function clientLoader({
   const retained = getRetainedHomeData(roomType, openingSettings);
 
   if (retained && (reason === 'navigation' || reason === 'prefetch'))
-    return retained;
+    return {
+      data: { ...retained.data, recentRooms: readRecentRooms(document.cookie) },
+    };
 
   const options = { retry: 0, signal: request.signal };
   const rooms = readRooms(
@@ -44,6 +47,7 @@ export async function clientLoader({
 
   return {
     data: {
+      recentRooms: readRecentRooms(document.cookie),
       providers: providersError ? null : providers,
       publicRooms,
       stats: null,

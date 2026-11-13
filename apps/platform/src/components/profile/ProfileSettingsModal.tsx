@@ -6,6 +6,7 @@ import { PersonalSettingsModal } from '@vibes/ui/web';
 import { useEffect, useRef, useState } from 'preact/compat';
 import type { RootLoaderData } from '../../root';
 import type { ProfileRouteData } from '../../routes/resources.profile/clientLoader';
+import { useAutoRejoinStore } from '../../stores/autoRejoinStore';
 import { usePersistentPlayerStore } from '../../stores/persistentPlayerStore';
 
 interface ProfileSettingsModalProps {
@@ -17,6 +18,8 @@ export function ProfileSettingsModal({
   isOpen,
   onClose,
 }: ProfileSettingsModalProps) {
+  const autoRejoin = useAutoRejoinStore((state) => state.enabled);
+  const setAutoRejoin = useAutoRejoinStore((state) => state.setEnabled);
   const chatEnabled = useChatPreferenceStore((state) => state.enabled);
   const setChatEnabled = useChatPreferenceStore((state) => state.setEnabled);
   const persistentPlayer = usePersistentPlayerStore((state) => state.enabled);
@@ -83,6 +86,8 @@ export function ProfileSettingsModal({
       isLoading={isLoading}
       isSaving={isSaving}
       {...(error ? { error } : {})}
+      autoRejoin={autoRejoin}
+      onAutoRejoinChange={setAutoRejoin}
       chatEnabled={chatEnabled}
       onChatChange={setChatEnabled}
       persistentPlayer={persistentPlayer}

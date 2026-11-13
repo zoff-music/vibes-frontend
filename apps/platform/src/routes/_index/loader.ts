@@ -2,11 +2,13 @@ import type { LoaderFunctionArgs } from '@kasperrt/smolter/preact';
 import { createProvidersRequest, createPublicRequestCache } from '@vibes/api';
 import type { Providers, PublicRoomV3, StatsV2 } from '@vibes/models';
 import { getServerApi, getServerApiV3 } from '../../http.server';
+import { type RecentRoom, readRecentRooms } from '../../utils/recentRooms';
 
 const readPublicRooms = createPublicRequestCache<PublicRoomV3[]>(10_000);
 
 export interface HomeLoaderData {
   data: {
+    recentRooms: RecentRoom[];
     providers: Providers | null;
     publicRooms: Promise<PublicRoomV3[] | null> | PublicRoomV3[] | null;
     stats: Promise<StatsV2 | null> | null;
@@ -48,6 +50,7 @@ export async function loader({
   );
 
   const data = {
+    recentRooms: readRecentRooms(request.headers.get('cookie') ?? ''),
     providers: providersError ? null : providers,
     publicRooms,
     stats,

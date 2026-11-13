@@ -1,8 +1,13 @@
 import { useEffect } from 'preact/compat';
+import { rememberRecentRoom } from '../utils/recentRooms';
 import { clearRoomReminder, rememberRoom } from '../utils/roomReminder';
 import { isInternalDeparture } from '../utils/roomReminderNavigation';
 
-export function useRememberRoom(roomId: string) {
+export function useRememberRoom(roomId: string, roomName: string) {
+  useEffect(() => {
+    rememberRecentRoom({ id: roomId, name: roomName });
+  }, [roomId, roomName]);
+
   useEffect(() => {
     rememberRoom(roomId);
     const handleClick = (event: MouseEvent) => {
