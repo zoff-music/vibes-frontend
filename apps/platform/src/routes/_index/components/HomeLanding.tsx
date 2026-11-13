@@ -13,8 +13,7 @@ import type { HomeLoaderData } from '../loader';
 import { LegalAcknowledgement } from './LegalAcknowledgement';
 import { ProductIntroduction } from './ProductIntroduction';
 import { ProviderAttribution } from './ProviderAttribution';
-import { PublicRoomDiscovery } from './PublicRoomDiscovery';
-import { RecentRooms } from './RecentRooms';
+import { RoomDiscovery } from './RoomDiscovery';
 import { WatchIntroduction } from './WatchIntroduction';
 
 interface HomeLandingProps extends HomeLoaderData {
@@ -136,8 +135,11 @@ export function HomeLanding({
           </div>
         </div>
       </div>
-      <RecentRooms rooms={data.recentRooms} />
-      <PublicRoomDiscovery onJoinRoom={onJoinRoom} rooms={data.publicRooms} />
+      <RoomDiscovery
+        key={watch ? 'watch' : 'music'}
+        initial={data.roomDiscovery}
+        onJoinRoom={onJoinRoom}
+      />
       {!watch && (
         <ProductIntroduction onGeneratePlaylist={onGeneratePlaylist} />
       )}

@@ -66,3 +66,10 @@ test('revisiting moves a room first, refreshes its name and retains only three',
     Object.defineProperty(globalThis, 'location', originalLocation);
   else Reflect.deleteProperty(globalThis, 'location');
 });
+
+test('preserves stored IDs for long encoded Unicode room names', () => {
+  const id = 'u6771-u4eac-'.repeat(40);
+  assert.deepEqual(readRecentRooms(cookie([{ id, name: '東京' }])), [
+    { id, name: '東京' },
+  ]);
+});

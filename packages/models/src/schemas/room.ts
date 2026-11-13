@@ -192,3 +192,9 @@ export type PublicRoomResultV3 = v.InferOutput<typeof publicRoomResultV3Schema>;
 export const roomResolutionQuerySchema = /* @__PURE__ */ v.object({
   name: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(799)),
 });
+
+export const roomSummariesQuerySchema = /* @__PURE__ */ v.object({
+  ids: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(15999))),
+  from: v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
+  to: v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
+});

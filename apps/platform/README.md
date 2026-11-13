@@ -107,20 +107,24 @@ The add-to-queue dialog and its action module preload together on pointer,
 keyboard or touch intent. Opening the dialog uses those same module imports.
 Chat subscriptions and unread counts remain outside both deferred dialogs.
 
-### Recent rooms
+### Room discovery tabs
 
-The homepage shows up to three recently visited rooms, newest first, next to
-live public rooms. Public and private visits share the same per-browser history;
-revisiting a room moves it to the front. Only IDs and display names are stored in
-a bounded, same-site cookie for one year. The homepage loader reads it for SSR
-and client navigation, so hydration does not insert a new section or reserve
-empty space for first-time visitors. Recent entries reuse the public-room tile
-and show current listeners and song/video counts. Their details row is reserved
-in SSR, then refreshed through `resources.recents?view=history` every 30 seconds
-while visible and when returning to the tab. Each room uses its metadata and a
-one-item queue page for the total, without subscribing as a listener. Failed or
-inaccessible rooms keep their link and show “Room details unavailable” rather
-than misleading zero counts.
+The homepage has one room section with Public rooms and Recent rooms selectors.
+Recent rooms appears only when the browser has room history. Without a saved
+selection, empty public results select Recent when history exists. Explicit
+selections persist in a same-site cookie, including selecting empty public
+results. Private and public visits share the same newest-first history, capped
+at three entries. Revisiting moves a room first. The bounded history cookie
+stores only IDs and names for one year, preserving encoded Unicode room IDs.
+
+The homepage awaits its public-room and recent-summary reads concurrently with
+providers before SSR. `GET /api/v3/rooms?from=0&to=2&ids=...` supplies all recent summaries in
+one request; the public preview retains its short request cache. Server HTML and
+hydration share the selected tab, room names and counts. No mount request,
+polling, visibility refresh or subscriptions follow hydration. Switching tabs
+refreshes only the selected list through `resources.rooms`; already loaded data
+stays visible during that request. Settings navigation retains the snapshot.
+The shared room tiles retain their details-row height for unavailable data.
 
 ### Return to a room
 
@@ -319,10 +323,10 @@ queue, room controls and phone remotes. A compact generation entry point follows
 these core features; the full generation preview belongs on the queue guide.
 App screenshots stay on the apps
 guide, and the embed configurator stays on the rooms guide. The homepage's
-server loader fetches community totals, public rooms and providers in parallel
-and awaits only providers before rendering the hero. Initial requests use the
+server loader fetches community totals, public rooms, recent summaries and providers in parallel
+and awaits the room lists and providers before rendering. Initial requests use the
 server loader. Client navigation uses the homepage `clientLoader`, which awaits
-providers but returns the optional live-room promise for `Await` to render.
+the same room lists and providers before navigation.
 Music/Watch intent prefetch includes route data; consuming that prefetch retains
 ownership of pending optional work. The API client's normal timeout and request cancellation
 still apply. Real totals are visible in the server-rendered HTML, including
