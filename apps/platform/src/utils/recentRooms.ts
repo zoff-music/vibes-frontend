@@ -1,3 +1,4 @@
+import type { PublicRoomV3 } from '@vibes/models';
 import { safeWrap } from '@vibes/shared/wrap';
 import { ROOM_HISTORY_COOKIE } from '../constants/roomDiscovery.ts';
 
@@ -6,12 +7,16 @@ export interface RecentRoom {
   name: string;
 }
 
-export function readRecentRooms(cookieHeader: string): RecentRoom[] {
+export function readRecentRooms(
+  cookieHeader: string,
+  roomType: PublicRoomV3['roomType'],
+): RecentRoom[] {
+  const cookieName = `${ROOM_HISTORY_COOKIE}-${roomType.toLowerCase()}`;
   const value = cookieHeader
     .split(';')
     .map((part) => part.trim())
-    .find((part) => part.startsWith(`${ROOM_HISTORY_COOKIE}=`))
-    ?.slice(ROOM_HISTORY_COOKIE.length + 1);
+    .find((part) => part.startsWith(`${cookieName}=`))
+    ?.slice(cookieName.length + 1);
   if (!value || value.length > 3500) return [];
 
   const [error, parsed] = safeWrap((): unknown =>
@@ -42,14 +47,20 @@ export function readRecentRooms(cookieHeader: string): RecentRoom[] {
   return rooms;
 }
 
-export function rememberRecentRoom(room: RecentRoom) {
+export function rememberRecentRoom(
+  room: RecentRoom,
+  roomType: PublicRoomV3['roomType'],
+) {
   if (typeof document === 'undefined' || !room.id || room.id.length > 799)
     return;
 
+  const cookieName = `${ROOM_HISTORY_COOKIE}-${roomType.toLowerCase()}`;
   safeWrap(() => {
     const recent = [
       { id: room.id, name: room.name.slice(0, 100) },
-      ...readRecentRooms(document.cookie).filter((item) => item.id !== room.id),
+      ...readRecentRooms(document.cookie, roomType).filter(
+        (item) => item.id !== room.id,
+      ),
     ].slice(0, 3);
     let value = encodeURIComponent(JSON.stringify(recent));
     while (value.length > 3500 && recent.length > 1) {
@@ -58,6 +69,6 @@ export function rememberRecentRoom(room: RecentRoom) {
     }
     if (value.length > 3500) return;
     // biome-ignore lint/suspicious/noDocumentCookie: synchronous write keeps immediate navigation SSR in sync, including older browsers.
-    document.cookie = `${ROOM_HISTORY_COOKIE}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+    document.cookie = `${cookieName}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
   });
 }

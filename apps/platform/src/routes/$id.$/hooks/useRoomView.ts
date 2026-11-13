@@ -48,7 +48,12 @@ import {
 import { useRoomPanel } from './useRoomPanel';
 
 export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
-  useRememberRoom(loaderData.room.id, loaderData.room.name, minimized);
+  useRememberRoom(
+    loaderData.room.id,
+    loaderData.room.name,
+    minimized,
+    loaderData.room.roomType,
+  );
   const { panel, open, href, chatOpen, peopleOpen } = useRoomPanel(
     loaderData.room.id,
     minimized,

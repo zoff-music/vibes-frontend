@@ -17,7 +17,7 @@ export async function clientLoader({
       ? 'WATCH'
       : 'MUSIC';
   const cookie = document.cookie;
-  const history = readRecentRooms(cookie);
+  const history = readRecentRooms(cookie, roomType);
   const options = { retry: 0, signal: request.signal };
   const publicRequest =
     selected !== 'recent'
@@ -50,7 +50,11 @@ export async function clientLoader({
             },
             options,
           )
-          .then(([error, result]) => (error ? null : result.rooms))
+          .then(([error, result]) =>
+            error
+              ? null
+              : result.rooms.filter((room) => room.roomType === roomType),
+          )
       : Promise.resolve([]);
   const [publicRooms, recentRooms] = await Promise.all([
     publicRequest,
@@ -63,6 +67,7 @@ export async function clientLoader({
           cookie,
           history.length > 0,
           Boolean(publicRooms?.length),
+          roomType,
         );
   return { tab, history, publicRooms, recentRooms };
 }

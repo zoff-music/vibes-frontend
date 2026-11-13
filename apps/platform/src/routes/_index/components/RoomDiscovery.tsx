@@ -23,10 +23,7 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
   const history = data.history;
   const unavailable = rooms === null;
   const visibleRooms =
-    rooms ??
-    (recent
-      ? history.map((room) => ({ ...room, roomType: 'MUSIC' as const }))
-      : []);
+    rooms ?? (recent ? history.map((room) => ({ ...room, roomType })) : []);
 
   return (
     <section aria-label="Rooms" className="mt-6">
@@ -43,7 +40,7 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
               if (value !== 'public' && value !== 'recent') return;
               if (value === selected) return;
               setSelected(value);
-              saveRoomDiscoveryTab(value);
+              saveRoomDiscoveryTab(value, roomType);
               void fetcher.load(
                 `/resources/rooms?tab=${value}&type=${roomType}`,
               );
