@@ -3,12 +3,22 @@ import { rememberRecentRoom } from '../utils/recentRooms';
 import { clearRoomReminder, rememberRoom } from '../utils/roomReminder';
 import { isInternalDeparture } from '../utils/roomReminderNavigation';
 
-export function useRememberRoom(roomId: string, roomName: string) {
+export function useRememberRoom(
+  roomId: string,
+  roomName: string,
+  minimized: boolean,
+) {
   useEffect(() => {
     rememberRecentRoom({ id: roomId, name: roomName });
   }, [roomId, roomName]);
 
   useEffect(() => {
+    // A retained player is still mounted after leaving the room page.
+    if (minimized) {
+      clearRoomReminder(roomId);
+      return;
+    }
+
     rememberRoom(roomId);
     const handleClick = (event: MouseEvent) => {
       if (
@@ -46,5 +56,5 @@ export function useRememberRoom(roomId: string, roomName: string) {
       window.removeEventListener('pageshow', handlePageShow);
       clearRoomReminder(roomId);
     };
-  }, [roomId]);
+  }, [roomId, minimized]);
 }
