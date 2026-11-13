@@ -19,7 +19,7 @@
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
     "preact": "11.2.0",
-    "preact-render-to-string": "6.8.2",
+    "preact-render-to-string": "6.8.3",
     "valibot": "1.5.0"
   },
   "devDependencies": {
@@ -31,6 +31,6 @@
     "tailwindcss": "catalog:",
     "terser": "5.51.2",
     "typescript": "7.0.2",
-    "vite": "8.3.6"
+    "vite": "8.3.8"
   }
 }

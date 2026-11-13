@@ -12,6 +12,20 @@ function resetTransition() {
   }
 }
 
+/** Let the destination document share the snapshot instead of capturing a SPA update. */
+const documentViewTransition: RouteTransition = (commit, previous, next) => {
+  if (
+    typeof document !== 'undefined' &&
+    document.visibilityState === 'visible' &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
+    new URL(previous.url).origin === new URL(next.url).origin
+  ) {
+    commit({ crossDocument: [] });
+    return;
+  }
+  commit();
+};
+
 /** Route-owned presentation; data and hash updates keep the current page still. */
 function runTransition(
   commit: Parameters<RouteTransition>[0],
@@ -20,6 +34,10 @@ function runTransition(
   scene: boolean,
 ) {
   resetTransition();
+  if (next.leaving) {
+    documentViewTransition(commit, previous, next);
+    return;
+  }
   if (
     typeof document === 'undefined' ||
     !document.startViewTransition ||
@@ -64,7 +82,11 @@ export const sceneViewTransition: RouteTransition = (commit, previous, next) =>
 /** Panels and custom scene animations commit without a document snapshot. */
 export const immediateViewTransition: NonNullable<
   RouteModule['viewTransition']
-> = (commit) => {
+> = (commit, previous, next) => {
   resetTransition();
+  if (next.leaving) {
+    documentViewTransition(commit, previous, next);
+    return;
+  }
   commit();
 };

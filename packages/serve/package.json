@@ -22,10 +22,10 @@
   "dependencies": {
     "@kasperrt/smolter": "catalog:",
     "@opentelemetry/api": "1.10.0",
-    "@opentelemetry/core": "3.1.0",
-    "@opentelemetry/exporter-trace-otlp-grpc": "0.301.0",
-    "@opentelemetry/sdk-node": "0.301.0",
-    "@opentelemetry/sdk-trace": "3.1.0",
+    "@opentelemetry/core": "3.1.1",
+    "@opentelemetry/exporter-trace-otlp-grpc": "0.301.2",
+    "@opentelemetry/sdk-node": "0.301.2",
+    "@opentelemetry/sdk-trace": "3.1.1",
     "@prometheus-io/client": "0.16.1",
     "@vibes/shared": "workspace:*",
     "beasties": "0.5.5",
@@ -47,6 +47,6 @@
     "@types/negotiator": "^0.6.5",
     "@types/node": "26.6.6",
     "typescript": "7.0.2",
-    "vite": "8.3.6"
+    "vite": "8.3.8"
   }
 }

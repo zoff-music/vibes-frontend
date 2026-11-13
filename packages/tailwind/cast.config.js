@@ -4,25 +4,6 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
-      screens: {
-        'cast-compact': {
-          raw: '(min-width: 640px) and (max-width: 1100px), (min-width: 640px) and (max-aspect-ratio: 4/3)',
-        },
-        'cast-square': { raw: '(max-aspect-ratio: 4/3)' },
-        'cast-square-wide': {
-          raw: '(min-width: 640px) and (max-aspect-ratio: 4/3)',
-        },
-        'cast-landscape': {
-          raw: '(max-width: 1100px) and (min-aspect-ratio: 4/3)',
-        },
-        'cast-short': { raw: '(max-width: 1100px) and (max-height: 560px)' },
-        'cast-short-square': {
-          raw: '(max-width: 1100px) and (max-height: 560px) and (max-aspect-ratio: 4/3)',
-        },
-        'cast-tiny-square': {
-          raw: '(max-width: 1100px) and (max-height: 400px) and (max-aspect-ratio: 4/3)',
-        },
-      },
       textShadow: {
         'cast-readable': '0 1px 4px rgba(0,0,0,0.8)',
       },

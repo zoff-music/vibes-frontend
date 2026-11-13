@@ -48,17 +48,17 @@
     "@vibes/shared": "workspace:*",
     "d3": "^7.9.2",
     "escape-html": "1.0.3",
-    "framer-motion": "14.10.1",
+    "framer-motion": "14.13.0",
     "preact": "11.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.6",
+    "@biomejs/biome": "2.6.7",
     "@react-native/metro-config": "0.88.1",
     "@types/d3": "^7.4.3",
     "@types/escape-html": "^1.0.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "expo": "~58.0.23",
+    "expo": "~58.0.25",
     "nativewind": "5.0.0-preview.4",
     "react": "19.3.1",
     "react-dom": "19.3.1",
@@ -70,6 +70,6 @@
     "react-native-webview": "14.0.1",
     "react-native-youtube-iframe": "2.4.1",
     "typescript": "~7.0.2",
-    "vite": "8.3.6"
+    "vite": "8.3.8"
   }
 }

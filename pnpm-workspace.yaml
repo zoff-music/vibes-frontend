@@ -2,41 +2,14 @@ packages:
   - apps/*
   - packages/*
 catalog:
-  '@kasperrt/smolter': 0.5.4
+  '@kasperrt/smolter': 0.5.6
   '@tailwindcss/vite': 4.3.5
   tailwindcss: 4.3.5
 overrides:
-  # The matching CLI patch uses Node crypto and @peculiar/x509 instead.
-  '@expo/cli@58.1.19>node-forge': '-'
-  '@expo/cli@58.1.19>@expo/code-signing-certificates': '-'
-  braces: npm:@dieub/braces-depth-guard@3.0.3-pn.3
-  morgan: 1.12.1
-  'brace-expansion@>=4.0.0': 5.0.12
-  '@grpc/grpc-js': 1.14.5
-  source-map-js: 1.2.2
-  proxy-addr: 2.0.8
-  compression: 1.8.2
-  'postcss-selector-parser@7': 7.1.6
-  'shell-quote@1': 1.11.0
-  body-parser: 1.20.9
-  '@expo/cli>zod': 4.6.6
-  esbuild: 0.28.2
-  js-yaml: 4.3.2
-  decode-uri-component: 0.5.0
-  qs: 6.16.1
-  lightningcss: 1.30.1
-  postcss: 8.5.32
-  undici: 6.27.0
-  uuid: 11.1.1
-  valibot: 1.5.0
-  vite: 8.3.6
-  'glob@>=9.0.0 <=14.0.1': 14.0.3
-  'minimatch@<11.0.1': 11.0.3
-packageExtensions:
-  '@expo/cli@58.1.19':
-    dependencies:
-      '@peculiar/x509': 2.1.0
-      reflect-metadata: 0.2.2
+  # config-tv still requests glob 11; cancellation is fixed in 14.0.2+.
+  'glob@>=9.0.0 <=14.0.1': 14.0.6
+  # Expo fingerprint still requests minimatch 10; amplification is fixed in 11.0.1+.
+  'minimatch@>=7.0.0 <11.0.1': 11.0.8
 peerDependencyRules:
   allowedVersions:
     react-native: 0.88.1-0
@@ -97,12 +70,12 @@ minimumReleaseAgeExclude:
   - '@expo/log-box@57.0.3'
   - expo-asset@57.0.12
   - expo-constants@57.0.12
-  - expo-dev-client@57.0.13 || 57.0.18
-  - expo-dev-launcher@57.0.13 || 57.0.19
+  - expo-dev-client@57.0.13 || 57.0.18 || 58.0.20
+  - expo-dev-launcher@57.0.13 || 57.0.19 || 58.0.20
   - expo-dev-menu@57.0.13 || 57.0.18
   - expo-router@57.0.14 || 57.0.20
   - expo-splash-screen@57.0.7
-  - expo@57.0.14 || 57.0.21
+  - expo@57.0.14 || 57.0.21 || 58.0.25
   - '@expo/metro-runtime@57.0.11'
   - '@expo/metro-file-map@57.0.3'
   - '@expo/ui@57.0.17'
@@ -110,9 +83,28 @@ minimumReleaseAgeExclude:
   - expo-glass-effect@57.0.2
   - expo-modules-core@57.0.17
   - expo-modules-jsi@57.1.0
-  - '@kasperrt/smolter@0.4.4 || 0.4.5 || 0.4.6 || 0.4.7 || 0.4.8 || 0.4.10 || 0.4.11 || 0.5.1 || 0.5.2 || 0.5.3 || 0.5.4'
+  - '@kasperrt/smolter@0.4.4 || 0.4.5 || 0.4.6 || 0.4.7 || 0.4.8 || 0.4.10 || 0.4.11 || 0.5.1 || 0.5.2 || 0.5.3 || 0.5.4 || 0.5.6'
   - preact@11.1.1
+  - '@opentelemetry/configuration@0.301.2'
+  - '@opentelemetry/exporter-logs-otlp-grpc@0.301.2'
+  - '@opentelemetry/exporter-logs-otlp-http@0.301.2'
+  - '@opentelemetry/exporter-logs-otlp-proto@0.301.2'
+  - '@opentelemetry/exporter-metrics-otlp-grpc@0.301.2'
+  - '@opentelemetry/exporter-metrics-otlp-http@0.301.2'
+  - '@opentelemetry/exporter-metrics-otlp-proto@0.301.2'
+  - '@opentelemetry/exporter-prometheus@0.301.2'
+  - '@opentelemetry/exporter-trace-otlp-grpc@0.301.2'
+  - '@opentelemetry/exporter-trace-otlp-http@0.301.2'
+  - '@opentelemetry/exporter-trace-otlp-proto@0.301.2'
+  - '@opentelemetry/instrumentation@0.301.2'
+  - '@opentelemetry/otlp-exporter-base@0.301.2'
+  - '@opentelemetry/otlp-grpc-exporter-base@0.301.2'
+  - '@opentelemetry/otlp-transformer@0.301.2'
+  - '@opentelemetry/sdk-node@0.301.2'
+  - framer-motion@14.13.0
+  - motion-dom@14.13.0
+  - preact-render-to-string@6.8.3
+  - glob@14.0.6
 patchedDependencies:
-  '@expo/cli@58.1.19': patches/@expo__cli@58.1.19.patch
   react-native-screens@4.30.1: patches/react-native-screens@4.30.1.patch
   react-native-webview@14.0.1: patches/react-native-webview@14.0.1.patch

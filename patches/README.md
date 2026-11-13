@@ -1,41 +1,35 @@
 # Dependency patches
 
-The release audit runs without advisory exceptions. Dependency replacements and
+The release audit runs without advisory exceptions. Overrides and compatibility
 patches are pinned in `pnpm-workspace.yaml` and the lockfile.
 
-## Expo signing
+## Remaining security overrides
 
-The `@expo/cli@58.1.13` patch removes its use of `node-forge` and
-`@expo/code-signing-certificates`. Matching version-scoped overrides remove those
-dependencies only from the patched CLI version.
+- `@react-native-tvos/config-tv` still requests `glob` 11. The override selects
+  14.0.6 because cancellation is fixed in 14.0.2 and later:
+  [GHSA-3g3m-2fjr-6pw4](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4).
+- Expo's fingerprint tooling still requests `minimatch` 10. The override selects
+  11.0.8 because globparts amplification is fixed in 11.0.1 and later:
+  [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249).
 
-Manifest signing, signature verification, certificate signature verification, key
-matching, and certificate validity checks use Node's native `node:crypto`.
-`@peculiar/x509@2.1.0` handles certificate names, key-usage extensions, and CSR
-encoding with Node WebCrypto. RSA/SHA-256 signatures, PKCS#1 private-key PEM,
-PKCS#10 requests, Expo certificate caching, and iOS signing identity fields retain
-their existing formats. Missing signing extensions and mismatched keys are rejected.
+Remove these overrides when the corresponding upstream dependency ranges accept
+fixed versions. The React Native screens and WebView patches are separate
+platform compatibility fixes.
 
-This removes the vulnerable Forge verifier described in
-[GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv), rather than
-suppressing the advisory. Reassess this patch and its dependency overrides together
-when upgrading Expo CLI.
+## Retired security workarounds
 
-## Glob parsing
+The November 2026 dependency refresh resolves `node-forge` 1.4.3 through Expo CLI
+58.1.20's normal dependency range. Forge's upstream fixes replace the local Expo
+signing implementation, so its patch, dependency removals and injected
+`@peculiar/x509`/`reflect-metadata` dependencies are removed together. See the
+[Forge changelog](https://github.com/digitalbazaar/forge/blob/v1.4.3/CHANGELOG.md)
+and [original advisory](https://github.com/advisories/GHSA-86w9-cpqp-85rv).
 
-`braces` is replaced by the exact `@dieub/braces-depth-guard@3.0.3-pn.3` release.
-Its runtime source was compared with upstream `braces@3.0.3`: it adds bounded
-parser/AST depth, validates configurable limits, and detects parent cycles.
-It retains the existing API and `fill-range` dependency. Deep braces, parentheses,
-and mixed patterns are rejected before recursion can exhaust the stack, addressing
-[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
-Remove the override when upstream publishes an equivalent fix.
+The `braces` fork is also removed: its
+[advisory was withdrawn](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+on October 23, 2026 as not practically exploitable. This is an advisory withdrawal,
+not a claim that upstream added the fork's depth guard.
 
-## YAML tooling
-
-`js-yaml@4.3.2` replaces the old forced 3.x version. Expo's Podfile parser uses its
-supported `load` API. This uses `argparse@2` and removes `sprintf-js` completely,
-including the code affected by
-[GHSA-hp3w-g68c-fv3c](https://github.com/advisories/GHSA-hp3w-g68c-fv3c).
-
-The React Native patches remain separate platform compatibility fixes.
+The other former version overrides resolve without advisories through upstream
+ranges. Regenerating the lockfile without security overrides exposed only the
+`glob` and `minimatch` issues above; restoring those two yields a clean audit.

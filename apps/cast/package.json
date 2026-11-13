@@ -18,16 +18,16 @@
     "@vibes/serve": "workspace:*",
     "@vibes/shared": "workspace:*",
     "@vibes/ui": "workspace:*",
-    "framer-motion": "14.10.1",
+    "framer-motion": "14.13.0",
     "preact": "11.2.0",
-    "preact-render-to-string": "6.8.2",
+    "preact-render-to-string": "6.8.3",
     "qrcode.react": "4.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.6",
+    "@biomejs/biome": "2.6.7",
     "@csstools/postcss-cascade-layers": "6.0.2",
     "@tailwindcss/vite": "catalog:",
-    "@types/chromecast-caf-receiver": "6.0.27",
+    "@types/chromecast-caf-receiver": "7.0.1",
     "@types/node": "26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -36,6 +36,6 @@
     "tailwindcss": "catalog:",
     "terser": "5.51.2",
     "typescript": "7.0.2",
-    "vite": "8.3.6"
+    "vite": "8.3.8"
   }
 }

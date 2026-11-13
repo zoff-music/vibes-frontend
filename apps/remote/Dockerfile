@@ -1,6 +1,6 @@
 ARG NODE_VERSION=26.12.1
 ARG NODE_RUNTIME_IMAGE=platformatic/node-caged:26-slim
-ARG PNPM_VERSION=12.3.4
+ARG PNPM_VERSION=12.18.0
 
 FROM node:${NODE_VERSION}-bookworm-slim AS base
 
