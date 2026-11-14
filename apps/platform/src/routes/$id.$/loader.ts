@@ -1,5 +1,9 @@
 import { type LoaderFunctionArgs, redirect } from '@kasperrt/smolter/preact';
-import { createProvidersRequest, getHttpError } from '@vibes/api';
+import {
+  createProvidersRequest,
+  getHttpError,
+  getRateLimitResponse,
+} from '@vibes/api';
 import type {
   PlaylistItem,
   Providers,
@@ -14,7 +18,6 @@ export interface RoomLoaderData {
   room: RoomModel;
   playlistItems: PlaylistItem[];
   queuedPlaylistItemCount?: number;
-  preloadPlaylistItems?: PlaylistItem[];
   playback?: PlaybackStateV2;
   providers: Providers;
   pageUrl: string;
@@ -37,45 +40,37 @@ export async function loader({
   const options = { headers: requestHeaders, signal: request.signal };
   const getProviders = createProvidersRequest(serverApi);
 
-  const [
-    roomRes,
-    playlistItemsRes,
-    playbackRes,
-    providersRes,
-    youtubeRes,
-    soundcloudRes,
-  ] = await Promise.all([
-    serverApi.v2.get('/rooms/{id}', { id: roomId }, options),
-    serverApi.v3.get(
-      '/rooms/{id}/items',
-      { id: roomId, $search: { from: 1, to: 12, excludeCurrent: true } },
-      options,
-    ),
-    serverApi.v2.get('/rooms/{id}/states', { id: roomId }, options),
-    getProviders({ signal: request.signal }),
-    serverApi.v3.get(
-      '/rooms/{id}/items',
-      { id: roomId, $search: { from: 1, to: 1, sourceType: 'youtube' } },
-      options,
-    ),
-    serverApi.v3.get(
-      '/rooms/{id}/items',
-      { id: roomId, $search: { from: 1, to: 1, sourceType: 'soundcloud' } },
-      options,
-    ),
-  ]);
+  const [roomRes, playlistItemsRes, playbackRes, providersRes] =
+    await Promise.all([
+      serverApi.v2.get('/rooms/{id}', { id: roomId }, options),
+      serverApi.v3.get(
+        '/rooms/{id}/items',
+        { id: roomId, $search: { from: 1, to: 12, excludeCurrent: true } },
+        options,
+      ),
+      serverApi.v2.get('/rooms/{id}/states', { id: roomId }, options),
+      getProviders({ signal: request.signal }),
+    ]);
 
   const [roomErr, room] = roomRes;
   const [playlistItemsErr, playlistPage] = playlistItemsRes;
   const [playbackErr, playback] = playbackRes;
   const [providersErr, providers] = providersRes;
 
+  const rateLimitResponse = getRateLimitResponse([
+    roomErr,
+    playlistItemsErr,
+    playbackErr,
+    providersErr,
+  ]);
+  if (rateLimitResponse) throw rateLimitResponse;
+
   if (roomErr || !room) {
     const status = roomErr ? getHttpError(roomErr)?.response.status : null;
 
     if (status !== 404) {
       throw new Response('Room temporarily unavailable', {
-        status: status === 429 ? 429 : 503,
+        status: 503,
         statusText: 'Room temporarily unavailable',
       });
     }
@@ -85,6 +80,8 @@ export async function loader({
       { $search: { name: roomId } },
       options,
     );
+    const resolutionRateLimit = getRateLimitResponse([resolutionError]);
+    if (resolutionRateLimit) throw resolutionRateLimit;
     if (resolvedRoom) {
       const canonicalUrl = new URL(request.url);
       canonicalUrl.pathname = `/${encodeURIComponent(resolvedRoom.id)}`;
@@ -107,14 +104,7 @@ export async function loader({
     return redirect(createUrl.toString());
   }
 
-  if (
-    playlistItemsErr ||
-    !playlistPage ||
-    playbackErr ||
-    providersErr ||
-    youtubeRes[0] ||
-    soundcloudRes[0]
-  ) {
+  if (playlistItemsErr || !playlistPage || playbackErr || providersErr) {
     throw new Response('Room temporarily unavailable', {
       status: 503,
       statusText: 'Room temporarily unavailable',
@@ -125,10 +115,6 @@ export async function loader({
     pageUrl: createRoomPageUrl(request.url, roomId),
     room,
     playlistItems: playlistPage.data,
-    preloadPlaylistItems: [
-      ...(youtubeRes[1]?.data ?? []),
-      ...(soundcloudRes[1]?.data ?? []),
-    ],
     ...(playlistPage.total > playlistPage.count && {
       queuedPlaylistItemCount: playlistPage.total,
     }),

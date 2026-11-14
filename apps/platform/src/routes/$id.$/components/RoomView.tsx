@@ -121,7 +121,7 @@ export function RoomView({
           new Set(
             [
               loaderData.playback?.currentPlaylistItem,
-              ...(loaderData.preloadPlaylistItems ?? []),
+              ...loaderData.playlistItems,
             ].flatMap((item) => (item ? [item.sourceType] : [])),
           )
         }

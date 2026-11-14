@@ -3,7 +3,11 @@ import {
   data,
   redirect,
 } from '@kasperrt/smolter/preact';
-import { apiV3, createPublicRoomPageRequest } from '@vibes/api';
+import {
+  apiV3,
+  createPublicRoomPageRequest,
+  getRateLimitResponse,
+} from '@vibes/api';
 import {
   publicRoomPageSize,
   type RoomBrowserLoaderData,
@@ -28,8 +32,10 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   );
 
   if (error || !result) {
+    const rateLimitResponse = getRateLimitResponse([error]);
     return data({ result: null, search } satisfies RoomBrowserLoaderData, {
-      status: 503,
+      status: rateLimitResponse?.status ?? 503,
+      ...(rateLimitResponse && { headers: rateLimitResponse.headers }),
     });
   }
 

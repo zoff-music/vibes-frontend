@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "test:api": "vitest run --config scripts/api/vitest.config.ts",
     "test:players": "vitest run --config scripts/players/vitest.config.ts",
     "test:players:live": "vitest run --config scripts/players/vitest.live.config.ts",
     "typecheck:players": "tsc -p scripts/players/tsconfig.json",

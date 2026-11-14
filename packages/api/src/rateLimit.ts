@@ -55,6 +55,31 @@ export function getRateLimitMessage(error: Error) {
   return getRateLimitMessageFromResponse(response);
 }
 
+/** Preserve rate limits across SSR/data loaders instead of reporting an outage. */
+export function getRateLimitResponse(
+  errors: readonly (Error | null | undefined)[],
+) {
+  const responses = errors
+    .map((error) => (error ? getHttpError(error)?.response : undefined))
+    .filter((response) => response?.status === RATE_LIMIT_STATUS);
+
+  if (responses.length === 0) return null;
+
+  const headers = new Headers({ 'Cache-Control': 'no-store' });
+  const retryAfter = Math.max(
+    0,
+    ...responses.map((response) =>
+      response ? (getRetryAfterSeconds(response) ?? 0) : 0,
+    ),
+  );
+  if (retryAfter > 0) headers.set('Retry-After', String(retryAfter));
+
+  return new Response(
+    `Too many requests. ${formatRetryAfter(retryAfter || null)}`,
+    { status: RATE_LIMIT_STATUS, statusText: 'Too Many Requests', headers },
+  );
+}
+
 export async function getAPIErrorResponse(error: Error) {
   const response = getHttpError(error)?.response;
 

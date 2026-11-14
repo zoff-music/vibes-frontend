@@ -64,6 +64,8 @@ jobs:
         run: pnpm typecheck:players
       - name: Check player test conventions
         run: pnpm exec biome check scripts/players
+      - name: API retry policy
+        run: pnpm test:api
       - name: Player integration
         run: pnpm test:players
       - name: Route transition integration
