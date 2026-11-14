@@ -2,6 +2,24 @@
 
 The primary web application for the Vibes ecosystem. It serves as the main interface for users to create rooms, manage queues, and control synchronized playback across devices with full server-side rendering support.
 
+## API retries and rate limits
+
+The shared API client configures wiretyped to retry HTTP 502 and 504 responses
+at most twice, one second apart. HTTP 429, other client errors, and HTTP 500,
+501 and 503 return immediately; 503 can represent an exhausted provider quota.
+Existing request-level `retry: 0` overrides remain authoritative. Transport
+failures retain wiretyped's bounded retry behavior.
+
+Room and room-discovery loaders preserve backend 429 responses and
+`Retry-After` instead of reporting them as 503 outages. Parallel room reads
+use the longest returned delay. Failed reads do not automatically reload the
+page. Run `pnpm test:api` to check the actual wiretyped request policy.
+
+Room entry loads one playlist page. Provider warm-up reuses those items and
+the current playback item instead of requesting separate YouTube and
+SoundCloud queue slices. The live queue snapshot supplies later items;
+reconnect revalidation fetches the full queue once.
+
 ## Web installation and native apps
 
 The web manifest supports standalone installation with ordinary and maskable

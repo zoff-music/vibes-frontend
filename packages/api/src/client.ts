@@ -424,6 +424,9 @@ export function createRequestClient<const Endpoints extends RequestDefinitions>(
     validation: true,
     fetchOpts: {
       timeout: getRestTimeoutMs(),
+      // Quota/rate limits and permanent failures need caller action, not an
+      // immediate retry. In particular, 503 also represents provider quota.
+      retry: { limit: 2, timeout: 1_000, statusCodes: [502, 504] },
       credentials: 'include',
       headers: { ...customHeaders },
     },

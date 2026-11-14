@@ -126,9 +126,9 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
         }
       : {};
   const playerPreloadProps =
-    (isSSR || queueSnapshotRoomId !== id) && loaderData.preloadPlaylistItems
+    isSSR || queueSnapshotRoomId !== id
       ? {
-          initialPreloadPlaylistItems: loaderData.preloadPlaylistItems,
+          initialPreloadPlaylistItems: loaderData.playlistItems,
         }
       : {};
   const shouldReduceMotion = useReducedMotion();
