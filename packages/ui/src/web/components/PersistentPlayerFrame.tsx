@@ -1,6 +1,12 @@
 import { Link } from '@kasperrt/smolter/preact';
 import { classNames } from '@vibes/shared';
-import { type ReactNode, useLayoutEffect, useRef } from 'react';
+import {
+  type ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { CloseIcon } from '../icons';
 import { IconButton } from './IconButton';
 
@@ -24,6 +30,11 @@ export function PersistentPlayerFrame({
   const frame = useRef<HTMLDivElement>(null);
   const previous = useRef<DOMRect | null>(null);
   const previousMode = useRef(minimized);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Device preferences are unavailable to SSR. Match its attribute first so
+  // Preact applies the saved value instead of retaining the server's false.
+  useEffect(() => setHydrated(true), []);
 
   useLayoutEffect(() => {
     const element = frame.current?.querySelector<HTMLElement>(
@@ -69,7 +80,7 @@ export function PersistentPlayerFrame({
         minimized &&
           'fixed right-4 bottom-4 z-40 w-96 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-theme bg-theme shadow-xl [view-transition-name:persistent-player] sm:right-6 sm:bottom-6',
       )}
-      data-player-persistent={persistent}
+      data-player-persistent={hydrated && persistent}
       data-minimized={minimized}
     >
       {minimized && (
