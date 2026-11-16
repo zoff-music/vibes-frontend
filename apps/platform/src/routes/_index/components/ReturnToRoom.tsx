@@ -48,9 +48,6 @@ export function ReturnToRoom({ onJoinRoom }: ReturnToRoomProps) {
       if (!event.persisted) return;
 
       setDismissed(true);
-      const roomId = readRoomReminder();
-
-      if (roomId) clearRoomReminder(roomId);
     };
     window.addEventListener('pageshow', handlePageShow);
     document.addEventListener('visibilitychange', refresh);

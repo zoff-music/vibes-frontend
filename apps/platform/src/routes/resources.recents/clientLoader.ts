@@ -20,8 +20,8 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
       referrer: document.referrer,
     })
   ) {
-    clearRoomReminder(roomId);
-
+    // This document is ineligible, but another tab may have remembered the
+    // room since we left it. Do not erase that tab's return target.
     return { room: null };
   }
 
