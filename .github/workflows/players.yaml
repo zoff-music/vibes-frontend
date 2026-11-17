@@ -66,6 +66,12 @@ jobs:
         run: pnpm exec biome check scripts/players
       - name: API retry policy
         run: pnpm test:api
+      - name: UI browser regressions
+        if: matrix.browser == 'chromium'
+        run: |
+          pnpm --filter @vibes/ui lint
+          pnpm --filter @vibes/ui typecheck
+          pnpm --filter @vibes/ui test
       - name: Player integration
         run: pnpm test:players
       - name: Route transition integration

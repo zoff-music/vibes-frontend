@@ -119,6 +119,8 @@ Apply these repository-specific rules together with `AGENTS.md`.
 
 ## Validation
 
+- Write new regression tests in TypeScript using Vitest, colocated with the owning app or package code. Use Vitest Browser Mode for browser behavior and package-level test scripts for execution and CI. Do not add standalone `.mjs` tests or place tests under the root `scripts/` directory.
+
 - After native testing, shut down every simulator or emulator started for the task. Stop temporary baseline build/dev processes too; preserve the user’s requested development servers.
 
 Run from the repository root:

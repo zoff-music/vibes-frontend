@@ -24,8 +24,10 @@
   "sideEffects": false,
   "license": "MIT",
   "scripts": {
-    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.web.json",
-    "lint": "biome check ."
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json",
+    "lint": "biome check .",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "peerDependencies": {
     "react": "19.3.1",
@@ -54,12 +56,16 @@
   "devDependencies": {
     "@biomejs/biome": "2.6.7",
     "@react-native/metro-config": "0.88.1",
+    "@tailwindcss/vite": "catalog:",
     "@types/d3": "^7.4.3",
     "@types/escape-html": "^1.0.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@vibes/tailwind": "workspace:*",
+    "@vitest/browser-playwright": "5.1.0",
     "expo": "~58.0.25",
     "nativewind": "5.0.0-preview.4",
+    "preact-render-to-string": "6.8.3",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-native": "npm:react-native-tvos@0.88.1-0",
@@ -69,7 +75,9 @@
     "react-native-svg": "15.16.1",
     "react-native-webview": "14.0.1",
     "react-native-youtube-iframe": "2.4.1",
+    "tailwindcss": "catalog:",
     "typescript": "~7.0.2",
-    "vite": "8.3.8"
+    "vite": "8.3.8",
+    "vitest": "5.1.0"
   }
 }

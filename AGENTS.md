@@ -15,6 +15,7 @@ Non-negotiable conventions. Follow strictly.
 - **No `@ts-ignore` or `@ts-nocheck`** - fix the type
 - **No `try/catch`** - use `safeWrap`/`safeWrapAsync` from `@vibes/shared`
 - **Use Biome** for ALL linting and formatting. No ESLint.
+- **Tests use Vitest and TypeScript** - colocate tests with their owning app/package code and expose package-level test commands. Use Vitest Browser Mode for browser behavior. Do not add standalone `.mjs` tests or put tests in the root `scripts/` folder.
 - **Run `pnpm lint`** to check both format and lint rules before committing.
 - **Run `pnpm typecheck`** to verify TypeScript compilation before committing.
 - **Use `@vibes/api`** for ALL API calls / SSE.
