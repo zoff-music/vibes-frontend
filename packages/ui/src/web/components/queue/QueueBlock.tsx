@@ -34,6 +34,7 @@ export const QueueBlock = React.memo(function QueueBlock({
 }: QueueBlockProps) {
   const ref = useRef<HTMLDivElement>(null);
   const firstItemId = items[0]?.id;
+  const skipAnimation = instant || !visible;
 
   useLayoutEffect(() => {
     const block = ref.current;
@@ -60,62 +61,63 @@ export const QueueBlock = React.memo(function QueueBlock({
     <div
       ref={ref}
       data-queue-block={index}
-      className="h-[calc(var(--queue-row-size)*var(--queue-block-count))]"
+      className="[contain-intrinsic-size:auto_calc(var(--queue-row-size)*var(--queue-block-count))] [content-visibility:auto]"
       style={{ '--queue-block-count': items.length }}
     >
-      {visible && (
-        <div>
-          <AnimatePresence initial={false} custom={currentItemIds}>
-            {items.map((playlistItem, offset) => (
-              <motion.div
-                key={playlistItem.id}
-                role="listitem"
-                data-queue-row={playlistItem.id}
-                aria-posinset={start + offset + 1}
-                aria-setsize={total}
-                className="pb-2"
-                layout={instant ? false : 'position'}
-                initial={
-                  instant || initialItemIds.has(playlistItem.id)
-                    ? false
-                    : { opacity: 0, scale: 0.96, y: 14 }
-                }
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit="exit"
-                variants={{
-                  exit: (itemIds: ReadonlySet<string>) => {
-                    // Moving into a neighboring block is not a removed song.
-                    // Only actual queue removals retain their fading exit row.
-                    const skipExit = instant || itemIds.has(playlistItem.id);
-                    return {
-                      opacity: 0,
-                      scale: skipExit ? 1 : 0.96,
-                      y: skipExit ? 0 : -14,
-                      transition: { duration: skipExit ? 0 : 0.16 },
-                    };
-                  },
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 420,
-                  damping: 34,
-                  opacity: { duration: instant ? 0 : 0.16 },
-                  layout: { duration: instant ? 0 : 0.3, ease: 'easeOut' },
-                }}
-              >
-                <QueueItem
-                  playlistItem={playlistItem}
-                  position={start + offset + 1}
-                  isVoting={votingPlaylistItemId === playlistItem.id}
-                  {...(onRemove && { onRemove })}
-                  {...(onVote && { onVote })}
-                  {...(isAdmin !== undefined && { isAdmin })}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
+      {/* Keep real rows searchable by native find, including on mobile. */}
+      <div>
+        <AnimatePresence initial={false} custom={currentItemIds}>
+          {items.map((playlistItem, offset) => (
+            <motion.div
+              key={playlistItem.id}
+              role="listitem"
+              data-queue-row={playlistItem.id}
+              aria-posinset={start + offset + 1}
+              aria-setsize={total}
+              className="pb-2"
+              layout={skipAnimation ? false : 'position'}
+              initial={
+                skipAnimation || initialItemIds.has(playlistItem.id)
+                  ? false
+                  : { opacity: 0, scale: 0.96, y: 14 }
+              }
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit="exit"
+              variants={{
+                exit: (itemIds: ReadonlySet<string>) => {
+                  // Moving into a neighboring block is not a removed song.
+                  // Only actual queue removals retain their fading exit row.
+                  const skipExit =
+                    skipAnimation || itemIds.has(playlistItem.id);
+                  return {
+                    opacity: 0,
+                    scale: skipExit ? 1 : 0.96,
+                    y: skipExit ? 0 : -14,
+                    transition: { duration: skipExit ? 0 : 0.16 },
+                  };
+                },
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 420,
+                damping: 34,
+                opacity: { duration: skipAnimation ? 0 : 0.16 },
+                layout: { duration: skipAnimation ? 0 : 0.3, ease: 'easeOut' },
+              }}
+            >
+              <QueueItem
+                playlistItem={playlistItem}
+                active={visible}
+                position={start + offset + 1}
+                isVoting={votingPlaylistItemId === playlistItem.id}
+                {...(onRemove && { onRemove })}
+                {...(onVote && { onVote })}
+                {...(isAdmin !== undefined && { isAdmin })}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
     </div>
   );
 });

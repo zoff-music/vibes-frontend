@@ -21,6 +21,7 @@ interface Props {
   isVoting?: boolean;
   providerLink?: boolean;
   density?: 'normal' | 'compact';
+  active?: boolean;
 }
 
 const QueueItemComponent: React.FC<Props> = ({
@@ -32,6 +33,7 @@ const QueueItemComponent: React.FC<Props> = ({
   isVoting = false,
   providerLink = true,
   density = 'normal',
+  active = true,
 }) => {
   const handleVote = () => {
     onVote?.(playlistItem.id);
@@ -42,29 +44,33 @@ const QueueItemComponent: React.FC<Props> = ({
     onRemove?.(playlistItem.id);
   };
 
-  const providerUrl = getProviderItemUrl(
-    playlistItem.sourceType,
-    playlistItem.sourceId,
-    playlistItem.providerUrl,
-  );
+  const providerUrl = active
+    ? getProviderItemUrl(
+        playlistItem.sourceType,
+        playlistItem.sourceId,
+        playlistItem.providerUrl,
+      )
+    : null;
   const voteCount = playlistItem.voteCount || 0;
 
   return (
-    <Tooltip
-      as="div"
-      className="min-w-0"
-      content={playlistItem.addedBy ? `Added by ${playlistItem.addedBy}` : ''}
+    <article
+      {...(playlistItem.addedBy && {
+        title: `Added by ${playlistItem.addedBy}`,
+      })}
+      className={classNames(
+        'group relative flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface transition-colors hover:border-theme-strong sm:gap-3',
+        density === 'compact' ? 'p-2' : 'p-3',
+        !active && 'h-[calc(var(--queue-row-size)-0.5rem)]',
+      )}
     >
-      <article
-        className={classNames(
-          'group relative flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-theme bg-theme-surface transition-colors hover:border-theme-strong sm:gap-3',
-          density === 'compact' ? 'p-2' : 'p-3',
-        )}
-      >
+      {active && (
         <div className="w-5 shrink-0 text-center sm:w-6">
           <span className="text-theme-muted text-xs">{position}</span>
         </div>
+      )}
 
+      {active && (
         <PlaylistItemArtwork
           thumbnailUrl={playlistItem.thumbnailUrl}
           className={classNames(
@@ -76,50 +82,55 @@ const QueueItemComponent: React.FC<Props> = ({
           width={56}
           height={56}
         />
+      )}
 
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h3 className="text-theme block max-w-full truncate text-left text-xs">
-            {playlistItem.title}
-          </h3>
-          <div className="text-theme-muted mt-1 flex min-w-0 items-center gap-1.5 overflow-hidden text-xs">
-            <span className="min-w-0 truncate">
-              {playlistItem.publisher || 'Unknown Artist'}
-            </span>
-            <span className="text-theme-subtle">•</span>
+      {/* Preserve the matched text nodes as nearby controls mount/unmount. */}
+      <div key="text" className="min-w-0 flex-1 overflow-hidden">
+        <h3 className="text-theme block max-w-full truncate text-left text-xs">
+          {playlistItem.title}
+        </h3>
+        <div className="text-theme-muted mt-1 flex min-h-7 min-w-0 items-center gap-1.5 overflow-hidden text-xs">
+          <span className="min-w-0 truncate">
+            {playlistItem.publisher || 'Unknown Artist'}
+          </span>
+          {active && <span className="text-theme-subtle">•</span>}
+          {active && (
             <span className="text-theme-muted shrink-0 text-xs">
               {formatPlaybackSeconds(playlistItem.duration)}
             </span>
-            {providerUrl && providerLink && (
-              <Tooltip
-                align="start"
-                className="inline-flex shrink-0"
-                content={`Open on ${getProviderDisplayName(playlistItem.sourceType)}`}
+          )}
+          {active && providerUrl && providerLink && (
+            <Tooltip
+              align="start"
+              className="inline-flex shrink-0"
+              content={`Open on ${getProviderDisplayName(playlistItem.sourceType)}`}
+            >
+              <a
+                href={providerUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-theme-muted hover:bg-theme hover:text-theme focus:ring-secondary/40 inline-flex min-h-7 min-w-7 cursor-pointer items-center justify-center rounded-lg transition-colors focus:ring-2 focus:outline-hidden"
+                aria-label={`Open ${playlistItem.title} on ${getProviderDisplayName(playlistItem.sourceType)}`}
               >
-                <a
-                  href={providerUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-theme-muted hover:bg-theme hover:text-theme focus:ring-secondary/40 inline-flex min-h-7 min-w-7 cursor-pointer items-center justify-center rounded-lg transition-colors focus:ring-2 focus:outline-hidden"
-                  aria-label={`Open ${playlistItem.title} on ${getProviderDisplayName(playlistItem.sourceType)}`}
-                >
-                  <ProviderIcon
-                    className="h-3.5 w-3.5 text-white"
-                    provider={playlistItem.sourceType}
-                  />
-                </a>
-              </Tooltip>
-            )}
-            {!providerLink && (
-              <span className="inline-flex min-h-7 min-w-7 shrink-0 items-center justify-center">
                 <ProviderIcon
-                  className="text-theme-muted h-3.5 w-3.5"
+                  className="h-3.5 w-3.5 text-white"
                   provider={playlistItem.sourceType}
                 />
-              </span>
-            )}
-          </div>
+              </a>
+            </Tooltip>
+          )}
+          {active && !providerLink && (
+            <span className="inline-flex min-h-7 min-w-7 shrink-0 items-center justify-center">
+              <ProviderIcon
+                className="text-theme-muted h-3.5 w-3.5"
+                provider={playlistItem.sourceType}
+              />
+            </span>
+          )}
         </div>
+      </div>
 
+      {active && (
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
           {onVote && (
             <Tooltip
@@ -177,12 +188,12 @@ const QueueItemComponent: React.FC<Props> = ({
             </Tooltip>
           )}
         </div>
+      )}
 
-        {playlistItem.addedBy && (
-          <span className="sr-only">Added by {playlistItem.addedBy}.</span>
-        )}
-      </article>
-    </Tooltip>
+      {playlistItem.addedBy && (
+        <span className="sr-only">Added by {playlistItem.addedBy}.</span>
+      )}
+    </article>
   );
 };
 

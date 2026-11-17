@@ -90,7 +90,7 @@ const QueueListComponent: React.FC<Props> = ({
     )
       return;
 
-    // Reordering across a window boundary remounts that row. Restore the same
+    // Reordering across a block boundary remounts that row. Restore the same
     // control without scrolling or stealing focus from somewhere else.
     const block = list.querySelector(`[data-queue-block="${focusedBlock}"]`);
     const row = [
@@ -126,7 +126,7 @@ const QueueListComponent: React.FC<Props> = ({
   }
 
   return (
-    // biome-ignore lint/a11y/useSemanticElements: a native <ol> may only contain <li>, but rows render inside virtualized block wrappers.
+    // biome-ignore lint/a11y/useSemanticElements: a native <ol> may only contain <li>, but rows render inside block wrappers.
     <div
       ref={ref}
       role="list"

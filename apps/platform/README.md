@@ -126,6 +126,20 @@ the full ordered queue snapshot. Keep the initial count until that snapshot
 arrives. Reconnect revalidation still loads the full queue to recover missed
 events; an empty live snapshot must not fall back to stale preview rows.
 
+Every loaded queue row stays in the document so the browser's Find in Page
+(Ctrl+F / Cmd+F or the mobile browser menu) can locate titles and artists at
+any queue position and scroll to their voting controls. CSS `content-visibility:
+auto` skips offscreen layout and paint without removing searchable content;
+intersection tracking keeps artwork, provider links, voting controls and their
+tooltips mounted only near the viewport, and limits queue animations. Browsers
+without CSS containment support render the lightweight rows normally. Search includes the full queue once
+the live snapshot arrives; the initial server preview still contains 12 items.
+Run `node --test scripts/queue-find.browser.mjs` for the 3,500-song desktop and
+mobile-width fixture, hydration, native text matching, selection preservation,
+scroll-to-match, voting and bounded artwork/control counts. The headless test
+uses `window.find` and explicitly reveals its selection; it does not automate
+the browser toolbar or a physical mobile browser.
+
 The add-to-queue dialog and its action module preload together on pointer,
 keyboard or touch intent. Opening the dialog uses those same module imports.
 Chat subscriptions and unread counts remain outside both deferred dialogs.
