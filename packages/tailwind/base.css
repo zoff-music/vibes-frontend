@@ -327,6 +327,7 @@
   }
 
   &::view-transition-group(page-content),
+  &::view-transition-group(site-background),
   &::view-transition-group(root),
   &::view-transition-group(site-footer) {
     animation: none;

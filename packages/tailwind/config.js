@@ -119,13 +119,14 @@ export default {
         'gradient-shift': 'gradientShift 10s ease-in-out infinite',
         'sunset-glow': 'sunsetGlow 9s ease-in-out infinite alternate',
         'sun-ripple': 'sunRipple 8s ease-in-out infinite',
-        'background-drift': 'backgroundDrift 12s ease-in-out infinite',
+        'background-drift': 'backgroundDrift 16s ease-in-out infinite',
         'background-grid': 'backgroundGrid 2s linear infinite',
       },
       keyframes: {
         backgroundDrift: {
-          '0%, 100%': { transform: 'translate3d(-3%, -1%, 0) scale(1.04)' },
-          '50%': { transform: 'translate3d(3%, 1%, 0) scale(1.04)' },
+          '0%, 100%': { transform: 'translate3d(-8%, -4%, 0) scale(1.08)' },
+          '35%': { transform: 'translate3d(7%, -2%, 0) scale(1.12)' },
+          '70%': { transform: 'translate3d(3%, 6%, 0) scale(1.08)' },
         },
         backgroundGrid: {
           from: { transform: 'translate3d(0, 0, 0)' },
