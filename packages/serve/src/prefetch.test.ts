@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
 import { createDataRouter } from '@kasperrt/smolter/preact';
 import { lazyRoute } from '@kasperrt/smolter/preact/lazy-route';
+import { afterEach, test, vi } from 'vitest';
 
 for (const failure of ['synchronous', 'asynchronous']) {
   for (const submission of ['page', 'fetcher']) {
@@ -23,7 +23,7 @@ for (const failure of ['synchronous', 'asynchronous']) {
         ],
         { url: 'http://localhost/' },
       );
-      t.after(() => router.dispose());
+      t.onTestFinished(() => router.dispose());
       const submitter = submission === 'page' ? router : router.createFetcher();
       await submitter.submit('/save', new FormData());
       await router.prefetch('/target');
@@ -43,7 +43,7 @@ test('a failed lazy import can retry on a later navigation', async (t) => {
     return { clientLoader: () => 'ready' };
   });
   const router = createDataRouter([route], { url: 'http://localhost/' });
-  t.after(() => router.dispose());
+  t.onTestFinished(() => router.dispose());
   await router.navigate('/target');
   assert.equal(imports, 1);
   await router.navigate('/target');
@@ -66,7 +66,7 @@ test('lazy module preparation failure does not poison later retries', async (t) 
     };
   });
   const router = createDataRouter([route], { url: 'http://localhost/' });
-  t.after(() => router.dispose());
+  t.onTestFinished(() => router.dispose());
   await router.navigate('/target');
   assert.equal(imports, 1);
   await router.navigate('/target');
@@ -171,9 +171,9 @@ for (const outcome of ['error', 'redirect']) {
   });
 }
 
-test('prefetch is bounded to sixteen URLs and expires after thirty seconds', async (t) => {
+test('prefetch is bounded to sixteen URLs and expires after thirty seconds', async (_t) => {
   let now = 1_000;
-  t.mock.method(Date, 'now', () => now);
+  vi.spyOn(Date, 'now').mockImplementation(() => now);
   let reads = 0;
   const router = createDataRouter(
     [{ path: '/rooms/:id', loader: () => ++reads }],
@@ -210,4 +210,9 @@ test('disposing the router aborts a pending speculative read', async () => {
   router.dispose();
   await pending;
   assert.equal(signal?.aborted, true);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

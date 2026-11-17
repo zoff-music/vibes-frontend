@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { createMediaSessionBridge } from '../src/hooks/mediaSessionBridge.ts';
 
 for (const userAgent of ['Chrome/130', 'Firefox/156']) {
@@ -34,16 +34,19 @@ for (const userAgent of ['Chrome/130', 'Firefox/156']) {
       configurable: true,
       value: AudioStub,
     });
-    t.after(() => {
+    t.onTestFinished(() => {
       if (originalAudio)
         Object.defineProperty(globalThis, 'Audio', originalAudio);
       else Reflect.deleteProperty(globalThis, 'Audio');
     });
-    t.mock.method(URL, 'createObjectURL', (blob: Blob) => {
-      source = blob;
-      return 'blob:local-media-session';
-    });
-    t.mock.method(URL, 'revokeObjectURL', (url: string) => {
+    vi.spyOn(URL, 'createObjectURL').mockImplementation(
+      (blob: Blob | MediaSource) => {
+        assert.ok(blob instanceof Blob);
+        source = blob;
+        return 'blob:local-media-session';
+      },
+    );
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation((url: string) => {
       revoked = url;
     });
     const bridge = createMediaSessionBridge(userAgent);
@@ -82,3 +85,8 @@ for (const userAgent of ['Chrome/130', 'Firefox/156']) {
     assert.equal(bridge.audio.volume, 0.5);
   });
 }
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});

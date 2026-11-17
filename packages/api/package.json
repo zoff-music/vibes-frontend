@@ -12,7 +12,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "biome check src"
+    "lint": "biome check src tests",
+    "test": "pnpm --workspace-root exec vitest run --project api"
   },
   "dependencies": {
     "@plausible-analytics/tracker": "0.4.7",

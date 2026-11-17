@@ -1,8 +1,10 @@
+import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  root: fileURLToPath(new URL('.', import.meta.url)),
   plugins: [tailwindcss()],
   resolve: {
     alias: [
@@ -13,6 +15,7 @@ export default defineConfig({
   },
   oxc: { jsx: { runtime: 'automatic', importSource: 'preact' } },
   test: {
+    name: 'ui-browser',
     include: ['src/web/**/*.browser.test.tsx'],
     browser: {
       enabled: true,

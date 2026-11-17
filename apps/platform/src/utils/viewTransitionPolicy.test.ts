@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { shouldTransitionPage } from './viewTransitionPolicy.ts';
 
 function page(pathname: string, path = pathname) {
@@ -71,4 +71,9 @@ test('room entry and exit animate while same-room panels stay live', () => {
     shouldTransitionPage(page('/features/music'), page('/electro', '/:id/*')),
     true,
   );
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

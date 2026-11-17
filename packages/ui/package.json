@@ -26,8 +26,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "biome check .",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "pnpm --workspace-root exec vitest run --project ui --project ui-browser --project players-chromium --project players-webkit",
+    "test:watch": "pnpm --workspace-root exec vitest --project ui --project ui-browser"
   },
   "peerDependencies": {
     "react": "19.3.1",

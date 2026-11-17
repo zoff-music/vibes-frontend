@@ -6,11 +6,11 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 3001",
     "build": "vite build --outDir dist/client && vite build --ssr src/entry.server.tsx --outDir dist/server",
-    "test:tv-player": "node --test --test-force-exit src/routes/resources.tv.31378fad7d4621f3d5461e42b371613b/loader.test.mjs",
     "start": "node server/index.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "biome check src",
-    "preview": "node server/index.ts"
+    "lint": "biome check src tests",
+    "preview": "node server/index.ts",
+    "test": "pnpm --workspace-root exec vitest run --project platform"
   },
   "dependencies": {
     "@kasperrt/smolter": "catalog:",

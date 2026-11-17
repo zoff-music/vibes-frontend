@@ -14,10 +14,8 @@
   },
   "scripts": {
     "lint": "biome check src",
-    "test:frame-protection": "node --test src/frameProtection.test.ts",
-    "test:transport": "node --test src/transport.test.ts src/cache.test.ts src/revalidation.test.ts src/deployment.test.ts src/prefetch.test.ts",
     "typecheck": "tsc --noEmit",
-    "test:theme": "node --test src/theme.test.ts"
+    "test": "pnpm --workspace-root exec vitest run --project serve"
   },
   "dependencies": {
     "@kasperrt/smolter": "catalog:",

@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "noUncheckedIndexedAccess": false,
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "types": [
+      "node",
+      "vite/client",
+      "./apps/platform/node_modules/@types/chromecast-caf-sender"
+    ],
+    "paths": {
+      "react": ["./node_modules/preact/compat"],
+      "react-dom": ["./node_modules/preact/compat"]
+    }
+  },
+  "include": [
+    "vitest.config.mts",
+    "apps/*/tests/**/*.ts",
+    "packages/*/tests/**/*.ts",
+    "packages/*/tests/**/*.tsx"
+  ]
+}

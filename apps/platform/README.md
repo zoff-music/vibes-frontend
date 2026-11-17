@@ -13,7 +13,7 @@ failures retain wiretyped's bounded retry behavior.
 Room and room-discovery loaders preserve backend 429 responses and
 `Retry-After` instead of reporting them as 503 outages. Parallel room reads
 use the longest returned delay. Failed reads do not automatically reload the
-page. Run `pnpm test:api` to check the actual wiretyped request policy.
+page. Run `pnpm --filter @vibes/api test` to check the actual wiretyped request policy.
 
 Room entry loads one playlist page. Provider warm-up reuses those items and
 the current playback item instead of requesting separate YouTube and
@@ -800,7 +800,7 @@ Keep the provider around route error views as well.
 Queue removals fade out briefly in normal flow, then surviving rows perform one
 layout movement. Do not use `popLayout` here: with the current Preact/Motion
 combination, final exit removal resets the survivor projection and replays the
-movement. `scripts/queue-animation.browser.mjs` exercises the production-mode
+movement. `packages/ui/tests/queue-animation.integration.test.ts` exercises the production-mode
 component with fixed-height fixture rows, rapid removals, voting reorders and
 reduced motion. Run it with an external Playwright installation via
 `PLAYWRIGHT_MODULE` (optionally `CHROMIUM_PATH`); neither is a product dependency.
@@ -896,7 +896,7 @@ still uses flat routes. Trailing underscores in standalone route folder names
 prevent automatic parent inference without changing public URLs. Do not add
 nested layout routes until the integrated SSR/hydration path supports them.
 
-Run `node --test apps/platform/src/utils/viewTransitionPolicy.test.ts` for the
+Run `pnpm --filter @vibes/platform test` for the
 navigation policy regression cases. Run
-`node --test scripts/route-transition.browser.mjs` for document handoffs and
+`pnpm --filter @vibes/ui test` for document handoffs and
 initial-entry coverage.

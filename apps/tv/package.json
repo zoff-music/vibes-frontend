@@ -13,11 +13,11 @@
     "android:submit": "pnpm dlx eas-cli submit --platform android --profile production",
     "tizen:dev": "vite --config vite.tizen.config.ts",
     "tizen:build": "vite build --config vite.tizen.config.ts && node scripts/finalize-tizen.mjs",
-    "tizen:test": "node --test scripts/*.test.mjs",
     "build": "pnpm tizen:build",
-    "lint": "biome check src scripts app.json metro.config.js vite.tizen.config.ts",
+    "lint": "biome check src tests scripts app.json metro.config.js vite.tizen.config.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.web.json",
-    "validate": "EXPO_TV=1 expo config --type public && pnpm typecheck && pnpm tizen:build && pnpm tizen:test"
+    "validate": "EXPO_TV=1 expo config --type public && pnpm typecheck && pnpm tizen:build && pnpm test",
+    "test": "pnpm --workspace-root exec vitest run --project tv"
   },
   "expo": {
     "install": {

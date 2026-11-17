@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import {
   isLocalAppHandoff,
   leaveDocument,
@@ -56,7 +56,7 @@ test('cross-app navigation retains the outgoing page without a delay or dimming'
       },
     },
   });
-  context.after(() => {
+  context.onTestFinished(() => {
     names.forEach((name, index) => {
       const descriptor = originals[index];
 
@@ -82,4 +82,9 @@ test('cross-app navigation retains the outgoing page without a delay or dimming'
     ),
     false,
   );
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

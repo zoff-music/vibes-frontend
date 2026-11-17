@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { readRecentRooms, rememberRecentRoom } from './recentRooms.ts';
 
 const cookie = (value: unknown) =>
@@ -96,4 +96,9 @@ test('preserves stored IDs for long encoded Unicode room names', () => {
   assert.deepEqual(readRecentRooms(cookie([{ id, name: '東京' }]), 'MUSIC'), [
     { id, name: '東京' },
   ]);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

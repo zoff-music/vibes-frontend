@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { selectRoomDiscoveryTab } from './roomDiscovery.ts';
 
 test('defaults to public when rooms exist, otherwise recent when history exists', () => {
@@ -40,4 +40,9 @@ test('Music and Watch read only their own saved selection', () => {
     selectRoomDiscoveryTab('zoff-room-tab-music=recent', true, true, 'WATCH'),
     'public',
   );
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

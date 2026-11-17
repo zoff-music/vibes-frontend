@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import {
   type BeatGameState,
   beatGameReducer,
@@ -67,4 +67,9 @@ test('next-round events cannot advance a lost or unfinished round', () => {
     pad: 0,
   });
   assert.equal(beatGameReducer(lost, { type: 'next', pad: 2 }), lost);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

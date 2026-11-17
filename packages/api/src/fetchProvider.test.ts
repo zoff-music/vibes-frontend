@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { createApiFetchProvider, headApiUrl } from './fetchProvider.ts';
 
 for (const scenario of [
@@ -87,3 +87,8 @@ for (const failure of [false, true]) {
     assert.equal(lifecycleCalls, 0);
   });
 }
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});

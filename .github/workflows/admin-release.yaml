@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - ".github/workflows/security.yaml"
+      - ".github/workflows/tests.yaml"
       - "apps/admin/**"
       - "packages/**"
       - "package.json"
@@ -12,6 +13,8 @@ on:
       - "pnpm-workspace.yaml"
       - "biome.json"
       - "tsconfig.json"
+      - "tsconfig.tests.json"
+      - "vitest.config.mts"
       - "tailwind.vibes.mjs"
       - ".github/workflows/admin-release.yaml"
 
@@ -27,8 +30,11 @@ jobs:
     if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/security.yaml
 
+  tests:
+    uses: ./.github/workflows/tests.yaml
+
   build:
-    needs: [security]
+    needs: [security, tests]
     if: github.repository == 'zoff-music/vibes-frontend' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read

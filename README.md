@@ -231,3 +231,19 @@ the configured CDN origin; data requests remain on the application origin.
 
 Development uses Vite HMR and route discovery updates; no deployment checks run.
 Packaged Tizen and native apps do not use this web deployment mechanism.
+
+## Tests
+
+Run `pnpm test` from the workspace root. It builds the Platform and Tizen
+artifacts needed by integration tests, then runs every app/package Vitest
+suite, including the UI browser tests and Chromium/WebKit player integration.
+Install the test browsers locally with `pnpm exec playwright install chromium webkit`.
+Use `pnpm --filter @vibes/ui test` (or another package) for focused runs after
+the required build artifacts exist. `pnpm test:watch` starts Vitest watch mode.
+
+The PR workflow has one **Test** step using this same command. Lint and
+typechecking include the migrated test sources. Tests are TypeScript files
+owned by their apps/packages; standalone `.mjs` tests and Node test-runner
+imports are rejected by a convention regression test. The external-provider
+soak cases are discovered but skip unless four explicit `PLAYER_TRACKS` are
+supplied; deterministic provider playback coverage always runs in both engines.

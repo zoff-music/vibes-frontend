@@ -38,7 +38,7 @@ Validate the app with:
 pnpm --filter @vibes/admin lint
 pnpm --filter @vibes/admin typecheck
 pnpm --filter @vibes/admin build
-pnpm exec vitest run --config scripts/admin/vitest.config.ts
+pnpm --filter @vibes/ui test
 pnpm exec playwright install chromium
-node scripts/admin/browser.mjs
+node packages/ui/tests/charts.integration.test.ts
 ```

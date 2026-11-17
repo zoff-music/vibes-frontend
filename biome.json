@@ -15,7 +15,10 @@
       "!**/coverage",
       "!**/test-results",
       "!apps/*/android",
-      "!apps/*/ios"
+      "!apps/*/ios",
+      "vitest.config.mts",
+      "tsconfig.tests.json",
+      "!**/.vitest"
     ]
   },
   "formatter": {
@@ -65,8 +68,13 @@
     }
   },
   "tailwind": {
-    "mergeFunctions": ["clsx", "tw"],
-    "variantFunctions": ["cva"]
+    "mergeFunctions": [
+      "clsx",
+      "tw"
+    ],
+    "variantFunctions": [
+      "cva"
+    ]
   },
   "overrides": [
     {
@@ -78,7 +86,8 @@
         "apps/remote/**",
         "apps/tv/src/tizen/**",
         "packages/ui/src/web/**",
-        "scripts/**"
+        "scripts/**",
+        "packages/ui/tests/**"
       ],
       "linter": {
         "rules": {

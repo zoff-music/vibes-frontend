@@ -18,8 +18,9 @@ pnpm --filter @vibes/ui test
 pnpm --filter @vibes/ui test:watch
 ```
 
-CI uses the matching Playwright container image and runs the UI suite in the
-Chromium job of the shared integration workflow. `pnpm lint` and
+CI uses the matching Playwright container image and runs all suites through
+the single `pnpm test` step in the shared test workflow. The player integration
+suite runs in both Chromium and WebKit. `pnpm lint` and
 `pnpm typecheck` cover the tests and their configuration.
 
 The queue regression covers the 12-item server preview, hydration, the full
@@ -28,3 +29,10 @@ scroll-to-match, voting/reordering, and bounded artwork/control counts at deskto
 and mobile widths under 4× CPU slowdown. Headless `window.find` does not reveal
 its selection like the browser toolbar, so the test explicitly scrolls the
 matched text into view. It does not claim physical mobile browser coverage.
+
+The package also owns the YouTube/SoundCloud player integration and native
+bridge suites under `tests/players`, plus queue animation, hydration, chart,
+and route transition regressions under `tests`. The real-provider soak test
+is discovered by Vitest but requires four explicit `PLAYER_TRACKS`; it skips
+when those optional external tracks are not supplied. Deterministic provider
+SDK integration tests run in both browsers on every PR.
