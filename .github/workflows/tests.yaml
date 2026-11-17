@@ -14,32 +14,12 @@ permissions:
   contents: read
 
 jobs:
-  browser-image:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      image: ${{ steps.playwright.outputs.image }}
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-      - name: Resolve matching Playwright image
-        id: playwright
-        shell: bash
-        run: |
-          version=$(node -p "require('./package.json').devDependencies.playwright")
-          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Pin Playwright to an exact release version for the browser image."
-            exit 1
-          fi
-          echo "image=mcr.microsoft.com/playwright:v${version}-noble" >> "$GITHUB_OUTPUT"
-
   tests:
-    needs: browser-image
     runs-on: ubuntu-24.04
     # Browsers and their OS dependencies are baked into the matching image.
     container:
-      image: ${{ needs.browser-image.outputs.image }}
+      # Keep this version aligned with playwright in the root package.json.
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
       options: --init --ipc=host
     defaults:
       run:
