@@ -1,6 +1,7 @@
 // Keep a media element in the application's document so browsers can route
 // hardware media actions to its MediaSession instead of a provider iframe.
-export function createMediaSessionBridge() {
+export function createMediaSessionBridge(userAgent = navigator.userAgent) {
+  const isGecko = userAgent.includes('Firefox/');
   const sampleRate = 8000;
   const samples = sampleRate * 8;
   const bytes = new Uint8Array(44 + samples);
@@ -23,15 +24,41 @@ export function createMediaSessionBridge() {
   writeText(36, 'data');
   header.setUint32(40, samples, true);
   bytes.fill(128, 44);
+  if (isGecko) {
+    // Gecko's audibility detector rejects exact PCM silence before applying
+    // element volume. A tiny signal, attenuated below audible output, lets
+    // this document own the session without duplicating provider audio.
+    for (let index = 0; index < samples; index += 1) {
+      bytes[44 + index] = 128 + Math.round(Math.sin((index * Math.PI) / 4));
+    }
+  }
 
   const url = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
   const audio = new Audio(url);
   audio.loop = true;
-  // Muting the element would make it ineligible for media-key ownership.
-  // The PCM samples themselves are silence; no provider audio is duplicated.
+  // Gecko ignores volume <= 1e-7 for ownership. At 1e-6, the signal's
+  // output peak is below -160 dBFS. Muting would make it ineligible.
+  if (isGecko) audio.volume = 0.000001;
   audio.preload = 'auto';
 
+  const reclaim = () => {
+    if (audio.paused) return;
+    // A newly audible provider iframe can take Gecko's audio focus. Refresh
+    // on media updates (also delivered in background tabs), without polling
+    // timers, restarting playback, or changing the provider's volume.
+    audio.volume = 0;
+    audio.volume = 0.000001;
+  };
+  if (isGecko) {
+    audio.addEventListener('playing', reclaim);
+    audio.addEventListener('timeupdate', reclaim);
+  }
+
   const dispose = () => {
+    if (isGecko) {
+      audio.removeEventListener('playing', reclaim);
+      audio.removeEventListener('timeupdate', reclaim);
+    }
     audio.pause();
     audio.removeAttribute('src');
     audio.load();

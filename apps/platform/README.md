@@ -75,11 +75,16 @@ The return-to-room reminder is suppressed while a session is active.
 
 Hardware media keys use the room's Media Session handlers, including the same
 skip action as the room controls. While a room has a current item, a local,
-silent looping audio element keeps media-session ownership in the application
+looping audio element keeps media-session ownership in the application
 document instead of the provider iframe. It follows playback state and releases
 its blob URL when the room session ends. It requires no native helper or browser
 extension; browser autoplay rules still apply, with playback retried on a user
-gesture. YouTube and SoundCloud remain the only audible media sources.
+gesture. Chromium uses digital silence. Firefox/Zen require a nonzero PCM
+signal for audio-focus eligibility; its element volume attenuates the output
+below -160 dBFS. Media playback updates refresh ownership after a provider
+iframe takes focus. This is a browser workaround: ownership can briefly belong
+to the provider until the next bridge update. YouTube and SoundCloud remain
+the only audible media sources.
 
 Persistence applies to same-document Platform navigation. Reloading, closing
 the tab or following a document-level link to another application still ends
