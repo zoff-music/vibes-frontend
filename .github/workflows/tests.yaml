@@ -40,14 +40,23 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Audit dependencies
         run: pnpm audit --audit-level=moderate
-      - name: Lint
-        run: pnpm lint
-      - name: Typecheck
-        run: pnpm typecheck
       - name: Test
         env:
           PLAYER_TRACKS: ${{ inputs.tracks || '' }}
-        run: pnpm test
+        # Independent checks share one install and overlap the test builds.
+        # Wait for every command and preserve any failure as the required check.
+        run: |
+          pnpm lint &
+          lint_pid=$!
+          pnpm typecheck &
+          types_pid=$!
+          pnpm test &
+          tests_pid=$!
+          validation_status=0
+          wait "$lint_pid" || validation_status=1
+          wait "$types_pid" || validation_status=1
+          wait "$tests_pid" || validation_status=1
+          exit "$validation_status"
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

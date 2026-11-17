@@ -241,8 +241,10 @@ Install the test browsers locally with `pnpm exec playwright install chromium we
 Use `pnpm --filter @vibes/ui test` (or another package) for focused runs after
 the required build artifacts exist. `pnpm test:watch` starts Vitest watch mode.
 
-The PR workflow has one **Test** step using this same command. Lint and
-typechecking include the migrated test sources. Tests are TypeScript files
+The PR workflow has one **Test** step running lint, typechecking and `pnpm test`
+concurrently, waiting for all three and failing if any fails. Workspace lint and
+typechecks also run in parallel without dependency-order barriers; typechecking
+includes the migrated test sources. Tests are TypeScript files
 owned by their apps/packages; standalone `.mjs` tests and Node test-runner
 imports are rejected by a convention regression test. The external-provider
 soak cases are discovered but skip unless four explicit `PLAYER_TRACKS` are
@@ -251,7 +253,7 @@ supplied; deterministic provider playback coverage always runs in both engines.
 Unexpected lint, build and test warnings fail validation. The DOM bundler only
 ignores Motion's dependency-owned React Server Component marker and ineffective
 dynamic imports in the intentionally combined SSR graph; client graph warnings
-still fail. Tests use two isolated workers, with the CPU-throttled UI browser
+still fail. Tests use four isolated workers, with the CPU-throttled UI browser
 suite scheduled separately. New PR pushes cancel older PR runs. Dependency
 audit shares the test job's installation; Semgrep remains a separate scan.
 Main releases validate once, then build only affected application images.

@@ -19,7 +19,9 @@ const owners = ['apps', 'packages'].flatMap((directory) =>
 export default defineConfig({
   test: {
     fileParallelism: true,
-    maxWorkers: 2,
+    // Player suites spend time observing playback; leave workers available for
+    // independent suites while keeping the throttled queue benchmark isolated.
+    maxWorkers: 4,
     projects: [
       ...owners.map((owner) => ({
         root,

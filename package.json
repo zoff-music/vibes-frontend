@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "pnpm --filter @vibes/platform dev",
     "build": "pnpm --filter @vibes/platform build && pnpm --filter @vibes/admin build && pnpm --filter @vibes/cast build && pnpm --filter @vibes/embed build && pnpm --filter @vibes/remote build && pnpm --filter @vibes/tv build",
-    "typecheck": "tsc -p tsconfig.tests.json && pnpm --recursive typecheck",
-    "lint": "biome check --error-on-warnings vitest.config.mts tsconfig.tests.json && pnpm check:api-boundaries && pnpm --recursive lint",
+    "typecheck": "tsc -p tsconfig.tests.json && pnpm --parallel --recursive typecheck",
+    "lint": "biome check --error-on-warnings vitest.config.mts tsconfig.tests.json && pnpm check:api-boundaries && pnpm --parallel --recursive lint",
     "check:api-boundaries": "biome check --error-on-warnings scripts && node scripts/check-api-boundaries.mjs",
     "fix": "biome check --write --unsafe .",
     "test": "pnpm --parallel --filter @vibes/platform --filter @vibes/tv build && vitest run",
