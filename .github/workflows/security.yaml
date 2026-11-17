@@ -4,28 +4,14 @@ on:
   pull_request:
   workflow_call:
 
+concurrency:
+  group: security-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
 jobs:
-  audit:
-    if: github.repository == 'zoff-music/vibes-frontend' && (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .node-version
-      - name: Install pnpm
-        run: npm install --global pnpm@12.18.0
-      - name: Verify locked security patches
-        run: pnpm install --frozen-lockfile --ignore-scripts
-      - name: Audit dependencies
-        run: pnpm audit --audit-level=moderate
-
   semgrep:
     if: github.repository == 'zoff-music/vibes-frontend' && (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest

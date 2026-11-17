@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import {
   canOfferRoomReminder,
   isInternalDeparture,
@@ -65,4 +65,9 @@ test('same-site page changes clear the reminder; external links and room anchors
   assert.equal(isInternalDeparture(roomUrl, '#queue'), false);
   assert.equal(isInternalDeparture(roomUrl, '?view=party'), false);
   assert.equal(isInternalDeparture(roomUrl, 'https://example.com/'), false);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

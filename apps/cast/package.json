@@ -8,8 +8,9 @@
     "build": "vite build",
     "start": "NODE_ENV=production node server/index.ts",
     "preview": "NODE_ENV=production node server/index.ts",
-    "lint": "biome check .",
-    "typecheck": "tsc --noEmit"
+    "lint": "biome check --error-on-warnings .",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm --workspace-root exec vitest run --project cast"
   },
   "dependencies": {
     "@kasperrt/smolter": "catalog:",

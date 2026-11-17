@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import type { AddressInfo } from 'node:net';
-import test from 'node:test';
 import { createRequestHandler } from '@kasperrt/smolter/utils/http';
 import express from 'express';
+import { afterEach, test, vi } from 'vitest';
 
 test('path-hosted applications retain their data endpoint and mutation body', async (t) => {
   const app = express();
@@ -30,7 +30,9 @@ test('path-hosted applications retain their data endpoint and mutation body', as
 
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
-  t.after(() => server.close());
+  t.onTestFinished(() => {
+    server.close();
+  });
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 
   for (const prefix of ['/admin', '/remotes', '/embed', '']) {
@@ -83,7 +85,9 @@ test('suffix transport coexists with explicit endpoints on one origin', async (t
   }
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
-  t.after(() => server.close());
+  t.onTestFinished(() => {
+    server.close();
+  });
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   for (const prefix of ['/admin', '/remotes', '/embed', '']) {
     for (const path of [
@@ -124,4 +128,9 @@ test('suffix transport coexists with explicit endpoints on one origin', async (t
     const document = await fetch(`${origin}${prefix}/users`);
     assert.equal(await document.text(), 'document');
   }
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

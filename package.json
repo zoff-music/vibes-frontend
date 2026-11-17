@@ -7,16 +7,14 @@
     "packages/*"
   ],
   "scripts": {
-    "test:api": "vitest run --config scripts/api/vitest.config.ts",
-    "test:players": "vitest run --config scripts/players/vitest.config.ts",
-    "test:players:live": "vitest run --config scripts/players/vitest.live.config.ts",
-    "typecheck:players": "tsc -p scripts/players/tsconfig.json",
     "dev": "pnpm --filter @vibes/platform dev",
     "build": "pnpm --filter @vibes/platform build && pnpm --filter @vibes/admin build && pnpm --filter @vibes/cast build && pnpm --filter @vibes/embed build && pnpm --filter @vibes/remote build && pnpm --filter @vibes/tv build",
-    "typecheck": "pnpm typecheck:players && pnpm --recursive typecheck",
-    "lint": "pnpm check:api-boundaries && pnpm --recursive lint",
-    "check:api-boundaries": "biome check scripts && node scripts/check-api-boundaries.mjs",
-    "fix": "biome check --write --unsafe ."
+    "typecheck": "tsc -p tsconfig.tests.json && pnpm --recursive typecheck",
+    "lint": "biome check --error-on-warnings vitest.config.mts tsconfig.tests.json && pnpm check:api-boundaries && pnpm --recursive lint",
+    "check:api-boundaries": "biome check --error-on-warnings scripts && node scripts/check-api-boundaries.mjs",
+    "fix": "biome check --write --unsafe .",
+    "test": "pnpm --parallel --filter @vibes/platform --filter @vibes/tv build && vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.7",

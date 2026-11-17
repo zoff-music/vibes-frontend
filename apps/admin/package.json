@@ -8,7 +8,7 @@
     "build": "vite build --outDir dist/client && vite build --ssr src/entry.server.tsx --outDir dist/server",
     "start": "node server/index.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "biome check src server",
+    "lint": "biome check --error-on-warnings src server",
     "preview": "node server/index.ts"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { getThemeClass, getThemeFromCookies } from './theme.ts';
 
 function preferencesCookie(value: unknown): string {
@@ -43,4 +43,9 @@ test('missing or malformed preferences fall back to automatic theme', () => {
     assert.equal(getThemeFromCookies(cookie), 'auto');
     assert.equal(getThemeClass(cookie), '');
   }
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

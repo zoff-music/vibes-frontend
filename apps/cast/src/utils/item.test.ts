@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { normalizePlaylistItem } from './item.ts';
 
 test('Cast preserves the canonical playlist item contract', () => {
@@ -20,4 +20,9 @@ test('Cast preserves the canonical playlist item contract', () => {
 
   assert.deepEqual(normalizePlaylistItem(item), item);
   assert.equal('artist' in normalizePlaylistItem(item), false);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

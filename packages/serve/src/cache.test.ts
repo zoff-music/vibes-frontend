@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import type { AddressInfo } from 'node:net';
-import test from 'node:test';
 import { createRequestHandler } from '@kasperrt/smolter/utils/http';
 import express from 'express';
+import { afterEach, test, vi } from 'vitest';
 
 test('route data is private and uncacheable for reads, mutations and errors', async (t) => {
   const app = express();
@@ -34,7 +34,9 @@ test('route data is private and uncacheable for reads, mutations and errors', as
   }
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
-  t.after(() => server.close());
+  t.onTestFinished(() => {
+    server.close();
+  });
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 
   for (const prefix of ['', '/admin', '/remotes', '/embed']) {
@@ -66,4 +68,9 @@ test('route data is private and uncacheable for reads, mutations and errors', as
   const asset = await fetch(`${origin}/assets/example.js`);
 
   assert.equal(asset.headers.get('cache-control'), null);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

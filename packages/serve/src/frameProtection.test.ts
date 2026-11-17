@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import type { AddressInfo } from 'node:net';
-import test from 'node:test';
 import { TV_PLAYER_PATH } from '@vibes/shared/tv-player';
 import express from 'express';
+import { afterEach, test, vi } from 'vitest';
 import { createFrameProtectionMiddleware } from './middleware.ts';
 
 test('file framing exception is exact and does not weaken other website routes', async (t) => {
@@ -19,7 +19,7 @@ test('file framing exception is exact and does not weaken other website routes',
   });
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
-  t.after(() => {
+  t.onTestFinished(() => {
     server.close();
   });
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -53,4 +53,9 @@ test('file framing exception is exact and does not weaken other website routes',
     'frame-ancestors *',
   );
   assert.equal(embed.headers.get('x-frame-options'), null);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

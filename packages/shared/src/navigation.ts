@@ -1,3 +1,5 @@
+import { safeWrapAsync } from '@vibes/shared/wrap';
+
 /** Keep separate development servers reachable through their normal site links. */
 export function localAppURL(url: URL) {
   if (!['localhost', '127.0.0.1'].includes(url.hostname)) return url;
@@ -35,7 +37,7 @@ export function isLocalAppHandoff(from: URL, to: URL) {
   );
 }
 
-export function leaveDocument(destination: URL) {
+export async function leaveDocument(destination: URL) {
   if (
     !isLocalAppHandoff(new URL(location.href), destination) ||
     matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -45,7 +47,17 @@ export function leaveDocument(destination: URL) {
     return;
   }
 
-  document.cookie = 'zoff-page-entry=1; Path=/; Max-Age=10; SameSite=Lax';
+  if (typeof cookieStore !== 'undefined') {
+    await safeWrapAsync(
+      cookieStore.set({
+        name: 'zoff-page-entry',
+        value: '1',
+        path: '/',
+        expires: Date.now() + 10_000,
+        sameSite: 'lax',
+      }),
+    );
+  }
   // Keep the outgoing document fully painted until the destination is ready.
   location.assign(destination.href);
 }

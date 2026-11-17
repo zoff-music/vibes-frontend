@@ -1,10 +1,18 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
 import { createDataRouter } from '@kasperrt/smolter/preact';
 import {
   recoverDeployment,
   watchDeployment,
 } from '@kasperrt/smolter/preact/client';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  test,
+  vi,
+} from 'vitest';
 
 for (const timing of [
   'fast',
@@ -20,7 +28,6 @@ for (const timing of [
 ]) {
   test(`redirect recovery after protected work: ${timing}`, async (t) => {
     let dispose = () => {};
-    t.after(() => dispose());
     const events = new EventTarget();
     const markers = new Map<string, string>();
     const reloads: string[] = [];
@@ -35,12 +42,13 @@ for (const timing of [
     for (const [key, value] of Object.entries(globals)) {
       const previous = Object.getOwnPropertyDescriptor(globalThis, key);
       Object.defineProperty(globalThis, key, { configurable: true, value });
-      t.after(() => {
+      t.onTestFinished(() => {
         if (previous) Object.defineProperty(globalThis, key, previous);
         else Reflect.deleteProperty(globalThis, key);
       });
     }
 
+    t.onTestFinished(() => dispose());
     let releaseRoot = () => {};
     let releaseManifest = () => {};
     let releaseFetcher = () => {};
@@ -56,7 +64,7 @@ for (const timing of [
     let mutations = 0;
     let roots = 0;
     let failed = false;
-    t.mock.method(globalThis, 'fetch', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
       if (timing === 'delayed') await manifestGate;
       return Response.json({ version: 'new' });
     });
@@ -180,7 +188,6 @@ for (const change of [
 ]) {
   test(`granular manifest recovery: ${change}`, async (t) => {
     let dispose = () => {};
-    t.after(() => dispose());
     const events = new EventTarget();
     const storage = new Map<string, string>();
     const reloads: string[] = [];
@@ -195,12 +202,13 @@ for (const change of [
     for (const [key, value] of Object.entries(globals)) {
       const descriptor = Object.getOwnPropertyDescriptor(globalThis, key);
       Object.defineProperty(globalThis, key, { configurable: true, value });
-      t.after(() => {
+      t.onTestFinished(() => {
         if (descriptor) Object.defineProperty(globalThis, key, descriptor);
         else Reflect.deleteProperty(globalThis, key);
       });
     }
-    const fetch = t.mock.method(globalThis, 'fetch', async () =>
+    t.onTestFinished(() => dispose());
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async () =>
       Response.json({
         version: 'new',
         ...(change !== 'legacy' && {
@@ -253,7 +261,7 @@ for (const change of [
       assert.deepEqual(reloads, []);
       assert.equal(storage.size, 0);
       await router.navigate('/security?test=second#scope');
-      assert.equal(fetch.mock.callCount(), 1);
+      assert.equal(fetch.mock.calls.length, 1);
       assert.equal(
         router.getSnapshot().url,
         'http://localhost/security?test=second#scope',
@@ -269,11 +277,11 @@ for (const change of [
       `http://localhost/security?test=${change === 'chunk' ? 'first' : 'next'}#scope`,
     ]);
     assert.equal(storage.size, 1);
-    assert.equal(fetch.mock.callCount(), 1);
+    assert.equal(fetch.mock.calls.length, 1);
   });
 }
 
-test('published deployment recovery preserves committed intent without replaying actions', async (t) => {
+describe('published deployment recovery preserves committed intent without replaying actions', () => {
   let events = new EventTarget();
   const storage = new Map<string, string>();
   const reloads: string[] = [];
@@ -292,16 +300,17 @@ test('published deployment recovery preserves committed intent without replaying
     },
   };
 
-  for (const [key, value] of Object.entries(globals)) {
-    const previous = Object.getOwnPropertyDescriptor(globalThis, key);
-    Object.defineProperty(globalThis, key, { configurable: true, value });
-    t.after(() => {
-      if (previous) Object.defineProperty(globalThis, key, previous);
-      if (!previous) Reflect.deleteProperty(globalThis, key);
-    });
-  }
-
-  t.beforeEach(() => {
+  beforeAll(() => {
+    for (const [key, value] of Object.entries(globals)) {
+      const previous = Object.getOwnPropertyDescriptor(globalThis, key);
+      Object.defineProperty(globalThis, key, { configurable: true, value });
+      afterAll(() => {
+        if (previous) Object.defineProperty(globalThis, key, previous);
+        if (!previous) Reflect.deleteProperty(globalThis, key);
+      });
+    }
+  });
+  beforeEach(() => {
     events = new EventTarget();
     Object.defineProperty(globalThis, 'window', {
       configurable: true,
@@ -309,56 +318,55 @@ test('published deployment recovery preserves committed intent without replaying
     });
   });
 
-  await t.test(
-    'idle prefetch leaves marker unused; overlapping navigation keeps newest query and hash',
-    async (t) => {
-      let completeManifest: (response: Response) => void = () =>
-        assert.fail('Manifest promise was not initialized');
-      const manifest = new Promise<Response>((resolve) => {
-        completeManifest = resolve;
-      });
-      const fetch = t.mock.method(globalThis, 'fetch', () => manifest);
-      const router = createDataRouter(
-        [{ path: '/security' }, { path: '/terms-of-service' }],
-        { url: location.href },
-      );
-      watchDeployment(router, options);
+  test('idle prefetch leaves marker unused; overlapping navigation keeps newest query and hash', async (_t) => {
+    let completeManifest: (response: Response) => void = () =>
+      assert.fail('Manifest promise was not initialized');
+    const manifest = new Promise<Response>((resolve) => {
+      completeManifest = resolve;
+    });
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(() => manifest);
+    const router = createDataRouter(
+      [{ path: '/security' }, { path: '/terms-of-service' }],
+      { url: location.href },
+    );
+    watchDeployment(router, options);
 
-      events.dispatchEvent(new Event('vite:preloadError'));
-      await new Promise(setImmediate);
-      assert.equal(fetch.mock.callCount(), 0);
-      assert.equal(storage.size, 0);
-      assert.deepEqual(reloads, []);
+    events.dispatchEvent(new Event('vite:preloadError'));
+    await new Promise(setImmediate);
+    assert.equal(fetch.mock.calls.length, 0);
+    assert.equal(storage.size, 0);
+    assert.deepEqual(reloads, []);
 
-      const first = router.navigate('/security?audit=first#reporting');
-      const second = router.navigate('/terms-of-service?audit=latest#terms');
-      await Promise.all([first, second]);
-      assert.equal(
-        router.getSnapshot().url,
-        'http://localhost/terms-of-service?audit=latest#terms',
-      );
-      assert.deepEqual(reloads, []);
-      completeManifest(Response.json({ version: 'next-build' }));
-      await new Promise(setImmediate);
-      assert.deepEqual(reloads, []);
-      await router.navigate('/terms-of-service?audit=recover#terms');
-      assert.deepEqual(reloads, [
-        'http://localhost/terms-of-service?audit=recover#terms',
-      ]);
-      assert.equal(fetch.mock.callCount(), 1);
-      await router.navigate('/security');
-      await new Promise(setImmediate);
-      assert.equal(reloads.length, 1);
-      router.dispose();
-    },
-  );
+    const first = router.navigate('/security?audit=first#reporting');
+    const second = router.navigate('/terms-of-service?audit=latest#terms');
+    await Promise.all([first, second]);
+    assert.equal(
+      router.getSnapshot().url,
+      'http://localhost/terms-of-service?audit=latest#terms',
+    );
+    assert.deepEqual(reloads, []);
+    completeManifest(Response.json({ version: 'next-build' }));
+    await new Promise(setImmediate);
+    assert.deepEqual(reloads, []);
+    await router.navigate('/terms-of-service?audit=recover#terms');
+    assert.deepEqual(reloads, [
+      'http://localhost/terms-of-service?audit=recover#terms',
+    ]);
+    assert.equal(fetch.mock.calls.length, 1);
+    await router.navigate('/security');
+    await new Promise(setImmediate);
+    assert.equal(reloads.length, 1);
+    router.dispose();
+  });
 
   for (const mode of ['unchanged', 'unavailable', 'offline']) {
-    await t.test(`${mode} checks leave recovery available`, async (t) => {
+    test(`${mode} checks leave recovery available`, async (_t) => {
       storage.clear();
       reloads.length = 0;
       let restored = false;
-      const fetch = t.mock.method(globalThis, 'fetch', () => {
+      const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(() => {
         if (restored) return Promise.resolve(Response.json({ version: 'new' }));
         if (mode === 'offline') return Promise.reject(new TypeError('offline'));
         if (mode === 'unavailable') {
@@ -382,263 +390,313 @@ test('published deployment recovery preserves committed intent without replaying
       await new Promise(setImmediate);
       assert.deepEqual(reloads, []);
       assert.equal(storage.size, 0);
-      assert.equal(fetch.mock.callCount(), 1);
+      assert.equal(fetch.mock.calls.length, 1);
       router.dispose();
     });
   }
 
-  await t.test(
-    'active-navigation chunk failure recovers the intended destination',
-    async (t) => {
-      storage.clear();
-      reloads.length = 0;
-      let checks = 0;
-      t.mock.method(globalThis, 'fetch', async () => {
-        checks++;
+  test('active-navigation chunk failure recovers the intended destination', async (_t) => {
+    storage.clear();
+    reloads.length = 0;
+    let checks = 0;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
+      checks++;
 
-        return Response.json({
-          version: checks === 1 ? options.version : 'new',
-        });
+      return Response.json({
+        version: checks === 1 ? options.version : 'new',
       });
-      const router = createDataRouter(
-        [
-          {
-            path: '/security',
-            loader: () => {
-              events.dispatchEvent(new Event('vite:preloadError'));
+    });
+    const router = createDataRouter(
+      [
+        {
+          path: '/security',
+          loader: () => {
+            events.dispatchEvent(new Event('vite:preloadError'));
 
-              return Promise.reject(new TypeError('Missing route chunk'));
-            },
+            return Promise.reject(new TypeError('Missing route chunk'));
           },
-        ],
-        { url: location.href },
-      );
-      watchDeployment(router, options);
-      await router.navigate('/security?during=true#scope');
-      await new Promise(setImmediate);
+        },
+      ],
+      { url: location.href },
+    );
+    watchDeployment(router, options);
+    await router.navigate('/security?during=true#scope');
+    await new Promise(setImmediate);
 
-      assert.equal(checks, 2);
-      assert.deepEqual(reloads, [
-        'http://localhost/security?during=true#scope',
-      ]);
-      router.dispose();
-    },
-  );
+    assert.equal(checks, 2);
+    assert.deepEqual(reloads, ['http://localhost/security?during=true#scope']);
+    router.dispose();
+  });
 
-  await t.test(
-    'initial chunk recovery preserves the full destination and reloads once',
-    async (t) => {
-      storage.clear();
-      reloads.length = 0;
-      t.mock.method(globalThis, 'fetch', async () =>
-        Response.json({ version: 'new' }),
-      );
-      const destination = new URL(
-        'http://localhost/security?initial=true#report',
-      );
+  test('initial chunk recovery preserves the full destination and reloads once', async (_t) => {
+    storage.clear();
+    reloads.length = 0;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () =>
+      Response.json({ version: 'new' }),
+    );
+    const destination = new URL(
+      'http://localhost/security?initial=true#report',
+    );
 
-      assert.equal(await recoverDeployment(options, destination), true);
-      assert.equal(await recoverDeployment(options, destination), false);
-      assert.deepEqual(reloads, [destination.href]);
-    },
-  );
+    assert.equal(await recoverDeployment(options, destination), true);
+    assert.equal(await recoverDeployment(options, destination), false);
+    assert.deepEqual(reloads, [destination.href]);
+  });
 
-  await t.test(
-    'a chunk error during a redirecting mutation never replays that mutation',
-    async (t) => {
-      storage.clear();
-      reloads.length = 0;
-      let mutations = 0;
-      const fetch = t.mock.method(globalThis, 'fetch', async () =>
-        Response.json({ version: 'new' }),
-      );
-      const router = createDataRouter(
-        [
-          {
-            path: '/admin',
-            action: () => {
-              mutations++;
-              events.dispatchEvent(new Event('vite:preloadError'));
+  test('a chunk error during a redirecting mutation never replays that mutation', async (_t) => {
+    storage.clear();
+    reloads.length = 0;
+    let mutations = 0;
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(async () => Response.json({ version: 'new' }));
+    const router = createDataRouter(
+      [
+        {
+          path: '/admin',
+          action: () => {
+            mutations++;
+            events.dispatchEvent(new Event('vite:preloadError'));
 
-              return new Response(null, {
-                status: 303,
-                headers: { Location: '/admin/users' },
-              });
-            },
+            return new Response(null, {
+              status: 303,
+              headers: { Location: '/admin/users' },
+            });
           },
-          { path: '/admin/users', loader: () => ({ authorized: true }) },
-        ],
-        { url: 'http://localhost/admin' },
-      );
-      watchDeployment(router, options);
-      await router.submit('/admin', new FormData());
+        },
+        { path: '/admin/users', loader: () => ({ authorized: true }) },
+      ],
+      { url: 'http://localhost/admin' },
+    );
+    watchDeployment(router, options);
+    await router.submit('/admin', new FormData());
 
-      assert.equal(mutations, 1);
-      assert.equal(fetch.mock.callCount(), 0);
-      assert.equal(reloads.length, 0);
-      assert.equal(router.getSnapshot().url, 'http://localhost/admin/users');
-      router.dispose();
-    },
-  );
+    assert.equal(mutations, 1);
+    assert.equal(fetch.mock.calls.length, 0);
+    assert.equal(reloads.length, 0);
+    assert.equal(router.getSnapshot().url, 'http://localhost/admin/users');
+    router.dispose();
+  });
 
-  await t.test(
-    'Forward to the current route cancels a pending Back check',
-    async (t) => {
-      storage.clear();
-      reloads.length = 0;
-      let completeManifest: (response: Response) => void = () =>
-        assert.fail('Manifest promise was not initialized');
-      const manifest = new Promise<Response>((resolve) => {
-        completeManifest = resolve;
-      });
-      t.mock.method(globalThis, 'fetch', () => manifest);
-      const router = createDataRouter([{ path: '/privacy-policy' }], {
-        url: location.href,
-      });
-      watchDeployment(router, options);
+  test('Forward to the current route cancels a pending Back check', async (_t) => {
+    storage.clear();
+    reloads.length = 0;
+    let completeManifest: (response: Response) => void = () =>
+      assert.fail('Manifest promise was not initialized');
+    const manifest = new Promise<Response>((resolve) => {
+      completeManifest = resolve;
+    });
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => manifest);
+    const router = createDataRouter([{ path: '/privacy-policy' }], {
+      url: location.href,
+    });
+    watchDeployment(router, options);
 
-      location.href = 'http://localhost/security';
-      events.dispatchEvent(new Event('popstate'));
-      location.href = 'http://localhost/privacy-policy#current';
-      events.dispatchEvent(new Event('popstate'));
-      completeManifest(Response.json({ version: 'new' }));
-      await new Promise(setImmediate);
+    location.href = 'http://localhost/security';
+    events.dispatchEvent(new Event('popstate'));
+    location.href = 'http://localhost/privacy-policy#current';
+    events.dispatchEvent(new Event('popstate'));
+    completeManifest(Response.json({ version: 'new' }));
+    await new Promise(setImmediate);
 
-      assert.equal(reloads.length, 0);
-      assert.equal(storage.size, 0);
-      router.dispose();
-      location.href = 'http://localhost/privacy-policy';
-    },
-  );
+    assert.equal(reloads.length, 0);
+    assert.equal(storage.size, 0);
+    router.dispose();
+    location.href = 'http://localhost/privacy-policy';
+  });
 
-  await t.test(
-    'a completed mutation invalidates older pending chunk recovery',
-    async (t) => {
-      storage.clear();
-      reloads.length = 0;
-      let checks = 0;
-      let mutations = 0;
-      let completeManifest: (response: Response) => void = () =>
-        assert.fail('Manifest promise was not initialized');
-      const manifest = new Promise<Response>((resolve) => {
-        completeManifest = resolve;
-      });
-      t.mock.method(globalThis, 'fetch', () => {
-        checks++;
-        if (checks === 1)
-          return Promise.resolve(Response.json({ version: options.version }));
+  test('a completed mutation invalidates older pending chunk recovery', async (_t) => {
+    storage.clear();
+    reloads.length = 0;
+    let checks = 0;
+    let mutations = 0;
+    let completeManifest: (response: Response) => void = () =>
+      assert.fail('Manifest promise was not initialized');
+    const manifest = new Promise<Response>((resolve) => {
+      completeManifest = resolve;
+    });
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => {
+      checks++;
+      if (checks === 1)
+        return Promise.resolve(Response.json({ version: options.version }));
 
-        return manifest;
-      });
-      const router = createDataRouter(
-        [
-          {
-            path: '/security',
-            loader: () => {
-              events.dispatchEvent(new Event('vite:preloadError'));
+      return manifest;
+    });
+    const router = createDataRouter(
+      [
+        {
+          path: '/security',
+          loader: () => {
+            events.dispatchEvent(new Event('vite:preloadError'));
 
-              return Promise.reject(new TypeError('Missing route chunk'));
-            },
+            return Promise.reject(new TypeError('Missing route chunk'));
           },
-          {
-            path: '/privacy-policy',
-            action: () => {
-              mutations++;
+        },
+        {
+          path: '/privacy-policy',
+          action: () => {
+            mutations++;
 
-              return { saved: true };
-            },
+            return { saved: true };
           },
-        ],
-        { url: location.href },
-      );
-      watchDeployment(router, options);
-      await router.navigate('/security');
-      await router.submit('/privacy-policy', new FormData());
-      completeManifest(Response.json({ version: 'new' }));
-      await new Promise(setImmediate);
+        },
+      ],
+      { url: location.href },
+    );
+    watchDeployment(router, options);
+    await router.navigate('/security');
+    await router.submit('/privacy-policy', new FormData());
+    completeManifest(Response.json({ version: 'new' }));
+    await new Promise(setImmediate);
 
-      assert.equal(mutations, 1);
-      assert.equal(reloads.length, 0);
-      assert.equal(storage.size, 0);
-      router.dispose();
-    },
-  );
+    assert.equal(mutations, 1);
+    assert.equal(reloads.length, 0);
+    assert.equal(storage.size, 0);
+    router.dispose();
+  });
 
-  await t.test(
-    'completed independent fetchers invalidate an older chunk recovery check',
-    async (t) => {
+  test('completed independent fetchers invalidate an older chunk recovery check', async (t) => {
+    storage.clear();
+    reloads.length = 0;
+    let checks = 0;
+    const mutations = [{ count: 0 }, { count: 0 }];
+    let completeManifest: (response: Response) => void = () =>
+      assert.fail('Manifest promise was not initialized');
+    const manifest = new Promise<Response>((resolve) => {
+      completeManifest = resolve;
+    });
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => {
+      checks++;
+      if (checks === 1)
+        return Promise.resolve(Response.json({ version: options.version }));
+
+      return manifest;
+    });
+    const router = createDataRouter(
+      [
+        {
+          path: '/security',
+          loader: () => {
+            events.dispatchEvent(new Event('vite:preloadError'));
+
+            return Promise.reject(new TypeError('Missing route chunk'));
+          },
+          shouldRevalidate: () => false,
+        },
+        ...mutations.map((mutation, index) => ({
+          path: `/mutation-${index}`,
+          action: () => {
+            mutation.count++;
+
+            return { saved: true };
+          },
+        })),
+      ],
+      { url: location.href },
+    );
+    watchDeployment(router, options);
+    t.onTestFinished(() => router.dispose());
+    const first = router.createFetcher();
+    const second = router.createFetcher();
+
+    await router.navigate('/security');
+    await Promise.all([
+      first.submit('/mutation-0', new FormData()),
+      second.submit('/mutation-1', new FormData()),
+    ]);
+    completeManifest(Response.json({ version: 'new' }));
+    await new Promise(setImmediate);
+
+    assert.deepEqual(
+      mutations.map((mutation) => mutation.count),
+      [1, 1],
+    );
+    assert.equal(reloads.length, 0);
+    assert.equal(storage.size, 0);
+  });
+
+  test('one pending fetcher protects recovery while navigation remains available', async (t) => {
+    storage.clear();
+    reloads.length = 0;
+    const mutations: [number, number] = [0, 0];
+    let finishSecond: (value: { saved: boolean }) => void = () =>
+      assert.fail('Mutation promise was not initialized');
+    const pending = new Promise<{ saved: boolean }>((resolve) => {
+      finishSecond = resolve;
+    });
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () =>
+      Response.json({ version: 'new' }),
+    );
+    const router = createDataRouter(
+      [
+        { path: '/security' },
+        { path: '/terms-of-service' },
+        {
+          path: '/mutation-0',
+          action: () => {
+            mutations[0]++;
+
+            return { saved: true };
+          },
+        },
+        {
+          path: '/mutation-1',
+          action: () => {
+            mutations[1]++;
+
+            return pending;
+          },
+        },
+      ],
+      { url: location.href },
+    );
+    watchDeployment(router, options);
+    t.onTestFinished(() => router.dispose());
+    const first = router.createFetcher();
+    const second = router.createFetcher();
+    const firstSubmission = first.submit('/mutation-0', new FormData());
+    const secondSubmission = second.submit('/mutation-1', new FormData());
+    await firstSubmission;
+
+    await router.navigate('/security?pending=true#scope');
+
+    assert.equal(
+      router.getSnapshot().url,
+      'http://localhost/security?pending=true#scope',
+    );
+    assert.equal(reloads.length, 0);
+    assert.equal(storage.size, 0);
+
+    finishSecond({ saved: true });
+    await secondSubmission;
+    await router.navigate('/terms-of-service?settled=true#terms');
+
+    assert.deepEqual(mutations, [1, 1]);
+    assert.deepEqual(reloads, [
+      'http://localhost/terms-of-service?settled=true#terms',
+    ]);
+    assert.equal(storage.size, 1);
+  });
+
+  for (const outcome of ['complete', 'fail', 'dispose', 'replace']) {
+    test(`overlapping submissions retain protection after ${outcome}`, async (t) => {
       storage.clear();
       reloads.length = 0;
-      let checks = 0;
-      const mutations = [{ count: 0 }, { count: 0 }];
-      let completeManifest: (response: Response) => void = () =>
-        assert.fail('Manifest promise was not initialized');
-      const manifest = new Promise<Response>((resolve) => {
-        completeManifest = resolve;
+      const mutations: [number, number, number] = [0, 0, 0];
+      let completeFirst: (value: { saved: boolean }) => void = () =>
+        assert.fail('Missing first submission');
+      let failFirst: (error: Error) => void = () =>
+        assert.fail('Missing first submission');
+      let completeSecond: (value: { saved: boolean }) => void = () =>
+        assert.fail('Missing second submission');
+      const firstResult = new Promise<{ saved: boolean }>((resolve, reject) => {
+        completeFirst = resolve;
+        failFirst = reject;
       });
-      t.mock.method(globalThis, 'fetch', () => {
-        checks++;
-        if (checks === 1)
-          return Promise.resolve(Response.json({ version: options.version }));
-
-        return manifest;
+      const secondResult = new Promise<{ saved: boolean }>((resolve) => {
+        completeSecond = resolve;
       });
-      const router = createDataRouter(
-        [
-          {
-            path: '/security',
-            loader: () => {
-              events.dispatchEvent(new Event('vite:preloadError'));
-
-              return Promise.reject(new TypeError('Missing route chunk'));
-            },
-            shouldRevalidate: () => false,
-          },
-          ...mutations.map((mutation, index) => ({
-            path: `/mutation-${index}`,
-            action: () => {
-              mutation.count++;
-
-              return { saved: true };
-            },
-          })),
-        ],
-        { url: location.href },
-      );
-      watchDeployment(router, options);
-      t.after(() => router.dispose());
-      const first = router.createFetcher();
-      const second = router.createFetcher();
-
-      await router.navigate('/security');
-      await Promise.all([
-        first.submit('/mutation-0', new FormData()),
-        second.submit('/mutation-1', new FormData()),
-      ]);
-      completeManifest(Response.json({ version: 'new' }));
-      await new Promise(setImmediate);
-
-      assert.deepEqual(
-        mutations.map((mutation) => mutation.count),
-        [1, 1],
-      );
-      assert.equal(reloads.length, 0);
-      assert.equal(storage.size, 0);
-    },
-  );
-
-  await t.test(
-    'one pending fetcher protects recovery while navigation remains available',
-    async (t) => {
-      storage.clear();
-      reloads.length = 0;
-      const mutations: [number, number] = [0, 0];
-      let finishSecond: (value: { saved: boolean }) => void = () =>
-        assert.fail('Mutation promise was not initialized');
-      const pending = new Promise<{ saved: boolean }>((resolve) => {
-        finishSecond = resolve;
-      });
-      t.mock.method(globalThis, 'fetch', async () =>
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async () =>
         Response.json({ version: 'new' }),
       );
       const router = createDataRouter(
@@ -646,32 +704,46 @@ test('published deployment recovery preserves committed intent without replaying
           { path: '/security' },
           { path: '/terms-of-service' },
           {
-            path: '/mutation-0',
+            path: '/page',
             action: () => {
-              mutations[0]++;
-
+              mutations[2]++;
               return { saved: true };
             },
           },
           {
-            path: '/mutation-1',
+            path: '/first',
+            action: () => {
+              mutations[0]++;
+              return firstResult;
+            },
+          },
+          {
+            path: '/second',
             action: () => {
               mutations[1]++;
-
-              return pending;
+              return secondResult;
             },
           },
         ],
         { url: location.href },
       );
-      watchDeployment(router, options);
-      t.after(() => router.dispose());
+      const cleanup = watchDeployment(router, options);
+      t.onTestFinished(() => router.dispose());
       const first = router.createFetcher();
       const second = router.createFetcher();
-      const firstSubmission = first.submit('/mutation-0', new FormData());
-      const secondSubmission = second.submit('/mutation-1', new FormData());
-      await firstSubmission;
+      const firstSubmission = first.submit('/first', new FormData());
+      const secondSubmission = second.submit('/second', new FormData());
+      await router.submit('/page', new FormData());
 
+      if (outcome === 'dispose') first.dispose();
+      if (outcome === 'replace') {
+        watchDeployment(router, options);
+        cleanup();
+      }
+
+      if (outcome === 'fail') failFirst(new Error('Fixture mutation failure'));
+      else completeFirst({ saved: true });
+      await firstSubmission;
       await router.navigate('/security?pending=true#scope');
 
       assert.equal(
@@ -681,192 +753,97 @@ test('published deployment recovery preserves committed intent without replaying
       assert.equal(reloads.length, 0);
       assert.equal(storage.size, 0);
 
-      finishSecond({ saved: true });
+      completeSecond({ saved: true });
       await secondSubmission;
       await router.navigate('/terms-of-service?settled=true#terms');
 
-      assert.deepEqual(mutations, [1, 1]);
+      assert.deepEqual(mutations, [1, 1, 1]);
       assert.deepEqual(reloads, [
         'http://localhost/terms-of-service?settled=true#terms',
       ]);
       assert.equal(storage.size, 1);
-    },
-  );
-
-  for (const outcome of ['complete', 'fail', 'dispose', 'replace']) {
-    await t.test(
-      `overlapping submissions retain protection after ${outcome}`,
-      async (t) => {
-        storage.clear();
-        reloads.length = 0;
-        const mutations: [number, number, number] = [0, 0, 0];
-        let completeFirst: (value: { saved: boolean }) => void = () =>
-          assert.fail('Missing first submission');
-        let failFirst: (error: Error) => void = () =>
-          assert.fail('Missing first submission');
-        let completeSecond: (value: { saved: boolean }) => void = () =>
-          assert.fail('Missing second submission');
-        const firstResult = new Promise<{ saved: boolean }>(
-          (resolve, reject) => {
-            completeFirst = resolve;
-            failFirst = reject;
-          },
-        );
-        const secondResult = new Promise<{ saved: boolean }>((resolve) => {
-          completeSecond = resolve;
-        });
-        t.mock.method(globalThis, 'fetch', async () =>
-          Response.json({ version: 'new' }),
-        );
-        const router = createDataRouter(
-          [
-            { path: '/security' },
-            { path: '/terms-of-service' },
-            {
-              path: '/page',
-              action: () => {
-                mutations[2]++;
-                return { saved: true };
-              },
-            },
-            {
-              path: '/first',
-              action: () => {
-                mutations[0]++;
-                return firstResult;
-              },
-            },
-            {
-              path: '/second',
-              action: () => {
-                mutations[1]++;
-                return secondResult;
-              },
-            },
-          ],
-          { url: location.href },
-        );
-        const cleanup = watchDeployment(router, options);
-        t.after(() => router.dispose());
-        const first = router.createFetcher();
-        const second = router.createFetcher();
-        const firstSubmission = first.submit('/first', new FormData());
-        const secondSubmission = second.submit('/second', new FormData());
-        await router.submit('/page', new FormData());
-
-        if (outcome === 'dispose') first.dispose();
-        if (outcome === 'replace') {
-          watchDeployment(router, options);
-          cleanup();
-        }
-
-        if (outcome === 'fail')
-          failFirst(new Error('Fixture mutation failure'));
-        else completeFirst({ saved: true });
-        await firstSubmission;
-        await router.navigate('/security?pending=true#scope');
-
-        assert.equal(
-          router.getSnapshot().url,
-          'http://localhost/security?pending=true#scope',
-        );
-        assert.equal(reloads.length, 0);
-        assert.equal(storage.size, 0);
-
-        completeSecond({ saved: true });
-        await secondSubmission;
-        await router.navigate('/terms-of-service?settled=true#terms');
-
-        assert.deepEqual(mutations, [1, 1, 1]);
-        assert.deepEqual(reloads, [
-          'http://localhost/terms-of-service?settled=true#terms',
-        ]);
-        assert.equal(storage.size, 1);
-      },
-    );
+    });
   }
 
-  await t.test(
-    'routine navigation finishes before a gated manifest and only later navigation recovers',
-    { timeout: 1000 },
-    async (t) => {
-      storage.clear();
-      reloads.length = 0;
-      let release: (response: Response) => void = () =>
-        assert.fail('Gate not initialized');
-      const gate = new Promise<Response>((resolve) => {
-        release = resolve;
-      });
-      let loads = 0;
-      const fetch = t.mock.method(globalThis, 'fetch', () => gate);
-      const router = createDataRouter(
-        [{ path: '/security', loader: () => ++loads }],
-        { url: location.href },
-      );
-      watchDeployment(router, { ...options, timeout: 60000 });
-      t.after(() => router.dispose());
+  test('routine navigation finishes before a gated manifest and only later navigation recovers', {
+    timeout: 1000,
+  }, async (t) => {
+    storage.clear();
+    reloads.length = 0;
+    let release: (response: Response) => void = () =>
+      assert.fail('Gate not initialized');
+    const gate = new Promise<Response>((resolve) => {
+      release = resolve;
+    });
+    let loads = 0;
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(() => gate);
+    const router = createDataRouter(
+      [{ path: '/security', loader: () => ++loads }],
+      { url: location.href },
+    );
+    watchDeployment(router, { ...options, timeout: 60000 });
+    t.onTestFinished(() => router.dispose());
 
-      await router.navigate('/security?pending=1#scope');
-      assert.equal(loads, 1);
-      assert.equal(router.getSnapshot().state, 'idle');
-      assert.equal(fetch.mock.callCount(), 1);
-      assert.equal(storage.size, 0);
-      release(Response.json({ version: 'new' }));
-      await new Promise(setImmediate);
-      assert.deepEqual(reloads, []);
-      await router.navigate('/security?next=1#scope');
-      assert.deepEqual(reloads, ['http://localhost/security?next=1#scope']);
-      assert.equal(loads, 1);
-    },
-  );
+    await router.navigate('/security?pending=1#scope');
+    assert.equal(loads, 1);
+    assert.equal(router.getSnapshot().state, 'idle');
+    assert.equal(fetch.mock.calls.length, 1);
+    assert.equal(storage.size, 0);
+    release(Response.json({ version: 'new' }));
+    await new Promise(setImmediate);
+    assert.deepEqual(reloads, []);
+    await router.navigate('/security?next=1#scope');
+    assert.deepEqual(reloads, ['http://localhost/security?next=1#scope']);
+    assert.equal(loads, 1);
+  });
 
-  await t.test(
-    'redirect chunk recovery uses the committed action destination',
-    async (t) => {
-      storage.clear();
-      reloads.length = 0;
-      let mutations = 0;
-      let roots = 0;
-      t.mock.method(globalThis, 'fetch', async () =>
-        Response.json({ version: 'new' }),
-      );
-      const router = createDataRouter(
-        [
-          {
-            path: '/admin',
-            action: () => {
-              mutations++;
+  test('redirect chunk recovery uses the committed action destination', async (_t) => {
+    storage.clear();
+    reloads.length = 0;
+    let mutations = 0;
+    let roots = 0;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () =>
+      Response.json({ version: 'new' }),
+    );
+    const router = createDataRouter(
+      [
+        {
+          path: '/admin',
+          action: () => {
+            mutations++;
 
-              return new Response(null, {
-                status: 303,
-                headers: { Location: '/admin/users?created=1#user' },
-              });
-            },
+            return new Response(null, {
+              status: 303,
+              headers: { Location: '/admin/users?created=1#user' },
+            });
           },
-          {
-            path: '/admin/users',
-            loader: () => {
-              events.dispatchEvent(new Event('vite:preloadError'));
+        },
+        {
+          path: '/admin/users',
+          loader: () => {
+            events.dispatchEvent(new Event('vite:preloadError'));
 
-              return Promise.reject(new TypeError('Missing redirect chunk'));
-            },
+            return Promise.reject(new TypeError('Missing redirect chunk'));
           },
-        ],
-        { url: 'http://localhost/admin' },
-      );
-      router.registerRevalidator('root', async () => {
-        roots++;
-      });
-      watchDeployment(router, options);
-      await router.submit('/admin', new FormData());
-      await new Promise(setImmediate);
+        },
+      ],
+      { url: 'http://localhost/admin' },
+    );
+    router.registerRevalidator('root', async () => {
+      roots++;
+    });
+    watchDeployment(router, options);
+    await router.submit('/admin', new FormData());
+    await new Promise(setImmediate);
 
-      assert.equal(mutations, 1);
-      assert.equal(roots, 1);
-      assert.deepEqual(reloads, [
-        'http://localhost/admin/users?created=1#user',
-      ]);
-      router.dispose();
-    },
-  );
+    assert.equal(mutations, 1);
+    assert.equal(roots, 1);
+    assert.deepEqual(reloads, ['http://localhost/admin/users?created=1#user']);
+    router.dispose();
+  });
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

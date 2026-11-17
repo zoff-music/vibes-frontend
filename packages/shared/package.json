@@ -17,9 +17,9 @@
     "./use-request": "./src/hooks/use-request.ts"
   },
   "scripts": {
-    "lint": "biome check src",
+    "lint": "biome check --error-on-warnings src tests",
     "typecheck": "tsc --noEmit",
-    "test:navigation": "node --test tests/navigation.test.ts"
+    "test": "pnpm --workspace-root exec vitest run --project shared"
   },
   "peerDependencies": {
     "react": "^19.3.1",

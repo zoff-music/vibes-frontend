@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { shouldRevalidate as homeRevalidates } from '../routes/_index/shouldRevalidate.ts';
 import { shouldRevalidate } from './shouldRevalidate.ts';
 
@@ -24,4 +24,9 @@ test('profile mutations refresh root data, not homepage discovery', () => {
     assert.equal(homeRevalidates(args), false);
     assert.equal(shouldRevalidate({ ...args, formAction: '/other' }), false);
   }
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

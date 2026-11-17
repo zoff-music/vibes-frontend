@@ -1,0 +1,57 @@
+name: tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      tracks:
+        description: 'Optional official-widget tracks JSON: SoundCloud, SoundCloud, YouTube, YouTube'
+        type: string
+        required: false
+  workflow_call:
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    # Browsers and their OS dependencies are baked into the matching image.
+    container:
+      # Keep this version aligned with playwright in the root package.json.
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
+      options: --init --ipc=host
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+      - run: npm install --global pnpm@12.18.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=moderate
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Test
+        env:
+          PLAYER_TRACKS: ${{ inputs.tracks || '' }}
+        run: pnpm test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-failure-artifacts
+          path: |
+            test-results/
+            packages/ui/.vitest/

@@ -47,6 +47,7 @@ android/
 .metro-health-check*
 
 # Test and coverage output
+**/.vitest/
 coverage/
 playwright-report/
 test-results/

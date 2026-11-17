@@ -179,7 +179,7 @@ only the wrapper, not YouTube's acceptance of the production domain.
 `pnpm --filter @vibes/tv validate` checks classic-script packaging and absence
 of a local service. Run the platform build followed by
 `pnpm --filter @vibes/platform test:tv-player` and
-`pnpm --filter @vibes/serve test:frame-protection` for the hosted resource and
+`pnpm --filter @vibes/serve test` for the hosted resource and
 its scoped frame policy. Classic-script startup was verified on Tizen 6;
 the hosted-player change still needs validation on the TV after deployment.
 Individual videos remain subject to YouTube's embedding and account rules.

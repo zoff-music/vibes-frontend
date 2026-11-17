@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
 import { createDataRouter } from '@kasperrt/smolter/preact';
+import { afterEach, test, vi } from 'vitest';
 
 test('redirecting fetcher mutations refresh session data without replaying the mutation', async () => {
   let mutations = 0;
@@ -42,4 +42,9 @@ test('redirecting fetcher mutations refresh session data without replaying the m
   assert.equal(loads - initialLoads, 1);
   assert.equal(router.getSnapshot().state, 'idle');
   router.dispose();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });

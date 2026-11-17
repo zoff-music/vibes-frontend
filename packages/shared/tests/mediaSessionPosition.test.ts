@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { afterEach, test, vi } from 'vitest';
 import { mediaSessionPosition } from '../src/hooks/mediaSessionPosition.ts';
 
 test('uses real track duration and converts playback milliseconds to seconds', () => {
@@ -18,4 +18,9 @@ test('clears position state for missing or invalid durations', () => {
   for (const duration of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
     assert.equal(mediaSessionPosition(duration, 1000), undefined);
   }
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });
