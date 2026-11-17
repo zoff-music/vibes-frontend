@@ -12,6 +12,6 @@
     "./fonts.css": "./fonts.css"
   },
   "scripts": {
-    "lint": "biome check ."
+    "lint": "biome check --error-on-warnings ."
   }
 }

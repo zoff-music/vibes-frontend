@@ -16,6 +16,8 @@ export default defineConfig({
   oxc: { jsx: { runtime: 'automatic', importSource: 'preact' } },
   test: {
     name: 'ui-browser',
+    sequence: { groupOrder: 1 },
+    setupFiles: ['../shared/tests/setup.browser.ts'],
     include: ['src/web/**/*.browser.test.tsx'],
     browser: {
       enabled: true,

@@ -18,8 +18,8 @@ const owners = ['apps', 'packages'].flatMap((directory) =>
 
 export default defineConfig({
   test: {
-    fileParallelism: false,
-    maxWorkers: 1,
+    fileParallelism: true,
+    maxWorkers: 2,
     projects: [
       ...owners.map((owner) => ({
         root,
@@ -38,6 +38,7 @@ export default defineConfig({
           testTimeout: 60_000,
           hookTimeout: 30_000,
           restoreMocks: true,
+          setupFiles: ['./packages/shared/tests/setup.ts'],
         },
       })),
       ...(['chromium', 'webkit'] as const).map((browser) => ({
@@ -50,6 +51,7 @@ export default defineConfig({
             'packages/ui/tests/route-transition.integration.test.ts',
           ],
           env: { PLAYER_BROWSER: browser },
+          setupFiles: ['./packages/shared/tests/setup.ts'],
           testTimeout: 240_000,
           hookTimeout: 30_000,
           maxConcurrency: 4,

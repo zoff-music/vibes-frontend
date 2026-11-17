@@ -22,7 +22,7 @@ test('local app links preserve route parameters and the Cast entry slash', () =>
   );
 });
 
-test('cross-app navigation retains the outgoing page without a delay or dimming', (context) => {
+test('cross-app navigation retains the outgoing page without a delay or dimming', async (context) => {
   const names = ['window', 'document', 'location', 'matchMedia'] as const;
   const originals = names.map((name) =>
     Object.getOwnPropertyDescriptor(globalThis, name),
@@ -31,6 +31,8 @@ test('cross-app navigation retains the outgoing page without a delay or dimming'
     cookie: '',
     documentElement: { dataset: {} as Record<string, string> },
   };
+  const setCookie = vi.fn(async (_cookie: CookieInit) => {});
+  vi.stubGlobal('cookieStore', { set: setCookie });
   let destination = '';
   let timers = 0;
   let reduced = false;
@@ -65,14 +67,22 @@ test('cross-app navigation retains the outgoing page without a delay or dimming'
     });
   });
 
-  leaveDocument(new URL('http://localhost:3001/'));
+  await leaveDocument(new URL('http://localhost:3001/'));
   assert.equal(destination, 'http://localhost:3001/');
   assert.equal(timers, 0);
-  assert.match(document.cookie, /zoff-page-entry=1/);
+  assert.equal(setCookie.mock.calls.length, 1);
+  assert.equal(setCookie.mock.calls[0][0].name, 'zoff-page-entry');
   assert.equal(document.documentElement.dataset.pageExit, undefined);
 
+  setCookie.mockRejectedValueOnce(new Error('Cookies unavailable'));
+  await leaveDocument(new URL('http://localhost:3005/admin'));
+  assert.equal(destination, 'http://localhost:3005/admin');
+  vi.stubGlobal('cookieStore', undefined);
+  await leaveDocument(new URL('http://localhost:3001/'));
+  assert.equal(destination, 'http://localhost:3001/');
+
   reduced = true;
-  leaveDocument(new URL('http://localhost:3005/admin'));
+  await leaveDocument(new URL('http://localhost:3005/admin'));
   assert.equal(destination, 'http://localhost:3005/admin');
   assert.equal(document.documentElement.dataset.pageExit, undefined);
   assert.equal(
@@ -86,5 +96,6 @@ test('cross-app navigation retains the outgoing page without a delay or dimming'
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   vi.useRealTimers();
 });

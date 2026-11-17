@@ -6,7 +6,9 @@ export async function startPlayerFixture(live = false) {
   const server = await createServer({
     configFile: false,
     root: resolve('packages/ui/tests/players'),
-    cacheDir: resolve(`node_modules/.vite/player-fixture-${live}`),
+    cacheDir: resolve(
+      `node_modules/.vite/player-fixture-${live}-${process.env.PLAYER_BROWSER || 'chromium'}`,
+    ),
     plugins: [tailwindcss()],
     define: {
       'process.env.NODE_ENV': '"production"',

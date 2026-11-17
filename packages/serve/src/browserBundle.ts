@@ -1,4 +1,4 @@
-import type { Plugin } from 'vite';
+import type { BuildOptions, Plugin } from 'vite';
 
 const forbiddenRuntime =
   /\/node_modules\/(?:react|react-dom|react-router|react-router-dom|preact-render-to-string|express)(?:\/|$)/;
@@ -9,14 +9,35 @@ const serverModule =
 export function browserBundle(splitRoutes = true): Plugin {
   let server = false;
 
+  const onLog: NonNullable<
+    NonNullable<BuildOptions['rollupOptions']>['onLog']
+  > = (level, log, handler) => {
+    // React Server Component markers in Motion have no meaning in our Preact
+    // renderer. This is the only dependency diagnostic we intentionally omit.
+    if (
+      log.code === 'MODULE_LEVEL_DIRECTIVE' &&
+      log.message.includes('"use client"') &&
+      /node_modules\/.*(?:framer-motion|motion-dom|motion-utils)\//.test(
+        log.id ?? log.message,
+      )
+    )
+      return;
+    // SSR bundles all discovered routes together; shared eager/deferred modules
+    // only split in the client graph, where this warning remains an error.
+    if (server && log.code === 'INEFFECTIVE_DYNAMIC_IMPORT') return;
+    handler(level === 'warn' ? 'error' : level, log);
+  };
+
   return {
     name: 'zoff-browser-bundle',
     apply: 'build',
     config(_config, { isSsrBuild }) {
+      server = Boolean(isSsrBuild);
       if (isSsrBuild) {
         return {
           build: {
             rollupOptions: {
+              onLog,
               output: {
                 assetFileNames: 'assets/[hash][extname]',
               },
@@ -28,6 +49,7 @@ export function browserBundle(splitRoutes = true): Plugin {
       return {
         build: {
           rollupOptions: {
+            onLog,
             output: {
               entryFileNames: 'assets/[hash].js',
               chunkFileNames: 'assets/[hash].js',

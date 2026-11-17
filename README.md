@@ -247,3 +247,11 @@ owned by their apps/packages; standalone `.mjs` tests and Node test-runner
 imports are rejected by a convention regression test. The external-provider
 soak cases are discovered but skip unless four explicit `PLAYER_TRACKS` are
 supplied; deterministic provider playback coverage always runs in both engines.
+
+Unexpected lint, build and test warnings fail validation. The DOM bundler only
+ignores Motion's dependency-owned React Server Component marker and ineffective
+dynamic imports in the intentionally combined SSR graph; client graph warnings
+still fail. Tests use two isolated workers, with the CPU-throttled UI browser
+suite scheduled separately. New PR pushes cancel older PR runs. Dependency
+audit shares the test job's installation; Semgrep remains a separate scan.
+Main releases validate once, then build only affected application images.

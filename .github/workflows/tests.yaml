@@ -10,6 +10,10 @@ on:
         required: false
   workflow_call:
 
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -34,6 +38,8 @@ jobs:
           node-version-file: .node-version
       - run: npm install --global pnpm@12.18.0
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=moderate
       - name: Lint
         run: pnpm lint
       - name: Typecheck

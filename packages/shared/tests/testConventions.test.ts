@@ -1,15 +1,18 @@
-import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
 
 test('all repository tests use package-owned TypeScript Vitest suites', () => {
-  const files = execFileSync(
-    'git',
-    ['ls-files', '--cached', '--others', '--exclude-standard'],
-    { encoding: 'utf8' },
-  )
-    .split('\n')
-    .filter((file) => file && existsSync(file));
+  const files = globSync(['apps/**/*', 'packages/**/*', 'scripts/**/*'], {
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.vitest/**',
+      '**/android/**',
+      '**/ios/**',
+      '**/.expo/**',
+      '**/test-results/**',
+    ],
+  });
   const violations: string[] = [];
   for (const file of files) {
     if (!/\.(test|spec)\.[cm]?[jt]sx?$|\.browser\.mjs$/.test(file)) continue;
