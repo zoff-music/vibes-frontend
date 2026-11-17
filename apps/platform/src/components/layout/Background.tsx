@@ -1,4 +1,5 @@
 import {
+  isRouteErrorResponse,
   useURLLocation as useLocation,
   useRouter,
 } from '@kasperrt/smolter/preact';
@@ -12,7 +13,7 @@ import { RetroSun } from './RetroSun';
 export function Background() {
   const location = useLocation();
   const router = useRouter();
-  const { path = '' } = useSyncExternalStore(
+  const { path = '', error } = useSyncExternalStore(
     router.subscribe,
     router.getSnapshot,
     router.getSnapshot,
@@ -22,6 +23,9 @@ export function Background() {
   const sunRef = useRef<HTMLDivElement>(null);
   const sunVisible = useInView(sunRef);
   const isHome = homePaths.has(path);
+  const isRoom =
+    (path === '/:id/*' || path === '/rooms/:id') &&
+    !(isRouteErrorResponse(error) && error.status === 404);
   const showGrid = gridPaths.has(path) || path.startsWith('/discovery/');
 
   // The home hero positions its own sun behind the card.
@@ -30,6 +34,8 @@ export function Background() {
   return (
     <>
       <SiteBackground
+        animated
+        active={!isRoom}
         variant={isHome ? 'landing' : 'page'}
         showGrid={showGrid}
         isWarping={isWarping}
