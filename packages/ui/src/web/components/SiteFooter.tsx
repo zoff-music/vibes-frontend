@@ -1,3 +1,4 @@
+import { classNames } from '@vibes/shared';
 import { Fragment, type ReactNode } from 'preact/compat';
 
 export interface SiteFooterLink {
@@ -19,7 +20,12 @@ export function SiteFooter({
     <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 [view-transition-name:site-footer] sm:px-6 sm:pb-6">
       <nav
         aria-label="Site links"
-        className="panel-surface border-theme mx-auto grid w-fit max-w-full grid-cols-3 items-center rounded-2xl border p-1 sm:flex sm:px-2"
+        className={classNames(
+          'panel-surface border-theme mx-auto flex max-w-full items-center rounded-2xl border p-1 sm:w-fit sm:flex-nowrap sm:px-2',
+          links.length === 7
+            ? 'w-80 flex-wrap justify-center max-sm:[&>a]:basis-1/4'
+            : 'w-fit max-sm:grid max-sm:grid-cols-3',
+        )}
       >
         {links.map((link, index) => (
           <Fragment key={link.href}>
@@ -60,4 +66,4 @@ export const siteFooterLinks: SiteFooterLink[] = [
 ];
 
 const footerLinkClassName =
-  'flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-2 font-pixel text-xs text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:text-theme sm:px-5 sm:text-sm';
+  'flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-2 font-pixel text-xs text-theme-muted transition-colors hover:bg-theme-surface hover:text-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary aria-[current=page]:text-theme sm:px-3 sm:text-sm lg:px-5';
