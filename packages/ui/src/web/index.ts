@@ -60,6 +60,7 @@ export * from './icons';
 export * from './player';
 
 export {
+  enterSceneViewTransition,
   immediateViewTransition,
   pageViewTransition,
   sceneViewTransition,

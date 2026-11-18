@@ -1,11 +1,13 @@
-import { classNames } from '@vibes/shared';
+import { playlistGenerationMessages } from '@vibes/ui/shared';
 import {
-  ContentTransition,
+  Button,
   GenerationSparkles,
+  GenerativeInput,
   QueueItem,
   SparklesIcon,
 } from '@vibes/ui/web';
-import { MotionConfig, m as motion } from 'framer-motion';
+import { AnimatePresence, MotionConfig, m as motion } from 'framer-motion';
+import { useRef } from 'preact/compat';
 import { queueDemoPlaylistItems, watchDemoPlaylistItems } from './preview';
 import { useGeneratedPlaylistPreview } from './useGeneratedPlaylistPreview';
 
@@ -15,204 +17,159 @@ interface GeneratedPlaylistSceneProps {
   watch?: boolean;
 }
 
+const noop = () => {};
+
+function titlesFor(prompt: string, watch: boolean) {
+  if (watch) {
+    if (prompt.includes('solar'))
+      return [
+        'A little further out',
+        'The rings of Saturn',
+        'Until the stars fade',
+      ];
+
+    if (prompt.includes('films'))
+      return ['The last light', 'A different ending', 'Five minutes from home'];
+
+    return ['Beyond the city lights', 'Midnight in motion', 'Nowhere to rush'];
+  }
+
+  if (prompt.includes('Disco'))
+    return ['Kitchen disco', 'After the party', 'One more dance'];
+
+  if (prompt.includes('focus'))
+    return ['Soft edges', 'A little headspace', 'Quiet hours'];
+
+  return ['Velvet keys', 'Streetlight swing', 'After the last train'];
+}
+
+// The Add dialog in AI mode, then the queue filling in.
 export function GeneratedPlaylistScene({
   prompt,
   playing,
   watch = false,
 }: GeneratedPlaylistSceneProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const { state } = useGeneratedPlaylistPreview(prompt, playing);
-  const searching = state.phase === 'searching';
-  const typing = state.phase === 'typing';
-  const resetting = state.phase === 'resetting';
-  const showPlaylist = state.phase === 'arriving' || state.phase === 'ready';
-  const titles = prompt.includes('Disco')
-    ? ['Kitchen disco', 'After the party', 'One more dance']
-    : prompt.includes('focus')
-      ? ['Soft edges', 'A little headspace', 'Quiet hours']
-      : ['Velvet keys', 'Streetlight swing', 'After the last train'];
-
-  const watchTitles = prompt.includes('solar')
-    ? ['A little further out', 'The rings of Saturn', 'Until the stars fade']
-    : prompt.includes('films')
-      ? ['The last light', 'A different ending', 'Five minutes from home']
-      : ['Beyond the city lights', 'Midnight in motion', 'Nowhere to rush'];
-
-  if (!watch) {
-    return (
-      <MotionConfig reducedMotion="user">
-        <div className="pt-5" data-phase={state.phase}>
-          <div className="border-theme bg-theme-surface flex min-h-20 items-center gap-3 rounded-2xl border px-4">
-            <SparklesIcon
-              aria-hidden="true"
-              className="text-primary size-5 shrink-0"
-            />
-            <p className="text-theme h-12 min-w-0 flex-1 leading-6">
-              <span className="sr-only">{prompt}</span>
-              <span aria-hidden="true">
-                {state.prompt || 'A mood, a genre, an idea…'}
-              </span>
-            </p>
-          </div>
-          <div className="text-theme-muted flex h-16 items-center justify-between gap-3 text-xs">
-            <span>YOUR STARTING QUEUE</span>
-            <span className="w-26 shrink-0">
-              {typing
-                ? 'Describe the mood'
-                : searching
-                  ? 'Finding songs…'
-                  : 'Make it yours'}
-            </span>
-          </div>
-          <ol
-            aria-label="Illustrative generated playlist"
-            className="min-h-64 space-y-2"
-          >
-            {queueDemoPlaylistItems.slice(0, 3).map((item, index) => (
-              <motion.li
-                key={item.id}
-                initial={false}
-                animate={{
-                  opacity: showPlaylist && index < state.count ? 1 : 0.25,
-                  y: showPlaylist && index < state.count ? 0 : 6,
-                }}
-                transition={{
-                  duration: state.reducedMotion ? 0 : 0.5,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className={classNames(
-                  'pointer-events-none',
-                  !showPlaylist && 'select-none',
-                )}
-              >
-                <QueueItem
-                  playlistItem={{ ...item, title: titles[index] }}
-                  position={index + 1}
-                  providerLink={false}
-                  density="compact"
-                />
-              </motion.li>
-            ))}
-          </ol>
-          <p className="text-theme-muted text-xs">
-            Illustrative songs, not actual AI results.
-          </p>
-        </div>
-      </MotionConfig>
-    );
-  }
+  const generating = state.phase === 'searching';
+  const filling = state.phase === 'arriving' || state.phase === 'ready';
+  const titles = titlesFor(prompt, watch);
+  const source = watch ? watchDemoPlaylistItems : queueDemoPlaylistItems;
+  const message =
+    playlistGenerationMessages[
+      prompt.length % playlistGenerationMessages.length
+    ];
 
   return (
     <MotionConfig reducedMotion="user">
-      <motion.div
-        initial={false}
-        animate={{ opacity: resetting ? 0 : 1 }}
-        transition={{ duration: state.reducedMotion ? 0 : 0.35 }}
-        data-phase={state.phase}
-        className="mt-5"
-      >
-        <div className="border-theme bg-theme-surface rounded-2xl border p-4">
-          <p className="font-pixel text-theme-muted mb-3 text-xs">
-            {watch ? 'Your Watch idea' : 'Your playlist prompt'}
-          </p>
-          <div className="flex min-h-12 min-w-0 items-center gap-3">
-            <SparklesIcon
-              aria-hidden="true"
-              className="text-primary h-5 w-5 shrink-0"
+      <div data-phase={state.phase} className="@container mt-4">
+        <div inert aria-hidden="true" className="flex gap-2">
+          <div className="min-w-0 flex-1">
+            <GenerativeInput
+              active
+              enabled
+              showToggle
+              disabled={false}
+              hideLabel
+              label="Playlist description"
+              inputRef={inputRef}
+              value={state.prompt}
+              placeholder={
+                watch
+                  ? 'A trip through the solar system'
+                  : 'Late-night synthwave for a rainy drive'
+              }
+              onChange={noop}
+              onToggle={noop}
+              onSubmit={noop}
             />
-            <p className="text-theme min-w-0 text-sm">
-              <span className="sr-only">{prompt}</span>
-              <span aria-hidden="true">{state.prompt}</span>
-              {typing && (
-                <span
-                  aria-hidden="true"
-                  className="border-primary ml-0.5 border-r-2"
-                />
-              )}
-            </p>
           </div>
+          <Button
+            variant="primary"
+            className="h-14 w-14 shrink-0 gap-2 px-0! @lg:w-40 @lg:px-5!"
+            aria-busy={generating}
+          >
+            {!generating && <SparklesIcon className="h-5 w-5" />}
+            {generating && (
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            )}
+            <span className="sr-only whitespace-nowrap @lg:not-sr-only">
+              {generating ? 'Generating…' : 'Generate'}
+            </span>
+          </Button>
         </div>
-        <div className="text-theme-muted my-5 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span className="font-pixel">
-            {watch ? 'afterhours / preview' : 'electro'}
-          </span>
-          <span className="w-36 shrink-0 text-right">
-            {typing && 'Describe your playlist'}
-            {searching &&
-              (watch ? 'Imagining the lineup' : 'Generating with AI')}
-            {state.phase === 'arriving' &&
-              (watch ? 'Building the preview…' : 'Adding songs…')}
-            {(state.phase === 'ready' || resetting) &&
-              (watch ? 'Example lineup' : 'AI playlist ready')}
-          </span>
-        </div>
-        <ContentTransition
-          transitionKey={showPlaylist ? 'playlist' : 'search'}
-          className="relative grid min-h-72"
-        >
-          {!showPlaylist && (
-            <div className="border-theme bg-theme-surface col-start-1 row-start-1 flex flex-col items-center justify-center gap-5 rounded-2xl border p-6 text-center">
-              <GenerationSparkles active={playing && searching} />
-              <motion.p
-                key={searching ? 'searching' : 'prompt'}
-                initial={{ opacity: state.reducedMotion ? 1 : 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: state.reducedMotion ? 0 : 0.2 }}
-                className="font-pixel text-theme w-full text-sm"
+        <p className="sr-only">{prompt}</p>
+
+        <div className="relative mt-4 h-60">
+          <AnimatePresence initial={false} mode="wait">
+            {!filling && (
+              <motion.div
+                key="progress"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: generating ? 1 : 0.55, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: state.reducedMotion ? 0 : 0.3 }}
+                className="border-secondary/60 bg-theme-surface relative isolate flex h-full flex-col items-center justify-center gap-4 rounded-3xl border p-6 text-center"
               >
-                {watch &&
-                  (searching
-                    ? 'A night of new discoveries…'
-                    : 'Start with something you’re curious about.')}
-                {!watch &&
-                  (searching
-                    ? 'Finding your songs…'
-                    : 'Start with a mood or a genre.')}
-              </motion.p>
-            </div>
-          )}
-          {showPlaylist && (
-            <div className="col-start-1 row-start-1 self-start">
-              <h3 className="sr-only">
-                {watch ? 'Example video lineup' : 'Generated songs'}
-              </h3>
-              <ol
+                {generating && (
+                  <span
+                    aria-hidden="true"
+                    className="shadow-secondary-progress pointer-events-none absolute inset-0 -z-10 rounded-3xl motion-safe:animate-pulse"
+                  />
+                )}
+                <GenerationSparkles active={playing && generating} />
+                <p className="font-pixel text-theme text-sm sm:text-base">
+                  {generating
+                    ? message
+                    : 'Describe a mood, a genre or an idea.'}
+                </p>
+              </motion.div>
+            )}
+            {filling && (
+              <motion.ol
+                key="queue"
                 aria-label={
                   watch
                     ? 'Illustrative video lineup'
-                    : 'AI-generated playlist preview'
+                    : 'Illustrative generated playlist'
                 }
-                className="space-y-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: state.reducedMotion ? 0 : 0.25 }}
+                className="flex flex-col gap-2"
               >
-                {(watch ? watchDemoPlaylistItems : queueDemoPlaylistItems)
-                  .slice(0, state.count)
-                  .map((playlistItem, index) => (
-                    <motion.li
-                      key={playlistItem.id}
-                      initial={{
-                        opacity: state.reducedMotion ? 1 : 0,
-                        y: state.reducedMotion ? 0 : 12,
+                {source.slice(0, state.count).map((playlistItem, index) => (
+                  <motion.li
+                    key={playlistItem.id}
+                    initial={{
+                      opacity: state.reducedMotion ? 1 : 0,
+                      y: state.reducedMotion ? 0 : 14,
+                    }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: state.reducedMotion ? 0 : 0.4,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="pointer-events-none"
+                  >
+                    <QueueItem
+                      playlistItem={{
+                        ...playlistItem,
+                        title: titles[index],
+                        ...(watch && { publisher: 'Preview film' }),
                       }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: state.reducedMotion ? 0 : 0.25 }}
-                    >
-                      <QueueItem
-                        playlistItem={{
-                          ...playlistItem,
-                          title: watch ? watchTitles[index] : titles[index],
-                          publisher: watch
-                            ? 'Preview film'
-                            : playlistItem.publisher,
-                        }}
-                        position={index + 1}
-                        providerLink={false}
-                      />
-                    </motion.li>
-                  ))}
-              </ol>
-            </div>
-          )}
-        </ContentTransition>
-      </motion.div>
+                      position={index + 1}
+                      providerLink={false}
+                      density="compact"
+                    />
+                  </motion.li>
+                ))}
+              </motion.ol>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </MotionConfig>
   );
 }

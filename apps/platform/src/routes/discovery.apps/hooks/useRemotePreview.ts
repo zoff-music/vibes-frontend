@@ -12,7 +12,7 @@ const captions = [
   'Skip from the sofa. The player moves to the next song.',
 ];
 
-export function useRemotePreview() {
+export function useRemotePreview(autoplay = true) {
   const ref = useRef<HTMLElement>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
   const pairRequested = useRef(false);
@@ -20,7 +20,7 @@ export function useRemotePreview() {
   const visible = usePageVisibility();
   const reducedMotion = useReducedMotion();
   const [phase, setPhase] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(!autoplay);
   const [manual, setManual] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
   const [position, setPosition] = useState(45000);

@@ -2,7 +2,6 @@ import { Button, ContentTransition } from '@vibes/ui/web';
 import { useState } from 'preact/compat';
 import { GeneratedPlaylistScene } from './GeneratedPlaylistScene';
 import { MusicDemo } from './MusicDemo';
-import { Showcase } from './Showcase';
 import { useShowcaseMotion } from './useShowcaseMotion';
 
 const ideas = [
@@ -19,101 +18,57 @@ const watchIdeas = [
 
 interface GeneratedPlaylistDemoProps {
   watch?: boolean;
+  autoplay?: boolean;
 }
 
 export function GeneratedPlaylistDemo({
   watch = false,
+  autoplay = true,
 }: GeneratedPlaylistDemoProps) {
   const [selected, setSelected] = useState(0);
   const [revision, setRevision] = useState(0);
   const examples = watch ? watchIdeas : ideas;
   const idea = examples[selected];
-  const { ref, state, actions } = useShowcaseMotion();
-
-  if (!watch) {
-    return (
-      <MusicDemo
-        elementRef={ref}
-        label="Start with a feeling"
-        detail="AI playlist preview · No request is sent"
-        caption="An opening suggestion. Not a fixed playlist."
-        paused={state.paused}
-        onToggle={actions.toggle}
-        className="h-166"
-      >
-        <div className="p-4 sm:p-6">
-          <fieldset
-            aria-label="Choose a playlist idea"
-            className="grid grid-cols-3 gap-2"
-          >
-            {ideas.map((example, index) => (
-              <Button
-                key={example.label}
-                variant="tertiary"
-                size="none"
-                aria-pressed={selected === index}
-                onClick={() => {
-                  setSelected(index);
-                  setRevision((current) => current + 1);
-                }}
-                className="aria-pressed:border-secondary aria-pressed:bg-theme min-h-11 rounded-xl px-2 text-sm"
-              >
-                {example.label}
-              </Button>
-            ))}
-          </fieldset>
-          <ContentTransition transitionKey={`${idea.prompt}-${revision}`}>
-            <GeneratedPlaylistScene
-              prompt={idea.prompt}
-              playing={state.playing}
-            />
-          </ContentTransition>
-        </div>
-      </MusicDemo>
-    );
-  }
+  const { ref, state, actions } = useShowcaseMotion(autoplay);
 
   return (
-    <Showcase
-      className="min-h-144"
-      label={watch ? 'AN IDEA BECOMES AN EVENING' : 'AI PLAYLIST GENERATOR'}
-      description={
+    <MusicDemo
+      elementRef={ref}
+      label={watch ? 'An idea becomes an evening' : 'Start with a feeling'}
+      detail="Illustrative AI playlist preview. No request is sent and these are not actual AI results."
+      caption={
         watch
-          ? 'Illustrative Watch generation concept. No request is sent and these are not actual AI results.'
-          : 'An AI playlist starts with your idea, searches for matching songs and fills the electro queue.'
+          ? 'Illustrative lineup. Your room starts from your idea.'
+          : 'An opening suggestion. Not a fixed playlist.'
       }
+      paused={state.paused}
+      onToggle={actions.toggle}
     >
-      {(playing) => (
-        <div className="pt-4">
-          <fieldset
-            aria-label="Choose a playlist idea"
-            className="grid grid-cols-3 gap-2"
-          >
-            {examples.map((example, index) => (
-              <Button
-                key={example.label}
-                size="none"
-                variant={selected === index ? 'tertiary-active' : 'tertiary'}
-                aria-pressed={selected === index}
-                onClick={() => {
-                  setSelected(index);
-                  setRevision((current) => current + 1);
-                }}
-                className="min-h-11 rounded-xl px-2 py-2 text-sm"
-              >
-                {example.label}
-              </Button>
-            ))}
-          </fieldset>
-          <ContentTransition transitionKey={`${idea.prompt}-${revision}`}>
-            <GeneratedPlaylistScene
-              watch={watch}
-              prompt={idea.prompt}
-              playing={playing}
-            />
-          </ContentTransition>
-        </div>
-      )}
-    </Showcase>
+      <div className="p-4 sm:p-5">
+        <fieldset aria-label="Choose an idea" className="flex flex-wrap gap-2">
+          {examples.map((example, index) => (
+            <Button
+              key={example.label}
+              variant={selected === index ? 'tertiary' : 'ghost'}
+              aria-pressed={selected === index}
+              onClick={() => {
+                setSelected(index);
+                setRevision((current) => current + 1);
+              }}
+              className="shrink-0"
+            >
+              {example.label}
+            </Button>
+          ))}
+        </fieldset>
+        <ContentTransition transitionKey={`${idea.prompt}-${revision}`}>
+          <GeneratedPlaylistScene
+            watch={watch}
+            prompt={idea.prompt}
+            playing={state.playing}
+          />
+        </ContentTransition>
+      </div>
+    </MusicDemo>
   );
 }

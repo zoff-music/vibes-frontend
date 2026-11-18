@@ -1,190 +1,19 @@
-import { Link } from '@kasperrt/smolter/preact';
-import { ArrowRightIcon, DeferredContent } from '@vibes/ui/web';
-import { lazy } from 'preact/compat';
-import { ProductLinks } from '../../../components/seo/ProductLinks';
+import { RoomDemoSection } from '../../../components/discovery/RoomDemoSection';
+import { HomeFeatures } from '../../../components/home/HomeFeatures';
+import { watchFeatures } from '../../../seo/pages/home';
 import { CommunityStats } from './CommunityStats';
-
-const LazyWatchScene = lazy(() =>
-  import('../../../components/seo/WatchScene').then((module) => ({
-    default: module.WatchScene,
-  })),
-);
-const LazyChatPreview = lazy(() =>
-  import('../../../components/discovery/ChatPreview').then((module) => ({
-    default: module.ChatPreview,
-  })),
-);
-
-const LazyGeneratedPlaylistDemo = lazy(() =>
-  import('../../../components/seo/GeneratedPlaylistDemo').then((module) => ({
-    default: module.GeneratedPlaylistDemo,
-  })),
-);
+import { HowItWorks } from './HowItWorks';
 
 export function WatchIntroduction() {
   return (
     <div className="mx-auto max-w-6xl">
       <CommunityStats />
+      <HowItWorks watch />
       {/* Below the fold everywhere; first paint does not need its styles. */}
       <div data-critical="defer">
-        <section
-          className="grid items-center gap-10 py-20 sm:py-28 lg:grid-cols-5 lg:gap-16"
-          aria-labelledby="watch-moment-heading"
-        >
-          <div className="lg:col-span-2">
-            <p className="font-pixel tracking-label dark:text-secondary text-xs text-cyan-800">
-              NOT JUST A LINK IN THE GROUP CHAT
-            </p>
-            <h2
-              id="watch-moment-heading"
-              className="font-pixel mt-4 text-4xl leading-tight tracking-tight normal-case sm:text-5xl"
-            >
-              You had to
-              <br />
-              be there.
-              <br />
-              <span className="dark:text-primary text-pink-800">
-                Now you can.
-              </span>
-            </h2>
-            <p className="text-theme-muted mt-5 max-w-xl text-lg leading-relaxed">
-              Watch YouTube with friends on separate screens, with synchronized
-              playback and a shared video queue. Start a room, send its link and
-              watch together in your browser.
-            </p>
-            <Link
-              prefetch="intent"
-              className={guideClass}
-              to="/discovery/watching"
-            >
-              How to watch YouTube together
-              <ArrowRightIcon className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="min-w-0 lg:col-span-3">
-            <DeferredContent fallback={<WatchScenePlaceholder />}>
-              <LazyWatchScene />
-            </DeferredContent>
-          </div>
-        </section>
-        <section
-          className="border-theme grid items-center gap-10 border-y py-20 sm:py-28 lg:grid-cols-2 lg:gap-16"
-          aria-labelledby="watch-chat-heading"
-        >
-          <div className="lg:order-2">
-            <p className="font-pixel tracking-label dark:text-secondary text-xs text-cyan-800">
-              KEEP THE COMMENTARY
-            </p>
-            <h2
-              id="watch-chat-heading"
-              className="font-pixel mt-4 text-4xl leading-tight tracking-tight normal-case sm:text-5xl"
-            >
-              For the “wait,
-              <br />
-              watch this” people.
-            </h2>
-            <p className="text-theme-muted mt-5 text-lg leading-relaxed">
-              Add YouTube videos, vote on what plays next and chat without
-              leaving your watch party. Choose Host mode when one person should
-              control playback, or Server mode to let the queue keep moving
-              automatically.
-            </p>
-            <Link
-              prefetch="intent"
-              className={guideClass}
-              to="/discovery/cinema"
-            >
-              Set up a YouTube watch party
-              <ArrowRightIcon className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="min-w-0 lg:order-1">
-            <DeferredContent
-              fallback={
-                <div className="bg-theme-surface h-144 rounded-3xl sm:h-156" />
-              }
-            >
-              <LazyChatPreview watch />
-            </DeferredContent>
-          </div>
-        </section>
-        <section
-          className="grid items-center gap-10 py-20 sm:py-28 lg:grid-cols-5 lg:gap-16"
-          aria-labelledby="watch-generation-heading"
-        >
-          <div className="lg:col-span-2">
-            <p className="font-pixel tracking-label dark:text-secondary text-xs text-cyan-800">
-              FOLLOW YOUR CURIOSITY
-            </p>
-            <h2
-              id="watch-generation-heading"
-              className="font-pixel mt-4 text-4xl leading-tight tracking-tight normal-case sm:text-5xl"
-            >
-              One small idea.
-              <br />
-              <span className="dark:text-primary text-pink-800">
-                A whole evening.
-              </span>
-            </h2>
-            <p className="text-theme-muted mt-5 text-lg leading-relaxed">
-              Night walks through distant cities. A detour into space. Short
-              films that stay with you. Imagine where your next queue could take
-              you.
-            </p>
-            <Link
-              prefetch="intent"
-              className={guideClass}
-              to="/features/watch?mode=ai"
-            >
-              Try a Watch idea
-              <ArrowRightIcon className="h-4 w-4" />
-            </Link>
-            <p className="text-theme-muted mt-3 text-xs">
-              Illustrative demo. Start your own queue with an idea.
-            </p>
-          </div>
-          <div className="min-w-0 lg:col-span-3">
-            <DeferredContent fallback={<div className="h-144" />}>
-              <LazyGeneratedPlaylistDemo watch />
-            </DeferredContent>
-          </div>
-        </section>
-        <section
-          id="explore-zoff"
-          className="scroll-mt-8 py-20 sm:py-28"
-          aria-labelledby="watch-explore-heading"
-        >
-          <p className="font-pixel tracking-label dark:text-secondary text-xs text-cyan-800">
-            A DIFFERENT KIND OF TOGETHER
-          </p>
-          <h2
-            id="watch-explore-heading"
-            className="font-pixel mt-3 mb-8 text-4xl tracking-tight normal-case"
-          >
-            Explore Watch
-          </h2>
-          <ProductLinks watch />
-        </section>
+        <RoomDemoSection watch />
+        <HomeFeatures watch features={watchFeatures} />
       </div>
-    </div>
-  );
-}
-
-const guideClass =
-  'mt-6 inline-flex min-h-12 items-center gap-3 rounded-xl border border-theme bg-theme-surface px-4 text-sm text-theme transition-colors hover:border-secondary focus-visible:ring-2 focus-visible:ring-secondary';
-
-function WatchScenePlaceholder() {
-  return (
-    <div aria-hidden="true">
-      <div className="h-12" />
-      <div className="border-theme bg-theme-surface rounded-3xl border p-2 sm:p-3">
-        <div className="aspect-video" />
-        <div className="h-20" />
-      </div>
-      <div className="h-7" />
-      <div className="h-14" />
-      <div className="mt-5 h-12" />
-      <div className="mt-4 h-12" />
     </div>
   );
 }

@@ -1,186 +1,187 @@
-import { classNames } from '@vibes/shared';
 import {
   Button,
-  CheckIcon,
-  PauseIcon,
+  NowPlayingPlaylistItem,
   PlaybackProgress,
-  PlayIcon,
   RemoteIcon,
 } from '@vibes/ui/web';
-import { MotionConfig, m as motion } from 'framer-motion';
+import { AnimatePresence, MotionConfig, m as motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
+import { LiveRoomStage } from '../../../components/seo/live/LiveRoomStage';
 import { MusicDemo } from '../../../components/seo/MusicDemo';
 import { useRemotePreview } from '../hooks/useRemotePreview';
 import { RemoteControlPreview } from './RemoteControlPreview';
 
-export function RemotePlayerDemo() {
-  const { ref, playButtonRef, state, actions } = useRemotePreview();
+const pairingUrl = 'https://zoff.me/remotes/join';
+
+// The room's Remote Control dialog on the player, and the remote on a phone.
+interface RemotePlayerDemoProps {
+  autoplay?: boolean;
+}
+
+export function RemotePlayerDemo({ autoplay = true }: RemotePlayerDemoProps) {
+  const { ref, playButtonRef, state, actions } = useRemotePreview(autoplay);
 
   return (
     <MotionConfig reducedMotion="user">
       <MusicDemo
         elementRef={ref}
         label="One player. A pocket remote."
-        detail="Pair once. Keep the controls close."
+        detail="Pair a phone with the player that makes the sound."
         caption={state.caption}
         paused={state.paused || state.reducedMotion === true}
         onToggle={actions.toggle}
         presentation="stage"
-        className="h-186 sm:h-170"
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-4 top-1/4 bottom-8 rounded-full bg-[radial-gradient(ellipse,#00d5eb12,transparent_68%)]"
-        />
-        <div className="relative grid h-full min-w-0 items-center gap-5 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] sm:gap-6 sm:p-4">
-          <section
-            aria-label="Controlled player"
-            className="border-theme bg-theme relative min-w-0 rounded-3xl border p-4 shadow-lg sm:-translate-y-8"
-          >
-            <div className="text-theme-muted mb-4 flex items-center justify-between text-xs">
-              <span>THE PLAYER</span>
-              <span className="dark:text-secondary flex w-18 justify-end text-cyan-800">
-                <motion.span
-                  key={`${state.playing}-${state.playlistItem.id}`}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: state.reducedMotion ? 0 : 0.35 }}
-                  className="flex items-center gap-1.5"
-                >
-                  {state.playing && (
-                    <PlayIcon aria-hidden="true" className="size-2.5" />
-                  )}
-                  {!state.playing && (
-                    <PauseIcon aria-hidden="true" className="size-2.5" />
-                  )}
-                  {state.playing ? 'Playing' : 'Paused'}
-                </motion.span>
-              </span>
-            </div>
-            <div className="flex items-center gap-4 sm:block">
-              <div className="relative size-24 shrink-0 overflow-hidden rounded-2xl sm:mx-auto sm:aspect-square sm:size-auto sm:w-full sm:max-w-64">
-                <motion.div
-                  key={state.playlistItem.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: state.reducedMotion ? 0 : 0.5 }}
-                  className="absolute inset-0 size-full"
-                >
-                  <img
-                    src={state.playlistItem.thumbnailUrl}
-                    width={240}
-                    height={240}
-                    alt="Illustrative album artwork"
-                    className="size-full object-cover"
-                  />
-                </motion.div>
-                <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/10" />
-                {!state.paired && (
-                  <div
-                    aria-hidden="true"
-                    className="absolute right-3 bottom-3 hidden rounded-lg bg-white p-2 sm:block"
-                  >
-                    <QRCodeSVG
-                      value="https://zoff.me/discovery/apps"
-                      size={52}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0 sm:mt-4">
-                <p className="font-pixel text-theme truncate text-lg">
-                  {state.playlistItem.title}
-                </p>
-                <p className="text-theme-muted mt-1 text-xs">
-                  Sound plays here
-                </p>
-              </div>
-            </div>
-            <div className="mt-3">
-              <PlaybackProgress
-                durationMs={state.durationMs}
-                positionMs={state.position}
-              />
-            </div>
-          </section>
-          <section
-            aria-label="Phone remote"
-            className="border-theme-strong bg-theme-surface relative min-w-0 overflow-hidden rounded-3xl border-2 p-4 shadow-xl sm:min-h-96 sm:translate-y-8"
-          >
+        <div className="grid min-w-0 items-end gap-5 px-1 pt-2 sm:grid-cols-[minmax(0,1fr)_15rem] sm:gap-6">
+          <section aria-label="The player" className="min-w-0">
             <div
+              inert
               aria-hidden="true"
-              className="bg-theme-muted/30 mx-auto mb-4 h-1 w-10 rounded-full"
-            />
-            <div className="border-theme text-theme-muted mb-5 flex items-center justify-between border-b pb-3 text-xs">
-              <span>YOUR PHONE</span>
-              <RemoteIcon
-                aria-hidden="true"
-                className="dark:text-secondary size-4 text-cyan-800"
-              />
-            </div>
-            <div className="grid min-h-57 items-center sm:min-h-68">
-              {!state.paired && (
-                <div className="text-center">
-                  <div
-                    aria-hidden="true"
-                    className="relative mx-auto size-28 overflow-hidden rounded-xl bg-white p-3"
-                  >
-                    <QRCodeSVG
-                      value="https://zoff.me/discovery/apps"
-                      size={88}
-                    />
-                    <motion.span
-                      initial={{ y: 0 }}
-                      animate={{ y: state.animate ? [0, 88, 0] : 44 }}
-                      transition={{
-                        duration: state.reducedMotion ? 0 : 2.6,
-                        repeat: state.animate ? Infinity : 0,
-                        ease: 'easeInOut',
-                      }}
-                      className="bg-secondary shadow-secondary-soft absolute inset-x-0 top-3 h-0.5"
-                    />
-                  </div>
-                  <p className="text-theme mt-4 text-sm">
-                    Scan the player’s code
-                  </p>
-                  <p className="text-theme-muted mt-1 text-xs">
-                    Or enter its pairing code.
-                  </p>
-                  <Button
-                    onClick={actions.pair}
-                    variant="secondary"
-                    size="small"
-                    className="mt-4 min-h-11 w-full"
-                  >
-                    Try pairing
-                  </Button>
-                </div>
-              )}
-              {state.paired && (
-                <RemoteControlPreview
+              className="border-theme bg-theme relative rounded-2xl border p-2 shadow-lg sm:p-3"
+            >
+              <div className="crt-frame rounded-player relative aspect-video overflow-hidden bg-black">
+                <LiveRoomStage
                   playlistItem={state.playlistItem}
                   playing={state.playing}
-                  durationMs={state.durationMs}
-                  position={state.position}
-                  playButtonRef={playButtonRef}
-                  onTogglePlayback={actions.togglePlayback}
-                  onSkip={actions.skip}
-                  onSeek={actions.seek}
+                  watch={false}
                 />
-              )}
+                <AnimatePresence>
+                  {!state.paired && (
+                    <motion.div
+                      key="dialog"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm"
+                    >
+                      <div className="panel-strong flex w-full max-w-xs items-center gap-3 rounded-3xl p-3">
+                        <div className="inline-flex shrink-0 rounded-xl bg-white p-1.5">
+                          <QRCodeSVG
+                            value={pairingUrl}
+                            size={72}
+                            bgColor="#ffffff"
+                            fgColor="#2a1840"
+                            level="M"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-display text-theme text-sm">
+                            Remote Control
+                          </p>
+                          <p className="font-pixel text-2xs text-theme-muted tracking-label mt-2">
+                            Manual pairing
+                          </p>
+                          <p className="font-display text-secondary mt-1 text-lg tracking-widest">
+                            Q7 4K
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                  {state.paired && (
+                    <motion.span
+                      key="paired"
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-xs text-white"
+                    >
+                      <RemoteIcon className="text-secondary size-3.5" />
+                      Remote paired
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+              <div className="mt-3">
+                <NowPlayingPlaylistItem
+                  playlistItem={state.playlistItem}
+                  isPlaying={state.playing}
+                  providerLink={false}
+                  animate={false}
+                  showStatus={false}
+                  density="compact"
+                />
+                <div className="mt-2">
+                  <PlaybackProgress
+                    durationMs={state.durationMs}
+                    positionMs={state.position}
+                  />
+                </div>
+              </div>
             </div>
-            <p
-              className={classNames(
-                'mt-4 flex h-5 items-center justify-center gap-1.5 text-xs',
-                state.paired
-                  ? 'text-cyan-800 dark:text-secondary'
-                  : 'text-theme-muted',
-              )}
-            >
-              {state.paired && (
-                <CheckIcon aria-hidden="true" className="size-3" />
-              )}
-              {state.paired ? 'Connected to electro' : 'Pairing preview'}
+            <p className="text-theme-muted mt-3 text-center text-xs">
+              Computer or TV · plays the sound
+            </p>
+          </section>
+
+          <section aria-label="Your phone" className="min-w-0">
+            <div className="bg-theme relative rounded-[2rem] border-4 border-[#302139] p-4 pt-6 shadow-xl">
+              <span
+                aria-hidden="true"
+                className="absolute top-2 left-1/2 h-1.5 w-12 -translate-x-1/2 rounded-full bg-[#302139]"
+              />
+              <div className="flex min-h-80 flex-col justify-center">
+                {!state.paired && (
+                  <div className="text-center">
+                    <p className="font-display text-theme text-sm">
+                      Connect this device
+                    </p>
+                    <div
+                      aria-hidden="true"
+                      className="relative mx-auto mt-4 aspect-square w-full max-w-44 overflow-hidden rounded-2xl bg-black"
+                    >
+                      <div className="absolute inset-6 rounded-lg bg-white p-2">
+                        <QRCodeSVG
+                          value={pairingUrl}
+                          size={96}
+                          bgColor="#ffffff"
+                          fgColor="#2a1840"
+                          level="M"
+                          className="h-full w-full"
+                        />
+                      </div>
+                      <span className="border-secondary absolute inset-3 rounded-xl border-2" />
+                      <motion.span
+                        initial={{ y: 0 }}
+                        animate={{ y: state.animate ? [0, 140, 0] : 70 }}
+                        transition={{
+                          duration: state.reducedMotion ? 0 : 2.6,
+                          repeat: state.animate ? Infinity : 0,
+                          ease: 'easeInOut',
+                        }}
+                        className="bg-secondary shadow-secondary-soft absolute inset-x-4 top-4 h-0.5"
+                      />
+                    </div>
+                    <p className="text-theme-muted mt-3 text-xs">
+                      Scan the player’s code, or enter it.
+                    </p>
+                    <Button
+                      onClick={actions.pair}
+                      variant="secondary"
+                      className="mt-4 w-full gap-2"
+                    >
+                      <RemoteIcon className="size-4" />
+                      Try pairing
+                    </Button>
+                  </div>
+                )}
+                {state.paired && (
+                  <RemoteControlPreview
+                    playlistItem={state.playlistItem}
+                    playing={state.playing}
+                    durationMs={state.durationMs}
+                    position={state.position}
+                    playButtonRef={playButtonRef}
+                    onTogglePlayback={actions.togglePlayback}
+                    onSkip={actions.skip}
+                    onSeek={actions.seek}
+                  />
+                )}
+              </div>
+            </div>
+            <p className="text-theme-muted mt-3 text-center text-xs">
+              Your phone · the remote
             </p>
           </section>
         </div>

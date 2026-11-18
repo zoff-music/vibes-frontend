@@ -1,5 +1,10 @@
-import { Link, useFetcher } from '@kasperrt/smolter/preact';
-import { PublicRoomTile, SegmentedControl } from '@vibes/ui/web';
+import { useFetcher } from '@kasperrt/smolter/preact';
+import {
+  ArrowRightIcon,
+  LinkButton,
+  PublicRoomTile,
+  SegmentedControl,
+} from '@vibes/ui/web';
 import { useState } from 'preact/compat';
 import { useExperience } from '../../../hooks/useExperience';
 import {
@@ -27,7 +32,7 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
 
   return (
     <section aria-label="Rooms" className="mt-6">
-      <div className="mb-3 sm:w-fit">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         {initial.history.length > 0 && (
           <SegmentedControl
             label="Rooms to show"
@@ -52,6 +57,23 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
             Public rooms
           </h2>
         )}
+        <LinkButton
+          prefetch="intent"
+          to={
+            roomType === 'WATCH'
+              ? '/rooms/explore?live=false&type=watch'
+              : '/rooms/explore?live=false'
+          }
+          variant="ghost"
+          size="small"
+          className="group min-h-11 gap-2"
+        >
+          Browse all public rooms
+          <ArrowRightIcon
+            aria-hidden="true"
+            className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+          />
+        </LinkButton>
       </div>
       <section
         aria-label={recent ? 'Recent rooms' : 'Public rooms'}
@@ -92,19 +114,6 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
           </p>
         )}
       </section>
-      {!recent && (
-        <Link
-          prefetch="intent"
-          to={
-            roomType === 'WATCH'
-              ? '/rooms/explore?live=false&type=watch'
-              : '/rooms/explore?live=false'
-          }
-          className="hover:bg-theme-surface focus-visible:ring-secondary dark:text-secondary mt-3 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 text-sm text-cyan-800 transition-colors focus-visible:ring-2 focus-visible:outline-none"
-        >
-          Browse all public <span aria-hidden="true">→</span>
-        </Link>
-      )}
     </section>
   );
 }

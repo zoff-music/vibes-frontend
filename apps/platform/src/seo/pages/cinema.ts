@@ -7,6 +7,7 @@ export const page: ProductPage = {
   description:
     'Start a free watch party on Zoff. Bring friends, collect YouTube videos, chat and vote on what to watch next.',
   heading: 'Host a YouTube watch party.',
+  accent: 'One queue. One chat. One night.',
   introduction:
     'Bring your friends to a free YouTube watch party with a shared queue, synchronized playback and chat. Plan a night of short films, documentaries or everyone’s favourite videos, whether you are together or miles apart.',
   actionLabel: 'Plan a watch night',

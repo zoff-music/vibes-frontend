@@ -1,15 +1,19 @@
-import { WatchPage } from '../../components/discovery/WatchPage';
-import { GeneratedPlaylistDemo } from '../../components/seo/GeneratedPlaylistDemo';
+import { GenerationGuide } from '../../components/discovery/GenerationGuide';
+import { ProductPageContent } from '../../components/discovery/ProductPageContent';
+import { LiveRoomDemo } from '../../components/seo/LiveRoomDemo';
 import { page } from '../../seo/pages/videos';
 
 export { meta } from './meta';
 
 export default function Guide() {
   return (
-    <WatchPage
+    <ProductPageContent
+      watch
       page={page}
-      preview={<GeneratedPlaylistDemo watch />}
-    ></WatchPage>
+      preview={<LiveRoomDemo watch variant="queue" />}
+    >
+      <GenerationGuide watch />
+    </ProductPageContent>
   );
 }
 

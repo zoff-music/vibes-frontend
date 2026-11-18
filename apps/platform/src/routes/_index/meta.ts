@@ -39,7 +39,9 @@ export const meta: MetaFunction = ({ params }) => {
         description:
           'Listen to music together with YouTube and SoundCloud, or watch YouTube videos together. Create free shared rooms, generate playlists with AI, vote and chat.',
         url: siteUrl,
-        mainEntityOfPage: { '@id': `${siteUrl}/#webpage` },
+        mainEntityOfPage: {
+          '@id': `${siteUrl}${watch ? '/features/watch' : '/'}#webpage`,
+        },
         isAccessibleForFree: true,
         image: new URL(publicAssetUrl('logo.png'), siteUrl).href,
         sameAs: [appStoreUrl, playStoreUrl, 'https://github.com/zoff-music'],

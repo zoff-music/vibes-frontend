@@ -73,15 +73,10 @@ export function HomeLanding({
               prominent
               title={
                 <>
-                  <span className="grid">
-                    {watch && (
-                      <span
-                        aria-hidden="true"
-                        className="invisible col-start-1 row-start-1"
-                      >
-                        Listen to music
-                      </span>
-                    )}
+                  <span
+                    data-sizer={watch ? 'Listen to music' : ''}
+                    className="grid before:invisible before:col-start-1 before:row-start-1 before:content-[attr(data-sizer)]"
+                  >
                     <span className="col-start-1 row-start-1 self-end">
                       {watch ? 'Watch YouTube' : 'Listen to music'}
                     </span>
@@ -92,27 +87,15 @@ export function HomeLanding({
                 </>
               }
               description={
-                <span className="grid">
-                  {watch && (
-                    <span
-                      aria-hidden="true"
-                      className="invisible col-start-1 row-start-1"
-                    >
-                      {musicDescription}
-                    </span>
-                  )}
+                <span
+                  data-sizer={watch ? musicDescription : ''}
+                  className="grid before:invisible before:col-start-1 before:row-start-1 before:content-[attr(data-sizer)]"
+                >
                   <span className="col-start-1 row-start-1">
                     {watch
                       ? 'Watch videos in sync with friends. Share a free room, build a YouTube queue and chat together. No extension needed.'
                       : musicDescription}
                   </span>
-                </span>
-              }
-              eyebrow={
-                <span className="sm:tracking-label tracking-widest">
-                  {watch
-                    ? 'GOOD VIDEOS. BETTER COMPANY.'
-                    : 'GOOD MUSIC. BETTER COMPANY.'}
                 </span>
               }
               aside={

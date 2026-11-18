@@ -10,6 +10,12 @@ overrides:
   'glob@>=9.0.0 <=14.0.1': 14.0.6
   # Expo fingerprint still requests minimatch 10; amplification is fixed in 11.0.1+.
   'minimatch@>=7.0.0 <11.0.1': 11.0.8
+auditConfig:
+  ignoreGhsas:
+    # picomatch ReDoS (all versions, no fix yet). Reached only through build
+    # tooling (Metro, Jest, Vite globbing) with project-defined patterns,
+    # never user input. Remove once a patched picomatch ships.
+    - GHSA-fc5q-39xc-vjpf
 peerDependencyRules:
   allowedVersions:
     react-native: 0.88.1-0

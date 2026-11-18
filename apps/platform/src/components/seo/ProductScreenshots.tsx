@@ -1,6 +1,3 @@
-import { classNames } from '@vibes/shared';
-import { MotionConfig, m as motion } from 'framer-motion';
-import { useState } from 'preact/compat';
 import mobileRemotePng from '../../assets/product/mobile-remote.png?url';
 import mobileRemote from '../../assets/product/mobile-remote.webp?url';
 import mobileRemoteSmall from '../../assets/product/mobile-remote-small.webp?url';
@@ -10,72 +7,45 @@ import mobileSearchSmall from '../../assets/product/mobile-search-small.webp?url
 
 const screens = [
   {
-    label: 'Find a song',
+    label: 'Search and add',
     source: mobileSearch,
     smallSource: mobileSearchSmall,
     fallback: mobileSearchPng,
     alt: 'Zoff app showing YouTube and SoundCloud search results with add buttons',
-    caption: 'Find it on your phone. Hear it with everyone.',
-    selectedX: '-62%',
-    restingX: '-85%',
-    angle: -6,
   },
   {
-    label: 'Take the controls',
+    label: 'Pair as a remote',
     source: mobileRemote,
     smallSource: mobileRemoteSmall,
     fallback: mobileRemotePng,
     alt: 'Zoff app pairing a phone with another player using a QR code or pairing code',
-    caption: 'Pair with the player. Your phone becomes the remote.',
-    selectedX: '-38%',
-    restingX: '-15%',
-    angle: 7,
   },
 ];
 
+// Two real screens from the mobile app, side by side. No motion: the
+// screenshots carry the page, and the larger one is a fast, stable LCP.
 export function ProductScreenshots() {
-  const [selected, setSelected] = useState(0);
-
   return (
-    <MotionConfig reducedMotion="user">
-      <figure className="relative isolate min-w-0 overflow-hidden rounded-3xl px-4 pt-6 sm:px-7">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,#ff2e9726,transparent_65%)]"
-        />
-        <div className="text-theme-muted relative flex items-center justify-between gap-3 text-xs">
-          <span className="font-pixel dark:text-secondary text-cyan-800">
-            ZOFF IN YOUR POCKET
-          </span>
-          <span>iOS + Android</span>
-        </div>
-        <div className="relative mx-auto mt-6 h-[clamp(23rem,118vw,36rem)] max-w-112 sm:h-144">
+    <figure className="relative isolate min-w-0">
+      <div
+        aria-hidden="true"
+        className="bg-primary/20 absolute inset-x-10 top-1/4 bottom-1/4 -z-10 rounded-full blur-3xl"
+      />
+      <div className="flex items-end justify-center gap-4 sm:gap-6">
+        {screens.map((screen, index) => (
           <div
-            aria-hidden="true"
-            className="border-primary/15 pointer-events-none absolute inset-x-0 top-12 aspect-square rounded-full border"
-          />
-          <div
-            aria-hidden="true"
-            className="border-secondary/15 pointer-events-none absolute inset-x-8 top-20 aspect-square rounded-full border"
-          />
-          {screens.map((screen, index) => (
-            <motion.div
-              key={screen.label}
-              initial={false}
-              animate={{
-                x: selected === index ? screen.selectedX : screen.restingX,
-                y: selected === index ? 12 : 42,
-                rotate: screen.angle,
-                scale: selected === index ? 1 : 0.9,
-                zIndex: selected === index ? 2 : 1,
-              }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute top-3 left-1/2 w-3/5 max-w-60 overflow-hidden rounded-3xl border-4 border-[#302139] bg-[#120b1e] shadow-2xl"
-            >
+            key={screen.label}
+            className={
+              index === 0
+                ? 'w-[46%] max-w-64'
+                : 'w-[40%] max-w-56 translate-y-0 sm:-translate-y-8'
+            }
+          >
+            <div className="overflow-hidden rounded-[2rem] border-[6px] border-[#302139] bg-[#120b1e] shadow-xl">
               <picture>
                 <source
                   type="image/webp"
-                  sizes="(min-width: 640px) 240px, min(60vw, 240px)"
+                  sizes="(min-width: 640px) 256px, 46vw"
                   srcSet={`${screen.smallSource} 260w, ${screen.source} 520w`}
                 />
                 <img
@@ -83,38 +53,21 @@ export function ProductScreenshots() {
                   width={520}
                   height={1130}
                   decoding="async"
+                  {...(index === 0 && { fetchPriority: 'high' as const })}
                   alt={screen.alt}
                   className="block h-auto w-full"
                 />
               </picture>
-            </motion.div>
-          ))}
-        </div>
-        <fieldset
-          aria-label="Explore the mobile app"
-          className="relative z-10 mx-auto grid max-w-96 grid-cols-2 gap-2"
-        >
-          {screens.map((screen, index) => (
-            <button
-              type="button"
-              key={screen.label}
-              onClick={() => setSelected(index)}
-              aria-pressed={selected === index}
-              className={classNames(
-                'min-h-12 cursor-pointer rounded-xl border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary',
-                selected === index
-                  ? 'border-secondary bg-theme-surface text-theme'
-                  : 'border-theme bg-theme-surface text-theme-muted hover:text-theme',
-              )}
-            >
+            </div>
+            <p className="text-theme-muted mt-3 text-center text-sm">
               {screen.label}
-            </button>
-          ))}
-        </fieldset>
-        <figcaption className="text-theme-muted relative flex h-20 items-center justify-center text-center text-sm">
-          {screens[selected].caption}
-        </figcaption>
-      </figure>
-    </MotionConfig>
+            </p>
+          </div>
+        ))}
+      </div>
+      <figcaption className="sr-only">
+        Screens from the Zoff app for iOS and Android.
+      </figcaption>
+    </figure>
   );
 }

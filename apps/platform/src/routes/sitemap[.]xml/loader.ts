@@ -11,6 +11,7 @@ export function loader() {
     '/features/watch',
     '/rooms/create',
     '/rooms/explore',
+    '/faq',
     '/privacy-policy',
     '/terms-of-service',
     '/security',

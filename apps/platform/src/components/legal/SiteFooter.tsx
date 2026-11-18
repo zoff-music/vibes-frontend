@@ -1,9 +1,16 @@
 import { NavLink } from '@kasperrt/smolter/preact';
-import { SiteFooter as SharedSiteFooter } from '@vibes/ui/web';
+import { SiteFooter as SharedSiteFooter, siteFooterLinks } from '@vibes/ui/web';
+
+const links = [
+  ...siteFooterLinks.slice(0, 3),
+  { href: '/faq', label: 'FAQ' },
+  ...siteFooterLinks.slice(3),
+];
 
 export function SiteFooter() {
   return (
     <SharedSiteFooter
+      links={links}
       renderLocalLink={(link, className) => {
         if (link.href.startsWith('/api/'))
           return (

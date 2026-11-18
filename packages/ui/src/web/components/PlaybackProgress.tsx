@@ -77,7 +77,7 @@ export function PlaybackProgress({
         )}
       </div>
       {showTimes && (
-        <div className="text-2xs text-theme-subtle mt-1 flex justify-between font-mono">
+        <div className="text-2xs text-theme-muted mt-1 flex justify-between font-mono">
           <span>{formatPlaybackMilliseconds(boundedPositionMs)}</span>
           <span>{formatPlaybackMilliseconds(durationMs)}</span>
         </div>

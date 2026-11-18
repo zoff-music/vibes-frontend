@@ -87,9 +87,9 @@ const messages: RoomMessage[] = [
   },
 ];
 
-const durations = [
-  1800, 1500, 1500, 1800, 1800, 1800, 1600, 1800, 3200, 4000, 650, 1500,
-];
+// One step per message, then a beat with Chat switched off on this device.
+const durations = [1800, 1500, 1500, 1800, 1800, 1800, 1600, 1800, 3200, 3600];
+const firstLoopedPhase = 3;
 
 const watchCopy: Record<string, string> = {
   hello: 'Wait for the view around this corner.',
@@ -109,15 +109,15 @@ const watchMessages: RoomMessage[] = messages.map((message) => ({
   text: watchCopy[message.id] ?? message.text,
 }));
 
-export function useChatPreview(watch = false) {
+export function useChatPreview(watch = false, autoplay = true) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { amount: 0.3 });
   const visible = usePageVisibility();
   const motionPreference = useReducedMotion();
   const [hydrated, setHydrated] = useState(false);
   const reducedMotion = hydrated && motionPreference === true;
-  const [phase, setPhase] = useState(watch ? 0 : 2);
-  const [paused, setPaused] = useState(false);
+  const [phase, setPhase] = useState(firstLoopedPhase);
+  const [paused, setPaused] = useState(!autoplay);
   const playing = inView && visible && !reducedMotion && !paused;
 
   useEffect(() => setHydrated(true), []);
@@ -126,7 +126,9 @@ export function useChatPreview(watch = false) {
     if (!playing) return;
 
     const timeout = window.setTimeout(() => {
-      setPhase((current) => (current + 1) % durations.length);
+      setPhase((current) =>
+        current + 1 >= durations.length ? firstLoopedPhase : current + 1,
+      );
     }, durations[phase]);
 
     return () => window.clearTimeout(timeout);
@@ -142,18 +144,17 @@ export function useChatPreview(watch = false) {
       paused: paused || reducedMotion === true,
       toggle: () => setPaused((current) => !current),
       reducedMotion,
-      branding: !reducedMotion && phase > messages.length,
       chatEnabled: phase < messages.length,
       setChatEnabled: (enabled: boolean) => {
         if (!watch) setPaused(true);
 
-        setPhase(enabled ? 0 : messages.length);
+        setPhase(enabled ? firstLoopedPhase : messages.length);
       },
       phase,
       messages:
         reducedMotion && watch
-          ? conversation.slice(-5)
-          : conversation.slice(Math.max(0, count - 5), count),
+          ? conversation.slice(-6)
+          : conversation.slice(Math.max(0, count - 6), count),
     },
   };
 }

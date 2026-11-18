@@ -29,22 +29,19 @@ export function RepeatPlaylistItemSetupScene({
 }: RepeatPlaylistItemSetupSceneProps) {
   return (
     <div>
-      <ContentTransition transitionKey={playlistItem.id}>
-        <NowPlayingPlaylistItem
-          playlistItem={playlistItem}
-          isPlaying
-          providerLink={false}
-          animate={false}
-          density="compact"
-          showStatus={false}
+      <NowPlayingPlaylistItem
+        playlistItem={playlistItem}
+        isPlaying
+        providerLink={false}
+        density="compact"
+        showStatus={false}
+      />
+      <div className="mt-2">
+        <PlaybackProgress
+          durationMs={playlistItem.duration * 1000}
+          positionMs={positionMs}
         />
-        <div className="mt-2">
-          <PlaybackProgress
-            durationMs={playlistItem.duration * 1000}
-            positionMs={positionMs}
-          />
-        </div>
-      </ContentTransition>
+      </div>
       <div className="flex min-h-11 items-center justify-between gap-3">
         <p className="text-theme-muted flex items-center gap-2 text-xs">
           {advanced && !removePlayed && (

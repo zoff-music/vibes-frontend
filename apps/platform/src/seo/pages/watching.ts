@@ -6,7 +6,8 @@ export const page: ProductPage = {
   title: 'How to Watch YouTube Together Online | Zoff',
   description:
     'Learn how to watch YouTube with friends in sync: create a Zoff room, share the link, add videos and start watching. Free, with no account or extension.',
-  heading: 'How to watch YouTube together.',
+  heading: 'Watch YouTube together.',
+  accent: 'In sync, on every screen.',
   introduction:
     'Zoff brings YouTube videos, synchronized playback and chat into one shared room. Friends can join from different places and watch on their own screens, without installing a browser extension.',
   actionLabel: 'Start watching together',

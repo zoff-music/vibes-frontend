@@ -7,10 +7,16 @@ export const appStoreUrl =
 export const playStoreUrl =
   'https://play.google.com/store/apps/details?id=me.zoff.mobile';
 
+export interface PageQuestion {
+  title: string;
+  body: string;
+}
+
 export function pageMetadata(
   path: string,
   title: string,
   description: string,
+  questions: PageQuestion[] = [],
 ): MetaDescriptor[] {
   const url = new URL(path, siteUrl).href;
   const image = new URL(socialCardUrl, siteUrl).href;
@@ -86,6 +92,23 @@ export function pageMetadata(
             ...(!isHome && { breadcrumb: { '@id': breadcrumb['@id'] } }),
           },
           ...(!isHome ? [breadcrumb] : []),
+          ...(questions.length > 0
+            ? [
+                {
+                  '@type': 'FAQPage',
+                  '@id': `${url}#faq`,
+                  isPartOf: { '@id': `${url}#webpage` },
+                  mainEntity: questions.map((question) => ({
+                    '@type': 'Question',
+                    name: question.title,
+                    acceptedAnswer: {
+                      '@type': 'Answer',
+                      text: question.body,
+                    },
+                  })),
+                },
+              ]
+            : []),
         ],
       },
     },

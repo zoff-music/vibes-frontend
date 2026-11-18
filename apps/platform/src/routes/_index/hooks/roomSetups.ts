@@ -15,32 +15,27 @@ interface RoomSetup {
   settings: RoomSetupSettings;
 }
 
+// Every example starts from a new room's defaults and changes one rule.
+const defaults: RoomSetupSettings = {
+  onlyAdminAddPlaylistItems: false,
+  skipAllowed: true,
+  removeOnPlay: false,
+};
+
 export const roomSetups: RoomSetup[] = [
   {
     id: 'adding',
     label: 'Adding',
-    settings: {
-      onlyAdminAddPlaylistItems: false,
-      skipAllowed: true,
-      removeOnPlay: true,
-    },
+    settings: defaults,
   },
   {
     id: 'skipping',
     label: 'Skipping',
-    settings: {
-      onlyAdminAddPlaylistItems: true,
-      skipAllowed: true,
-      removeOnPlay: true,
-    },
+    settings: defaults,
   },
   {
     id: 'repeating',
     label: 'Repeating',
-    settings: {
-      onlyAdminAddPlaylistItems: false,
-      skipAllowed: true,
-      removeOnPlay: false,
-    },
+    settings: defaults,
   },
 ];

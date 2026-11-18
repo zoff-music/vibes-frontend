@@ -21,6 +21,7 @@ export function loader() {
       `- [Shared queue](${siteUrl}/discovery/queue): Collaborative queues and playlist generation.`,
       `- [Room settings](${siteUrl}/discovery/rooms): Playback modes and room controls.`,
       `- [Apps](${siteUrl}/discovery/apps): Mobile and TV apps.`,
+      `- [FAQ](${siteUrl}/faq): Answers about rooms, the queue, settings and devices.`,
       '',
       '## Policies',
       '',

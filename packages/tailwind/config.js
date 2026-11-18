@@ -119,13 +119,41 @@ export default {
         'gradient-shift': 'gradientShift 10s ease-in-out infinite',
         'sunset-glow': 'sunsetGlow 9s ease-in-out infinite alternate',
         'sun-ripple': 'sunRipple 8s ease-in-out infinite',
-        'background-drift': 'backgroundDrift 12s ease-in-out infinite',
+        'background-drift': 'backgroundDrift 14s ease-in-out infinite',
+        'aurora-a': 'auroraA 19s ease-in-out infinite',
+        'aurora-b': 'auroraB 23s ease-in-out infinite',
         'background-grid': 'backgroundGrid 2s linear infinite',
+        'demo-ping': 'demoPing 900ms cubic-bezier(0, 0, 0.2, 1) both',
+        'sun-rise': 'sunRise 1200ms cubic-bezier(0.22, 1, 0.36, 1) both',
       },
       keyframes: {
+        // Transform only: the sun stays painted, so it never delays LCP or
+        // shifts layout.
+        sunRise: {
+          from: { transform: 'translate3d(0, 18%, 0)' },
+          to: { transform: 'translate3d(0, 0, 0)' },
+        },
+        demoPing: {
+          '0%': { transform: 'scale(0.4)', opacity: '0.9' },
+          '100%': { transform: 'scale(2.4)', opacity: '0' },
+        },
         backgroundDrift: {
-          '0%, 100%': { transform: 'translate3d(-3%, -1%, 0) scale(1.04)' },
-          '50%': { transform: 'translate3d(3%, 1%, 0) scale(1.04)' },
+          // Starts and ends at rest, so switching motion on after hydration
+          // never jumps from the server-rendered position.
+          '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+          '25%': { transform: 'translate3d(-9%, -5%, 0) scale(1.1)' },
+          '50%': { transform: 'translate3d(8%, -2%, 0) scale(1.16)' },
+          '75%': { transform: 'translate3d(3%, 8%, 0) scale(1.1)' },
+        },
+        auroraA: {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+          '30%': { transform: 'translate3d(30vw, 6vh, 0) scale(1.3)' },
+          '65%': { transform: 'translate3d(8vw, 28vh, 0) scale(1.1)' },
+        },
+        auroraB: {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+          '35%': { transform: 'translate3d(-30vw, -4vh, 0) scale(0.9)' },
+          '70%': { transform: 'translate3d(-6vw, -26vh, 0) scale(1.25)' },
         },
         backgroundGrid: {
           from: { transform: 'translate3d(0, 0, 0)' },

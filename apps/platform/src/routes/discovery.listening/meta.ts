@@ -3,4 +3,9 @@ import { pageMetadata } from '../../seo/metadata';
 import { page } from '../../seo/pages/listening';
 
 export const meta: MetaFunction = () =>
-  pageMetadata('/discovery/listening', page.title, page.description);
+  pageMetadata(
+    '/discovery/listening',
+    page.title,
+    page.description,
+    page.sections.slice(2),
+  );

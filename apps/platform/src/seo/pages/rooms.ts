@@ -3,13 +3,13 @@ import type { ProductPage } from '../productPages';
 export const page: ProductPage = {
   slug: 'rooms',
   label: 'Your room',
-  title: 'Create a Free Listening Room | Zoff',
+  title: 'Create a Free Music Room with Your Own Rules | Zoff',
   description:
     'Create a free music room with your own playback and queue rules. Choose who adds and skips, share the link or embed your player. No account needed.',
-  heading: 'Your people.',
-  accent: 'Your house rules.',
+  heading: 'Create a music room.',
+  accent: 'Your people. Your rules.',
   introduction:
-    'An open queue for your friends, or a soundtrack you curate. A few simple settings make the room yours.',
+    'An open queue for friends, or a soundtrack you curate. Choose who adds and skips, how playback runs, and put the room on your website.',
   actionLabel: 'Make a room',
   sections: [
     {

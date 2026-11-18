@@ -1,5 +1,6 @@
 import type { RouteModule } from '@kasperrt/smolter/preact';
 import {
+  enterSceneViewTransition,
   immediateViewTransition,
   pageViewTransition,
   sceneViewTransition,
@@ -13,6 +14,10 @@ export const viewTransition: NonNullable<RouteModule['viewTransition']> = (
 ) => {
   if (!shouldTransitionPage(previous, next)) {
     immediateViewTransition(commit, previous, next);
+    return;
+  }
+  if (next.path === '/:id/*' && previous.path !== '/:id/*') {
+    enterSceneViewTransition(commit, previous, next);
     return;
   }
   if (previous.path === '/:id/*' || next.path === '/:id/*') {
