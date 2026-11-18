@@ -79,11 +79,16 @@ export function useGeneratedPlaylistPreview(prompt: string, playing: boolean) {
     return () => window.clearTimeout(timer);
   }, [playing, reducedMotion, prompt, progress]);
 
+  // Before it has ever played, show the finished result rather than a blank.
+  const idle =
+    !playing && progress.phase === 'typing' && progress.characters === 0;
+  const complete = reducedMotion || idle;
+
   return {
     state: {
-      phase: reducedMotion ? 'ready' : progress.phase,
-      prompt: reducedMotion ? prompt : prompt.slice(0, progress.characters),
-      count: reducedMotion ? 3 : progress.count,
+      phase: complete ? 'ready' : progress.phase,
+      prompt: complete ? prompt : prompt.slice(0, progress.characters),
+      count: complete ? 3 : progress.count,
       reducedMotion,
     },
   };

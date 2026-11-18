@@ -6,10 +6,11 @@ export const page: ProductPage = {
   title: 'Shared YouTube Queue | Add Videos and Vote Together | Zoff',
   description:
     'Build a shared video queue for a night of short films, discoveries and YouTube videos. Add together, vote and keep watching with Zoff.',
-  heading: 'Build a shared YouTube queue.',
+  heading: 'A shared YouTube queue.',
+  accent: 'Everyone adds. The room votes.',
   introduction:
     'Collect YouTube videos in one room queue, let friends add their finds and vote on what plays next. Watch the queue together without passing links around or interrupting the current video.',
-  actionLabel: 'Try a Watch idea',
+  actionLabel: 'Start a shared video queue',
   sections: [
     {
       title: 'Build the lineup together',

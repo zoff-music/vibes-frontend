@@ -6,10 +6,10 @@ export const page: ProductPage = {
   title: 'Shared Music Queue & Collaborative Playlists | Zoff',
   description:
     'Build a shared music queue with friends. Add songs from YouTube and SoundCloud, vote on what plays next, import a playlist or start one with AI. Free, no account needed.',
-  heading: 'Your taste.',
-  accent: 'Their next favourite.',
+  heading: 'A shared music queue.',
+  accent: 'Your taste. Their next favourite.',
   introduction:
-    'A shared music queue everyone can shape. Bring a song, discover a new one, and vote your favourites to the top.',
+    'Everyone in the room adds songs from YouTube and SoundCloud and votes on what plays next. The most voted song plays next for everyone.',
   actionLabel: 'Start a shared queue',
   sections: [
     {

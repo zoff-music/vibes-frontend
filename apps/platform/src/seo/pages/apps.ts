@@ -3,14 +3,14 @@ import type { ProductPage } from '../productPages';
 export const page: ProductPage = {
   slug: 'apps',
   label: 'Apps & devices',
-  title: 'Zoff Apps for iOS, Android & Android TV',
+  title: 'Mobile and TV Apps for iOS, Android & Android TV | Zoff',
   description:
     'Get Zoff for iOS and Android, play on Android TV or Chromecast, and listen in your browser. One shared queue across your devices. Free, no account needed.',
-  heading: 'Same room.',
-  accent: 'Any screen.',
+  heading: 'Zoff on every screen.',
+  accent: 'Same room. Any device.',
   introduction:
-    'Pocket, desktop or living room. Bring your music with you, or leave the sound on the big screen and take the controls.',
-  actionLabel: 'Open Zoff in your browser',
+    'Join from the iOS and Android apps, any browser, Android TV or Chromecast. Let the big screen play and use your phone as the remote.',
+  actionLabel: 'Start a room',
   sections: [
     {
       title: 'Listen on your own device.',

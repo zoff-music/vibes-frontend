@@ -33,7 +33,7 @@ export function RoomSetupScene({
 
   return (
     <div>
-      <div className="min-h-56">
+      <div className="min-h-52">
         {setupId === 'adding' && (
           <AddPlaylistItemSetupScene
             complete={state.complete}

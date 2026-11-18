@@ -8,9 +8,13 @@ export interface SiteFooterLink {
 
 interface SiteFooterProps {
   renderLocalLink?: (link: SiteFooterLink, className: string) => ReactNode;
+  links?: SiteFooterLink[];
 }
 
-export function SiteFooter({ renderLocalLink }: SiteFooterProps) {
+export function SiteFooter({
+  renderLocalLink,
+  links = siteFooterLinks,
+}: SiteFooterProps) {
   return (
     <footer className="site-footer relative z-10 mx-auto w-full max-w-6xl shrink-0 px-5 pt-8 pb-4 [view-transition-name:site-footer] sm:px-6 sm:pb-6">
       <nav
@@ -46,7 +50,7 @@ export function SiteFooter({ renderLocalLink }: SiteFooterProps) {
   );
 }
 
-const links: SiteFooterLink[] = [
+export const siteFooterLinks: SiteFooterLink[] = [
   { href: 'https://github.com/zoff-music', label: 'GitHub', external: true },
   { href: 'https://x.com/zoffmusic', label: 'X', external: true },
   { href: '/api/swagger/index.html', label: 'API docs' },

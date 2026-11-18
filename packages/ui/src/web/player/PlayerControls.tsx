@@ -147,7 +147,7 @@ const PlayerControlsComponent: React.FC<Props> = ({
   const labels = getRoomLabels(roomType);
 
   return (
-    <div className={classNames('w-full', compact && 'p-3')}>
+    <div className={classNames('w-full', compact && 'pt-2')}>
       <div className="flex flex-wrap items-center justify-start gap-1.5 sm:flex-nowrap sm:items-stretch sm:gap-4">
         <ControlGroup aria-label="Playback controls" className="min-w-0 flex-1">
           <Tooltip className="inline-flex" content={playbackLabel}>

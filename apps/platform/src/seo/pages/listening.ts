@@ -6,10 +6,10 @@ export const page: ProductPage = {
   title: 'Listen to Music Together Online | Zoff',
   description:
     'Listen to music with friends online. Start a free Zoff room, share the link and build a queue together with synchronized playback and song voting.',
-  heading: 'A little closer.',
-  accent: 'One song at a time.',
+  heading: 'Listen to music together.',
+  accent: 'Wherever everyone is.',
   introduction:
-    'Different places, the same soundtrack. Share a room link and listen to music together, wherever the evening takes you.',
+    'Zoff is a free shared music room. Send one link and everyone hears the same song at the same moment, on their own phone, computer or TV.',
   actionLabel: 'Start listening together',
   sections: [
     {

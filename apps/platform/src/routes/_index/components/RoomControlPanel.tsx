@@ -1,11 +1,43 @@
 import { classNames } from '@vibes/shared';
-import { ContentTransition } from '@vibes/ui/web';
+import { ContentTransition, SegmentedToggle } from '@vibes/ui/web';
 import { MotionConfig } from 'framer-motion';
 import { MusicDemo } from '../../../components/seo/MusicDemo';
-import { roomSetups } from '../hooks/roomSetups';
+import type { RoomSetupId, RoomSetupSettings } from '../hooks/roomSetups';
 import { useRoomSetup } from '../hooks/useRoomSetup';
 import { RoomSetupScene } from './RoomSetupScene';
-import { RoomSetupSettings } from './RoomSetupSettings';
+
+interface RuleRow {
+  id: RoomSetupId;
+  key: keyof RoomSetupSettings;
+  label: string;
+  description: string;
+  inverted: boolean;
+}
+
+// Same labels and copy as the room's settings menu.
+const rules: RuleRow[] = [
+  {
+    id: 'adding',
+    key: 'onlyAdminAddPlaylistItems',
+    label: 'Admins Only Add',
+    description: 'Only admins add songs',
+    inverted: false,
+  },
+  {
+    id: 'skipping',
+    key: 'skipAllowed',
+    label: 'Admins Only Skip',
+    description: 'Only room admins can skip songs',
+    inverted: true,
+  },
+  {
+    id: 'repeating',
+    key: 'removeOnPlay',
+    label: 'Remove Played',
+    description: 'Removed after play',
+    inverted: false,
+  },
+];
 
 export function RoomControlPanel() {
   const { ref, state, actions } = useRoomSetup();
@@ -15,57 +47,69 @@ export function RoomControlPanel() {
       <MusicDemo
         elementRef={ref}
         label="Your room. Your rules."
-        detail="A few switches. A different kind of room."
+        detail="Change a room setting and see what a listener gets."
         caption={
-          state.setupId === 'skipping'
-            ? 'Try skipping as a listener. Vote-to-skip is off in this preview.'
-            : 'Change a switch and see what happens for a listener.'
+          state.setupId === 'skipping' && !state.settings.skipAllowed
+            ? 'Only admins skip. Mira can still vote, add and listen.'
+            : 'Flip a switch. Everyone in the room follows it.'
         }
         paused={state.paused || state.reducedMotion}
         onToggle={actions.toggle}
-        className="h-166"
       >
-        <div className="min-w-0">
-          <div className="border-theme bg-theme-surface/60 flex h-42 min-w-0 flex-col justify-between border-b px-4 py-4 sm:px-6">
-            <fieldset className="flex gap-2" aria-label="Room settings preview">
-              {roomSetups.map((setup) => (
-                <button
-                  type="button"
-                  key={setup.id}
-                  aria-pressed={state.setupId === setup.id}
-                  onClick={() => actions.selectSetup(setup.id)}
-                  className={classNames(
-                    'min-h-11 min-w-0 flex-1 cursor-pointer rounded-xl border px-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary',
-                    state.setupId === setup.id
-                      ? 'border-secondary bg-theme text-theme'
-                      : 'border-transparent text-theme-muted hover:bg-theme hover:text-theme',
-                  )}
-                >
-                  {setup.label}
-                </button>
-              ))}
-            </fieldset>
-            <div className="flex min-h-18 flex-col justify-center">
-              <RoomSetupSettings
-                setupId={state.setupId}
-                settings={state.settings}
-                onChange={actions.updateSetting}
-              />
+        <div className="@container grid min-w-0">
+          <section
+            aria-label="Room settings preview"
+            className="border-theme bg-theme-surface/60 min-w-0 border-b p-4 sm:p-5"
+          >
+            <p className="border-theme font-pixel text-2xs text-theme-muted tracking-label mb-2 border-b pb-2">
+              Room Control
+            </p>
+            <div className="grid gap-1 @2xl:grid-cols-3 @2xl:gap-3">
+              {rules.map((rule) => {
+                const value = state.settings[rule.key];
+                const checked = rule.inverted ? !value : value;
+
+                return (
+                  <div
+                    key={rule.id}
+                    className={classNames(
+                      '-mx-2 rounded-2xl px-2 py-1 transition-colors duration-300',
+                      state.setupId === rule.id
+                        ? 'bg-secondary/10'
+                        : 'bg-transparent',
+                    )}
+                  >
+                    <SegmentedToggle
+                      label={rule.label}
+                      description={rule.description}
+                      variant="plain-full"
+                      checked={checked}
+                      onChange={(next) =>
+                        actions.changeRule(
+                          rule.id,
+                          rule.key,
+                          rule.inverted ? !next : next,
+                        )
+                      }
+                    />
+                  </div>
+                );
+              })}
             </div>
-          </div>
-          <div className="min-w-0 px-4 pb-4 sm:px-6">
-            <div className="text-theme-muted flex h-14 items-center justify-between gap-3 text-xs">
-              <span className="flex items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className="bg-secondary/10 font-pixel dark:text-secondary flex size-6 items-center justify-center rounded-full text-cyan-800"
-                >
-                  M
-                </span>
-                Mira’s view
+          </section>
+          <section
+            aria-label="What a listener sees"
+            className="min-w-0 p-4 sm:p-5"
+          >
+            <p className="text-theme-muted mb-3 flex items-center gap-2 text-xs">
+              <span
+                aria-hidden="true"
+                className="bg-secondary/10 font-pixel dark:text-secondary flex size-6 items-center justify-center rounded-full text-cyan-800"
+              >
+                M
               </span>
-              <span>Room settings applied ↓</span>
-            </div>
+              What Mira sees
+            </p>
             <ContentTransition transitionKey={state.revision}>
               <RoomSetupScene
                 setupId={state.setupId}
@@ -75,7 +119,7 @@ export function RoomControlPanel() {
                 onAction={actions.completeAction}
               />
             </ContentTransition>
-          </div>
+          </section>
         </div>
       </MusicDemo>
       <p role="status" className="sr-only">

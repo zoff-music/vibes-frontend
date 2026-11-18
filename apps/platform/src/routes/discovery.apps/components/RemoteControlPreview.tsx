@@ -31,38 +31,49 @@ export function RemoteControlPreview({
 }: RemoteControlPreviewProps) {
   return (
     <div className="flex h-full flex-col justify-center">
-      <p className="font-pixel text-theme-muted text-xs">Controlling electro</p>
-      <h3 className="font-display text-theme mt-3 truncate text-base">
-        {playlistItem.title}
-      </h3>
-      <p className="text-theme-muted mt-1 text-sm">{playlistItem.publisher}</p>
-      <div className="mt-5 grid grid-cols-2 gap-3">
+      <p className="font-pixel text-2xs text-theme-muted tracking-label">
+        Now playing
+      </p>
+      <div className="mt-4 flex items-center gap-3">
+        <img
+          src={playlistItem.thumbnailUrl}
+          alt=""
+          width={80}
+          height={80}
+          decoding="async"
+          className="border-theme bg-theme-surface size-16 shrink-0 rounded-xl border object-cover"
+        />
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-theme line-clamp-2 text-base">
+            {playlistItem.title}
+          </h3>
+          <p className="text-theme-muted mt-1 truncate text-sm">
+            {playlistItem.publisher}
+          </p>
+        </div>
+      </div>
+      <div className="mt-5 flex items-center gap-3">
         <Button
           ref={playButtonRef}
+          size="icon"
           variant="secondary"
-          size="small"
-          className="min-h-12 gap-2"
           aria-label={playing ? 'Pause from remote' : 'Play from remote'}
           onClick={onTogglePlayback}
         >
           {playing && <PauseIcon aria-hidden="true" className="h-5 w-5" />}
           {!playing && <PlayIcon aria-hidden="true" className="h-5 w-5" />}
-          <span className="w-9 text-left">{playing ? 'Pause' : 'Play'}</span>
         </Button>
         <Button
+          size="icon"
           variant="tertiary"
-          size="small"
-          className="min-h-12 gap-2"
           aria-label="Skip from remote"
           onClick={onSkip}
         >
           <SkipIcon aria-hidden="true" className="h-5 w-5" />
-          <span>Skip</span>
         </Button>
       </div>
-      <div className="mt-3">
+      <div className="mt-5">
         <PlaybackProgress
-          size="comfortable"
           disabled={false}
           durationMs={durationMs}
           positionMs={position}

@@ -30,7 +30,10 @@ export function RetroSun({
     <div
       aria-hidden="true"
       data-paused={paused}
-      className="group/sun relative aspect-square w-full"
+      className={classNames(
+        'group/sun relative aspect-square w-full',
+        !animate && 'motion-safe:animate-sun-rise',
+      )}
     >
       <div
         className={classNames(

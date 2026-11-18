@@ -1,7 +1,9 @@
 import type { PlaylistItem } from '@vibes/models';
 import musicNight from '../../assets/product/music-night.svg?no-inline';
 import musicStreetlight from '../../assets/product/music-streetlight.svg?no-inline';
+import musicTrain from '../../assets/product/music-train.svg?no-inline';
 import musicVelvet from '../../assets/product/music-velvet.svg?no-inline';
+import musicWarmup from '../../assets/product/music-warmup.svg?no-inline';
 import watchFilm from '../../assets/product/watch-film.svg?no-inline';
 import watchNight from '../../assets/product/watch-night.svg?no-inline';
 import watchSpace from '../../assets/product/watch-space.svg?no-inline';
@@ -20,7 +22,7 @@ export const queueDemoPlaylistItems: PlaylistItem[] = [1, 2, 3, 4].map(
     ][number - 1],
     publisher: 'Zoff preview',
     duration: 210,
-    thumbnailUrl: [musicVelvet, musicStreetlight, musicNight, musicNight][
+    thumbnailUrl: [musicVelvet, musicStreetlight, musicTrain, musicNight][
       number - 1
     ],
     addedBy: ['Mira', 'Alex', 'Lou', 'Alex'][number - 1],
@@ -29,17 +31,19 @@ export const queueDemoPlaylistItems: PlaylistItem[] = [1, 2, 3, 4].map(
   }),
 );
 
-export const watchDemoPlaylistItems: PlaylistItem[] = queueDemoPlaylistItems
-  .slice(0, 3)
-  .map((item, index) => ({
+export const watchDemoPlaylistItems: PlaylistItem[] =
+  queueDemoPlaylistItems.map((item, index) => ({
     ...item,
     sourceType: 'youtube',
     title: [
       'Beyond the city lights',
       'A little further out',
       'Nowhere to rush',
+      'The long way home',
     ][index],
     publisher: 'Preview film',
-    thumbnailUrl: [watchNight, watchSpace, watchFilm][index],
-    duration: [480, 360, 720][index],
+    thumbnailUrl: [watchNight, watchSpace, watchFilm, watchNight][index],
+    duration: [480, 360, 720, 540][index],
   }));
+
+export const queueDemoOpeningArtwork = musicWarmup;

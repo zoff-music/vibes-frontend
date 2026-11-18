@@ -227,6 +227,53 @@
   }
 }
 
+/* Room scene changes: the old scene steps back and clears before the new one
+   rises in, so the two never sit on top of each other for long. */
+@keyframes scene-out {
+  to {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+@keyframes scene-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(1.01);
+  }
+}
+
+@keyframes room-video-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+/* Entering a room: the room opens as a circle from the click while the page
+   it came from sinks back and dims. */
+@keyframes room-reveal {
+  from {
+    clip-path: circle(0 at var(--reveal-x, 50%) var(--reveal-y, 40%));
+  }
+  to {
+    clip-path: circle(150vmax at var(--reveal-x, 50%) var(--reveal-y, 40%));
+  }
+}
+
+@keyframes scene-recede {
+  to {
+    transform: scale(0.94);
+    filter: brightness(0.45) saturate(1.2);
+  }
+}
+
+@keyframes room-video-out {
+  to {
+    opacity: 0;
+  }
+}
+
 /* Cross-document opt-in must be a stylesheet at-rule, not an element utility. */
 @view-transition {
   navigation: auto;
@@ -389,75 +436,79 @@
     animation: none;
   }
 
-  /* Room/public layouts have different shells. Capture one opaque scene and
-     reveal the destination over it, rather than fading both into the backdrop. */
+  /* Room/public layouts have different shells. Capture each as one scene and
+     hand over between them; only the player surface is shared. */
   &.scene-transition * {
     /* biome-ignore lint/complexity/noImportantStyles: override named snapshot utilities for this navigation only */
     view-transition-name: none !important;
   }
 
-  /* Keep the same video as a shared surface while the surrounding scene fades.
-     The browser animates its captured bounds; the provider iframe stays mounted. */
-  &.scene-transition
-    [data-player-persistent="true"]
-    [data-room-player-surface] {
-    /* biome-ignore lint/complexity/noImportantStyles: opt this shared surface back into scene capture */
+  /* The player always takes part when a room is entered or left: it morphs
+     between the room and the floating player, or zooms in on its own. The
+     browser animates captured bounds; the provider iframe stays mounted. */
+  &.scene-transition [data-room-player-surface] {
+    /* biome-ignore lint/complexity/noImportantStyles: opt the player surface into scene capture */
     view-transition-name: room-video !important;
-  }
-
-  &.scene-transition [data-player-persistent="true"] [data-room-player-header] {
-    /* biome-ignore lint/complexity/noImportantStyles: pair the room toolbar with the floating title bar */
-    view-transition-name: room-player-header !important;
-  }
-
-  &.scene-transition::view-transition-group(room-player-header) {
-    z-index: 51;
-    animation-duration: 440ms;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    overflow: hidden;
-  }
-
-  &.scene-transition::view-transition-old(room-player-header),
-  &.scene-transition::view-transition-new(room-player-header) {
-    width: 100%;
-    height: 100%;
-  }
-
-  &.scene-transition::view-transition-old(room-player-header) {
-    opacity: 1;
-    animation: page-fade-out 220ms ease-out both;
-  }
-
-  &.scene-transition::view-transition-new(room-player-header) {
-    animation: page-fade-in 220ms ease-out both;
   }
 
   &.scene-transition::view-transition-group(room-video) {
     z-index: 50;
-    animation-duration: 440ms;
+    animation-duration: 460ms;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     overflow: hidden;
-    border-radius: 1.5rem;
+    border-radius: 1.25rem;
   }
 
-  &.scene-transition::view-transition-old(room-video) {
-    display: none;
-  }
-
+  /* Crop rather than stretch, so neither snapshot distorts mid-morph. */
+  &.scene-transition::view-transition-old(room-video),
   &.scene-transition::view-transition-new(room-video) {
     width: 100%;
     height: 100%;
-    animation: none;
+    object-fit: cover;
+  }
+
+  &.scene-transition::view-transition-old(room-video) {
     opacity: 1;
+    animation: room-video-out 260ms ease-in 120ms both;
+  }
+
+  &.scene-transition::view-transition-new(room-video) {
+    opacity: 1;
+    animation: page-fade-in 260ms ease-out 60ms both;
+  }
+
+  /* Entering a room with no floating player: the video arrives on its own. */
+  &.scene-transition::view-transition-new(room-video):only-child {
+    animation: room-video-enter 460ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+  }
+
+  /* Leaving without the persistent player: the video simply goes with the room. */
+  &.scene-transition::view-transition-old(room-video):only-child {
+    animation: scene-out 200ms cubic-bezier(0.4, 0, 1, 1) both;
   }
 
   &.scene-transition::view-transition-old(root) {
     opacity: 1;
-    animation: none;
+    animation: scene-out 200ms cubic-bezier(0.4, 0, 1, 1) both;
   }
 
   &.scene-transition::view-transition-new(root) {
-    animation: page-fade-in 260ms ease-in-out both;
+    animation: scene-in 380ms cubic-bezier(0.22, 1, 0.36, 1) 90ms both;
+  }
+
+  &.scene-enter::view-transition-old(root) {
+    opacity: 1;
+    transform-origin: var(--reveal-x, 50%) var(--reveal-y, 40%);
+    animation: scene-recede 700ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  }
+
+  &.scene-enter::view-transition-new(root) {
+    animation: room-reveal 700ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  /* The player sits outside the clipped scene, so it waits for the reveal. */
+  &.scene-enter::view-transition-new(room-video):only-child {
+    animation: room-video-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) 380ms both;
   }
 
   @media (prefers-reduced-motion: reduce) {

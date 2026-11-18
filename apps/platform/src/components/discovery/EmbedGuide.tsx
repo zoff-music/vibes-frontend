@@ -7,12 +7,9 @@ export function EmbedGuide() {
       aria-labelledby="embed-guide-heading"
       className="border-theme scroll-mt-8 border-t py-16 sm:py-24"
     >
-      <p className="font-pixel tracking-label dark:text-secondary text-xs text-cyan-800">
-        EMBED SETUP
-      </p>
       <h2
         id="embed-guide-heading"
-        className="font-pixel mt-4 text-3xl tracking-tight normal-case sm:text-4xl"
+        className="font-pixel text-3xl tracking-tight normal-case sm:text-4xl"
       >
         Put your room on a website.
       </h2>
@@ -21,35 +18,56 @@ export function EmbedGuide() {
         a playlist, or both, then try the controls below.
       </p>
       <EmbedConfigurator />
-      <ol className="mt-10 grid gap-6 sm:grid-cols-3">
-        <li className="border-theme bg-theme-surface rounded-2xl border p-5">
-          <span className="font-pixel text-primary text-xs">01</span>
-          <h3 className="font-pixel mt-3 text-lg tracking-normal normal-case">
-            Open your room
-          </h3>
-          <p className="text-theme-muted mt-2 text-sm leading-relaxed">
-            On a computer, open room settings and choose “Embed player”.
-          </p>
+      <ol className="mt-10 grid gap-6 sm:grid-cols-3 sm:gap-8">
+        <li className="flex gap-3">
+          <span
+            aria-hidden="true"
+            className="font-pixel dark:text-secondary pt-1 text-xs text-cyan-800"
+          >
+            1
+          </span>
+          <div>
+            <h3 className="font-pixel text-lg tracking-normal normal-case">
+              Open your room
+            </h3>
+            <p className="text-theme-muted mt-2 text-sm leading-relaxed">
+              On a computer, open room settings and choose “Embed player”.
+            </p>
+          </div>
         </li>
-        <li className="border-theme bg-theme-surface rounded-2xl border p-5">
-          <span className="font-pixel text-primary text-xs">02</span>
-          <h3 className="font-pixel mt-3 text-lg tracking-normal normal-case">
-            Choose the controls
-          </h3>
-          <p className="text-theme-muted mt-2 text-sm leading-relaxed">
-            Set the layout, voting, skipping and autoplay. Pick a light, dark or
-            automatic theme.
-          </p>
+        <li className="flex gap-3">
+          <span
+            aria-hidden="true"
+            className="font-pixel dark:text-secondary pt-1 text-xs text-cyan-800"
+          >
+            2
+          </span>
+          <div>
+            <h3 className="font-pixel text-lg tracking-normal normal-case">
+              Choose the controls
+            </h3>
+            <p className="text-theme-muted mt-2 text-sm leading-relaxed">
+              Set the layout, voting, skipping and autoplay. Pick a light, dark
+              or automatic theme.
+            </p>
+          </div>
         </li>
-        <li className="border-theme bg-theme-surface rounded-2xl border p-5">
-          <span className="font-pixel text-primary text-xs">03</span>
-          <h3 className="font-pixel mt-3 text-lg tracking-normal normal-case">
-            Paste the code
-          </h3>
-          <p className="text-theme-muted mt-2 text-sm leading-relaxed">
-            Copy it into your site’s HTML or embed block. Visitors follow the
-            same room and its permissions.
-          </p>
+        <li className="flex gap-3">
+          <span
+            aria-hidden="true"
+            className="font-pixel dark:text-secondary pt-1 text-xs text-cyan-800"
+          >
+            3
+          </span>
+          <div>
+            <h3 className="font-pixel text-lg tracking-normal normal-case">
+              Paste the code
+            </h3>
+            <p className="text-theme-muted mt-2 text-sm leading-relaxed">
+              Copy it into your site’s HTML or embed block. Visitors follow the
+              same room and its permissions.
+            </p>
+          </div>
         </li>
       </ol>
     </section>

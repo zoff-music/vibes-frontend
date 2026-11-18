@@ -14,7 +14,6 @@ const ANIMATED_WORDS = [
   'ambient',
   'おと',
   'house',
-  'againagainagain',
   'ゆめ',
   'drumandbass',
   'くうき',
@@ -51,7 +50,16 @@ const AI_PROMPTS = [
   'heavy riffs for an intense gym session',
 ];
 
-const WATCH_WORDS = ['afterhours', 'movieclub', 'one-more-video', 'front-row'];
+const WATCH_WORDS = [
+  'afterhours',
+  'movieclub',
+  'えいが',
+  'one-more-video',
+  'sunday-cinema',
+  'よふかし',
+  'front-row',
+  'docs-night',
+];
 const WATCH_PROMPTS = [
   'beautiful places after dark',
   'short films with a twist',
@@ -71,6 +79,7 @@ export function useAnimatedPlaceholder(
   const [wordIndex, setWordIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(initialPlaceholder.length);
   const [isPaused, setIsPaused] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isBlinkerVisible, setIsBlinkerVisible] = useState(true);
   const isTabVisible = usePageVisibility();
   const reducedMotion = useReducedMotion();
@@ -81,6 +90,17 @@ export function useAnimatedPlaceholder(
       : placeholderText
     : '';
 
+  // Start over with the right list as soon as the experience or mode changes.
+  useEffect(() => {
+    const first = `${(isAIMode ? prompts : words)[0]}...`;
+
+    setPlaceholderText(first);
+    setWordIndex(0);
+    setCharIndex(first.length);
+    setIsDeleting(false);
+    setIsPaused(true);
+  }, [isAIMode, prompts, words]);
+
   useEffect(() => {
     if (!active) {
       return;
@@ -89,16 +109,32 @@ export function useAnimatedPlaceholder(
     const animatedWords = isAIMode ? prompts : words;
     const currentWord = animatedWords[wordIndex % animatedWords.length];
     const fullTarget = `${currentWord}...`;
-    const typingDelay = Math.max(10, Math.floor(700 / fullTarget.length));
+    const typingDelay = Math.max(18, Math.floor(700 / fullTarget.length));
 
     if (isPaused) {
       const timer = window.setTimeout(() => {
         setIsPaused(false);
-        setCharIndex(0);
-        setWordIndex((current) => (current + 1) % animatedWords.length);
+        setIsDeleting(true);
       }, 1600);
 
       return () => window.clearTimeout(timer);
+    }
+
+    // Backspace the shown word before typing the next one.
+    if (isDeleting) {
+      if (charIndex > 0) {
+        const timer = window.setTimeout(() => {
+          setPlaceholderText(fullTarget.substring(0, charIndex - 1));
+          setCharIndex((current) => current - 1);
+        }, 22);
+
+        return () => window.clearTimeout(timer);
+      }
+
+      setIsDeleting(false);
+      setWordIndex((current) => (current + 1) % animatedWords.length);
+
+      return;
     }
 
     if (charIndex < fullTarget.length) {
@@ -111,7 +147,16 @@ export function useAnimatedPlaceholder(
     }
 
     setIsPaused(true);
-  }, [wordIndex, charIndex, isPaused, active, isAIMode, prompts, words]);
+  }, [
+    wordIndex,
+    charIndex,
+    isPaused,
+    isDeleting,
+    active,
+    isAIMode,
+    prompts,
+    words,
+  ]);
 
   useEffect(() => {
     if (!active) {
@@ -137,6 +182,7 @@ export function useAnimatedPlaceholder(
     setPlaceholderText('');
     setWordIndex(0);
     setCharIndex(0);
+    setIsDeleting(false);
     setIsPaused(false);
   }, []);
 

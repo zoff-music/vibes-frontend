@@ -76,25 +76,13 @@ export function useRoomSetup() {
     return () => window.clearInterval(timer);
   }, [cycling, setupId]);
 
-  function selectSetup(id: RoomSetupId) {
-    const setup = roomSetups.find((item) => item.id === id);
-
-    if (!setup) return;
-
+  function changeRule(
+    id: RoomSetupId,
+    key: keyof RoomSetupSettings,
+    checked: boolean,
+  ) {
     setPaused(true);
-
-    setSettings(setup.settings);
     setSetupId(id);
-    cycleElapsed.current = 0;
-    showingAlternate.current = false;
-    setRevision((current) => current + 1);
-    setAnnouncement(
-      `${setup.label} example selected. Change its switch to try a different rule.`,
-    );
-  }
-
-  function updateSetting(key: keyof RoomSetupSettings, checked: boolean) {
-    setPaused(true);
     setSettings((current) => ({ ...current, [key]: checked }));
     cycleElapsed.current = 0;
     showingAlternate.current = key === 'skipAllowed' ? !checked : checked;
@@ -121,8 +109,7 @@ export function useRoomSetup() {
       reducedMotion: reducedMotion === true,
     },
     actions: {
-      selectSetup,
-      updateSetting,
+      changeRule,
       completeAction,
       toggle: () => setPaused((value) => !value),
     },

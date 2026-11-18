@@ -112,33 +112,35 @@ export function CreateRoom() {
             <span className="font-pixel tracking-label text-xs">Back</span>
           </Link>
           <div className="font-pixel text-theme-muted tracking-label text-right text-xs">
-            CREATE A SESSION
+            {roomType === 'WATCH' ? 'NEW WATCH ROOM' : 'NEW MUSIC ROOM'}
           </div>
         </div>
 
         <SiteHero
           id="create-heading"
           title={
-            roomType === 'WATCH' ? 'Create a watch session' : 'Create a session'
+            roomType === 'WATCH' ? 'Create a watch room' : 'Create a music room'
           }
           description={
-            roomType === 'WATCH'
-              ? 'Bring your people. Choose what to watch.'
-              : 'Build a listening room in seconds.'
+            'Name it, pick the rules and share the link. Friends join in their browser or the app.'
           }
         >
-          <p className="jp-art text-theme-subtle mt-2 text-xs" lang="ja">
-            セッションを作成
+          <p className="jp-art text-theme-muted mt-2 text-xs" lang="ja">
+            ルームを作成
           </p>
           <div className="mt-8 grid gap-4 sm:gap-6 lg:grid-cols-2 lg:items-start">
             <div className="space-y-4 sm:space-y-6">
-              {/* 1. SESSION NAME */}
+              {/* 1. ROOM NAME */}
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <label className="font-pixel text-2xs text-theme-muted tracking-label mb-3 block">
-                  SESSION NAME
+                <label
+                  htmlFor="create-room-name"
+                  className="font-pixel text-2xs text-theme-muted tracking-label mb-3 block"
+                >
+                  ROOM NAME
                 </label>
                 <div className="relative">
                   <input
+                    id="create-room-name"
                     name="name"
                     maxLength={roomNameMaxLength}
                     type="text"
@@ -212,6 +214,7 @@ export function CreateRoom() {
                 )}
               >
                 <label
+                  htmlFor="create-room-password"
                   className={classNames(
                     'mb-3 block font-pixel text-2xs tracking-label transition-colors',
                     wobblePassword
@@ -223,7 +226,9 @@ export function CreateRoom() {
                   <span className="text-theme-subtle ml-2">(optional)</span>
                 </label>
                 <input
+                  id="create-room-password"
                   name="password"
+                  autoComplete="new-password"
                   type="password"
                   placeholder="For room control"
                   value={password}
@@ -252,10 +257,16 @@ export function CreateRoom() {
 
               {/* 3. ALLOWED SOURCES */}
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <label className="font-pixel text-2xs text-theme-muted tracking-label mb-4 block">
+                <p
+                  id="create-room-sources"
+                  className="font-pixel text-2xs text-theme-muted tracking-label mb-4 block"
+                >
                   ALLOWED SOURCES
-                </label>
-                <div className="flex gap-2">
+                </p>
+                <fieldset
+                  aria-labelledby="create-room-sources"
+                  className="m-0 flex min-w-0 gap-2 border-0 p-0"
+                >
                   {providerOptions
                     .filter(({ id }) => loaderData.providers?.includes(id))
                     .map(({ id, Icon, variant }) => {
@@ -270,20 +281,29 @@ export function CreateRoom() {
                           aria-pressed={isEnabled}
                           className="h-10 w-full flex-1"
                           title={`${isEnabled ? 'Disable' : 'Enable'} ${id}`}
+                          aria-label={
+                            id === 'soundcloud' ? 'SoundCloud' : 'YouTube'
+                          }
                         >
                           <Icon className="h-5 w-5" />
                         </Button>
                       );
                     })}
-                </div>
+                </fieldset>
               </div>
 
               {/* 4. ROOM MODE */}
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <label className="font-pixel text-2xs text-theme-muted tracking-label mb-4 block">
+                <p
+                  id="create-room-mode"
+                  className="font-pixel text-2xs text-theme-muted tracking-label mb-4 block"
+                >
                   ROOM MODE
-                </label>
-                <div className="grid gap-4 sm:grid-cols-2">
+                </p>
+                <fieldset
+                  aria-labelledby="create-room-mode"
+                  className="m-0 grid min-w-0 gap-4 border-0 p-0 sm:grid-cols-2"
+                >
                   <Button
                     type="button"
                     onClick={() => setMode('server')}
@@ -314,20 +334,21 @@ export function CreateRoom() {
                       Host controls playback for parties.
                     </div>
                   </Button>
-                </div>
+                </fieldset>
               </div>
             </div>
 
             <div className="space-y-4 sm:space-y-6">
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <div className="mb-6">
+                <div className="mb-2">
                   <h2 className="font-pixel text-caption text-theme-muted tracking-banner">
                     PLAYBACK SETTINGS
                   </h2>
                 </div>
 
-                <div className="space-y-4">
+                <div className="[&>*+*]:border-theme flex flex-col [&>*]:py-3.5 [&>*+*]:border-t">
                   <SegmentedToggle
+                    variant="plain-full"
                     label="ADMINS ONLY SKIP"
                     description={
                       roomType === 'WATCH'
@@ -341,6 +362,7 @@ export function CreateRoom() {
                   />
 
                   <SegmentedToggle
+                    variant="plain-full"
                     name="democraticSkip"
                     label="DEMOCRATIC SKIP"
                     description="Require votes to skip"
@@ -351,6 +373,7 @@ export function CreateRoom() {
                   />
 
                   <SegmentedToggle
+                    variant="plain-full"
                     name="removeOnPlay"
                     label="REMOVE PLAYED"
                     description="Removed after play"
@@ -361,6 +384,7 @@ export function CreateRoom() {
                   />
 
                   <SegmentedToggle
+                    variant="plain-full"
                     name="allowDuplicates"
                     label="ALLOW DUPLICATES"
                     description={
@@ -375,6 +399,7 @@ export function CreateRoom() {
                   />
 
                   <SegmentedToggle
+                    variant="plain-full"
                     name="onlyAdminAddPlaylistItems"
                     label="ADMINS ONLY ADD"
                     description={
@@ -399,6 +424,7 @@ export function CreateRoom() {
                   />
 
                   <SegmentedToggle
+                    variant="plain-full"
                     name="playlistImport"
                     label="PLAYLIST IMPORT"
                     description="Allow adding playlists from links"
@@ -411,10 +437,11 @@ export function CreateRoom() {
               </div>
 
               <div className="panel-surface rounded-3xl p-4 sm:p-6">
-                <h2 className="font-pixel text-caption text-theme-muted tracking-banner mb-6">
+                <h2 className="font-pixel text-caption text-theme-muted tracking-banner mb-4">
                   VISIBILITY
                 </h2>
                 <SegmentedToggle
+                  variant="plain-full"
                   name="public"
                   label="PUBLIC"
                   description={publicRoomDescription}
@@ -457,7 +484,7 @@ export function CreateRoom() {
             )}
             {!isCreating && (
               <>
-                <span>Start Session</span>
+                <span>Start room</span>
                 <ArrowRightIcon className="h-5 w-5" />
               </>
             )}
