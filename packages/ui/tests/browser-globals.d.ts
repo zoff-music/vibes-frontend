@@ -4,7 +4,7 @@ declare global {
   interface Window {
     transitions: typeof transitions;
     start: (persistent: boolean) => void;
-    minimize: (enabled: boolean) => void;
+    minimize: (enabled: boolean, minimized?: boolean) => void;
     surface: Element | null;
     renderRoom: (minimized: boolean) => void;
     closeRoom: () => void;

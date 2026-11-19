@@ -626,8 +626,9 @@ export const RoomPlayer = React.memo(
 
         {/* Player - Reserve height to prevent CLS */}
         <div
+          data-player-viewport
           className={classNames(
-            'crt-frame backdrop-filter-none! relative isolate flex min-h-player-min w-full overflow-hidden rounded-player bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
+            'border-theme relative isolate flex min-h-player-min w-full origin-top-left overflow-hidden rounded-player border bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
             minimized && '!aspect-video !min-h-[202px] !rounded-2xl',
           )}
         >

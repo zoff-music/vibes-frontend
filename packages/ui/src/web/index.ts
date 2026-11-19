@@ -63,5 +63,6 @@ export {
   enterSceneViewTransition,
   immediateViewTransition,
   pageViewTransition,
+  playerViewTransition,
   sceneViewTransition,
 } from './routeTransition';

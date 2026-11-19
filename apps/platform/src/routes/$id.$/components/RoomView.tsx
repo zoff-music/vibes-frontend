@@ -91,7 +91,6 @@ export function RoomView({
     handleGenerationStarted,
     handleShareRoom,
     handleJoinAdmin,
-    handleLeave,
     roomEntryInitial,
   } = useRoomView(initialData, minimized);
 
@@ -172,13 +171,13 @@ export function RoomView({
               onAdminPasswordChange={setAdminPassword}
               onJoinAdmin={handleJoinAdmin}
               isAuthenticating={isAuthenticating}
-              onLeave={handleLeave}
               providers={loaderData.providers}
             />
           )}
 
           <div
             key="room-content"
+            data-room-content
             className="min-h-0 min-w-0 flex-1 overflow-visible lg:overflow-hidden"
           >
             {showGenerationProgress && (

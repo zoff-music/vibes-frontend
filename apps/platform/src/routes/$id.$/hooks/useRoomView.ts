@@ -370,17 +370,6 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
       },
     );
   }, [adminFetcher, adminPassword, id]);
-  const handleLeave = useCallback(() => {
-    navigate(
-      displayRoom.roomType === 'WATCH' ? '/features/watch' : '/features/music',
-      {
-        state: {
-          fromRoom: true,
-        },
-      },
-    );
-  }, [navigate, displayRoom.roomType]);
-
   useLayoutEffect(() => {
     setIsSSR(false);
     setRoom(loaderData.room);
@@ -569,7 +558,6 @@ export function useRoomView(loaderData: RoomLoaderData, minimized = false) {
     handleGenerationStarted,
     handleShareRoom,
     handleJoinAdmin,
-    handleLeave,
     roomEntryInitial,
   };
 }
