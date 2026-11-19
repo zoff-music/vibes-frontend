@@ -3,8 +3,10 @@ import {
   enterSceneViewTransition,
   immediateViewTransition,
   pageViewTransition,
+  playerViewTransition,
   sceneViewTransition,
 } from '@vibes/ui/web';
+import { usePersistentPlayerStore } from '../stores/persistentPlayerStore';
 import { shouldTransitionPage } from './viewTransitionPolicy';
 
 export const viewTransition: NonNullable<RouteModule['viewTransition']> = (
@@ -12,6 +14,16 @@ export const viewTransition: NonNullable<RouteModule['viewTransition']> = (
   previous,
   next,
 ) => {
+  const { enabled, activeRoomId } = usePersistentPlayerStore.getState();
+  const leavingPlayer = previous.path === '/:id/*' && next.path !== '/:id/*';
+  const restoringPlayer =
+    previous.path !== '/:id/*' &&
+    next.path === '/:id/*' &&
+    next.params.id === activeRoomId;
+  if (enabled && activeRoomId && (leavingPlayer || restoringPlayer)) {
+    playerViewTransition(commit, previous, next);
+    return;
+  }
   if (!shouldTransitionPage(previous, next)) {
     immediateViewTransition(commit, previous, next);
     return;

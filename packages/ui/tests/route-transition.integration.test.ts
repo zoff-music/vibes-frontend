@@ -28,6 +28,7 @@ test('route transitions hand off documents without starting a same-document capt
   for (const handler of [
     'pageViewTransition',
     'sceneViewTransition',
+    'playerViewTransition',
     'immediateViewTransition',
   ] as const) {
     for (const reducedMotion of ['no-preference', 'reduce'] as const) {
@@ -69,6 +70,25 @@ test('route transitions hand off documents without starting a same-document capt
       }
     }
   }
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const player = await page.evaluate(() => {
+    let commits = 0;
+    let captures = 0;
+    document.startViewTransition = () => {
+      captures += 1;
+      throw new Error('Reduced motion must skip capture');
+    };
+    window.transitions.playerViewTransition(
+      () => {
+        commits += 1;
+      },
+      { url: 'https://zoff.me/room', loaded: true, params: {}, state: 'idle' },
+      { url: 'https://zoff.me/features/music', params: {}, state: 'loading' },
+    );
+    return { commits, captures };
+  });
+  assert.deepEqual(player, { commits: 1, captures: 0 });
 
   // Hydration commits immediately, preserving the incoming browser transition.
   await page.emulateMedia({ reducedMotion: 'no-preference' });

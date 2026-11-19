@@ -16,7 +16,12 @@ if (typeof window !== 'undefined') {
 }
 
 function clearSceneClasses() {
-  document.documentElement.classList.remove('scene-transition', 'scene-enter');
+  document.documentElement.classList.remove(
+    'scene-transition',
+    'scene-enter',
+    'scene-player',
+  );
+  document.documentElement.style.removeProperty('--player-flight-from');
 }
 
 function resetTransition() {
@@ -41,6 +46,13 @@ function setRevealOrigin() {
     }
   }
 
+  const radius = Math.ceil(
+    Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y),
+    ),
+  );
+  root.style.setProperty('--reveal-radius', `${radius}px`);
   root.style.setProperty('--reveal-x', `${Math.round(x)}px`);
   root.style.setProperty('--reveal-y', `${Math.round(y)}px`);
 }
@@ -64,8 +76,7 @@ function runTransition(
   commit: Parameters<RouteTransition>[0],
   previous: Parameters<RouteTransition>[1],
   next: Parameters<RouteTransition>[2],
-  scene: boolean,
-  enter = false,
+  mode: 'page' | 'scene' | 'enter' | 'player',
 ) {
   resetTransition();
   if (next.leaving) {
@@ -86,8 +97,12 @@ function runTransition(
     return;
   }
 
-  document.documentElement.classList.toggle('scene-transition', scene);
-  if (enter) {
+  document.documentElement.classList.toggle(
+    'scene-transition',
+    mode !== 'page',
+  );
+  document.documentElement.classList.toggle('scene-player', mode === 'player');
+  if (mode === 'enter' || mode === 'player') {
     setRevealOrigin();
     document.documentElement.classList.add('scene-enter');
   }
@@ -100,9 +115,17 @@ function runTransition(
     return;
   }
   activeTransition = transition;
+  const motionPreference = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  );
+  const onMotionChange = () => {
+    if (motionPreference.matches) transition.skipTransition();
+  };
+  motionPreference.addEventListener('change', onMotionChange);
   // Superseded captures and unsupported snapshot surfaces may reject readiness.
   void safeWrapAsync(transition.ready);
   void safeWrapAsync(transition.finished).then(() => {
+    motionPreference.removeEventListener('change', onMotionChange);
     if (activeTransition === transition) {
       activeTransition = undefined;
       clearSceneClasses();
@@ -111,18 +134,21 @@ function runTransition(
 }
 
 export const pageViewTransition: RouteTransition = (commit, previous, next) =>
-  runTransition(commit, previous, next, false);
+  runTransition(commit, previous, next, 'page');
 
 /** A single composite avoids independently fading incompatible page shells. */
 export const sceneViewTransition: RouteTransition = (commit, previous, next) =>
-  runTransition(commit, previous, next, true);
+  runTransition(commit, previous, next, 'scene');
 
 /** Entering a room: the room opens out from where the person clicked. */
 export const enterSceneViewTransition: RouteTransition = (
   commit,
   previous,
   next,
-) => runTransition(commit, previous, next, true, true);
+) => runTransition(commit, previous, next, 'enter');
+
+export const playerViewTransition: RouteTransition = (commit, previous, next) =>
+  runTransition(commit, previous, next, 'player');
 
 /** Panels and custom scene animations commit without a document snapshot. */
 export const immediateViewTransition: NonNullable<

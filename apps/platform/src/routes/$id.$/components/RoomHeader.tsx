@@ -10,7 +10,6 @@ import {
   ArrowLeftIcon,
   CastIcon,
   ExplicitBadge,
-  IconButton,
   IconLinkButton,
   SettingsIcon,
   ShareIcon,
@@ -95,7 +94,6 @@ interface RoomHeaderProps {
   onAdminPasswordChange: (value: string) => void;
   onJoinAdmin: () => void;
   isAuthenticating: boolean;
-  onLeave: () => void;
   providers: Providers;
 }
 
@@ -124,7 +122,6 @@ export const RoomHeader = React.memo(
     onAdminPasswordChange,
     onJoinAdmin,
     isAuthenticating,
-    onLeave,
     providers,
   }: RoomHeaderProps) => {
     const { href } = useRoomPanel();
@@ -200,18 +197,25 @@ export const RoomHeader = React.memo(
       >
         <div
           data-room-player-header
-          className="border-theme bg-theme-surface w-full rounded-full border p-1 shadow-lg"
+          className="border-theme bg-theme-surface w-full rounded-full border p-1 shadow-sm"
         >
           <div className="relative grid min-w-0 grid-cols-[1fr_minmax(0,1fr)_1fr] items-center gap-1">
-            <IconButton
+            <IconLinkButton
               className="group justify-self-start"
-              onClick={onLeave}
+              to={
+                displayRoom?.roomType === 'WATCH'
+                  ? '/features/watch'
+                  : '/features/music'
+              }
+              state={{ fromRoom: true }}
+              prefetch="intent"
+              prefetchData
               variant="ghost"
               aria-label="Leave room"
               title="Leave room"
             >
               <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            </IconButton>
+            </IconLinkButton>
 
             <div className="flex min-w-0 flex-wrap items-center justify-center gap-1 px-1 text-center">
               <h1

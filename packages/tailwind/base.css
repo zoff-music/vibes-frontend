@@ -243,6 +243,15 @@
   }
 }
 
+@keyframes player-flight {
+  from {
+    transform: var(--player-flight-from, none);
+  }
+  to {
+    transform: none;
+  }
+}
+
 @keyframes room-video-enter {
   from {
     opacity: 0;
@@ -250,21 +259,15 @@
   }
 }
 
-/* Entering a room: the room opens as a circle from the click while the page
-   it came from sinks back and dims. */
+/* Reveal from the control to the farthest corner of the viewport. */
 @keyframes room-reveal {
   from {
-    clip-path: circle(0 at var(--reveal-x, 50%) var(--reveal-y, 40%));
+    clip-path: circle(12px at var(--reveal-x, 50%) var(--reveal-y, 40%));
   }
   to {
-    clip-path: circle(150vmax at var(--reveal-x, 50%) var(--reveal-y, 40%));
-  }
-}
-
-@keyframes scene-recede {
-  to {
-    transform: scale(0.94);
-    filter: brightness(0.45) saturate(1.2);
+    clip-path: circle(
+      var(--reveal-radius, 150vmax) at var(--reveal-x, 50%) var(--reveal-y, 40%)
+    );
   }
 }
 
@@ -353,6 +356,17 @@
     border-radius: 9999px;
     background-color: --theme(--color-primary);
   }
+}
+
+/* Let the returning live video cross the room grid until it lands. */
+[data-player-in-flight][data-minimized="false"]
+  :is(.room-entry, section[role="main"], [data-room-content]) {
+  overflow: visible;
+}
+
+[data-player-in-flight] [data-room-player-surface] {
+  position: relative;
+  z-index: 40;
 }
 
 @utility page-transitions {
@@ -446,7 +460,9 @@
   /* The player always takes part when a room is entered or left: it morphs
      between the room and the floating player, or zooms in on its own. The
      browser animates captured bounds; the provider iframe stays mounted. */
-  &.scene-transition [data-room-player-surface] {
+  &.scene-transition:not(.scene-player) [data-room-player-surface],
+  &.scene-player [data-minimized="true"],
+  &.scene-player [data-minimized="false"] [data-player-viewport] {
     /* biome-ignore lint/complexity/noImportantStyles: opt the player surface into scene capture */
     view-transition-name: room-video !important;
   }
@@ -498,20 +514,42 @@
 
   &.scene-enter::view-transition-old(root) {
     opacity: 1;
-    transform-origin: var(--reveal-x, 50%) var(--reveal-y, 40%);
-    animation: scene-recede 700ms cubic-bezier(0.33, 1, 0.68, 1) both;
+    animation: none;
   }
 
   &.scene-enter::view-transition-new(root) {
-    animation: room-reveal 700ms cubic-bezier(0.65, 0, 0.35, 1) both;
+    animation: room-reveal 300ms cubic-bezier(0.2, 0.65, 0.35, 1) both;
   }
 
-  /* The player sits outside the clipped scene, so it waits for the reveal. */
+  &.scene-enter::view-transition-group(room-video) {
+    animation-duration: 300ms;
+  }
+
   &.scene-enter::view-transition-new(room-video):only-child {
-    animation: room-video-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) 380ms both;
+    animation: room-video-enter 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Keep the video at its destination resolution throughout the flight. */
+  &.scene-player::view-transition-group(room-video) {
+    animation: none;
+    overflow: visible;
+  }
+
+  &.scene-player::view-transition-image-pair(room-video) {
+    transform-origin: top left;
+    animation: player-flight 260ms cubic-bezier(0.22, 0.75, 0.25, 1) both;
+  }
+
+  &.scene-player::view-transition-old(room-video) {
+    display: none;
+  }
+
+  &.scene-player::view-transition-new(room-video) {
+    animation: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
+    &::view-transition-image-pair(*),
     &::view-transition-group(*),
     &::view-transition-old(*),
     &::view-transition-new(*) {
