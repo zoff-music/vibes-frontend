@@ -30,33 +30,28 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
   const visibleRooms =
     rooms ?? (recent ? history.map((room) => ({ ...room, roomType })) : []);
 
+  const recentEmptyMessage = history.length
+    ? 'Your recent rooms are no longer available. Join a room to add it here.'
+    : `Join a ${roomType === 'WATCH' ? 'Watch' : 'Music'} room to see it here.`;
+
   return (
     <section aria-label="Rooms" className="mt-6">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        {initial.history.length > 0 && (
-          <SegmentedControl
-            label="Rooms to show"
-            value={selected}
-            options={[
-              { value: 'public', label: 'Public rooms' },
-              { value: 'recent', label: 'Recent rooms' },
-            ]}
-            onChange={(value) => {
-              if (value !== 'public' && value !== 'recent') return;
-              if (value === selected) return;
-              setSelected(value);
-              saveRoomDiscoveryTab(value, roomType);
-              void fetcher.load(
-                `/resources/rooms?tab=${value}&type=${roomType}`,
-              );
-            }}
-          />
-        )}
-        {initial.history.length === 0 && (
-          <h2 className="font-pixel text-theme-muted text-sm tracking-normal normal-case">
-            Public rooms
-          </h2>
-        )}
+        <SegmentedControl
+          label="Rooms to show"
+          value={selected}
+          options={[
+            { value: 'public', label: 'Public rooms' },
+            { value: 'recent', label: 'Recent rooms' },
+          ]}
+          onChange={(value) => {
+            if (value !== 'public' && value !== 'recent') return;
+            if (value === selected) return;
+            setSelected(value);
+            saveRoomDiscoveryTab(value, roomType);
+            void fetcher.load(`/resources/rooms?tab=${value}&type=${roomType}`);
+          }}
+        />
         <LinkButton
           prefetch="intent"
           to={
@@ -97,7 +92,7 @@ export function RoomDiscovery({ initial, onJoinRoom }: RoomDiscoveryProps) {
         {visibleRooms.length === 0 && !unavailable && (
           <p className="text-theme-muted text-sm">
             {recent
-              ? 'Your recent rooms are no longer available. Join a room to add it here.'
+              ? recentEmptyMessage
               : 'No public rooms are live right now. Browse all rooms or start your own.'}
           </p>
         )}

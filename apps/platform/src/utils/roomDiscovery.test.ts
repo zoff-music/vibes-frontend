@@ -24,7 +24,7 @@ test('explicit selections survive reloads even when the chosen list is empty', (
   );
   assert.equal(
     selectRoomDiscoveryTab('zoff-room-tab-music=recent', false, true, 'MUSIC'),
-    'public',
+    'recent',
   );
   assert.equal(
     selectRoomDiscoveryTab('zoff-room-tab-music=invalid', true, false, 'MUSIC'),

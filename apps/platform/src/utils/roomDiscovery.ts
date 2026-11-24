@@ -24,9 +24,8 @@ export function selectRoomDiscoveryTab(
     .map((part) => part.trim())
     .find((part) => part.startsWith(`${cookieName}=`))
     ?.slice(cookieName.length + 1);
-  if (!hasHistory) return 'public';
   if (preference === 'public' || preference === 'recent') return preference;
-  return hasPublicRooms ? 'public' : 'recent';
+  return hasHistory && !hasPublicRooms ? 'recent' : 'public';
 }
 
 export function saveRoomDiscoveryTab(
