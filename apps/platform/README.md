@@ -147,7 +147,8 @@ Chat subscriptions and unread counts remain outside both deferred dialogs.
 ### Room discovery tabs
 
 The homepage has one room section with Public rooms and Recent rooms selectors.
-Recent rooms appears only when the browser has room history. Without a saved
+Both selectors are visible on Music and Watch from the first visit. Each lists only
+rooms of the selected experience. Without a saved
 selection, empty public results select Recent when history exists. Explicit
 selections persist in a same-site cookie, including selecting empty public
 results. Private and public visits share the same newest-first history, capped
