@@ -23,7 +23,7 @@ export function PrivacyPolicyContent({
     <LegalDocument
       description="This policy explains data processing in Zoff Music and Watch rooms, including providers, shared queues, chat, AI playlist generation, and room-name moderation."
       title="Privacy Policy"
-      updatedAt="10 November 2026"
+      updatedAt="26 November 2026"
     >
       <LegalSection id="policy-1-who-operates-zoff" title="Who operates Zoff">
         <p>
@@ -103,6 +103,34 @@ export function PrivacyPolicyContent({
             Provider-specific processing and terms are described below only when
             that integration is available.
           </p>
+
+          <LegalSubsection title="Importing a private playlist">
+            <p>
+              When you paste a playlist link, Zoff first asks the provider for
+              its contents using public access. If the provider restricts
+              access, you can sign in with the account that can open the
+              playlist. For YouTube, Zoff requests read-only access to your
+              YouTube account to read the playlist you selected.
+            </p>
+            <p>
+              Zoff temporarily stores the provider access token on its server.
+              When the import resumes, Zoff deletes the stored token and uses it
+              in memory to read the playlist for your preview. Unused import
+              authorizations expire within five minutes and are cleaned up
+              automatically. Zoff does not retain a refresh token for imports.
+            </p>
+            <p>
+              When you add the playlist, other people in the room can see the
+              eligible items and their order in the shared queue, including
+              titles, creator names and artwork. The original playlist keeps its
+              privacy setting. Removing Zoff from your{' '}
+              <LegalLink href="https://myaccount.google.com/connections">
+                Google Account connections
+              </LegalLink>{' '}
+              revokes Google access. Items already added to a room remain in its
+              queue until removed.
+            </p>
+          </LegalSubsection>
 
           {hasYouTube && (
             <LegalSubsection title="YouTube">
