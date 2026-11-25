@@ -100,9 +100,7 @@ export function YouTubeErrorOverlay({
           <div className="space-y-2">
             <h3 className="font-medium">What you can try</h3>
             <ul className="text-theme-muted list-disc space-y-2 pl-5 text-sm leading-relaxed">
-              <li>
-                Open the video on YouTube to watch it outside Zoff.
-              </li>
+              <li>Open the video on YouTube to watch it outside Zoff.</li>
               <li>
                 Try this room in an up-to-date browser on your phone or
                 computer.
