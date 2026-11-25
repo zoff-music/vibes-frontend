@@ -87,12 +87,18 @@ export function createProviderItemRequest(client: ApiClient) {
 export function playlistAuthorizationUrl(
   provider: SourceType,
   source: string,
+  flow: { channel: string } | { challenge: string },
   baseUrl = API_BASE_URL,
-  channel?: string,
 ) {
   const url = new URL(`${baseUrl}/authorizations/${provider}`);
   url.searchParams.set('playlist', source);
-  if (channel) url.searchParams.set('channel', channel);
+  if ('channel' in flow) {
+    url.searchParams.set('flow', 'web');
+    url.searchParams.set('channel', flow.channel);
+  } else {
+    url.searchParams.set('flow', 'native');
+    url.searchParams.set('challenge', flow.challenge);
+  }
   return url.toString();
 }
 
@@ -101,13 +107,13 @@ export function createProviderPlaylistRequest(client: ApiClient) {
     provider: SourceType,
     source: string,
     roomType: RoomType,
-    options?: ApiRequestOptions & { importCode?: string },
+    options?: ApiRequestOptions & { playlistAuthorization?: string },
   ): ApiResult<ProviderPlaylist> => {
     const request = {
       signal: options?.signal,
       timeout: 120_000,
-      ...(options?.importCode && {
-        headers: { 'X-Playlist-Code': options.importCode },
+      ...(options?.playlistAuthorization && {
+        headers: { 'X-Playlist-Authorization': options.playlistAuthorization },
         retry: 0,
         cacheRequest: false,
       }),

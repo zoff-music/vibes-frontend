@@ -15,8 +15,14 @@ import {
 } from '@vibes/shared';
 import { useMutation, useRequest } from '@vibes/shared/use-request';
 import { getRoomLabels } from '@vibes/ui/shared';
-import { useEffect, useState } from 'react';
-import { Keyboard, Linking } from 'react-native';
+import {
+  CryptoDigestAlgorithm,
+  digestStringAsync,
+  randomUUID,
+} from 'expo-crypto';
+import { openAuthSessionAsync } from 'expo-web-browser';
+import { useEffect, useRef, useState } from 'react';
+import { Keyboard } from 'react-native';
 import { useToast } from '@/components/toast';
 import { apiUrl } from '@/lib/api';
 import { mobileProviders } from '@/lib/mobile-content';
@@ -44,7 +50,6 @@ interface UseProviderSearchOptions {
 
 interface ProviderSearchActions {
   authenticate: () => Promise<void>;
-  setImportCode: (value: string) => void;
   add: (result: ProviderItem) => Promise<void>;
   addPlaylist: () => Promise<void>;
   search: () => Promise<void>;
@@ -55,7 +60,6 @@ interface ProviderSearchActions {
 
 interface ProviderSearchState {
   authenticationRequired: boolean;
-  importCode: string;
   enabledProviders: SourceType[];
   error: string;
   isAIMode: boolean;
@@ -90,22 +94,13 @@ export function useProviderSearch({
   const [results, setResults] = useState<ProviderItem[]>([]);
   const [playlist, setPlaylist] = useState<ProviderPlaylist | null>(null);
   const [authenticationRequired, setAuthenticationRequired] = useState(false);
-  const [importCode, setImportCode] = useState('');
-  const authenticate = async () => {
-    const link = parseProviderPlaylistLink(query);
-    const source = link?.sourceId ?? link?.providerUrl;
-    if (!link || !source) return;
-    const [openError] = await safeWrapAsync(
-      Linking.openURL(
-        playlistAuthorizationUrl(
-          link.provider,
-          source,
-          `${apiUrl.replace(/\/$/, '')}/api/v1`,
-        ),
-      ),
-    );
-    if (openError) setError('Could not open the provider sign-in page.');
-  };
+  const authAttempt = useRef('');
+  useEffect(
+    () => () => {
+      authAttempt.current = '';
+    },
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
@@ -138,7 +133,7 @@ export function useProviderSearch({
 
   const updateQuery = (nextQuery: string) => {
     setAuthenticationRequired(false);
-    setImportCode('');
+    authAttempt.current = '';
     setQuery(
       isAIMode
         ? nextQuery.slice(0, generatedPlaylistPromptMaxLength)
@@ -156,7 +151,7 @@ export function useProviderSearch({
     }
 
     setAuthenticationRequired(false);
-    setImportCode('');
+    authAttempt.current = '';
     setIsAIMode((current) => !current);
     setQuery('');
     setResults([]);
@@ -208,7 +203,7 @@ export function useProviderSearch({
     onClose();
   };
 
-  const search = async () => {
+  const search = async (playlistAuthorization = '') => {
     if (isAIMode) {
       await generate();
 
@@ -257,7 +252,7 @@ export function useProviderSearch({
         id: targetRoomId,
         provider,
         query: trimmedQuery,
-        importCode: importCode.trim(),
+        playlistAuthorization,
         ...(remoteCredentials ?? {}),
       },
     });
@@ -270,10 +265,52 @@ export function useProviderSearch({
     }
 
     setAuthenticationRequired(Boolean(result.data.authenticationRequired));
-    setImportCode('');
+    authAttempt.current = '';
     setProvider(result.data.provider);
     setPlaylist(result.data.playlist);
     setResults(result.data.results);
+  };
+
+  const authenticate = async () => {
+    const link = parseProviderPlaylistLink(query);
+    const source = link?.sourceId ?? link?.providerUrl;
+    if (!link || !source || loading) return;
+    const verifier = randomUUID();
+    authAttempt.current = verifier;
+    setLoading(true);
+    const [authError, result] = await safeWrapAsync(
+      (async () => {
+        const challenge = await digestStringAsync(
+          CryptoDigestAlgorithm.SHA256,
+          verifier,
+        );
+        return openAuthSessionAsync(
+          playlistAuthorizationUrl(
+            link.provider,
+            source,
+            { challenge },
+            `${apiUrl.replace(/\/$/, '')}/api/v1`,
+          ),
+          'zoff://playlist-import',
+        );
+      })(),
+    );
+    setLoading(false);
+    if (authAttempt.current !== verifier) return;
+    authAttempt.current = '';
+    if (authError) {
+      setError('Could not open the provider sign-in page.');
+      return;
+    }
+    if (result?.type !== 'success') return;
+    const receipt = /^zoff:\/\/playlist-import#([a-zA-Z0-9_-]{24})$/.exec(
+      result.url,
+    )?.[1];
+    if (!receipt) {
+      setError('Playlist sign-in was cancelled.');
+      return;
+    }
+    await search(`${receipt}.${verifier}`);
   };
 
   const add = async (result: ProviderItem) => {
@@ -364,7 +401,6 @@ export function useProviderSearch({
   return [
     {
       authenticationRequired,
-      importCode,
       enabledProviders,
       error,
       isAIMode,
@@ -376,7 +412,6 @@ export function useProviderSearch({
     },
     {
       authenticate,
-      setImportCode,
       add,
       addPlaylist,
       search,
