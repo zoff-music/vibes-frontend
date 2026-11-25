@@ -281,3 +281,42 @@ test.concurrent.for([
     assert.deepEqual(errors, []);
   },
 );
+
+test.concurrent.for(['youtube', 'soundcloud'] as const)(
+  'loads the next %s item silently while paused and restores its volume',
+  async (provider, { onTestFinished }) => {
+    const page = await browser.newPage();
+    onTestFinished(() => page.close());
+    await page.route('https://**/*', (route) => route.abort());
+    await page.goto(`${origin}?server&sequence=${provider},${provider}`);
+    const prompt = page.getByRole('button', { name: 'Click to play' });
+    await prompt.waitFor();
+    await page.evaluate(() => {
+      window.playerTest.faults.blocked = false;
+    });
+    await prompt.click();
+    await page.waitForFunction(
+      (provider) => !window.playerTest.sample(provider).paused,
+      provider,
+    );
+    await page.getByRole('button', { name: 'Pause', exact: true }).click();
+    await page.waitForFunction(
+      (provider) => window.playerTest.sample(provider).paused,
+      provider,
+    );
+    await page.getByRole('button', { name: 'Skip', exact: true }).click();
+    await page.waitForFunction((provider) => {
+      const item = window.playerTest.sample(provider);
+      return item.id === '102' && item.paused && !item.muted && item.volume > 0;
+    }, provider);
+    assert.equal(
+      await page.evaluate(() => window.playerTest.faults.audibleLoads),
+      0,
+    );
+    await page.getByRole('button', { name: 'Resume', exact: true }).click();
+    await page.waitForFunction((provider) => {
+      const item = window.playerTest.sample(provider);
+      return !item.paused && !item.muted && item.volume > 0;
+    }, provider);
+  },
+);

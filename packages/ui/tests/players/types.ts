@@ -30,7 +30,12 @@ export interface PlayerState {
 
 export interface PlayerTest {
   sample: (provider: Provider) => Snapshot;
-  faults: { blocked: boolean; loadingPauseCalls: number; seeks: number };
+  faults: {
+    audibleLoads: number;
+    blocked: boolean;
+    loadingPauseCalls: number;
+    seeks: number;
+  };
   finish: () => void;
   ends: () => number;
   index: () => number;

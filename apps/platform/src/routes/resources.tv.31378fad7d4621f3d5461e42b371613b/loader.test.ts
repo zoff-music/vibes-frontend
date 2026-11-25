@@ -38,6 +38,13 @@ test('hosted TV player serves only a static official iframe and a hashed stylesh
   assert.doesNotMatch(html, /<script|127\.0\.0\.1|localhost|<style/);
 });
 
+test('a paused TV session loads its video with autoplay disabled', async () => {
+  const response = await handle(
+    new Request(`${origin}${TV_PLAYER_PATH}?video=M7lc1UVf-VE&autoplay=0`),
+  );
+  assert.match(await response.text(), /embed\/M7lc1UVf-VE\?autoplay=0&amp;/);
+});
+
 test('player route rejects invalid or repeated input without reflecting it into HTML', async () => {
   const queries = [
     '',

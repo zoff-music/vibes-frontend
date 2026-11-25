@@ -164,6 +164,26 @@ const VideoPlayerSession = ({
   const [playerState, setPlayerState] = useState(YOUTUBE_STATE_UNSTARTED);
   const [hasPlayed, setHasPlayed] = useState(false);
 
+  const loadVideo = useCallback(
+    (
+      player: YouTubePlayerRef,
+      id: string,
+      startSeconds: number,
+      pauseAfterLoad: boolean,
+    ) => {
+      pauseAfterLoadVideoIdRef.current = pauseAfterLoad ? id : null;
+      if (pauseAfterLoad) {
+        player.mute();
+        setIsMutedState(true);
+      }
+      expectedPlayingStateRef.current = !pauseAfterLoad;
+      pendingVideoIdRef.current = id;
+      player.loadVideoById(id, startSeconds);
+      lastLoadedVideoIdRef.current = id;
+    },
+    [],
+  );
+
   useEffect(() => {
     if (playerState === YOUTUBE_STATE_PLAYING) setHasPlayed(true);
   }, [playerState]);
@@ -209,7 +229,7 @@ const VideoPlayerSession = ({
         claimProviderPlayback('youtube');
         const player = playerRef.current;
 
-        if (!player) return;
+        if (!player || pauseAfterLoadVideoIdRef.current) return;
 
         setIsMutedState(
           applyPlayerVolume(player, desiredVolumeRef.current, true),
@@ -303,11 +323,16 @@ const VideoPlayerSession = ({
       lastSynchronizedUpdateRef.current !== updatedAt || shouldReset;
     const [err] = safeWrap(() => {
       if (shouldReset) {
-        claimProviderPlayback('youtube');
-        setIsMutedState(
-          applyPlayerVolume(player, desiredVolumeRef.current, true),
-        );
         lastResetVersionRef.current = resetVersion;
+        if (
+          !pauseAfterLoadVideoIdRef.current &&
+          player.getVideoData().video_id === videoId
+        ) {
+          claimProviderPlayback('youtube');
+          setIsMutedState(
+            applyPlayerVolume(player, desiredVolumeRef.current, true),
+          );
+        }
       }
 
       if (shouldSynchronizePosition) {
@@ -320,14 +345,7 @@ const VideoPlayerSession = ({
             player.setVolume(desiredVolumeRef.current);
           }
 
-          const shouldPauseAfterLoad = !isCastReceiver && !shouldPlay;
-          pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad
-            ? videoId
-            : null;
-          expectedPlayingStateRef.current = !shouldPauseAfterLoad;
-          pendingVideoIdRef.current = videoId;
-          player.loadVideoById(videoId, targetTime);
-          lastLoadedVideoIdRef.current = videoId;
+          loadVideo(player, videoId, targetTime, !shouldPlay);
         } else if (
           Math.abs(player.getCurrentTime() - targetTime) >
           AUTHORITATIVE_SEEK_THRESHOLD_SECONDS
@@ -344,6 +362,8 @@ const VideoPlayerSession = ({
       }
 
       const state = player.getPlayerState();
+
+      if (shouldPlay) pauseAfterLoadVideoIdRef.current = null;
 
       if (shouldPlay && state !== YOUTUBE_STATE_PLAYING) {
         claimProviderPlayback('youtube');
@@ -362,7 +382,11 @@ const VideoPlayerSession = ({
         player.playVideo();
       }
 
-      if (!shouldPlay && state === YOUTUBE_STATE_PLAYING) {
+      if (
+        !shouldPlay &&
+        !pauseAfterLoadVideoIdRef.current &&
+        state === YOUTUBE_STATE_PLAYING
+      ) {
         expectedPlayingStateRef.current = false;
         player.pauseVideo();
       }
@@ -372,6 +396,7 @@ const VideoPlayerSession = ({
       debugLog('sync-playback-error', { error: err.message });
     }
   }, [
+    loadVideo,
     debugLog,
     isCastReceiver,
     isReady,
@@ -485,7 +510,7 @@ const VideoPlayerSession = ({
     const [error] = safeWrap(() => {
       const player = playerRef.current;
 
-      if (!player) return;
+      if (!player || pauseAfterLoadVideoIdRef.current) return;
 
       setIsMutedState(applyPlayerVolume(player, desiredVolume, canPlayAudio));
       observedPlaybackRef.current = null;
@@ -804,6 +829,15 @@ const VideoPlayerSession = ({
 
       if (actualPositionMs > 0) {
         const targetTime = actualPositionMs / 1000;
+        if (
+          !playbackState.isPlaying &&
+          event.target.getPlayerState() !== YOUTUBE_STATE_PAUSED
+        ) {
+          pauseAfterLoadVideoIdRef.current =
+            playbackState.currentPlaylistItem.sourceId;
+          event.target.mute();
+          setIsMutedState(true);
+        }
         event.target.seekTo(targetTime, true);
       }
 
@@ -817,10 +851,6 @@ const VideoPlayerSession = ({
           event.target.getVideoData().video_id === activePlaylistItem.sourceId
         ) {
           pendingVideoIdRef.current = null;
-        }
-
-        if (!isCastReceiver && !usePlaybackStore.getState().isPlaying) {
-          pauseAfterLoadVideoIdRef.current = activePlaylistItem.sourceId;
         }
       }
 
@@ -910,6 +940,42 @@ const VideoPlayerSession = ({
           observedPlaybackRef.current = null;
         }
         setSlowStartupVideoId(null);
+      }
+
+      const pausedLoad = pauseAfterLoadVideoIdRef.current;
+      if (pausedLoad && !playbackState.isPlaying) {
+        const player = playerRef.current;
+        if (
+          !player ||
+          !isYouTubeActiveRef.current ||
+          pausedLoad !== playbackState.currentPlaylistItem?.sourceId ||
+          pausedLoad !== player.getVideoData().video_id
+        )
+          return;
+
+        if (state === YOUTUBE_STATE_PLAYING) {
+          player.pauseVideo();
+          return;
+        }
+        if (
+          state === YOUTUBE_STATE_PAUSED &&
+          !pendingVideoIdRef.current &&
+          player.getPlayerState() === YOUTUBE_STATE_PAUSED
+        ) {
+          pauseAfterLoadVideoIdRef.current = null;
+          expectedPlayingStateRef.current = null;
+          setIsMutedState(
+            applyPlayerVolume(
+              player,
+              desiredVolumeRef.current,
+              isCastReceiver || canPlayAudio,
+            ),
+          );
+        }
+        return;
+      }
+
+      if (state === YOUTUBE_STATE_PLAYING) {
         claimProviderPlayback('youtube');
 
         if (
@@ -931,25 +997,6 @@ const VideoPlayerSession = ({
           if (unmuteError && isBrowserDebugEnabled()) {
             debugLog('playing-volume-error', { error: unmuteError.message });
           }
-        }
-      }
-
-      if (state === 1 && pauseAfterLoadVideoIdRef.current === videoId) {
-        pauseAfterLoadVideoIdRef.current = null;
-        const shouldRemainPaused =
-          !isCastReceiver && !usePlaybackStore.getState().isPlaying;
-
-        if (shouldRemainPaused) {
-          const [err] = safeWrap(() => playerRef.current?.pauseVideo());
-
-          if (err && isBrowserDebugEnabled()) {
-            debugLog('pause-after-load-error', { error: err.message });
-          }
-
-          setIsReady(true);
-          debugLog('pause-after-load');
-
-          return;
         }
       }
 
@@ -1226,19 +1273,14 @@ const VideoPlayerSession = ({
       playbackState.currentPlaylistItem?.sourceType === 'youtube';
     const actualPositionMs = playbackState.actualPositionMs;
     const startSeconds = actualPositionMs > 0 ? actualPositionMs / 1000 : 0;
-    const shouldPauseAfterLoad =
-      !isActiveYouTube || (!isCastReceiver && !playbackState.isPlaying);
+    const shouldPauseAfterLoad = !isActiveYouTube || !playbackState.isPlaying;
     const [err] = safeWrap(() => {
       if (isCastReceiver && isActiveYouTube) {
         player.setVolume(desiredVolumeRef.current);
       }
 
-      pauseAfterLoadVideoIdRef.current = shouldPauseAfterLoad ? videoId : null;
-      expectedPlayingStateRef.current = !shouldPauseAfterLoad;
       observedPlaybackRef.current = null;
-      pendingVideoIdRef.current = videoId;
-      player.loadVideoById(videoId, startSeconds);
-      lastLoadedVideoIdRef.current = videoId;
+      loadVideo(player, videoId, startSeconds, shouldPauseAfterLoad);
       debugLog('load-video', { shouldPauseAfterLoad, startSeconds });
     });
 
@@ -1249,7 +1291,7 @@ const VideoPlayerSession = ({
     if (isCastReceiver && isActiveYouTube) {
       forceAutoplay('load-video');
     }
-  }, [videoId, debugLog, forceAutoplay, isCastReceiver]);
+  }, [videoId, debugLog, forceAutoplay, isCastReceiver, loadVideo]);
 
   // All hooks must be called unconditionally, so define these before early return
   const opts: YouTubeOptions = useMemo(
@@ -1260,7 +1302,7 @@ const VideoPlayerSession = ({
       height: castPlayerSize?.height ?? '100%',
       width: castPlayerSize?.width ?? '100%',
       playerVars: {
-        autoplay: isCastReceiver ? 1 : 0,
+        autoplay: isCastReceiver && isPlaying ? 1 : 0,
         controls: isCastReceiver ? 0 : 1,
         disablekb: isCastReceiver ? 1 : 0,
         enablejsapi: 1,
@@ -1271,7 +1313,7 @@ const VideoPlayerSession = ({
         origin,
       },
     }),
-    [castPlayerSize, isCastReceiver, origin],
+    [castPlayerSize, isCastReceiver, isPlaying, origin],
   );
 
   const showClickToPlay =
