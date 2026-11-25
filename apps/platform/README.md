@@ -911,6 +911,11 @@ button with browser, header, sign-in, privacy-tool, and built-in-browser help.
 The public IFrame API does not identify the exact “not a bot” screen, so do not
 classify 101/150 as browser blocks or infer a bot challenge from the user agent.
 The help dialog offers a direct YouTube link and preserves the room controls.
+The error overlay also offers **Reload player** below the explanation and info
+button. It destroys the local YouTube SDK instance and iframe, clears the local
+error, and retries the current track at the live playback position and volume.
+It does not reload the page or send room playback actions. A failed retry shows
+the error overlay again.
 Raw provider codes still accompany error-bearing skips for metadata verification.
 
 Reference: https://developers.google.com/youtube/iframe_api_reference#onError
