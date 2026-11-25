@@ -93,6 +93,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [searchResults, setSearchResults] = useState<ProviderItem[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [visibleResultCount, setVisibleResultCount] = useState(15);
+  const [authChannel, setAuthChannel] = useState('');
   const authListener = useRef<AbortController | null>(null);
   useEffect(() => () => authListener.current?.abort(), []);
   const searchPending = useRef(false);
@@ -433,6 +434,7 @@ export const AddToQueueModal: React.FC<Props> = ({
         return;
       }
 
+      setAuthChannel(crypto.randomUUID());
       setSelectedProvider(providerPlaylistLink.provider);
       searchFetcher.submit(
         {
@@ -671,6 +673,8 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const providerPlaylistLink = parseProviderPlaylistLink(searchQuery);
+  const playlistSource =
+    providerPlaylistLink?.sourceId ?? providerPlaylistLink?.providerUrl;
   const providerTrackLink = parseProviderItemLink(searchQuery);
   const canSubmitSearch =
     Boolean(providerPlaylistLink) ||
@@ -869,26 +873,21 @@ export const AddToQueueModal: React.FC<Props> = ({
             <span>
               {error}
               {providerPlaylistLink &&
+                playlistSource &&
+                authChannel &&
                 searchFetcher.data?.error === error &&
                 searchFetcher.data.errorAction === 'playlistAuth' && (
-                  <button
+                  <a
                     className="ml-1 underline"
-                    type="button"
+                    href={playlistAuthorizationUrl(
+                      providerPlaylistLink.provider,
+                      playlistSource,
+                      { channel: authChannel },
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => {
-                      const source =
-                        providerPlaylistLink.sourceId ??
-                        providerPlaylistLink.providerUrl;
-                      if (!source) return;
                       authListener.current?.abort();
-                      const popup = window.open('about:blank', '_blank');
-                      if (!popup) {
-                        setError(
-                          'Allow pop-ups for Zoff, then try the playlist again.',
-                        );
-                        return;
-                      }
-                      popup.opener = null;
-                      const channel = crypto.randomUUID();
                       const controller = new AbortController();
                       authListener.current = controller;
                       window.addEventListener(
@@ -896,26 +895,19 @@ export const AddToQueueModal: React.FC<Props> = ({
                         (event) => {
                           if (
                             event.storageArea !== localStorage ||
-                            event.key !== `web-${channel}` ||
+                            event.key !== `web-${authChannel}` ||
                             event.newValue !== 'complete'
                           )
                             return;
                           controller.abort();
-                          performSearch(searchQuery, `web-${channel}`);
+                          performSearch(searchQuery, `web-${authChannel}`);
                         },
                         { signal: controller.signal },
-                      );
-                      popup.location.replace(
-                        playlistAuthorizationUrl(
-                          providerPlaylistLink.provider,
-                          source,
-                          { channel },
-                        ),
                       );
                     }}
                   >
                     Authenticate
-                  </button>
+                  </a>
                 )}
               {playlistItemFetcher.data?.error === error &&
                 playlistItemFetcher.data.errorAction === 'adminLogin' && (
