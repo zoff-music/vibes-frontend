@@ -1,3 +1,4 @@
+import { playlistAuthorizationUrl } from '@vibes/api';
 import {
   generatedPlaylistPromptMaxLength,
   type ProviderItem,
@@ -10,12 +11,14 @@ import {
   parseISODuration,
   parseProviderItemLink,
   parseProviderPlaylistLink,
+  safeWrapAsync,
 } from '@vibes/shared';
 import { useMutation, useRequest } from '@vibes/shared/use-request';
 import { getRoomLabels } from '@vibes/ui/shared';
 import { useEffect, useState } from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, Linking } from 'react-native';
 import { useToast } from '@/components/toast';
+import { apiUrl } from '@/lib/api';
 import { mobileProviders } from '@/lib/mobile-content';
 import { useRoomActions, useRoomSession } from '@/providers/app-provider';
 import { loadSearch } from '@/requests/load-search';
@@ -40,6 +43,8 @@ interface UseProviderSearchOptions {
 }
 
 interface ProviderSearchActions {
+  authenticate: () => Promise<void>;
+  setImportCode: (value: string) => void;
   add: (result: ProviderItem) => Promise<void>;
   addPlaylist: () => Promise<void>;
   search: () => Promise<void>;
@@ -49,6 +54,8 @@ interface ProviderSearchActions {
 }
 
 interface ProviderSearchState {
+  authenticationRequired: boolean;
+  importCode: string;
   enabledProviders: SourceType[];
   error: string;
   isAIMode: boolean;
@@ -82,6 +89,23 @@ export function useProviderSearch({
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ProviderItem[]>([]);
   const [playlist, setPlaylist] = useState<ProviderPlaylist | null>(null);
+  const [authenticationRequired, setAuthenticationRequired] = useState(false);
+  const [importCode, setImportCode] = useState('');
+  const authenticate = async () => {
+    const link = parseProviderPlaylistLink(query);
+    const source = link?.sourceId ?? link?.providerUrl;
+    if (!link || !source) return;
+    const [openError] = await safeWrapAsync(
+      Linking.openURL(
+        playlistAuthorizationUrl(
+          link.provider,
+          source,
+          `${apiUrl.replace(/\/$/, '')}/api/v1`,
+        ),
+      ),
+    );
+    if (openError) setError('Could not open the provider sign-in page.');
+  };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
@@ -113,6 +137,8 @@ export function useProviderSearch({
   }, [enabledProviders, provider]);
 
   const updateQuery = (nextQuery: string) => {
+    setAuthenticationRequired(false);
+    setImportCode('');
     setQuery(
       isAIMode
         ? nextQuery.slice(0, generatedPlaylistPromptMaxLength)
@@ -129,6 +155,8 @@ export function useProviderSearch({
       return;
     }
 
+    setAuthenticationRequired(false);
+    setImportCode('');
     setIsAIMode((current) => !current);
     setQuery('');
     setResults([]);
@@ -229,6 +257,7 @@ export function useProviderSearch({
         id: targetRoomId,
         provider,
         query: trimmedQuery,
+        importCode: importCode.trim(),
         ...(remoteCredentials ?? {}),
       },
     });
@@ -240,6 +269,8 @@ export function useProviderSearch({
       return;
     }
 
+    setAuthenticationRequired(Boolean(result.data.authenticationRequired));
+    setImportCode('');
     setProvider(result.data.provider);
     setPlaylist(result.data.playlist);
     setResults(result.data.results);
@@ -332,6 +363,8 @@ export function useProviderSearch({
 
   return [
     {
+      authenticationRequired,
+      importCode,
       enabledProviders,
       error,
       isAIMode,
@@ -341,6 +374,15 @@ export function useProviderSearch({
       query,
       results,
     },
-    { add, addPlaylist, search, setProvider, toggleAIMode, updateQuery },
+    {
+      authenticate,
+      setImportCode,
+      add,
+      addPlaylist,
+      search,
+      setProvider,
+      toggleAIMode,
+      updateQuery,
+    },
   ];
 }

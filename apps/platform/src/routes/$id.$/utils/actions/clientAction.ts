@@ -46,7 +46,7 @@ export interface RoomActionData {
     token: CastingTokenResponse;
   };
   error?: string;
-  errorAction?: 'adminLogin';
+  errorAction?: 'adminLogin' | 'playlistAuth';
   intent: RoomActionIntent;
   generation?: RoomGenerationUpdate;
   playback?: PlaybackStateV2;
@@ -60,6 +60,7 @@ export interface RoomActionData {
 }
 
 export interface RoomActionRequest {
+  importCode?: string;
   text?: string;
   action?: 'pause' | 'play' | 'seek';
   errorCode?: string;

@@ -11,6 +11,7 @@ import type {
 } from '@vibes/models';
 
 import {
+  API_BASE_URL,
   type ApiClient,
   type ApiRequestOptions,
   type ApiResult,
@@ -83,18 +84,39 @@ export function createProviderItemRequest(client: ApiClient) {
   };
 }
 
+export function playlistAuthorizationUrl(
+  provider: SourceType,
+  source: string,
+  baseUrl = API_BASE_URL,
+  channel?: string,
+) {
+  const url = new URL(`${baseUrl}/authorizations/${provider}`);
+  url.searchParams.set('playlist', source);
+  if (channel) url.searchParams.set('channel', channel);
+  return url.toString();
+}
+
 export function createProviderPlaylistRequest(client: ApiClient) {
   return (
     provider: SourceType,
     source: string,
     roomType: RoomType,
-    options?: ApiRequestOptions,
+    options?: ApiRequestOptions & { importCode?: string },
   ): ApiResult<ProviderPlaylist> => {
+    const request = {
+      signal: options?.signal,
+      timeout: 120_000,
+      ...(options?.importCode && {
+        headers: { 'X-Playlist-Code': options.importCode },
+        retry: 0,
+        cacheRequest: false,
+      }),
+    };
     if (provider === 'youtube') {
       return client.v2.get(
         '/youtube/playlists/{id}',
         { id: source, $search: { roomType } },
-        { timeout: 120_000, ...options },
+        request,
       );
     }
 
@@ -103,7 +125,7 @@ export function createProviderPlaylistRequest(client: ApiClient) {
       {
         $search: { url: source },
       },
-      { timeout: 120_000, ...options },
+      request,
     );
   };
 }

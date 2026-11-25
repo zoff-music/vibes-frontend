@@ -1,4 +1,5 @@
 import { useFetcher } from '@kasperrt/smolter/preact';
+import { playlistAuthorizationUrl } from '@vibes/api';
 import {
   generatedPlaylistPromptMaxLength,
   type PlaybackRestriction,
@@ -92,6 +93,15 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [searchResults, setSearchResults] = useState<ProviderItem[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [visibleResultCount, setVisibleResultCount] = useState(15);
+  const [importCode, setImportCode] = useState('');
+  const [awaitingCode, setAwaitingCode] = useState(false);
+  const channelRef = useRef<BroadcastChannel | null>(null);
+  useEffect(() => {
+    return () => {
+      channelRef.current?.close();
+      channelRef.current = null;
+    };
+  }, []);
   const searchPending = useRef(false);
   const searchExpiresAt = useRef(0);
   const submittedSearch = useRef({
@@ -174,6 +184,10 @@ export const AddToQueueModal: React.FC<Props> = ({
     }
 
     if (!isVisible) {
+      channelRef.current?.close();
+      channelRef.current = null;
+      setImportCode('');
+      setAwaitingCode(false);
       const timeout = setTimeout(() => {
         if (isAIMode) setSearchQuery('');
         setIsAIMode(false);
@@ -253,6 +267,8 @@ export const AddToQueueModal: React.FC<Props> = ({
       searchFetcher.data.intent === 'providerPlaylist' &&
       searchFetcher.data.playlist
     ) {
+      setAwaitingCode(false);
+      setImportCode('');
       const playlist = searchFetcher.data.playlist;
       setPreviewPlaylist({
         title: playlist.title,
@@ -386,7 +402,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     labels.item,
   ]);
 
-  const performSearch = (query: string) => {
+  const performSearch = (query: string, code = '') => {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
@@ -432,6 +448,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       searchFetcher.submit(
         {
           intent: 'providerPlaylist',
+          ...(code && { importCode: code }),
           provider: providerPlaylistLink.provider,
           ...(providerPlaylistLink.sourceId
             ? {
@@ -519,6 +536,10 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const handleSearchChange = (query: string) => {
+    channelRef.current?.close();
+    channelRef.current = null;
+    setImportCode('');
+    setAwaitingCode(false);
     setSearchQuery(
       isAIMode ? query.slice(0, generatedPlaylistPromptMaxLength) : query,
     );
@@ -860,6 +881,49 @@ export const AddToQueueModal: React.FC<Props> = ({
             <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
               {error}
+              {providerPlaylistLink &&
+                searchFetcher.data?.error === error &&
+                searchFetcher.data.errorAction === 'playlistAuth' && (
+                  <button
+                    className="ml-1 underline"
+                    type="button"
+                    onClick={() => {
+                      const source =
+                        providerPlaylistLink.sourceId ??
+                        providerPlaylistLink.providerUrl;
+                      if (!source) return;
+                      channelRef.current?.close();
+                      const channel = crypto.randomUUID();
+                      if (typeof BroadcastChannel !== 'undefined') {
+                        const listener = new BroadcastChannel(channel);
+                        channelRef.current = listener;
+                        listener.onmessage = ({ data }) => {
+                          if (
+                            typeof data !== 'string' ||
+                            !/^[A-Za-z0-9_-]{24}$/.test(data)
+                          )
+                            return;
+                          listener.postMessage('received');
+                          listener.close();
+                          performSearch(searchQuery, data);
+                        };
+                      }
+                      setAwaitingCode(true);
+                      window.open(
+                        playlistAuthorizationUrl(
+                          providerPlaylistLink.provider,
+                          source,
+                          undefined,
+                          channel,
+                        ),
+                        '_blank',
+                        'noopener,noreferrer',
+                      );
+                    }}
+                  >
+                    Authenticate
+                  </button>
+                )}
               {playlistItemFetcher.data?.error === error &&
                 playlistItemFetcher.data.errorAction === 'adminLogin' && (
                   <button
@@ -874,6 +938,26 @@ export const AddToQueueModal: React.FC<Props> = ({
           </div>
         )}
 
+        {awaitingCode && !previewPlaylist && (
+          <div className="mt-3 flex gap-2">
+            <input
+              aria-label="Single-use import code"
+              placeholder="Single-use import code"
+              className="border-theme rounded border px-2"
+              value={importCode}
+              onInput={(event) =>
+                setImportCode(event.currentTarget.value.trim())
+              }
+            />
+            <button
+              type="button"
+              disabled={!importCode || isSearching}
+              onClick={() => performSearch(searchQuery, importCode)}
+            >
+              Continue import
+            </button>
+          </div>
+        )}
         {/* Search Results Dropdown */}
         {!isAIMode &&
           showResults &&

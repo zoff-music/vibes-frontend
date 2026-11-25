@@ -3,6 +3,7 @@ import {
   createProviderPlaylistRequest,
   createProviderSearchRequest,
   createRoomReadRequests,
+  getAPIErrorResponse,
 } from '@vibes/api';
 import type { ProviderItem, ProviderPlaylist, SourceType } from '@vibes/models';
 import {
@@ -14,6 +15,7 @@ import { createRemoteApi, getRequestErrorMessage, mobileApi } from '@/lib/api';
 import { isMobileProvider } from '@/lib/mobile-content';
 
 export interface SearchData {
+  authenticationRequired?: boolean;
   playlist: ProviderPlaylist | null;
   provider: SourceType;
   results: ProviderItem[];
@@ -62,10 +64,21 @@ export async function loadSearch({
       playlistLink.provider,
       source,
       room.roomType,
-      { signal },
+      { signal, importCode: params.importCode },
     );
 
     if (error || !playlist) {
+      const details = error && (await getAPIErrorResponse(error));
+      if (details?.error === 'playlist_authentication_required')
+        return {
+          data: {
+            authenticationRequired: true,
+            playlist: null,
+            results: [],
+            provider: playlistLink.provider,
+          },
+          error: '',
+        };
       return failure(error, 'Could not load this playlist.');
     }
 

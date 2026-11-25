@@ -1,4 +1,9 @@
-import { api, searchProvider } from '@vibes/api';
+import {
+  api,
+  createProviderPlaylistRequest,
+  getAPIErrorResponse,
+  searchProvider,
+} from '@vibes/api';
 import { createErrorData } from '../../../../../utils/room-actions/error';
 import type { RoomActionData, RoomActionRequest } from '../clientAction';
 
@@ -111,39 +116,25 @@ export async function playlistAction(
       };
     }
 
-    if (body.provider === 'youtube') {
-      if (!body.sourceId) {
-        return { error: 'Playlist ID is required', intent: body.intent };
-      }
-
-      const [error, playlist] = await api.v2.get(
-        '/youtube/playlists/{id}',
-        { id: body.sourceId, $search: { roomType: room.roomType } },
-        { signal, timeout: 120_000 },
-      );
-
-      if (error || !playlist) {
-        return createErrorData(body.intent, error);
-      }
-
-      return { intent: body.intent, playlist };
-    }
-
-    if (!body.providerUrl) {
-      return { error: 'SoundCloud URL is required', intent: body.intent };
-    }
-
-    const [error, playlist] = await api.v2.get(
-      '/soundcloud/playlists',
-      { $search: { url: body.providerUrl } },
-      { signal, timeout: 120_000 },
+    const source =
+      body.provider === 'youtube' ? body.sourceId : body.providerUrl;
+    if (!source)
+      return { error: 'Playlist link is required', intent: body.intent };
+    const [error, playlist] = await createProviderPlaylistRequest(api)(
+      body.provider,
+      source,
+      room.roomType,
+      { signal, importCode: body.importCode },
     );
-
-    if (!error && playlist) {
-      return { intent: body.intent, playlist };
-    }
-
-    if (signal.aborted) return createErrorData(body.intent, error);
+    if (!error && playlist) return { intent: body.intent, playlist };
+    const providerError = error && (await getAPIErrorResponse(error));
+    if (
+      signal.aborted ||
+      body.provider !== 'soundcloud' ||
+      providerError?.error !== 'soundcloud_playlist_invalid' ||
+      !body.providerUrl
+    )
+      return createErrorData(body.intent, error);
 
     const [itemError, item] = await api.v2.get(
       '/soundcloud/items',
