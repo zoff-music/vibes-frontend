@@ -26,6 +26,7 @@ import {
   registerProviderPlayback,
   silenceProviderPlayback,
 } from './providerPlaybackCoordinator';
+import { YouTubeErrorOverlay } from './YouTubeErrorOverlay';
 import { YouTubeFrame } from './YouTubeFrame';
 import type {
   YouTubeOptions,
@@ -1129,12 +1130,10 @@ const VideoPlayerComponent = ({
     (event: unknown) => {
       // Provider errors (unavailable or non-embeddable videos) are content states shown in the UI.
       console.warn('[VideoPlayer] Player error:', playerErrorDetail(event));
-      setError('This video is unavailable in the embedded player.');
+      const code = providerErrorCode(event, 'youtube_error');
+      setError(code);
       if (isYouTubeActive && currentPlaylistItem) {
-        onProviderError?.(
-          currentPlaylistItem.id,
-          providerErrorCode(event, 'youtube_error'),
-        );
+        onProviderError?.(currentPlaylistItem.id, code);
       }
 
       if (
@@ -1387,14 +1386,11 @@ const VideoPlayerComponent = ({
       )}
 
       {error && (
-        <div
-          role="alert"
-          className="absolute inset-0 z-20 flex items-center justify-center bg-black px-6 py-4 text-center"
-        >
-          <p className="text-2xs font-mono tracking-widest text-white/70 uppercase">
-            {error}
-          </p>
-        </div>
+        <YouTubeErrorOverlay
+          key={videoId}
+          code={error}
+          videoId={resolvedVideoId}
+        />
       )}
 
       {youtubeHidden && !error && !showClickToPlay && (

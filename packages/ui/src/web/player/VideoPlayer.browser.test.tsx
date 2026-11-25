@@ -43,9 +43,14 @@ afterEach(() => {
   root.remove();
 });
 
-it.each([1280, 390])(
-  'keeps embed errors inside the player and controls usable at %ipx',
-  async (width) => {
+it.each([
+  { width: 1280, code: 101 },
+  { width: 390, code: 150 },
+  { width: 1280, code: 153 },
+  { width: 390, code: 153 },
+])(
+  'keeps error $code and controls usable at $width px',
+  async ({ width, code }) => {
     await page.viewport(width, 800);
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     usePlaybackStore.getState().setPlaybackState(
@@ -113,11 +118,15 @@ it.each([1280, 390])(
     await expect
       .element(page.getByText('Click to play', { exact: false }))
       .toBeVisible();
-    await act(() => provider.fail({ data: 101 }));
+    await act(() => provider.fail({ data: code }));
     const alert = page.getByRole('alert');
     await expect
-      .element(alert)
-      .toHaveTextContent('This video is unavailable in the embedded player.');
+      .poll(() => alert.element().textContent)
+      .toContain(
+        code === 153
+          ? 'Browser blocked by YouTube'
+          : 'This video is unavailable in the embedded player.',
+      );
     const viewport = root
       .querySelector('[data-viewport]')!
       .getBoundingClientRect();
@@ -139,6 +148,44 @@ it.each([1280, 390])(
     expect(skip).toHaveBeenCalledOnce();
     expect(mute).toHaveBeenCalledOnce();
     expect(warn).toHaveBeenCalledOnce();
-    expect(report).toHaveBeenCalledWith('one', '101');
+    expect(report).toHaveBeenCalledWith('one', String(code));
+    const info = page.getByRole('button', {
+      name: 'About YouTube playback errors',
+    });
+    await info.click();
+    const dialog = page.getByRole('dialog', {
+      name: 'YouTube playback blocked',
+    });
+    await expect.element(dialog).toBeVisible();
+    expect(dialog.element().textContent).toContain('proprietary car browsers');
+    expect(dialog.element().textContent).toContain('confirm you’re not a bot');
+    if (code === 153) {
+      expect(dialog.element().textContent).toContain('HTTP Referer');
+    } else {
+      expect(dialog.element().textContent).toContain(
+        'does not tell us whether',
+      );
+    }
+    await expect
+      .element(page.getByRole('link', { name: 'Open on YouTube' }))
+      .toHaveAttribute('href', 'https://www.youtube.com/watch?v=video');
+    await page.getByRole('button', { name: 'Got it' }).click();
+    await expect.element(dialog).not.toBeInTheDocument();
+    await expect.element(info).toHaveFocus();
+    await info.click();
+    await expect.element(dialog).toBeVisible();
+    await expect
+      .element(
+        page.getByRole('heading', {
+          name: 'YouTube playback blocked',
+          exact: true,
+        }),
+      )
+      .toHaveFocus();
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+    await expect.element(dialog).not.toBeInTheDocument();
+    await expect.element(info).toHaveFocus();
   },
 );
