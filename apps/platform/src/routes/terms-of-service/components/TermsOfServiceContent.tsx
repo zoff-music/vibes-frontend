@@ -21,7 +21,7 @@ export function TermsOfServiceContent({
     <LegalDocument
       description="These terms govern Zoff Music and Watch rooms, provider integrations, shared playback, chat, and playlist generation."
       title="Terms of Service"
-      updatedAt="6 October 2026"
+      updatedAt="26 November 2026"
     >
       <LegalSection id="policy-1-agreement" title="Agreement">
         <p>
@@ -96,6 +96,12 @@ export function TermsOfServiceContent({
             provider audio or video through Zoff.
           </li>
         </ul>
+        <p>
+          Import a private playlist only if you are authorized to access it and
+          share its entries with the room. When you confirm the import, eligible
+          items appear in the shared queue. The provider controls who can play
+          each item.
+        </p>
         <p>
           Zoff may rate-limit requests, remove content from a room, restrict
           access, or remove a room when reasonably necessary to protect users,
