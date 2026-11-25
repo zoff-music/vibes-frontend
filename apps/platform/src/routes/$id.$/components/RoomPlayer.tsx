@@ -611,7 +611,7 @@ export const RoomPlayer = React.memo(
       <div
         data-room-player-surface
         className={classNames(
-          'flex min-w-0 shrink-0 origin-top-left flex-col gap-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto]',
+          'flex min-w-0 shrink-0 origin-top-left flex-col gap-6 lg:col-span-3 lg:h-full lg:min-h-0',
           minimized && '!block',
         )}
       >
@@ -628,7 +628,7 @@ export const RoomPlayer = React.memo(
         <div
           data-player-viewport
           className={classNames(
-            'border-theme relative isolate flex min-h-player-min w-full origin-top-left overflow-hidden rounded-player border bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
+            'border-theme relative isolate flex min-h-player-min w-full origin-top-left overflow-hidden rounded-player border bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:flex-1',
             minimized && '!aspect-video !min-h-[202px] !rounded-2xl',
           )}
         >

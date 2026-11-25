@@ -1352,7 +1352,7 @@ const VideoPlayerComponent = ({
             onError={handleError}
             className={classNames(
               'absolute inset-0 flex items-center justify-center [&_iframe]:max-h-full [&_iframe]:w-full',
-              youtubeHidden && 'clip-hidden invisible',
+              (youtubeHidden || !!error) && 'clip-hidden invisible',
               fill &&
                 'h-full min-h-0 w-full [&_iframe]:h-full [&_iframe]:max-w-full',
               !fill &&
@@ -1367,7 +1367,10 @@ const VideoPlayerComponent = ({
       )}
 
       {error && (
-        <div className="shrink-0 border-t border-white/15 bg-black px-4 py-3 text-center">
+        <div
+          role="alert"
+          className="absolute inset-0 z-20 flex items-center justify-center bg-black px-6 py-4 text-center"
+        >
           <p className="text-2xs font-mono tracking-widest text-white/70 uppercase">
             {error}
           </p>
