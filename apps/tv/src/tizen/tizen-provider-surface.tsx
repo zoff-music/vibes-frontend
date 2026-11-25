@@ -38,6 +38,7 @@ export function TizenProviderSurface({
     return (
       <YouTubeIframePlayer
         key={`${playlistItem.sourceId}:${playback.updatedAt}`}
+        isPlaying={playback.isPlaying}
         positionMs={playback.positionMs}
         sourceId={playlistItem.sourceId}
         title={playlistItem.title}

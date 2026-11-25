@@ -1,12 +1,14 @@
 import { TV_PLAYER_PATH } from '@vibes/shared/tv-player';
 
 interface YouTubeIframePlayerProps {
+  isPlaying: boolean;
   positionMs: number;
   sourceId: string;
   title: string;
 }
 
 export function YouTubeIframePlayer({
+  isPlaying,
   positionMs,
   sourceId,
   title,
@@ -16,6 +18,7 @@ export function YouTubeIframePlayer({
     Math.max(0, Math.floor(positionMs / millisecondsPerSecond)),
   );
   const parameters = new URLSearchParams({
+    autoplay: isPlaying ? '1' : '0',
     video: sourceId,
     start: String(startSeconds),
   });

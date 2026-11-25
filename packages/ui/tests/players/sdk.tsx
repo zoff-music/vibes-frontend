@@ -2,7 +2,12 @@ import type { PlayerState, Provider } from './types';
 
 // Only the external SDK is simulated. The production players, store, gesture
 // handling, navigation replacement and playback coordinator remain real.
-export const faults = { blocked: true, loadingPauseCalls: 0, seeks: 0 };
+export const faults = {
+  audibleLoads: 0,
+  blocked: true,
+  loadingPauseCalls: 0,
+  seeks: 0,
+};
 const states = new Map<Provider, PlayerState>();
 
 function clock(provider: Provider, id: string) {
@@ -71,7 +76,8 @@ export function installSoundCloud() {
     },
     getPosition: (callback) => setTimeout(() => callback(position(state)), 10),
     // A misleading SDK state must never count as confirmed playback.
-    isPaused: (callback) => setTimeout(() => callback(false), 10),
+    isPaused: (callback) =>
+      setTimeout(() => callback(!state.playing && !faults.blocked), 10),
     setVolume: (value: number) => {
       state.volume = value;
     },
@@ -92,6 +98,7 @@ export function installSoundCloud() {
       }, 600);
     },
     load(url, options) {
+      if (options.auto_play) faults.audibleLoads++;
       iframe.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}`;
       pause(state);
       state.id = url.split('/').at(-1)!;
@@ -145,6 +152,7 @@ class YouTubeSdk {
   private iframe: HTMLIFrameElement;
   private readyTimer: ReturnType<typeof setTimeout>;
   private destroyed = false;
+  private loadingUntilPause = false;
 
   constructor(
     target: HTMLElement,
@@ -169,6 +177,7 @@ class YouTubeSdk {
   private emit() {
     const data = this.state.playing ? 1 : 2;
     setTimeout(() => {
+      if (data === 2) this.loadingUntilPause = false;
       if (!this.destroyed) this.configuration.events.onStateChange({ data });
     }, 20);
   }
@@ -195,6 +204,7 @@ class YouTubeSdk {
     this.state.muted = true;
   }
   unMute() {
+    if (this.loadingUntilPause && this.state.volume > 0) faults.audibleLoads++;
     this.state.muted = false;
   }
   setSize() {}
@@ -223,10 +233,13 @@ class YouTubeSdk {
     this.state.reference = performance.now();
   }
   loadVideoById(id: string, seconds = 0) {
+    this.loadingUntilPause = true;
     pause(this.state);
     this.state.id = id;
     this.state.position = seconds * 1000;
     play(this.state);
+    if (this.state.playing && !this.state.muted && this.state.volume > 0)
+      faults.audibleLoads++;
     this.emit();
   }
   destroy() {

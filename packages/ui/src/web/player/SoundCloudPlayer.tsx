@@ -446,6 +446,17 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
       const shouldRestart = shouldWidgetPlay();
       setIsWidgetPlaying(false);
 
+      if (
+        !usePlaybackStore.getState().isPlaying &&
+        isActiveRef.current &&
+        !prewarmingRef.current &&
+        loadedSourceIdRef.current ===
+          usePlaybackStore.getState().currentPlaylistItem?.sourceId
+      ) {
+        widget.setVolume(desiredVolumeRef.current);
+        setIsWidgetMuted(desiredVolumeRef.current === MIN_VOLUME);
+      }
+
       if (!shouldRestart || restartTimerRef.current) return;
 
       restartTimerRef.current = setTimeout(() => {
@@ -554,7 +565,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     const loadError = replaceIframeNavigation(iframe, () => {
       widget.load(getSoundCloudUrl(sourceId), {
         ...SOUNDCLOUD_WIDGET_OPTIONS,
-        auto_play: isPlaybackGestureUnlocked(),
+        auto_play:
+          isActiveRef.current &&
+          usePlaybackStore.getState().isPlaying &&
+          isPlaybackGestureUnlocked(),
         callback: () => {
           if (loadingSourceIdRef.current !== sourceId) return;
 
@@ -686,9 +700,23 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
 
     if (!widget || !isActive || !isReady) return;
 
-    widget.setVolume(desiredVolume);
-    setIsWidgetMuted(desiredVolume === MIN_VOLUME);
-  }, [desiredVolume, isActive, isReady]);
+    if (loadingSourceIdRef.current || prewarmingRef.current) return;
+    let cancelled = false;
+    const restoreVolume = () => {
+      if (cancelled || loadingSourceIdRef.current || prewarmingRef.current)
+        return;
+      widget.setVolume(desiredVolume);
+      setIsWidgetMuted(desiredVolume === MIN_VOLUME);
+    };
+    if (isPlaying && shouldWidgetPlay()) restoreVolume();
+    else
+      widget.isPaused((paused) => {
+        if (paused) restoreVolume();
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [desiredVolume, isActive, isReady, isPlaying, shouldWidgetPlay]);
 
   useEffect(() => {
     if (!isActive) {

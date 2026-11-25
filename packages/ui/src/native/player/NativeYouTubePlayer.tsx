@@ -407,7 +407,9 @@ function getPlayerHtml(sourceId: string) {
     <script>
       let player;
       let ready = false;
-      let sourceTransition = false;
+      let transitionVideoId = null;
+      let restoreSound = false;
+      let awaitingPause = false;
       let shouldPlay = false;
       let initialPositionSeconds = 0;
       let resetAfterTransition = false;
@@ -420,18 +422,21 @@ function getPlayerHtml(sourceId: string) {
       };
       window.zoffSetPlaying = (playing) => {
         shouldPlay = playing;
-        if (sourceTransition) return;
-        syncPlayback();
+        if (transitionVideoId && !playing) {
+          restoreSound = restoreSound || !player.isMuted();
+          player.mute();
+        }
+        if (!transitionVideoId || awaitingPause) syncPlayback();
       };
       window.zoffSeek = (positionMs) => {
         initialPositionSeconds = Math.max(0, positionMs) / 1000;
-        if (sourceTransition) return;
+        if (transitionVideoId) return;
         if (ready && player) player.seekTo(initialPositionSeconds, true);
       };
       window.zoffReset = (positionMs) => {
         initialPositionSeconds = Math.max(0, positionMs) / 1000;
         if (!ready || !player) return;
-        if (sourceTransition) {
+        if (transitionVideoId) {
           resetAfterTransition = true;
           return;
         }
@@ -442,7 +447,12 @@ function getPlayerHtml(sourceId: string) {
       };
       window.zoffLoad = (videoId, positionMs, playing) => {
         if (!ready || !player) return;
-        sourceTransition = true;
+        transitionVideoId = videoId;
+        awaitingPause = false;
+        if (!playing) {
+          restoreSound = restoreSound || !player.isMuted();
+          player.mute();
+        }
         shouldPlay = playing;
         initialPositionSeconds = Math.max(0, positionMs) / 1000;
         player.loadVideoById({ videoId, startSeconds: initialPositionSeconds });
@@ -469,18 +479,29 @@ function getPlayerHtml(sourceId: string) {
               post({ type: 'ready' });
             },
             onStateChange: (event) => {
-              if (
-                sourceTransition &&
-                event.data === YT.PlayerState.PLAYING
-              ) {
-                sourceTransition = false;
-                if (resetAfterTransition) {
+              if (transitionVideoId) {
+                if (player.getVideoData().video_id !== transitionVideoId) return;
+                if (event.data === YT.PlayerState.PLAYING) {
+                  player.seekTo(initialPositionSeconds, true);
+                  if (!shouldPlay) {
+                    awaitingPause = true;
+                    player.pauseVideo();
+                    return;
+                  }
+                } else if (!awaitingPause || event.data !== YT.PlayerState.PAUSED || player.getPlayerState() !== YT.PlayerState.PAUSED) {
+                  return;
+                } else if (shouldPlay) {
+                  player.playVideo();
+                  return;
+                }
+                transitionVideoId = null;
+                if (restoreSound) player.unMute();
+                restoreSound = false;
+                if (resetAfterTransition && shouldPlay) {
                   player.unMute();
                   player.setVolume(100);
-                  resetAfterTransition = false;
                 }
-                player.seekTo(initialPositionSeconds, true);
-                syncPlayback();
+                resetAfterTransition = false;
               }
               if (event.data === YT.PlayerState.PLAYING) post({ type: 'playing', isPlaying: true });
               if (event.data === YT.PlayerState.PAUSED) post({ type: 'playing', isPlaying: false });

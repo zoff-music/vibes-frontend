@@ -34,7 +34,7 @@ export function loader({ request }: LoaderFunctionArgs): Response {
   <link rel="stylesheet" href="${playerStyles}">
 </head>
 <body>
-  <iframe title="YouTube player" src="https://www.youtube.com/embed/${video}?autoplay=1&amp;controls=1&amp;playsinline=1&amp;rel=0&amp;start=${start}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+  <iframe title="YouTube player" src="https://www.youtube.com/embed/${video}?autoplay=${query.get('autoplay') === '0' ? '0' : '1'}&amp;controls=1&amp;playsinline=1&amp;rel=0&amp;start=${start}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
 </body>
 </html>`;
 

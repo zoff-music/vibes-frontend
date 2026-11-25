@@ -18,6 +18,7 @@ if (!__LIVE_PLAYERS__) {
   installYouTube();
 }
 const params = new URLSearchParams(location.search);
+const roomMode = params.has('server') ? 'server' : 'host';
 const providers = (params.get('sequence') || 'soundcloud,soundcloud').split(
   ',',
 ) as Provider[];
@@ -43,7 +44,7 @@ const state = (isPlaying = true): PlaybackStateV2 => ({
 });
 const advance = () => {
   index = (index + 1) % tracks.length;
-  usePlaybackStore.getState().setPlaybackState(state(), 'host');
+  usePlaybackStore.getState().setPlaybackState(state(), roomMode);
 };
 const onEnded = () => {
   ends++;
@@ -52,12 +53,12 @@ const onEnded = () => {
 const align = (value: boolean) =>
   usePlaybackStore.getState().setLocalPlaybackAligned(value);
 const localPause = () =>
-  usePlaybackStore.getState().setLocalPlayingState(false, 'host');
+  usePlaybackStore.getState().setLocalPlayingState(false, roomMode);
 const localPlay = () =>
-  usePlaybackStore.getState().setLocalPlayingState(true, 'host');
+  usePlaybackStore.getState().setLocalPlayingState(true, roomMode);
 usePlaybackStore
   .getState()
-  .setPlaybackState(state(!params.has('paused')), 'host');
+  .setPlaybackState(state(!params.has('paused')), roomMode);
 
 if (!__LIVE_PLAYERS__)
   window.playerTest = {
@@ -77,15 +78,18 @@ function Fixture() {
     <>
       <button onClick={advance}>Skip</button>
       <button
-        onClick={() =>
-          usePlaybackStore.getState().setPlaybackState(state(!playing), 'host')
-        }
+        onClick={() => {
+          const playback = usePlaybackStore.getState();
+          if (roomMode === 'server')
+            playback.setLocalPlayingState(!playing, roomMode);
+          else playback.setPlaybackState(state(!playing), roomMode);
+        }}
       >
         {playing ? 'Pause' : 'Resume'}
       </button>
       <button
         onClick={() =>
-          usePlaybackStore.getState().resetPlaybackState(state(), 'host')
+          usePlaybackStore.getState().resetPlaybackState(state(), roomMode)
         }
       >
         Reset
