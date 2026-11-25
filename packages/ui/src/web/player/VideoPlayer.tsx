@@ -20,6 +20,7 @@ import {
   markPlaybackGestureUnlocked,
   subscribeToPlaybackGestureUnlock,
 } from './playbackGesture';
+import { providerErrorCode } from './providerErrorCode';
 import {
   claimProviderPlayback,
   registerProviderPlayback,
@@ -38,6 +39,7 @@ interface Props {
   isVisible?: boolean;
   onEnded?: () => void;
   fill?: boolean;
+  onProviderError?: (playlistItemId: string, errorCode: string | null) => void;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   /** Whether the video itself (or its error) is on screen, as opposed to a loading state. */
   onVideoVisibleChange?: (visible: boolean) => void;
@@ -69,6 +71,7 @@ const VideoPlayerComponent = ({
   isVisible = true,
   onEnded,
   fill = false,
+  onProviderError,
   onNeedsUserGestureChange,
   onVideoVisibleChange,
   appContext = 'platform',
@@ -869,6 +872,9 @@ const VideoPlayerComponent = ({
       }
 
       if (state === YOUTUBE_STATE_PLAYING) {
+        setError(null);
+        if (playbackState.currentPlaylistItem)
+          onProviderError?.(playbackState.currentPlaylistItem.id, null);
         const player = playerRef.current;
         if (
           player &&
@@ -1063,6 +1069,7 @@ const VideoPlayerComponent = ({
       kickAutoplay,
       onLocalPause,
       onLocalPlay,
+      onProviderError,
       shouldPlay,
       videoId,
     ],
@@ -1123,6 +1130,12 @@ const VideoPlayerComponent = ({
       // Provider errors (unavailable or non-embeddable videos) are content states shown in the UI.
       console.warn('[VideoPlayer] Player error:', playerErrorDetail(event));
       setError('This video is unavailable in the embedded player.');
+      if (isYouTubeActive && currentPlaylistItem) {
+        onProviderError?.(
+          currentPlaylistItem.id,
+          providerErrorCode(event, 'youtube_error'),
+        );
+      }
 
       if (
         !isCastReceiver ||
@@ -1136,7 +1149,14 @@ const VideoPlayerComponent = ({
       reportedPlaybackErrorVideoIdRef.current = currentPlaylistItem.sourceId;
       onPlaybackError?.(currentPlaylistItem.id);
     },
-    [currentPlaylistItem, isCastReceiver, isVisible, onPlaybackError],
+    [
+      currentPlaylistItem,
+      isCastReceiver,
+      isVisible,
+      isYouTubeActive,
+      onPlaybackError,
+      onProviderError,
+    ],
   );
 
   const resolvedVideoId = videoId;

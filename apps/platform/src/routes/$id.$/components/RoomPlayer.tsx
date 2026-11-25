@@ -53,6 +53,7 @@ interface PlayerProps {
   isVisible?: boolean;
   onEnded?: () => void;
   fill?: boolean;
+  onProviderError?: (playlistItemId: string, errorCode: string | null) => void;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   onVideoVisibleChange?: (visible: boolean) => void;
   appContext?: 'platform' | 'cast';
@@ -382,6 +383,20 @@ export const RoomPlayer = React.memo(
       [hasHostPlaybackAuthority, seek, setLocalPlaybackPosition],
     );
 
+    const providerErrorRef = useRef<{
+      playlistItemId: string;
+      errorCode: string;
+      roomId: string;
+    } | null>(null);
+    const handleProviderError = useCallback(
+      (playlistItemId: string, errorCode: string | null) => {
+        providerErrorRef.current = errorCode
+          ? { playlistItemId, errorCode, roomId }
+          : null;
+      },
+      [roomId],
+    );
+
     const skip = useCallback(
       (shouldShowFeedback = true) => {
         if (shouldShowFeedback) {
@@ -392,6 +407,12 @@ export const RoomPlayer = React.memo(
         playbackFetcher.submit(
           {
             intent: 'skip',
+            ...(providerErrorRef.current?.roomId === roomId &&
+              providerErrorRef.current?.playlistItemId ===
+                currentPlaylistItem?.id && {
+                playlistItemId: providerErrorRef.current.playlistItemId,
+                errorCode: providerErrorRef.current.errorCode,
+              }),
           },
           {
             action: `/${encodeURIComponent(roomId)}`,
@@ -400,7 +421,7 @@ export const RoomPlayer = React.memo(
           },
         );
       },
-      [playbackFetcher, roomId],
+      [playbackFetcher, roomId, currentPlaylistItem?.id],
     );
 
     const handleEnded = useCallback(() => {
@@ -666,6 +687,7 @@ export const RoomPlayer = React.memo(
                   onEnded: handleEnded,
                 })}
                 isVisible={!isConnected && isVideoTrack}
+                onProviderError={handleProviderError}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 onVideoVisibleChange={setIsVideoVisible}
                 appContext="platform"
@@ -706,6 +728,7 @@ export const RoomPlayer = React.memo(
                   displayRoom?.mode === 'server') && {
                   onLocalPlay: handleLocalPlay,
                 })}
+                onProviderError={handleProviderError}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 {...(hasHostPlaybackAuthority && {
                   onEnded: handleEnded,

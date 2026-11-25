@@ -62,6 +62,7 @@ export interface RoomActionData {
 export interface RoomActionRequest {
   text?: string;
   action?: 'pause' | 'play' | 'seek';
+  errorCode?: string;
   force?: boolean;
   intent: RoomActionIntent;
   password?: string;
@@ -197,7 +198,13 @@ export async function clientAction({
     const [error, skip] = await api.v2.post(
       '/rooms/{id}/skips',
       { id: roomId },
-      {},
+      {
+        ...(body.errorCode &&
+          body.playlistItemId && {
+            errorCode: body.errorCode,
+            playlistItemId: body.playlistItemId,
+          }),
+      },
     );
 
     if (error || !skip) {

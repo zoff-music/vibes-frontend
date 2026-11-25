@@ -67,6 +67,7 @@ it.each([1280, 390])(
       },
       'host',
     );
+    const report = vi.fn();
     const play = vi.fn();
     const skip = vi.fn();
     const mute = vi.fn();
@@ -81,7 +82,7 @@ it.each([1280, 390])(
               data-viewport
               className="relative min-h-0 flex-1 overflow-hidden"
             >
-              <VideoPlayer fill isVisible />
+              <VideoPlayer fill isVisible onProviderError={report} />
             </div>
             <PlayerControls
               isPlaying={false}
@@ -138,5 +139,6 @@ it.each([1280, 390])(
     expect(skip).toHaveBeenCalledOnce();
     expect(mute).toHaveBeenCalledOnce();
     expect(warn).toHaveBeenCalledOnce();
+    expect(report).toHaveBeenCalledWith('one', '101');
   },
 );
