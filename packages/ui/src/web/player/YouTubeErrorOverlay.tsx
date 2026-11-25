@@ -6,11 +6,13 @@ import { InfoIcon } from '../icons';
 interface YouTubeErrorOverlayProps {
   code: string;
   videoId: string;
+  onReload: () => void;
 }
 
 export function YouTubeErrorOverlay({
   code,
   videoId,
+  onReload,
 }: YouTubeErrorOverlayProps) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const titleId = useId();
@@ -42,6 +44,13 @@ export function YouTubeErrorOverlay({
             className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none"
           >
             <InfoIcon aria-hidden="true" className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={onReload}
+            className="min-h-11 rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none"
+          >
+            Reload player
           </button>
         </div>
       </div>

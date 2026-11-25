@@ -55,6 +55,10 @@ interface Props {
   volume?: number;
 }
 
+interface PlayerSessionProps extends Props {
+  onReload: () => void;
+}
+
 interface PlayerSize {
   height: number;
   width: number;
@@ -67,10 +71,11 @@ interface ObservedPlayback {
   state: number;
 }
 
-const VideoPlayerComponent = ({
+const VideoPlayerSession = ({
   allowUnmutedAutoplay = false,
   isVisible = true,
   onEnded,
+  onReload,
   fill = false,
   onProviderError,
   onNeedsUserGestureChange,
@@ -83,7 +88,7 @@ const VideoPlayerComponent = ({
   onLocalSeek,
   onPlaybackError,
   volume = MAX_VOLUME,
-}: Props) => {
+}: PlayerSessionProps) => {
   const currentPlaylistItem = usePlaybackStore(
     (state) => state.currentPlaylistItem,
   );
@@ -1388,6 +1393,7 @@ const VideoPlayerComponent = ({
       {error && (
         <YouTubeErrorOverlay
           key={videoId}
+          onReload={onReload}
           code={error}
           videoId={resolvedVideoId}
         />
@@ -1410,6 +1416,26 @@ const VideoPlayerComponent = ({
     </div>
   );
 };
+
+function VideoPlayerComponent({ onProviderError, ...props }: Props) {
+  const [attempt, setAttempt] = useState(0);
+  const reloadPlayer = useCallback(() => {
+    const item = usePlaybackStore.getState().currentPlaylistItem;
+    if (item?.sourceType === 'youtube') onProviderError?.(item.id, null);
+    // Remount only the local player session: YouTubeFrame destroys its SDK
+    // instance and iframe, and the new session reads the live playback store.
+    setAttempt((value) => value + 1);
+  }, [onProviderError]);
+
+  return (
+    <VideoPlayerSession
+      {...props}
+      {...(onProviderError && { onProviderError })}
+      key={attempt}
+      onReload={reloadPlayer}
+    />
+  );
+}
 
 export const VideoPlayer = memo(VideoPlayerComponent);
 
