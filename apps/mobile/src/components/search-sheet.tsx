@@ -50,6 +50,8 @@ export function SearchSheet({
   const labels = getRoomLabels(roomType);
   const [
     {
+      authenticationRequired,
+      importCode,
       enabledProviders,
       error,
       isAIMode,
@@ -59,7 +61,16 @@ export function SearchSheet({
       query,
       results,
     },
-    { add, addPlaylist, search, setProvider, toggleAIMode, updateQuery },
+    {
+      authenticate,
+      setImportCode,
+      add,
+      addPlaylist,
+      search,
+      setProvider,
+      toggleAIMode,
+      updateQuery,
+    },
   ] = useProviderSearch({
     roomType,
     canGenerate,
@@ -217,6 +228,25 @@ export function SearchSheet({
               onPress={() => void search()}
             />
           </View>
+          {authenticationRequired && (
+            <View className="mb-4 gap-2">
+              <Copy>
+                This list seems to be private, authenticate to import it
+              </Copy>
+              <Button
+                label="Authenticate"
+                onPress={() => void authenticate()}
+              />
+              <Field
+                accessibilityLabel="Single-use import code"
+                placeholder="Paste import code, then tap Search"
+                autoCapitalize="none"
+                value={importCode}
+                onChangeText={setImportCode}
+                onSubmitEditing={() => void search()}
+              />
+            </View>
+          )}
           {playlist && !isAIMode && (
             <View className="mb-4">
               {(playlist.skippedEmbeddingCount ?? 0) > 0 && (

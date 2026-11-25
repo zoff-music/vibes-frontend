@@ -7,7 +7,7 @@ import {
 import { fetch as expoFetch } from 'expo/fetch';
 import { Platform } from 'react-native';
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? 'https://zoff.me';
+export const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? 'https://zoff.me';
 const nativeFetch = Platform.OS === 'ios' ? globalThis.fetch : expoFetch;
 
 export const mobileApi = createApiClientWithBaseUrl(apiUrl, {

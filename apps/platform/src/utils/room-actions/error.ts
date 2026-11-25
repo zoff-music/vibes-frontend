@@ -67,6 +67,9 @@ export async function createErrorData(
         (intent === 'providerItem' && 'Could not load that item.') ||
         (intent === 'providerPlaylist' && 'Could not load that playlist.') ||
         'The request failed'),
+    ...(apiError?.error === 'playlist_authentication_required' && {
+      errorAction: 'playlistAuth' as const,
+    }),
     ...(apiError?.error === 'song_room_admin_required' && {
       errorAction: 'adminLogin' as const,
     }),
