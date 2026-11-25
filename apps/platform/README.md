@@ -901,3 +901,16 @@ Run `pnpm --filter @vibes/platform test` for the
 navigation policy regression cases. Run
 `pnpm --filter @vibes/ui test` for document handoffs and
 initial-entry coverage.
+
+### YouTube browser and sign-in errors
+
+The player shows a browser-identification message for IFrame API error 153
+(missing Referer or equivalent API client identity). Other errors keep the
+general embedded-player message. Every YouTube error overlay includes an info
+button with browser, header, sign-in, privacy-tool, and built-in-browser help.
+The public IFrame API does not identify the exact “not a bot” screen, so do not
+classify 101/150 as browser blocks or infer a bot challenge from the user agent.
+The help dialog offers a direct YouTube link and preserves the room controls.
+Raw provider codes still accompany error-bearing skips for metadata verification.
+
+Reference: https://developers.google.com/youtube/iframe_api_reference#onError
