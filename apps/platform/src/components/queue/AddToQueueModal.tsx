@@ -93,15 +93,8 @@ export const AddToQueueModal: React.FC<Props> = ({
   const [searchResults, setSearchResults] = useState<ProviderItem[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [visibleResultCount, setVisibleResultCount] = useState(15);
-  const [importCode, setImportCode] = useState('');
-  const [awaitingCode, setAwaitingCode] = useState(false);
-  const channelRef = useRef<BroadcastChannel | null>(null);
-  useEffect(() => {
-    return () => {
-      channelRef.current?.close();
-      channelRef.current = null;
-    };
-  }, []);
+  const authListener = useRef<AbortController | null>(null);
+  useEffect(() => () => authListener.current?.abort(), []);
   const searchPending = useRef(false);
   const searchExpiresAt = useRef(0);
   const submittedSearch = useRef({
@@ -184,10 +177,8 @@ export const AddToQueueModal: React.FC<Props> = ({
     }
 
     if (!isVisible) {
-      channelRef.current?.close();
-      channelRef.current = null;
-      setImportCode('');
-      setAwaitingCode(false);
+      authListener.current?.abort();
+
       const timeout = setTimeout(() => {
         if (isAIMode) setSearchQuery('');
         setIsAIMode(false);
@@ -267,8 +258,6 @@ export const AddToQueueModal: React.FC<Props> = ({
       searchFetcher.data.intent === 'providerPlaylist' &&
       searchFetcher.data.playlist
     ) {
-      setAwaitingCode(false);
-      setImportCode('');
       const playlist = searchFetcher.data.playlist;
       setPreviewPlaylist({
         title: playlist.title,
@@ -402,7 +391,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     labels.item,
   ]);
 
-  const performSearch = (query: string, code = '') => {
+  const performSearch = (query: string, playlistAuthorization = '') => {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
@@ -448,7 +437,7 @@ export const AddToQueueModal: React.FC<Props> = ({
       searchFetcher.submit(
         {
           intent: 'providerPlaylist',
-          ...(code && { importCode: code }),
+          ...(playlistAuthorization && { playlistAuthorization }),
           provider: providerPlaylistLink.provider,
           ...(providerPlaylistLink.sourceId
             ? {
@@ -536,10 +525,8 @@ export const AddToQueueModal: React.FC<Props> = ({
   };
 
   const handleSearchChange = (query: string) => {
-    channelRef.current?.close();
-    channelRef.current = null;
-    setImportCode('');
-    setAwaitingCode(false);
+    authListener.current?.abort();
+
     setSearchQuery(
       isAIMode ? query.slice(0, generatedPlaylistPromptMaxLength) : query,
     );
@@ -892,32 +879,38 @@ export const AddToQueueModal: React.FC<Props> = ({
                         providerPlaylistLink.sourceId ??
                         providerPlaylistLink.providerUrl;
                       if (!source) return;
-                      channelRef.current?.close();
+                      authListener.current?.abort();
+                      const popup = window.open('about:blank', '_blank');
+                      if (!popup) {
+                        setError(
+                          'Allow pop-ups for Zoff, then try the playlist again.',
+                        );
+                        return;
+                      }
+                      popup.opener = null;
                       const channel = crypto.randomUUID();
-                      if (typeof BroadcastChannel !== 'undefined') {
-                        const listener = new BroadcastChannel(channel);
-                        channelRef.current = listener;
-                        listener.onmessage = ({ data }) => {
+                      const controller = new AbortController();
+                      authListener.current = controller;
+                      window.addEventListener(
+                        'storage',
+                        (event) => {
                           if (
-                            typeof data !== 'string' ||
-                            !/^[A-Za-z0-9_-]{24}$/.test(data)
+                            event.storageArea !== localStorage ||
+                            event.key !== `web-${channel}` ||
+                            event.newValue !== 'complete'
                           )
                             return;
-                          listener.postMessage('received');
-                          listener.close();
-                          performSearch(searchQuery, data);
-                        };
-                      }
-                      setAwaitingCode(true);
-                      window.open(
+                          controller.abort();
+                          performSearch(searchQuery, `web-${channel}`);
+                        },
+                        { signal: controller.signal },
+                      );
+                      popup.location.replace(
                         playlistAuthorizationUrl(
                           providerPlaylistLink.provider,
                           source,
-                          undefined,
-                          channel,
+                          { channel },
                         ),
-                        '_blank',
-                        'noopener,noreferrer',
                       );
                     }}
                   >
@@ -938,26 +931,6 @@ export const AddToQueueModal: React.FC<Props> = ({
           </div>
         )}
 
-        {awaitingCode && !previewPlaylist && (
-          <div className="mt-3 flex gap-2">
-            <input
-              aria-label="Single-use import code"
-              placeholder="Single-use import code"
-              className="border-theme rounded border px-2"
-              value={importCode}
-              onInput={(event) =>
-                setImportCode(event.currentTarget.value.trim())
-              }
-            />
-            <button
-              type="button"
-              disabled={!importCode || isSearching}
-              onClick={() => performSearch(searchQuery, importCode)}
-            >
-              Continue import
-            </button>
-          </div>
-        )}
         {/* Search Results Dropdown */}
         {!isAIMode &&
           showResults &&

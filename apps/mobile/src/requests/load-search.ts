@@ -64,7 +64,7 @@ export async function loadSearch({
       playlistLink.provider,
       source,
       room.roomType,
-      { signal, importCode: params.importCode },
+      { signal, playlistAuthorization: params.playlistAuthorization },
     );
 
     if (error || !playlist) {

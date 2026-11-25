@@ -124,7 +124,7 @@ export async function playlistAction(
       body.provider,
       source,
       room.roomType,
-      { signal, importCode: body.importCode },
+      { signal, playlistAuthorization: body.playlistAuthorization },
     );
     if (!error && playlist) return { intent: body.intent, playlist };
     const providerError = error && (await getAPIErrorResponse(error));

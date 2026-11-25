@@ -60,7 +60,7 @@ export interface RoomActionData {
 }
 
 export interface RoomActionRequest {
-  importCode?: string;
+  playlistAuthorization?: string;
   text?: string;
   action?: 'pause' | 'play' | 'seek';
   errorCode?: string;

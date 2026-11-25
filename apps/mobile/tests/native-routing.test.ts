@@ -450,6 +450,7 @@ test('Expo native intent keeps room and remote deep links after relocation', asy
       ['zoff://remote/abc?pair=token', '/remote?remoteId=abc&pair=token'],
       ['https://zoff.me/security', 'https://zoff.me/security'],
       ['zoff://app/%invalid', '/'],
+      ['zoff://playlist-import#callback-result', null],
     ]) {
       assert.equal(redirectSystemPath({ initial, path }), expected);
     }

@@ -38,6 +38,8 @@ export function redirectSystemPath({ path }: SystemPathEvent) {
     }
 
     if (url.protocol !== zoffProtocol) return path;
+    // The active native auth session consumes this return URL.
+    if (url.hostname === 'playlist-import') return null;
 
     if (url.hostname === 'remote' || url.hostname === remotePathSegment) {
       url.pathname = `/${url.hostname}${url.pathname}`;

@@ -51,7 +51,6 @@ export function SearchSheet({
   const [
     {
       authenticationRequired,
-      importCode,
       enabledProviders,
       error,
       isAIMode,
@@ -63,7 +62,6 @@ export function SearchSheet({
     },
     {
       authenticate,
-      setImportCode,
       add,
       addPlaylist,
       search,
@@ -234,16 +232,9 @@ export function SearchSheet({
                 This list seems to be private, authenticate to import it
               </Copy>
               <Button
+                disabled={loading}
                 label="Authenticate"
                 onPress={() => void authenticate()}
-              />
-              <Field
-                accessibilityLabel="Single-use import code"
-                placeholder="Paste import code, then tap Search"
-                autoCapitalize="none"
-                value={importCode}
-                onChangeText={setImportCode}
-                onSubmitEditing={() => void search()}
               />
             </View>
           )}
