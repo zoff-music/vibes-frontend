@@ -61,6 +61,7 @@ import {
   searchQuerySchema,
   sessionProfileSchema,
   sessionResponseV2Schema,
+  skipPlaylistItemRequestSchema,
   skipPlaylistItemResponseSchema,
   skipVoteUpdateV2Schema,
   statsV2Schema,
@@ -256,7 +257,10 @@ const v2Endpoints = {
     put: { request: roomActionRequestSchema, response: playbackStateV2Schema },
   },
   '/rooms/{id}/skips': {
-    post: { response: skipPlaylistItemResponseSchema },
+    post: {
+      request: skipPlaylistItemRequestSchema,
+      response: skipPlaylistItemResponseSchema,
+    },
   },
   '/rooms/{id}/failures': {
     post: {

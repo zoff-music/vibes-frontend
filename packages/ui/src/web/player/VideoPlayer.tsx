@@ -20,6 +20,7 @@ import {
   markPlaybackGestureUnlocked,
   subscribeToPlaybackGestureUnlock,
 } from './playbackGesture';
+import { providerErrorCode } from './providerErrorCode';
 import {
   claimProviderPlayback,
   registerProviderPlayback,
@@ -38,6 +39,7 @@ interface Props {
   isVisible?: boolean;
   onEnded?: () => void;
   fill?: boolean;
+  onProviderError?: (playlistItemId: string, errorCode: string | null) => void;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   /** Whether the video itself (or its error) is on screen, as opposed to a loading state. */
   onVideoVisibleChange?: (visible: boolean) => void;
@@ -69,6 +71,7 @@ const VideoPlayerComponent = ({
   isVisible = true,
   onEnded,
   fill = false,
+  onProviderError,
   onNeedsUserGestureChange,
   onVideoVisibleChange,
   appContext = 'platform',
@@ -869,6 +872,9 @@ const VideoPlayerComponent = ({
       }
 
       if (state === YOUTUBE_STATE_PLAYING) {
+        setError(null);
+        if (playbackState.currentPlaylistItem)
+          onProviderError?.(playbackState.currentPlaylistItem.id, null);
         const player = playerRef.current;
         if (
           player &&
@@ -1063,6 +1069,7 @@ const VideoPlayerComponent = ({
       kickAutoplay,
       onLocalPause,
       onLocalPlay,
+      onProviderError,
       shouldPlay,
       videoId,
     ],
@@ -1123,6 +1130,12 @@ const VideoPlayerComponent = ({
       // Provider errors (unavailable or non-embeddable videos) are content states shown in the UI.
       console.warn('[VideoPlayer] Player error:', playerErrorDetail(event));
       setError('This video is unavailable in the embedded player.');
+      if (isYouTubeActive && currentPlaylistItem) {
+        onProviderError?.(
+          currentPlaylistItem.id,
+          providerErrorCode(event, 'youtube_error'),
+        );
+      }
 
       if (
         !isCastReceiver ||
@@ -1136,7 +1149,14 @@ const VideoPlayerComponent = ({
       reportedPlaybackErrorVideoIdRef.current = currentPlaylistItem.sourceId;
       onPlaybackError?.(currentPlaylistItem.id);
     },
-    [currentPlaylistItem, isCastReceiver, isVisible, onPlaybackError],
+    [
+      currentPlaylistItem,
+      isCastReceiver,
+      isVisible,
+      isYouTubeActive,
+      onPlaybackError,
+      onProviderError,
+    ],
   );
 
   const resolvedVideoId = videoId;
@@ -1352,7 +1372,7 @@ const VideoPlayerComponent = ({
             onError={handleError}
             className={classNames(
               'absolute inset-0 flex items-center justify-center [&_iframe]:max-h-full [&_iframe]:w-full',
-              youtubeHidden && 'clip-hidden invisible',
+              (youtubeHidden || !!error) && 'clip-hidden invisible',
               fill &&
                 'h-full min-h-0 w-full [&_iframe]:h-full [&_iframe]:max-w-full',
               !fill &&
@@ -1367,7 +1387,10 @@ const VideoPlayerComponent = ({
       )}
 
       {error && (
-        <div className="shrink-0 border-t border-white/15 bg-black px-4 py-3 text-center">
+        <div
+          role="alert"
+          className="absolute inset-0 z-20 flex items-center justify-center bg-black px-6 py-4 text-center"
+        >
           <p className="text-2xs font-mono tracking-widest text-white/70 uppercase">
             {error}
           </p>

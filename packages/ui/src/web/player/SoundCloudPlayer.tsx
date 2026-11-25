@@ -20,6 +20,7 @@ import {
   markPlaybackGestureUnlocked,
   subscribeToPlaybackGestureUnlock,
 } from './playbackGesture';
+import { providerErrorCode } from './providerErrorCode';
 import {
   claimProviderPlayback,
   registerProviderPlayback,
@@ -83,6 +84,7 @@ interface Props {
   onLocalSeek?: (positionMs: number) => void;
   onLocalAlignmentChange?: (isAligned: boolean) => void;
   onLocalVolumeChange?: () => void;
+  onProviderError?: (playlistItemId: string, errorCode: string | null) => void;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   showInitialPlaybackOverlay?: boolean;
   volume?: number;
@@ -96,6 +98,7 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   preloadPlaylistItem = null,
   onLocalAlignmentChange,
   onLocalPlay,
+  onProviderError,
   onNeedsUserGestureChange,
   showInitialPlaybackOverlay = false,
   volume = MAX_VOLUME,
@@ -153,6 +156,10 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
   const misalignedSamplesRef = useRef(0);
   const lastAlignmentRef = useRef<boolean | null>(null);
   const lastResetVersionRef = useRef(resetVersion);
+  const onProviderErrorRef = useRef(onProviderError);
+  useLayoutEffect(() => {
+    onProviderErrorRef.current = onProviderError;
+  }, [onProviderError]);
   const onEndedRef = useRef(onEnded);
   const onLocalAlignmentChangeRef = useRef(onLocalAlignmentChange);
   const desiredVolume = Math.min(MAX_VOLUME, Math.max(MIN_VOLUME, volume));
@@ -418,6 +425,9 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
         return;
       }
 
+      if (isActiveRef.current && providerPlaylistItemRef.current) {
+        onProviderErrorRef.current?.(providerPlaylistItemRef.current.id, null);
+      }
       prewarmingRef.current = false;
 
       if (restartTimerRef.current) {
@@ -449,7 +459,14 @@ const SoundCloudPlayerComponent: React.FC<Props> = ({
     });
 
     widget.bind(soundCloud.Widget.Events.ERROR, (event?: unknown) => {
-      console.error('[SoundCloud Widget] Error:', event);
+      console.warn('[SoundCloud Widget] Error:', event);
+      const item = providerPlaylistItemRef.current;
+      if (isActiveRef.current && item) {
+        onProviderErrorRef.current?.(
+          item.id,
+          providerErrorCode(event, 'soundcloud_error'),
+        );
+      }
     });
   }, [playWidget, prewarmWidget, shouldWidgetPlay]);
 

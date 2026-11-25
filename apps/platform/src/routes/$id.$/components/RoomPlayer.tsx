@@ -53,6 +53,7 @@ interface PlayerProps {
   isVisible?: boolean;
   onEnded?: () => void;
   fill?: boolean;
+  onProviderError?: (playlistItemId: string, errorCode: string | null) => void;
   onNeedsUserGestureChange?: (needsGesture: boolean) => void;
   onVideoVisibleChange?: (visible: boolean) => void;
   appContext?: 'platform' | 'cast';
@@ -382,6 +383,20 @@ export const RoomPlayer = React.memo(
       [hasHostPlaybackAuthority, seek, setLocalPlaybackPosition],
     );
 
+    const providerErrorRef = useRef<{
+      playlistItemId: string;
+      errorCode: string;
+      roomId: string;
+    } | null>(null);
+    const handleProviderError = useCallback(
+      (playlistItemId: string, errorCode: string | null) => {
+        providerErrorRef.current = errorCode
+          ? { playlistItemId, errorCode, roomId }
+          : null;
+      },
+      [roomId],
+    );
+
     const skip = useCallback(
       (shouldShowFeedback = true) => {
         if (shouldShowFeedback) {
@@ -392,6 +407,12 @@ export const RoomPlayer = React.memo(
         playbackFetcher.submit(
           {
             intent: 'skip',
+            ...(providerErrorRef.current?.roomId === roomId &&
+              providerErrorRef.current?.playlistItemId ===
+                currentPlaylistItem?.id && {
+                playlistItemId: providerErrorRef.current.playlistItemId,
+                errorCode: providerErrorRef.current.errorCode,
+              }),
           },
           {
             action: `/${encodeURIComponent(roomId)}`,
@@ -400,7 +421,7 @@ export const RoomPlayer = React.memo(
           },
         );
       },
-      [playbackFetcher, roomId],
+      [playbackFetcher, roomId, currentPlaylistItem?.id],
     );
 
     const handleEnded = useCallback(() => {
@@ -611,7 +632,7 @@ export const RoomPlayer = React.memo(
       <div
         data-room-player-surface
         className={classNames(
-          'flex min-w-0 shrink-0 origin-top-left flex-col gap-6 lg:col-span-3 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto]',
+          'flex min-w-0 shrink-0 origin-top-left flex-col gap-6 lg:col-span-3 lg:h-full lg:min-h-0',
           minimized && '!block',
         )}
       >
@@ -628,7 +649,7 @@ export const RoomPlayer = React.memo(
         <div
           data-player-viewport
           className={classNames(
-            'border-theme relative isolate flex min-h-player-min w-full origin-top-left overflow-hidden rounded-player border bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0',
+            'border-theme relative isolate flex min-h-player-min w-full origin-top-left overflow-hidden rounded-player border bg-black sm:min-h-player-sm-min lg:aspect-auto lg:min-h-0 lg:flex-1',
             minimized && '!aspect-video !min-h-[202px] !rounded-2xl',
           )}
         >
@@ -666,6 +687,7 @@ export const RoomPlayer = React.memo(
                   onEnded: handleEnded,
                 })}
                 isVisible={!isConnected && isVideoTrack}
+                onProviderError={handleProviderError}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 onVideoVisibleChange={setIsVideoVisible}
                 appContext="platform"
@@ -706,6 +728,7 @@ export const RoomPlayer = React.memo(
                   displayRoom?.mode === 'server') && {
                   onLocalPlay: handleLocalPlay,
                 })}
+                onProviderError={handleProviderError}
                 onNeedsUserGestureChange={setIsPlaybackBlocked}
                 {...(hasHostPlaybackAuthority && {
                   onEnded: handleEnded,

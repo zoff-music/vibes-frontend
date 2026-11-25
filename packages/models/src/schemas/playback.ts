@@ -49,3 +49,12 @@ export const skipVoteUpdateV2Schema = /* @__PURE__ */ v.object({
 });
 
 export type SkipVoteUpdateV2 = v.InferOutput<typeof skipVoteUpdateV2Schema>;
+
+export const skipPlaylistItemRequestSchema = /* @__PURE__ */ v.object({
+  playlistItemId: v.optional(v.string()),
+  errorCode: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(128))),
+});
+
+export type SkipPlaylistItemRequest = v.InferOutput<
+  typeof skipPlaylistItemRequestSchema
+>;
