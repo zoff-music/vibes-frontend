@@ -57,7 +57,7 @@ export function createPublicRequestCache<T>(lifetime: number) {
         active.consumers -= 1;
 
         if (active.consumers === 0) {
-          active.controller.abort();
+          if (signal?.aborted) active.controller.abort();
 
           if (pending.get(key) === active) pending.delete(key);
         }
