@@ -99,6 +99,11 @@ export function PlaylistItemSearchModal({
           Search
         </Button>
       </fetcher.Form>
+      {fetcher.data?.intent === 'search' && fetcher.data.error && (
+        <p role="alert" className="text-error mt-3">
+          {fetcher.data.error}
+        </p>
+      )}
 
       <div className="mt-4 max-h-[50vh] space-y-2 overflow-y-auto">
         {results.map((result) => (

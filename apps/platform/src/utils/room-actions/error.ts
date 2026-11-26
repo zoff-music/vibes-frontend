@@ -15,14 +15,6 @@ export async function createErrorData(
   const apiError = error ? await getAPIErrorResponse(error) : null;
   const status = error ? getHttpError(error)?.response.status : null;
 
-  if (apiError?.error === 'youtube_search_quota_exhausted') {
-    return {
-      error:
-        'YouTube search has reached its daily limit for Zoff, not just you. It resets at midnight Pacific time. You can still try pasting a YouTube song or playlist link.',
-      intent,
-    } satisfies RoomActionData;
-  }
-
   let permissionError: string | null = null;
 
   if (intent === 'joinRoom' && status === FORBIDDEN_STATUS) {

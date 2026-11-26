@@ -11,7 +11,6 @@ import { Button, Copy, Field, IconButton, Screen } from '@/components/native';
 import { ScreenSafeArea as SafeAreaView } from '@/components/screen-safe-area';
 import { SearchResults } from '@/components/search-results';
 import { TabButton } from '@/components/tab-button';
-import { Toast } from '@/components/toast';
 import { ZoffIcon } from '@/components/zoff-icon';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useProviderSearch } from '@/hooks/use-provider-search';
@@ -265,8 +264,15 @@ export function SearchSheet({
               />
             </View>
           )}
-          <Toast message={error} />
-          {!isAIMode && (
+          {Boolean(error) && (
+            <Text
+              accessibilityRole="alert"
+              className="font-heading text-error mb-4"
+            >
+              {error}
+            </Text>
+          )}
+          {!isAIMode && (!error || results.length > 0) && (
             <SearchResults
               loading={loading}
               onAdd={add}

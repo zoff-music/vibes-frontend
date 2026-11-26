@@ -53,3 +53,24 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.useRealTimers();
 });
+
+test('a completed search leaves its HTTP error body readable', async () => {
+  const read = createPublicRequestCache(0);
+  const [error] = await read('query', async (signal) => {
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        signal.addEventListener('abort', () => controller.error(signal.reason));
+        controller.enqueue(new TextEncoder().encode('quota exhausted'));
+        controller.close();
+      },
+    });
+    return [
+      Object.assign(new Error('search failed'), {
+        response: new Response(body),
+      }),
+      null,
+    ];
+  });
+  assert.ok(error && 'response' in error && error.response instanceof Response);
+  assert.equal(await error.response.text(), 'quota exhausted');
+});
