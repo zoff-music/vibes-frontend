@@ -1,5 +1,9 @@
 import type { ClientActionFunctionArgs } from '@kasperrt/smolter/preact';
-import { createApiClient, getRequestErrorMessage } from '@vibes/api';
+import {
+  createApiClient,
+  createProviderSearchRequest,
+  getRequestErrorMessage,
+} from '@vibes/api';
 
 import {
   isSourceType,
@@ -204,10 +208,11 @@ export async function clientAction({
       return { error: 'That provider is not supported.', intent };
     }
 
-    const [error, searchResults] = await client.v2.get(
-      '/rooms/{id}/search/{provider}',
-      { id: roomId, provider, $search: { q: query } },
-      { signal: request.signal, retry: 0 },
+    const [error, searchResults] = await createProviderSearchRequest(client)(
+      roomId,
+      provider,
+      query,
+      { signal: request.signal },
     );
 
     if (error || !searchResults) return errorResult(intent, error);

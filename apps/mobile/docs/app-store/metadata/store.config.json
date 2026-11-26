@@ -18,7 +18,7 @@
           "cast",
           "rooms"
         ],
-        "releaseNotes": "This update fixes room-name handling when joining rooms and updates the app's underlying dependencies.",
+        "releaseNotes": "Each search now checks the room again. Search errors appear directly in the search sheet. When Zoff reaches its daily YouTube search limit, you’ll see when search resets. You can also sign in to import a private playlist and continue where you left off.",
         "promoText": "Create a shared room, shape the queue together, cast to a bigger screen, or use your phone as a remote.",
         "marketingUrl": "https://zoff.me",
         "supportUrl": "https://github.com/zoff-music/vibes-frontend/issues",
