@@ -38,10 +38,17 @@ import {
 } from '@vibes/ui/web';
 import React, { useEffect, useRef, useState } from 'preact/compat';
 import type { RoomActionData } from '../../routes/$id.$/utils/actions/clientAction';
-import {
-  type QueueSearchItem as ProviderItem,
-  useQueueSearchStore,
-} from '../../stores/queueSearchStore';
+
+interface ProviderItem {
+  id: string;
+  title: string;
+  publisher: string;
+  thumbnailUrl: string;
+  duration?: string;
+  providerUrl?: string;
+  source: SourceType;
+  playbackRestriction?: PlaybackRestriction;
+}
 
 interface Props {
   room: RoomV2;
@@ -97,11 +104,6 @@ export const AddToQueueModal: React.FC<Props> = ({
   const authListener = useRef<AbortController | null>(null);
   useEffect(() => () => authListener.current?.abort(), []);
   const searchPending = useRef(false);
-  const searchExpiresAt = useRef(0);
-  const submittedSearch = useRef({
-    query: '',
-    provider: 'youtube' as SourceType,
-  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewItem, setPreviewItem] = useState<ProviderItem | null>(null);
@@ -159,7 +161,6 @@ export const AddToQueueModal: React.FC<Props> = ({
   const providerList = orderedProviders.filter(
     (p) => (providers || []).includes(p) && enabledSources.includes(p),
   );
-  const enabledProviderKey = providerList.join(',');
 
   const [selectedProvider, setSelectedProvider] = useState<SourceType>(
     providerList[0] ?? 'youtube',
@@ -168,20 +169,19 @@ export const AddToQueueModal: React.FC<Props> = ({
   useEffect(() => {
     if (providerList.length > 0 && !providerList.includes(selectedProvider)) {
       setSelectedProvider(providerList[0]);
+      setSearchResults([]);
+      setShowResults(false);
     }
   }, [providerList, selectedProvider]);
 
   useEffect(() => {
-    if (isVisible && searchExpiresAt.current <= Date.now()) {
-      setSearchResults([]);
-      setShowResults(false);
-    }
-
     if (!isVisible) {
       authListener.current?.abort();
 
       const timeout = setTimeout(() => {
-        if (isAIMode) setSearchQuery('');
+        setSearchQuery('');
+        setSearchResults([]);
+        setShowResults(false);
         setIsAIMode(false);
         setPreviewItem(null);
         setPreviewPlaylist(null);
@@ -193,7 +193,7 @@ export const AddToQueueModal: React.FC<Props> = ({
 
       return () => clearTimeout(timeout);
     }
-  }, [isVisible, isAIMode]);
+  }, [isVisible]);
 
   useEffect(() => {
     if (!room.id) return;
@@ -201,19 +201,7 @@ export const AddToQueueModal: React.FC<Props> = ({
     setSearchQuery('');
     setSearchResults([]);
     setShowResults(false);
-    searchExpiresAt.current = 0;
-
-    const saved = useQueueSearchStore.getState().search;
-    if (!saved || saved.roomId !== room.id || saved.expiresAt <= Date.now())
-      return;
-    if (!enabledProviderKey.split(',').includes(saved.provider)) return;
-
-    setSearchQuery(saved.query);
-    setSelectedProvider(saved.provider);
-    setSearchResults(saved.results);
-    setShowResults(true);
-    searchExpiresAt.current = saved.expiresAt;
-  }, [room.id, enabledProviderKey]);
+  }, [room.id]);
 
   useEffect(() => {
     if (
@@ -305,7 +293,6 @@ export const AddToQueueModal: React.FC<Props> = ({
       searchFetcher.data.intent === 'search' &&
       searchFetcher.data.searchResults
     ) {
-      searchExpiresAt.current = Date.now() + 5 * 60_000;
       const results: ProviderItem[] = searchFetcher.data.searchResults.map(
         (result) => ({
           publisher: result.publisher || 'Unknown',
@@ -322,16 +309,9 @@ export const AddToQueueModal: React.FC<Props> = ({
         }),
       );
       setSearchResults(results);
-      useQueueSearchStore.getState().setSearch({
-        roomId: room.id,
-        query: submittedSearch.current.query,
-        provider: submittedSearch.current.provider,
-        results,
-        expiresAt: searchExpiresAt.current,
-      });
       setShowResults(true);
     }
-  }, [searchFetcher.data, searchFetcher.state, room.id]);
+  }, [searchFetcher.data, searchFetcher.state]);
 
   useEffect(() => {
     if (playlistItemFetcher.state !== 'idle' || !playlistItemFetcher.data)
@@ -509,10 +489,6 @@ export const AddToQueueModal: React.FC<Props> = ({
       return;
     }
 
-    submittedSearch.current = {
-      query: trimmedQuery,
-      provider: selectedProvider,
-    };
     searchFetcher.submit(
       {
         intent: 'search',

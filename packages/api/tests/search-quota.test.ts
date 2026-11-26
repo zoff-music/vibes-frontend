@@ -41,3 +41,23 @@ test('provider search preserves a streamed quota response through wiretyped', as
     message,
   );
 });
+
+test.each(['youtube', 'soundcloud'] as const)(
+  'every %s search reaches the backend',
+  async (provider) => {
+    let requests = 0;
+    const client = createApiClientWithBaseUrl('https://example.test', {
+      fetcher: async () => {
+        requests += 1;
+        return Response.json([]);
+      },
+    });
+    const search = createProviderSearchRequest(client);
+    await Promise.all([
+      search('room', provider, 'disco'),
+      search('room', provider, 'disco'),
+    ]);
+    await search('room', provider, 'disco');
+    expect(requests).toBe(3);
+  },
+);
