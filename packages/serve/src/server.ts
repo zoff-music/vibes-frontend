@@ -67,6 +67,7 @@ type ServerMode =
       loadBuild: () => Promise<unknown>;
       /** Inline per-document critical CSS built by `@vibes/serve/critical-css/vite`. */
       criticalCss?: boolean;
+      prerenderPaths?: string[];
     }
   | {
       type: 'spa';
@@ -120,16 +121,20 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
   }
 
   const staticBase = config.assets.path.replace(/\/assets\/?$/, '') || '/';
-  const dataEndpoint = `${staticBase.replace(/\/$/, '')}/_smolter`;
+  const basePathPrefix = staticBase.replace(/\/$/, '');
+  const dataEndpoint = `${basePathPrefix}/_vibes`;
   app.get(
-    `${staticBase.replace(/\/$/, '')}/smolter-manifest.json`,
+    // Tabs opened before the namespace change still check their original manifest URL.
+    ['_vibes-manifest.json', 'smolter-manifest.json'].map(
+      (name) => `${basePathPrefix}/${name}`,
+    ),
     (_req, res) => {
       res.set({
         'Cache-Control': 'no-store',
         'Access-Control-Allow-Origin': '*',
         'Cross-Origin-Resource-Policy': 'cross-origin',
       });
-      res.sendFile(path.resolve(config.staticDir, 'smolter-manifest.json'));
+      res.sendFile(path.resolve(config.staticDir, '_vibes-manifest.json'));
     },
   );
 
@@ -211,6 +216,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     const staticOptions: Parameters<typeof express.static>[1] = {
       maxAge: '1h',
       index: false,
+      redirect: false,
       setHeaders(res, filePath) {
         const routePath = `/${path.relative(config.staticDir, filePath).split(path.sep).join('/')}`;
         const contentType = config.staticContentTypes?.[routePath];
@@ -225,6 +231,14 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
       '/.well-known',
       express.static(path.join(config.staticDir, '.well-known'), staticOptions),
     );
+    for (const route of config.mode.prerenderPaths ?? []) {
+      app.get(route, (_req, res) => {
+        res.set('Cache-Control', 'no-cache');
+        res.sendFile(path.join(route.slice(1), 'index.html'), {
+          root: config.staticDir,
+        });
+      });
+    }
     app.use(express.static(config.staticDir, staticOptions));
 
     const application = (await config.mode.loadBuild()) as ApplicationBuild;
@@ -303,7 +317,31 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
 
       next();
     });
-    app.use(createRequestHandler({ build, entry, dataEndpoint }));
+    // Keep the previous build's open tabs functional until deployment recovery reloads them.
+    const previousEndpoint = `${basePathPrefix}/_smolter`;
+    const previousHandler = createRequestHandler({
+      entry,
+      dataEndpoint: previousEndpoint,
+      namespace: 'smolter',
+      build: {
+        ...build,
+        async handleDataRequest(request) {
+          const response = await build.handleDataRequest(request);
+          const redirect = response.headers.get('X-_vibes-Redirect');
+          if (redirect) response.headers.set('X-smolter-Redirect', redirect);
+          return response;
+        },
+      },
+    });
+    app.use((req, res, next) => {
+      if (req.path === previousEndpoint || req.path.endsWith('.__smolter')) {
+        return previousHandler(req, res, next);
+      }
+      next();
+    });
+    app.use(
+      createRequestHandler({ build, entry, dataEndpoint, namespace: '_vibes' }),
+    );
 
     return;
   }

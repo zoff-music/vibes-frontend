@@ -11,7 +11,8 @@ test('route data is private and uncacheable for reads, mutations and errors', as
     app.use(
       prefix || '/',
       createRequestHandler({
-        dataEndpoint: `${prefix}/_smolter`,
+        namespace: '_vibes',
+        dataEndpoint: `${prefix}/_vibes`,
         entry: '/entry.js',
         build: {
           default: () => new Response('document'),
@@ -43,7 +44,7 @@ test('route data is private and uncacheable for reads, mutations and errors', as
     for (const method of ['GET', 'POST', 'PATCH', 'DELETE']) {
       for (const status of [200, 303, 400, 401, 500]) {
         const response = await fetch(
-          `${origin}${prefix}/_smolter?url=${encodeURIComponent(`/resources/root?status=${status}`)}`,
+          `${origin}${prefix}/_vibes?url=${encodeURIComponent(`/resources/root?status=${status}`)}`,
           {
             method,
             redirect: 'manual',
@@ -58,7 +59,7 @@ test('route data is private and uncacheable for reads, mutations and errors', as
       }
     }
     const invalid = await fetch(
-      `${origin}${prefix}/_smolter?url=https://invalid.example`,
+      `${origin}${prefix}/_vibes?url=https://invalid.example`,
     );
 
     assert.equal(invalid.status, 400);

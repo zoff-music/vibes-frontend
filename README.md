@@ -196,12 +196,12 @@ storage: it does not by itself guarantee retention of previous build files.
 
 ## Production deployment updates
 
-The DOM apps use published [Smolter 0.4.4](https://github.com/kasperrt/smolter/releases/tag/v0.4.4)
+The DOM apps use published [Smolter 0.6.0](https://github.com/kasperrt/smolter/releases/tag/v0.6.0)
 without a local router patch. See [migration validation](docs/smolter-migration.md)
 for verified behavior and remaining merge blockers.
 
 Platform, Admin, Embed, Remote and Cast emit a per-build
-`smolter-manifest.json`. The shared Express host serves it with
+`_vibes-manifest.json`. The shared Express host serves it with
 `Cache-Control: no-store`, including on the configured asset hostname. HTML is
 revalidated; content-hashed assets remain immutable. A CDN must honor these
 headers and deploy each manifest alongside its matching HTML and assets.
@@ -216,8 +216,10 @@ Mounting receives the deployment options before the first lazy route import.
 Recovery still requires the entry script to load; retain previous hashed assets
 through rollouts. A missing entry script cannot execute recovery code.
 
-SSR apps use distinct same-origin data endpoints: `/_smolter`,
-`/admin/_smolter`, `/remotes/_smolter` and `/embed/_smolter` (or the configured
+Platform prerenders the FAQ and seven discovery guides during the production build. The server serves these public guides as static HTML. Other routes use SSR.
+
+SSR apps use distinct same-origin data endpoints: `/_vibes`,
+`/admin/_vibes`, `/remotes/_vibes` and `/embed/_vibes` (or the configured
 embed base). Vite-generated transports and the Express adapter must agree.
 Data responses use `Cache-Control: private, no-store`, including failures and
 mutations. Cast and packaged Tizen use client handlers, not server transport.

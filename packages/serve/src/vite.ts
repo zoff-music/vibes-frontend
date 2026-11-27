@@ -54,6 +54,7 @@ export function applicationPlugins({
       },
     },
     ...smolterPlugins({
+      namespace: '_vibes',
       resourceRequest: (url) =>
         /\/(?:resources\/tv\/|robots\.txt|llms\.txt|sitemap\.xml|\.well-known\/security\.txt|tv-player)/.test(
           url,

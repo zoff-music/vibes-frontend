@@ -112,7 +112,7 @@ for (const timing of [
     });
     const options = {
       version: 'old',
-      manifestURL: '/smolter-manifest.json',
+      manifestURL: '/_vibes-manifest.json',
       reload: (url: URL) => reloads.push(url.href),
     };
     const cleanup = watchDeployment(router, options);
@@ -249,7 +249,7 @@ for (const change of [
         { path: '/security', fingerprint: 'security' },
         { path: '/terms-of-service', fingerprint: 'old-terms' },
       ],
-      manifestURL: '/smolter-manifest.json',
+      manifestURL: '/_vibes-manifest.json',
       reload: (destination) => {
         reloads.push(destination.href);
       },
@@ -288,7 +288,7 @@ describe('published deployment recovery preserves committed intent without repla
   const location = new URL('http://localhost/privacy-policy');
   const options = {
     version: 'consumer-build',
-    manifestURL: '/smolter-manifest.json',
+    manifestURL: '/_vibes-manifest.json',
     reload: (destination: URL) => reloads.push(destination.href),
   };
   const globals = {

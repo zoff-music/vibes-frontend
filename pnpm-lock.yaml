@@ -190,8 +190,8 @@ settings:
 catalogs:
   default:
     '@kasperrt/smolter':
-      specifier: 0.5.6
-      version: 0.5.6
+      specifier: 0.6.0
+      version: 0.6.0
     '@tailwindcss/vite':
       specifier: 4.3.5
       version: 4.3.5
@@ -213,7 +213,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       preact:
         specifier: 11.2.0
         version: 11.2.0(preact-render-to-string@6.8.3)
@@ -277,7 +277,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@vibes/api':
         specifier: workspace:*
         version: link:../../packages/api
@@ -335,7 +335,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@vibes/api':
         specifier: workspace:*
         version: link:../../packages/api
@@ -408,7 +408,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@vibes/api':
         specifier: workspace:*
         version: link:../../packages/api
@@ -611,7 +611,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@vibes/api':
         specifier: workspace:*
         version: link:../../packages/api
@@ -681,7 +681,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@vibes/api':
         specifier: workspace:*
         version: link:../../packages/api
@@ -742,7 +742,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@react-native-tvos/config-tv':
         specifier: ^0.1.7
         version: 0.1.7(expo@58.0.25)
@@ -898,7 +898,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@opentelemetry/api':
         specifier: 1.10.0
         version: 1.10.0
@@ -983,7 +983,7 @@ importers:
     dependencies:
       '@kasperrt/smolter':
         specifier: 'catalog:'
-        version: 0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@vibes/models':
         specifier: workspace:*
         version: link:../models
@@ -2553,8 +2553,8 @@ packages:
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
 
-  '@kasperrt/smolter@0.5.6':
-    resolution: {integrity: sha512-8n+mJeURPXElTMwVSv+0R2ms8q9iMKCs/GXhnaeVUm7yuzBaM/Kjp5w5lXSG8LqGpGqjTuBiAPUQTSpomRI0MQ==}
+  '@kasperrt/smolter@0.6.0':
+    resolution: {integrity: sha512-zJj6KjR33wzk8mseEUvlc7/mjNYwqyZlaLAKB1GZljL2CEtvLvIBtEp+LRADepbjA8lGHZ2W6aSZJuaVsoMMjQ==}
     peerDependencies:
       preact: '>=11.0.1'
       preact-render-to-string: '>=6.8.1'
@@ -8320,7 +8320,7 @@ snapshots:
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
-  '@kasperrt/smolter@0.5.6(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))':
+  '@kasperrt/smolter@0.6.0(preact-render-to-string@6.8.3)(preact@11.2.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))':
     dependencies:
       typescript: 7.0.2
     optionalDependencies:
