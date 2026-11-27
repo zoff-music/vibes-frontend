@@ -25,11 +25,11 @@ export function Accordion({
         'group/accordion border-theme scroll-mt-8 details-content:grid details-content:grid-rows-[0fr] details-content:opacity-0 open:details-content:grid-rows-[1fr] open:details-content:opacity-100',
         'motion-safe:details-content:transition-[grid-template-rows,opacity,content-visibility] motion-safe:details-content:transition-discrete motion-safe:details-content:duration-300 motion-safe:details-content:ease-out',
         variant === 'card'
-          ? 'bg-theme-surface open:border-secondary/40 rounded-2xl border'
+          ? 'bg-theme-surface open:border-secondary/40 overflow-clip rounded-2xl border'
           : 'border-b last:border-b-0',
       )}
     >
-      <summary className="text-theme hover:bg-theme focus-visible:ring-secondary flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 rounded-[inherit] px-5 py-4 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset motion-safe:transition-colors sm:px-6 [&::-webkit-details-marker]:hidden">
+      <summary className="text-theme hover:bg-theme focus-visible:ring-secondary flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset motion-safe:transition-colors sm:px-6 [&::-webkit-details-marker]:hidden">
         {title}
         <span
           aria-hidden="true"

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 3001",
-    "build": "vite build --outDir dist/client && CRITICAL_CSS=false vite build --ssr src/entry.server.tsx --outDir dist/server",
+    "build": "vite build --outDir dist/client && CRITICAL_CSS=false vite build --ssr src/entry.server.tsx --outDir dist/server && NODE_ENV=production CRITICAL_CSS=false node server/prerender.ts",
     "start": "node server/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check --error-on-warnings src tests",
