@@ -43,3 +43,24 @@ it('opens before hydration and animates the panel in both directions', async () 
     await expect.poll(() => details.offsetHeight).toBe(targetHeight);
   }
 });
+
+it('clips the open header to the rounded card corners', () => {
+  render(
+    <Accordion title="Question" open>
+      Answer
+    </Accordion>,
+    root,
+  );
+  root.className = 'm-8';
+  document.body.append(root);
+  const details = root.querySelector('details');
+  const summary = root.querySelector('summary');
+  if (!details || !summary) throw new Error('Missing disclosure');
+  const { top, left, width } = details.getBoundingClientRect();
+  expect(
+    summary.contains(document.elementFromPoint(left + width / 2, top + 4)),
+  ).toBe(true);
+  expect(summary.contains(document.elementFromPoint(left + 2, top + 2))).toBe(
+    false,
+  );
+});

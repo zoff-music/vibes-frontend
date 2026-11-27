@@ -31,6 +31,7 @@ import {
   sendDocumentPreloads,
   staticDocumentPreloads,
 } from './preloads.ts';
+import { getThemeFromCookies } from './theme.ts';
 import { initTracing } from './tracing.ts';
 
 interface ServerErrorContext {
@@ -67,7 +68,7 @@ type ServerMode =
       loadBuild: () => Promise<unknown>;
       /** Inline per-document critical CSS built by `@vibes/serve/critical-css/vite`. */
       criticalCss?: boolean;
-      prerenderPaths?: string[];
+      prerender?: { paths: string[]; directory: string };
     }
   | {
       type: 'spa';
@@ -231,13 +232,22 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
       '/.well-known',
       express.static(path.join(config.staticDir, '.well-known'), staticOptions),
     );
-    for (const route of config.mode.prerenderPaths ?? []) {
-      app.get(route, (_req, res) => {
-        res.set('Cache-Control', 'no-cache');
-        res.sendFile(path.join(route.slice(1), 'index.html'), {
-          root: config.staticDir,
+    const prerender = config.mode.prerender;
+    if (prerender) {
+      for (const route of prerender.paths) {
+        app.get(route, (req, res, next) => {
+          res.vary('Cookie');
+          const cookies = req.headers.cookie ?? '';
+          // Signed-in visitors need the request-time session and remote status.
+          if (/(?:^|;)\s*session=[^;]+/.test(cookies)) return next();
+          const theme = getThemeFromCookies(cookies);
+
+          res.set('Cache-Control', 'no-cache');
+          res.sendFile(path.join(route.slice(1), `${theme}.html`), {
+            root: prerender.directory,
+          });
         });
-      });
+      }
     }
     app.use(express.static(config.staticDir, staticOptions));
 
@@ -296,7 +306,10 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
         req.path !== dataEndpoint &&
         (req.method === 'GET' || req.method === 'HEAD')
       ) {
-        res.set('Cache-Control', 'no-cache');
+        res.set(
+          'Cache-Control',
+          req.headers.cookie ? 'private, no-cache' : 'no-cache',
+        );
         const preloads = routeLinks(req.path);
 
         if (criticalCss) {

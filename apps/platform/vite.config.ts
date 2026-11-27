@@ -1,12 +1,10 @@
 import path from 'node:path';
-import { prerenderPlugin } from '@kasperrt/smolter/preact/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { assetBase } from '@vibes/serve/assets';
 import { criticalCss } from '@vibes/serve/critical-css/vite';
 import { precompressAssets } from '@vibes/serve/precompress';
 import { applicationPlugins } from '@vibes/serve/vite';
 import { defineConfig, loadEnv } from 'vite';
-import { prerenderOrigin, prerenderPaths } from './server/prerender.ts';
 
 export default defineConfig(({ command, mode }) => {
   const isBuild = command === 'build';
@@ -40,11 +38,6 @@ export default defineConfig(({ command, mode }) => {
       criticalCss(),
       ...applicationPlugins({ dataEndpoint: '/_vibes' }),
 
-      prerenderPlugin({
-        paths: prerenderPaths,
-        origin: prerenderOrigin,
-        clientEntry: 'index.html',
-      }),
       precompressAssets(),
     ],
     appType: 'custom',
