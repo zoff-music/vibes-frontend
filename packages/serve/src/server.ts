@@ -67,7 +67,7 @@ type ServerMode =
       loadBuild: () => Promise<unknown>;
       /** Inline per-document critical CSS built by `@vibes/serve/critical-css/vite`. */
       criticalCss?: boolean;
-      prerender?: { origin: string; paths: string[] };
+      prerenderPaths?: string[];
     }
   | {
       type: 'spa';
@@ -231,23 +231,10 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
       '/.well-known',
       express.static(path.join(config.staticDir, '.well-known'), staticOptions),
     );
-    // Smolter emits <route>/index.html. Only anonymous requests matching the
-    // build-time document can use it; the platform root personalizes the rest.
-    const prerender = config.mode.prerender;
-    if (prerender?.paths.length) {
-      app.get(prerender.paths, (req, res, next) => {
-        if (
-          req.originalUrl !== req.path ||
-          !prerender.paths.includes(req.path) ||
-          `${req.protocol}://${req.get('host')}` !== prerender.origin ||
-          req.headers.cookie ||
-          req.headers.authorization ||
-          req.get('sec-ch-ua')?.includes('"Chromium"')
-        )
-          return next();
-
+    for (const route of config.mode.prerenderPaths ?? []) {
+      app.get(route, (_req, res) => {
         res.set('Cache-Control', 'no-cache');
-        res.sendFile(path.join(req.path.slice(1), 'index.html'), {
+        res.sendFile(path.join(route.slice(1), 'index.html'), {
           root: config.staticDir,
         });
       });

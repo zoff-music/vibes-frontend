@@ -216,7 +216,7 @@ Mounting receives the deployment options before the first lazy route import.
 Recovery still requires the entry script to load; retain previous hashed assets
 through rollouts. A missing entry script cannot execute recovery code.
 
-Platform prerenders the FAQ and seven discovery guides during the production build. The server uses these documents for matching anonymous requests and renders session, theme and other request-specific variants on demand.
+Platform prerenders the FAQ and seven discovery guides during the production build. The server serves these public guides as static HTML. Other routes use SSR.
 
 SSR apps use distinct same-origin data endpoints: `/_vibes`,
 `/admin/_vibes`, `/remotes/_vibes` and `/embed/_vibes` (or the configured

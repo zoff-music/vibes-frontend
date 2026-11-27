@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { type ServerRequest, startServer } from '@vibes/serve';
 import { TV_PLAYER_PATH } from '@vibes/shared/tv-player';
-import { prerenderOrigin, prerenderPaths } from './prerender.ts';
+import { prerenderPaths } from './prerender.ts';
 
 const staticDir = path.resolve('dist/client');
 const dev = process.env.NODE_ENV !== 'production';
@@ -53,14 +53,7 @@ startServer({
   serviceName,
   mode: {
     type: 'ssr',
-    prerender: {
-      origin: prerenderOrigin,
-      paths:
-        process.env.VITE_DEBUG !== 'true' &&
-        (process.env.EMBED_BASE_PATH ?? '/embed') === '/embed'
-          ? prerenderPaths
-          : [],
-    },
+    prerenderPaths,
     loadBuild: () => dynamicImport('../dist/server/index.js'),
     criticalCss: process.env.CRITICAL_CSS !== 'false',
   },
