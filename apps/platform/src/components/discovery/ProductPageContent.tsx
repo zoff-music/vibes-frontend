@@ -1,9 +1,8 @@
-import { ArrowRightIcon, LinkButton } from '@vibes/ui/web';
+import { Accordion, ArrowRightIcon, LinkButton } from '@vibes/ui/web';
 import type { ReactNode } from 'preact/compat';
 import { appStoreUrl, playStoreUrl } from '../../seo/metadata';
 import type { ProductPage } from '../../seo/productPages';
 import { SitePage } from '../layout/SitePage';
-import { ProductAccordion } from '../seo/ProductAccordion';
 import { ExploreZoff } from './ExploreZoff';
 import { GuideLink } from './FeatureSection';
 
@@ -127,7 +126,19 @@ export function ProductPageContent({
           </div>
           <div className="border-theme bg-theme-surface min-w-0 overflow-hidden rounded-2xl border lg:col-span-3">
             {page.sections.slice(2).map((section) => (
-              <ProductAccordion key={section.title} {...section} />
+              <Accordion
+                key={section.title}
+                variant="row"
+                title={
+                  <h3 className="font-pixel text-base normal-case">
+                    {section.title}
+                  </h3>
+                }
+              >
+                <p className="text-theme-muted max-w-3xl text-sm leading-relaxed">
+                  {section.body}
+                </p>
+              </Accordion>
             ))}
           </div>
         </section>

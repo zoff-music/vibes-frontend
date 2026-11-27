@@ -1,6 +1,7 @@
 import { classNames } from '@vibes/shared';
 import { area, line, scaleLinear, utcFormat } from 'd3';
 import { useId, useState } from 'preact/compat';
+import { Accordion } from '../components/Accordion';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { SegmentedControl } from '../components/SegmentedControl';
@@ -483,16 +484,18 @@ export function RoomUsageChart({
           </li>
         ))}
       </ul>
-      <details className="border-theme rounded-xl border p-4">
-        <summary className="text-theme focus-visible:outline-secondary cursor-pointer text-sm font-semibold focus-visible:outline-2">
-          Find a room · {rooms.length.toLocaleString()} rooms
-        </summary>
+      <Accordion
+        title={
+          <span className="text-sm font-semibold">
+            Find a room · {rooms.length.toLocaleString()} rooms
+          </span>
+        }
+      >
         <Input
           id={id}
           label="Search room name or ID"
           type="search"
           value={query}
-          containerClassName="mt-4"
           onInput={(event) => {
             setQuery(event.currentTarget.value);
             setPage(0);
@@ -552,7 +555,7 @@ export function RoomUsageChart({
             </Button>
           </div>
         )}
-      </details>
+      </Accordion>
       <p className="text-theme-subtle text-xs">
         Older activity and clients without a room ID are shown as unattributed.
         Select a room to inspect it individually. Unknown room types remain in

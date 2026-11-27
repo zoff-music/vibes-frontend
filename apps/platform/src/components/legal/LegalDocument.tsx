@@ -1,5 +1,6 @@
-import { NavLink, useNavigate } from '@kasperrt/smolter/preact';
+import { NavLink } from '@kasperrt/smolter/preact';
 import { classNames } from '@vibes/shared';
+import { TableOfContents } from '@vibes/ui/web';
 import {
   Children,
   cloneElement,
@@ -39,8 +40,6 @@ export function LegalDocument({
   title,
   updatedAt,
 }: LegalDocumentProps) {
-  const navigate = useNavigate();
-
   const sections = Children.toArray(children).flatMap((child) => {
     if (!isValidElement(child) || child.type !== LegalSection) {
       return [];
@@ -93,57 +92,15 @@ export function LegalDocument({
 
       <div className="grid items-start gap-6 pt-10 sm:pt-16 lg:grid-cols-4 lg:gap-10">
         <aside className="hidden lg:sticky lg:top-6 lg:block">
-          <nav aria-label="On this page" className="mt-8 hidden lg:block">
-            <p className="font-pixel text-theme-subtle mb-3 px-3 text-xs">
-              On this page
-            </p>
-            <ul className="space-y-1">
-              {sections.map((section, index) => (
-                <li key={section.props.title}>
-                  <a
-                    href={`#${section.props.id ?? sectionId(section.props.title)}`}
-                    onClick={(event) => {
-                      if (
-                        event.button !== 0 ||
-                        event.metaKey ||
-                        event.ctrlKey ||
-                        event.shiftKey ||
-                        event.altKey
-                      ) {
-                        return;
-                      }
-
-                      const id =
-                        section.props.id ?? sectionId(section.props.title);
-                      const target = document.getElementById(id);
-
-                      if (!target) return;
-
-                      event.preventDefault();
-                      navigate(
-                        {
-                          hash: `#${id}`,
-                        },
-                        {
-                          preventScrollReset: true,
-                        },
-                      );
-                      target.scrollIntoView({
-                        behavior: 'instant',
-                        block: 'start',
-                      });
-                      target.focus({
-                        preventScroll: true,
-                      });
-                    }}
-                    className="text-theme-muted hover:bg-theme-surface hover:text-theme focus-visible:ring-secondary block rounded-xl px-3 py-3 text-sm leading-relaxed transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                  >
-                    {index + 1}. {section.props.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <TableOfContents
+            label="On this page"
+            showLabel
+            className="mt-8"
+            items={sections.map(({ props }, index) => ({
+              id: props.id ?? sectionId(props.title),
+              label: `${index + 1}. ${props.title}`,
+            }))}
+          />
         </aside>
         <article
           aria-label={title}
