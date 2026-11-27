@@ -56,7 +56,6 @@ startServer({
     prerender: {
       origin: prerenderOrigin,
       paths:
-        process.env.CRITICAL_CSS !== 'false' &&
         process.env.VITE_DEBUG !== 'true' &&
         (process.env.EMBED_BASE_PATH ?? '/embed') === '/embed'
           ? prerenderPaths

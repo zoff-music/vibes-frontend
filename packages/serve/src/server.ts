@@ -216,6 +216,7 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
     const staticOptions: Parameters<typeof express.static>[1] = {
       maxAge: '1h',
       index: false,
+      redirect: false,
       setHeaders(res, filePath) {
         const routePath = `/${path.relative(config.staticDir, filePath).split(path.sep).join('/')}`;
         const contentType = config.staticContentTypes?.[routePath];
@@ -230,6 +231,27 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
       '/.well-known',
       express.static(path.join(config.staticDir, '.well-known'), staticOptions),
     );
+    // Smolter emits <route>/index.html. Only anonymous requests matching the
+    // build-time document can use it; the platform root personalizes the rest.
+    const prerender = config.mode.prerender;
+    if (prerender?.paths.length) {
+      app.get(prerender.paths, (req, res, next) => {
+        if (
+          req.originalUrl !== req.path ||
+          !prerender.paths.includes(req.path) ||
+          `${req.protocol}://${req.get('host')}` !== prerender.origin ||
+          req.headers.cookie ||
+          req.headers.authorization ||
+          req.get('sec-ch-ua')?.includes('"Chromium"')
+        )
+          return next();
+
+        res.set('Cache-Control', 'no-cache');
+        res.sendFile(path.join(req.path.slice(1), 'index.html'), {
+          root: config.staticDir,
+        });
+      });
+    }
     app.use(express.static(config.staticDir, staticOptions));
 
     const application = (await config.mode.loadBuild()) as ApplicationBuild;
@@ -242,39 +264,11 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
       routePreloads(routeAssets, pathname, clientAssetBase)
         .split(/,\s*(?=<)/)
         .filter(Boolean);
-    const documents = new Map<string, string>();
-    for (const pathname of config.mode.prerender?.paths ?? []) {
-      const file = path.join(
-        config.staticDir,
-        '../prerender',
-        pathname,
-        'index.html',
-      );
-      documents.set(
-        new URL(pathname, config.mode.prerender?.origin).href,
-        await readFile(file, 'utf8'),
-      );
-    }
-    function renderDocument(request: globalThis.Request, entry: string) {
-      const html = documents.get(request.url);
-      if (
-        html &&
-        request.method === 'GET' &&
-        !request.headers.has('cookie') &&
-        !request.headers.has('authorization') &&
-        !request.headers.get('sec-ch-ua')?.includes('"Chromium"')
-      ) {
-        return new globalThis.Response(html, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' },
-        });
-      }
-      return application.default(request, entry);
-    }
     const build: ApplicationBuild = {
       ...application,
       default: async (request, entry) =>
         inlineCriticalCss(
-          await renderDocument(request, entry),
+          await application.default(request, entry),
           request,
           // Chromium preloads modules from the 103 Early Hints; other engines (Safari only honours
           // preconnect there) get them as compact markup instead of a large final Link header.

@@ -44,7 +44,6 @@ export default defineConfig(({ command, mode }) => {
         paths: prerenderPaths,
         origin: prerenderOrigin,
         clientEntry: 'index.html',
-        clientOutDir: 'dist/prerender',
       }),
       precompressAssets(),
     ],
