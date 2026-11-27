@@ -57,7 +57,7 @@ export function sendDocumentPreloads(
   }
 
   if (
-    /\/(?:api(?:\/|$)|resources(?:\/|$)|_smolter(?:\/|$)|robots\.txt|llms\.txt|sitemap\.xml|\.well-known\/)/.test(
+    /\/(?:api(?:\/|$)|resources(?:\/|$)|_vibes(?:\/|$)|robots\.txt|llms\.txt|sitemap\.xml|\.well-known\/)/.test(
       req.path,
     )
   ) {

@@ -12,8 +12,9 @@ test('path-hosted applications retain their data endpoint and mutation body', as
     app.use(
       prefix || '/',
       createRequestHandler({
+        namespace: '_vibes',
         entry: `${prefix}/assets/entry.js`,
-        dataEndpoint: `${prefix}/_smolter`,
+        dataEndpoint: `${prefix}/_vibes`,
         build: {
           default: () => new Response('document'),
           handleDataRequest: async (request) =>
@@ -38,7 +39,7 @@ test('path-hosted applications retain their data endpoint and mutation body', as
   for (const prefix of ['/admin', '/remotes', '/embed', '']) {
     for (const method of ['GET', 'POST', 'PATCH']) {
       const response = await fetch(
-        `${origin}${prefix}/_smolter?url=${prefix}/test`,
+        `${origin}${prefix}/_vibes?url=${prefix}/test`,
         {
           method,
           ...(method !== 'GET' && { body: 'intent=test' }),
@@ -63,8 +64,9 @@ test('suffix transport coexists with explicit endpoints on one origin', async (t
     app.use(
       prefix || '/',
       createRequestHandler({
+        namespace: '_vibes',
         entry: `${prefix}/assets/entry.js`,
-        dataEndpoint: `${prefix}/_smolter`,
+        dataEndpoint: `${prefix}/_vibes`,
         build: {
           default: () => new Response('document'),
           handleDataRequest: async (request) => {
@@ -97,7 +99,7 @@ test('suffix transport coexists with explicit endpoints on one origin', async (t
       `${prefix}/resources/profiles`,
     ]) {
       for (const method of ['GET', 'POST', 'PATCH', 'DELETE']) {
-        const suffix = `${path}.__smolter?tag=first&tag=second`;
+        const suffix = `${path}.___vibes?tag=first&tag=second`;
         const response = await fetch(`${origin}${suffix}`, {
           method,
           headers: {
@@ -118,7 +120,7 @@ test('suffix transport coexists with explicit endpoints on one origin', async (t
           body: method === 'GET' ? '' : 'name=a%26b&name=c',
         });
       }
-      const unauthorized = await fetch(`${origin}${path}.__smolter`);
+      const unauthorized = await fetch(`${origin}${path}.___vibes`);
       assert.equal(unauthorized.status, 401);
       assert.equal(
         unauthorized.headers.get('cache-control'),

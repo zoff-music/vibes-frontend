@@ -67,6 +67,7 @@ type ServerMode =
       loadBuild: () => Promise<unknown>;
       /** Inline per-document critical CSS built by `@vibes/serve/critical-css/vite`. */
       criticalCss?: boolean;
+      prerender?: { origin: string; paths: string[] };
     }
   | {
       type: 'spa';
@@ -120,16 +121,20 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
   }
 
   const staticBase = config.assets.path.replace(/\/assets\/?$/, '') || '/';
-  const dataEndpoint = `${staticBase.replace(/\/$/, '')}/_smolter`;
+  const basePathPrefix = staticBase.replace(/\/$/, '');
+  const dataEndpoint = `${basePathPrefix}/_vibes`;
   app.get(
-    `${staticBase.replace(/\/$/, '')}/smolter-manifest.json`,
+    // Tabs opened before the namespace change still check their original manifest URL.
+    ['_vibes-manifest.json', 'smolter-manifest.json'].map(
+      (name) => `${basePathPrefix}/${name}`,
+    ),
     (_req, res) => {
       res.set({
         'Cache-Control': 'no-store',
         'Access-Control-Allow-Origin': '*',
         'Cross-Origin-Resource-Policy': 'cross-origin',
       });
-      res.sendFile(path.resolve(config.staticDir, 'smolter-manifest.json'));
+      res.sendFile(path.resolve(config.staticDir, '_vibes-manifest.json'));
     },
   );
 
@@ -237,11 +242,39 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
       routePreloads(routeAssets, pathname, clientAssetBase)
         .split(/,\s*(?=<)/)
         .filter(Boolean);
+    const documents = new Map<string, string>();
+    for (const pathname of config.mode.prerender?.paths ?? []) {
+      const file = path.join(
+        config.staticDir,
+        '../prerender',
+        pathname,
+        'index.html',
+      );
+      documents.set(
+        new URL(pathname, config.mode.prerender?.origin).href,
+        await readFile(file, 'utf8'),
+      );
+    }
+    function renderDocument(request: globalThis.Request, entry: string) {
+      const html = documents.get(request.url);
+      if (
+        html &&
+        request.method === 'GET' &&
+        !request.headers.has('cookie') &&
+        !request.headers.has('authorization') &&
+        !request.headers.get('sec-ch-ua')?.includes('"Chromium"')
+      ) {
+        return new globalThis.Response(html, {
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        });
+      }
+      return application.default(request, entry);
+    }
     const build: ApplicationBuild = {
       ...application,
       default: async (request, entry) =>
         inlineCriticalCss(
-          await application.default(request, entry),
+          await renderDocument(request, entry),
           request,
           // Chromium preloads modules from the 103 Early Hints; other engines (Safari only honours
           // preconnect there) get them as compact markup instead of a large final Link header.
@@ -303,7 +336,31 @@ async function setupRoutes(app: express.Express, config: ServerConfig) {
 
       next();
     });
-    app.use(createRequestHandler({ build, entry, dataEndpoint }));
+    // Keep the previous build's open tabs functional until deployment recovery reloads them.
+    const previousEndpoint = `${basePathPrefix}/_smolter`;
+    const previousHandler = createRequestHandler({
+      entry,
+      dataEndpoint: previousEndpoint,
+      namespace: 'smolter',
+      build: {
+        ...build,
+        async handleDataRequest(request) {
+          const response = await build.handleDataRequest(request);
+          const redirect = response.headers.get('X-_vibes-Redirect');
+          if (redirect) response.headers.set('X-smolter-Redirect', redirect);
+          return response;
+        },
+      },
+    });
+    app.use((req, res, next) => {
+      if (req.path === previousEndpoint || req.path.endsWith('.__smolter')) {
+        return previousHandler(req, res, next);
+      }
+      next();
+    });
+    app.use(
+      createRequestHandler({ build, entry, dataEndpoint, namespace: '_vibes' }),
+    );
 
     return;
   }

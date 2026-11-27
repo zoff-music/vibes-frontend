@@ -15,7 +15,7 @@ export default defineConfig(({ command, mode }) => {
     base: isBuild ? assetBase(env.ASSET_ORIGIN, '/admin/') : '/',
     plugins: [
       tailwindcss(),
-      ...applicationPlugins({ dataEndpoint: '/admin/_smolter' }),
+      ...applicationPlugins({ dataEndpoint: '/admin/_vibes' }),
       precompressAssets(),
     ],
     appType: 'custom',

@@ -2,7 +2,7 @@ packages:
   - apps/*
   - packages/*
 catalog:
-  '@kasperrt/smolter': 0.5.6
+  '@kasperrt/smolter': 0.6.0
   '@tailwindcss/vite': 4.3.5
   tailwindcss: 4.3.5
 overrides:
@@ -89,7 +89,7 @@ minimumReleaseAgeExclude:
   - expo-glass-effect@57.0.2
   - expo-modules-core@57.0.17
   - expo-modules-jsi@57.1.0
-  - '@kasperrt/smolter@0.4.4 || 0.4.5 || 0.4.6 || 0.4.7 || 0.4.8 || 0.4.10 || 0.4.11 || 0.5.1 || 0.5.2 || 0.5.3 || 0.5.4 || 0.5.6'
+  - '@kasperrt/smolter@0.4.4 || 0.4.5 || 0.4.6 || 0.4.7 || 0.4.8 || 0.4.10 || 0.4.11 || 0.5.1 || 0.5.2 || 0.5.3 || 0.5.4 || 0.5.6 || 0.6.0'
   - preact@11.1.1
   - '@opentelemetry/configuration@0.301.2'
   - '@opentelemetry/exporter-logs-otlp-grpc@0.301.2'
