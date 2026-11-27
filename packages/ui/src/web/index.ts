@@ -1,5 +1,6 @@
 export { publicAssetUrl } from './assets';
 export { chatNameColor } from './chat';
+export * from './components/Accordion';
 export * from './components/AnimatedNumber';
 export * from './components/Button';
 export { ChatConversation } from './components/ChatConversation';
@@ -45,6 +46,7 @@ export * from './components/SiteFooter';
 export * from './components/SiteHeader';
 export * from './components/SiteLayout';
 export * from './components/SkipLink';
+export * from './components/TableOfContents';
 export * from './components/Text';
 export { ThemeScript } from './components/ThemeScript';
 export * from './components/Toast';

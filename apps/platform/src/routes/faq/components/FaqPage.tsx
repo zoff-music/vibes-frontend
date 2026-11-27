@@ -1,6 +1,10 @@
-import { classNames } from '@vibes/shared';
-import { ArrowRightIcon, LinkButton, SearchIcon } from '@vibes/ui/web';
-import { useState } from 'preact/compat';
+import {
+  ArrowRightIcon,
+  LinkButton,
+  SearchIcon,
+  TableOfContents,
+} from '@vibes/ui/web';
+import { useMemo, useState } from 'preact/compat';
 import { SitePage } from '../../../components/layout/SitePage';
 import { faqTopics } from '../../../seo/pages/faq';
 import { FaqItem } from './FaqItem';
@@ -12,17 +16,30 @@ function matches(query: string, text: string) {
 export function FaqPage() {
   const [query, setQuery] = useState('');
   const term = query.trim().toLowerCase();
-  const topics = faqTopics
-    .map((topic) => ({
-      ...topic,
-      questions: term
-        ? topic.questions.filter(
-            (item) =>
-              matches(term, item.question) || matches(term, item.answer),
-          )
-        : topic.questions,
-    }))
-    .filter((topic) => topic.questions.length > 0);
+  const topics = useMemo(
+    () =>
+      faqTopics
+        .map((topic) => ({
+          ...topic,
+          questions: term
+            ? topic.questions.filter(
+                (item) =>
+                  matches(term, item.question) || matches(term, item.answer),
+              )
+            : topic.questions,
+        }))
+        .filter((topic) => topic.questions.length > 0),
+    [term],
+  );
+  const links = useMemo(
+    () =>
+      faqTopics.map(({ id, title }) => ({
+        id,
+        label: title,
+        count: topics.find((topic) => topic.id === id)?.questions.length ?? 0,
+      })),
+    [topics],
+  );
   const total = topics.reduce((sum, topic) => sum + topic.questions.length, 0);
 
   return (
@@ -63,35 +80,11 @@ export function FaqPage() {
       </header>
 
       <div className="grid gap-10 pb-16 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-14">
-        <nav
-          aria-label="FAQ topics"
+        <TableOfContents
+          items={links}
+          label="FAQ topics"
           className="lg:sticky lg:top-6 lg:self-start"
-        >
-          <ul className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
-            {faqTopics.map((topic) => {
-              const visible = topics.find((item) => item.id === topic.id);
-
-              return (
-                <li key={topic.id}>
-                  <a
-                    href={`#${topic.id}`}
-                    className={classNames(
-                      'flex min-h-11 items-center justify-between gap-3 rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary lg:rounded-xl lg:border-transparent',
-                      visible
-                        ? 'border-theme text-theme hover:bg-theme-surface'
-                        : 'pointer-events-none border-theme text-theme-subtle opacity-60',
-                    )}
-                  >
-                    {topic.title}
-                    <span className="text-theme-muted text-xs tabular-nums">
-                      {visible?.questions.length ?? 0}
-                    </span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        />
 
         <div className="min-w-0 space-y-14">
           {topics.map((topic) => (
@@ -99,7 +92,8 @@ export function FaqPage() {
               key={topic.id}
               id={topic.id}
               aria-labelledby={`${topic.id}-heading`}
-              className="scroll-mt-8"
+              tabIndex={-1}
+              className="scroll-mt-8 focus:outline-none"
             >
               <h2
                 id={`${topic.id}-heading`}
