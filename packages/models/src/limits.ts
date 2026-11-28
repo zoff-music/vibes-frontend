@@ -4,7 +4,16 @@ export const chatMessageMaxLength = 500;
 export const generatedPlaylistPromptMaxLength = 300;
 
 export function limitRoomEntry(value: string, aiMode: boolean): string {
-  const limit = aiMode ? generatedPlaylistPromptMaxLength : roomNameMaxLength;
+  return aiMode
+    ? limitGeneratedPlaylistPrompt(value)
+    : limitInputLength(value, roomNameMaxLength);
+}
+
+export function limitGeneratedPlaylistPrompt(value: string): string {
+  return limitInputLength(value, generatedPlaylistPromptMaxLength);
+}
+
+function limitInputLength(value: string, limit: number): string {
   if (value.length <= limit) return value;
 
   // HTML and native input limits count UTF-16 units. Keep emoji pairs intact.
