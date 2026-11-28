@@ -58,17 +58,6 @@ export function SiteHeader({ showExperienceSwitch }: SiteHeaderProps) {
             >
               Rooms
             </NavLink>
-            <Link
-              to={
-                watch
-                  ? '/features/watch#explore-zoff'
-                  : '/features/music#explore-zoff'
-              }
-              prefetch="intent"
-              className={siteNavigationClassName}
-            >
-              Explore
-            </Link>
             <NavLink
               prefetch="intent"
               to="/discovery/apps"

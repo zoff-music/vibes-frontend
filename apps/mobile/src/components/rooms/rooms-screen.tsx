@@ -1,5 +1,6 @@
 import {
   generatedPlaylistPromptMaxLength,
+  limitRoomEntry,
   type PublicRoomResultV3,
   type PublicRoomV3,
   type RoomType,
@@ -197,7 +198,6 @@ export function RoomsScreen() {
     const requestId = ++browseRequest.current;
     setRefreshing(false);
     setRoomType(nextType);
-    setValue('');
     setError('');
     setBrowseMode('live');
     setBrowseQuery('');
@@ -415,8 +415,8 @@ export function RoomsScreen() {
   };
 
   const toggleAIMode = () => {
-    setIsAIMode((current) => !current);
-    setValue('');
+    setValue((current) => limitRoomEntry(current, !isAIMode));
+    setIsAIMode(!isAIMode);
     setError('');
   };
 

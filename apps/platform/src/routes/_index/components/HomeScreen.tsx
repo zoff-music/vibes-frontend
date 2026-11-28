@@ -4,6 +4,7 @@ import {
   useFetcher,
   useNavigation,
 } from '@kasperrt/smolter/preact';
+import { limitRoomEntry } from '@vibes/models/limits';
 import { classNames, safeWrapAsync } from '@vibes/shared';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { memo, useCallback, useEffect, useRef, useState } from 'preact/compat';
@@ -32,10 +33,9 @@ export const HomeScreen = memo(function HomeScreen({
   navigationType,
   searchParams,
 }: HomeScreenProps) {
-  const [roomCode, setRoomCode] = useState('');
+  const [entry, setEntry] = useState('');
   const joinFetcher = useFetcher<HomeActionData>();
   const joining = joinFetcher.state !== 'idle';
-  const [prompt, setPrompt] = useState('');
   const watch = useExperience() === 'WATCH';
   const previewReturn =
     import.meta.env.DEV && searchParams.get('preview') === 'return-to-room';
@@ -51,7 +51,7 @@ export const HomeScreen = memo(function HomeScreen({
   const reducedMotion = useReducedMotion();
   const restoreGeneration = useCallback((value: string) => {
     setIsAIMode(true);
-    setPrompt(value);
+    setEntry(limitRoomEntry(value, true));
   }, []);
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export const HomeScreen = memo(function HomeScreen({
     (typeof document === 'undefined' || !document.startViewTransition) &&
     Boolean(previousRoomId && !RESERVED_TOP_LEVEL_PATHS.has(previousRoomId));
   const handleJoinRoom = (selectedRoomId?: string) => {
-    const requestedRoomId = selectedRoomId ?? roomCode;
+    const requestedRoomId = selectedRoomId ?? entry;
 
     if (!requestedRoomId.trim()) return;
 
@@ -122,16 +122,17 @@ export const HomeScreen = memo(function HomeScreen({
   };
 
   const handleToggleAIMode = () => {
-    setIsAIMode((current) => !current);
+    setEntry((value) => limitRoomEntry(value, !isAIMode));
+    setIsAIMode(!isAIMode);
     roomNameRef.current?.focus({ preventScroll: true });
     if (!isAIMode && window.matchMedia('(max-width: 767px)').matches) {
       setGenerationEntry((current) => current + 1);
     }
   };
 
-  const handleRoomCodeChange = (value: string) => {
+  const handleEntryChange = (value: string) => {
     if (!isAIMode) warmRoomEntry();
-    setRoomCode(value);
+    setEntry(value);
   };
 
   return (
@@ -151,7 +152,7 @@ export const HomeScreen = memo(function HomeScreen({
       >
         <HomePlaceholder
           isAIMode={isAIMode}
-          enabled={heroVisible && (isAIMode ? prompt : roomCode).length === 0}
+          enabled={heroVisible && entry.length === 0}
           watch={watch}
         >
           {(placeholder) => (
@@ -161,12 +162,12 @@ export const HomeScreen = memo(function HomeScreen({
               enabled={heroVisible}
               inputRef={roomNameRef}
               onJoinRoom={handleJoinRoom}
-              onChange={isAIMode ? setPrompt : handleRoomCodeChange}
+              onChange={handleEntryChange}
               onStartSession={handleStartSession}
               onRestoreGeneration={restoreGeneration}
               onToggle={handleToggleAIMode}
               placeholder={placeholder}
-              value={isAIMode ? prompt : roomCode}
+              value={entry}
             />
           )}
         </HomePlaceholder>
