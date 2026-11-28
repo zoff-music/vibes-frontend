@@ -47,19 +47,22 @@ export function Layout({ children }: LayoutProps) {
         <link
           rel="icon"
           type="image/png"
-          href={publicAssetUrl('favicon-96x96.png')}
+          href={publicAssetUrl('favicon-96x96.png?v=fbc512457f')}
           sizes="96x96"
         />
         <link
           rel="icon"
           type="image/svg+xml"
-          href={publicAssetUrl('favicon.svg')}
+          href={publicAssetUrl('favicon.svg?v=efbf642437')}
         />
-        <link rel="shortcut icon" href={publicAssetUrl('favicon.ico')} />
+        <link
+          rel="shortcut icon"
+          href={publicAssetUrl('favicon.ico?v=2af9b1d1b1')}
+        />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href={publicAssetUrl('apple-touch-icon.png')}
+          href={publicAssetUrl('apple-touch-icon.png?v=f4f6e5b6b2')}
         />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
