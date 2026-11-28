@@ -1,6 +1,6 @@
 import { playlistAuthorizationUrl } from '@vibes/api';
 import {
-  generatedPlaylistPromptMaxLength,
+  limitGeneratedPlaylistPrompt,
   type ProviderItem,
   type ProviderPlaylist,
   type Providers,
@@ -134,17 +134,13 @@ export function useProviderSearch({
   const updateQuery = (nextQuery: string) => {
     setAuthenticationRequired(false);
     authAttempt.current = '';
-    setQuery(
-      isAIMode
-        ? nextQuery.slice(0, generatedPlaylistPromptMaxLength)
-        : nextQuery,
-    );
+    setQuery(isAIMode ? limitGeneratedPlaylistPrompt(nextQuery) : nextQuery);
     setError('');
     setPlaylist(null);
   };
 
   const toggleAIMode = () => {
-    if (!canGenerate) {
+    if (!isAIMode && !canGenerate) {
       showToast(generationUnavailableReason);
 
       return;
@@ -152,8 +148,8 @@ export function useProviderSearch({
 
     setAuthenticationRequired(false);
     authAttempt.current = '';
-    setIsAIMode((current) => !current);
-    setQuery('');
+    if (!isAIMode) setQuery(limitGeneratedPlaylistPrompt);
+    setIsAIMode(!isAIMode);
     setResults([]);
     setPlaylist(null);
     setError('');

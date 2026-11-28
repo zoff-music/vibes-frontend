@@ -2,6 +2,7 @@ import { useFetcher } from '@kasperrt/smolter/preact';
 import { playlistAuthorizationUrl } from '@vibes/api';
 import {
   generatedPlaylistPromptMaxLength,
+  limitGeneratedPlaylistPrompt,
   type PlaybackRestriction,
   type Providers,
   type RoomV2,
@@ -149,7 +150,6 @@ export const AddToQueueModal: React.FC<Props> = ({
   useEffect(() => {
     if (canGenerate || !isAIMode || isGenerationSubmitting) return;
     setIsAIMode(false);
-    setSearchQuery('');
     setError(null);
   }, [canGenerate, isAIMode, isGenerationSubmitting]);
 
@@ -505,9 +505,7 @@ export const AddToQueueModal: React.FC<Props> = ({
   const handleSearchChange = (query: string) => {
     authListener.current?.abort();
 
-    setSearchQuery(
-      isAIMode ? query.slice(0, generatedPlaylistPromptMaxLength) : query,
-    );
+    setSearchQuery(isAIMode ? limitGeneratedPlaylistPrompt(query) : query);
     setError(null);
     setPreviewItem(null);
     setPreviewPlaylist(null);
@@ -556,8 +554,9 @@ export const AddToQueueModal: React.FC<Props> = ({
       return;
     }
 
-    setIsAIMode((current) => !current);
-    setSearchQuery('');
+    authListener.current?.abort();
+    if (!isAIMode) setSearchQuery(limitGeneratedPlaylistPrompt);
+    setIsAIMode(!isAIMode);
     setSearchResults([]);
     setShowResults(false);
     setPreviewItem(null);

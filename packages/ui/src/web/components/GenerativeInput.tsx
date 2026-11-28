@@ -107,7 +107,8 @@ export function GenerativeInput({
           type="text"
           value={value}
           placeholder={placeholder}
-          {...(maxLength !== undefined && { maxLength })}
+          // Removing the DOM property sets it to 0. Remove the HTML attribute instead.
+          {...(maxLength !== undefined && { maxlength: maxLength })}
           disabled={disabled}
           autoCapitalize="none"
           autoComplete="off"
