@@ -51,12 +51,6 @@ export function App() {
                 <a href="/rooms/explore" className={siteNavigationClassName}>
                   Rooms
                 </a>
-                <a
-                  href="/features/music#explore-zoff"
-                  className={siteNavigationClassName}
-                >
-                  Explore
-                </a>
                 <a href="/discovery/apps" className={siteNavigationClassName}>
                   Apps
                 </a>
